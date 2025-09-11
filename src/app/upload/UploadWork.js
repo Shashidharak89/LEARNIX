@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 
 export default function UploadWork() {
@@ -17,17 +16,23 @@ export default function UploadWork() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // add new captured file to array
+  // add new captured file
   const handleCapture = (e) => {
     const newFile = e.target.files[0];
-    if (newFile) {
-      setFiles((prev) => [...prev, newFile]); // preserve order
+    if (newFile) setFiles((prev) => [...prev, newFile]);
+    e.target.value = null; // reset so can re-capture
+  };
+
+  // add browsed files
+  const handleBrowse = (e) => {
+    const newFiles = Array.from(e.target.files);
+    if (newFiles.length > 0) {
+      setFiles((prev) => [...prev, ...newFiles]); // keep order
     }
-    // reset input so user can capture again
     e.target.value = null;
   };
 
-  // remove a file
+  // remove file
   const removeFile = (index) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
@@ -47,16 +52,12 @@ export default function UploadWork() {
         body: formData,
       });
 
-      if (!res.ok) {
-        throw new Error("Failed to upload work");
-      }
+      if (!res.ok) throw new Error("Failed to upload work");
 
       const data = await res.json();
       console.log("Uploaded:", data);
-
       alert("✅ Work uploaded successfully!");
 
-      // reset form
       setForm({ name: "", usn: "", content: "", subject: "" });
       setFiles([]);
       e.target.reset();
@@ -74,113 +75,41 @@ export default function UploadWork() {
         Upload Homework
       </h1>
       <form onSubmit={handleSubmit}>
-        <input
-          name="name"
-          placeholder="Name"
-          value={form.name}
-          onChange={handleChange}
-          required
-          style={{ display: "block", marginBottom: "10px", width: "100%" }}
-        />
-        <input
-          name="usn"
-          placeholder="USN"
-          value={form.usn}
-          onChange={handleChange}
-          required
-          style={{ display: "block", marginBottom: "10px", width: "100%" }}
-        />
-        <input
-          name="subject"
-          placeholder="Subject"
-          value={form.subject}
-          onChange={handleChange}
-          required
-          style={{ display: "block", marginBottom: "10px", width: "100%" }}
-        />
-        <textarea
-          name="content"
-          placeholder="Content"
-          value={form.content}
-          onChange={handleChange}
-          required
-          style={{ display: "block", marginBottom: "10px", width: "100%", height: "100px" }}
-        />
+        <input name="name" placeholder="Name" value={form.name} onChange={handleChange} required />
+        <input name="usn" placeholder="USN" value={form.usn} onChange={handleChange} required />
+        <input name="subject" placeholder="Subject" value={form.subject} onChange={handleChange} required />
+        <textarea name="content" placeholder="Content" value={form.content} onChange={handleChange} required />
 
-        {/* Dynamic photo capture */}
+        {/* File Previews */}
         <div style={{ marginBottom: "20px" }}>
-          <h3>Captured Photos:</h3>
+          <h3>Selected Photos:</h3>
           {files.map((file, index) => (
-            <div
-              key={index}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: "10px",
-              }}
-            >
+            <div key={index} style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
               <img
                 src={URL.createObjectURL(file)}
                 alt={`preview-${index}`}
-                style={{
-                  width: "100px",
-                  height: "100px",
-                  objectFit: "cover",
-                  marginRight: "10px",
-                }}
+                style={{ width: "100px", height: "100px", objectFit: "cover", marginRight: "10px" }}
               />
-              <button
-                type="button"
-                onClick={() => removeFile(index)}
-                style={{
-                  padding: "5px 10px",
-                  backgroundColor: "red",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                }}
-              >
+              <button type="button" onClick={() => removeFile(index)} style={{ background: "red", color: "white" }}>
                 Remove
               </button>
             </div>
           ))}
 
-          {/* Add new photo button */}
-          <label
-            style={{
-              display: "inline-block",
-              padding: "10px 20px",
-              backgroundColor: "#0070f3",
-              color: "white",
-              borderRadius: "5px",
-              cursor: "pointer",
-              marginTop: "10px",
-            }}
-          >
-            📸 Add Photo
-            <input
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={handleCapture}
-              style={{ display: "none" }}
-            />
+          {/* Capture Photo Button */}
+          <label style={{ marginRight: "10px", backgroundColor: "#0070f3", color: "white", padding: "10px", borderRadius: "5px", cursor: "pointer" }}>
+            📸 Capture Photo
+            <input type="file" accept="image/*" capture="environment" onChange={handleCapture} style={{ display: "none" }} />
+          </label>
+
+          {/* Browse Files Button */}
+          <label style={{ backgroundColor: "#28a745", color: "white", padding: "10px", borderRadius: "5px", cursor: "pointer" }}>
+            📂 Browse Files
+            <input type="file" accept="image/*" multiple onChange={handleBrowse} style={{ display: "none" }} />
           </label>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            padding: "10px 20px",
-            backgroundColor: loading ? "#888" : "#0070f3",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            cursor: loading ? "not-allowed" : "pointer",
-          }}
-        >
+        <button type="submit" disabled={loading} style={{ padding: "10px 20px", backgroundColor: loading ? "#888" : "#0070f3", color: "white", borderRadius: "5px" }}>
           {loading ? "Uploading..." : "Upload"}
         </button>
       </form>

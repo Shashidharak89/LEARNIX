@@ -15,20 +15,22 @@ export async function createWork(req) {
     const content = formData.get("content");
     const subject = formData.get("subject");
 
-    // Upload files to Cloudinary
-    const uploadedFiles = [];
+    // Upload files to Cloudinary in order
     const files = formData.getAll("files");
+    const uploadedFiles = [];
 
     for (const file of files) {
       const buffer = Buffer.from(await file.arrayBuffer());
 
       const fileUrl = await new Promise((resolve, reject) => {
-        cloudinary.uploader
-          .upload_stream({ resource_type: "auto" }, (err, result) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { resource_type: "auto" },
+          (err, result) => {
             if (err) reject(err);
             else resolve(result.secure_url);
-          })
-          .end(buffer);
+          }
+        );
+        uploadStream.end(buffer);
       });
 
       uploadedFiles.push(fileUrl);
@@ -40,7 +42,7 @@ export async function createWork(req) {
       usn,
       content,
       subject,
-      files: uploadedFiles,
+      files: uploadedFiles, // ordered array
     });
 
     return Response.json(newWork, { status: 201 });
