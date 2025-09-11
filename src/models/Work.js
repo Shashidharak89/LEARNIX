@@ -6,7 +6,7 @@ const WorkSchema = new mongoose.Schema(
     usn: { type: String, required: true },
     content: { type: String, required: true },
     subject: { type: String, required: true },
-    files: [{ type: String }], // array of Cloudinary URLs
+    files: [{ type: String }], // Cloudinary file URLs
   },
   { timestamps: true }
 );
