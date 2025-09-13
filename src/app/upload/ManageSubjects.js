@@ -12,6 +12,10 @@ export default function ManageSubjects() {
   const [topicImages, setTopicImages] = useState("");
   const [message, setMessage] = useState("");
 
+  // For adding more images to existing topic
+  const [editingTopic, setEditingTopic] = useState("");
+  const [newImages, setNewImages] = useState([]);
+
   // Load USN from localStorage
   useEffect(() => {
     const storedUsn = localStorage.getItem("usn");
@@ -64,8 +68,41 @@ export default function ManageSubjects() {
     }
   };
 
+  // Add new image input for editing topic
+  const handleAddImageField = () => {
+    setNewImages([...newImages, ""]);
+  };
+
+  const handleImageChange = (index, value) => {
+    const updated = [...newImages];
+    updated[index] = value;
+    setNewImages(updated);
+  };
+
+  const handleUpdateImages = async () => {
+    if (!selectedSubject || !editingTopic || newImages.length === 0) return;
+    const imagesToAdd = newImages.filter((img) => img.trim() !== "");
+    if (imagesToAdd.length === 0) return;
+
+    try {
+      const res = await axios.put("/api/topic/update", {
+        usn,
+        subject: selectedSubject,
+        topic: editingTopic,
+        images: imagesToAdd
+      });
+      setSubjects(res.data.subjects);
+      setNewImages([]);
+      setEditingTopic("");
+      setMessage("Images added successfully!");
+    } catch (err) {
+      console.error(err);
+      setMessage(err.response?.data?.error || "Error updating topic");
+    }
+  };
+
   return (
-    <div style={{ padding: "20px", maxWidth: "600px", margin: "auto" }}>
+    <div style={{ padding: "20px", maxWidth: "700px", margin: "auto" }}>
       <h2>Manage Subjects & Topics</h2>
       <p style={{ color: "green" }}>{message}</p>
 
@@ -92,9 +129,7 @@ export default function ManageSubjects() {
         >
           <option value="">Select Subject</option>
           {subjects.map((sub, idx) => (
-            <option key={idx} value={sub.subject}>
-              {sub.subject}
-            </option>
+            <option key={idx} value={sub.subject}>{sub.subject}</option>
           ))}
         </select>
         <input
@@ -112,6 +147,46 @@ export default function ManageSubjects() {
           style={{ width: "100%", marginBottom: "10px" }}
         />
         <button onClick={handleAddTopic}>Add Topic</button>
+      </div>
+
+      {/* Add More Images to Existing Topic */}
+      <div style={{ marginBottom: "20px" }}>
+        <h3>Add Images to Existing Topic</h3>
+        <select
+          value={selectedSubject}
+          onChange={(e) => setSelectedSubject(e.target.value)}
+          style={{ width: "100%", marginBottom: "10px" }}
+        >
+          <option value="">Select Subject</option>
+          {subjects.map((sub, idx) => (
+            <option key={idx} value={sub.subject}>{sub.subject}</option>
+          ))}
+        </select>
+        {selectedSubject && (
+          <select
+            value={editingTopic}
+            onChange={(e) => setEditingTopic(e.target.value)}
+            style={{ width: "100%", marginBottom: "10px" }}
+          >
+            <option value="">Select Topic</option>
+            {subjects.find(s => s.subject === selectedSubject)?.topics.map((t, idx) => (
+              <option key={idx} value={t.topic}>{t.topic}</option>
+            ))}
+          </select>
+        )}
+        {newImages.map((img, idx) => (
+          <input
+            key={idx}
+            type="text"
+            placeholder="Image URL"
+            value={img}
+            onChange={(e) => handleImageChange(idx, e.target.value)}
+            style={{ width: "100%", marginBottom: "5px" }}
+          />
+        ))}
+        <button onClick={handleAddImageField} style={{ marginBottom: "10px" }}>+ Add Another Image</button>
+        <br />
+        <button onClick={handleUpdateImages}>Update Topic Images</button>
       </div>
 
       {/* Display Subjects and Topics */}
