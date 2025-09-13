@@ -7,13 +7,11 @@ export default function ManageSubjects() {
   const [usn, setUsn] = useState("");
   const [subjects, setSubjects] = useState([]);
   const [newSubject, setNewSubject] = useState("");
-  const [selectedSubject, setSelectedSubject] = useState("");
   const [topicName, setTopicName] = useState("");
   const [message, setMessage] = useState("");
 
-  // For editing existing topic
-  const [editingTopic, setEditingTopic] = useState("");
-  const [file, setFile] = useState(null);
+  // Track file input for each topic individually
+  const [filesMap, setFilesMap] = useState({});
 
   useEffect(() => {
     const storedUsn = localStorage.getItem("usn");
@@ -45,12 +43,12 @@ export default function ManageSubjects() {
   };
 
   // Add Topic
-  const handleAddTopic = async () => {
-    if (!selectedSubject || !topicName) return;
+  const handleAddTopic = async (subject) => {
+    if (!subject || !topicName) return;
     try {
       const res = await axios.post("/api/topic", {
         usn,
-        subject: selectedSubject,
+        subject,
         topic: topicName,
         images: []
       });
@@ -63,22 +61,23 @@ export default function ManageSubjects() {
     }
   };
 
-  // Handle file selection
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
+  // Handle file selection per topic
+  const handleFileChange = (subject, topic, file) => {
+    setFilesMap({ ...filesMap, [`${subject}-${topic}`]: file });
   };
 
-  // Upload single image to Cloudinary and save to topic
-  const handleUploadImage = async () => {
-    if (!selectedSubject || !editingTopic || !file) {
-      setMessage("Please select subject, topic, and file.");
+  // Upload image for a specific topic
+  const handleUploadImage = async (subject, topic) => {
+    const file = filesMap[`${subject}-${topic}`];
+    if (!file) {
+      setMessage("Please select a file first.");
       return;
     }
 
     const formData = new FormData();
     formData.append("usn", usn);
-    formData.append("subject", selectedSubject);
-    formData.append("topic", editingTopic);
+    formData.append("subject", subject);
+    formData.append("topic", topic);
     formData.append("file", file);
 
     try {
@@ -86,7 +85,7 @@ export default function ManageSubjects() {
         headers: { "Content-Type": "multipart/form-data" }
       });
       setSubjects(res.data.subjects);
-      setFile(null);
+      setFilesMap({ ...filesMap, [`${subject}-${topic}`]: null });
       setMessage("Image uploaded successfully!");
     } catch (err) {
       console.error(err);
@@ -112,78 +111,44 @@ export default function ManageSubjects() {
         <button onClick={handleAddSubject}>Add Subject</button>
       </div>
 
-      {/* Add Topic */}
-      <div style={{ marginBottom: "20px" }}>
-        <h3>Add Topic</h3>
-        <select
-          value={selectedSubject}
-          onChange={(e) => setSelectedSubject(e.target.value)}
-          style={{ width: "100%", marginBottom: "10px" }}
-        >
-          <option value="">Select Subject</option>
-          {subjects.map((sub, idx) => (
-            <option key={idx} value={sub.subject}>{sub.subject}</option>
-          ))}
-        </select>
-        <input
-          type="text"
-          placeholder="Topic Name"
-          value={topicName}
-          onChange={(e) => setTopicName(e.target.value)}
-          style={{ width: "100%", marginBottom: "10px" }}
-        />
-        <button onClick={handleAddTopic}>Add Topic</button>
-      </div>
-
-      {/* Upload Images to Existing Topic */}
-      <div style={{ marginBottom: "20px" }}>
-        <h3>Upload Images to Existing Topic</h3>
-        <select
-          value={selectedSubject}
-          onChange={(e) => setSelectedSubject(e.target.value)}
-          style={{ width: "100%", marginBottom: "10px" }}
-        >
-          <option value="">Select Subject</option>
-          {subjects.map((sub, idx) => (
-            <option key={idx} value={sub.subject}>{sub.subject}</option>
-          ))}
-        </select>
-        {selectedSubject && (
-          <select
-            value={editingTopic}
-            onChange={(e) => setEditingTopic(e.target.value)}
-            style={{ width: "100%", marginBottom: "10px" }}
-          >
-            <option value="">Select Topic</option>
-            {subjects.find(s => s.subject === selectedSubject)?.topics.map((t, idx) => (
-              <option key={idx} value={t.topic}>{t.topic}</option>
-            ))}
-          </select>
-        )}
-        <input
-          type="file"
-          onChange={handleFileChange}
-          style={{ width: "100%", marginBottom: "10px" }}
-        />
-        <button onClick={handleUploadImage}>Upload Image</button>
-      </div>
-
       {/* Display Subjects & Topics */}
       <div>
         <h3>Existing Subjects & Topics</h3>
         {subjects.length === 0 && <p>No subjects added yet.</p>}
+
         {subjects.map((sub, idx) => (
-          <div key={idx} style={{ marginBottom: "15px", border: "1px solid #ccc", padding: "10px" }}>
+          <div key={idx} style={{ marginBottom: "20px", border: "1px solid #ccc", padding: "10px" }}>
             <strong>{sub.subject}</strong>
+
+            {/* Add Topic Input */}
+            <div style={{ margin: "10px 0" }}>
+              <input
+                type="text"
+                placeholder="New Topic Name"
+                value={topicName}
+                onChange={(e) => setTopicName(e.target.value)}
+                style={{ width: "70%", marginRight: "10px" }}
+              />
+              <button onClick={() => handleAddTopic(sub.subject)}>Add Topic</button>
+            </div>
+
             {sub.topics.length === 0 ? (
               <p>No topics yet.</p>
             ) : (
               <ul>
                 {sub.topics.map((t, tIdx) => (
-                  <li key={tIdx}>
+                  <li key={tIdx} style={{ marginBottom: "15px" }}>
                     <strong>{t.topic}</strong> <br />
                     Images: {t.images.join(", ")} <br />
-                    Timestamp: {new Date(t.timestamp).toLocaleString()}
+                    Timestamp: {new Date(t.timestamp).toLocaleString()} <br />
+
+                    {/* Upload image directly below topic */}
+                    <input
+                      type="file"
+                      onChange={(e) => handleFileChange(sub.subject, t.topic, e.target.files[0])}
+                      style={{ marginTop: "5px", marginBottom: "5px" }}
+                    />
+                    <button onClick={() => handleUploadImage(sub.subject, t.topic)}>Upload Image</button>
                   </li>
                 ))}
               </ul>
