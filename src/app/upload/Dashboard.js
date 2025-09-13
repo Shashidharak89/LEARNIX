@@ -1,114 +1,102 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import AddSubjectBox from "./AddSubjectBox";
+import AddContentBox from "./AddContentBox";
+import FileUploader from "./FileUploader";
 
 export default function Dashboard() {
-  const [works, setWorks] = useState([]);
+  const [work, setWork] = useState(null);
   const [loading, setLoading] = useState(true);
+  const usn = typeof window !== "undefined" ? localStorage.getItem("usn") : null;
 
-  // fetch all works of the logged-in user
+  const fetchWork = async () => {
+    if (!usn) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/work?usn=${usn}`);
+      const data = await res.json();
+      setWork(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const usn = localStorage.getItem("usn");
-        const res = await fetch("/api/work");
-        const data = await res.json();
-
-        // filter only the logged-in user's works
-        const myWorks = data.filter((w) => w.usn === usn);
-        setWorks(myWorks);
-      } catch (err) {
-        console.error("Error fetching works:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    fetchWork();
+    // listen for custom event to refresh after uploads
+    const handler = () => fetchWork();
+    window.addEventListener("workUpdated", handler);
+    return () => window.removeEventListener("workUpdated", handler);
   }, []);
 
+  if (!usn) return <p>Please login.</p>;
   if (loading) return <p>Loading...</p>;
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h2>Your Uploaded Works</h2>
-      {works.length === 0 ? (
-        <p>No works uploaded yet.</p>
-      ) : (
-        works.map((work) => (
-          <div
-            key={work._id}
-            style={{
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-              padding: "15px",
-              marginBottom: "20px",
-            }}
-          >
-            <h3>{work.subject}</h3>
-            <p>
-              <strong>Name:</strong> {work.name}
-            </p>
-            <p>
-              <strong>USN:</strong> {work.usn}
-            </p>
-            <p>
-              <strong>Content:</strong> {work.content}
-            </p>
+    <div style={{ maxWidth: 900, margin: "0 auto" }}>
+      <h2>Your Dashboard</h2>
+      <p><strong>Name:</strong> {work?.name ?? "-"}</p>
+      <p><strong>USN:</strong> {work?.usn ?? "-"}</p>
 
-            <div>
-              <h4>Files:</h4>
-              {(() => {
-                // normalize files into an array of URLs
-                let files = [];
+      <section style={{ marginTop: 20 }}>
+        <h3>Add Subject</h3>
+        <AddSubjectBox workId={work?._id} onDone={fetchWork} />
+      </section>
 
-                if (Array.isArray(work.files)) {
-                  files = work.files.map((f) =>
-                    typeof f === "string" ? f : f.url
-                  );
-                } else if (typeof work.files === "object" && work.files !== null) {
-                  files = Object.values(work.files);
-                }
+      <section style={{ marginTop: 20 }}>
+        <h3>Subjects & Contents</h3>
+        {!work?.contents || work.contents.length === 0 ? (
+          <p>No subjects yet. Add one above.</p>
+        ) : (
+          work.contents.map((s) => (
+            <div key={s._id} style={{ border: "1px solid #ddd", padding: 12, marginBottom: 12 }}>
+              <h4>{s.subject}</h4>
 
-                return files.length > 0 ? (
-                  files.map((fileUrl, idx) => (
-                    <div key={idx} style={{ marginBottom: "10px" }}>
-                      {fileUrl.match(/\.(jpg|jpeg|png|gif)$/i) ? (
-                        <img
-                          src={fileUrl}
-                          alt={`uploaded-${idx}`}
-                          width="120"
-                          style={{ borderRadius: "6px" }}
-                        />
-                      ) : fileUrl.match(/\.pdf$/i) ? (
-                        <a
-                          href={fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ color: "blue" }}
-                        >
-                          📄 View PDF
-                        </a>
-                      ) : (
-                        <a
-                          href={fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{ color: "green" }}
-                        >
-                          📎 Download File
-                        </a>
-                      )}
+              <div style={{ marginTop: 8 }}>
+                <AddContentBox workId={work._id} subjectId={s._id} onDone={fetchWork} />
+              </div>
+
+              <div style={{ marginTop: 8 }}>
+                {(!s.items || s.items.length === 0) ? (
+                  <p>No contents for this subject.</p>
+                ) : (
+                  s.items.map((it) => (
+                    <div key={it._id} style={{ borderTop: "1px dashed #eee", paddingTop: 8, marginTop: 8 }}>
+                      <div><strong>Text:</strong> {it.text || "(no text)"}</div>
+
+                      <div style={{ display: "flex", gap: 8, marginTop: 8, flexWrap: "wrap" }}>
+                        {(it.files || []).map((f, idx) => {
+                          const url = f.url || f;
+                          const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+                          const isPDF = /\.pdf$/i.test(url);
+                          return (
+                            <div key={idx} style={{ width: 120 }}>
+                              {isImage ? (
+                                <img src={url} alt={`file-${idx}`} style={{ width: "100%", height: 80, objectFit: "cover" }} />
+                              ) : isPDF ? (
+                                <a href={url} target="_blank" rel="noreferrer">📄 PDF</a>
+                              ) : (
+                                <a href={url} target="_blank" rel="noreferrer">🔗 File</a>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div style={{ marginTop: 8 }}>
+                        <FileUploader workId={work._id} subjectId={s._id} contentId={it._id} onDone={fetchWork} />
+                      </div>
                     </div>
                   ))
-                ) : (
-                  <p>No files uploaded yet.</p>
-                );
-              })()}
+                )}
+              </div>
             </div>
-          </div>
-        ))
-      )}
+          ))
+        )}
+      </section>
     </div>
   );
 }
