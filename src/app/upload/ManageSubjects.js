@@ -41,10 +41,8 @@ export default function ManageSubjects() {
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, subject: '', topic: '', imageUrl: '' });
   const [showCaptureOptions, setShowCaptureOptions] = useState({});
   
-  // Camera refs
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const [isCameraActive, setIsCameraActive] = useState({});
+  // Refs for camera inputs
+  const cameraInputRefs = useRef({});
 
   useEffect(() => {
     const storedUsn = localStorage.getItem("usn");
@@ -57,12 +55,6 @@ export default function ManageSubjects() {
     return () => {
       Object.values(filePreviewMap).forEach(url => {
         URL.revokeObjectURL(url);
-      });
-      // Stop all active camera streams
-      Object.keys(isCameraActive).forEach(key => {
-        if (isCameraActive[key]) {
-          stopCamera(key);
-        }
       });
     };
   }, [filePreviewMap]);
@@ -132,57 +124,22 @@ export default function ManageSubjects() {
     }));
   };
 
-  // Start camera
-  const startCamera = async (subject, topic) => {
+  // Trigger camera capture
+  const triggerCameraCapture = (subject, topic) => {
     const key = `${subject}-${topic}`;
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } // Use back camera if available
-      });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        setIsCameraActive(prev => ({ ...prev, [key]: stream }));
-      }
-    } catch (err) {
-      console.error('Camera access denied:', err);
-      setMessage('Camera access denied. Please use file upload instead.');
-      setTimeout(() => setMessage(""), 3000);
+    if (cameraInputRefs.current[key]) {
+      cameraInputRefs.current[key].click();
     }
   };
 
-  // Stop camera
-  const stopCamera = (key) => {
-    if (isCameraActive[key]) {
-      const tracks = isCameraActive[key].getTracks();
-      tracks.forEach(track => track.stop());
-      setIsCameraActive(prev => {
-        const newState = { ...prev };
-        delete newState[key];
-        return newState;
-      });
-    }
-  };
-
-  // Capture photo from camera
-  const capturePhoto = (subject, topic) => {
-    const key = `${subject}-${topic}`;
-    if (!videoRef.current || !canvasRef.current) return;
-
-    const canvas = canvasRef.current;
-    const video = videoRef.current;
-    
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0);
-    
-    canvas.toBlob((blob) => {
-      const file = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
+  // Handle camera capture
+  const handleCameraCapture = (subject, topic, event) => {
+    const file = event.target.files[0];
+    if (file) {
       handleFileChange(subject, topic, file);
-      stopCamera(key);
-      setShowCaptureOptions(prev => ({ ...prev, [key]: false }));
-    }, 'image/jpeg', 0.8);
+      // Close the capture options after successful capture
+      setShowCaptureOptions(prev => ({ ...prev, [`${subject}-${topic}`]: false }));
+    }
   };
 
   // Handle file selection per topic
@@ -487,9 +444,9 @@ export default function ManageSubjects() {
                             {showCaptureOptions[`${sub.subject}-${t.topic}`] && (
                               <div className="mse-capture-methods">
                                 <button
-                                  onClick={() => startCamera(sub.subject, t.topic)}
+                                  onClick={() => triggerCameraCapture(sub.subject, t.topic)}
                                   className="mse-btn mse-btn-accent mse-btn-sm"
-                                  disabled={isCameraActive[`${sub.subject}-${t.topic}`]}
+                                  disabled={isLoading}
                                 >
                                   <FiCamera className="mse-btn-icon" />
                                   Capture Photo
@@ -506,40 +463,19 @@ export default function ManageSubjects() {
                                     disabled={isLoading}
                                   />
                                 </label>
+
+                                {/* Hidden camera input for direct capture */}
+                                <input
+                                  ref={el => cameraInputRefs.current[`${sub.subject}-${t.topic}`] = el}
+                                  type="file"
+                                  accept="image/*"
+                                  capture="environment"
+                                  onChange={(e) => handleCameraCapture(sub.subject, t.topic, e)}
+                                  style={{ display: 'none' }}
+                                />
                               </div>
                             )}
                           </div>
-
-                          {/* Camera View */}
-                          {isCameraActive[`${sub.subject}-${t.topic}`] && (
-                            <div className="mse-camera-container">
-                              <video
-                                ref={videoRef}
-                                autoPlay
-                                playsInline
-                                className="mse-camera-view"
-                              />
-                              <div className="mse-camera-controls">
-                                <button
-                                  onClick={() => capturePhoto(sub.subject, t.topic)}
-                                  className="mse-btn mse-btn-primary mse-btn-sm"
-                                >
-                                  <FiCamera className="mse-btn-icon" />
-                                  Take Photo
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    stopCamera(`${sub.subject}-${t.topic}`);
-                                    setShowCaptureOptions(prev => ({ ...prev, [`${sub.subject}-${t.topic}`]: false }));
-                                  }}
-                                  className="mse-btn mse-btn-secondary mse-btn-sm"
-                                >
-                                  <FiX className="mse-btn-icon" />
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          )}
                           
                           {/* File Preview */}
                           {filePreviewMap[`${sub.subject}-${t.topic}`] && (
@@ -588,9 +524,6 @@ export default function ManageSubjects() {
           ))}
         </div>
       </div>
-
-      {/* Hidden canvas for photo capture */}
-      <canvas ref={canvasRef} style={{ display: 'none' }} />
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm.show && (
