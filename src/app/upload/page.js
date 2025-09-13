@@ -1,6 +1,6 @@
 "use client";
 
-import LearnixDashboard from "./LearnixDashboard";
+import Login from "./Login";
 
 
 
@@ -9,7 +9,7 @@ export default function upload() {
  
   return (
     <div >
-   <LearnixDashboard/>
+ <Login/>
 
     </div>
   );
