@@ -9,21 +9,18 @@ export default function ManageSubjects() {
   const [newSubject, setNewSubject] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
   const [topicName, setTopicName] = useState("");
-  const [topicImages, setTopicImages] = useState("");
   const [message, setMessage] = useState("");
 
-  // For adding more images to existing topic
+  // For editing existing topic
   const [editingTopic, setEditingTopic] = useState("");
-  const [newImages, setNewImages] = useState([]);
+  const [file, setFile] = useState(null);
 
-  // Load USN from localStorage
   useEffect(() => {
     const storedUsn = localStorage.getItem("usn");
     if (storedUsn) setUsn(storedUsn);
     fetchSubjects(storedUsn);
   }, []);
 
-  // Fetch subjects from backend
   const fetchSubjects = async (usn) => {
     try {
       const res = await axios.get("/api/work/get", { params: { usn } });
@@ -33,7 +30,7 @@ export default function ManageSubjects() {
     }
   };
 
-  // Add a new subject
+  // Add Subject
   const handleAddSubject = async () => {
     if (!newSubject) return;
     try {
@@ -47,20 +44,18 @@ export default function ManageSubjects() {
     }
   };
 
-  // Add a new topic
+  // Add Topic
   const handleAddTopic = async () => {
     if (!selectedSubject || !topicName) return;
     try {
-      const imagesArray = topicImages.split(",").map((url) => url.trim());
       const res = await axios.post("/api/topic", {
         usn,
         subject: selectedSubject,
         topic: topicName,
-        images: imagesArray
+        images: []
       });
       setSubjects(res.data.subjects);
       setTopicName("");
-      setTopicImages("");
       setMessage("Topic added!");
     } catch (err) {
       console.error(err);
@@ -68,36 +63,34 @@ export default function ManageSubjects() {
     }
   };
 
-  // Add new image input for editing topic
-  const handleAddImageField = () => {
-    setNewImages([...newImages, ""]);
+  // Handle file selection
+  const handleFileChange = (e) => {
+    setFile(e.target.files[0]);
   };
 
-  const handleImageChange = (index, value) => {
-    const updated = [...newImages];
-    updated[index] = value;
-    setNewImages(updated);
-  };
+  // Upload single image to Cloudinary and save to topic
+  const handleUploadImage = async () => {
+    if (!selectedSubject || !editingTopic || !file) {
+      setMessage("Please select subject, topic, and file.");
+      return;
+    }
 
-  const handleUpdateImages = async () => {
-    if (!selectedSubject || !editingTopic || newImages.length === 0) return;
-    const imagesToAdd = newImages.filter((img) => img.trim() !== "");
-    if (imagesToAdd.length === 0) return;
+    const formData = new FormData();
+    formData.append("usn", usn);
+    formData.append("subject", selectedSubject);
+    formData.append("topic", editingTopic);
+    formData.append("file", file);
 
     try {
-      const res = await axios.put("/api/topic/update", {
-        usn,
-        subject: selectedSubject,
-        topic: editingTopic,
-        images: imagesToAdd
+      const res = await axios.post("/api/topic/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
       });
       setSubjects(res.data.subjects);
-      setNewImages([]);
-      setEditingTopic("");
-      setMessage("Images added successfully!");
+      setFile(null);
+      setMessage("Image uploaded successfully!");
     } catch (err) {
       console.error(err);
-      setMessage(err.response?.data?.error || "Error updating topic");
+      setMessage(err.response?.data?.error || "Upload failed");
     }
   };
 
@@ -139,19 +132,12 @@ export default function ManageSubjects() {
           onChange={(e) => setTopicName(e.target.value)}
           style={{ width: "100%", marginBottom: "10px" }}
         />
-        <input
-          type="text"
-          placeholder="Image URLs (comma separated)"
-          value={topicImages}
-          onChange={(e) => setTopicImages(e.target.value)}
-          style={{ width: "100%", marginBottom: "10px" }}
-        />
         <button onClick={handleAddTopic}>Add Topic</button>
       </div>
 
-      {/* Add More Images to Existing Topic */}
+      {/* Upload Images to Existing Topic */}
       <div style={{ marginBottom: "20px" }}>
-        <h3>Add Images to Existing Topic</h3>
+        <h3>Upload Images to Existing Topic</h3>
         <select
           value={selectedSubject}
           onChange={(e) => setSelectedSubject(e.target.value)}
@@ -174,22 +160,15 @@ export default function ManageSubjects() {
             ))}
           </select>
         )}
-        {newImages.map((img, idx) => (
-          <input
-            key={idx}
-            type="text"
-            placeholder="Image URL"
-            value={img}
-            onChange={(e) => handleImageChange(idx, e.target.value)}
-            style={{ width: "100%", marginBottom: "5px" }}
-          />
-        ))}
-        <button onClick={handleAddImageField} style={{ marginBottom: "10px" }}>+ Add Another Image</button>
-        <br />
-        <button onClick={handleUpdateImages}>Update Topic Images</button>
+        <input
+          type="file"
+          onChange={handleFileChange}
+          style={{ width: "100%", marginBottom: "10px" }}
+        />
+        <button onClick={handleUploadImage}>Upload Image</button>
       </div>
 
-      {/* Display Subjects and Topics */}
+      {/* Display Subjects & Topics */}
       <div>
         <h3>Existing Subjects & Topics</h3>
         {subjects.length === 0 && <p>No subjects added yet.</p>}
