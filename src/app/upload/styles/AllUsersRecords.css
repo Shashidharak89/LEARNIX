@@ -1,0 +1,646 @@
+/* AllUsersRecords.css */
+
+/* Container and theme variables */
+.aur-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+  transition: all 0.3s ease;
+}
+
+.aur-container.light {
+  background-color: #ffffff;
+  color: #1a1a1a;
+}
+
+.aur-container.dark {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+/* Header */
+.aur-header {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.aur-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.aur-title h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin: 0;
+  color: #3b82f6;
+}
+
+.aur-title-icon {
+  font-size: 2.25rem;
+  color: #3b82f6;
+}
+
+.aur-subtitle {
+  color: #6b7280;
+  font-size: 1.125rem;
+  margin: 0;
+}
+
+/* Messages */
+.aur-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  margin-bottom: 2rem;
+  animation: aur-slideIn 0.3s ease;
+}
+
+.aur-message.error {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.aur-message-icon {
+  font-size: 1.125rem;
+}
+
+/* Loading */
+.aur-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 4rem;
+  color: #6b7280;
+}
+
+.aur-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: aur-spin 1s linear infinite;
+}
+
+/* Empty States */
+.aur-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.aur-empty-icon {
+  font-size: 4rem;
+  opacity: 0.5;
+}
+
+.aur-empty-state h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #374151;
+}
+
+.aur-container.dark .aur-empty-state h3 {
+  color: #d1d5db;
+}
+
+.aur-empty-state p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.aur-no-subjects,
+.aur-no-topics {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  color: #6b7280;
+  font-style: italic;
+  justify-content: center;
+}
+
+.aur-empty-icon-sm {
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+/* Feed Layout */
+.aur-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.aur-user-section {
+  border-radius: 1rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  animation: aur-slideUp 0.5s ease;
+}
+
+.aur-container.light .aur-user-section {
+  background-color: #f8fafc;
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.aur-container.dark .aur-user-section {
+  background-color: #2d3748;
+  border: 2px solid #4a5568;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.aur-user-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* User Header */
+.aur-user-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid;
+}
+
+.aur-container.light .aur-user-header {
+  border-bottom-color: #e2e8f0;
+  background-color: rgba(248, 250, 252, 0.5);
+}
+
+.aur-container.dark .aur-user-header {
+  border-bottom-color: #4a5568;
+  background-color: rgba(45, 55, 72, 0.5);
+}
+
+.aur-user-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.aur-user-info {
+  flex: 1;
+}
+
+.aur-user-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+  color: #3b82f6;
+}
+
+.aur-user-usn {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Subjects Container */
+.aur-subjects-container {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.aur-subject-card {
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.aur-container.light .aur-subject-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.aur-container.dark .aur-subject-card {
+  background-color: #1a202c;
+  border: 1px solid #4a5568;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.aur-subject-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.aur-subject-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid;
+}
+
+.aur-container.light .aur-subject-header {
+  border-bottom-color: #e2e8f0;
+  background-color: rgba(248, 250, 252, 0.3);
+}
+
+.aur-container.dark .aur-subject-header {
+  border-bottom-color: #4a5568;
+  background-color: rgba(45, 55, 72, 0.3);
+}
+
+.aur-subject-header h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+  color: #fbbf24;
+}
+
+.aur-subject-icon {
+  font-size: 1.25rem;
+  color: #fbbf24;
+}
+
+/* Topics */
+.aur-topics-list {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.aur-topic-card {
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+  animation: aur-fadeIn 0.3s ease;
+}
+
+.aur-container.light .aur-topic-card {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.aur-container.dark .aur-topic-card {
+  background-color: #2d3748;
+  border: 1px solid #4a5568;
+}
+
+.aur-topic-card:hover {
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.aur-topic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.aur-topic-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.aur-topic-title h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.aur-topic-icon {
+  font-size: 1rem;
+  color: #6366f1;
+  flex-shrink: 0;
+}
+
+.aur-topic-timestamp {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  color: #6b7280;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.aur-timestamp-icon {
+  font-size: 0.875rem;
+}
+
+/* Images Section */
+.aur-images-section {
+  margin-top: 1rem;
+}
+
+.aur-images-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.aur-images-icon {
+  font-size: 1rem;
+}
+
+.aur-images-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.aur-image-card {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.aur-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: #f1f5f9;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.aur-container.dark .aur-image-wrapper {
+  background-color: #374151;
+}
+
+.aur-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 0.3s ease;
+}
+
+.aur-image-card:hover .aur-image {
+  transform: scale(1.05);
+}
+
+.aur-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.aur-image-card:hover .aur-image-overlay {
+  opacity: 1;
+}
+
+.aur-image-view {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+.aur-view-more-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Buttons */
+.aur-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.aur-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.aur-btn:active {
+  transform: translateY(0);
+}
+
+.aur-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.aur-btn-secondary {
+  background-color: #6366f1;
+  color: #ffffff;
+}
+
+.aur-btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.aur-btn-icon {
+  font-size: 1rem;
+}
+
+/* Animations */
+@keyframes aur-fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes aur-slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes aur-slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes aur-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .aur-container {
+    padding: 1rem;
+  }
+  
+  .aur-title {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .aur-title h1 {
+    font-size: 1.875rem;
+    text-align: center;
+  }
+  
+  .aur-title-icon {
+    font-size: 1.875rem;
+  }
+  
+  .aur-user-header {
+    padding: 1rem;
+  }
+  
+  .aur-subjects-container {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .aur-topics-list {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .aur-topic-card {
+    padding: 1rem;
+  }
+  
+  .aur-topic-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .aur-topic-timestamp {
+    align-self: flex-start;
+  }
+  
+  .aur-images-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  
+  .aur-user-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1.125rem;
+  }
+  
+  .aur-user-name {
+    font-size: 1.125rem;
+  }
+  
+  .aur-subject-header h4 {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .aur-container {
+    padding: 0.75rem;
+  }
+  
+  .aur-title h1 {
+    font-size: 1.5rem;
+  }
+  
+  .aur-title-icon {
+    font-size: 1.5rem;
+  }
+  
+  .aur-user-header {
+    padding: 0.75rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .aur-user-info {
+    text-align: left;
+    width: 100%;
+  }
+  
+  .aur-subjects-container {
+    padding: 0.75rem;
+  }
+  
+  .aur-topics-list {
+    padding: 0.75rem;
+  }
+  
+  .aur-topic-card {
+    padding: 0.75rem;
+  }
+  
+  .aur-subject-header {
+    padding: 0.75rem 1rem;
+  }
+  
+  .aur-images-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .aur-user-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+}
