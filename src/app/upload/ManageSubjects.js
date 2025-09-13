@@ -93,6 +93,23 @@ export default function ManageSubjects() {
     }
   };
 
+  // Delete image from topic
+  const handleDeleteImage = async (subject, topic, imageUrl) => {
+    try {
+      const res = await axios.put("/api/topic/deleteimage", {
+        usn,
+        subject,
+        topic,
+        imageUrl
+      });
+      setSubjects(res.data.subjects);
+      setMessage("Image deleted successfully!");
+    } catch (err) {
+      console.error(err);
+      setMessage(err.response?.data?.error || "Failed to delete image");
+    }
+  };
+
   return (
     <div style={{ padding: "20px", maxWidth: "700px", margin: "auto" }}>
       <h2>Manage Subjects & Topics</h2>
@@ -139,7 +156,24 @@ export default function ManageSubjects() {
                 {sub.topics.map((t, tIdx) => (
                   <li key={tIdx} style={{ marginBottom: "15px" }}>
                     <strong>{t.topic}</strong> <br />
-                    Images: {t.images.join(", ")} <br />
+                    <strong>Images:</strong>
+                    {t.images.length === 0 ? (
+                      " No images"
+                    ) : (
+                      <ul>
+                        {t.images.map((img, iIdx) => (
+                          <li key={iIdx}>
+                            {img}{" "}
+                            <button
+                              onClick={() => handleDeleteImage(sub.subject, t.topic, img)}
+                              style={{ color: "red", marginLeft: "5px" }}
+                            >
+                              Delete
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                     Timestamp: {new Date(t.timestamp).toLocaleString()} <br />
 
                     {/* Upload image directly below topic */}
