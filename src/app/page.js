@@ -4,7 +4,7 @@ import WorkPage from "./upload/WorkPage";
 export default function Home() {
   return (
     <div >
-     <WorkPage/>
+     <h1>Hello there..!</h1>
     </div>
   );
 }
