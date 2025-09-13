@@ -1,12 +1,23 @@
 "use client";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
-// Create Context
 const ThemeContext = createContext();
 
-// Provider Component
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState("light"); // default = light
+  const [theme, setTheme] = useState("light");
+
+  // Load saved theme from localStorage on first render
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+      setTheme(savedTheme);
+    }
+  }, []);
+
+  // Save theme to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "light" ? "dark" : "light"));
@@ -19,7 +30,6 @@ export function ThemeProvider({ children }) {
   );
 }
 
-// Custom hook for easy access
 export function useTheme() {
   return useContext(ThemeContext);
 }
