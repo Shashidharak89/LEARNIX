@@ -1,118 +1,189 @@
 "use client";
+
 import { useState } from "react";
 
 export default function UploadWork() {
-  const [form, setForm] = useState({
-    name: "",
-    usn: "",
-    content: "",
-    subject: "",
-  });
-  const [files, setFiles] = useState([]); // store ordered files
-  const [loading, setLoading] = useState(false);
+  const [step, setStep] = useState("create"); // create | manage
+  const [work, setWork] = useState(null); // saved work object from server
+  const [form, setForm] = useState({ name: "", usn: "" });
+  const [subjectText, setSubjectText] = useState("");
+  const [contentText, setContentText] = useState("");
+  const [uploading, setUploading] = useState(false);
 
-  // handle text input changes
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  // add new captured file
-  const handleCapture = (e) => {
-    const newFile = e.target.files[0];
-    if (newFile) setFiles((prev) => [...prev, newFile]);
-    e.target.value = null; // reset so can re-capture
-  };
-
-  // add browsed files
-  const handleBrowse = (e) => {
-    const newFiles = Array.from(e.target.files);
-    if (newFiles.length > 0) {
-      setFiles((prev) => [...prev, ...newFiles]); // keep order
-    }
-    e.target.value = null;
-  };
-
-  // remove file
-  const removeFile = (index) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  // handle form submit
-  const handleSubmit = async (e) => {
+  // create work
+  const handleCreate = async (e) => {
     e.preventDefault();
-    setLoading(true);
-
-    try {
-      const formData = new FormData();
-      Object.keys(form).forEach((key) => formData.append(key, form[key]));
-      files.forEach((file) => formData.append("files", file));
-
-      const res = await fetch("/api/work", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) throw new Error("Failed to upload work");
-
-      const data = await res.json();
-      console.log("Uploaded:", data);
-      alert("✅ Work uploaded successfully!");
-
-      setForm({ name: "", usn: "", content: "", subject: "" });
-      setFiles([]);
-      e.target.reset();
-    } catch (err) {
-      console.error("Upload error:", err);
-      alert("❌ Failed to upload work. Please try again.");
-    } finally {
-      setLoading(false);
+    const res = await fetch("/api/work", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: form.name, usn: form.usn }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setWork(data);
+      setStep("manage");
+    } else {
+      alert("Error: " + (data.error || "create failed"));
     }
   };
 
+  // add subject
+  const addSubject = async () => {
+    if (!subjectText.trim()) return alert("Enter subject");
+    const res = await fetch(`/api/work/${work._id}/subject`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subject: subjectText.trim() }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      // update local work (append subject)
+      setWork((w) => ({ ...w, contents: [...w.contents, data] }));
+      setSubjectText("");
+    } else alert("Error: " + (data.error || "failed"));
+  };
+
+  // add content under a subject
+  const addContent = async (subjectId) => {
+    if (!contentText.trim()) return alert("Enter content text");
+    const res = await fetch(`/api/work/${work._id}/subject/${subjectId}/content`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: contentText.trim() }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      // update local work
+      setWork((w) => {
+        const copy = JSON.parse(JSON.stringify(w));
+        const subj = copy.contents.find((s) => s._id === subjectId);
+        subj.items.push(data);
+        return copy;
+      });
+      setContentText("");
+    } else alert("Error: " + (data.error || "failed"));
+  };
+
+  // upload single file to a content (one by one)
+  const uploadFile = async (subjectId, contentId, file) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+
+      const res = await fetch(`/api/work/${work._id}/subject/${subjectId}/content/${contentId}/file`, {
+        method: "POST",
+        body: fd,
+      });
+      const data = await res.json();
+      if (res.ok) {
+        // update local work - append returned url to the correct item
+        setWork((w) => {
+          const copy = JSON.parse(JSON.stringify(w));
+          const subj = copy.contents.find((s) => s._id === subjectId);
+          const item = subj.items.find((it) => it._id === contentId);
+          item.files.push(data.url);
+          return copy;
+        });
+      } else {
+        alert("Upload error: " + (data.error || "failed"));
+      }
+    } catch (err) {
+      console.error("uploadFile error", err);
+      alert("Upload failed: " + String(err));
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // small UI helpers
+  if (step === "create") {
+    return (
+      <div style={{ padding: 20, maxWidth: 700, margin: "0 auto" }}>
+        <h2>Create your Work record</h2>
+        <form onSubmit={handleCreate}>
+          <input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+          <br />
+          <input placeholder="USN" value={form.usn} onChange={(e) => setForm({ ...form, usn: e.target.value })} required />
+          <br />
+          <button type="submit">Create</button>
+        </form>
+      </div>
+    );
+  }
+
+  // manage step: show subjects, add subject, add content, upload file per content
   return (
-    <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
-      <h1 style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}>
-        Upload Homework
-      </h1>
-      <form onSubmit={handleSubmit}>
-        <input name="name" placeholder="Name" value={form.name} onChange={handleChange} required />
-        <input name="usn" placeholder="USN" value={form.usn} onChange={handleChange} required />
-        <input name="subject" placeholder="Subject" value={form.subject} onChange={handleChange} required />
-        <textarea name="content" placeholder="Content" value={form.content} onChange={handleChange} required />
+    <div style={{ padding: 20, maxWidth: 900, margin: "0 auto" }}>
+      <h2>Manage Work — {work.name} ({work.usn})</h2>
 
-        {/* File Previews */}
-        <div style={{ marginBottom: "20px" }}>
-          <h3>Selected Photos:</h3>
-          {files.map((file, index) => (
-            <div key={index} style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
-              <img
-                src={URL.createObjectURL(file)}
-                alt={`preview-${index}`}
-                style={{ width: "100px", height: "100px", objectFit: "cover", marginRight: "10px" }}
-              />
-              <button type="button" onClick={() => removeFile(index)} style={{ background: "red", color: "white" }}>
-                Remove
-              </button>
+      <section style={{ marginBottom: 20 }}>
+        <h3>Add Subject</h3>
+        <input placeholder="Subject name" value={subjectText} onChange={(e) => setSubjectText(e.target.value)} />
+        <button type="button" onClick={addSubject}>Add Subject</button>
+      </section>
+
+      <section>
+        <h3>Subjects & Contents</h3>
+        {work.contents.length === 0 && <p>No subjects yet</p>}
+        {work.contents.map((s) => (
+          <div key={s._id} style={{ border: "1px solid #ddd", padding: 12, marginBottom: 12 }}>
+            <strong>Subject:</strong> {s.subject}
+            <div style={{ marginTop: 8 }}>
+              <input placeholder="New content text" value={contentText} onChange={(e) => setContentText(e.target.value)} />
+              <button type="button" onClick={() => addContent(s._id)}>Add Content</button>
             </div>
-          ))}
 
-          {/* Capture Photo Button */}
-          <label style={{ marginRight: "10px", backgroundColor: "#0070f3", color: "white", padding: "10px", borderRadius: "5px", cursor: "pointer" }}>
-            📸 Capture Photo
-            <input type="file" accept="image/*" capture="environment" onChange={handleCapture} style={{ display: "none" }} />
-          </label>
+            <div style={{ marginTop: 10 }}>
+              <h4>Contents</h4>
+              {s.items.length === 0 && <p>No contents yet</p>}
+              {s.items.map((it) => (
+                <div key={it._id} style={{ borderTop: "1px dashed #eee", paddingTop: 8, marginTop: 8 }}>
+                  <div><strong>Text:</strong> {it.text}</div>
 
-          {/* Browse Files Button */}
-          <label style={{ backgroundColor: "#28a745", color: "white", padding: "10px", borderRadius: "5px", cursor: "pointer" }}>
-            📂 Browse Files
-            <input type="file" accept="image/*" multiple onChange={handleBrowse} style={{ display: "none" }} />
-          </label>
-        </div>
+                  <div style={{ marginTop: 6 }}>
+                    <strong>Files:</strong>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 6 }}>
+                      {it.files.map((f, idx) => {
+                        const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(f);
+                        const isPDF = /\.pdf$/i.test(f);
+                        return (
+                          <div key={idx} style={{ width: 120 }}>
+                            {isImage ? (
+                              <img src={f} alt={`file-${idx}`} style={{ width: "100%", height: 80, objectFit: "cover" }} />
+                            ) : isPDF ? (
+                              <a href={f} target="_blank" rel="noreferrer">PDF {idx + 1}</a>
+                            ) : (
+                              <a href={f} target="_blank" rel="noreferrer">File {idx + 1}</a>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
 
-        <button type="submit" disabled={loading} style={{ padding: "10px 20px", backgroundColor: loading ? "#888" : "#0070f3", color: "white", borderRadius: "5px" }}>
-          {loading ? "Uploading..." : "Upload"}
-        </button>
-      </form>
+                  <div style={{ marginTop: 8 }}>
+                    <label style={{ marginRight: 8 }}>
+                      Upload single file:
+                      <input type="file" accept="image/*,.pdf" style={{ display: "inline-block", marginLeft: 8 }} onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) uploadFile(s._id, it._id, file);
+                        e.target.value = null;
+                      }} />
+                    </label>
+                    {uploading && <span>Uploading...</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <div style={{ marginTop: 20 }}>
+        <button type="button" onClick={() => { setStep("create"); setWork(null); }}>Reset / Create new</button>
+      </div>
     </div>
   );
 }

@@ -1,9 +1,9 @@
 import { createWork, getAllWorks } from "@/controllers/workController";
 
-export async function GET() {
-  return getAllWorks();
+export async function POST(request) {
+  return createWork(request);
 }
 
-export async function POST(req) {
-  return createWork(req);
+export async function GET() {
+  return getAllWorks();
 }
