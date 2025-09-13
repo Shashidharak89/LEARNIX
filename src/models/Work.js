@@ -1,8 +1,10 @@
+// models/Work.js
 import mongoose from "mongoose";
 
 const FileSchema = new mongoose.Schema({
   url: { type: String, required: true },
-  uploadedAt: { type: Date, default: Date.now },
+  public_id: { type: String, required: true },
+  uploadedAt: { type: Date, default: Date.now }
 }, { _id: false });
 
 const ContentSchema = new mongoose.Schema({
@@ -13,12 +15,12 @@ const ContentSchema = new mongoose.Schema({
 
 const SubjectSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  contents: { type: [ContentSchema], default: [] }
+  items: { type: [ContentSchema], default: [] }
 }, { _id: true });
 
 const WorkSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  usn: { type: String, required: true, unique: true, uppercase: true },
+  usn: { type: String, required: true, unique: true },
   subjects: { type: [SubjectSchema], default: [] }
 }, { timestamps: true });
 
