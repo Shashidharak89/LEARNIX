@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import imageCompression from 'browser-image-compression';
 import { useTheme } from "@/context/ThemeContext";
 import { 
   FiPlus, 
@@ -31,6 +32,7 @@ export default function ManageSubjects() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [uploadingStates, setUploadingStates] = useState({});
+  const [compressionStates, setCompressionStates] = useState({}); // New state for compression
 
   // New states for dropdown functionality
   const [allUsers, setAllUsers] = useState([]);
@@ -80,6 +82,34 @@ export default function ManageSubjects() {
       setTopicName("");
     }
   }, [selectedSubject, isCustomSubject, allUsers]);
+
+  // Image compression function
+  const compressImage = async (file) => {
+    const options = {
+      maxSizeMB: 0.5, // Maximum file size in MB (0.5MB for high compression)
+      maxWidthOrHeight: 1920, // Maximum width or height
+      useWebWorker: true, // Use web worker for better performance
+      quality: 0.8, // Quality from 0 to 1 (0.8 = 80% quality)
+      initialQuality: 0.8, // Initial quality
+      alwaysKeepResolution: false, // Allow resolution reduction
+      fileType: 'image/jpeg', // Force JPEG for better compression
+    };
+
+    try {
+      const compressedFile = await imageCompression(file, options);
+      
+      // Calculate compression ratio
+      const compressionRatio = ((file.size - compressedFile.size) / file.size * 100).toFixed(1);
+      console.log(`Image compressed by ${compressionRatio}%`);
+      console.log(`Original size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+      console.log(`Compressed size: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB`);
+      
+      return compressedFile;
+    } catch (error) {
+      console.error('Image compression failed:', error);
+      throw error;
+    }
+  };
 
   const fetchSubjects = async (usn) => {
     setIsLoading(true);
@@ -222,26 +252,24 @@ export default function ManageSubjects() {
     }
   };
 
-  // Handle camera capture
-  const handleCameraCapture = (subject, topic, event) => {
+  // Handle camera capture with compression
+  const handleCameraCapture = async (subject, topic, event) => {
     const file = event.target.files[0];
     if (file) {
-      handleFileChange(subject, topic, file);
+      await handleFileChange(subject, topic, file);
       // Close the capture options after successful capture
       setShowCaptureOptions(prev => ({ ...prev, [`${subject}-${topic}`]: false }));
     }
   };
 
-  // Handle file selection per topic
-  const handleFileChange = (subject, topic, file) => {
+  // Enhanced file change handler with compression
+  const handleFileChange = async (subject, topic, file) => {
     const key = `${subject}-${topic}`;
-    setFilesMap({ ...filesMap, [key]: file });
     
-    // Create preview URL if file is selected
-    if (file) {
-      const previewUrl = URL.createObjectURL(file);
-      setFilePreviewMap({ ...filePreviewMap, [key]: previewUrl });
-    } else {
+    if (!file) {
+      // Handle file removal
+      setFilesMap({ ...filesMap, [key]: null });
+      
       // Clean up preview URL
       if (filePreviewMap[key]) {
         URL.revokeObjectURL(filePreviewMap[key]);
@@ -249,6 +277,53 @@ export default function ManageSubjects() {
         delete newPreviewMap[key];
         setFilePreviewMap(newPreviewMap);
       }
+      return;
+    }
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setMessage("Please select a valid image file.");
+      setTimeout(() => setMessage(""), 3000);
+      return;
+    }
+
+    try {
+      // Set compression state
+      setCompressionStates(prev => ({ ...prev, [key]: true }));
+      setMessage("Compressing image...");
+
+      // Compress the image
+      const compressedFile = await compressImage(file);
+      
+      // Create new File object with original name but compressed data
+      const finalFile = new File([compressedFile], file.name, {
+        type: compressedFile.type,
+        lastModified: Date.now(),
+      });
+
+      // Update state with compressed file
+      setFilesMap({ ...filesMap, [key]: finalFile });
+      
+      // Create preview URL with compressed file
+      const previewUrl = URL.createObjectURL(finalFile);
+      setFilePreviewMap({ ...filePreviewMap, [key]: previewUrl });
+
+      // Calculate and show compression info
+      const compressionRatio = ((file.size - finalFile.size) / file.size * 100).toFixed(1);
+      setMessage(`Image compressed by ${compressionRatio}% (${(file.size / 1024 / 1024).toFixed(2)}MB → ${(finalFile.size / 1024 / 1024).toFixed(2)}MB)`);
+      setTimeout(() => setMessage(""), 5000);
+
+    } catch (error) {
+      console.error('Image compression failed:', error);
+      setMessage("Image compression failed. Please try again.");
+      setTimeout(() => setMessage(""), 3000);
+    } finally {
+      // Clear compression state
+      setCompressionStates(prev => {
+        const newState = { ...prev };
+        delete newState[key];
+        return newState;
+      });
     }
   };
 
@@ -282,7 +357,7 @@ export default function ManageSubjects() {
     setDeleteConfirm({ show: false, subject: '', topic: '', imageUrl: '' });
   };
 
-  // Upload image for a specific topic
+  // Upload compressed image for a specific topic
   const handleUploadImage = async (subject, topic) => {
     const file = filesMap[`${subject}-${topic}`];
     if (!file) {
@@ -306,6 +381,7 @@ export default function ManageSubjects() {
       });
       setSubjects(res.data.subjects);
       setFilesMap({ ...filesMap, [`${subject}-${topic}`]: null });
+      
       // Clean up preview
       const key = `${subject}-${topic}`;
       if (filePreviewMap[key]) {
@@ -314,7 +390,8 @@ export default function ManageSubjects() {
         delete newPreviewMap[key];
         setFilePreviewMap(newPreviewMap);
       }
-      setMessage("Image uploaded successfully!");
+      
+      setMessage("Compressed image uploaded successfully!");
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
       console.error(err);
@@ -490,6 +567,7 @@ export default function ManageSubjects() {
                     <div className="mse-topics-list">
                       {sub.topics.map((t, tIdx) => {
                         const validImages = getValidImages(t.images || []);
+                        const compressionKey = `${sub.subject}-${t.topic}`;
                         
                         return (
                           <div key={tIdx} className="mse-topic-card">
@@ -577,13 +655,13 @@ export default function ManageSubjects() {
                                     <button
                                       onClick={() => triggerCameraCapture(sub.subject, t.topic)}
                                       className="mse-btn mse-btn-accent mse-btn-sm"
-                                      disabled={isLoading}
+                                      disabled={isLoading || compressionStates[compressionKey]}
                                     >
                                       <FiCamera className="mse-btn-icon" />
                                       Capture Photo
                                     </button>
                                     
-                                    <label className="mse-file-browse-btn mse-btn mse-btn-accent mse-btn-sm">
+                                    <label className={`mse-file-browse-btn mse-btn mse-btn-accent mse-btn-sm ${(isLoading || compressionStates[compressionKey]) ? 'disabled' : ''}`}>
                                       <FiFile className="mse-btn-icon" />
                                       Browse Files
                                       <input
@@ -591,7 +669,7 @@ export default function ManageSubjects() {
                                         onChange={(e) => handleFileChange(sub.subject, t.topic, e.target.files[0])}
                                         className="mse-file-input-hidden"
                                         accept="image/*"
-                                        disabled={isLoading}
+                                        disabled={isLoading || compressionStates[compressionKey]}
                                       />
                                     </label>
 
@@ -608,6 +686,14 @@ export default function ManageSubjects() {
                                 )}
                               </div>
                               
+                              {/* Compression indicator */}
+                              {compressionStates[compressionKey] && (
+                                <div className="mse-compression-indicator">
+                                  <div className="mse-upload-spinner"></div>
+                                  <span>Compressing image...</span>
+                                </div>
+                              )}
+                              
                               {/* File Preview */}
                               {filePreviewMap[`${sub.subject}-${t.topic}`] && (
                                 <div className="mse-preview-section">
@@ -623,7 +709,7 @@ export default function ManageSubjects() {
                                     <button
                                       onClick={() => handleFileChange(sub.subject, t.topic, null)}
                                       className="mse-preview-remove"
-                                      disabled={isLoading}
+                                      disabled={isLoading || compressionStates[compressionKey]}
                                     >
                                       <FiX />
                                     </button>
@@ -632,7 +718,7 @@ export default function ManageSubjects() {
                                   <button 
                                     onClick={() => handleUploadImage(sub.subject, t.topic)} 
                                     className="mse-btn mse-btn-primary mse-btn-sm mse-upload-btn"
-                                    disabled={uploadingStates[`${sub.subject}-${t.topic}`] || !filesMap[`${sub.subject}-${t.topic}`]}
+                                    disabled={uploadingStates[`${sub.subject}-${t.topic}`] || !filesMap[`${sub.subject}-${t.topic}`] || compressionStates[compressionKey]}
                                   >
                                     {uploadingStates[`${sub.subject}-${t.topic}`] ? (
                                       <>
