@@ -1,26 +1,24 @@
-// models/Category.js
 import mongoose from "mongoose";
 
-const TopicCategorySchema = new mongoose.Schema({
-  topic: { type: String, required: true },
-  timestamp: { type: Date, default: Date.now }
+const TopicSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now }
 }, { _id: false });
 
-const SubjectCategorySchema = new mongoose.Schema({
-  subject: { type: String, required: true },
-  topics: { type: [TopicCategorySchema], default: [] },
-  timestamp: { type: Date, default: Date.now }
+const SubjectSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  topics: { type: [TopicSchema], default: [] },
+  createdAt: { type: Date, default: Date.now }
 }, { _id: false });
 
-const SemesterCategorySchema = new mongoose.Schema({
-  semester: { type: String, required: true },
-  subjects: { type: [SubjectCategorySchema], default: [] },
-  timestamp: { type: Date, default: Date.now }
-}, { _id: false });
+const SemesterSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  subjects: { type: [SubjectSchema], default: [] },
+  createdAt: { type: Date, default: Date.now }
+});
 
 const CategorySchema = new mongoose.Schema({
-  semesters: { type: [SemesterCategorySchema], default: [] },
-  createdAt: { type: Date, default: Date.now }
+  semesters: { type: [SemesterSchema], default: [] }
 });
 
 export default mongoose.models.Category || mongoose.model("Category", CategorySchema);
