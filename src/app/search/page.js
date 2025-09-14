@@ -1,14 +1,15 @@
 "use client";
 
 import { Navbar } from "../components/Navbar";
-import UserDetails from "./UserDetails";
+import SearchBox from "./SearchBox";
+
 
 export default function search() {
 
     return (
         <div >
             <Navbar />
-            <UserDetails/>
+         <SearchBox/>
         </div>
     );
 }

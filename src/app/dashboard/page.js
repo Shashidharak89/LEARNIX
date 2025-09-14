@@ -11,7 +11,6 @@ export default function dashboard() {
     <div >
       <Navbar />
       <UserData />
-
     </div>
   );
 }
