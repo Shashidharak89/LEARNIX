@@ -1,3 +1,4 @@
+// models/Category.js
 import mongoose from "mongoose";
 
 const TopicCategorySchema = new mongoose.Schema({
@@ -17,11 +18,9 @@ const SemesterCategorySchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now }
 }, { _id: false });
 
-const CategoriesSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  usn: { type: String, required: true, unique: true },
+const CategorySchema = new mongoose.Schema({
   semesters: { type: [SemesterCategorySchema], default: [] },
   createdAt: { type: Date, default: Date.now }
 });
 
-export default mongoose.models.Categories || mongoose.model("Categories", CategoriesSchema);
+export default mongoose.models.Category || mongoose.model("Category", CategorySchema);
