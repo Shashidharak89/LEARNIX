@@ -2,6 +2,7 @@
 
 import { Navbar } from "../components/Navbar";
 import SearchBox from "./SearchBox";
+import WorkSearchInterface from "./WorkSearchInterface";
 
 
 export default function search() {
@@ -10,6 +11,7 @@ export default function search() {
         <div >
             <Navbar />
          <SearchBox/>
+         <WorkSearchInterface/>
         </div>
     );
 }

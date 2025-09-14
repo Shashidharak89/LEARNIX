@@ -12,6 +12,7 @@
     "axios": "^1.12.1",
     "browser-image-compression": "^2.0.2",
     "cloudinary": "^2.7.0",
+    "jspdf": "^3.0.2",
     "lucide-react": "^0.544.0",
     "mongoose": "^8.18.1",
     "multer": "^2.0.2",
