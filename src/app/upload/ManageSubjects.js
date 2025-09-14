@@ -32,6 +32,13 @@ export default function ManageSubjects() {
   const [isLoading, setIsLoading] = useState(false);
   const [uploadingStates, setUploadingStates] = useState({});
 
+  // New states for dropdown functionality
+  const [allUsers, setAllUsers] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const [selectedTopic, setSelectedTopic] = useState("");
+  const [availableTopics, setAvailableTopics] = useState([]);
+  const [isCustomSubject, setIsCustomSubject] = useState(false);
+
   const { theme } = useTheme();
 
   // Track file input for each topic individually
@@ -48,6 +55,7 @@ export default function ManageSubjects() {
     const storedUsn = localStorage.getItem("usn");
     if (storedUsn) setUsn(storedUsn);
     fetchSubjects(storedUsn);
+    fetchAllUsers();
   }, []);
 
   // Clean up preview URLs on unmount
@@ -58,6 +66,20 @@ export default function ManageSubjects() {
       });
     };
   }, [filePreviewMap]);
+
+  // Update available topics when subject is selected
+  useEffect(() => {
+    if (selectedSubject && !isCustomSubject) {
+      const topics = getAllTopicsForSubject(selectedSubject);
+      setAvailableTopics(topics);
+      setSelectedTopic("");
+      setTopicName("");
+    } else {
+      setAvailableTopics([]);
+      setSelectedTopic("");
+      setTopicName("");
+    }
+  }, [selectedSubject, isCustomSubject, allUsers]);
 
   const fetchSubjects = async (usn) => {
     setIsLoading(true);
@@ -72,14 +94,81 @@ export default function ManageSubjects() {
     }
   };
 
+  // Fetch all users data for dropdown population
+  const fetchAllUsers = async () => {
+    try {
+      const res = await axios.get("/api/work/getall");
+      setAllUsers(res.data.users || []);
+    } catch (err) {
+      console.error("Failed to fetch all users data:", err);
+    }
+  };
+
+  // Get unique subjects from all users
+  const getAllSubjects = () => {
+    const subjectSet = new Set();
+    allUsers.forEach(user => {
+      if (user.subjects && Array.isArray(user.subjects)) {
+        user.subjects.forEach(subjectObj => {
+          if (subjectObj.subject && subjectObj.subject.trim()) {
+            subjectSet.add(subjectObj.subject.trim());
+          }
+        });
+      }
+    });
+    return Array.from(subjectSet).sort();
+  };
+
+  // Get all topics for a specific subject
+  const getAllTopicsForSubject = (subjectName) => {
+    const topicSet = new Set();
+    allUsers.forEach(user => {
+      if (user.subjects && Array.isArray(user.subjects)) {
+        user.subjects.forEach(subjectObj => {
+          if (subjectObj.subject === subjectName && subjectObj.topics && Array.isArray(subjectObj.topics)) {
+            subjectObj.topics.forEach(topicObj => {
+              if (topicObj.topic && topicObj.topic.trim()) {
+                topicSet.add(topicObj.topic.trim());
+              }
+            });
+          }
+        });
+      }
+    });
+    return Array.from(topicSet).sort();
+  };
+
+  // Handle subject selection
+  const handleSubjectSelect = (e) => {
+    const value = e.target.value;
+    if (value === "custom") {
+      setIsCustomSubject(true);
+      setSelectedSubject("");
+      setNewSubject("");
+    } else {
+      setIsCustomSubject(false);
+      setSelectedSubject(value);
+      setNewSubject(value);
+    }
+  };
+
+  // Handle topic selection for adding to current subject
+  const handleTopicSelectForSubject = (e, currentSubject) => {
+    const value = e.target.value;
+    setTopicName(value);
+  };
+
   // Add Subject
   const handleAddSubject = async () => {
-    if (!newSubject.trim()) return;
+    const subjectToAdd = isCustomSubject ? newSubject : selectedSubject;
+    if (!subjectToAdd.trim()) return;
     setIsLoading(true);
     try {
-      const res = await axios.post("/api/subject", { usn, subject: newSubject });
+      const res = await axios.post("/api/subject", { usn, subject: subjectToAdd });
       setSubjects(res.data.subjects);
       setNewSubject("");
+      setSelectedSubject("");
+      setIsCustomSubject(false);
       setMessage("Subject added successfully!");
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
@@ -104,6 +193,7 @@ export default function ManageSubjects() {
       });
       setSubjects(res.data.subjects);
       setTopicName("");
+      setSelectedTopic("");
       setMessage("Topic added successfully!");
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
@@ -261,6 +351,13 @@ export default function ManageSubjects() {
     }
   };
 
+  // Helper function to get valid images (non-empty)
+  const getValidImages = (images) => {
+    return images.filter(img => img && img.trim() !== "" && img !== null && img !== undefined);
+  };
+
+  const uniqueSubjects = getAllSubjects();
+
   return (
     <div className={`mse-container ${theme}`}>
       <div className="mse-header">
@@ -283,18 +380,32 @@ export default function ManageSubjects() {
           <h2>Add New Subject</h2>
         </div>
         <div className="mse-input-group">
-          <input
-            type="text"
-            placeholder="Enter subject name..."
-            value={newSubject}
-            onChange={(e) => setNewSubject(e.target.value)}
+          <select
+            value={isCustomSubject ? "custom" : selectedSubject}
+            onChange={handleSubjectSelect}
             className="mse-input"
             disabled={isLoading}
-          />
+          >
+            <option value="">Select existing subject</option>
+            {uniqueSubjects.map(subject => (
+              <option key={subject} value={subject}>{subject}</option>
+            ))}
+            <option value="custom">Custom Subject</option>
+          </select>
+          {isCustomSubject && (
+            <input
+              type="text"
+              placeholder="Enter custom subject name..."
+              value={newSubject}
+              onChange={(e) => setNewSubject(e.target.value)}
+              className="mse-input"
+              disabled={isLoading}
+            />
+          )}
           <button 
             onClick={handleAddSubject} 
             className="mse-btn mse-btn-primary"
-            disabled={isLoading || !newSubject.trim()}
+            disabled={isLoading || (!isCustomSubject && !selectedSubject) || (isCustomSubject && !newSubject.trim())}
           >
             <FiPlus className="mse-btn-icon" />
             Add Subject
@@ -324,204 +435,229 @@ export default function ManageSubjects() {
         )}
 
         <div className="mse-subjects-grid">
-          {subjects.map((sub, idx) => (
-            <div key={idx} className="mse-subject-card">
-              <div className="mse-subject-header">
-                <FiBook className="mse-subject-icon" />
-                <h3>{sub.subject}</h3>
-              </div>
-
-              {/* Add Topic Input */}
-              <div className="mse-topic-input-section">
-                <div className="mse-input-group">
-                  <input
-                    type="text"
-                    placeholder="New topic name..."
-                    value={topicName}
-                    onChange={(e) => setTopicName(e.target.value)}
-                    className="mse-input mse-input-sm"
-                    disabled={isLoading}
-                  />
-                  <button 
-                    onClick={() => handleAddTopic(sub.subject)} 
-                    className="mse-btn mse-btn-secondary mse-btn-sm"
-                    disabled={isLoading || !topicName.trim()}
-                  >
-                    <FiPlus className="mse-btn-icon" />
-                    Add Topic
-                  </button>
+          {subjects.map((sub, idx) => {
+            // Get topics available for this specific subject
+            const topicsForThisSubject = getAllTopicsForSubject(sub.subject);
+            
+            return (
+              <div key={idx} className="mse-subject-card">
+                <div className="mse-subject-header">
+                  <FiBook className="mse-subject-icon" />
+                  <h3>{sub.subject}</h3>
                 </div>
-              </div>
 
-              {/* Topics List */}
-              <div className="mse-topics-container">
-                {sub.topics.length === 0 ? (
-                  <div className="mse-empty-topics">
-                    <FiFileText className="mse-empty-icon-sm" />
-                    <span>No topics yet</span>
+                {/* Add Topic Input */}
+                <div className="mse-topic-input-section">
+                  <div className="mse-input-group">
+                    <select
+                      value=""
+                      onChange={(e) => handleTopicSelectForSubject(e, sub.subject)}
+                      className="mse-input mse-input-sm"
+                      disabled={isLoading}
+                    >
+                      <option value="">Select existing topic for {sub.subject}</option>
+                      {topicsForThisSubject.map(topic => (
+                        <option key={topic} value={topic}>{topic}</option>
+                      ))}
+                    </select>
+                    <input
+                      type="text"
+                      placeholder="Or enter new topic name..."
+                      value={topicName}
+                      onChange={(e) => setTopicName(e.target.value)}
+                      className="mse-input mse-input-sm"
+                      disabled={isLoading}
+                    />
+                    <button 
+                      onClick={() => handleAddTopic(sub.subject)} 
+                      className="mse-btn mse-btn-secondary mse-btn-sm"
+                      disabled={isLoading || !topicName.trim()}
+                    >
+                      <FiPlus className="mse-btn-icon" />
+                      Add Topic
+                    </button>
                   </div>
-                ) : (
-                  <div className="mse-topics-list">
-                    {sub.topics.map((t, tIdx) => (
-                      <div key={tIdx} className="mse-topic-card">
-                        <div className="mse-topic-header">
-                          <div className="mse-topic-title">
-                            <FiFileText className="mse-topic-icon" />
-                            <h4>{t.topic}</h4>
-                          </div>
-                          <div className="mse-topic-timestamp">
-                            <FiCalendar className="mse-timestamp-icon" />
-                            <span>{new Date(t.timestamp).toLocaleDateString()}</span>
-                          </div>
-                        </div>
+                </div>
 
-                        {/* Images Section */}
-                        <div className="mse-images-section">
-                          <div className="mse-images-header">
-                            <FiImage className="mse-images-icon" />
-                            <span>Images ({t.images.length})</span>
-                          </div>
-                          
-                          {t.images.length > 0 && (
-                            <div className="mse-images-container">
-                              <div className="mse-images-grid">
-                                {t.images.slice(0, expandedImages[`${sub.subject}-${t.topic}`] ? t.images.length : 3).map((img, iIdx) => (
-                                  <div key={iIdx} className="mse-image-card">
-                                    <div className="mse-image-wrapper">
-                                      <img 
-                                        src={img} 
-                                        alt={`Topic image ${iIdx + 1}`}
-                                        className="mse-image"
-                                        loading="lazy"
-                                      />
-                                      <div className="mse-image-overlay">
-                                        <button
-                                          onClick={() => showDeleteConfirmation(sub.subject, t.topic, img)}
-                                          className="mse-btn mse-btn-danger mse-btn-xs mse-image-delete"
-                                          disabled={isLoading}
-                                        >
-                                          <FiTrash2 className="mse-btn-icon" />
-                                        </button>
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
+                {/* Topics List */}
+                <div className="mse-topics-container">
+                  {!sub.topics || sub.topics.length === 0 ? (
+                    <div className="mse-empty-topics">
+                      <FiFileText className="mse-empty-icon-sm" />
+                      <span>No topics yet</span>
+                    </div>
+                  ) : (
+                    <div className="mse-topics-list">
+                      {sub.topics.map((t, tIdx) => {
+                        const validImages = getValidImages(t.images || []);
+                        
+                        return (
+                          <div key={tIdx} className="mse-topic-card">
+                            <div className="mse-topic-header">
+                              <div className="mse-topic-title">
+                                <FiFileText className="mse-topic-icon" />
+                                <h4>{t.topic}</h4>
+                              </div>
+                              <div className="mse-topic-timestamp">
+                                <FiCalendar className="mse-timestamp-icon" />
+                                <span>{new Date(t.timestamp).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+
+                            {/* Images Section */}
+                            <div className="mse-images-section">
+                              <div className="mse-images-header">
+                                <FiImage className="mse-images-icon" />
+                                <span>Images ({validImages.length})</span>
                               </div>
                               
-                              {t.images.length > 3 && (
-                                <button
-                                  onClick={() => toggleImageExpansion(sub.subject, t.topic)}
-                                  className="mse-btn mse-btn-secondary mse-btn-sm mse-view-more-btn"
-                                >
-                                  {expandedImages[`${sub.subject}-${t.topic}`] ? (
-                                    <>
-                                      <FiChevronUp className="mse-btn-icon" />
-                                      Show Less
-                                    </>
-                                  ) : (
-                                    <>
-                                      <FiChevronDown className="mse-btn-icon" />
-                                      View More ({t.images.length - 3})
-                                    </>
+                              {validImages.length > 0 && (
+                                <div className="mse-images-container">
+                                  <div className="mse-images-grid">
+                                    {validImages
+                                      .slice(0, expandedImages[`${sub.subject}-${t.topic}`] ? validImages.length : 3)
+                                      .map((img, iIdx) => (
+                                      <div key={iIdx} className="mse-image-card">
+                                        <div className="mse-image-wrapper">
+                                          <img 
+                                            src={img} 
+                                            alt={`Topic image ${iIdx + 1}`}
+                                            className="mse-image"
+                                            loading="lazy"
+                                          />
+                                          <div className="mse-image-overlay">
+                                            <button
+                                              onClick={() => showDeleteConfirmation(sub.subject, t.topic, img)}
+                                              className="mse-btn mse-btn-danger mse-btn-xs mse-image-delete"
+                                              disabled={isLoading}
+                                            >
+                                              <FiTrash2 className="mse-btn-icon" />
+                                            </button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                  
+                                  {validImages.length > 3 && (
+                                    <button
+                                      onClick={() => toggleImageExpansion(sub.subject, t.topic)}
+                                      className="mse-btn mse-btn-secondary mse-btn-sm mse-view-more-btn"
+                                    >
+                                      {expandedImages[`${sub.subject}-${t.topic}`] ? (
+                                        <>
+                                          <FiChevronUp className="mse-btn-icon" />
+                                          Show Less
+                                        </>
+                                      ) : (
+                                        <>
+                                          <FiChevronDown className="mse-btn-icon" />
+                                          View More ({validImages.length - 3})
+                                        </>
+                                      )}
+                                    </button>
                                   )}
-                                </button>
+                                </div>
                               )}
                             </div>
-                          )}
-                        </div>
 
-                        {/* Upload Section */}
-                        <div className="mse-upload-section">
-                          <div className="mse-capture-options">
-                            <button
-                              onClick={() => toggleCaptureOptions(sub.subject, t.topic)}
-                              className="mse-btn mse-btn-secondary mse-btn-sm mse-capture-toggle"
-                            >
-                              <FiCamera className="mse-btn-icon" />
-                              {showCaptureOptions[`${sub.subject}-${t.topic}`] ? 'Hide Options' : 'Add Image'}
-                            </button>
-                            
-                            {showCaptureOptions[`${sub.subject}-${t.topic}`] && (
-                              <div className="mse-capture-methods">
+                            {/* Upload Section */}
+                            <div className="mse-upload-section">
+                              <div className="mse-capture-options">
                                 <button
-                                  onClick={() => triggerCameraCapture(sub.subject, t.topic)}
-                                  className="mse-btn mse-btn-accent mse-btn-sm"
-                                  disabled={isLoading}
+                                  onClick={() => toggleCaptureOptions(sub.subject, t.topic)}
+                                  className="mse-btn mse-btn-secondary mse-btn-sm mse-capture-toggle"
                                 >
                                   <FiCamera className="mse-btn-icon" />
-                                  Capture Photo
+                                  {showCaptureOptions[`${sub.subject}-${t.topic}`] ? 'Hide Options' : 'Add Image'}
                                 </button>
                                 
-                                <label className="mse-file-browse-btn mse-btn mse-btn-accent mse-btn-sm">
-                                  <FiFile className="mse-btn-icon" />
-                                  Browse Files
-                                  <input
-                                    type="file"
-                                    onChange={(e) => handleFileChange(sub.subject, t.topic, e.target.files[0])}
-                                    className="mse-file-input-hidden"
-                                    accept="image/*"
-                                    disabled={isLoading}
-                                  />
-                                </label>
+                                {showCaptureOptions[`${sub.subject}-${t.topic}`] && (
+                                  <div className="mse-capture-methods">
+                                    <button
+                                      onClick={() => triggerCameraCapture(sub.subject, t.topic)}
+                                      className="mse-btn mse-btn-accent mse-btn-sm"
+                                      disabled={isLoading}
+                                    >
+                                      <FiCamera className="mse-btn-icon" />
+                                      Capture Photo
+                                    </button>
+                                    
+                                    <label className="mse-file-browse-btn mse-btn mse-btn-accent mse-btn-sm">
+                                      <FiFile className="mse-btn-icon" />
+                                      Browse Files
+                                      <input
+                                        type="file"
+                                        onChange={(e) => handleFileChange(sub.subject, t.topic, e.target.files[0])}
+                                        className="mse-file-input-hidden"
+                                        accept="image/*"
+                                        disabled={isLoading}
+                                      />
+                                    </label>
 
-                                {/* Hidden camera input for direct capture */}
-                                <input
-                                  ref={el => cameraInputRefs.current[`${sub.subject}-${t.topic}`] = el}
-                                  type="file"
-                                  accept="image/*"
-                                  capture="environment"
-                                  onChange={(e) => handleCameraCapture(sub.subject, t.topic, e)}
-                                  style={{ display: 'none' }}
-                                />
-                              </div>
-                            )}
-                          </div>
-                          
-                          {/* File Preview */}
-                          {filePreviewMap[`${sub.subject}-${t.topic}`] && (
-                            <div className="mse-preview-section">
-                              <div className="mse-preview-wrapper">
-                                <img 
-                                  src={filePreviewMap[`${sub.subject}-${t.topic}`]} 
-                                  alt="Preview"
-                                  className="mse-preview-image"
-                                />
-                                <button
-                                  onClick={() => handleFileChange(sub.subject, t.topic, null)}
-                                  className="mse-preview-remove"
-                                  disabled={isLoading}
-                                >
-                                  <FiX />
-                                </button>
+                                    {/* Hidden camera input for direct capture */}
+                                    <input
+                                      ref={el => cameraInputRefs.current[`${sub.subject}-${t.topic}`] = el}
+                                      type="file"
+                                      accept="image/*"
+                                      capture="environment"
+                                      onChange={(e) => handleCameraCapture(sub.subject, t.topic, e)}
+                                      style={{ display: 'none' }}
+                                    />
+                                  </div>
+                                )}
                               </div>
                               
-                              <button 
-                                onClick={() => handleUploadImage(sub.subject, t.topic)} 
-                                className="mse-btn mse-btn-primary mse-btn-sm mse-upload-btn"
-                                disabled={uploadingStates[`${sub.subject}-${t.topic}`] || !filesMap[`${sub.subject}-${t.topic}`]}
-                              >
-                                {uploadingStates[`${sub.subject}-${t.topic}`] ? (
-                                  <>
-                                    <div className="mse-upload-spinner"></div>
-                                    Uploading...
-                                  </>
-                                ) : (
-                                  <>
-                                    <FiUpload className="mse-btn-icon" />
-                                    Upload
-                                  </>
-                                )}
-                              </button>
+                              {/* File Preview */}
+                              {filePreviewMap[`${sub.subject}-${t.topic}`] && (
+                                <div className="mse-preview-section">
+                                  <div className="mse-preview-wrapper">
+                                    <img 
+                                      src={filePreviewMap[`${sub.subject}-${t.topic}`]} 
+                                      alt="Preview"
+                                      className="mse-preview-image"
+                                      width={150}
+                                      height={150}
+                                      style={{ objectFit: 'cover' }}
+                                    />
+                                    <button
+                                      onClick={() => handleFileChange(sub.subject, t.topic, null)}
+                                      className="mse-preview-remove"
+                                      disabled={isLoading}
+                                    >
+                                      <FiX />
+                                    </button>
+                                  </div>
+                                  
+                                  <button 
+                                    onClick={() => handleUploadImage(sub.subject, t.topic)} 
+                                    className="mse-btn mse-btn-primary mse-btn-sm mse-upload-btn"
+                                    disabled={uploadingStates[`${sub.subject}-${t.topic}`] || !filesMap[`${sub.subject}-${t.topic}`]}
+                                  >
+                                    {uploadingStates[`${sub.subject}-${t.topic}`] ? (
+                                      <>
+                                        <div className="mse-upload-spinner"></div>
+                                        Uploading...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <FiUpload className="mse-btn-icon" />
+                                        Upload
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
