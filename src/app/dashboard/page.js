@@ -1,7 +1,7 @@
 "use client";
 
 import { Navbar } from "../components/Navbar";
-import UserData from "./UserData";
+import AllUsersRecords from "./AllUsersRecords";
 
 
 
@@ -10,7 +10,7 @@ export default function dashboard() {
   return (
     <div >
       <Navbar />
-      <UserData />
+     <AllUsersRecords/>
     </div>
   );
 }
