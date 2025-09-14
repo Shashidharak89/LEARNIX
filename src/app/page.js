@@ -1,12 +1,12 @@
 "use client";
 
+import { Navbar } from "./components/Navbar";
 
 export default function Home() {
-  const { theme, toggleTheme } = useTheme();
 
   return (
     <>
-    
+    <Navbar/>
     </>
   );
 }
