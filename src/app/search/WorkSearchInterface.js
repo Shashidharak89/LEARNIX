@@ -409,7 +409,7 @@ const WorkSearchInterface = () => {
               <div className="work-search-end-reload-section">
                 {displayedTopics.length > 0 && (
                   <div className="work-search-end-message">
-                    🎉 You've reached the end! All topics have been loaded.
+                    🎉 You have reached the end! All topics have been loaded.
                   </div>
                 )}
                 <button 
