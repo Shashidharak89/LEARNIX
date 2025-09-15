@@ -11,6 +11,7 @@ import {
   FiUser 
 } from "react-icons/fi";
 import "./styles/Navbar.css";
+import { Fill } from "./Fill";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -154,6 +155,7 @@ export const Navbar = () => {
           </Link>
         </nav>
       </aside>
+      <Fill/>
     </>
   );
 };

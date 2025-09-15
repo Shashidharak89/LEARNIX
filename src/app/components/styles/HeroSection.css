@@ -1,0 +1,49 @@
+.hero-learnix {
+  background-color: white;
+  text-align: center;
+  padding: 80px 20px;
+  border-bottom: 3px solid #eaeaea;
+}
+
+.hero-learnix-content {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.hero-learnix-title {
+  font-size: 3rem;
+  font-weight: bold;
+  color: black;
+  margin-bottom: 20px;
+}
+
+.hero-learnix-title span {
+  color: skyblue;
+}
+
+.hero-learnix-subtitle {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.hero-learnix-extra {
+  font-size: 1rem;
+  color: #444;
+}
+
+.hero-learnix-login-btn {
+  background-color: skyblue;
+  color: black;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  margin-left: 10px;
+  transition: all 0.3s ease;
+}
+
+.hero-learnix-login-btn:hover {
+  background-color: yellow;
+  color: black;
+}
