@@ -1,7 +1,7 @@
 /* WorkSearchInterface.css */
 
 .work-search-container {
-  width: 100%;
+  width: 90%;
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
@@ -27,6 +27,8 @@
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
+  width: 100%;
+  padding: 0 10px;
 }
 
 .work-search-search-box {
@@ -42,6 +44,7 @@
   transform: translateY(-50%);
   color: #6b7280;
   z-index: 1;
+  flex-shrink: 0;
 }
 
 .work-search-search-input {
@@ -53,6 +56,7 @@
   transition: all 0.3s ease;
   background-color: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
 }
 
 .work-search-search-input:focus {
@@ -109,6 +113,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .work-search-section-title::before {
@@ -117,13 +122,15 @@
   height: 30px;
   background: linear-gradient(to bottom, #1e40af, #fbbf24);
   border-radius: 2px;
+  flex-shrink: 0;
 }
 
 .work-search-topics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 25px;
   margin-bottom: 30px;
+  width: 100%;
 }
 
 .work-search-topic-card {
@@ -135,6 +142,8 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   position: relative;
   overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .work-search-topic-card::before {
@@ -158,10 +167,12 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 16px;
+  gap: 15px;
 }
 
 .work-search-topic-info {
   flex: 1;
+  min-width: 0;
 }
 
 .work-search-profile-link {
@@ -182,6 +193,8 @@
   line-height: 1.3;
   transition: all 0.2s ease;
   cursor: pointer;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .work-search-profile-link:hover .work-search-topic-title {
@@ -192,7 +205,7 @@
 .work-search-topic-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
   margin-bottom: 8px;
 }
 
@@ -206,11 +219,13 @@
   padding: 4px 8px;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
+  flex-shrink: 0;
 }
 
 .work-search-card-actions {
   display: flex;
   gap: 8px;
+  flex-shrink: 0;
 }
 
 .work-search-action-btn {
@@ -222,6 +237,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .work-search-download-btn {
@@ -245,6 +261,8 @@
   margin-bottom: 16px;
   line-height: 1.6;
   font-size: 0.95rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .work-search-images-section {
@@ -253,7 +271,7 @@
 
 .work-search-images-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
   margin-bottom: 15px;
 }
@@ -262,10 +280,11 @@
   position: relative;
   border-radius: 12px;
   overflow: hidden;
-  background: #f8fafc;
+  background: #f9fafb;
   border: 2px solid #e2e8f0;
   transition: all 0.3s ease;
   aspect-ratio: 1;
+  width: 100%;
 }
 
 .work-search-image-container:hover {
@@ -279,18 +298,25 @@
   height: 100%;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9fafb;
 }
 
 .work-search-topic-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
   object-position: center;
   transition: all 0.3s ease;
+  display: block;
 }
 
 .work-search-topic-image:hover {
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 .work-search-view-more-btn {
@@ -308,6 +334,7 @@
   transition: all 0.3s ease;
   width: 100%;
   justify-content: center;
+  box-sizing: border-box;
 }
 
 .work-search-view-more-btn:hover {
@@ -318,6 +345,7 @@
 
 .work-search-chevron {
   transition: transform 0.3s ease;
+  flex-shrink: 0;
 }
 
 .work-search-rotated {
@@ -363,6 +391,13 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+  .work-search-topics-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+  }
+}
+
 @media (max-width: 768px) {
   .work-search-container {
     padding: 15px;
@@ -370,6 +405,20 @@
 
   .work-search-title {
     font-size: 2rem;
+    margin-bottom: 15px;
+  }
+
+  .work-search-search-container {
+    padding: 0 5px;
+  }
+
+  .work-search-search-input {
+    padding: 12px 12px 12px 45px;
+    font-size: 0.95rem;
+  }
+
+  .work-search-search-icon {
+    left: 12px;
   }
 
   .work-search-topics-grid {
@@ -383,43 +432,101 @@
 
   .work-search-card-header {
     flex-direction: column;
-    gap: 15px;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .work-search-card-actions {
+    align-self: flex-end;
   }
 
   .work-search-topic-meta {
-    flex-direction: column;
-    gap: 8px;
+    gap: 6px;
+  }
+
+  .work-search-meta-item {
+    font-size: 0.8rem;
+    padding: 3px 6px;
   }
 
   .work-search-images-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
   }
 
-  .work-search-search-input {
-    padding: 12px 12px 12px 45px;
+  .work-search-section-title {
+    font-size: 1.5rem;
   }
 }
 
 @media (max-width: 480px) {
+  .work-search-container {
+    padding: 12px;
+  }
+
   .work-search-title {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
+    letter-spacing: 0.5px;
+  }
+
+  .work-search-search-input {
+    padding: 10px 10px 10px 40px;
+    font-size: 0.9rem;
+  }
+
+  .work-search-search-icon {
+    left: 10px;
+    width: 18px;
+    height: 18px;
   }
 
   .work-search-topic-card {
     padding: 16px;
   }
 
+  .work-search-topic-title {
+    font-size: 1.1rem;
+  }
+
   .work-search-images-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .work-search-view-more-btn {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  .work-search-section-title {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .work-search-container {
+    padding: 8px;
+  }
+
+  .work-search-title {
+    font-size: 1.4rem;
+  }
+
+  .work-search-images-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .work-search-topic-card {
+    padding: 12px;
   }
 }
 
 /* Image loading states */
 .work-search-topic-image {
-  background: linear-gradient(45deg, #f3f4f6 25%, transparent 25%), 
-              linear-gradient(-45deg, #f3f4f6 25%, transparent 25%), 
-              linear-gradient(45deg, transparent 75%, #f3f4f6 75%), 
-              linear-gradient(-45deg, transparent 75%, #f3f4f6 75%);
+  background: linear-gradient(45deg, #f9fafb 25%, transparent 25%), 
+              linear-gradient(-45deg, #f9fafb 25%, transparent 25%), 
+              linear-gradient(45deg, transparent 75%, #f9fafb 75%), 
+              linear-gradient(-45deg, transparent 75%, #f9fafb 75%);
   background-size: 20px 20px;
   background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
 }
@@ -433,4 +540,35 @@
 
 .work-search-profile-link:focus .work-search-topic-title {
   color: #fbbf24;
+}
+
+/* Ensure images are contained properly */
+.work-search-image-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  pointer-events: none;
+}
+
+/* Better text wrapping */
+.work-search-topic-title,
+.work-search-topic-content {
+  hyphens: auto;
+  word-break: break-word;
+}
+
+/* Improved grid responsiveness for very small screens */
+@media (max-width: 320px) {
+  .work-search-images-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .work-search-topic-meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
