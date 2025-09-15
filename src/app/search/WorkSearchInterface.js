@@ -1,32 +1,59 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { Search, Download, Eye, ChevronDown, Calendar, User, BookOpen } from 'lucide-react';
 import './styles/WorkSearchInterface.css';
 
 const WorkSearchInterface = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [latestTopics, setLatestTopics] = useState([]);
+  const [displayedTopics, setDisplayedTopics] = useState([]);
+  const [allTopics, setAllTopics] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [expandedImages, setExpandedImages] = useState({});
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
-  // Fetch latest topics on component mount
+  const ITEMS_PER_LOAD = 8; // Adjust based on your needs
+
+  // Fetch all topics on component mount
   useEffect(() => {
-    fetchLatestTopics();
+    fetchAllTopics();
   }, []);
 
-  const fetchLatestTopics = async () => {
+  // Set up intersection observer for infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore && !searchQuery) {
+          loadMoreTopics();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const sentinel = document.getElementById('scroll-sentinel');
+    if (sentinel) {
+      observer.observe(sentinel);
+    }
+
+    return () => observer.disconnect();
+  }, [hasMore, isLoadingMore, searchQuery]);
+
+  const fetchAllTopics = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch('/api/work/getall');
       const data = await response.json();
       
       // Extract and sort all topics by timestamp
-      const allTopics = [];
+      const topics = [];
       data.users.forEach(user => {
         user.subjects?.forEach(subject => {
           subject.topics?.forEach(topic => {
-            allTopics.push({
+            topics.push({
               ...topic,
               userName: user.name,
               usn: user.usn,
@@ -37,79 +64,68 @@ const WorkSearchInterface = () => {
         });
       });
 
-      // Sort by timestamp and get latest 4
-      const sortedTopics = allTopics
+      // Sort by timestamp (newest first)
+      const sortedTopics = topics
         .filter(topic => topic.timestamp)
-        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-        .slice(0, 4);
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-      setLatestTopics(sortedTopics);
+      setAllTopics(sortedTopics);
+      
+      // Load initial batch
+      const initialTopics = sortedTopics.slice(0, ITEMS_PER_LOAD);
+      setDisplayedTopics(initialTopics);
+      setCurrentIndex(ITEMS_PER_LOAD);
+      setHasMore(sortedTopics.length > ITEMS_PER_LOAD);
+      
     } catch (error) {
-      console.error('Error fetching latest topics:', error);
+      console.error('Error fetching topics:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  const loadMoreTopics = useCallback(() => {
+    if (isLoadingMore || !hasMore || searchQuery) return;
+
+    setIsLoadingMore(true);
+    
+    setTimeout(() => {
+      const nextBatch = allTopics.slice(currentIndex, currentIndex + ITEMS_PER_LOAD);
+      setDisplayedTopics(prev => [...prev, ...nextBatch]);
+      setCurrentIndex(prev => prev + ITEMS_PER_LOAD);
+      setHasMore(currentIndex + ITEMS_PER_LOAD < allTopics.length);
+      setIsLoadingMore(false);
+    }, 500); // Small delay to show loading state
+  }, [allTopics, currentIndex, hasMore, isLoadingMore, searchQuery]);
 
   const handleSearch = async (query) => {
     if (!query.trim()) {
       setSearchResults([]);
+      // Reset to initial state when search is cleared
+      const initialTopics = allTopics.slice(0, ITEMS_PER_LOAD);
+      setDisplayedTopics(initialTopics);
+      setCurrentIndex(ITEMS_PER_LOAD);
+      setHasMore(allTopics.length > ITEMS_PER_LOAD);
       return;
     }
 
     setIsLoading(true);
     try {
-      const response = await fetch('/api/work/getall');
-      const data = await response.json();
-      
-      const results = [];
       const searchTerm = query.toLowerCase();
+      const results = [];
 
-      data.users.forEach(user => {
+      allTopics.forEach(topic => {
         // Search in user details
-        if (user.name.toLowerCase().includes(searchTerm) || 
-            user.usn.toLowerCase().includes(searchTerm)) {
-          user.subjects?.forEach(subject => {
-            subject.topics?.forEach(topic => {
-              results.push({
-                ...topic,
-                userName: user.name,
-                usn: user.usn,
-                subjectName: subject.subject,
-                userId: user._id,
-                matchType: 'user'
-              });
-            });
+        if (topic.userName.toLowerCase().includes(searchTerm) || 
+            topic.usn.toLowerCase().includes(searchTerm) ||
+            topic.subjectName.toLowerCase().includes(searchTerm) ||
+            topic.topic.toLowerCase().includes(searchTerm) ||
+            topic.content.toLowerCase().includes(searchTerm)) {
+          results.push({
+            ...topic,
+            matchType: 'search'
           });
         }
-
-        // Search in subjects and topics
-        user.subjects?.forEach(subject => {
-          if (subject.subject.toLowerCase().includes(searchTerm)) {
-            subject.topics?.forEach(topic => {
-              results.push({
-                ...topic,
-                userName: user.name,
-                usn: user.usn,
-                subjectName: subject.subject,
-                userId: user._id,
-                matchType: 'subject'
-              });
-            });
-          }
-
-          subject.topics?.forEach(topic => {
-            if (topic.topic.toLowerCase().includes(searchTerm) ||
-                topic.content.toLowerCase().includes(searchTerm)) {
-              results.push({
-                ...topic,
-                userName: user.name,
-                usn: user.usn,
-                subjectName: subject.subject,
-                userId: user._id,
-                matchType: 'topic'
-              });
-            }
-          });
-        });
       });
 
       // Remove duplicates and sort by timestamp
@@ -139,7 +155,7 @@ const WorkSearchInterface = () => {
     }
 
     try {
-      // Import jsPDF and html2canvas dynamically
+      // Import jsPDF dynamically
       const jsPDF = (await import('jspdf')).default;
       
       const pdf = new jsPDF();
@@ -200,7 +216,7 @@ const WorkSearchInterface = () => {
     }
   };
 
-  const renderTopicCard = (topic, index, isLatest = false) => {
+  const renderTopicCard = (topic, index) => {
     const topicKey = `${topic.userId}-${topic.subjectName}-${topic.topic}`;
     const isExpanded = expandedImages[topicKey];
     const hasImages = topic.images && topic.images.filter(img => img && img.trim() !== '').length > 0;
@@ -211,7 +227,9 @@ const WorkSearchInterface = () => {
       <div key={`${topicKey}-${index}`} className="work-search-topic-card">
         <div className="work-search-card-header">
           <div className="work-search-topic-info">
-            <h3 className="work-search-topic-title">{topic.topic}</h3>
+            <Link href={`/search/${topic.usn.toLowerCase()}`} className="work-search-profile-link">
+              <h3 className="work-search-topic-title">{topic.userName} ({topic.usn})</h3>
+            </Link>
             <div className="work-search-topic-meta">
               <span className="work-search-meta-item">
                 <BookOpen size={14} />
@@ -219,7 +237,7 @@ const WorkSearchInterface = () => {
               </span>
               <span className="work-search-meta-item">
                 <User size={14} />
-                {topic.userName} ({topic.usn})
+                {topic.topic}
               </span>
               <span className="work-search-meta-item">
                 <Calendar size={14} />
@@ -248,12 +266,14 @@ const WorkSearchInterface = () => {
             <div className="work-search-images-grid">
               {displayImages.map((imageUrl, imgIndex) => (
                 <div key={imgIndex} className="work-search-image-container">
-                  <img 
-                    src={imageUrl} 
-                    alt={`${topic.topic} - Image ${imgIndex + 1}`}
-                    className="work-search-topic-image"
-                    loading="lazy"
-                  />
+                  <div className="work-search-image-wrapper">
+                    <img 
+                      src={imageUrl} 
+                      alt={`${topic.topic} - Image ${imgIndex + 1}`}
+                      className="work-search-topic-image"
+                      loading="lazy"
+                    />
+                  </div>
                 </div>
               ))}
             </div>
@@ -303,7 +323,7 @@ const WorkSearchInterface = () => {
         {isLoading && (
           <div className="work-search-loading">
             <div className="work-search-spinner"></div>
-            <p>Searching...</p>
+            <p>Loading...</p>
           </div>
         )}
 
@@ -311,8 +331,20 @@ const WorkSearchInterface = () => {
           <div className="work-search-latest-section">
             <h2 className="work-search-section-title">Latest Topics</h2>
             <div className="work-search-topics-grid">
-              {latestTopics.map((topic, index) => renderTopicCard(topic, index, true))}
+              {displayedTopics.map((topic, index) => renderTopicCard(topic, index))}
             </div>
+            
+            {/* Infinite scroll sentinel */}
+            {hasMore && (
+              <div id="scroll-sentinel" className="work-search-scroll-sentinel">
+                {isLoadingMore && (
+                  <div className="work-search-loading-more">
+                    <div className="work-search-spinner"></div>
+                    <p>Loading more topics...</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
