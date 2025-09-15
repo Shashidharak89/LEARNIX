@@ -1,57 +1,117 @@
-/* Navbar Styles */
-.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.5rem;
-  background-color: #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* Enhanced Navbar Styles */
+
+/* Main Navbar */
+.learnix-navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1000;
-  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease, background-color 0.3s ease;
+  height: 70px;
 }
 
-.navbar-logo h1 {
+.learnix-navbar:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Logo Section */
+.learnix-navbar__logo {
+  flex-shrink: 0;
+}
+
+.learnix-navbar__logo-link {
+  text-decoration: none;
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.learnix-navbar__logo-link:hover {
+  transform: scale(1.02);
+}
+
+.learnix-navbar__logo-text {
   font-size: 1.75rem;
   font-weight: 700;
   color: #1e40af;
   margin: 0;
   letter-spacing: 0.05em;
   transition: color 0.3s ease;
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.navbar-logo h1:hover {
-  color: #1e3a8a;
+.learnix-navbar__logo-link:hover .learnix-navbar__logo-text {
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.navbar-menu-btn {
+/* Menu Toggle Button */
+.learnix-navbar__menu-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem;
+  width: 48px;
+  height: 48px;
+  padding: 0;
   background-color: transparent;
-  border: none;
-  border-radius: 0.5rem;
+  border: 2px solid transparent;
+  border-radius: 8px;
   color: #374151;
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.navbar-menu-btn:hover {
+.learnix-navbar__menu-toggle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: #f3f4f6;
-  color: #1e40af;
-  transform: scale(1.05);
+  transform: scale(0);
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+  z-index: -1;
 }
 
-.navbar-menu-btn:active {
+.learnix-navbar__menu-toggle:hover::before {
+  transform: scale(1);
+}
+
+.learnix-navbar__menu-toggle:hover {
+  color: #1e40af;
+  border-color: #e5e7eb;
+}
+
+.learnix-navbar__menu-toggle:active {
   transform: scale(0.95);
 }
 
-/* Sidebar Overlay */
-.sidebar-overlay {
+.learnix-navbar__menu-toggle:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.learnix-navbar__menu-icon {
+  transition: transform 0.3s ease;
+}
+
+/* Sidebar Backdrop */
+.learnix-sidebar__backdrop {
   position: fixed;
   top: 0;
   left: 0;
@@ -59,183 +119,313 @@
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 1001;
-  animation: fadeIn 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  backdrop-filter: blur(2px);
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.learnix-sidebar__backdrop--active {
+  opacity: 1;
+  visibility: visible;
 }
 
-/* Sidebar Styles */
-.sidebar {
+/* Sidebar */
+.learnix-sidebar {
   position: fixed;
   top: 0;
-  right: -320px;
+  right: 0;
   height: 100vh;
   width: 320px;
   background-color: #ffffff;
-  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.1);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
   z-index: 1002;
-  transition: right 0.3s ease;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
-.sidebar-open {
-  right: 0;
+.learnix-sidebar--open {
+  transform: translateX(0);
 }
 
-.sidebar-header {
+/* Sidebar Header */
+.learnix-sidebar__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
   border-bottom: 1px solid #e5e7eb;
-  background-color: #fbbf24;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  flex-shrink: 0;
 }
 
-.sidebar-header h2 {
+.learnix-sidebar__title {
   font-size: 1.25rem;
   font-weight: 600;
   color: #000000;
   margin: 0;
+  letter-spacing: 0.025em;
 }
 
-.sidebar-close-btn {
+.learnix-sidebar__close-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem;
+  width: 40px;
+  height: 40px;
+  padding: 0;
   background-color: transparent;
   border: none;
-  border-radius: 0.375rem;
+  border-radius: 6px;
   color: #000000;
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.sidebar-close-btn:hover {
+.learnix-sidebar__close-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: rgba(0, 0, 0, 0.1);
+  transform: scale(0);
+  border-radius: 6px;
+  transition: transform 0.3s ease;
+}
+
+.learnix-sidebar__close-btn:hover::before {
+  transform: scale(1);
+}
+
+.learnix-sidebar__close-btn:hover {
   transform: rotate(90deg);
 }
 
-/* Sidebar Navigation */
-.sidebar-nav {
-  padding: 1.5rem;
+.learnix-sidebar__close-btn:focus {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
 }
 
-.sidebar-link {
+/* Sidebar Navigation */
+.learnix-sidebar__nav {
+  padding: 1.5rem;
+  flex: 1;
+}
+
+.learnix-sidebar__link {
   display: flex;
   align-items: center;
   gap: 1rem;
   padding: 1rem;
   color: #374151;
   text-decoration: none;
-  border-radius: 0.5rem;
+  border-radius: 8px;
   transition: all 0.3s ease;
   margin-bottom: 0.5rem;
   font-weight: 500;
+  position: relative;
+  overflow: hidden;
 }
 
-.sidebar-link:hover {
-  background-color: #eff6ff;
+.learnix-sidebar__link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: -1;
+}
+
+.learnix-sidebar__link:hover::before {
+  transform: translateX(0);
+}
+
+.learnix-sidebar__link:hover {
   color: #1e40af;
   transform: translateX(8px);
 }
 
-.sidebar-link:active {
+.learnix-sidebar__link:active {
   transform: translateX(4px);
-  background-color: #dbeafe;
 }
 
-.sidebar-link span {
+.learnix-sidebar__link:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.learnix-sidebar__icon {
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.learnix-sidebar__link:hover .learnix-sidebar__icon {
+  transform: scale(1.1);
+}
+
+.learnix-sidebar__text {
   font-size: 1rem;
+  transition: font-weight 0.3s ease;
+}
+
+.learnix-sidebar__link:hover .learnix-sidebar__text {
+  font-weight: 600;
+}
+
+/* Body Adjustment */
+body {
+  padding-top: 70px;
+  margin: 0;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .navbar {
+  .learnix-navbar {
     padding: 0.75rem 1rem;
+    height: 64px;
   }
   
-  .navbar-logo h1 {
+  .learnix-navbar__logo-text {
     font-size: 1.5rem;
   }
   
-  .sidebar {
+  .learnix-navbar__menu-toggle {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .learnix-sidebar {
     width: 280px;
-    right: -280px;
   }
   
-  .sidebar-header {
-    padding: 1rem;
+  .learnix-sidebar__header {
+    padding: 1.25rem;
   }
   
-  .sidebar-nav {
-    padding: 1rem;
+  .learnix-sidebar__nav {
+    padding: 1.25rem;
   }
   
-  .sidebar-link {
+  .learnix-sidebar__link {
     padding: 0.875rem;
+  }
+  
+  body {
+    padding-top: 64px;
   }
 }
 
 @media (max-width: 480px) {
-  .navbar {
-    padding: 0.625rem 0.75rem;
+  .learnix-navbar {
+    padding: 0.5rem 0.75rem;
+    height: 60px;
   }
   
-  .navbar-logo h1 {
+  .learnix-navbar__logo-text {
     font-size: 1.375rem;
   }
   
-  .sidebar {
+  .learnix-navbar__menu-toggle {
+    width: 42px;
+    height: 42px;
+  }
+  
+  .learnix-sidebar {
     width: 260px;
-    right: -260px;
   }
   
-  .sidebar-header {
-    padding: 0.875rem;
+  .learnix-sidebar__header {
+    padding: 1rem;
   }
   
-  .sidebar-nav {
-    padding: 0.875rem;
+  .learnix-sidebar__nav {
+    padding: 1rem;
   }
   
-  .sidebar-link {
+  .learnix-sidebar__link {
     padding: 0.75rem;
     font-size: 0.9rem;
   }
+  
+  body {
+    padding-top: 60px;
+  }
 }
 
-/* Animation for better UX */
-@media (prefers-reduced-motion: reduce) {
-  .navbar,
-  .sidebar,
-  .navbar-menu-btn,
-  .sidebar-link,
-  .sidebar-close-btn {
-    transition: none;
+@media (max-width: 360px) {
+  .learnix-sidebar {
+    width: 240px;
   }
   
-  .sidebar-overlay {
+  .learnix-navbar__logo-text {
+    font-size: 1.25rem;
+  }
+}
+
+/* Accessibility & Performance */
+@media (prefers-reduced-motion: reduce) {
+  .learnix-navbar,
+  .learnix-navbar__logo-link,
+  .learnix-navbar__menu-toggle,
+  .learnix-navbar__menu-icon,
+  .learnix-sidebar,
+  .learnix-sidebar__backdrop,
+  .learnix-sidebar__close-btn,
+  .learnix-sidebar__link,
+  .learnix-sidebar__icon,
+  .learnix-sidebar__text,
+  .learnix-navbar__menu-toggle::before,
+  .learnix-sidebar__close-btn::before,
+  .learnix-sidebar__link::before {
+    transition: none;
     animation: none;
   }
 }
 
-/* Focus states for accessibility */
-.navbar-menu-btn:focus,
-.sidebar-close-btn:focus,
-.sidebar-link:focus {
-  outline: 2px solid #1e40af;
-  outline-offset: 2px;
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .learnix-navbar {
+    border-bottom: 2px solid #000000;
+  }
+  
+  .learnix-sidebar__header {
+    background: #fbbf24;
+  }
+  
+  .learnix-sidebar__link:hover {
+    background-color: #000000;
+    color: #ffffff;
+  }
 }
 
-/* Body margin adjustment for fixed navbar */
-body {
-  margin-top: 80px;
+/* Dark mode support (if needed later) */
+@media (prefers-color-scheme: dark) {
+  .learnix-navbar {
+    background-color: #1f2937;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .learnix-sidebar {
+    background-color: #1f2937;
+  }
+  
+  .learnix-sidebar__link {
+    color: #d1d5db;
+  }
+  
+  .learnix-sidebar__link:hover {
+    color: #3b82f6;
+    background-color: #374151;
+  }
 }

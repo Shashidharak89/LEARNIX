@@ -29,73 +29,119 @@ export const Navbar = () => {
     setIsOpen(false);
   };
 
+  // Close sidebar on escape key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        closeSidebar();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   return (
     <>
-      {/* Navbar */}
-      <nav className="navbar">
-        {/* Logo */}
-        <div className="navbar-logo">
-          <h1>LEARNIX</h1>
+      {/* Main Navbar */}
+      <nav className="learnix-navbar">
+        {/* Logo Section */}
+        <div className="learnix-navbar__logo">
+          <Link href="/" className="learnix-navbar__logo-link">
+            <h1 className="learnix-navbar__logo-text">LEARNIX</h1>
+          </Link>
         </div>
 
-        {/* Menu Button */}
+        {/* Menu Toggle Button */}
         <button 
-          className="navbar-menu-btn" 
+          className="learnix-navbar__menu-toggle" 
           onClick={toggleSidebar}
-          aria-label="Toggle menu"
+          aria-label="Toggle navigation menu"
+          aria-expanded={isOpen}
         >
-          {isOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+          <span className="learnix-navbar__menu-icon">
+            {isOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+          </span>
         </button>
       </nav>
 
-      {/* Overlay */}
-      {isOpen && (
-        <div 
-          className="sidebar-overlay" 
-          onClick={closeSidebar}
-        />
-      )}
+      {/* Backdrop Overlay */}
+      <div 
+        className={`learnix-sidebar__backdrop ${isOpen ? 'learnix-sidebar__backdrop--active' : ''}`}
+        onClick={closeSidebar}
+        aria-hidden="true"
+      />
 
-      {/* Sidebar */}
-      <aside className={`sidebar ${isOpen ? "sidebar-open" : ""}`}>
-        <div className="sidebar-header">
-          <h2>Menu</h2>
+      {/* Sidebar Navigation */}
+      <aside className={`learnix-sidebar ${isOpen ? 'learnix-sidebar--open' : ''}`}>
+        {/* Sidebar Header */}
+        <div className="learnix-sidebar__header">
+          <h2 className="learnix-sidebar__title">Navigation</h2>
           <button 
-            className="sidebar-close-btn" 
+            className="learnix-sidebar__close-btn" 
             onClick={closeSidebar}
-            aria-label="Close menu"
+            aria-label="Close navigation menu"
           >
-            <FiX size={24} />
+            <FiX size={22} />
           </button>
         </div>
 
-        <nav className="sidebar-nav">
-          <Link href="/dashboard" className="sidebar-link" onClick={closeSidebar}>
-            <FiHome size={20} />
-            <span>Dashboard</span>
+        {/* Navigation Links */}
+        <nav className="learnix-sidebar__nav">
+          <Link 
+            href="/dashboard" 
+            className="learnix-sidebar__link" 
+            onClick={closeSidebar}
+          >
+            <FiHome size={20} className="learnix-sidebar__icon" />
+            <span className="learnix-sidebar__text">Dashboard</span>
           </Link>
           
-          {/* Show Login only if no USN in localStorage */}
           {!hasUSN && (
-            <Link href="/login" className="sidebar-link" onClick={closeSidebar}>
-              <FiLogIn size={20} />
-              <span>Login</span>
+            <Link 
+              href="/login" 
+              className="learnix-sidebar__link" 
+              onClick={closeSidebar}
+            >
+              <FiLogIn size={20} className="learnix-sidebar__icon" />
+              <span className="learnix-sidebar__text">Login</span>
             </Link>
           )}
           
-          <Link href="/search" className="sidebar-link" onClick={closeSidebar}>
-            <FiSearch size={20} />
-            <span>Search</span>
+          <Link 
+            href="/search" 
+            className="learnix-sidebar__link" 
+            onClick={closeSidebar}
+          >
+            <FiSearch size={20} className="learnix-sidebar__icon" />
+            <span className="learnix-sidebar__text">Search</span>
           </Link>
           
-          <Link href="/upload" className="sidebar-link" onClick={closeSidebar}>
-            <FiUpload size={20} />
-            <span>Upload</span>
+          <Link 
+            href="/upload" 
+            className="learnix-sidebar__link" 
+            onClick={closeSidebar}
+          >
+            <FiUpload size={20} className="learnix-sidebar__icon" />
+            <span className="learnix-sidebar__text">Upload</span>
           </Link>
           
-          <Link href="/profile" className="sidebar-link" onClick={closeSidebar}>
-            <FiUser size={20} />
-            <span>Profile</span>
+          <Link 
+            href="/profile" 
+            className="learnix-sidebar__link" 
+            onClick={closeSidebar}
+          >
+            <FiUser size={20} className="learnix-sidebar__icon" />
+            <span className="learnix-sidebar__text">Profile</span>
           </Link>
         </nav>
       </aside>

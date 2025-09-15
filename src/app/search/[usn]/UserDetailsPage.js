@@ -273,7 +273,7 @@ export default function UserDetailsPage({ usn }) {
                     <>
                       <BookOpen size={48} />
                       <h3>No Subjects Added</h3>
-                      <p>This student hasn't added any subjects yet.</p>
+                      <p>This student hasn not added any subjects yet.</p>
                     </>
                   )}
                 </div>
