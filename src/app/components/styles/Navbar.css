@@ -2,7 +2,7 @@
 
 /* Body spacing for fixed navbar */
 body {
-  padding-top: 72px;
+  padding-top: 85px;
 }
 
 /* Main Navbar Container */
@@ -235,7 +235,7 @@ body {
   
   .learnix-sidebar {
     width: 300px;
-    right: -300px;
+    max-width: 85vw;
   }
   
   .learnix-sidebar-header {
@@ -273,7 +273,7 @@ body {
   
   .learnix-sidebar {
     width: 280px;
-    right: -280px;
+    max-width: 80vw;
   }
   
   .learnix-sidebar-header {
@@ -311,7 +311,7 @@ body {
   
   .learnix-sidebar {
     width: 260px;
-    right: -260px;
+    max-width: 75vw;
   }
   
   .learnix-sidebar-header {

@@ -9,7 +9,7 @@ export default function search() {
     return (
         <div >
             <Navbar />
-         <WorkSearchInterface/>
+            <WorkSearchInterface />
         </div>
     );
 }
