@@ -105,6 +105,169 @@
   justify-content: center;
 }
 
+.work-search-reload-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  margin-top: 30px;
+}
+
+.work-search-reload-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
+  color: #ffffff;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.work-search-reload-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.work-search-reload-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(30, 64, 175, 0.4);
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+}
+
+.work-search-reload-btn:hover::before {
+  left: 100%;
+}
+
+.work-search-reload-btn:active {
+  transform: translateY(0px);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+}
+
+.work-search-reload-btn:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.work-search-reload-btn:disabled::before {
+  display: none;
+}
+
+.work-search-reload-icon {
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.work-search-reload-btn:hover .work-search-reload-icon {
+  transform: rotate(180deg);
+}
+
+.work-search-reload-text {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* New styles for the end reload button */
+.work-search-end-reload-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px;
+  margin-top: 20px;
+  border-top: 2px dashed #e5e7eb;
+}
+
+.work-search-end-reload-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #000000;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(251, 191, 36, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.work-search-end-reload-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.work-search-end-reload-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.work-search-end-reload-btn:hover::before {
+  left: 100%;
+}
+
+.work-search-end-reload-btn:active {
+  transform: translateY(0px);
+  box-shadow: 0 3px 10px rgba(251, 191, 36, 0.3);
+}
+
+.work-search-end-reload-btn:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.work-search-end-reload-btn:disabled::before {
+  display: none;
+}
+
+.work-search-end-reload-icon {
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.work-search-end-reload-btn:hover .work-search-end-reload-icon {
+  transform: rotate(180deg);
+}
+
+.work-search-end-message {
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin-top: 20px;
+  font-style: italic;
+}
+
 .work-search-section-title {
   font-size: 1.8rem;
   font-weight: 600;
@@ -457,6 +620,11 @@
   .work-search-section-title {
     font-size: 1.5rem;
   }
+
+  .work-search-reload-btn, .work-search-end-reload-btn {
+    padding: 12px 24px;
+    font-size: 0.95rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -501,6 +669,12 @@
   .work-search-section-title {
     font-size: 1.3rem;
   }
+
+  .work-search-reload-btn, .work-search-end-reload-btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    gap: 8px;
+  }
 }
 
 @media (max-width: 360px) {
@@ -518,6 +692,10 @@
 
   .work-search-topic-card {
     padding: 12px;
+  }
+
+  .work-search-reload-section, .work-search-end-reload-section {
+    padding: 30px 15px;
   }
 }
 

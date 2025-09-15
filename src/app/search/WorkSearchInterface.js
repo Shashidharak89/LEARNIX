@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Search, Download, Eye, ChevronDown, Calendar, User, BookOpen } from 'lucide-react';
+import { Search, Download, Eye, ChevronDown, Calendar, User, BookOpen, RefreshCw, RotateCcw } from 'lucide-react';
 import './styles/WorkSearchInterface.css';
 
 const WorkSearchInterface = () => {
@@ -15,6 +15,7 @@ const WorkSearchInterface = () => {
   const [expandedImages, setExpandedImages] = useState({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [isManualReloading, setIsManualReloading] = useState(false);
 
   const ITEMS_PER_LOAD = 8; // Adjust based on your needs
 
@@ -27,7 +28,7 @@ const WorkSearchInterface = () => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoadingMore && !searchQuery) {
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore && !searchQuery && !isManualReloading) {
           loadMoreTopics();
         }
       },
@@ -40,7 +41,7 @@ const WorkSearchInterface = () => {
     }
 
     return () => observer.disconnect();
-  }, [hasMore, isLoadingMore, searchQuery]);
+  }, [hasMore, isLoadingMore, searchQuery, isManualReloading]);
 
   const fetchAllTopics = async () => {
     setIsLoading(true);
@@ -85,18 +86,58 @@ const WorkSearchInterface = () => {
   };
 
   const loadMoreTopics = useCallback(() => {
-    if (isLoadingMore || !hasMore || searchQuery) return;
+    if (isLoadingMore || !hasMore || searchQuery || isManualReloading) return;
 
     setIsLoadingMore(true);
     
     setTimeout(() => {
       const nextBatch = allTopics.slice(currentIndex, currentIndex + ITEMS_PER_LOAD);
-      setDisplayedTopics(prev => [...prev, ...nextBatch]);
-      setCurrentIndex(prev => prev + ITEMS_PER_LOAD);
-      setHasMore(currentIndex + ITEMS_PER_LOAD < allTopics.length);
+      if (nextBatch.length > 0) {
+        setDisplayedTopics(prev => [...prev, ...nextBatch]);
+        setCurrentIndex(prev => prev + ITEMS_PER_LOAD);
+        setHasMore(currentIndex + ITEMS_PER_LOAD < allTopics.length);
+      } else {
+        setHasMore(false);
+      }
       setIsLoadingMore(false);
     }, 500); // Small delay to show loading state
-  }, [allTopics, currentIndex, hasMore, isLoadingMore, searchQuery]);
+  }, [allTopics, currentIndex, hasMore, isLoadingMore, searchQuery, isManualReloading]);
+
+  const handleManualReload = () => {
+    if (!hasMore || isLoadingMore || searchQuery || isManualReloading) return;
+    setIsManualReloading(true);
+    setTimeout(() => {
+      loadMoreTopics();
+      setIsManualReloading(false);
+    }, 100);
+  };
+
+  const handleEndReload = () => {
+    if (isLoadingMore || isManualReloading) return;
+    
+    setIsManualReloading(true);
+    
+    // Check if there are more topics to load
+    const remainingTopics = allTopics.length - currentIndex;
+    if (remainingTopics > 0) {
+      setTimeout(() => {
+        const nextBatch = allTopics.slice(currentIndex, currentIndex + ITEMS_PER_LOAD);
+        if (nextBatch.length > 0) {
+          setDisplayedTopics(prev => [...prev, ...nextBatch]);
+          setCurrentIndex(prev => prev + ITEMS_PER_LOAD);
+          setHasMore(currentIndex + ITEMS_PER_LOAD < allTopics.length);
+        } else {
+          setHasMore(false);
+        }
+        setIsManualReloading(false);
+      }, 500);
+    } else {
+      // Re-fetch all topics if no more are available
+      fetchAllTopics().then(() => {
+        setIsManualReloading(false);
+      });
+    }
+  };
 
   const handleSearch = async (query) => {
     if (!query.trim()) {
@@ -341,6 +382,53 @@ const WorkSearchInterface = () => {
                   <div className="work-search-loading-more">
                     <div className="work-search-spinner"></div>
                     <p>Loading more topics...</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Manual reload button - shows when there are more items and not currently loading */}
+            {hasMore && !isLoadingMore && !isManualReloading && (
+              <div className="work-search-reload-section">
+                <button 
+                  onClick={handleManualReload}
+                  className="work-search-reload-btn"
+                  disabled={isLoadingMore || isManualReloading}
+                >
+                  <RefreshCw 
+                    size={20} 
+                    className="work-search-reload-icon"
+                  />
+                  <span className="work-search-reload-text">Load More Topics</span>
+                </button>
+              </div>
+            )}
+
+            {/* End reload button - shows when no more items or to refresh the list */}
+            {(!hasMore || displayedTopics.length === 0) && (
+              <div className="work-search-end-reload-section">
+                {displayedTopics.length > 0 && (
+                  <div className="work-search-end-message">
+                    🎉 You've reached the end! All topics have been loaded.
+                  </div>
+                )}
+                <button 
+                  onClick={handleEndReload}
+                  className="work-search-end-reload-btn"
+                  disabled={isLoadingMore || isManualReloading}
+                >
+                  <RotateCcw 
+                    size={18} 
+                    className="work-search-end-reload-icon"
+                  />
+                  <span className="work-search-reload-text">
+                    {displayedTopics.length > 0 ? 'Refresh Topics' : 'Load Topics'}
+                  </span>
+                </button>
+                {isManualReloading && (
+                  <div className="work-search-loading-more">
+                    <div className="work-search-spinner"></div>
+                    <p>Refreshing...</p>
                   </div>
                 )}
               </div>
