@@ -1,0 +1,109 @@
+/* Root Container */
+.learnix-dashboard {
+  background-color: #ffffff;
+  color: #000000;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header */
+.learnix-dashboard-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  animation: fadeInDown 0.8s ease;
+}
+
+.learnix-dashboard-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #1e40af; /* Blue */
+}
+
+.learnix-dashboard-subtitle {
+  font-size: 1rem;
+  color: #333333;
+  margin-top: 0.5rem;
+}
+
+/* Content Grid */
+.learnix-dashboard-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 900px;
+  animation: fadeInUp 1s ease;
+}
+
+/* Cards */
+.learnix-dashboard-card {
+  background: #f9fafb;
+  border: 2px solid #1e40af; /* Blue border */
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  color: #000000;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.learnix-dashboard-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  border-color: #facc15; /* Yellow border on hover */
+}
+
+.learnix-dashboard-card h2 {
+  margin: 1rem 0 0.5rem;
+  font-size: 1.25rem;
+  color: #1e40af;
+}
+
+.learnix-dashboard-card p {
+  font-size: 0.95rem;
+  color: #333333;
+}
+
+/* Icons */
+.learnix-dashboard-icon {
+  font-size: 2rem;
+  color: #facc15; /* Yellow */
+}
+
+/* Animations */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Fix */
+@media (max-width: 600px) {
+  .learnix-dashboard-title {
+    font-size: 1.5rem;
+  }
+
+  .learnix-dashboard-subtitle {
+    font-size: 0.9rem;
+  }
+}

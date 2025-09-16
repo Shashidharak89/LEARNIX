@@ -8,7 +8,8 @@ import {
   FiLogIn, 
   FiSearch, 
   FiUpload, 
-  FiUser 
+  FiUser, 
+  FiLogOut
 } from "react-icons/fi";
 import "./styles/Navbar.css";
 import { Fill } from "./Fill";
@@ -30,24 +31,29 @@ export const Navbar = () => {
     setIsOpen(false);
   };
 
+  const handleSignout = () => {
+    localStorage.clear();
+    window.location.href = "/"; // Redirect and refresh
+  };
+
   // Close sidebar when clicking outside or pressing escape
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.key === 'Escape' && isOpen) {
+      if (event.key === "Escape" && isOpen) {
         closeSidebar();
       }
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden'; // Prevent scrolling when sidebar is open
+      document.addEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "hidden"; // Prevent scrolling when sidebar is open
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'unset';
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
@@ -153,6 +159,18 @@ export const Navbar = () => {
             <FiUser size={20} />
             <span>Profile</span>
           </Link>
+
+          {/* 🔹 Signout option (only if logged in) */}
+          {hasUSN && (
+            <button 
+              onClick={handleSignout} 
+              className="learnix-sidebar-link"
+              tabIndex={isOpen ? 0 : -1}
+            >
+              <FiLogOut size={20} />
+              <span>Signout</span>
+            </button>
+          )}
         </nav>
       </aside>
       <Fill/>
