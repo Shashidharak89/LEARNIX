@@ -10,6 +10,31 @@
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Not Logged In Screen */
+.learnix-dashboard.not-logged {
+  justify-content: center;
+  text-align: center;
+}
+
+.learnix-dashboard-login-btn {
+  margin-top: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #1e40af; /* Blue */
+  color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.learnix-dashboard-login-btn:hover {
+  background-color: #facc15; /* Yellow */
+  color: #000000;
+}
+
 /* Header */
 .learnix-dashboard-header {
   text-align: center;

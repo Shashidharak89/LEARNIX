@@ -1,10 +1,33 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FiSearch, FiUpload, FiUser } from "react-icons/fi";
-import "./styles/DashBoard.css";
+import { FiSearch, FiUpload, FiUser, FiLogIn } from "react-icons/fi";
+import "./styles/Dashboard.css";
 
 export default function DashBoard() {
+  const [usn, setUsn] = useState(null);
+
+  useEffect(() => {
+    const storedUsn = localStorage.getItem("usn");
+    setUsn(storedUsn);
+  }, []);
+
+  if (!usn) {
+    return (
+      <div className="learnix-dashboard not-logged">
+        <h1 className="learnix-dashboard-title">You are not logged in</h1>
+        <p className="learnix-dashboard-subtitle">
+          Please login to access your Learnix dashboard.
+        </p>
+        <Link href="/login" className="learnix-dashboard-login-btn">
+          <FiLogIn size={18} />
+          <span>Login</span>
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="learnix-dashboard">
       {/* Header */}
