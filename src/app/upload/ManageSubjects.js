@@ -22,6 +22,7 @@ import {
   FiCamera,
   FiFile
 } from "react-icons/fi";
+import PDFProcessor from "./PDFProcessor";
 import "./styles/ManageSubjects.css";
 
 export default function ManageSubjects() {
@@ -32,7 +33,7 @@ export default function ManageSubjects() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [uploadingStates, setUploadingStates] = useState({});
-  const [compressionStates, setCompressionStates] = useState({}); // New state for compression
+  const [compressionStates, setCompressionStates] = useState({});
 
   // New states for dropdown functionality
   const [allUsers, setAllUsers] = useState([]);
@@ -49,6 +50,9 @@ export default function ManageSubjects() {
   const [expandedImages, setExpandedImages] = useState({});
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, subject: '', topic: '', imageUrl: '' });
   const [showCaptureOptions, setShowCaptureOptions] = useState({});
+  
+  // PDF processing states
+  const [showPDFProcessor, setShowPDFProcessor] = useState({});
   
   // Refs for camera inputs
   const cameraInputRefs = useRef({});
@@ -86,19 +90,18 @@ export default function ManageSubjects() {
   // Image compression function
   const compressImage = async (file) => {
     const options = {
-      maxSizeMB: 0.5, // Maximum file size in MB (0.5MB for high compression)
-      maxWidthOrHeight: 1920, // Maximum width or height
-      useWebWorker: true, // Use web worker for better performance
-      quality: 0.8, // Quality from 0 to 1 (0.8 = 80% quality)
-      initialQuality: 0.8, // Initial quality
-      alwaysKeepResolution: false, // Allow resolution reduction
-      fileType: 'image/jpeg', // Force JPEG for better compression
+      maxSizeMB: 0.5,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+      quality: 0.8,
+      initialQuality: 0.8,
+      alwaysKeepResolution: false,
+      fileType: 'image/jpeg',
     };
 
     try {
       const compressedFile = await imageCompression(file, options);
       
-      // Calculate compression ratio
       const compressionRatio = ((file.size - compressedFile.size) / file.size * 100).toFixed(1);
       console.log(`Image compressed by ${compressionRatio}%`);
       console.log(`Original size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
@@ -244,6 +247,15 @@ export default function ManageSubjects() {
     }));
   };
 
+  // Toggle PDF processor
+  const togglePDFProcessor = (subject, topic) => {
+    const key = `${subject}-${topic}`;
+    setShowPDFProcessor(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
   // Trigger camera capture
   const triggerCameraCapture = (subject, topic) => {
     const key = `${subject}-${topic}`;
@@ -257,7 +269,6 @@ export default function ManageSubjects() {
     const file = event.target.files[0];
     if (file) {
       await handleFileChange(subject, topic, file);
-      // Close the capture options after successful capture
       setShowCaptureOptions(prev => ({ ...prev, [`${subject}-${topic}`]: false }));
     }
   };
@@ -267,10 +278,8 @@ export default function ManageSubjects() {
     const key = `${subject}-${topic}`;
     
     if (!file) {
-      // Handle file removal
       setFilesMap({ ...filesMap, [key]: null });
       
-      // Clean up preview URL
       if (filePreviewMap[key]) {
         URL.revokeObjectURL(filePreviewMap[key]);
         const newPreviewMap = { ...filePreviewMap };
@@ -280,7 +289,6 @@ export default function ManageSubjects() {
       return;
     }
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       setMessage("Please select a valid image file.");
       setTimeout(() => setMessage(""), 3000);
@@ -288,27 +296,21 @@ export default function ManageSubjects() {
     }
 
     try {
-      // Set compression state
       setCompressionStates(prev => ({ ...prev, [key]: true }));
       setMessage("Compressing image...");
 
-      // Compress the image
       const compressedFile = await compressImage(file);
       
-      // Create new File object with original name but compressed data
       const finalFile = new File([compressedFile], file.name, {
         type: compressedFile.type,
         lastModified: Date.now(),
       });
 
-      // Update state with compressed file
       setFilesMap({ ...filesMap, [key]: finalFile });
       
-      // Create preview URL with compressed file
       const previewUrl = URL.createObjectURL(finalFile);
       setFilePreviewMap({ ...filePreviewMap, [key]: previewUrl });
 
-      // Calculate and show compression info
       const compressionRatio = ((file.size - finalFile.size) / file.size * 100).toFixed(1);
       setMessage(`Image compressed by ${compressionRatio}% (${(file.size / 1024 / 1024).toFixed(2)}MB → ${(finalFile.size / 1024 / 1024).toFixed(2)}MB)`);
       setTimeout(() => setMessage(""), 5000);
@@ -318,7 +320,6 @@ export default function ManageSubjects() {
       setMessage("Image compression failed. Please try again.");
       setTimeout(() => setMessage(""), 3000);
     } finally {
-      // Clear compression state
       setCompressionStates(prev => {
         const newState = { ...prev };
         delete newState[key];
@@ -382,7 +383,6 @@ export default function ManageSubjects() {
       setSubjects(res.data.subjects);
       setFilesMap({ ...filesMap, [`${subject}-${topic}`]: null });
       
-      // Clean up preview
       const key = `${subject}-${topic}`;
       if (filePreviewMap[key]) {
         URL.revokeObjectURL(filePreviewMap[key]);
@@ -426,6 +426,17 @@ export default function ManageSubjects() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Handle successful PDF upload from PDFProcessor
+  const handlePDFUploadSuccess = (subject, topic) => {
+    fetchSubjects(usn); // Refresh subjects to show new images
+    setMessage("PDF pages uploaded successfully!");
+    setTimeout(() => setMessage(""), 3000);
+    
+    // Close PDF processor
+    const key = `${subject}-${topic}`;
+    setShowPDFProcessor(prev => ({ ...prev, [key]: false }));
   };
 
   // Helper function to get valid images (non-empty)
@@ -513,7 +524,6 @@ export default function ManageSubjects() {
 
         <div className="mse-subjects-grid">
           {subjects.map((sub, idx) => {
-            // Get topics available for this specific subject
             const topicsForThisSubject = getAllTopicsForSubject(sub.subject);
             
             return (
@@ -673,6 +683,15 @@ export default function ManageSubjects() {
                                       />
                                     </label>
 
+                                    <button
+                                      onClick={() => togglePDFProcessor(sub.subject, t.topic)}
+                                      className="mse-btn mse-btn-accent mse-btn-sm"
+                                      disabled={isLoading}
+                                    >
+                                      <FiFileText className="mse-btn-icon" />
+                                      Upload PDF
+                                    </button>
+
                                     {/* Hidden camera input for direct capture */}
                                     <input
                                       ref={el => cameraInputRefs.current[`${sub.subject}-${t.topic}`] = el}
@@ -685,6 +704,19 @@ export default function ManageSubjects() {
                                   </div>
                                 )}
                               </div>
+                              
+                              {/* PDF Processor */}
+                              {showPDFProcessor[`${sub.subject}-${t.topic}`] && (
+                                <div className="mse-pdf-processor-container">
+                                  <PDFProcessor
+                                    usn={usn}
+                                    subject={sub.subject}
+                                    topic={t.topic}
+                                    onClose={() => togglePDFProcessor(sub.subject, t.topic)}
+                                    onUploadSuccess={() => handlePDFUploadSuccess(sub.subject, t.topic)}
+                                  />
+                                </div>
+                              )}
                               
                               {/* Compression indicator */}
                               {compressionStates[compressionKey] && (
