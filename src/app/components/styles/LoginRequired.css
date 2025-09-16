@@ -1,0 +1,55 @@
+.learnix-login-required {
+  background-color: #ffffff;
+  color: #000000;
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2rem 1rem;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  animation: fadeIn 0.8s ease;
+}
+
+.learnix-login-required-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #1e40af; /* Blue */
+}
+
+.learnix-login-required-subtitle {
+  font-size: 1rem;
+  color: #333333;
+  margin-top: 0.5rem;
+}
+
+.learnix-login-required-btn {
+  margin-top: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #1e40af; /* Blue */
+  color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.learnix-login-required-btn:hover {
+  background-color: #facc15; /* Yellow */
+  color: #000000;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
