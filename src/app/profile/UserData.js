@@ -277,7 +277,7 @@ export default function UserData() {
                     <>
                       <BookOpen size={48} />
                       <h3>No Subjects Added</h3>
-                      <p>You haven't added any subjects yet. Start building your learning profile!</p>
+                      <p>You haven not added any subjects yet. Start building your learning profile!</p>
                     </>
                   )}
                 </div>
