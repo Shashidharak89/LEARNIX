@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { Calendar, BookOpen, ImageIcon, Eye, EyeOff, User, GraduationCap, Clock, ChevronDown, Search } from "lucide-react";
+import { Calendar, BookOpen, ImageIcon, Eye, EyeOff, User, GraduationCap, Clock, ChevronDown, Search, Settings } from "lucide-react";
 import './styles/UserData.css';
+import ChangeName from './ChangeName'; // Adjust path as needed
+import ChangePassword from './ChangePassword'; // Adjust path as needed
 
 export default function UserData() {
   const [user, setUser] = useState(null);
@@ -14,6 +16,7 @@ export default function UserData() {
   const [filteredSubjects, setFilteredSubjects] = useState([]);
   const [visibleTopics, setVisibleTopics] = useState({});
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   
   const TOPICS_PER_LOAD = 3; // Load 3 topics at a time per subject
 
@@ -209,7 +212,72 @@ export default function UserData() {
         )}
 
         {user && (
-          <div className="user-profile-card">
+          <div className="user-profile-card" style={{ position: 'relative' }}>
+            {/* Settings Button - positioned at top-right corner of profile card */}
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                background: '#87CEEB',
+                border: '2px solid white',
+                color: 'white',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                transition: 'all 0.3s ease',
+                zIndex: 10
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = '#FFD700';
+                e.target.style.color = 'black';
+                e.target.style.transform = 'scale(1.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = '#87CEEB';
+                e.target.style.color = 'white';
+                e.target.style.transform = 'scale(1)';
+              }}
+            >
+              <Settings size={20} />
+            </button>
+
+            {/* Settings Panel */}
+            {showSettings && (
+              <div className="account-container" style={{
+                position: 'absolute',
+                top: '70px',
+                right: '16px',
+                background: 'white',
+                border: '2px solid #87CEEB',
+                borderRadius: '12px',
+                padding: '24px',
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+                zIndex: 20,
+                minWidth: '350px',
+                maxWidth: '400px'
+              }}>
+                <h1 style={{ 
+                  margin: '0 0 20px 0', 
+                  color: '#333', 
+                  fontSize: '1.4rem',
+                  fontWeight: '600'
+                }}>
+                  Account Settings
+                </h1>
+                {/* Change Name Component */}
+                <ChangeName usn={localStorage.getItem("usn")} />
+                {/* Change Password Component */}
+                <ChangePassword usn={localStorage.getItem("usn")} />
+              </div>
+            )}
+
             {/* Profile Header */}
             <div className="user-profile-header">
               <div className="user-profile-avatar">
