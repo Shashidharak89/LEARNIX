@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Work from "@/models/Work";
+import bcrypt from "bcryptjs";
 
 export const PUT = async (req) => {
   try {
@@ -27,16 +28,21 @@ export const PUT = async (req) => {
       );
     }
 
-    // Verify old password
-    if (user.password !== oldPassword) {
+    // Verify old password with bcrypt
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
       return NextResponse.json(
         { error: "Incorrect old password" },
         { status: 401 }
       );
     }
 
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
     // Update password
-    user.password = newPassword;
+    user.password = hashedPassword;
     await user.save();
 
     return NextResponse.json({
