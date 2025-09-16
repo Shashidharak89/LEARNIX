@@ -3,14 +3,16 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { FiUpload, FiX, FiFile, FiImage, FiCheck, FiLoader } from "react-icons/fi";
+import "./styles/PDFProcessor.css";
 
 export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuccess }) {
   const [pdfFile, setPdfFile] = useState(null);
   const [pages, setPages] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [uploadingStates, setUploadingStates] = useState({});
+  const [uploading, setUploading] = useState(false);
   const [uploadedPages, setUploadedPages] = useState(new Set());
   const [message, setMessage] = useState("");
+  const [progress, setProgress] = useState(0);
   const canvasRefs = useRef([]);
 
   const handleFileSelect = async (event) => {
@@ -24,6 +26,7 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
     setPdfFile(file);
     setPages([]);
     setUploadedPages(new Set());
+    setProgress(0);
     await processPDF(file);
   };
 
@@ -32,12 +35,12 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
     setMessage("Processing PDF...");
 
     try {
-      // Use PDF.js from CDN
       if (!window.pdfjsLib) {
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+        const script = document.createElement("script");
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
         script.onload = () => {
-          window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+            "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
           processPDFWithLib(file);
         };
         document.head.appendChild(script);
@@ -55,8 +58,8 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
   const processPDFWithLib = async (file) => {
     try {
       const fileReader = new FileReader();
-      
-      fileReader.onload = async function() {
+
+      fileReader.onload = async function () {
         try {
           const typedArray = new Uint8Array(this.result);
           const pdf = await window.pdfjsLib.getDocument(typedArray).promise;
@@ -73,14 +76,10 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
             canvas.height = viewport.height;
             canvas.width = viewport.width;
 
-            const renderContext = {
-              canvasContext: context,
-              viewport: viewport
-            };
-
+            const renderContext = { canvasContext: context, viewport: viewport };
             await page.render(renderContext).promise;
-            
-            const blob = await new Promise(resolve => {
+
+            const blob = await new Promise((resolve) => {
               canvas.toBlob(resolve, "image/jpeg", 0.8);
             });
 
@@ -88,7 +87,7 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
               pageNumber: pageNum,
               blob: blob,
               imageUrl: URL.createObjectURL(blob),
-              fileName: `${file.name}_page_${pageNum}.jpg`
+              fileName: `${file.name}_page_${pageNum}.jpg`,
             });
           }
 
@@ -113,10 +112,18 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
     }
   };
 
-  const uploadPage = async (page) => {
-    const pageId = `page-${page.pageNumber}`;
-    setUploadingStates(prev => ({ ...prev, [pageId]: true }));
+  const uploadSequentially = async () => {
+    setUploading(true);
+    setMessage("Uploading started...");
+    for (let i = 0; i < pages.length; i++) {
+      const page = pages[i];
+      await uploadPage(page, i + 1, pages.length);
+    }
+    setUploading(false);
+    onUploadSuccess();
+  };
 
+  const uploadPage = async (page, currentIndex, totalPages) => {
     const formData = new FormData();
     formData.append("usn", usn);
     formData.append("subject", subject);
@@ -124,259 +131,85 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
     formData.append("file", page.blob, page.fileName);
 
     try {
-      const res = await axios.post("/api/topic/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
+      await axios.post("/api/topic/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
-      setUploadedPages(prev => new Set([...prev, page.pageNumber]));
-      setMessage(`Page ${page.pageNumber} uploaded successfully!`);
-      setTimeout(() => setMessage(""), 3000);
-
-      if (uploadedPages.size + 1 === pages.length) {
-        onUploadSuccess();
-      }
+      setUploadedPages((prev) => new Set([...prev, page.pageNumber]));
+      const percent = Math.round((currentIndex / totalPages) * 100);
+      setProgress(percent);
+      setMessage(`Uploaded page ${page.pageNumber} (${percent}% completed)`);
     } catch (error) {
       console.error("Upload error:", error);
       setMessage(`Failed to upload page ${page.pageNumber}`);
-      setTimeout(() => setMessage(""), 3000);
-    } finally {
-      setUploadingStates(prev => {
-        const newState = { ...prev };
-        delete newState[pageId];
-        return newState;
-      });
-    }
-  };
-
-  const uploadAllPages = async () => {
-    const unuploadedPages = pages.filter(page => !uploadedPages.has(page.pageNumber));
-    
-    for (const page of unuploadedPages) {
-      await uploadPage(page);
     }
   };
 
   useEffect(() => {
     return () => {
-      pages.forEach(page => {
+      pages.forEach((page) => {
         URL.revokeObjectURL(page.imageUrl);
       });
     };
   }, [pages]);
 
   return (
-    <div style={{ 
-      border: "1px solid #ddd", 
-      borderRadius: "8px", 
-      padding: "20px", 
-      margin: "10px 0",
-      backgroundColor: "#f9f9f9"
-    }}>
-      <div style={{ 
-        display: "flex", 
-        justifyContent: "space-between", 
-        alignItems: "center", 
-        marginBottom: "15px" 
-      }}>
-        <h3 style={{ margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
-          <FiFile />
-          PDF Processor
+    <div className="pdf-box">
+      <div className="pdf-header">
+        <h3 className="pdf-title">
+          <FiFile /> PDF Processor
         </h3>
-        <button
-          onClick={onClose}
-          style={{
-            background: "none",
-            border: "none",
-            fontSize: "18px",
-            cursor: "pointer",
-            padding: "4px"
-          }}
-        >
+        <button onClick={onClose} className="pdf-close">
           <FiX />
         </button>
       </div>
 
-      {message && (
-        <div style={{
-          padding: "10px",
-          marginBottom: "15px",
-          borderRadius: "4px",
-          backgroundColor: message.includes("Error") || message.includes("Failed") ? "#fee" : "#efe",
-          color: message.includes("Error") || message.includes("Failed") ? "#c33" : "#363",
-          border: `1px solid ${message.includes("Error") || message.includes("Failed") ? "#fcc" : "#cfc"}`
-        }}>
-          {message}
-        </div>
-      )}
+      {message && <div className="pdf-message">{message}</div>}
 
-      <div style={{ marginBottom: "20px" }}>
-        <label style={{
-          display: "inline-block",
-          padding: "10px 16px",
-          backgroundColor: "#007bff",
-          color: "white",
-          borderRadius: "4px",
-          cursor: "pointer",
-          border: "none"
-        }}>
+      <div className="pdf-select">
+        <label className="pdf-select-btn">
           <FiFile style={{ marginRight: "8px" }} />
           Select PDF File
-          <input
-            type="file"
-            accept=".pdf"
-            onChange={handleFileSelect}
-            style={{ display: "none" }}
-            disabled={isProcessing}
-          />
+          <input type="file" accept=".pdf" onChange={handleFileSelect} disabled={isProcessing} style={{ display: "none" }} />
         </label>
       </div>
 
-      {pdfFile && (
-        <div style={{ marginBottom: "15px", padding: "10px", backgroundColor: "#f0f0f0", borderRadius: "4px" }}>
-          <strong>Selected File:</strong> {pdfFile.name}
-        </div>
-      )}
+      {pdfFile && <div className="pdf-selected">Selected File: {pdfFile.name}</div>}
 
       {isProcessing && (
-        <div style={{ 
-          textAlign: "center", 
-          padding: "20px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: "10px"
-        }}>
-          <FiLoader style={{ animation: "spin 1s linear infinite" }} />
-          <span>Processing PDF...</span>
+        <div className="pdf-loading">
+          <FiLoader className="spin" /> Processing PDF...
         </div>
       )}
 
       {pages.length > 0 && (
         <>
-          <div style={{ 
-            display: "flex", 
-            justifyContent: "space-between", 
-            alignItems: "center", 
-            marginBottom: "15px" 
-          }}>
-            <h4 style={{ margin: 0 }}>
-              Extracted Pages ({pages.length})
-            </h4>
-            {pages.length > 1 && uploadedPages.size < pages.length && (
-              <button
-                onClick={uploadAllPages}
-                style={{
-                  padding: "8px 16px",
-                  backgroundColor: "#28a745",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "5px"
-                }}
-              >
-                <FiUpload />
-                Upload All Remaining
-              </button>
-            )}
-          </div>
-
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-            gap: "15px",
-            maxHeight: "400px",
-            overflowY: "auto"
-          }}>
-            {pages.map((page) => {
-              const pageId = `page-${page.pageNumber}`;
-              const isUploaded = uploadedPages.has(page.pageNumber);
-              const isUploading = uploadingStates[pageId];
-
-              return (
-                <div
-                  key={page.pageNumber}
-                  style={{
-                    border: "1px solid #ddd",
-                    borderRadius: "6px",
-                    padding: "10px",
-                    backgroundColor: isUploaded ? "#f0fff0" : "white"
-                  }}
-                >
-                  <div style={{ 
-                    marginBottom: "10px", 
-                    fontWeight: "bold",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "5px"
-                  }}>
-                    <FiImage />
-                    Page {page.pageNumber}
-                    {isUploaded && <FiCheck style={{ color: "#28a745" }} />}
-                  </div>
-                  
-                  <img
-                    src={page.imageUrl}
-                    alt={`Page ${page.pageNumber}`}
-                    style={{
-                      width: "100%",
-                      height: "150px",
-                      objectFit: "cover",
-                      border: "1px solid #eee",
-                      borderRadius: "4px",
-                      marginBottom: "10px"
-                    }}
-                  />
-                  
-                  <button
-                    onClick={() => uploadPage(page)}
-                    disabled={isUploading || isUploaded}
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      backgroundColor: isUploaded ? "#28a745" : (isUploading ? "#6c757d" : "#007bff"),
-                      color: "white",
-                      border: "none",
-                      borderRadius: "4px",
-                      cursor: isUploading || isUploaded ? "default" : "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "5px"
-                    }}
-                  >
-                    {isUploading ? (
-                      <>
-                        <FiLoader style={{ animation: "spin 1s linear infinite" }} />
-                        Uploading...
-                      </>
-                    ) : isUploaded ? (
-                      <>
-                        <FiCheck />
-                        Uploaded
-                      </>
-                    ) : (
-                      <>
-                        <FiUpload />
-                        Upload
-                      </>
-                    )}
-                  </button>
+          <div className="pdf-preview-grid">
+            {pages.map((page) => (
+              <div key={page.pageNumber} className={`pdf-page ${uploadedPages.has(page.pageNumber) ? "uploaded" : ""}`}>
+                <div className="pdf-page-header">
+                  <FiImage /> Page {page.pageNumber}
+                  {uploadedPages.has(page.pageNumber) && <FiCheck style={{ color: "#28a745" }} />}
                 </div>
-              );
-            })}
+                <img src={page.imageUrl} alt={`Page ${page.pageNumber}`} className="pdf-thumb" />
+              </div>
+            ))}
           </div>
+
+          {!uploading && uploadedPages.size < pages.length && (
+            <button onClick={uploadSequentially} className="pdf-upload-all">
+              <FiUpload /> Upload All Pages
+            </button>
+          )}
+
+          {uploading && (
+            <div className="pdf-progress">
+              <div className="pdf-progress-bar" style={{ width: `${progress}%` }}></div>
+              <span>{progress}% Completed</span>
+            </div>
+          )}
         </>
       )}
-
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   );
 }
