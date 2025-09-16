@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { FiSearch, FiUpload, FiUser, FiLogIn } from "react-icons/fi";
-import "./styles/Dashboard.css";
+import "./styles/DashBoard.css";
 
 export default function DashBoard() {
   const [usn, setUsn] = useState(null);
