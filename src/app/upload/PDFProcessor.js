@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import imageCompression from "browser-image-compression";
+
 import { FiUpload, FiX, FiFile, FiImage, FiCheck, FiLoader, FiCheckCircle } from "react-icons/fi";
 import "./styles/PDFProcessor.css";
 
@@ -135,13 +135,10 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
               canvas.toBlob(resolve, "image/jpeg", 0.9);
             });
 
-            // Compress the image
-            const compressedBlob = await compressImage(blob);
-
             extractedPages.push({
               pageNumber: pageNum,
-              blob: compressedBlob,
-              imageUrl: URL.createObjectURL(compressedBlob),
+              blob: blob,
+              imageUrl: URL.createObjectURL(blob),
               fileName: `${file.name}_page_${pageNum}.jpg`,
             });
 
@@ -165,23 +162,6 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
       console.error("Error reading file:", error);
       showMessage("Error reading PDF file.", "error");
       setIsProcessing(false);
-    }
-  };
-
-  const compressImage = async (imageBlob) => {
-    try {
-      const options = {
-        maxSizeMB: 0.5, // Maximum file size in MB
-        maxWidthOrHeight: 800, // Maximum width or height
-        useWebWorker: true,
-        quality: 0.8, // Image quality (0-1)
-      };
-
-      const compressedFile = await imageCompression(imageBlob, options);
-      return compressedFile;
-    } catch (error) {
-      console.error("Error compressing image:", error);
-      return imageBlob; // Return original if compression fails
     }
   };
 
@@ -345,6 +325,5 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
           )}
         </div>
       </div>
-    
   );
 }
