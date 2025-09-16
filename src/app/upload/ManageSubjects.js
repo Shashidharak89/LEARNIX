@@ -30,15 +30,6 @@ import LoginRequired from "../components/LoginRequired";
 
 export default function ManageSubjects() {
  
-  
-  // ************************Check usn existance in LocalStorage
- const usnl = typeof window !== "undefined" ? localStorage.getItem("usn") : null;
-  if (!usnl) {
-    return <LoginRequired />;
-  }
-
-  // ***************************************************************
-
 
   const [usn, setUsn] = useState("");
   const [subjects, setSubjects] = useState([]);
@@ -165,6 +156,7 @@ export default function ManageSubjects() {
     });
     return Array.from(subjectSet).sort();
   };
+
 
   // Get all topics for a specific subject
   const getAllTopicsForSubject = (subjectName) => {
@@ -475,6 +467,16 @@ export default function ManageSubjects() {
   };
 
   const uniqueSubjects = getAllSubjects();
+
+  
+  
+  // ************************Check usn existance in LocalStorage
+ const usnl = typeof window !== "undefined" ? localStorage.getItem("usn") : null;
+  if (!usnl) {
+    return <LoginRequired />;
+  }
+
+  // ***************************************************************
 
   return (
     <div className={`mse-container ${theme}`}>
