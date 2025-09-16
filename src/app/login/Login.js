@@ -3,12 +3,13 @@
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { FiUser, FiHash, FiArrowRight, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import { FiUser, FiHash, FiLock, FiArrowRight, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import "./styles/Login.css";
 
 export default function Login() {
   const [name, setName] = useState("");
   const [usn, setUsn] = useState("");
+  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -20,17 +21,15 @@ export default function Login() {
     setMessage("");
     
     try {
-      const res = await axios.post("/api/auth", { name, usn });
+      const res = await axios.post("/api/auth", { name, usn, password });
       setMessage(res.data.message);
       setIsSuccess(true);
 
-      // Save user info in sessionStorage instead of localStorage for artifacts
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem("usn", res.data.user.usn);
-        sessionStorage.setItem("name", res.data.user.name);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("usn", res.data.user.usn); // 🔹 store in localStorage
+        localStorage.setItem("name", res.data.user.name);
       }
 
-      // Simulate redirect delay for smooth transition
       setTimeout(() => {
         router.push("/dashboard");
       }, 1500);
@@ -84,19 +83,34 @@ export default function Login() {
             </div>
           </div>
 
+          <div className="input-group">
+            <div className="input-wrapper">
+              <FiLock className="input-icon" />
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="auth-input"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
+
           <button 
             type="submit" 
-            className={`auth-submit-btn ${isLoading ? 'loading' : ''}`}
+            className={`auth-submit-btn ${isLoading ? "loading" : ""}`}
             disabled={isLoading}
           >
             <span className="btn-text">
-              {isLoading ? 'Processing...' : 'Continue'}
+              {isLoading ? "Processing..." : "Continue"}
             </span>
-            <FiArrowRight className={`btn-icon ${isLoading ? 'spinning' : ''}`} />
+            <FiArrowRight className={`btn-icon ${isLoading ? "spinning" : ""}`} />
           </button>
 
           {message && (
-            <div className={`auth-message ${isSuccess ? 'success' : 'error'}`}>
+            <div className={`auth-message ${isSuccess ? "success" : "error"}`}>
               {isSuccess ? (
                 <FiCheckCircle className="message-icon" />
               ) : (

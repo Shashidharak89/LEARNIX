@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 const TopicSchema = new mongoose.Schema({
   topic: { type: String },
   content: { type: String, default: "" },
-  images: { type: [String], default: [] }, // list of image URLs
-  timestamp: { type: Date, default: Date.now } // timestamp per topic
+  images: { type: [String], default: [] },
+  timestamp: { type: Date, default: Date.now }
 }, { _id: false });
 
 const SubjectSchema = new mongoose.Schema({
@@ -15,8 +15,9 @@ const SubjectSchema = new mongoose.Schema({
 const WorkSchema = new mongoose.Schema({
   name: { type: String, required: true },
   usn: { type: String, required: true, unique: true },
+  password: { type: String }, // not required initially
   subjects: { type: [SubjectSchema], default: [] },
-  createdAt: { type: Date, default: Date.now } // timestamp for whole record
+  createdAt: { type: Date, default: Date.now }
 });
 
 export default mongoose.models.Work || mongoose.model("Work", WorkSchema);

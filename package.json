@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "axios": "^1.12.1",
+    "bcryptjs": "^3.0.2",
     "browser-image-compression": "^2.0.2",
     "cloudinary": "^2.7.0",
     "jspdf": "^3.0.2",

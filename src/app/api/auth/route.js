@@ -1,33 +1,54 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Work from "@/models/Work";
+import bcrypt from "bcryptjs";
 
 export async function POST(req) {
   try {
     await connectDB();
-    const { name, usn } = await req.json();
+    const { name, usn, password } = await req.json();
 
-    if (!usn) {
-      return NextResponse.json({ error: "USN is required" }, { status: 400 });
+    if (!usn || !password) {
+      return NextResponse.json({ error: "USN and password are required" }, { status: 400 });
     }
 
-    const usnUpper = usn.toUpperCase(); // Convert USN to uppercase
+    const usnUpper = usn.toUpperCase();
     let user = await Work.findOne({ usn: usnUpper });
 
     if (user) {
-      // Existing user: ignore name
-      return NextResponse.json({
-        message: "Logged in successfully",
-        user: { name: user.name, usn: user.usn }
-      });
+      if (!user.password) {
+        // 🔹 First time password setup
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user.password = hashedPassword;
+        await user.save();
+
+        return NextResponse.json({
+          message: "Password set successfully. You are now logged in.",
+          user: { name: user.name, usn: user.usn }
+        });
+      } else {
+        // 🔹 Login with existing password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+          return NextResponse.json({ error: "Invalid password" }, { status: 401 });
+        }
+
+        return NextResponse.json({
+          message: "Logged in successfully",
+          user: { name: user.name, usn: user.usn }
+        });
+      }
     } else {
-      // Create new user
+      // 🔹 Create new account with password
+      const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = new Work({
         name,
         usn: usnUpper,
+        password: hashedPassword,
         subjects: []
       });
       await newUser.save();
+
       return NextResponse.json({
         message: "Account created",
         user: { name: newUser.name, usn: newUser.usn }
