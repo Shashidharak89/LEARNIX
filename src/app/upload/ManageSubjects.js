@@ -23,6 +23,8 @@ import {
   FiFile
 } from "react-icons/fi";
 import PDFProcessor from "./PDFProcessor";
+import DeleteSubjectButton from "./DeleteSubjectButton";
+import DeleteTopicButton from "./DeleteTopicButton";
 import "./styles/ManageSubjects.css";
 import LoginRequired from "../components/LoginRequired";
 
@@ -201,6 +203,22 @@ export default function ManageSubjects() {
   const handleTopicSelectForSubject = (e, currentSubject) => {
     const value = e.target.value;
     setTopicName(value);
+  };
+
+  // Handle successful subject delete
+  const handleSubjectDelete = (updatedSubjects) => {
+    console.log("Subjects after delete:", updatedSubjects);
+    setSubjects(updatedSubjects);
+    setMessage("Subject deleted successfully!");
+    setTimeout(() => setMessage(""), 3000);
+  };
+
+  // Handle successful topic delete
+  const handleTopicDelete = (updatedSubjects) => {
+    console.log("Subjects after topic delete:", updatedSubjects);
+    setSubjects(updatedSubjects);
+    setMessage("Topic deleted successfully!");
+    setTimeout(() => setMessage(""), 3000);
   };
 
   // Add Subject
@@ -542,7 +560,14 @@ export default function ManageSubjects() {
               <div key={idx} className="mse-subject-card">
                 <div className="mse-subject-header">
                   <FiBook className="mse-subject-icon" />
-                  <h3>{sub.subject}</h3>
+                  <div className="mse-subject-title-container">
+                    <h3>{sub.subject} <DeleteSubjectButton 
+                      usn={usn} 
+                      subject={sub.subject} 
+                      onDelete={handleSubjectDelete} 
+                    /></h3>
+                    
+                  </div>
                 </div>
 
                 {/* Add Topic Input */}
@@ -597,6 +622,12 @@ export default function ManageSubjects() {
                               <div className="mse-topic-title">
                                 <FiFileText className="mse-topic-icon" />
                                 <h4>{t.topic}</h4>
+                                <DeleteTopicButton 
+                                  usn={usn} 
+                                  subject={sub.subject} 
+                                  topic={t.topic} 
+                                  onDelete={handleTopicDelete} 
+                                />
                               </div>
                               <div className="mse-topic-timestamp">
                                 <FiCalendar className="mse-timestamp-icon" />
