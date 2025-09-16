@@ -24,8 +24,20 @@ import {
 } from "react-icons/fi";
 import PDFProcessor from "./PDFProcessor";
 import "./styles/ManageSubjects.css";
+import LoginRequired from "../components/LoginRequired";
 
 export default function ManageSubjects() {
+ 
+  
+  // ************************Check usn existance in LocalStorage
+ const usnl = typeof window !== "undefined" ? localStorage.getItem("usn") : null;
+  if (!usnl) {
+    return <LoginRequired />;
+  }
+
+  // ***************************************************************
+
+
   const [usn, setUsn] = useState("");
   const [subjects, setSubjects] = useState([]);
   const [newSubject, setNewSubject] = useState("");
