@@ -566,7 +566,6 @@ export default function ManageSubjects() {
                       subject={sub.subject} 
                       onDelete={handleSubjectDelete} 
                     /></h3>
-                    
                   </div>
                 </div>
 
