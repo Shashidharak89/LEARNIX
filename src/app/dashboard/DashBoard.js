@@ -90,7 +90,7 @@ export default function DashBoard() {
             <div className="learnix-card-badge">Popular</div>
           </div>
           <div className="learnix-card-content">
-            <h2 className="learnix-card-title">Discover Content</h2>
+            <h2 className="learnix-card-title">Search Content</h2>
             <p className="learnix-card-description">
               Explore thousands of shared homework solutions and study materials
             </p>
@@ -106,7 +106,7 @@ export default function DashBoard() {
             <div className="learnix-card-badge">Share</div>
           </div>
           <div className="learnix-card-content">
-            <h2 className="learnix-card-title">Share Knowledge</h2>
+            <h2 className="learnix-card-title">Upload Homeworks</h2>
             <p className="learnix-card-description">
               Upload your work and help fellow students succeed
             </p>
@@ -122,7 +122,7 @@ export default function DashBoard() {
             <div className="learnix-card-badge">Profile</div>
           </div>
           <div className="learnix-card-content">
-            <h2 className="learnix-card-title">Your Space</h2>
+            <h2 className="learnix-card-title">Your Profile</h2>
             <p className="learnix-card-description">
               Manage your contributions and track your learning progress
             </p>

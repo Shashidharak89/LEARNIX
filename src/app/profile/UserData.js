@@ -2,23 +2,38 @@
 
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { Calendar, BookOpen, ImageIcon, Eye, EyeOff, User, GraduationCap, Clock, ChevronDown, Search, Settings } from "lucide-react";
+import { 
+  FiCalendar, 
+  FiBook, 
+  FiImage, 
+  FiEye, 
+  FiEyeOff, 
+  FiUser, 
+  FiClock, 
+  FiChevronDown, 
+  FiSearch, 
+  FiSettings,
+  FiUpload,
+  FiGrid
+} from "react-icons/fi";
+import { HiAcademicCap } from "react-icons/hi";
 import './styles/UserData.css';
-import ChangeName from './ChangeName'; // Adjust path as needed
-import ChangePassword from './ChangePassword'; // Adjust path as needed
+import ChangeName from './ChangeName';
+import ChangePassword from './ChangePassword';
 
 export default function UserData() {
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState("");
-  const [expandedTopics, setExpandedTopics] = useState({});
+  const [expandedUploads, setExpandedUploads] = useState({});
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredSubjects, setFilteredSubjects] = useState([]);
   const [visibleTopics, setVisibleTopics] = useState({});
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [loadedImages, setLoadedImages] = useState(new Set());
   
-  const TOPICS_PER_LOAD = 3; // Load 3 topics at a time per subject
+  const TOPICS_PER_LOAD = 5;
 
   useEffect(() => {
     fetchUserProfile();
@@ -30,10 +45,8 @@ export default function UserData() {
     }
   }, [user, searchQuery]);
 
-  // Set up intersection observer for infinite scroll
+  // Intersection Observer for infinite scroll
   useEffect(() => {
-    const observers = [];
-    
     const observerCallback = (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting && !isLoadingMore) {
@@ -45,20 +58,38 @@ export default function UserData() {
 
     const observer = new IntersectionObserver(observerCallback, {
       threshold: 0.1,
+      rootMargin: '100px'
+    });
+
+    const sentinels = document.querySelectorAll('.profile-scroll-trigger');
+    sentinels.forEach((sentinel) => observer.observe(sentinel));
+
+    return () => observer.disconnect();
+  }, [filteredSubjects, visibleTopics, isLoadingMore]);
+
+  // Image lazy loading observer
+  useEffect(() => {
+    const imageObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          const imageKey = img.dataset.imageKey;
+          if (imageKey && !loadedImages.has(imageKey)) {
+            setLoadedImages(prev => new Set([...prev, imageKey]));
+            imageObserver.unobserve(img);
+          }
+        }
+      });
+    }, {
+      threshold: 0.1,
       rootMargin: '50px'
     });
 
-    // Observe all scroll sentinels
-    const sentinels = document.querySelectorAll('.user-profile-scroll-sentinel');
-    sentinels.forEach((sentinel) => {
-      observer.observe(sentinel);
-      observers.push(observer);
-    });
+    const imageContainers = document.querySelectorAll('.profile-image-lazy');
+    imageContainers.forEach(container => imageObserver.observe(container));
 
-    return () => {
-      observers.forEach(obs => obs.disconnect());
-    };
-  }, [filteredSubjects, visibleTopics, isLoadingMore]);
+    return () => imageObserver.disconnect();
+  }, [expandedUploads, loadedImages]);
 
   const fetchUserProfile = async () => {
     setLoading(true);
@@ -74,7 +105,6 @@ export default function UserData() {
       setUser(res.data);
       setMessage("");
       
-      // Initialize visible topics for each subject
       const initialVisible = {};
       if (res.data.subjects) {
         res.data.subjects.forEach((subject, index) => {
@@ -115,7 +145,7 @@ export default function UserData() {
         [subjectIndex]: Math.min(currentVisible + TOPICS_PER_LOAD, totalTopics)
       }));
       setIsLoadingMore(false);
-    }, 500);
+    }, 300);
   }, [filteredSubjects, visibleTopics, isLoadingMore]);
 
   const handleSearch = (query) => {
@@ -144,7 +174,6 @@ export default function UserData() {
     
     setFilteredSubjects(filtered);
     
-    // Reset visible topics for filtered results
     const newVisible = {};
     filtered.forEach((subject, index) => {
       newVisible[index] = Math.min(TOPICS_PER_LOAD, subject.topics?.length || 0);
@@ -152,9 +181,9 @@ export default function UserData() {
     setVisibleTopics(newVisible);
   };
 
-  const toggleTopicExpansion = (subjectIndex, topicIndex) => {
+  const toggleUploadsView = (subjectIndex, topicIndex) => {
     const key = `${subjectIndex}-${topicIndex}`;
-    setExpandedTopics(prev => ({
+    setExpandedUploads(prev => ({
       ...prev,
       [key]: !prev[key]
     }));
@@ -188,213 +217,165 @@ export default function UserData() {
 
   if (loading) {
     return (
-      <div className="user-profile-container">
-        <div className="user-profile-loading">
-          <div className="user-profile-spinner"></div>
-          <p>Loading your profile...</p>
+      <div className="profile-main-container">
+        <div className="profile-loading-state">
+          <div className="profile-loading-spinner"></div>
+          <p className="profile-loading-text">Loading your profile...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="user-profile-container">
-      <div className="user-profile-wrapper">
+    <div className="profile-main-container">
+      <div className="profile-content-wrapper">
 
         {message && (
-          <div className="user-profile-error-message">
-            <div className="user-profile-error-content">
-              <User size={48} />
-              <h3>Profile Access Issue</h3>
-              <p>{message}</p>
+          <div className="profile-error-display">
+            <div className="profile-error-content">
+              <FiUser className="profile-error-icon" />
+              <h3 className="profile-error-title">Profile Access Issue</h3>
+              <p className="profile-error-message">{message}</p>
             </div>
           </div>
         )}
 
         {user && (
-          <div className="user-profile-card" style={{ position: 'relative' }}>
-            {/* Settings Button - positioned at top-right corner of profile card */}
+          <div className="profile-main-card">
+            {/* Settings Button */}
             <button
               onClick={() => setShowSettings(!showSettings)}
-              style={{
-                position: 'absolute',
-                top: '16px',
-                right: '16px',
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                background: '#87CEEB',
-                border: '2px solid white',
-                color: 'white',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                transition: 'all 0.3s ease',
-                zIndex: 10
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.background = '#FFD700';
-                e.target.style.color = 'black';
-                e.target.style.transform = 'scale(1.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = '#87CEEB';
-                e.target.style.color = 'white';
-                e.target.style.transform = 'scale(1)';
-              }}
+              className="profile-settings-btn"
             >
-              <Settings size={20} />
+              <FiSettings />
             </button>
 
             {/* Settings Panel */}
             {showSettings && (
-              <div className="account-container" style={{
-                position: 'absolute',
-                top: '70px',
-                right: '16px',
-                background: 'white',
-                border: '2px solid #87CEEB',
-                borderRadius: '12px',
-                padding: '24px',
-                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
-                zIndex: 20,
-                minWidth: '350px',
-                maxWidth: '400px'
-              }}>
-                <h1 style={{ 
-                  margin: '0 0 20px 0', 
-                  color: '#333', 
-                  fontSize: '1.4rem',
-                  fontWeight: '600'
-                }}>
-                  Account Settings
-                </h1>
-                {/* Change Name Component */}
-                <ChangeName usn={localStorage.getItem("usn")} />
-                {/* Change Password Component */}
-                <ChangePassword usn={localStorage.getItem("usn")} />
+              <div className="profile-settings-panel">
+                <h2 className="profile-settings-title">Account Settings</h2>
+                <div className="profile-settings-content">
+                  <ChangeName usn={localStorage.getItem("usn")} />
+                  <ChangePassword usn={localStorage.getItem("usn")} />
+                </div>
               </div>
             )}
 
             {/* Profile Header */}
-            <div className="user-profile-header">
-              <div className="user-profile-avatar">
-                <User size={40} />
+            <div className="profile-header-section">
+              <div className="profile-avatar-container">
+                <FiUser className="profile-avatar-icon" />
               </div>
-              <div className="user-profile-info">
-                <div className="user-profile-name-section">
-                  <h2 className="user-profile-name">{user.name}</h2>
-                  <span className="user-profile-usn">{user.usn}</span>
+              <div className="profile-user-info">
+                <div className="profile-name-section">
+                  <h1 className="profile-user-name">{user.name}</h1>
+                  <span className="profile-user-usn">{user.usn}</span>
                 </div>
-                <div className="user-profile-stats">
-                  <div className="user-profile-stat-item">
-                    <span className="user-profile-stat-number">{user.subjects?.length || 0}</span>
-                    <span className="user-profile-stat-label">Subjects</span>
+                <div className="profile-stats-grid">
+                  <div className="profile-stat-item">
+                    <span className="profile-stat-number">{user.subjects?.length || 0}</span>
+                    <span className="profile-stat-label">Subjects</span>
                   </div>
-                  <div className="user-profile-stat-item">
-                    <span className="user-profile-stat-number">{getTotalTopics()}</span>
-                    <span className="user-profile-stat-label">Topics</span>
+                  <div className="profile-stat-item">
+                    <span className="profile-stat-number">{getTotalTopics()}</span>
+                    <span className="profile-stat-label">Topics</span>
                   </div>
-                  <div className="user-profile-stat-item">
-                    <span className="user-profile-stat-number">{getTotalImages()}</span>
-                    <span className="user-profile-stat-label">Images</span>
+                  <div className="profile-stat-item">
+                    <span className="profile-stat-number">{getTotalImages()}</span>
+                    <span className="profile-stat-label">Uploads</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Profile Meta */}
-            <div className="user-profile-meta">
-              <div className="user-profile-meta-item">
-                <GraduationCap size={16} />
+            {/* Profile Meta Info */}
+            <div className="profile-meta-section">
+              <div className="profile-meta-item">
+                <HiAcademicCap className="profile-meta-icon" />
                 <span>Student</span>
               </div>
-              <div className="user-profile-meta-item">
-                <Calendar size={16} />
+              <div className="profile-meta-item">
+                <FiCalendar className="profile-meta-icon" />
                 <span>Joined {formatDate(user.createdAt)}</span>
               </div>
             </div>
 
-            {/* Search Bar */}
-            <div className="user-profile-search-section">
-              <div className="user-profile-search-container">
-                <Search className="user-profile-search-icon" size={18} />
+            {/* Search Section */}
+            <div className="profile-search-section">
+              <div className="profile-search-container">
+                <FiSearch className="profile-search-icon" />
                 <input
                   type="text"
-                  placeholder="Search your subjects, topics..."
+                  placeholder="Search subjects and topics..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="user-profile-search-input"
+                  className="profile-search-input"
                 />
               </div>
             </div>
 
-            {/* Content Section */}
-            <div className="user-profile-content">
+            {/* Main Content */}
+            <div className="profile-content-section">
               {!filteredSubjects || filteredSubjects.length === 0 ? (
-                <div className="user-profile-empty-state">
+                <div className="profile-empty-state">
                   {searchQuery ? (
                     <>
-                      <Search size={48} />
-                      <h3>No Results Found</h3>
-                      <p>Try searching with different keywords</p>
+                      <FiSearch className="profile-empty-icon" />
+                      <h3 className="profile-empty-title">No Results Found</h3>
+                      <p className="profile-empty-text">Try different search terms</p>
                     </>
                   ) : (
                     <>
-                      <BookOpen size={48} />
-                      <h3>No Subjects Added</h3>
-                      <p>You haven not added any subjects yet. Start building your learning profile!</p>
+                      <FiBook className="profile-empty-icon" />
+                      <h3 className="profile-empty-title">No Subjects Added</h3>
+                      <p className="profile-empty-text">Start building your learning profile!</p>
                     </>
                   )}
                 </div>
               ) : (
-                <div className="user-profile-subjects-grid">
+                <div className="profile-subjects-grid">
                   {filteredSubjects.map((subject, subjectIndex) => {
                     const visibleCount = visibleTopics[subjectIndex] || 0;
                     const hasMoreTopics = subject.topics && subject.topics.length > visibleCount;
                     const displayTopics = subject.topics?.slice(0, visibleCount) || [];
                     
                     return (
-                      <div key={subjectIndex} className="user-profile-subject-card">
-                        <div className="user-profile-subject-header">
-                          <div className="user-profile-subject-title">
-                            <BookOpen size={20} />
-                            <h3>{subject.subject}</h3>
+                      <div key={subjectIndex} className="profile-subject-card">
+                        <div className="profile-subject-header">
+                          <div className="profile-subject-title">
+                            <FiBook className="profile-subject-icon" />
+                            <h3 className="profile-subject-name">{subject.subject}</h3>
                           </div>
-                          <div className="user-profile-subject-badge">
+                          <div className="profile-subject-badge">
                             {subject.topics?.length || 0} topics
                           </div>
                         </div>
 
                         {!subject.topics || subject.topics.length === 0 ? (
-                          <div className="user-profile-empty-topics">
+                          <div className="profile-empty-topics">
                             <p>No topics added yet</p>
                           </div>
                         ) : (
-                          <div className="user-profile-topics-list">
+                          <div className="profile-topics-container">
                             {displayTopics.map((topic, topicIndex) => {
-                              const topicKey = `${subjectIndex}-${topicIndex}`;
-                              const isExpanded = expandedTopics[topicKey];
+                              const uploadKey = `${subjectIndex}-${topicIndex}`;
+                              const showUploads = expandedUploads[uploadKey];
                               const validImages = getValidImages(topic.images);
-                              const displayImages = isExpanded ? validImages : validImages.slice(0, 3);
-                              const hasMoreImages = validImages.length > 3;
 
                               return (
-                                <div key={topicIndex} className="user-profile-topic-card">
-                                  <div className="user-profile-topic-header">
-                                    <div className="user-profile-topic-info">
-                                      <h4 className="user-profile-topic-title">{topic.topic}</h4>
-                                      <div className="user-profile-topic-meta">
-                                        <span className="user-profile-topic-date">
-                                          <Clock size={12} />
+                                <div key={topicIndex} className="profile-topic-card">
+                                  <div className="profile-topic-header">
+                                    <div className="profile-topic-info">
+                                      <h4 className="profile-topic-title">{topic.topic}</h4>
+                                      <div className="profile-topic-meta">
+                                        <span className="profile-topic-date">
+                                          <FiClock className="profile-meta-icon" />
                                           {formatDate(topic.timestamp)}
                                         </span>
                                         {validImages.length > 0 && (
-                                          <span className="user-profile-topic-images-count">
-                                            <ImageIcon size={12} />
-                                            {validImages.length} images
+                                          <span className="profile-topic-uploads">
+                                            <FiUpload className="profile-meta-icon" />
+                                            {validImages.length} uploads
                                           </span>
                                         )}
                                       </div>
@@ -402,43 +383,58 @@ export default function UserData() {
                                   </div>
 
                                   {validImages.length > 0 && (
-                                    <div className="user-profile-images-section">
-                                      <div className="user-profile-images-grid">
-                                        {displayImages.map((imageUrl, imageIndex) => (
-                                          <div key={imageIndex} className="user-profile-image-container">
-                                            <div className="user-profile-image-wrapper">
-                                              <img 
-                                                src={imageUrl} 
-                                                alt={`${topic.topic} - Image ${imageIndex + 1}`}
-                                                className="user-profile-topic-image"
-                                                loading="lazy"
-                                              />
-                                            </div>
-                                          </div>
-                                        ))}
-                                      </div>
-                                      
-                                      {hasMoreImages && (
-                                        <button 
-                                          onClick={() => toggleTopicExpansion(subjectIndex, topicIndex)}
-                                          className="user-profile-view-more-btn"
-                                        >
-                                          {isExpanded ? (
-                                            <>
-                                              <EyeOff size={14} />
-                                              Show Less
-                                            </>
-                                          ) : (
-                                            <>
-                                              <Eye size={14} />
-                                              View More ({validImages.length - 3} more)
-                                            </>
-                                          )}
-                                          <ChevronDown 
-                                            size={14} 
-                                            className={`user-profile-chevron ${isExpanded ? 'user-profile-rotated' : ''}`}
-                                          />
-                                        </button>
+                                    <div className="profile-uploads-section">
+                                      <button 
+                                        onClick={() => toggleUploadsView(subjectIndex, topicIndex)}
+                                        className="profile-view-uploads-btn"
+                                      >
+                                        {showUploads ? (
+                                          <>
+                                            <FiEyeOff />
+                                            Hide Uploads
+                                          </>
+                                        ) : (
+                                          <>
+                                            <FiGrid />
+                                            View Uploads ({validImages.length})
+                                          </>
+                                        )}
+                                        <FiChevronDown 
+                                          className={`profile-chevron ${showUploads ? 'profile-rotated' : ''}`}
+                                        />
+                                      </button>
+
+                                      {showUploads && (
+                                        <div className="profile-uploads-grid">
+                                          {validImages.map((imageUrl, imageIndex) => {
+                                            const imageKey = `${uploadKey}-${imageIndex}`;
+                                            const isLoaded = loadedImages.has(imageKey);
+                                            
+                                            return (
+                                              <div 
+                                                key={imageIndex} 
+                                                className="profile-upload-container profile-image-lazy"
+                                                data-image-key={imageKey}
+                                              >
+                                                <div className="profile-upload-wrapper">
+                                                  {isLoaded ? (
+                                                    <img 
+                                                      src={imageUrl} 
+                                                      alt={`${topic.topic} - Upload ${imageIndex + 1}`}
+                                                      className="profile-upload-image"
+                                                      loading="lazy"
+                                                    />
+                                                  ) : (
+                                                    <div className="profile-upload-placeholder">
+                                                      <FiImage className="profile-placeholder-icon" />
+                                                      <span>Loading...</span>
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
                                       )}
                                     </div>
                                   )}
@@ -446,15 +442,14 @@ export default function UserData() {
                               );
                             })}
                             
-                            {/* Scroll sentinel for infinite loading */}
                             {hasMoreTopics && (
                               <div 
-                                className="user-profile-scroll-sentinel" 
+                                className="profile-scroll-trigger" 
                                 data-subject-index={subjectIndex}
                               >
                                 {isLoadingMore && (
-                                  <div className="user-profile-loading-more">
-                                    <div className="user-profile-mini-spinner"></div>
+                                  <div className="profile-loading-more">
+                                    <div className="profile-mini-spinner"></div>
                                     <span>Loading more topics...</span>
                                   </div>
                                 )}
