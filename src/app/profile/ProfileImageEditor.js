@@ -33,7 +33,7 @@ export default function ProfileImageEditor({ profileImage, setProfileImage, usn 
       try {
         // Compress the image using browser-image-compression
         const compressionOptions = {
-          maxSizeMB: 1, // Maximum file size in MB
+          maxSizeMB: 0.5, // Maximum file size in MB
           maxWidthOrHeight: 1920, // Maximum dimension
           useWebWorker: true, // Use web worker for better performance
           fileType: "image/jpeg", // Convert to JPEG for consistency
