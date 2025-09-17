@@ -95,7 +95,7 @@ export const Navbar = () => {
       >
         {/* Sidebar Header */}
         <div className="learnix-sidebar-header">
-          <h2>Navigation</h2>
+          <h2>Learnix</h2>
           <button 
             className="learnix-sidebar-close-btn" 
             onClick={closeSidebar}
