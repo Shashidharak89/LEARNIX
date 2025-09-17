@@ -3,7 +3,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { FiLock, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
-import "./styles/ChangeName.css";
+import "./styles/UserProfile.css";
 
 export default function ChangePassword({ usn }) {
   const [oldPassword, setOldPassword] = useState("");
@@ -40,8 +40,8 @@ export default function ChangePassword({ usn }) {
   };
 
   return (
-    <div className="change-pass-box">
-      <h3 className="change-pass-title">
+    <div className="up-change-password">
+      <h3 className="up-change-password-title">
         <FiLock /> Change Password
       </h3>
       <input
@@ -49,7 +49,7 @@ export default function ChangePassword({ usn }) {
         placeholder="Enter old password"
         value={oldPassword}
         onChange={(e) => setOldPassword(e.target.value)}
-        className="change-pass-input"
+        className="up-change-password-input"
         disabled={isLoading}
       />
       <input
@@ -57,11 +57,11 @@ export default function ChangePassword({ usn }) {
         placeholder="Enter new password"
         value={newPassword}
         onChange={(e) => setNewPassword(e.target.value)}
-        className="change-pass-input"
+        className="up-change-password-input"
         disabled={isLoading}
       />
       <button
-        className="change-pass-btn"
+        className="up-change-password-btn"
         onClick={handleChangePassword}
         disabled={isLoading}
       >
@@ -69,7 +69,7 @@ export default function ChangePassword({ usn }) {
       </button>
 
       {message && (
-        <div className={`change-pass-msg ${isSuccess ? "success" : "error"}`}>
+        <div className={`up-message ${isSuccess ? "up-success" : "up-error"}`}>
           {isSuccess ? <FiCheckCircle /> : <FiAlertCircle />}
           <span>{message}</span>
         </div>

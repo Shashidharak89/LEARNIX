@@ -3,7 +3,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { FiEdit2, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
-import "./styles/ChangeName.css";
+import "./styles/UserProfile.css";
 
 export default function ChangeName({ usn }) {
   const [newName, setNewName] = useState("");
@@ -27,6 +27,7 @@ export default function ChangeName({ usn }) {
 
       setMessage(res.data.message);
       setIsSuccess(true);
+      setNewName("");
     } catch (err) {
       setMessage(err.response?.data?.error || "Failed to update name");
       setIsSuccess(false);
@@ -36,8 +37,8 @@ export default function ChangeName({ usn }) {
   };
 
   return (
-    <div className="change-name-box">
-      <h3 className="change-name-title">
+    <div className="up-change-name">
+      <h3 className="up-change-name-title">
         <FiEdit2 /> Change Name
       </h3>
       <input
@@ -45,11 +46,11 @@ export default function ChangeName({ usn }) {
         placeholder="Enter new name"
         value={newName}
         onChange={(e) => setNewName(e.target.value)}
-        className="change-name-input"
+        className="up-change-name-input"
         disabled={isLoading}
       />
       <button
-        className="change-name-btn"
+        className="up-change-name-btn"
         onClick={handleChangeName}
         disabled={isLoading}
       >
@@ -57,7 +58,7 @@ export default function ChangeName({ usn }) {
       </button>
 
       {message && (
-        <div className={`change-name-msg ${isSuccess ? "success" : "error"}`}>
+        <div className={`up-message ${isSuccess ? "up-success" : "up-error"}`}>
           {isSuccess ? <FiCheckCircle /> : <FiAlertCircle />}
           <span>{message}</span>
         </div>
