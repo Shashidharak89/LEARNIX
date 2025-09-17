@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { FiCamera, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import axios from "axios";
 import "./styles/UserProfile.css";
@@ -12,14 +12,14 @@ export default function ProfileImageEditor({ profileImage, setProfileImage, usn 
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [needsCropping, setNeedsCropping] = useState(false);
-  const [cropPosition, setCropPosition] = useState(0); // For scrollbar position
-  const [isVerticalCrop, setIsVerticalCrop] = useState(false); // True for vertical, false for horizontal
+  const [cropPosition, setCropPosition] = useState(0);
+  const [isVerticalCrop, setIsVerticalCrop] = useState(false);
   const canvasRef = useRef(null);
   const fileInputRef = useRef(null);
   const imageRef = useRef(null);
 
   const checkImageRatio = (img) => {
-    return Math.abs(img.width / img.height - 1) < 0.01; // Check if aspect ratio is ~1:1
+    return Math.abs(img.width / img.height - 1) < 0.01;
   };
 
   const handleImageChange = (e) => {
@@ -31,11 +31,12 @@ export default function ProfileImageEditor({ profileImage, setProfileImage, usn 
       reader.onload = () => {
         img.src = reader.result;
         img.onload = () => {
-          setNeedsCropping(!checkImageRatio(img));
-          setCropPosition(0); // Reset crop position
-          setIsVerticalCrop(img.height > img.width); // Determine crop direction
-          if (checkImageRatio(img)) {
-            setCroppedImage(file); // Use original if square
+          const isSquare = checkImageRatio(img);
+          setNeedsCropping(!isSquare);
+          setCropPosition(0);
+          setIsVerticalCrop(img.height > img.width);
+          if (isSquare) {
+            setCroppedImage(file);
           }
         };
       };
@@ -50,66 +51,59 @@ export default function ProfileImageEditor({ profileImage, setProfileImage, usn 
     const ctx = canvas.getContext("2d");
     const img = imageRef.current;
 
-    // Determine the smallest dimension for square crop
     const size = Math.min(img.naturalWidth, img.naturalHeight);
     canvas.width = size;
     canvas.height = size;
 
-    // Calculate offsets based on crop position
     let offsetX = 0;
     let offsetY = 0;
+
     if (isVerticalCrop) {
-      // Vertical crop: adjust Y position
       const maxOffset = img.naturalHeight - size;
       offsetY = (cropPosition / 100) * maxOffset;
-      offsetX = 0; // Center horizontally
     } else {
-      // Horizontal crop: adjust X position
       const maxOffset = img.naturalWidth - size;
       offsetX = (cropPosition / 100) * maxOffset;
-      offsetY = 0; // Center vertically
     }
 
     ctx.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
-    
-    // Create a blob from the canvas
+
     canvas.toBlob((blob) => {
-      const croppedFile = new File([blob], selectedImage.name.replace(/\.[^/.]+$/, ".jpg"), {
-        type: "image/jpeg",
-        lastModified: Date.now(),
-      });
+      if (!blob) return;
+      const croppedFile = new File(
+        [blob],
+        selectedImage.name.replace(/\.[^/.]+$/, ".jpg"),
+        { type: "image/jpeg", lastModified: Date.now() }
+      );
       setCroppedImage(croppedFile);
-    }, "image/jpeg", 0.8);
+    }, "image/jpeg", 0.9);
   };
 
   const handleUpload = async () => {
     if (!croppedImage && needsCropping) {
-      setMessage("Please crop the image to a square shape first");
+      setMessage("Please crop the image first");
       setIsSuccess(false);
       return;
-    }
-    if (!croppedImage && !needsCropping) {
-      setCroppedImage(selectedImage); // Use original if already square
     }
 
     try {
       setIsLoading(true);
       setMessage("");
-      
-      // Create FormData for multipart/form-data upload
+
       const formData = new FormData();
       formData.append("usn", usn);
       formData.append("file", croppedImage || selectedImage);
 
       const res = await axios.put("/api/user/change-profileimg", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
-      setProfileImage(res.data.imageUrl || res.data.url); // Assuming the API returns the Cloudinary URL
+      // ✅ fixed field mapping
+      setProfileImage(res.data.user?.profileimg);
       setMessage(res.data.message || "Profile image updated successfully");
       setIsSuccess(true);
+
+      // Reset state
       setSelectedImage(null);
       setCroppedImage(null);
       setNeedsCropping(false);
@@ -137,6 +131,7 @@ export default function ProfileImageEditor({ profileImage, setProfileImage, usn 
         disabled={isLoading}
         ref={fileInputRef}
       />
+
       {selectedImage && needsCropping && (
         <div className="up-crop-container">
           <div className="up-crop-preview">
@@ -145,14 +140,14 @@ export default function ProfileImageEditor({ profileImage, setProfileImage, usn 
               alt="Selected"
               className="up-crop-image"
               ref={imageRef}
-              onLoad={handleCrop} // Auto-crop on load
+              onLoad={handleCrop}
             />
             <div className="up-crop-square"></div>
           </div>
           <p className="up-crop-instruction">
             {isVerticalCrop
-              ? "Use the scrollbar to adjust the vertical position"
-              : "Use the scrollbar to adjust the horizontal position"}
+              ? "Use the slider to adjust vertical crop"
+              : "Use the slider to adjust horizontal crop"}
           </p>
           <div className="up-crop-controls">
             <input
@@ -162,7 +157,7 @@ export default function ProfileImageEditor({ profileImage, setProfileImage, usn 
               value={cropPosition}
               onChange={(e) => {
                 setCropPosition(parseInt(e.target.value));
-                handleCrop(); // Update crop preview on slider change
+                handleCrop();
               }}
               disabled={isLoading}
               className={isVerticalCrop ? "up-crop-slider-vertical" : "up-crop-slider-horizontal"}
@@ -177,7 +172,9 @@ export default function ProfileImageEditor({ profileImage, setProfileImage, usn 
           </div>
         </div>
       )}
+
       <canvas ref={canvasRef} style={{ display: "none" }} />
+
       {(croppedImage || (selectedImage && !needsCropping)) && (
         <div className="up-cropped-preview">
           <img
@@ -194,6 +191,7 @@ export default function ProfileImageEditor({ profileImage, setProfileImage, usn 
           </button>
         </div>
       )}
+
       {message && (
         <div className={`up-message ${isSuccess ? "up-success" : "up-error"}`}>
           {isSuccess ? <FiCheckCircle /> : <FiAlertCircle />}

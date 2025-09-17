@@ -100,13 +100,14 @@ export default function UserProfile() {
         return;
       }
 
-      const res = await axios.get(`/api/work/get?usn=${usn}`);
-      setUser(res.data);
+      const res = await axios.get(`/api/user?usn=${usn}`);
+      setUser(res.data.user);
+      setProfileImage(res.data.user.profileimg || "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp");
       setMessage("");
       
       const initialVisible = {};
-      if (res.data.subjects) {
-        res.data.subjects.forEach((subject, index) => {
+      if (res.data.user.subjects) {
+        res.data.user.subjects.forEach((subject, index) => {
           initialVisible[index] = Math.min(TOPICS_PER_LOAD, subject.topics?.length || 0);
         });
       }
