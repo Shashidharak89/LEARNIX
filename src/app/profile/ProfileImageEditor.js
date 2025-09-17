@@ -3,10 +3,12 @@
 import { useState, useRef } from "react";
 import { FiCamera, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import axios from "axios";
+import imageCompression from "browser-image-compression";
 import "./styles/UserProfile.css";
 
 export default function ProfileImageEditor({ profileImage, setProfileImage, usn }) {
   const [selectedImage, setSelectedImage] = useState(null);
+  const [compressedImage, setCompressedImage] = useState(null);
   const [croppedImage, setCroppedImage] = useState(null);
   const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
@@ -22,25 +24,47 @@ export default function ProfileImageEditor({ profileImage, setProfileImage, usn 
     return Math.abs(img.width / img.height - 1) < 0.01;
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      setSelectedImage(file);
-      const img = new Image();
-      const reader = new FileReader();
-      reader.onload = () => {
-        img.src = reader.result;
-        img.onload = () => {
-          const isSquare = checkImageRatio(img);
-          setNeedsCropping(!isSquare);
-          setCropPosition(0);
-          setIsVerticalCrop(img.height > img.width);
-          if (isSquare) {
-            setCroppedImage(file);
-          }
+      setIsLoading(true);
+      setMessage("");
+
+      try {
+        // Compress the image using browser-image-compression
+        const compressionOptions = {
+          maxSizeMB: 1, // Maximum file size in MB
+          maxWidthOrHeight: 1920, // Maximum dimension
+          useWebWorker: true, // Use web worker for better performance
+          fileType: "image/jpeg", // Convert to JPEG for consistency
         };
-      };
-      reader.readAsDataURL(file);
+
+        const compressedFile = await imageCompression(file, compressionOptions);
+        setCompressedImage(compressedFile);
+
+        const img = new Image();
+        const reader = new FileReader();
+        reader.onload = () => {
+          img.src = reader.result;
+          img.onload = () => {
+            const isSquare = checkImageRatio(img);
+            setNeedsCropping(!isSquare);
+            setCropPosition(0);
+            setIsVerticalCrop(img.height > img.width);
+            if (isSquare) {
+              setCroppedImage(compressedFile);
+            }
+            setSelectedImage(compressedFile); // Use compressed image for display and cropping
+          };
+        };
+        reader.readAsDataURL(compressedFile);
+      } catch (err) {
+        console.error("Compression error:", err);
+        setMessage("Failed to compress image");
+        setIsSuccess(false);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -98,13 +122,13 @@ export default function ProfileImageEditor({ profileImage, setProfileImage, usn 
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      // ✅ fixed field mapping
       setProfileImage(res.data.user?.profileimg);
       setMessage(res.data.message || "Profile image updated successfully");
       setIsSuccess(true);
 
       // Reset state
       setSelectedImage(null);
+      setCompressedImage(null);
       setCroppedImage(null);
       setNeedsCropping(false);
       setCropPosition(0);
