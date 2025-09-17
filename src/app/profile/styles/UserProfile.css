@@ -631,8 +631,22 @@
   height: 200px;
   margin: 0 auto;
   overflow: hidden;
-  border-radius: 50%;
   border: 2px solid #007bff;
+}
+.up-crop-square {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 2px dashed #ffcc00;
+  pointer-events: none;
+}
+.up-crop-instruction {
+  color: #333333;
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 0.5rem 0;
 }
 
 .up-crop-image {
@@ -679,7 +693,6 @@
 .up-cropped-image {
   width: 100px;
   height: 100px;
-  border-radius: 50%;
   border: 2px solid #007bff;
 }
 
