@@ -20,30 +20,37 @@ export const PUT = async (req) => {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    let uploadedUrl = user.profileimg; // keep old/default if no file
+    let uploadedUrl = user.profileimg; // keep old/default if no new file
 
-    if (file) {
+    if (file && file.name) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
+      // upload to cloudinary using stream
       const uploadRes = await new Promise((resolve, reject) => {
-        cloudinary.uploader
-          .upload_stream({ folder: "learnix-profiles" }, (err, result) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "learnix-profiles", resource_type: "image" },
+          (err, result) => {
             if (err) reject(err);
             else resolve(result);
-          })
-          .end(buffer);
+          }
+        );
+        stream.end(buffer);
       });
 
       uploadedUrl = uploadRes.secure_url;
     }
 
+    // save the updated profile image
     user.profileimg = uploadedUrl;
     await user.save();
 
     return NextResponse.json({
       message: "Profile image updated successfully",
-      user: { usn: user.usn, profileimg: user.profileimg },
+      user: {
+        usn: user.usn,
+        profileimg: user.profileimg,
+      },
     });
   } catch (err) {
     console.error("Profile image update failed:", err);
