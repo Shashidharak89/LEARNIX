@@ -15,7 +15,9 @@ export default function UserDetailsPage({ usn }) {
   const [visibleTopics, setVisibleTopics] = useState({});
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   
+  
   const TOPICS_PER_LOAD = 3; // Load 3 topics at a time per subject
+  const DEFAULT_PROFILE_IMAGE = "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp";
 
   useEffect(() => {
     if (usn) {
@@ -209,7 +211,11 @@ export default function UserDetailsPage({ usn }) {
             {/* Profile Header */}
             <div className="user-details-profile-header">
               <div className="user-details-avatar">
-                <User size={40} />
+                <img
+                  src={user.profileimg || DEFAULT_PROFILE_IMAGE}
+                  alt={`${user.name}'s profile`}
+                  className="user-details-avatar-image"
+                />
               </div>
               <div className="user-details-profile-info">
                 <div className="user-details-name-section">
@@ -273,7 +279,7 @@ export default function UserDetailsPage({ usn }) {
                     <>
                       <BookOpen size={48} />
                       <h3>No Subjects Added</h3>
-                      <p>This student hasn not added any subjects yet.</p>
+                      <p>This student hasn’t added any subjects yet.</p>
                     </>
                   )}
                 </div>
