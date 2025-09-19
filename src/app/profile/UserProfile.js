@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Link from "next/link";
 import axios from "axios";
 import { 
   FiCalendar, 
@@ -15,7 +16,9 @@ import {
   FiSettings,
   FiUpload,
   FiGrid,
-  FiCamera
+  FiCamera,
+  FiLogIn,
+  FiAlertCircle
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import ChangeName from './ChangeName';
@@ -26,6 +29,7 @@ import './styles/UserProfile.css';
 export default function UserProfile() {
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState("");
+  const [hasError, setHasError] = useState(false);
   const [expandedUploads, setExpandedUploads] = useState({});
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -92,10 +96,12 @@ export default function UserProfile() {
 
   const fetchUserProfile = async () => {
     setLoading(true);
+    setHasError(false);
     try {
       const usn = localStorage.getItem("usn");
       if (!usn) {
         setMessage("Please login to view your profile.");
+        setHasError(true);
         setLoading(false);
         return;
       }
@@ -104,6 +110,7 @@ export default function UserProfile() {
       setUser(res.data.user);
       setProfileImage(res.data.user.profileimg || "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp");
       setMessage("");
+      setHasError(false);
       
       const initialVisible = {};
       if (res.data.user.subjects) {
@@ -114,10 +121,15 @@ export default function UserProfile() {
       setVisibleTopics(initialVisible);
     } catch (err) {
       console.error(err);
+      setHasError(true);
       if (err.response?.status === 404) {
-        setMessage("Profile not found!");
+        setMessage("Profile not found! Something went wrong, please login again.");
+      } else if (err.response?.status === 401 || err.response?.status === 403) {
+        setMessage("Authentication failed! Please login again.");
+      } else if (err.code === 'NETWORK_ERROR' || !err.response) {
+        setMessage("Network error occurred! Please check your connection and login again.");
       } else {
-        setMessage(err.response?.data?.error || "Failed to fetch profile data");
+        setMessage("Something went wrong! Please login again.");
       }
       setUser(null);
     } finally {
@@ -225,17 +237,29 @@ export default function UserProfile() {
     );
   }
 
+  if (hasError) {
+    return (
+      <div className="up-container">
+        <div className="up-wrapper">
+          <div className="up-error-container">
+            <div className="up-error-content">
+              <FiAlertCircle className="up-error-icon" />
+              <h3 className="up-error-title">Oops! Something went wrong</h3>
+              <p className="up-error-message">{message}</p>
+              <Link href="/login" className="up-login-btn">
+                <FiLogIn className="up-login-icon" />
+                Login Again
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="up-container">
       <div className="up-wrapper">
-        {message && (
-          <div className="up-error">
-            <FiUser className="up-error-icon" />
-            <h3 className="up-error-title">Profile Access Issue</h3>
-            <p className="up-error-message">{message}</p>
-          </div>
-        )}
-
         {user && (
           <div className="up-card">
             <button

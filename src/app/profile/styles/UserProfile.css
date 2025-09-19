@@ -79,6 +79,84 @@
   font-size: 0.95rem;
 }
 
+/* Error container styles */
+.up-error-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 2rem;
+}
+
+.up-error-content {
+  background: #ffffff;
+  border: 2px solid #007bff;
+  border-radius: 12px;
+  padding: 3rem 2rem;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 123, 255, 0.1);
+  animation: upSlideIn 0.5s ease-out;
+  max-width: 500px;
+  width: 100%;
+}
+
+.up-error-content .up-error-icon {
+  font-size: 4rem;
+  color: #007bff;
+  margin-bottom: 1.5rem;
+  animation: upPulse 2s ease-in-out infinite;
+}
+
+.up-error-content .up-error-title {
+  color: #000000;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+}
+
+.up-error-content .up-error-message {
+  color: #333333;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+.up-login-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  background-color: #007bff;
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+.up-login-btn:hover {
+  background-color: #ffcc00;
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 204, 0, 0.3);
+  text-decoration: none;
+}
+
+.up-login-btn:active {
+  transform: translateY(0);
+}
+
+.up-login-icon {
+  font-size: 1.1rem;
+  transition: transform 0.3s ease;
+}
+
+.up-login-btn:hover .up-login-icon {
+  transform: translateX(2px);
+}
+
 .up-card {
   background: #ffffff;
   border: 2px solid #007bff;
@@ -259,11 +337,12 @@
 .up-search {
   padding: 1rem 1.5rem;
   background-color: #ffffff;
+  position: relative;
 }
 
 .up-search-icon {
   position: absolute;
-  left: 1rem;
+  left: 2rem;
   top: 50%;
   transform: translateY(-50%);
   color: #007bff;
@@ -284,6 +363,7 @@
   border-color: #ffcc00;
   background-color: #ffffff;
   box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.2);
+  outline: none;
 }
 
 .up-search-input::placeholder {
@@ -480,6 +560,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 0.75rem;
+  margin-top: 0.75rem;
   animation: upSlideIn 0.3s ease-out;
 }
 
@@ -575,6 +656,7 @@
   border-color: #ffcc00;
   background-color: #ffffff;
   box-shadow: 0 0 0 3px rgba(255, 204, 0, 0.2);
+  outline: none;
 }
 
 .up-change-name-btn,
@@ -632,7 +714,9 @@
   margin: 0 auto;
   overflow: hidden;
   border: 2px solid #007bff;
+  border-radius: 6px;
 }
+
 .up-crop-square {
   position: absolute;
   top: 0;
@@ -642,6 +726,7 @@
   border: 2px dashed #ffcc00;
   pointer-events: none;
 }
+
 .up-crop-instruction {
   color: #333333;
   font-size: 0.85rem;
@@ -694,6 +779,7 @@
   width: 100px;
   height: 100px;
   border: 2px solid #007bff;
+  border-radius: 50%;
 }
 
 @keyframes upFadeIn {
@@ -708,6 +794,11 @@
 
 @keyframes upSpin {
   to { transform: rotate(360deg); }
+}
+
+@keyframes upPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
 @media (min-width: 768px) {
@@ -734,6 +825,27 @@
   .up-avatar-container {
     width: 80px;
     height: 80px;
+  }
+
+  .up-error-content {
+    padding: 4rem 3rem;
+  }
+
+  .up-error-content .up-error-icon {
+    font-size: 5rem;
+  }
+
+  .up-error-content .up-error-title {
+    font-size: 1.75rem;
+  }
+
+  .up-error-content .up-error-message {
+    font-size: 1.1rem;
+  }
+
+  .up-login-btn {
+    padding: 1.25rem 2.5rem;
+    font-size: 1.1rem;
   }
 }
 
@@ -774,6 +886,28 @@
     left: 0.75rem;
     right: 0.75rem;
     min-width: auto;
+  }
+
+  .up-error-content {
+    padding: 2rem 1.5rem;
+    margin: 0 1rem;
+  }
+
+  .up-error-content .up-error-icon {
+    font-size: 3rem;
+  }
+
+  .up-error-content .up-error-title {
+    font-size: 1.25rem;
+  }
+
+  .up-login-btn {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .up-uploads-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   }
 }
 
