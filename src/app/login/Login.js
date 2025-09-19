@@ -21,7 +21,7 @@ export default function Login() {
     setMessage("");
     
     try {
-      const res = await axios.post("/api/auth", { name, usn, password });
+      const res = await axios.post("/api/auth", { name, usn: usn.trim().toUpperCase(), password });
       setMessage(res.data.message);
       setIsSuccess(true);
 
@@ -75,7 +75,7 @@ export default function Login() {
                 type="text"
                 placeholder="University Seat Number"
                 value={usn}
-                onChange={(e) => setUsn(e.target.value)}
+                onChange={(e) => setUsn(e.target.value.toUpperCase())}
                 required
                 className="auth-input"
                 disabled={isLoading}
