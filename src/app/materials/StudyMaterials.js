@@ -1,5 +1,4 @@
 "use client";
-
 import React from "react";
 import { FiBookOpen } from "react-icons/fi";
 import "./styles/StudyMaterials.css";
@@ -38,9 +37,9 @@ export default function StudyMaterials() {
             Back to Top
           </button>
         </div>
-
+ 
         <div className="sm-footer-note">
-          <span>Tip:</span> We'll notify users when materials go live.
+          <span>Tip:</span> We will notify users when materials go live.
         </div>
       </div>
     </section>
