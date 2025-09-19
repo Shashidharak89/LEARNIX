@@ -2,6 +2,8 @@
 "use client";
 
 import Link from "next/link";
+import { MdEmail } from "react-icons/md";
+import { FaInstagram, FaHeart } from "react-icons/fa";
 import "./styles/Footer.css";
 
 export default function Footer() {
@@ -34,7 +36,7 @@ export default function Footer() {
           <h3 className="learnix-footer-title">Get in Touch</h3>
           <div className="learnix-contact-info">
             <div className="learnix-contact-item">
-              <span className="learnix-contact-icon">📧</span>
+              <MdEmail className="learnix-contact-icon" />
               <a 
                 href="mailto:learnixp@gmail.com" 
                 className="learnix-contact-link"
@@ -43,7 +45,7 @@ export default function Footer() {
               </a>
             </div>
             <div className="learnix-contact-item">
-              <span className="learnix-contact-icon">📱</span>
+              <FaInstagram className="learnix-contact-icon" />
               <a 
                 href="https://instagram.com/luminous_alpha_" 
                 target="_blank" 
@@ -56,21 +58,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Quick Links */}
-        {/* <div className="learnix-footer-section">
-          <h3 className="learnix-footer-title">Quick Links</h3>
-          <div className="learnix-footer-links">
-            <Link href="/" className="learnix-footer-nav-link">
-              Home
-            </Link>
-            <Link href="/about" className="learnix-footer-nav-link">
-              About
-            </Link>
-            <Link href="/contact" className="learnix-footer-nav-link">
-              Contact
-            </Link>
-          </div> */}
-        {/* </div> */}
+
       </div>
 
       {/* Bottom Bar */}
@@ -80,7 +68,7 @@ export default function Footer() {
             © {new Date().getFullYear()} LEARNIX. Crafted for curious minds.
           </div>
           <div className="learnix-creator">
-            Made with ❤️ by{" "}
+            Made with <FaHeart className="learnix-heart-icon" /> by{" "}
             <a 
               href="https://shashi-k.in" 
               target="_blank" 
