@@ -10,7 +10,8 @@ import {
   FiUpload, 
   FiUser, 
   FiLogOut,
-  FiMessageCircle   // 🔹 added for Feedback
+  FiMessageCircle,   // 🔹 for Feedback
+  FiBookOpen         // 🔹 for Study Materials
 } from "react-icons/fi";
 import "./styles/Navbar.css";
 import { Fill } from "./Fill";
@@ -151,7 +152,18 @@ export const Navbar = () => {
             <span>Upload</span>
           </Link>
 
-          {/* 🔹 New Feedback link */}
+          {/* 🔹 New Study Materials link */}
+          <Link 
+            href="/materials" 
+            className="learnix-sidebar-link" 
+            onClick={closeSidebar}
+            tabIndex={isOpen ? 0 : -1}
+          >
+            <FiBookOpen size={20} />
+            <span>Study Materials</span>
+          </Link>
+
+          {/* 🔹 Feedback link */}
           <Link 
             href="/feedback" 
             className="learnix-sidebar-link" 
