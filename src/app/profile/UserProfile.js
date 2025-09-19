@@ -6,7 +6,6 @@ import {
   FiCalendar, 
   FiBook, 
   FiImage, 
-  FiEye, 
   FiEyeOff, 
   FiUser, 
   FiClock, 
@@ -14,8 +13,7 @@ import {
   FiSearch, 
   FiSettings,
   FiUpload,
-  FiGrid,
-  FiCamera
+  FiGrid
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import ChangeName from './ChangeName';
@@ -40,12 +38,14 @@ export default function UserProfile() {
 
   useEffect(() => {
     fetchUserProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (user) {
       handleSearch(searchQuery);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, searchQuery]);
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export default function UserProfile() {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !isLoadingMore) {
             const subjectIndex = parseInt(entry.target.dataset.subjectIndex);
-            loadMoreTopics(subjectIndex);
+            if (!Number.isNaN(subjectIndex)) loadMoreTopics(subjectIndex);
           }
         });
       },
@@ -65,7 +65,7 @@ export default function UserProfile() {
     sentinels.forEach((sentinel) => observer.observe(sentinel));
 
     return () => observer.disconnect();
-  }, [filteredSubjects, visibleTopics, isLoadingMore]);
+  }, [filteredSubjects, visibleTopics, isLoadingMore, loadMoreTopics]);
 
   useEffect(() => {
     const imageObserver = new IntersectionObserver(
@@ -93,21 +93,39 @@ export default function UserProfile() {
   const fetchUserProfile = async () => {
     setLoading(true);
     try {
-      const usn = localStorage.getItem("usn");
+      let usn = localStorage.getItem("usn");
       if (!usn) {
         setMessage("Please login to view your profile.");
         setLoading(false);
         return;
       }
 
-      const res = await axios.get(`/api/user?usn=${usn}`);
-      setUser(res.data.user);
-      setProfileImage(res.data.user.profileimg || "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp");
+      // Normalize USN: trim and uppercase to avoid mismatches caused by case/whitespace
+      usn = usn.trim().toUpperCase();
+
+      // encode the param to be safe
+      const res = await axios.get(`/api/user?usn=${encodeURIComponent(usn)}`);
+
+      // backend returns { user: { ... } } as per your API
+      const fetchedUser = res.data?.user;
+      if (!fetchedUser) {
+        setMessage("Profile not found!");
+        setUser(null);
+        setFilteredSubjects([]);
+        setLoading(false);
+        return;
+      }
+
+      setUser(fetchedUser);
+      setProfileImage(fetchedUser.profileimg || "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp");
       setMessage("");
-      
+
+      // <-- IMPORTANT: initialize filteredSubjects immediately so content appears
+      setFilteredSubjects(fetchedUser.subjects || []);
+
       const initialVisible = {};
-      if (res.data.user.subjects) {
-        res.data.user.subjects.forEach((subject, index) => {
+      if (fetchedUser.subjects) {
+        fetchedUser.subjects.forEach((subject, index) => {
           initialVisible[index] = Math.min(TOPICS_PER_LOAD, subject.topics?.length || 0);
         });
       }
@@ -120,6 +138,7 @@ export default function UserProfile() {
         setMessage(err.response?.data?.error || "Failed to fetch profile data");
       }
       setUser(null);
+      setFilteredSubjects([]);
     } finally {
       setLoading(false);
     }
@@ -168,7 +187,7 @@ export default function UserProfile() {
       };
     }).filter((subject) => 
       subject.subject.toLowerCase().includes(searchTerm) || 
-      subject.topics.length > 0
+      (subject.topics && subject.topics.length > 0)
     );
     
     setFilteredSubjects(filtered);
@@ -203,6 +222,7 @@ export default function UserProfile() {
   };
 
   const formatDate = (timestamp) => {
+    if (!timestamp) return "";
     return new Date(timestamp).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
