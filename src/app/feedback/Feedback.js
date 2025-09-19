@@ -1,8 +1,5 @@
-"use client";
-
 import { useEffect, useState, useCallback, useRef } from "react";
-import "./styles/Feedback.css";
-
+import './styles/Feedback.css';
 export default function Feedback() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [newFeedback, setNewFeedback] = useState("");
@@ -113,45 +110,49 @@ export default function Feedback() {
   }, []);
 
   return (
-    <div className="lx-feedback-container">
-      <div className="lx-feedback-content">
+    <div className="feedback-container">
+      <div className="feedback-content">
+        <style jsx>{`
+          
+        `}</style>
+
         {/* Header Section */}
-        <div className="lx-feedback-header">
-          <h1 className="lx-feedback-title">Share Your Feedback</h1>
-          <p className="lx-feedback-subtitle">
+        <div className="feedback-header">
+          <h1 className="feedback-title">Share Your Feedback</h1>
+          <p className="feedback-subtitle">
             Help us improve Learnix for all students
           </p>
         </div>
 
         {/* Privacy Notice */}
-        <div className="lx-privacy-notice">
-          <div className="lx-privacy-icon">🔒</div>
+        <div className="privacy-notice">
+          <div className="privacy-icon">🔒</div>
           <p>We don't collect your name or any personal details. Your feedback is completely anonymous.</p>
         </div>
 
         {/* Feedback Form */}
-        <form onSubmit={handleSubmit} className="lx-feedback-form">
-          <div className="lx-input-group">
+        <form onSubmit={handleSubmit} className="feedback-form">
+          <div className="input-group">
             <textarea
               placeholder="Share your thoughts... (e.g., Rate our website, suggest improvements, report issues, or tell us what you love about Learnix)"
               value={newFeedback}
               onChange={(e) => setNewFeedback(e.target.value)}
-              className="lx-feedback-textarea"
+              className="feedback-textarea"
               rows={4}
               maxLength={500}
             />
-            <div className="lx-char-counter">
+            <div className="char-counter">
               {newFeedback.length}/500
             </div>
           </div>
           <button 
             type="submit" 
-            className={`lx-submit-btn ${loading ? 'loading' : ''}`} 
+            className="submit-btn" 
             disabled={loading || !newFeedback.trim()}
           >
             {loading ? (
               <>
-                <div className="lx-spinner"></div>
+                <div className="spinner"></div>
                 Submitting...
               </>
             ) : (
@@ -161,63 +162,59 @@ export default function Feedback() {
         </form>
 
         {/* Feedback Suggestions */}
-        <div className="lx-feedback-suggestions">
-          <h3>What kind of feedback can you share?</h3>
-          <div className="lx-suggestion-tags">
-            <span className="lx-tag">🌟 Rate our website</span>
-            <span className="lx-tag">💡 Suggest improvements</span>
-            <span className="lx-tag">🐛 Report bugs or issues</span>
-            <span className="lx-tag">❤️ Share what you love</span>
-            <span className="lx-tag">📚 Request new features</span>
+        <div className="feedback-suggestions">
+          <h3 className="suggestions-title">What kind of feedback can you share?</h3>
+          <div className="suggestion-tags">
+            <span className="tag">🌟 Rate our website</span>
+            <span className="tag">💡 Suggest improvements</span>
+            <span className="tag">🐛 Report bugs or issues</span>
+            <span className="tag">❤️ Share what you love</span>
+            <span className="tag">📚 Request new features</span>
           </div>
         </div>
 
         {/* Recent Feedbacks Section */}
-        <div className="lx-recent-feedbacks">
-          <h2 className="lx-section-title">Recent Feedbacks</h2>
+        <div className="recent-feedbacks">
+          <h2 className="section-title">Recent Feedbacks</h2>
           
           {feedbacksLoading ? (
-            <div className="lx-feedbacks-loading">
-              <div className="lx-preloader">
-                <div className="lx-preloader-ring"></div>
+            <div className="feedbacks-loading">
+              <div className="preloader">
+                <div className="preloader-ring"></div>
                 <p>Loading feedbacks...</p>
               </div>
             </div>
           ) : feedbacks.length === 0 ? (
-            <div className="lx-no-feedback">
-              <div className="lx-no-feedback-icon">💭</div>
+            <div className="no-feedback">
+              <div className="no-feedback-icon">💭</div>
               <p>No feedbacks yet. Be the first to share your thoughts!</p>
             </div>
           ) : (
-            <div className="lx-feedbacks-list">
+            <div className="feedbacks-list">
               {feedbacks.map((fb, index) => (
                 <div
                   key={fb._id || index}
                   ref={index === feedbacks.length - 1 ? lastFeedbackElementRef : null}
-                  className="lx-feedback-item"
+                  className="feedback-item"
                 >
-                  <div className="lx-feedback-content-text">
+                  <div className="feedback-content-text">
                     <p>{fb.feedback}</p>
                   </div>
-                  <div className="lx-feedback-meta">
-                    <span className="lx-time-ago">{timeAgo(fb.createdAt)}</span>
-                    <div className="lx-feedback-actions">
-                      <button className="lx-action-btn">👍</button>
-                      <button className="lx-action-btn">❤️</button>
-                    </div>
+                  <div className="feedback-meta">
+                    <span className="time-ago">{timeAgo(fb.createdAt)}</span>
                   </div>
                 </div>
               ))}
               
               {loadingMore && (
-                <div className="lx-loading-more">
-                  <div className="lx-spinner-small"></div>
+                <div className="loading-more">
+                  <div className="spinner-small"></div>
                   <p>Loading more feedbacks...</p>
                 </div>
               )}
               
               {!hasMore && feedbacks.length > 0 && (
-                <div className="lx-end-message">
+                <div className="end-message">
                   <p>🎉 You've seen all feedbacks!</p>
                 </div>
               )}
