@@ -9,7 +9,7 @@ export default function Footer() {
     <footer className="learnix-footer">
       <div className="footer-container">
         <p className="footer-text">
-          © {new Date().getFullYear()} Learnix. All rights reserved.
+          © {new Date().getFullYear()} Learnix.
         </p>
         <p className="footer-text">
           Made by{" "}
