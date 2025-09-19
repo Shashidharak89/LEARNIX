@@ -120,14 +120,14 @@ export default function Feedback() {
         <div className="feedback-header">
           <h1 className="feedback-title">Share Your Feedback</h1>
           <p className="feedback-subtitle">
-            Help us improve Learnix for all students
+            Help us improve Learnix 
           </p>
         </div>
 
         {/* Privacy Notice */}
         <div className="privacy-notice">
-          <div className="privacy-icon">🔒</div>
-          <p>We don't collect your name or any personal details. Your feedback is completely anonymous.</p>
+          {/* <div className="privacy-icon">🔒</div> */}
+          <p>We do not collect your name or any personal details. Your feedback is completely anonymous.</p>
         </div>
 
         {/* Feedback Form */}
@@ -215,7 +215,7 @@ export default function Feedback() {
               
               {!hasMore && feedbacks.length > 0 && (
                 <div className="end-message">
-                  <p>🎉 You've seen all feedbacks!</p>
+                  <p>🎉 You have seen all feedbacks!</p>
                 </div>
               )}
             </div>
