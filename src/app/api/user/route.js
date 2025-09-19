@@ -17,8 +17,12 @@ export const GET = async (req) => {
       );
     }
 
-    const usn = usnParam.toUpperCase();
-    const user = await Work.findOne({ usn }).lean();
+    const usn = usnParam.trim().toUpperCase();
+
+    // Case-insensitive search
+    const user = await Work.findOne({
+      usn: { $regex: new RegExp(`^${usn}$`, "i") }
+    }).lean();
 
     if (!user) {
       return NextResponse.json(
@@ -34,7 +38,7 @@ export const GET = async (req) => {
         usn: user.usn,
         subjects: user.subjects || [],
         createdAt: user.createdAt,
-        profileimg: user.profileimg, // always from DB
+        profileimg: user.profileimg,
       },
     });
   } catch (err) {
