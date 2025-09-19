@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import "./Feedback.css"; // Import the CSS file
+import "./styles/Feedback.css"; // Import the CSS file
 
 export default function Feedback() {
   const [feedbacks, setFeedbacks] = useState([]);

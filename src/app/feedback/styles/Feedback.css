@@ -1,0 +1,89 @@
+.feedback-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: white;
+  border: 2px solid black;
+  border-radius: 12px;
+  box-shadow: 4px 4px 0px black;
+  font-family: Arial, sans-serif;
+}
+
+.feedback-note {
+  font-size: 0.9rem;
+  color: black;
+  background: #ffeb3b; /* Yellow highlight */
+  padding: 0.5rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.feedback-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.feedback-input {
+  flex: 1;
+  padding: 0.7rem;
+  border: 2px solid black;
+  border-radius: 8px;
+  outline: none;
+}
+
+.feedback-input:focus {
+  border-color: #1976d2; /* Blue */
+}
+
+.feedback-btn {
+  background: #1976d2; /* Blue */
+  color: white;
+  padding: 0.7rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 2px 2px 0px black;
+  transition: 0.2s;
+}
+
+.feedback-btn:hover {
+  background: #0d47a1; /* Darker blue */
+}
+
+.feedback-list {
+  margin-top: 1rem;
+}
+
+.feedback-list h3 {
+  margin-bottom: 1rem;
+  color: black;
+}
+
+.feedback-item {
+  background: #f9f9f9;
+  border: 1px solid black;
+  padding: 0.8rem;
+  border-radius: 8px;
+  margin-bottom: 0.8rem;
+  position: relative;
+}
+
+.feedback-item p {
+  margin: 0;
+  color: black;
+}
+
+.time-ago {
+  font-size: 0.8rem;
+  color: #555;
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+}
+
+.no-feedback {
+  color: #777;
+  text-align: center;
+}
