@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import "./styles/Feedback.css"; // Import the CSS file
+import "./styles/Feedback.css";
 
 export default function Feedback() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [newFeedback, setNewFeedback] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Fetch feedbacks from backend
+  // Fetch feedbacks
   const fetchFeedbacks = async () => {
     try {
       const res = await fetch("/api/feedback");
@@ -19,7 +19,7 @@ export default function Feedback() {
     }
   };
 
-  // Format "time ago"
+  // Proper time formatter
   const timeAgo = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -29,14 +29,19 @@ export default function Feedback() {
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
+    const weeks = Math.floor(days / 7);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(days / 365);
 
-    if (seconds < 60) return `${seconds} sec${seconds !== 1 ? "s" : ""} ago`;
+    if (seconds < 60) return "just now";
     if (minutes < 60) return `${minutes} min${minutes !== 1 ? "s" : ""} ago`;
     if (hours < 24) return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
-    return `${days} day${days !== 1 ? "s" : ""} ago`;
+    if (days < 7) return `${days} day${days !== 1 ? "s" : ""} ago`;
+    if (weeks < 5) return `${weeks} week${weeks !== 1 ? "s" : ""} ago`;
+    if (months < 12) return `${months} month${months !== 1 ? "s" : ""} ago`;
+    return `${years} year${years !== 1 ? "s" : ""} ago`;
   };
 
-  // Submit feedback
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newFeedback.trim()) return;
@@ -49,7 +54,7 @@ export default function Feedback() {
         body: JSON.stringify({ feedback: newFeedback }),
       });
       setNewFeedback("");
-      fetchFeedbacks(); // Refresh list
+      fetchFeedbacks();
     } catch (err) {
       console.error(err);
     } finally {
@@ -59,6 +64,13 @@ export default function Feedback() {
 
   useEffect(() => {
     fetchFeedbacks();
+
+    // Auto-refresh every 30s for smooth "time ago" updates
+    const interval = setInterval(() => {
+      fetchFeedbacks();
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -86,7 +98,7 @@ export default function Feedback() {
           <p className="no-feedback">No feedback yet.</p>
         ) : (
           feedbacks.map((fb) => (
-            <div key={fb._id} className="feedback-item">
+            <div key={fb._id} className="feedback-item fade-in">
               <p>{fb.feedback}</p>
               <span className="time-ago">{timeAgo(fb.createdAt)}</span>
             </div>

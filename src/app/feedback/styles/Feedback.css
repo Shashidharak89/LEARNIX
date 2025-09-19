@@ -68,6 +68,9 @@
   border-radius: 8px;
   margin-bottom: 0.8rem;
   position: relative;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeIn 0.4s ease-out forwards;
 }
 
 .feedback-item p {
@@ -86,4 +89,11 @@
 .no-feedback {
   color: #777;
   text-align: center;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

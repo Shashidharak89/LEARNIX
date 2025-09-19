@@ -9,7 +9,8 @@ import {
   FiSearch, 
   FiUpload, 
   FiUser, 
-  FiLogOut
+  FiLogOut,
+  FiMessageCircle   // 🔹 added for Feedback
 } from "react-icons/fi";
 import "./styles/Navbar.css";
 import { Fill } from "./Fill";
@@ -148,6 +149,17 @@ export const Navbar = () => {
           >
             <FiUpload size={20} />
             <span>Upload</span>
+          </Link>
+
+          {/* 🔹 New Feedback link */}
+          <Link 
+            href="/feedback" 
+            className="learnix-sidebar-link" 
+            onClick={closeSidebar}
+            tabIndex={isOpen ? 0 : -1}
+          >
+            <FiMessageCircle size={20} />
+            <span>Feedback</span>
           </Link>
           
           <Link 
