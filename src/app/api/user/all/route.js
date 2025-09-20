@@ -1,48 +1,43 @@
+// src/app/api/user/all/route.js
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/dbConnect";
+import { connectDB } from "@/lib/db";
 import Work from "@/models/Work";
 
-// GET /api/user/all?query=...&page=1&limit=10
-export async function GET(req) {
+export const GET = async (req) => {
   try {
-    await dbConnect();
+    await connectDB();
 
     const { searchParams } = new URL(req.url);
-    const query = searchParams.get("query") || "";
+    const search = searchParams.get("search")?.trim().toLowerCase() || "";
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "10", 10);
+    const skip = (page - 1) * limit;
 
-    // Search conditions
-    const searchCondition = query
+    const query = search
       ? {
           $or: [
-            { name: { $regex: query, $options: "i" } },
-            { usn: { $regex: query, $options: "i" } },
-            { "subjects.subject": { $regex: query, $options: "i" } },
-            { "subjects.topics.topic": { $regex: query, $options: "i" } },
+            { name: { $regex: search, $options: "i" } },
+            { usn: { $regex: search, $options: "i" } },
+            { "subjects.subject": { $regex: search, $options: "i" } },
+            { "subjects.topics.topic": { $regex: search, $options: "i" } },
+            { "subjects.topics.content": { $regex: search, $options: "i" } },
           ],
         }
       : {};
 
-    // Fetch users with pagination
-    const users = await Work.find(searchCondition, "name usn profileimg createdAt")
+    const users = await Work.find(query)
       .sort({ createdAt: -1 }) // latest first
-      .skip((page - 1) * limit)
+      .skip(skip)
       .limit(limit)
+      .select("name usn profileimg createdAt") // return only needed fields
       .lean();
 
-    // Count for frontend (optional)
-    const total = await Work.countDocuments(searchCondition);
-
+    return NextResponse.json({ users });
+  } catch (err) {
+    console.error("Error fetching users:", err);
     return NextResponse.json(
-      { success: true, users, total },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    return NextResponse.json(
-      { success: false, message: "Failed to fetch users" },
+      { error: "Failed to fetch users", details: err.message },
       { status: 500 }
     );
   }
-}
+};

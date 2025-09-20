@@ -4,17 +4,16 @@ const nextConfig = {
 
   images: {
     domains: [
-      'learnix.shashi-k.in', // allow Next.js Image optimization for your domain
+      "learnix.shashi-k.in",  // your own domain
+      "res.cloudinary.com",   // allow Cloudinary images
     ],
   },
 
   i18n: {
-    locales: ['en'],
-    defaultLocale: 'en',
+    locales: ["en"],
+    defaultLocale: "en",
   },
 
-  // Generate sitemap & robots.txt later with next-sitemap (not built-in)
-  // but this config ensures clean URLs and SEO-friendly routing
   trailingSlash: false,
 };
 

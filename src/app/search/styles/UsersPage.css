@@ -1,0 +1,59 @@
+.users-container {
+  max-width: 600px;
+  margin: auto;
+  padding: 1rem;
+}
+
+.search-bar {
+  width: 100%;
+  padding: 10px 15px;
+  border-radius: 20px;
+  border: 1px solid #ddd;
+  margin-bottom: 1rem;
+  font-size: 14px;
+}
+
+.users-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.user-card:hover {
+  background: #f7f7f7;
+}
+
+.user-img {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-info h4 {
+  font-size: 15px;
+  margin: 0;
+  color: #222;
+}
+
+.user-info p {
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+}
+
+.end-text {
+  text-align: center;
+  color: #999;
+  margin: 1rem 0;
+}
