@@ -341,7 +341,7 @@ const WorkSearchInterface = () => {
   return (
     <div className="work-search-container">
       <div className="work-search-header">
-        <h1 className="work-search-title">Work Records Search</h1>
+        {/* <h1 className="work-search-title">Work Records Search</h1> */}
         
         <div className="work-search-search-container">
           <div className="work-search-search-box">
