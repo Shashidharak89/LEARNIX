@@ -21,7 +21,7 @@ import {
 import { MdDashboard, MdOutlineSchool } from "react-icons/md";
 import { IoRocketOutline, IoLibraryOutline } from "react-icons/io5";
 import { RiGraduationCapLine } from "react-icons/ri";
-import "./styles/DashBoard.css";
+import "./styles/Dashboard.css";
 
 export default function DashBoard() {
   const [usn, setUsn] = useState(null);
@@ -198,8 +198,26 @@ export default function DashBoard() {
             </div>
           </Link>
 
+          <Link href="/materials" className="learnix-action-item learnix-tertiary-action">
+            <div className="learnix-action-header">
+              <div className="learnix-action-icon-container">
+                <IoLibraryOutline size={24} />
+              </div>
+              <span className="learnix-action-badge">Study Hub</span>
+            </div>
+            <div className="learnix-action-body">
+              <h3 className="learnix-action-title">Study Materials</h3>
+              <p className="learnix-action-desc">
+                Access curated textbooks, reference materials, and comprehensive study guides
+              </p>
+            </div>
+            <div className="learnix-action-arrow">
+              <FiArrowRight size={18} />
+            </div>
+          </Link>
+
           {usn && (
-            <Link href="/upload" className="learnix-action-item learnix-tertiary-action">
+            <Link href="/upload" className="learnix-action-item learnix-quaternary-action">
               <div className="learnix-action-header">
                 <div className="learnix-action-icon-container">
                   <FiUpload size={24} />
@@ -219,7 +237,7 @@ export default function DashBoard() {
           )}
 
           {!usn && (
-            <Link href="/login" className="learnix-action-item learnix-tertiary-action">
+            <Link href="/login" className="learnix-action-item learnix-quaternary-action">
               <div className="learnix-action-header">
                 <div className="learnix-action-icon-container">
                   <FiLogIn size={24} />
@@ -237,24 +255,6 @@ export default function DashBoard() {
               </div>
             </Link>
           )}
-
-          <Link href="/materials" className="learnix-action-item learnix-quaternary-action">
-            <div className="learnix-action-header">
-              <div className="learnix-action-icon-container">
-                <IoLibraryOutline size={24} />
-              </div>
-              <span className="learnix-action-badge">Study Hub</span>
-            </div>
-            <div className="learnix-action-body">
-              <h3 className="learnix-action-title">Study Materials</h3>
-              <p className="learnix-action-desc">
-                Access curated textbooks, reference materials, and comprehensive study guides
-              </p>
-            </div>
-            <div className="learnix-action-arrow">
-              <FiArrowRight size={18} />
-            </div>
-          </Link>
         </div>
       </main>
 
