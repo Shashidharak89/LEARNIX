@@ -1,47 +1,75 @@
 "use client";
-import React from "react";
-import { FiBookOpen } from "react-icons/fi";
+
+import { useState } from "react";
+import materialsData from "./materialsData";
 import "./styles/StudyMaterials.css";
 
 export default function StudyMaterials() {
+  const [openSemesterIndex, setOpenSemesterIndex] = useState(null);
+  const [openSubjectIndex, setOpenSubjectIndex] = useState(null);
+
+  const toggleSemester = (index) => {
+    setOpenSemesterIndex(openSemesterIndex === index ? null : index);
+    setOpenSubjectIndex(null); // reset subject when semester changes
+  };
+
+  const toggleSubject = (index) => {
+    setOpenSubjectIndex(openSubjectIndex === index ? null : index);
+  };
+
   return (
-    <section className="sm-container" aria-labelledby="sm-title">
-      <div className="sm-card">
-        <div className="sm-icon-wrap" aria-hidden="true">
-          <FiBookOpen size={42} />
-        </div>
+    <div className="study-materials-container">
+      <h2>Study Materials</h2>
+      <div className="semesters-list">
+        {materialsData.map((sem, semIndex) => (
+          <div key={semIndex} className="semester-item">
+            <button
+              className="semester-button"
+              onClick={() => toggleSemester(semIndex)}
+            >
+              {sem.semester}
+            </button>
 
-        <h1 id="sm-title" className="sm-title">Study Materials</h1>
-        <p className="sm-subtitle">
-          Study materials will be uploaded soon. Keep an eye here for updates!
-        </p>
+            {openSemesterIndex === semIndex && (
+              <div className="subjects-list">
+                {sem.subjects.map((subj, subjIndex) => (
+                  <div key={subjIndex} className="subject-item">
+                    <button
+                      className="subject-button"
+                      onClick={() => toggleSubject(subjIndex)}
+                    >
+                      {subj.subject}
+                    </button>
 
-        <div className="sm-info">
-          <div className="sm-pill">
-            <strong>Visibility:</strong> Public
+                    {openSubjectIndex === subjIndex && (
+                      <ul className="files-list">
+                        {subj.files.map((file, fIndex) => {
+                          const fileName =
+                            file.name ||
+                            file.url.split("/").pop().split("?")[0];
+
+                          return (
+                            <li key={fIndex}>
+                              <a
+                                href={file.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="file-link"
+                              >
+                                {fileName}
+                              </a>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-          <div className="sm-pill">
-            <strong>Uploader:</strong> Admin
-          </div>
-        </div>
-
-        <div className="sm-actions">
-          <button className="sm-btn sm-btn-primary" disabled>
-            Coming Soon
-          </button>
-          <button
-            className="sm-btn sm-btn-outline"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            title="Scroll to top"
-          >
-            Back to Top
-          </button>
-        </div>
- 
-        <div className="sm-footer-note">
-          <span>Tip:</span> We will notify users when materials go live.
-        </div>
+        ))}
       </div>
-    </section>
+    </div>
   );
 }
