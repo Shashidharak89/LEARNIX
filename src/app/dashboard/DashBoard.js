@@ -139,7 +139,7 @@ export default function DashBoard() {
       </section>
 
       {/* Login Prompt for Unauthenticated Users */}
-      {!usn && (
+      {/* {!usn && (
         <section className="learnix-auth-prompt">
           <div className="learnix-auth-prompt-content">
             <div className="learnix-auth-prompt-icon">
@@ -154,14 +154,14 @@ export default function DashBoard() {
                 <FiLogIn size={16} />
                 <span>Sign In</span>
               </Link>
-              <Link href="/register" className="learnix-auth-prompt-btn learnix-auth-secondary">
+              <Link href="/login" className="learnix-auth-prompt-btn learnix-auth-secondary">
                 <FiUser size={16} />
                 <span>Create Account</span>
               </Link>
             </div>
           </div>
         </section>
-      )}
+      )} */}
 
       {/* Main Action Cards */}
       <main className="learnix-main-actions">
@@ -280,18 +280,18 @@ export default function DashBoard() {
               <FiArrowRight size={16} />
             </Link>
           ) : (
-            <Link href="/about" className="learnix-secondary-item">
+            <Link href="/profile" className="learnix-secondary-item">
               <MdOutlineSchool size={20} />
-              <span>About Learnix</span>
+              <span>Your Profile</span>
               <FiArrowRight size={16} />
             </Link>
           )}
 
-          <Link href="/help" className="learnix-secondary-item">
+          {/* <Link href="/help" className="learnix-secondary-item">
             <FiBookOpen size={20} />
             <span>Help & Support</span>
             <FiArrowRight size={16} />
-          </Link>
+          </Link> */}
         </div>
       </section>
 
@@ -304,7 +304,7 @@ export default function DashBoard() {
             <p className="learnix-footer-cta-text">
               Join thousands of students sharing and discovering academic resources
             </p>
-            <Link href="/register" className="learnix-footer-cta-btn">
+            <Link href="/login" className="learnix-footer-cta-btn">
               <span>Create Your Account</span>
               <FiArrowRight size={16} />
             </Link>
