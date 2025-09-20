@@ -11,7 +11,8 @@ import {
   FiUser, 
   FiLogOut,
   FiMessageCircle,   // 🔹 for Feedback
-  FiBookOpen         // 🔹 for Study Materials
+  FiBookOpen,        // 🔹 for Study Materials
+  FiFolder           // 🔹 for Uploaded Works
 } from "react-icons/fi";
 import "./styles/Navbar.css";
 import { Fill } from "./Fill";
@@ -141,6 +142,17 @@ export const Navbar = () => {
             <FiSearch size={20} />
             <span>Search</span>
           </Link>
+
+          {/* 🔹 Uploaded Works (new link) */}
+          <Link 
+            href="/works" 
+            className="learnix-sidebar-link" 
+            onClick={closeSidebar}
+            tabIndex={isOpen ? 0 : -1}
+          >
+            <FiFolder size={20} />
+            <span>Uploaded Works</span>
+          </Link>
           
           <Link 
             href="/upload" 
@@ -152,7 +164,7 @@ export const Navbar = () => {
             <span>Upload</span>
           </Link>
 
-          {/* 🔹 New Study Materials link */}
+          {/* 🔹 Study Materials link */}
           <Link 
             href="/materials" 
             className="learnix-sidebar-link" 
