@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { FiSearch, FiUser, FiLoader } from "react-icons/fi";
+import { HiOutlineUsers } from "react-icons/hi";
 import "./styles/UsersPage.css";
 
 export default function UsersPage() {
@@ -71,43 +73,84 @@ export default function UsersPage() {
   }, [hasMore, loading]);
 
   return (
-    <div className="users-container">
-      <input
-        type="text"
-        className="search-bar"
-        placeholder="Search by name, USN, subject, or topic..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
+    <div className="modern-users-wrapper">
+      {/* <div className="modern-users-header">
+        <div className="header-icon-wrapper">
+          <HiOutlineUsers className="header-main-icon" />
+        </div>
+        <h1 className="modern-page-title">Discover Users</h1>
+        <p className="modern-page-subtitle">Find and connect with fellow students</p>
+      </div> */}
 
-      <div className="users-list">
-        {users.map((user) => (
+      <div className="modern-search-section">
+        <div className="modern-search-container">
+          <FiSearch className="search-icon-modern" />
+          <input
+            type="text"
+            className="modern-search-input"
+            placeholder="Search by name, USN, subject, or topic..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="modern-users-grid">
+        {users.map((user, index) => (
           <Link
             key={user.usn}
             href={`/search/${user.usn}`}
-            className="user-card"
+            className="modern-user-card"
+            style={{ "--animation-delay": `${index * 0.1}s` }}
           >
-            <Image
-              src={user.profileimg}
-              alt={user.name}
-              width={50}
-              height={50}
-              className="user-img"
-            />
-            <div className="user-info">
-              <h4>{user.name}</h4>
-              <p>{user.usn}</p>
+            <div className="user-card-inner">
+              <div className="user-avatar-section">
+                <div className="avatar-ring">
+                  <Image
+                    src={user.profileimg}
+                    alt={user.name}
+                    width={60}
+                    height={60}
+                    className="modern-user-avatar"
+                  />
+                </div>
+              </div>
+              
+              <div className="user-details-section">
+                <h3 className="modern-user-name">{user.name}</h3>
+                <div className="modern-user-usn">
+                  <FiUser className="usn-icon" />
+                  <span>{user.usn}</span>
+                </div>
+              </div>
+              
+              <div className="card-hover-indicator">
+                <div className="hover-arrow">→</div>
+              </div>
             </div>
           </Link>
         ))}
       </div>
 
-      {loading && <p className="loading-text">Loading...</p>}
-      {!hasMore && users.length > 0 && (
-        <p className="end-text">No more users to load</p>
+      {loading && (
+        <div className="modern-loading-section">
+          <FiLoader className="loading-spinner" />
+          <span className="loading-text-modern">Loading more users...</span>
+        </div>
       )}
+      
+      {!hasMore && users.length > 0 && (
+        <div className="modern-end-message">
+          <p className="end-text-modern">🎉 You've seen all users!</p>
+        </div>
+      )}
+      
       {!loading && users.length === 0 && (
-        <p className="end-text">No users found</p>
+        <div className="modern-empty-state">
+          <HiOutlineUsers className="empty-state-icon" />
+          <h3 className="empty-state-title">No users found</h3>
+          <p className="empty-state-subtitle">Try adjusting your search terms</p>
+        </div>
       )}
     </div>
   );
