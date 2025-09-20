@@ -141,7 +141,7 @@ export default function UsersPage() {
       
       {!hasMore && users.length > 0 && (
         <div className="modern-end-message">
-          <p className="end-text-modern">🎉 You've seen all users!</p>
+          <p className="end-text-modern">🎉 You have seen all users!</p>
         </div>
       )}
       
