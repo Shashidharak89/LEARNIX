@@ -21,7 +21,7 @@ import {
 import { MdDashboard, MdOutlineSchool } from "react-icons/md";
 import { IoRocketOutline, IoLibraryOutline } from "react-icons/io5";
 import { RiGraduationCapLine } from "react-icons/ri";
-import "./styles/Dashboard.css";
+import "./styles/DashBoard.css";
 
 export default function DashBoard() {
   const [usn, setUsn] = useState(null);
