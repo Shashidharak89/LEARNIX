@@ -105,7 +105,7 @@ export default function DashBoard() {
             <FiBookOpen size={20} />
           </div>
           <div className="learnix-stat-info">
-            <span className="learnix-stat-value">500+</span>
+            <span className="learnix-stat-value">10+</span>
             <span className="learnix-stat-label">Study Resources</span>
           </div>
         </div>
@@ -114,7 +114,7 @@ export default function DashBoard() {
             <FiUsers size={20} />
           </div>
           <div className="learnix-stat-info">
-            <span className="learnix-stat-value">1.2K+</span>
+            <span className="learnix-stat-value">10+</span>
             <span className="learnix-stat-label">Active Users</span>
           </div>
         </div>
