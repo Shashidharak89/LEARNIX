@@ -1,50 +1,482 @@
-.study-materials-container {
-  max-width: 700px;
-  margin: 20px auto;
-  font-family: Arial, sans-serif;
-  padding: 10px;
+/* StudyMaterials.css */
+
+.study-materials-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.semester-button,
-.subject-button {
+/* Header Styles */
+.study-materials-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  padding-bottom: 1rem;
+  border-bottom: 3px solid #3b82f6;
+}
+
+.header-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: #3b82f6;
+}
+
+.study-materials-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+  letter-spacing: -0.025em;
+}
+
+/* Content Container */
+.study-materials-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Semester Card Styles */
+.semester-card {
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.semester-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Semester Toggle Button */
+.semester-toggle {
   width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: #f8fafc;
+  border: none;
+  border-bottom: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.semester-toggle:hover {
+  background: #f1f5f9;
+}
+
+.semester-toggle.semester-active {
+  background: #eff6ff;
+  border-bottom-color: #3b82f6;
+}
+
+.semester-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
   text-align: left;
-  padding: 10px 15px;
-  margin: 5px 0;
-  background: #f0f0f0;
+}
+
+.semester-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.semester-toggle:hover .semester-icon {
+  transform: scale(1.1);
+  background: #2563eb;
+}
+
+.semester-toggle.semester-active .semester-icon {
+  background: #fbbf24;
+  color: #1f2937;
+}
+
+/* Subjects Container */
+.subjects-container {
+  padding: 1.5rem;
+  background: #fafbfc;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Subject Card */
+.subject-card {
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.subject-card:last-child {
+  margin-bottom: 0;
+}
+
+.subject-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Subject Toggle Button */
+.subject-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 16px;
-  border-radius: 5px;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
+  font-family: inherit;
 }
 
-.semester-button:hover,
-.subject-button:hover {
-  background: #e0e0e0;
+.subject-toggle:hover {
+  background: #f9fafb;
 }
 
-.subjects-list {
-  padding-left: 15px;
-  margin-top: 5px;
+.subject-toggle.subject-active {
+  background: #eff6ff;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.files-list {
-  list-style: none;
-  padding-left: 20px;
-  margin-top: 5px;
+.subject-icon {
+  color: #3b82f6;
+  flex-shrink: 0;
 }
 
-.files-list li {
-  margin: 5px 0;
+.subject-title {
+  flex: 1;
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #374151;
+  text-align: left;
 }
 
-.file-link {
+.subject-chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #6b7280;
+  transition: all 0.2s ease;
+}
+
+.subject-toggle.subject-active .subject-chevron {
+  color: #3b82f6;
+}
+
+/* Files Container */
+.files-container {
+  padding: 1rem 1.25rem;
+  background: #f8fafc;
+  border-top: 1px solid #e5e7eb;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* File Link Card */
+.file-link-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
   text-decoration: none;
-  color: #1a73e8;
-  font-size: 14px;
+  color: inherit;
+  transition: all 0.2s ease;
 }
 
-.file-link:hover {
-  text-decoration: underline;
+.file-link-card:last-child {
+  margin-bottom: 0;
+}
+
+.file-link-card:hover {
+  border-color: #fbbf24;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.15);
+  transform: translateX(4px);
+  text-decoration: none;
+  color: inherit;
+}
+
+.download-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: #eff6ff;
+  border-radius: 6px;
+  color: #3b82f6;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.file-link-card:hover .download-icon {
+  background: #3b82f6;
+  color: white;
+  transform: scale(1.1);
+}
+
+.file-name {
+  font-size: 0.9375rem;
+  color: #374151;
+  font-weight: 500;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.file-link-card:hover .file-name {
+  color: #1f2937;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .study-materials-wrapper {
+    padding: 1rem 0.75rem;
+  }
+
+  .study-materials-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .header-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .study-materials-title {
+    font-size: 2rem;
+  }
+
+  .semester-toggle {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+  }
+
+  .semester-title {
+    font-size: 1.25rem;
+  }
+
+  .semester-icon {
+    align-self: flex-end;
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .subject-toggle {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+
+  .subject-title {
+    font-size: 1rem;
+  }
+
+  .subjects-container {
+    padding: 1rem;
+  }
+
+  .files-container {
+    padding: 0.75rem;
+  }
+
+  .file-link-card {
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .study-materials-wrapper {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .study-materials-title {
+    font-size: 1.75rem;
+  }
+
+  .semester-toggle {
+    padding: 1rem;
+  }
+
+  .semester-title {
+    font-size: 1.125rem;
+  }
+
+  .semester-icon {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .subject-title {
+    font-size: 0.9375rem;
+  }
+
+  .file-name {
+    font-size: 0.875rem;
+  }
+
+  .download-icon {
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+}
+
+/* Enhanced animations for better UX */
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.semester-card {
+  animation: cardEnter 0.3s ease-out;
+}
+
+.semester-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.semester-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.semester-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* Focus states for accessibility */
+.semester-toggle:focus,
+.subject-toggle:focus,
+.file-link-card:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Active states */
+.semester-toggle:active {
+  transform: scale(0.98);
+}
+
+.subject-toggle:active {
+  transform: scale(0.99);
+}
+
+.file-link-card:active {
+  transform: translateX(2px) scale(0.99);
+}
+
+/* Loading states (optional) */
+.semester-card.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Print styles */
+@media print {
+  .study-materials-wrapper {
+    max-width: none;
+    padding: 0;
+  }
+
+  .semester-card {
+    box-shadow: none;
+    border: 1px solid #000;
+    break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+
+  .semester-toggle,
+  .subject-toggle {
+    background: white !important;
+  }
+
+  .subjects-container,
+  .files-container {
+    display: block !important;
+    animation: none !important;
+  }
+
+  .download-icon {
+    display: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .semester-card {
+    border-color: #000;
+    border-width: 2px;
+  }
+
+  .subject-card {
+    border-color: #666;
+    border-width: 2px;
+  }
+
+  .file-link-card {
+    border-color: #333;
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
