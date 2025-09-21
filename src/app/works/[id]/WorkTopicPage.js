@@ -90,9 +90,6 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
   if (loading) {
     return (
       <div className="wtpc-container">
-        <div className="wtpc-nav-header">
-          <div className="wtpc-skeleton wtpc-skeleton-back-btn"></div>
-        </div>
         <div className="wtpc-main-content">
           <UserProfileSkeleton />
           <div className="wtpc-action-buttons-container">
@@ -140,14 +137,6 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
 
   return (
     <div className="wtpc-container">
-      {/* Navigation Header */}
-      <div className="wtpc-nav-header">
-        <Link href="/works" className="wtpc-back-button">
-          <FaArrowLeft />
-          <span>Back to Topics</span>
-        </Link>
-      </div>
-
       {/* Main Content */}
       <div className="wtpc-main-content">
         {/* User Profile Section */}
@@ -178,14 +167,10 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
 
         {/* Action Buttons - Now positioned after user profile */}
         <div className="wtpc-action-buttons-container">
-          <button 
-            onClick={() => window.history.back()}
-            className="wtpc-action-btn wtpc-back-btn"
-            title="Go Back"
-          >
+          <Link href="/works" className="wtpc-action-btn wtpc-back-btn">
             <FaArrowLeft />
-            <span>Back</span>
-          </button>
+            <span className="wtpc-btn-text">Back</span>
+          </Link>
           <button 
             onClick={downloadTopicAsPDF}
             className="wtpc-action-btn wtpc-download-btn"
@@ -193,7 +178,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
             title="Download as PDF"
           >
             <FaDownload />
-            <span>Download</span>
+            <span className="wtpc-btn-text">Download</span>
           </button>
           <button 
             onClick={handleShare}
@@ -201,7 +186,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
             title="Share Topic"
           >
             <FaShare />
-            <span>Share</span>
+            <span className="wtpc-btn-text">Share</span>
           </button>
         </div>
 
