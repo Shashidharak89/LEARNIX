@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Search, Download, Eye, ChevronDown, Calendar, User, BookOpen, RefreshCw, RotateCcw } from 'lucide-react';
+import { Search, Download, Eye, ChevronDown, Calendar, User, BookOpen, RefreshCw, RotateCcw, Share2 } from 'lucide-react';
 import './styles/WorkSearchInterface.css';
 
 const WorkSearchInterface = () => {
@@ -19,12 +19,10 @@ const WorkSearchInterface = () => {
 
   const ITEMS_PER_LOAD = 8; // Adjust based on your needs
 
-  // Fetch all topics on component mount
   useEffect(() => {
     fetchAllTopics();
   }, []);
 
-  // Set up intersection observer for infinite scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -48,8 +46,7 @@ const WorkSearchInterface = () => {
     try {
       const response = await fetch('/api/work/getall');
       const data = await response.json();
-      
-      // Extract and sort all topics by timestamp
+
       const topics = [];
       data.users.forEach(user => {
         user.subjects?.forEach(subject => {
@@ -59,25 +56,24 @@ const WorkSearchInterface = () => {
               userName: user.name,
               usn: user.usn,
               subjectName: subject.subject,
-              userId: user._id
+              userId: user._id,
+              topicId: topic._id // store topic _id for sharing
             });
           });
         });
       });
 
-      // Sort by timestamp (newest first)
       const sortedTopics = topics
         .filter(topic => topic.timestamp)
         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
       setAllTopics(sortedTopics);
-      
-      // Load initial batch
+
       const initialTopics = sortedTopics.slice(0, ITEMS_PER_LOAD);
       setDisplayedTopics(initialTopics);
       setCurrentIndex(ITEMS_PER_LOAD);
       setHasMore(sortedTopics.length > ITEMS_PER_LOAD);
-      
+
     } catch (error) {
       console.error('Error fetching topics:', error);
     } finally {
@@ -89,7 +85,7 @@ const WorkSearchInterface = () => {
     if (isLoadingMore || !hasMore || searchQuery || isManualReloading) return;
 
     setIsLoadingMore(true);
-    
+
     setTimeout(() => {
       const nextBatch = allTopics.slice(currentIndex, currentIndex + ITEMS_PER_LOAD);
       if (nextBatch.length > 0) {
@@ -100,7 +96,7 @@ const WorkSearchInterface = () => {
         setHasMore(false);
       }
       setIsLoadingMore(false);
-    }, 500); // Small delay to show loading state
+    }, 500);
   }, [allTopics, currentIndex, hasMore, isLoadingMore, searchQuery, isManualReloading]);
 
   const handleManualReload = () => {
@@ -114,10 +110,9 @@ const WorkSearchInterface = () => {
 
   const handleEndReload = () => {
     if (isLoadingMore || isManualReloading) return;
-    
+
     setIsManualReloading(true);
-    
-    // Check if there are more topics to load
+
     const remainingTopics = allTopics.length - currentIndex;
     if (remainingTopics > 0) {
       setTimeout(() => {
@@ -132,7 +127,6 @@ const WorkSearchInterface = () => {
         setIsManualReloading(false);
       }, 500);
     } else {
-      // Re-fetch all topics if no more are available
       fetchAllTopics().then(() => {
         setIsManualReloading(false);
       });
@@ -142,7 +136,6 @@ const WorkSearchInterface = () => {
   const handleSearch = async (query) => {
     if (!query.trim()) {
       setSearchResults([]);
-      // Reset to initial state when search is cleared
       const initialTopics = allTopics.slice(0, ITEMS_PER_LOAD);
       setDisplayedTopics(initialTopics);
       setCurrentIndex(ITEMS_PER_LOAD);
@@ -156,20 +149,15 @@ const WorkSearchInterface = () => {
       const results = [];
 
       allTopics.forEach(topic => {
-        // Search in user details
-        if (topic.userName.toLowerCase().includes(searchTerm) || 
+        if (topic.userName.toLowerCase().includes(searchTerm) ||
             topic.usn.toLowerCase().includes(searchTerm) ||
             topic.subjectName.toLowerCase().includes(searchTerm) ||
             topic.topic.toLowerCase().includes(searchTerm) ||
             topic.content.toLowerCase().includes(searchTerm)) {
-          results.push({
-            ...topic,
-            matchType: 'search'
-          });
+          results.push({ ...topic, matchType: 'search' });
         }
       });
 
-      // Remove duplicates and sort by timestamp
       const uniqueResults = results.filter((item, index, self) => 
         index === self.findIndex(t => t.topic === item.topic && t.userId === item.userId && t.subjectName === item.subjectName)
       );
@@ -196,7 +184,6 @@ const WorkSearchInterface = () => {
     }
 
     try {
-      // Import jsPDF dynamically
       const jsPDF = (await import('jspdf')).default;
       
       const pdf = new jsPDF();
@@ -204,7 +191,6 @@ const WorkSearchInterface = () => {
       const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 10;
       
-      // Add title page
       pdf.setFontSize(20);
       pdf.text(`${topic.topic}`, margin, 30);
       pdf.setFontSize(12);
@@ -231,7 +217,6 @@ const WorkSearchInterface = () => {
         
         if (i > 0) pdf.addPage();
         
-        // Calculate image dimensions to fit page
         const imgWidth = img.naturalWidth;
         const imgHeight = img.naturalHeight;
         const ratio = Math.min(
@@ -247,7 +232,6 @@ const WorkSearchInterface = () => {
         pdf.addImage(img, 'JPEG', x, y, width, height);
       }
       
-      // Save the PDF
       const fileName = `${topic.topic}_${topic.subjectName}_${topic.userName}.pdf`.replace(/[^a-zA-Z0-9]/g, '_');
       pdf.save(fileName);
       
@@ -295,6 +279,11 @@ const WorkSearchInterface = () => {
             >
               <Download size={16} />
             </button>
+            
+            {/* Share button */}
+            <Link href={`/work/${topic.topicId}`} className="work-search-action-btn work-search-share-btn" title="Share Topic">
+              <Share2 size={16} />
+            </Link>
           </div>
         </div>
 
@@ -341,8 +330,6 @@ const WorkSearchInterface = () => {
   return (
     <div className="work-search-container">
       <div className="work-search-header">
-        {/* <h1 className="work-search-title">Work Records Search</h1> */}
-        
         <div className="work-search-search-container">
           <div className="work-search-search-box">
             <Search className="work-search-search-icon" size={20} />
@@ -374,8 +361,7 @@ const WorkSearchInterface = () => {
             <div className="work-search-topics-grid">
               {displayedTopics.map((topic, index) => renderTopicCard(topic, index))}
             </div>
-            
-            {/* Infinite scroll sentinel */}
+
             {hasMore && (
               <div id="scroll-sentinel" className="work-search-scroll-sentinel">
                 {isLoadingMore && (
@@ -387,7 +373,6 @@ const WorkSearchInterface = () => {
               </div>
             )}
 
-            {/* Manual reload button - shows when there are more items and not currently loading */}
             {hasMore && !isLoadingMore && !isManualReloading && (
               <div className="work-search-reload-section">
                 <button 
@@ -404,7 +389,6 @@ const WorkSearchInterface = () => {
               </div>
             )}
 
-            {/* End reload button - shows when no more items or to refresh the list */}
             {(!hasMore || displayedTopics.length === 0) && (
               <div className="work-search-end-reload-section">
                 {displayedTopics.length > 0 && (
