@@ -1,194 +1,75 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import {
-  Download,
-  Eye,
-  ChevronDown,
-  Calendar,
-  User,
-  BookOpen,
-} from "lucide-react";
-import "../../search/styles/WorkSearchInterface.css";
 
-const TopicDetail = () => {
-  const { id: topicId } = useParams(); // dynamic topic ID
-  const [topicData, setTopicData] = useState(null);
-  const [expanded, setExpanded] = useState(false);
+const WorkTopicPage = () => {
+  const params = useParams();
+  const id = params?.id; // get id safely
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!topicId) return;
+    if (!id) return; // wait until id is available
 
     const fetchData = async () => {
       try {
-        const res = await fetch(`/api/work/${topicId}`);
-        const data = await res.json();
-
-        if (data?.success) {
-          setTopicData(data);
-        } else {
-          setTopicData(null);
-        }
+        const res = await fetch(`/api/work/getbytopicid/${id}`);
+        if (!res.ok) throw new Error("Failed to fetch data");
+        const json = await res.json();
+        setData(json);
       } catch (err) {
-        console.error("Error fetching topic:", err);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [topicId]);
+  }, [id]);
 
-  const downloadTopicAsPDF = async () => {
-    if (!topicData?.topic?.images?.length) {
-      alert("No images available for this topic");
-      return;
-    }
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+  if (!data) return <p>No data found</p>;
 
-    try {
-      const jsPDF = (await import("jspdf")).default;
-      const pdf = new jsPDF();
-      const margin = 10;
-
-      pdf.setFontSize(18);
-      pdf.text(topicData.topic.topic, margin, 30);
-      pdf.setFontSize(12);
-      pdf.text(`Subject: ${topicData.subject.subject}`, margin, 50);
-      pdf.text(
-        `Student: ${topicData.user.name} (${topicData.user.usn})`,
-        margin,
-        65
-      );
-      pdf.text(
-        `Date: ${new Date(topicData.topic.timestamp).toLocaleDateString()}`,
-        margin,
-        80
-      );
-
-      const imagePromises = topicData.topic.images.map(
-        (url, i) =>
-          new Promise((resolve, reject) => {
-            const img = new Image();
-            img.crossOrigin = "anonymous";
-            img.onload = () => resolve({ img, i });
-            img.onerror = () => reject(`Failed to load image ${i + 1}`);
-            img.src = url;
-          })
-      );
-
-      const loadedImages = await Promise.all(imagePromises);
-
-      loadedImages.forEach(({ img }, i) => {
-        if (i > 0) pdf.addPage();
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-        const ratio = Math.min(
-          (pageWidth - 2 * margin) / img.width,
-          (pageHeight - 2 * margin) / img.height
-        );
-        const width = img.width * ratio;
-        const height = img.height * ratio;
-        const x = (pageWidth - width) / 2;
-        const y = (pageHeight - height) / 2;
-        pdf.addImage(img, "JPEG", x, y, width, height);
-      });
-
-      pdf.save(
-        `${topicData.topic.topic}_${topicData.subject.subject}_${topicData.user.name}.pdf`
-      );
-    } catch (err) {
-      console.error("PDF error:", err);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="user-detail-loading">
-        <p>Loading topic details...</p>
-      </div>
-    );
-  }
-
-  if (!topicData) {
-    return (
-      <div className="user-detail-error">
-        <p>Topic not found</p>
-      </div>
-    );
-  }
-
-  const { user, subject, topic } = topicData;
-  const validImages = topic.images?.filter((i) => i.trim() !== "") || [];
-  const displayImages = expanded ? validImages : validImages.slice(0, 2);
+  const { user, subject, topic } = data;
 
   return (
-    <div className="user-detail-container">
-      <div className="user-detail-header">
-        <img
-          src={user.profileimg}
-          alt={user.name}
-          className="user-detail-avatar"
-        />
-        <div>
-          <h2>{user.name}</h2>
-          <p>{user.usn}</p>
-        </div>
-      </div>
+    <div>
+      {/* User Info */}
+      <section>
+        <h2>User Info</h2>
+        <img src={user.profileimg} alt={user.name} width={100} height={100} />
+        <p>Name: {user.name}</p>
+        <p>USN: {user.usn}</p>
+      </section>
 
-      <div className="user-subject-card">
-        <h3 className="user-subject-title">
-          <BookOpen size={16} /> {subject.subject}
-        </h3>
+      {/* Subject Info */}
+      <section>
+        <h2>Subject</h2>
+        <p>{subject.subject}</p>
+      </section>
 
-        <div className="user-topic-card">
-          <div className="user-topic-header">
-            <h4>
-              <User size={14} /> {topic.topic}
-            </h4>
-            <span>
-              <Calendar size={14} />{" "}
-              {new Date(topic.timestamp).toLocaleDateString()}
-            </span>
-            <button
-              onClick={downloadTopicAsPDF}
-              className="user-topic-download"
-            >
-              <Download size={16} />
-            </button>
+      {/* Topic Info */}
+      <section>
+        <h2>Topic: {topic.topic}</h2>
+        {topic.content && <p>{topic.content}</p>}
+
+        {/* Topic Images */}
+        {topic.images && topic.images.length > 0 && (
+          <div>
+            <h3>Images:</h3>
+            {topic.images.map((img, index) => (
+              <img key={index} src={img} alt={`Topic image ${index + 1}`} width={300} />
+            ))}
           </div>
+        )}
 
-          {topic.content && <p>{topic.content}</p>}
-
-          {validImages.length > 0 && (
-            <div className="user-topic-images">
-              {displayImages.map((imgUrl, i) => (
-                <img
-                  key={i}
-                  src={imgUrl}
-                  alt={`Topic ${i + 1}`}
-                  className="user-topic-img"
-                />
-              ))}
-              {validImages.length > 2 && (
-                <button
-                  className="user-topic-view-more"
-                  onClick={() => setExpanded(!expanded)}
-                >
-                  <Eye size={16} />{" "}
-                  {expanded
-                    ? "Show Less"
-                    : `View More (${validImages.length - 2} more)`}{" "}
-                  <ChevronDown size={16} className={expanded ? "rotated" : ""} />
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+        <p>Posted on: {new Date(topic.timestamp).toLocaleString()}</p>
+      </section>
     </div>
   );
 };
 
-export default TopicDetail;
+export default WorkTopicPage;
