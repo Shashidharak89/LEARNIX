@@ -20,7 +20,8 @@ import {
   FiX,
   FiAlertTriangle,
   FiCamera,
-  FiFile
+  FiFile,
+  FiCheckCircle
 } from "react-icons/fi";
 import PDFProcessor from "./PDFProcessor";
 import DeleteSubjectButton from "./DeleteSubjectButton";
@@ -29,10 +30,7 @@ import "./styles/ManageSubjects.css";
 import LoginRequired from "../components/LoginRequired";
 import ManageSubjectsSkeleton from './ManageSubjectsSkeleton';
 
-
 export default function ManageSubjects() {
- 
-
   const [usn, setUsn] = useState("");
   const [subjects, setSubjects] = useState([]);
   const [newSubject, setNewSubject] = useState("");
@@ -51,7 +49,7 @@ export default function ManageSubjects() {
 
   const { theme } = useTheme();
 
-  // Track file input for each topic individually
+  // Track file input for each topic individually - Updated for multiple files
   const [filesMap, setFilesMap] = useState({});
   const [filePreviewMap, setFilePreviewMap] = useState({});
   const [expandedImages, setExpandedImages] = useState({});
@@ -60,6 +58,11 @@ export default function ManageSubjects() {
   
   // PDF processing states
   const [showPDFProcessor, setShowPDFProcessor] = useState({});
+  
+  // Multiple file upload states
+  const [uploadProgress, setUploadProgress] = useState({});
+  const [uploadedFiles, setUploadedFiles] = useState({});
+  const [uploadComplete, setUploadComplete] = useState({});
   
   // Refs for camera inputs
   const cameraInputRefs = useRef({});
@@ -74,8 +77,12 @@ export default function ManageSubjects() {
   // Clean up preview URLs on unmount
   useEffect(() => {
     return () => {
-      Object.values(filePreviewMap).forEach(url => {
-        URL.revokeObjectURL(url);
+      Object.values(filePreviewMap).forEach(urls => {
+        if (Array.isArray(urls)) {
+          urls.forEach(url => URL.revokeObjectURL(url));
+        } else if (urls) {
+          URL.revokeObjectURL(urls);
+        }
       });
     };
   }, [filePreviewMap]);
@@ -93,6 +100,12 @@ export default function ManageSubjects() {
       setTopicName("");
     }
   }, [selectedSubject, isCustomSubject, allUsers]);
+
+  // Show message helper
+  const showMessage = (text, type = "", duration = 3000) => {
+    setMessage(text);
+    setTimeout(() => setMessage(""), duration);
+  };
 
   // Image compression function
   const compressImage = async (file) => {
@@ -128,7 +141,7 @@ export default function ManageSubjects() {
       setSubjects(res.data.subjects || []);
     } catch (err) {
       console.error(err);
-      setMessage("Failed to fetch subjects");
+      showMessage("Failed to fetch subjects", "error");
     } finally {
       setIsLoading(false);
     }
@@ -158,7 +171,6 @@ export default function ManageSubjects() {
     });
     return Array.from(subjectSet).sort();
   };
-
 
   // Get all topics for a specific subject
   const getAllTopicsForSubject = (subjectName) => {
@@ -201,18 +213,14 @@ export default function ManageSubjects() {
 
   // Handle successful subject delete
   const handleSubjectDelete = (updatedSubjects) => {
-    console.log("Subjects after delete:", updatedSubjects);
     setSubjects(updatedSubjects);
-    setMessage("Subject deleted successfully!");
-    setTimeout(() => setMessage(""), 3000);
+    showMessage("Subject deleted successfully!", "success");
   };
 
   // Handle successful topic delete
   const handleTopicDelete = (updatedSubjects) => {
-    console.log("Subjects after topic delete:", updatedSubjects);
     setSubjects(updatedSubjects);
-    setMessage("Topic deleted successfully!");
-    setTimeout(() => setMessage(""), 3000);
+    showMessage("Topic deleted successfully!", "success");
   };
 
   // Add Subject
@@ -226,12 +234,10 @@ export default function ManageSubjects() {
       setNewSubject("");
       setSelectedSubject("");
       setIsCustomSubject(false);
-      setMessage("Subject added successfully!");
-      setTimeout(() => setMessage(""), 3000);
+      showMessage("Subject added successfully!", "success");
     } catch (err) {
       console.error(err);
-      setMessage(err.response?.data?.error || "Error adding subject");
-      setTimeout(() => setMessage(""), 3000);
+      showMessage(err.response?.data?.error || "Error adding subject", "error");
     } finally {
       setIsLoading(false);
     }
@@ -251,12 +257,10 @@ export default function ManageSubjects() {
       setSubjects(res.data.subjects);
       setTopicName("");
       setSelectedTopic("");
-      setMessage("Topic added successfully!");
-      setTimeout(() => setMessage(""), 3000);
+      showMessage("Topic added successfully!", "success");
     } catch (err) {
       console.error(err);
-      setMessage(err.response?.data?.error || "Error adding topic");
-      setTimeout(() => setMessage(""), 3000);
+      showMessage(err.response?.data?.error || "Error adding topic", "error");
     } finally {
       setIsLoading(false);
     }
@@ -292,13 +296,13 @@ export default function ManageSubjects() {
   const handleCameraCapture = async (subject, topic, event) => {
     const file = event.target.files[0];
     if (file) {
-      await handleFileChange(subject, topic, file);
+      await handleSingleFileChange(subject, topic, file);
       setShowCaptureOptions(prev => ({ ...prev, [`${subject}-${topic}`]: false }));
     }
   };
 
-  // Enhanced file change handler with compression
-  const handleFileChange = async (subject, topic, file) => {
+  // Handle single file change (for camera capture)
+  const handleSingleFileChange = async (subject, topic, file) => {
     const key = `${subject}-${topic}`;
     
     if (!file) {
@@ -314,14 +318,13 @@ export default function ManageSubjects() {
     }
 
     if (!file.type.startsWith('image/')) {
-      setMessage("Please select a valid image file.");
-      setTimeout(() => setMessage(""), 3000);
+      showMessage("Please select a valid image file.", "error");
       return;
     }
 
     try {
       setCompressionStates(prev => ({ ...prev, [key]: true }));
-      setMessage("Compressing image...");
+      showMessage("Compressing image...", "");
 
       const compressedFile = await compressImage(file);
       
@@ -336,13 +339,90 @@ export default function ManageSubjects() {
       setFilePreviewMap({ ...filePreviewMap, [key]: previewUrl });
 
       const compressionRatio = ((file.size - finalFile.size) / file.size * 100).toFixed(1);
-      setMessage(`Image compressed by ${compressionRatio}% (${(file.size / 1024 / 1024).toFixed(2)}MB → ${(finalFile.size / 1024 / 1024).toFixed(2)}MB)`);
-      setTimeout(() => setMessage(""), 5000);
+      showMessage(`Image compressed by ${compressionRatio}% (${(file.size / 1024 / 1024).toFixed(2)}MB → ${(finalFile.size / 1024 / 1024).toFixed(2)}MB)`, "success", 5000);
 
     } catch (error) {
       console.error('Image compression failed:', error);
-      setMessage("Image compression failed. Please try again.");
-      setTimeout(() => setMessage(""), 3000);
+      showMessage("Image compression failed. Please try again.", "error");
+    } finally {
+      setCompressionStates(prev => {
+        const newState = { ...prev };
+        delete newState[key];
+        return newState;
+      });
+    }
+  };
+
+  // Handle multiple file selection and processing
+  const handleMultipleFileChange = async (subject, topic, event) => {
+    const files = Array.from(event.target.files);
+    const key = `${subject}-${topic}`;
+    
+    if (!files.length) {
+      // Clear files if no files selected
+      setFilesMap(prev => ({ ...prev, [key]: [] }));
+      if (filePreviewMap[key]) {
+        filePreviewMap[key].forEach(url => URL.revokeObjectURL(url));
+        setFilePreviewMap(prev => {
+          const newMap = { ...prev };
+          delete newMap[key];
+          return newMap;
+        });
+      }
+      return;
+    }
+
+    // Validate files
+    const validFiles = files.filter(file => file.type.startsWith('image/'));
+    if (validFiles.length !== files.length) {
+      showMessage("Some files were skipped. Only image files are allowed.", "warning");
+    }
+
+    if (validFiles.length === 0) {
+      showMessage("Please select valid image files.", "error");
+      return;
+    }
+
+    try {
+      setCompressionStates(prev => ({ ...prev, [key]: true }));
+      showMessage(`Processing ${validFiles.length} images...`, "");
+
+      const processedFiles = [];
+      const previewUrls = [];
+
+      for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i];
+        showMessage(`Compressing image ${i + 1}/${validFiles.length}...`, "");
+
+        const compressedFile = await compressImage(file);
+        const finalFile = new File([compressedFile], file.name, {
+          type: compressedFile.type,
+          lastModified: Date.now(),
+        });
+
+        processedFiles.push({
+          file: finalFile,
+          originalSize: file.size,
+          compressedSize: finalFile.size,
+          name: file.name
+        });
+
+        const previewUrl = URL.createObjectURL(finalFile);
+        previewUrls.push(previewUrl);
+      }
+
+      setFilesMap(prev => ({ ...prev, [key]: processedFiles }));
+      setFilePreviewMap(prev => ({ ...prev, [key]: previewUrls }));
+
+      const totalOriginalSize = processedFiles.reduce((sum, f) => sum + f.originalSize, 0);
+      const totalCompressedSize = processedFiles.reduce((sum, f) => sum + f.compressedSize, 0);
+      const overallCompressionRatio = ((totalOriginalSize - totalCompressedSize) / totalOriginalSize * 100).toFixed(1);
+
+      showMessage(`${validFiles.length} images processed. Overall compression: ${overallCompressionRatio}% (${(totalOriginalSize / 1024 / 1024).toFixed(2)}MB → ${(totalCompressedSize / 1024 / 1024).toFixed(2)}MB)`, "success", 5000);
+
+    } catch (error) {
+      console.error('Image compression failed:', error);
+      showMessage("Image compression failed. Please try again.", "error");
     } finally {
       setCompressionStates(prev => {
         const newState = { ...prev };
@@ -382,12 +462,11 @@ export default function ManageSubjects() {
     setDeleteConfirm({ show: false, subject: '', topic: '', imageUrl: '' });
   };
 
-  // Upload compressed image for a specific topic
+  // Upload single compressed image (for camera capture)
   const handleUploadImage = async (subject, topic) => {
     const file = filesMap[`${subject}-${topic}`];
     if (!file) {
-      setMessage("Please select a file first.");
-      setTimeout(() => setMessage(""), 3000);
+      showMessage("Please select a file first.", "error");
       return;
     }
 
@@ -415,18 +494,108 @@ export default function ManageSubjects() {
         setFilePreviewMap(newPreviewMap);
       }
       
-      setMessage("Compressed image uploaded successfully!");
-      setTimeout(() => setMessage(""), 3000);
+      showMessage("Image uploaded successfully!", "success");
     } catch (err) {
       console.error(err);
-      setMessage(err.response?.data?.error || "Upload failed");
-      setTimeout(() => setMessage(""), 3000);
+      showMessage(err.response?.data?.error || "Upload failed", "error");
     } finally {
       setUploadingStates(prev => {
         const newState = { ...prev };
         delete newState[uploadKey];
         return newState;
       });
+    }
+  };
+
+  // Upload multiple files sequentially
+  const uploadMultipleFilesSequentially = async (subject, topic) => {
+    const files = filesMap[`${subject}-${topic}`];
+    if (!files || !Array.isArray(files) || files.length === 0) {
+      showMessage("Please select files first.", "error");
+      return;
+    }
+
+    const key = `${subject}-${topic}`;
+    setUploadingStates(prev => ({ ...prev, [key]: true }));
+    setUploadProgress(prev => ({ ...prev, [key]: 0 }));
+    setUploadedFiles(prev => ({ ...prev, [key]: new Set() }));
+    setUploadComplete(prev => ({ ...prev, [key]: false }));
+    showMessage("Upload started...", "");
+
+    for (let i = 0; i < files.length; i++) {
+      const fileData = files[i];
+      await uploadSingleFile(subject, topic, fileData, i + 1, files.length);
+    }
+
+    setUploadingStates(prev => {
+      const newState = { ...prev };
+      delete newState[key];
+      return newState;
+    });
+    setUploadComplete(prev => ({ ...prev, [key]: true }));
+    showMessage("All images uploaded successfully!", "success");
+    
+    // Show success for 2 seconds then clear files
+    setTimeout(() => {
+      // Clear files and previews
+      setFilesMap(prev => {
+        const newMap = { ...prev };
+        delete newMap[key];
+        return newMap;
+      });
+      
+      if (filePreviewMap[key]) {
+        filePreviewMap[key].forEach(url => URL.revokeObjectURL(url));
+        setFilePreviewMap(prev => {
+          const newMap = { ...prev };
+          delete newMap[key];
+          return newMap;
+        });
+      }
+      
+      setUploadComplete(prev => {
+        const newState = { ...prev };
+        delete newState[key];
+        return newState;
+      });
+      
+      setMessage("");
+    }, 2000);
+  };
+
+  // Upload single file in the sequence
+  const uploadSingleFile = async (subject, topic, fileData, currentIndex, totalFiles) => {
+    const formData = new FormData();
+    formData.append("usn", usn);
+    formData.append("subject", subject);
+    formData.append("topic", topic);
+    formData.append("file", fileData.file, fileData.name);
+
+    const key = `${subject}-${topic}`;
+
+    try {
+      const res = await axios.post("/api/topic/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+
+      // Update subjects data after successful upload
+      setSubjects(res.data.subjects);
+
+      // Mark this file as uploaded
+      setUploadedFiles(prev => ({
+        ...prev,
+        [key]: new Set([...(prev[key] || []), currentIndex])
+      }));
+
+      // Update progress
+      const percent = Math.round((currentIndex / totalFiles) * 100);
+      setUploadProgress(prev => ({ ...prev, [key]: percent }));
+      
+      showMessage(`Uploaded ${fileData.name} (${percent}% completed)`, "");
+
+    } catch (error) {
+      console.error("Upload error:", error);
+      showMessage(`Failed to upload ${fileData.name}`, "error");
     }
   };
 
@@ -441,26 +610,29 @@ export default function ManageSubjects() {
         imageUrl
       });
       setSubjects(res.data.subjects);
-      setMessage("Image deleted successfully!");
-      setTimeout(() => setMessage(""), 3000);
+      showMessage("Image deleted successfully!", "success");
     } catch (err) {
       console.error(err);
-      setMessage(err.response?.data?.error || "Failed to delete image");
-      setTimeout(() => setMessage(""), 3000);
+      showMessage(err.response?.data?.error || "Failed to delete image", "error");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle successful PDF upload from PDFProcessor
+  // Handle successful PDF upload from PDFProcessor - Enhanced
   const handlePDFUploadSuccess = (subject, topic) => {
-    fetchSubjects(usn); // Refresh subjects to show new images
-    setMessage("PDF pages uploaded successfully!");
-    setTimeout(() => setMessage(""), 3000);
+    // Refresh subjects to show new images
+    fetchSubjects(usn);
+    showMessage("PDF pages uploaded successfully!", "success");
     
     // Close PDF processor
     const key = `${subject}-${topic}`;
     setShowPDFProcessor(prev => ({ ...prev, [key]: false }));
+  };
+
+  // Handle PDF upload error
+  const handlePDFUploadError = (error) => {
+    showMessage(`PDF upload failed: ${error}`, "error");
   };
 
   // Helper function to get valid images (non-empty)
@@ -470,21 +642,26 @@ export default function ManageSubjects() {
 
   const uniqueSubjects = getAllSubjects();
 
-  
-  
-  // ************************Check usn existance in LocalStorage
- const usnl = typeof window !== "undefined" ? localStorage.getItem("usn") : null;
+  // Check usn existence in LocalStorage
+  const usnl = typeof window !== "undefined" ? localStorage.getItem("usn") : null;
   if (!usnl) {
     return <LoginRequired />;
   }
 
-  if (isLoading) {
-  return <ManageSubjectsSkeleton />;
-}
-  // ***************************************************************
+  if (isLoading && subjects.length === 0) {
+    return <ManageSubjectsSkeleton />;
+  }
 
   return (
     <div className={`mse-container ${theme}`}>
+      {/* Message Display */}
+      {message && (
+        <div className={`mse-message ${message.includes('success') ? 'success' : message.includes('error') || message.includes('Failed') ? 'error' : ''}`}>
+          {message.includes('success') && <FiCheckCircle className="mse-message-icon" />}
+          {(message.includes('error') || message.includes('Failed')) && <FiAlertTriangle className="mse-message-icon" />}
+          {message}
+        </div>
+      )}
 
       {/* Add Subject Section */}
       <div className="mse-section">
@@ -533,7 +710,7 @@ export default function ManageSubjects() {
           <h2>Subjects & Topics</h2>
         </div>
 
-        {isLoading && (
+        {isLoading && subjects.length === 0 && (
           <div className="mse-loading">
             <div className="mse-spinner"></div>
             <span>Loading...</span>
@@ -609,6 +786,8 @@ export default function ManageSubjects() {
                       {sub.topics.map((t, tIdx) => {
                         const validImages = getValidImages(t.images || []);
                         const compressionKey = `${sub.subject}-${t.topic}`;
+                        const filesForTopic = filesMap[compressionKey];
+                        const isMultipleFiles = Array.isArray(filesForTopic);
                         
                         return (
                           <div key={tIdx} className="mse-topic-card">
@@ -694,7 +873,7 @@ export default function ManageSubjects() {
                                   className="mse-btn mse-btn-secondary mse-btn-sm mse-capture-toggle"
                                 >
                                   <FiCamera className="mse-btn-icon" />
-                                  {showCaptureOptions[`${sub.subject}-${t.topic}`] ? 'Hide Options' : 'Add Image'}
+                                  {showCaptureOptions[`${sub.subject}-${t.topic}`] ? 'Hide Options' : 'Add Content'}
                                 </button>
                                 
                                 {showCaptureOptions[`${sub.subject}-${t.topic}`] && (
@@ -710,10 +889,11 @@ export default function ManageSubjects() {
                                     
                                     <label className={`mse-file-browse-btn mse-btn mse-btn-accent mse-btn-sm ${(isLoading || compressionStates[compressionKey]) ? 'disabled' : ''}`}>
                                       <FiFile className="mse-btn-icon" />
-                                      Browse Files
+                                      Browse Images
                                       <input
                                         type="file"
-                                        onChange={(e) => handleFileChange(sub.subject, t.topic, e.target.files[0])}
+                                        multiple
+                                        onChange={(e) => handleMultipleFileChange(sub.subject, t.topic, e)}
                                         className="mse-file-input-hidden"
                                         accept="image/*"
                                         disabled={isLoading || compressionStates[compressionKey]}
@@ -751,6 +931,7 @@ export default function ManageSubjects() {
                                     topic={t.topic}
                                     onClose={() => togglePDFProcessor(sub.subject, t.topic)}
                                     onUploadSuccess={() => handlePDFUploadSuccess(sub.subject, t.topic)}
+                                    onUploadError={handlePDFUploadError}
                                   />
                                 </div>
                               )}
@@ -759,24 +940,92 @@ export default function ManageSubjects() {
                               {compressionStates[compressionKey] && (
                                 <div className="mse-compression-indicator">
                                   <div className="mse-upload-spinner"></div>
-                                  <span>Compressing image...</span>
+                                  <span>Processing images...</span>
                                 </div>
                               )}
                               
-                              {/* File Preview */}
-                              {filePreviewMap[`${sub.subject}-${t.topic}`] && (
+                              {/* Upload Complete Animation */}
+                              {uploadComplete[compressionKey] && (
+                                <div className="mse-upload-complete-animation">
+                                  <FiCheckCircle className="mse-upload-success-icon" />
+                                  <div className="mse-upload-success-text">
+                                    Upload Completed Successfully!
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* Multiple Files Preview and Upload */}
+                              {isMultipleFiles && filesForTopic && filesForTopic.length > 0 && !uploadComplete[compressionKey] && (
+                                <div className="mse-multiple-files-section">
+                                  <div className="mse-files-preview-grid">
+                                    {filesForTopic.map((fileData, fIdx) => {
+                                      const isUploaded = uploadedFiles[compressionKey]?.has(fIdx + 1);
+                                      return (
+                                        <div 
+                                          key={fIdx} 
+                                          className={`mse-file-preview-card ${isUploaded ? 'uploaded' : ''}`}
+                                        >
+                                          <div className="mse-file-preview-header">
+                                            <span className="mse-file-preview-name">
+                                              <FiImage /> {fileData.name}
+                                            </span>
+                                            {isUploaded && <FiCheck className="mse-file-uploaded-icon" />}
+                                          </div>
+                                          <div className="mse-file-preview-thumb-container">
+                                            <img 
+                                              src={filePreviewMap[compressionKey][fIdx]} 
+                                              alt={`Preview ${fIdx + 1}`} 
+                                              className="mse-file-preview-thumb"
+                                            />
+                                          </div>
+                                          <div className="mse-file-preview-info">
+                                            <span className="mse-file-size">
+                                              {(fileData.compressedSize / 1024 / 1024).toFixed(2)}MB
+                                            </span>
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                  
+                                  {!uploadingStates[compressionKey] && (
+                                    <button 
+                                      onClick={() => uploadMultipleFilesSequentially(sub.subject, t.topic)}
+                                      className="mse-btn mse-btn-primary mse-btn-sm mse-upload-all-btn"
+                                      disabled={isLoading}
+                                    >
+                                      <FiUpload className="mse-btn-icon" />
+                                      Upload All Files ({filesForTopic.length})
+                                    </button>
+                                  )}
+
+                                  {uploadingStates[compressionKey] && (
+                                    <div className="mse-upload-progress-section">
+                                      <div className="mse-upload-progress-container">
+                                        <div 
+                                          className="mse-upload-progress-bar" 
+                                          style={{ width: `${uploadProgress[compressionKey] || 0}%` }}
+                                        ></div>
+                                      </div>
+                                      <span className="mse-upload-progress-text">
+                                        {uploadProgress[compressionKey] || 0}% Completed
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                              
+                              {/* Single File Preview (for camera capture) */}
+                              {!isMultipleFiles && filePreviewMap[`${sub.subject}-${t.topic}`] && !uploadComplete[compressionKey] && (
                                 <div className="mse-preview-section">
                                   <div className="mse-preview-wrapper">
                                     <img 
                                       src={filePreviewMap[`${sub.subject}-${t.topic}`]} 
                                       alt="Preview"
                                       className="mse-preview-image"
-                                      width={150}
-                                      height={150}
-                                      style={{ objectFit: 'cover' }}
                                     />
                                     <button
-                                      onClick={() => handleFileChange(sub.subject, t.topic, null)}
+                                      onClick={() => handleSingleFileChange(sub.subject, t.topic, null)}
                                       className="mse-preview-remove"
                                       disabled={isLoading || compressionStates[compressionKey]}
                                     >
