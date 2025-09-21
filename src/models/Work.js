@@ -5,12 +5,12 @@ const TopicSchema = new mongoose.Schema({
   content: { type: String, default: "" },
   images: { type: [String], default: [] },
   timestamp: { type: Date, default: Date.now }
-}, { _id: false });
+}); // <-- removed { _id: false }
 
 const SubjectSchema = new mongoose.Schema({
   subject: { type: String },
   topics: { type: [TopicSchema], default: [] }
-}, { _id: false });
+}); // <-- removed { _id: false }
 
 const WorkSchema = new mongoose.Schema({
   name: { type: String, required: true },
