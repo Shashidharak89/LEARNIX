@@ -199,9 +199,6 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
                         onLoadStart={() => handleImageStart(index)}
                         onLoad={() => handleImageLoad(index)}
                       />
-                      <div className="wtp-image-overlay">
-                        <span>Click to {expandedImages[index] ? 'minimize' : 'expand'}</span>
-                      </div>
                     </div>
                   </div>
                 ))}
