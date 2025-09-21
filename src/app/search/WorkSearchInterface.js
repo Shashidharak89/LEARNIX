@@ -17,7 +17,7 @@ const WorkSearchInterface = () => {
   const [hasMore, setHasMore] = useState(true);
   const [isManualReloading, setIsManualReloading] = useState(false);
 
-  const ITEMS_PER_LOAD = 8; // Adjust based on your needs
+  const ITEMS_PER_LOAD = 8;
 
   useEffect(() => {
     fetchAllTopics();
@@ -57,7 +57,7 @@ const WorkSearchInterface = () => {
               usn: user.usn,
               subjectName: subject.subject,
               userId: user._id,
-              topicId: topic._id // store topic _id for sharing
+              topicId: topic._id
             });
           });
         });
@@ -73,7 +73,6 @@ const WorkSearchInterface = () => {
       setDisplayedTopics(initialTopics);
       setCurrentIndex(ITEMS_PER_LOAD);
       setHasMore(sortedTopics.length > ITEMS_PER_LOAD);
-
     } catch (error) {
       console.error('Error fetching topics:', error);
     } finally {
@@ -85,16 +84,13 @@ const WorkSearchInterface = () => {
     if (isLoadingMore || !hasMore || searchQuery || isManualReloading) return;
 
     setIsLoadingMore(true);
-
     setTimeout(() => {
       const nextBatch = allTopics.slice(currentIndex, currentIndex + ITEMS_PER_LOAD);
       if (nextBatch.length > 0) {
         setDisplayedTopics(prev => [...prev, ...nextBatch]);
         setCurrentIndex(prev => prev + ITEMS_PER_LOAD);
         setHasMore(currentIndex + ITEMS_PER_LOAD < allTopics.length);
-      } else {
-        setHasMore(false);
-      }
+      } else setHasMore(false);
       setIsLoadingMore(false);
     }, 500);
   }, [allTopics, currentIndex, hasMore, isLoadingMore, searchQuery, isManualReloading]);
@@ -110,7 +106,6 @@ const WorkSearchInterface = () => {
 
   const handleEndReload = () => {
     if (isLoadingMore || isManualReloading) return;
-
     setIsManualReloading(true);
 
     const remainingTopics = allTopics.length - currentIndex;
@@ -121,15 +116,11 @@ const WorkSearchInterface = () => {
           setDisplayedTopics(prev => [...prev, ...nextBatch]);
           setCurrentIndex(prev => prev + ITEMS_PER_LOAD);
           setHasMore(currentIndex + ITEMS_PER_LOAD < allTopics.length);
-        } else {
-          setHasMore(false);
-        }
+        } else setHasMore(false);
         setIsManualReloading(false);
       }, 500);
     } else {
-      fetchAllTopics().then(() => {
-        setIsManualReloading(false);
-      });
+      fetchAllTopics().then(() => setIsManualReloading(false));
     }
   };
 
@@ -147,19 +138,24 @@ const WorkSearchInterface = () => {
     try {
       const searchTerm = query.toLowerCase();
       const results = [];
-
       allTopics.forEach(topic => {
-        if (topic.userName.toLowerCase().includes(searchTerm) ||
-            topic.usn.toLowerCase().includes(searchTerm) ||
-            topic.subjectName.toLowerCase().includes(searchTerm) ||
-            topic.topic.toLowerCase().includes(searchTerm) ||
-            topic.content.toLowerCase().includes(searchTerm)) {
+        if (
+          topic.userName.toLowerCase().includes(searchTerm) ||
+          topic.usn.toLowerCase().includes(searchTerm) ||
+          topic.subjectName.toLowerCase().includes(searchTerm) ||
+          topic.topic.toLowerCase().includes(searchTerm) ||
+          topic.content.toLowerCase().includes(searchTerm)
+        ) {
           results.push({ ...topic, matchType: 'search' });
         }
       });
 
-      const uniqueResults = results.filter((item, index, self) => 
-        index === self.findIndex(t => t.topic === item.topic && t.userId === item.userId && t.subjectName === item.subjectName)
+      const uniqueResults = results.filter(
+        (item, index, self) =>
+          index ===
+          self.findIndex(
+            t => t.topic === item.topic && t.userId === item.userId && t.subjectName === item.subjectName
+          )
       );
 
       setSearchResults(uniqueResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)));
@@ -171,10 +167,7 @@ const WorkSearchInterface = () => {
   };
 
   const toggleImageExpansion = (topicKey) => {
-    setExpandedImages(prev => ({
-      ...prev,
-      [topicKey]: !prev[topicKey]
-    }));
+    setExpandedImages(prev => ({ ...prev, [topicKey]: !prev[topicKey] }));
   };
 
   const downloadTopicAsPDF = async (topic, index) => {
@@ -182,23 +175,21 @@ const WorkSearchInterface = () => {
       alert('No images available for this topic');
       return;
     }
-
     try {
       const jsPDF = (await import('jspdf')).default;
-      
       const pdf = new jsPDF();
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       const margin = 10;
-      
+
       pdf.setFontSize(20);
       pdf.text(`${topic.topic}`, margin, 30);
       pdf.setFontSize(12);
       pdf.text(`Subject: ${topic.subjectName}`, margin, 50);
       pdf.text(`Student: ${topic.userName} (${topic.usn})`, margin, 65);
       pdf.text(`Date: ${new Date(topic.timestamp).toLocaleDateString()}`, margin, 80);
-      
-      let imagePromises = topic.images
+
+      const imagePromises = topic.images
         .filter(url => url && url.trim() !== '')
         .map((imageUrl, imgIndex) => {
           return new Promise((resolve, reject) => {
@@ -211,33 +202,40 @@ const WorkSearchInterface = () => {
         });
 
       const loadedImages = await Promise.all(imagePromises);
-      
+
       for (let i = 0; i < loadedImages.length; i++) {
         const { img } = loadedImages[i];
-        
         if (i > 0) pdf.addPage();
-        
+
         const imgWidth = img.naturalWidth;
         const imgHeight = img.naturalHeight;
-        const ratio = Math.min(
-          (pageWidth - 2 * margin) / imgWidth,
-          (pageHeight - 2 * margin) / imgHeight
-        );
-        
+        const ratio = Math.min((pageWidth - 2 * margin) / imgWidth, (pageHeight - 2 * margin) / imgHeight);
+
         const width = imgWidth * ratio;
         const height = imgHeight * ratio;
         const x = (pageWidth - width) / 2;
         const y = (pageHeight - height) / 2;
-        
+
         pdf.addImage(img, 'JPEG', x, y, width, height);
       }
-      
+
       const fileName = `${topic.topic}_${topic.subjectName}_${topic.userName}.pdf`.replace(/[^a-zA-Z0-9]/g, '_');
       pdf.save(fileName);
-      
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Error generating PDF. Please try again.');
+    }
+  };
+
+  // ===== NEW: Share function =====
+  const handleShare = (topicId) => {
+    const url = `${window.location.origin}/works/${topicId}`;
+    if (navigator.share) {
+      navigator.share({ title: 'Check this topic', url }).catch(err => console.log(err));
+    } else {
+      navigator.clipboard.writeText(url)
+        .then(() => alert('Link copied to clipboard!'))
+        .catch(() => alert('Failed to copy link'));
     }
   };
 
@@ -256,18 +254,9 @@ const WorkSearchInterface = () => {
               <h3 className="work-search-topic-title">{topic.userName} ({topic.usn})</h3>
             </Link>
             <div className="work-search-topic-meta">
-              <span className="work-search-meta-item">
-                <BookOpen size={14} />
-                {topic.subjectName}
-              </span>
-              <span className="work-search-meta-item">
-                <User size={14} />
-                {topic.topic}
-              </span>
-              <span className="work-search-meta-item">
-                <Calendar size={14} />
-                {new Date(topic.timestamp).toLocaleDateString()}
-              </span>
+              <span className="work-search-meta-item"><BookOpen size={14} />{topic.subjectName}</span>
+              <span className="work-search-meta-item"><User size={14} />{topic.topic}</span>
+              <span className="work-search-meta-item"><Calendar size={14} />{new Date(topic.timestamp).toLocaleDateString()}</span>
             </div>
           </div>
           <div className="work-search-card-actions">
@@ -279,17 +268,17 @@ const WorkSearchInterface = () => {
             >
               <Download size={16} />
             </button>
-            
-            {/* Share button */}
-            <Link href={`/work/${topic.topicId}`} className="work-search-action-btn work-search-share-btn" title="Share Topic">
+            <button 
+              onClick={() => handleShare(topic.topicId)}
+              className="work-search-action-btn work-search-share-btn"
+              title="Share Topic"
+            >
               <Share2 size={16} />
-            </Link>
+            </button>
           </div>
         </div>
 
-        {topic.content && (
-          <p className="work-search-topic-content">{topic.content}</p>
-        )}
+        {topic.content && <p className="work-search-topic-content">{topic.content}</p>}
 
         {hasImages && (
           <div className="work-search-images-section">
@@ -297,28 +286,16 @@ const WorkSearchInterface = () => {
               {displayImages.map((imageUrl, imgIndex) => (
                 <div key={imgIndex} className="work-search-image-container">
                   <div className="work-search-image-wrapper">
-                    <img 
-                      src={imageUrl} 
-                      alt={`${topic.topic} - Image ${imgIndex + 1}`}
-                      className="work-search-topic-image"
-                      loading="lazy"
-                    />
+                    <img src={imageUrl} alt={`${topic.topic} - Image ${imgIndex + 1}`} className="work-search-topic-image" loading="lazy" />
                   </div>
                 </div>
               ))}
             </div>
-            
             {validImages.length > 2 && (
-              <button 
-                onClick={() => toggleImageExpansion(topicKey)}
-                className="work-search-view-more-btn"
-              >
+              <button onClick={() => toggleImageExpansion(topicKey)} className="work-search-view-more-btn">
                 <Eye size={16} />
                 {isExpanded ? 'Show Less' : `View More (${validImages.length - 2} more)`}
-                <ChevronDown 
-                  size={16} 
-                  className={`work-search-chevron ${isExpanded ? 'work-search-rotated' : ''}`}
-                />
+                <ChevronDown size={16} className={`work-search-chevron ${isExpanded ? 'work-search-rotated' : ''}`} />
               </button>
             )}
           </div>
@@ -337,10 +314,7 @@ const WorkSearchInterface = () => {
               type="text"
               placeholder="Search by name, USN, subject, or topic..."
               value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                handleSearch(e.target.value);
-              }}
+              onChange={(e) => { setSearchQuery(e.target.value); handleSearch(e.target.value); }}
               className="work-search-search-input"
             />
           </div>
@@ -348,42 +322,19 @@ const WorkSearchInterface = () => {
       </div>
 
       <div className="work-search-content">
-        {isLoading && (
-          <div className="work-search-loading">
-            <div className="work-search-spinner"></div>
-            <p>Loading...</p>
-          </div>
-        )}
+        {isLoading && <div className="work-search-loading"><div className="work-search-spinner"></div><p>Loading...</p></div>}
 
         {!searchQuery && !isLoading && (
           <div className="work-search-latest-section">
             <h2 className="work-search-section-title">Latest Topics</h2>
-            <div className="work-search-topics-grid">
-              {displayedTopics.map((topic, index) => renderTopicCard(topic, index))}
-            </div>
+            <div className="work-search-topics-grid">{displayedTopics.map(renderTopicCard)}</div>
 
-            {hasMore && (
-              <div id="scroll-sentinel" className="work-search-scroll-sentinel">
-                {isLoadingMore && (
-                  <div className="work-search-loading-more">
-                    <div className="work-search-spinner"></div>
-                    <p>Loading more topics...</p>
-                  </div>
-                )}
-              </div>
-            )}
+            {hasMore && <div id="scroll-sentinel" className="work-search-scroll-sentinel">{isLoadingMore && <div className="work-search-loading-more"><div className="work-search-spinner"></div><p>Loading more topics...</p></div>}</div>}
 
             {hasMore && !isLoadingMore && !isManualReloading && (
               <div className="work-search-reload-section">
-                <button 
-                  onClick={handleManualReload}
-                  className="work-search-reload-btn"
-                  disabled={isLoadingMore || isManualReloading}
-                >
-                  <RefreshCw 
-                    size={20} 
-                    className="work-search-reload-icon"
-                  />
+                <button onClick={handleManualReload} className="work-search-reload-btn" disabled={isLoadingMore || isManualReloading}>
+                  <RefreshCw size={20} className="work-search-reload-icon" />
                   <span className="work-search-reload-text">Load More Topics</span>
                 </button>
               </div>
@@ -391,30 +342,12 @@ const WorkSearchInterface = () => {
 
             {(!hasMore || displayedTopics.length === 0) && (
               <div className="work-search-end-reload-section">
-                {displayedTopics.length > 0 && (
-                  <div className="work-search-end-message">
-                    🎉 You have reached the end! All topics have been loaded.
-                  </div>
-                )}
-                <button 
-                  onClick={handleEndReload}
-                  className="work-search-end-reload-btn"
-                  disabled={isLoadingMore || isManualReloading}
-                >
-                  <RotateCcw 
-                    size={18} 
-                    className="work-search-end-reload-icon"
-                  />
-                  <span className="work-search-reload-text">
-                    {displayedTopics.length > 0 ? 'Refresh Topics' : 'Load Topics'}
-                  </span>
+                {displayedTopics.length > 0 && <div className="work-search-end-message">🎉 You have reached the end! All topics have been loaded.</div>}
+                <button onClick={handleEndReload} className="work-search-end-reload-btn" disabled={isLoadingMore || isManualReloading}>
+                  <RotateCcw size={18} className="work-search-end-reload-icon" />
+                  <span className="work-search-reload-text">{displayedTopics.length > 0 ? 'Refresh Topics' : 'Load Topics'}</span>
                 </button>
-                {isManualReloading && (
-                  <div className="work-search-loading-more">
-                    <div className="work-search-spinner"></div>
-                    <p>Refreshing...</p>
-                  </div>
-                )}
+                {isManualReloading && <div className="work-search-loading-more"><div className="work-search-spinner"></div><p>Refreshing...</p></div>}
               </div>
             )}
           </div>
@@ -422,20 +355,8 @@ const WorkSearchInterface = () => {
 
         {searchQuery && !isLoading && (
           <div className="work-search-results-section">
-            <h2 className="work-search-section-title">
-              Search Results ({searchResults.length} found)
-            </h2>
-            {searchResults.length > 0 ? (
-              <div className="work-search-topics-grid">
-                {searchResults.map((topic, index) => renderTopicCard(topic, index))}
-              </div>
-            ) : (
-              <div className="work-search-no-results">
-                <Search size={48} />
-                <h3>No results found</h3>
-                <p>Try searching with different keywords</p>
-              </div>
-            )}
+            <h2 className="work-search-section-title">Search Results ({searchResults.length} found)</h2>
+            {searchResults.length > 0 ? <div className="work-search-topics-grid">{searchResults.map(renderTopicCard)}</div> : <div className="work-search-no-results"><Search size={48} /><h3>No results found</h3><p>Try searching with different keywords</p></div>}
           </div>
         )}
       </div>
