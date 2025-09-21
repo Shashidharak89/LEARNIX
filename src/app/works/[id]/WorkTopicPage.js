@@ -17,6 +17,18 @@ import "./styles/WorkTopicPage.css";
 
 const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
   const [expandedImages, setExpandedImages] = useState({});
+  const [imageLoading, setImageLoading] = useState({});
+
+  const handleImageLoad = (index) => {
+    // Add 1 second delay for lazy loading effect
+    setTimeout(() => {
+      setImageLoading(prev => ({ ...prev, [index]: false }));
+    }, 1000);
+  };
+
+  const handleImageStart = (index) => {
+    setImageLoading(prev => ({ ...prev, [index]: true }));
+  };
 
   const toggleImageExpansion = (imageIndex) => {
     setExpandedImages(prev => ({
@@ -173,12 +185,19 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
                 {validImages.map((imageUrl, index) => (
                   <div key={index} className="wtp-image-container">
                     <div className="wtp-image-wrapper">
+                      {imageLoading[index] && (
+                        <div className="wtp-image-loader">
+                          <div className="wtp-loader-spinner"></div>
+                        </div>
+                      )}
                       <img 
                         src={imageUrl} 
                         alt={`${topic.topic} - Image ${index + 1}`}
-                        className={`wtp-topic-image ${expandedImages[index] ? 'wtp-expanded' : ''}`}
+                        className={`wtp-topic-image ${expandedImages[index] ? 'wtp-expanded' : ''} ${imageLoading[index] ? 'wtp-loading' : ''}`}
                         onClick={() => toggleImageExpansion(index)}
                         loading="lazy"
+                        onLoadStart={() => handleImageStart(index)}
+                        onLoad={() => handleImageLoad(index)}
                       />
                       <div className="wtp-image-overlay">
                         <span>Click to {expandedImages[index] ? 'minimize' : 'expand'}</span>
