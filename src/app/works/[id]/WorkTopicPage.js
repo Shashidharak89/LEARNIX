@@ -15,15 +15,52 @@ import {
 } from "react-icons/fa";
 import "./styles/WorkTopicPage.css";
 
+// Skeleton Components
+const UserProfileSkeleton = () => (
+  <div className="wtpc-user-section">
+    <div className="wtpc-user-avatar">
+      <div className="wtpc-skeleton wtpc-skeleton-avatar"></div>
+    </div>
+    <div className="wtpc-user-info">
+      <div className="wtpc-skeleton wtpc-skeleton-title"></div>
+      <div className="wtpc-user-details">
+        <div className="wtpc-skeleton wtpc-skeleton-detail"></div>
+        <div className="wtpc-skeleton wtpc-skeleton-detail"></div>
+      </div>
+    </div>
+  </div>
+);
+
+const TopicContentSkeleton = () => (
+  <div className="wtpc-topic-section">
+    <div className="wtpc-topic-header">
+      <div className="wtpc-skeleton wtpc-skeleton-topic-title"></div>
+      <div className="wtpc-topic-meta">
+        <div className="wtpc-skeleton wtpc-skeleton-meta"></div>
+      </div>
+    </div>
+    <div className="wtpc-skeleton wtpc-skeleton-content"></div>
+    <div className="wtpc-images-section">
+      <div className="wtpc-skeleton wtpc-skeleton-section-title"></div>
+      <div className="wtpc-images-grid">
+        {[...Array(3)].map((_, index) => (
+          <div key={index} className="wtpc-image-container">
+            <div className="wtpc-skeleton wtpc-skeleton-image"></div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
 const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
   const [expandedImages, setExpandedImages] = useState({});
   const [imageLoading, setImageLoading] = useState({});
 
   const handleImageLoad = (index) => {
-    // Add 1 second delay for lazy loading effect
     setTimeout(() => {
       setImageLoading(prev => ({ ...prev, [index]: false }));
-    }, 1000);
+    }, 500);
   };
 
   const handleImageStart = (index) => {
@@ -49,22 +86,33 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
     }
   };
 
+  // Loading state with skeleton
   if (loading) {
     return (
-      <div className="wtp-loading-container">
-        <div className="wtp-loading-spinner"></div>
-        <p className="wtp-loading-text">Loading topic details...</p>
+      <div className="wtpc-container">
+        <div className="wtpc-nav-header">
+          <div className="wtpc-skeleton wtpc-skeleton-back-btn"></div>
+        </div>
+        <div className="wtpc-main-content">
+          <UserProfileSkeleton />
+          <div className="wtpc-action-buttons-container">
+            <div className="wtpc-skeleton wtpc-skeleton-btn"></div>
+            <div className="wtpc-skeleton wtpc-skeleton-btn"></div>
+            <div className="wtpc-skeleton wtpc-skeleton-btn"></div>
+          </div>
+          <TopicContentSkeleton />
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="wtp-error-container">
-        <div className="wtp-error-content">
+      <div className="wtpc-error-container">
+        <div className="wtpc-error-content">
           <h2>Error Loading Topic</h2>
           <p>{error}</p>
-          <Link href="/works" className="wtp-back-link">
+          <Link href="/works" className="wtpc-back-link">
             <FaArrowLeft /> Back to Topics
           </Link>
         </div>
@@ -74,11 +122,11 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
 
   if (!data) {
     return (
-      <div className="wtp-error-container">
-        <div className="wtp-error-content">
+      <div className="wtpc-error-container">
+        <div className="wtpc-error-content">
           <h2>Topic Not Found</h2>
           <p>The requested topic could not be found.</p>
-          <Link href="/works" className="wtp-back-link">
+          <Link href="/works" className="wtpc-back-link">
             <FaArrowLeft /> Back to Topics
           </Link>
         </div>
@@ -91,17 +139,56 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
   const validImages = hasImages ? topic.images.filter(img => img && img.trim() !== '') : [];
 
   return (
-    <div className="wtp-container">
+    <div className="wtpc-container">
       {/* Navigation Header */}
-      <div className="wtp-nav-header">
-        <Link href="/works" className="wtp-back-button">
+      <div className="wtpc-nav-header">
+        <Link href="/works" className="wtpc-back-button">
           <FaArrowLeft />
           <span>Back to Topics</span>
         </Link>
-        <div className="wtp-action-buttons">
+      </div>
+
+      {/* Main Content */}
+      <div className="wtpc-main-content">
+        {/* User Profile Section */}
+        <div className="wtpc-user-section">
+          <div className="wtpc-user-avatar">
+            <img 
+              src={user.profileimg} 
+              alt={user.name}
+              className="wtpc-profile-image"
+            />
+          </div>
+          <div className="wtpc-user-info">
+            <Link href={`/search/${user.usn.toLowerCase()}`} className="wtpc-user-name-link">
+              <h1 className="wtpc-user-name">{user.name}</h1>
+            </Link>
+            <div className="wtpc-user-details">
+              <div className="wtpc-detail-item">
+                <FaIdCard className="wtpc-detail-icon" />
+                <span>{user.usn}</span>
+              </div>
+              <div className="wtpc-detail-item">
+                <FaBook className="wtpc-detail-icon" />
+                <span>{subject.subject}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons - Now positioned after user profile */}
+        <div className="wtpc-action-buttons-container">
+          <button 
+            onClick={() => window.history.back()}
+            className="wtpc-action-btn wtpc-back-btn"
+            title="Go Back"
+          >
+            <FaArrowLeft />
+            <span>Back</span>
+          </button>
           <button 
             onClick={downloadTopicAsPDF}
-            className="wtp-action-btn wtp-download-btn"
+            className="wtpc-action-btn wtpc-download-btn"
             disabled={!hasImages}
             title="Download as PDF"
           >
@@ -110,50 +197,21 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
           </button>
           <button 
             onClick={handleShare}
-            className="wtp-action-btn wtp-share-btn"
+            className="wtpc-action-btn wtpc-share-btn"
             title="Share Topic"
           >
             <FaShare />
             <span>Share</span>
           </button>
         </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="wtp-main-content">
-        {/* User Profile Section */}
-        <div className="wtp-user-section">
-          <div className="wtp-user-avatar">
-            <img 
-              src={user.profileimg} 
-              alt={user.name}
-              className="wtp-profile-image"
-            />
-          </div>
-          <div className="wtp-user-info">
-            <Link href={`/search/${user.usn.toLowerCase()}`} className="wtp-user-name-link">
-              <h1 className="wtp-user-name">{user.name}</h1>
-            </Link>
-            <div className="wtp-user-details">
-              <div className="wtp-detail-item">
-                <FaIdCard className="wtp-detail-icon" />
-                <span>{user.usn}</span>
-              </div>
-              <div className="wtp-detail-item">
-                <FaBook className="wtp-detail-icon" />
-                <span>{subject.subject}</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Topic Content Section */}
-        <div className="wtp-topic-section">
-          <div className="wtp-topic-header">
-            <h2 className="wtp-topic-title">{topic.topic}</h2>
-            <div className="wtp-topic-meta">
-              <div className="wtp-meta-item">
-                <FaClock className="wtp-meta-icon" />
+        <div className="wtpc-topic-section">
+          <div className="wtpc-topic-header">
+            <h2 className="wtpc-topic-title">{topic.topic}</h2>
+            <div className="wtpc-topic-meta">
+              <div className="wtpc-meta-item">
+                <FaClock className="wtpc-meta-icon" />
                 <span>{new Date(topic.timestamp).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
@@ -166,7 +224,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
           </div>
 
           {topic.content && (
-            <div className="wtp-topic-content">
+            <div className="wtpc-topic-content">
               <h3>Description</h3>
               <p>{topic.content}</p>
             </div>
@@ -174,26 +232,27 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
 
           {/* Images Section */}
           {hasImages && validImages.length > 0 && (
-            <div className="wtp-images-section">
-              <div className="wtp-images-header">
+            <div className="wtpc-images-section">
+              <div className="wtpc-images-header">
                 <h3>
-                  <FaImage className="wtp-section-icon" />
+                  <FaImage className="wtpc-section-icon" />
                   Images ({validImages.length})
                 </h3>
               </div>
-              <div className="wtp-images-grid">
+              <div className="wtpc-images-grid">
                 {validImages.map((imageUrl, index) => (
-                  <div key={index} className="wtp-image-container">
-                    <div className="wtp-image-wrapper">
+                  <div key={index} className="wtpc-image-container">
+                    <div className="wtpc-image-wrapper">
                       {imageLoading[index] && (
-                        <div className="wtp-image-loader">
-                          <div className="wtp-loader-spinner"></div>
+                        <div className="wtpc-image-loader">
+                          <div className="wtpc-loader-spinner"></div>
+                          <span>Loading image...</span>
                         </div>
                       )}
                       <img 
                         src={imageUrl} 
                         alt={`${topic.topic} - Image ${index + 1}`}
-                        className={`wtp-topic-image ${expandedImages[index] ? 'wtp-expanded' : ''} ${imageLoading[index] ? 'wtp-loading' : ''}`}
+                        className={`wtpc-topic-image ${expandedImages[index] ? 'wtpc-expanded' : ''} ${imageLoading[index] ? 'wtpc-loading' : ''}`}
                         onClick={() => toggleImageExpansion(index)}
                         loading="lazy"
                         onLoadStart={() => handleImageStart(index)}
@@ -207,8 +266,8 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
           )}
 
           {!hasImages && (
-            <div className="wtp-no-images">
-              <FaImage className="wtp-no-images-icon" />
+            <div className="wtpc-no-images">
+              <FaImage className="wtpc-no-images-icon" />
               <p>No images available for this topic</p>
             </div>
           )}
@@ -216,7 +275,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
       </div>
 
       {/* Footer */}
-      <div className="wtp-footer">
+      <div className="wtpc-footer">
         <p>&copy; 2025 Work Topic Page. All rights reserved.</p>
       </div>
     </div>
