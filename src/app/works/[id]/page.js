@@ -2,45 +2,47 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { Download, Eye, ChevronDown, Calendar, User, BookOpen } from "lucide-react";
-import '../../search/styles/WorkSearchInterface.css';
+import {
+  Download,
+  Eye,
+  ChevronDown,
+  Calendar,
+  User,
+  BookOpen,
+} from "lucide-react";
+import "../../search/styles/WorkSearchInterface.css";
 
-const UserDetail = () => {
-  const { id } = useParams(); // 👈 dynamic param
-  const [user, setUser] = useState(null);
-  const [expandedImages, setExpandedImages] = useState({});
+const TopicDetail = () => {
+  const { id: topicId } = useParams(); // dynamic topic ID
+  const [topicData, setTopicData] = useState(null);
+  const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!id) return;
+    if (!topicId) return;
 
-    const fetchUser = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch(`/api/work/getall`);
+        const res = await fetch(`/api/work/${topicId}`);
         const data = await res.json();
 
-        // find user by _id
-        const foundUser = data.users.find((u) => u._id === id);
-        setUser(foundUser || null);
+        if (data?.success) {
+          setTopicData(data);
+        } else {
+          setTopicData(null);
+        }
       } catch (err) {
-        console.error("Error fetching user:", err);
+        console.error("Error fetching topic:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUser();
-  }, [id]);
+    fetchData();
+  }, [topicId]);
 
-  const toggleImageExpansion = (topicKey) => {
-    setExpandedImages((prev) => ({
-      ...prev,
-      [topicKey]: !prev[topicKey],
-    }));
-  };
-
-  const downloadTopicAsPDF = async (topic, subjectName) => {
-    if (!topic.images || topic.images.length === 0) {
+  const downloadTopicAsPDF = async () => {
+    if (!topicData?.topic?.images?.length) {
       alert("No images available for this topic");
       return;
     }
@@ -51,13 +53,21 @@ const UserDetail = () => {
       const margin = 10;
 
       pdf.setFontSize(18);
-      pdf.text(topic.topic, margin, 30);
+      pdf.text(topicData.topic.topic, margin, 30);
       pdf.setFontSize(12);
-      pdf.text(`Subject: ${subjectName}`, margin, 50);
-      pdf.text(`Student: ${user.name} (${user.usn})`, margin, 65);
-      pdf.text(`Date: ${new Date(topic.timestamp).toLocaleDateString()}`, margin, 80);
+      pdf.text(`Subject: ${topicData.subject.subject}`, margin, 50);
+      pdf.text(
+        `Student: ${topicData.user.name} (${topicData.user.usn})`,
+        margin,
+        65
+      );
+      pdf.text(
+        `Date: ${new Date(topicData.topic.timestamp).toLocaleDateString()}`,
+        margin,
+        80
+      );
 
-      const imagePromises = topic.images.map(
+      const imagePromises = topicData.topic.images.map(
         (url, i) =>
           new Promise((resolve, reject) => {
             const img = new Image();
@@ -85,7 +95,9 @@ const UserDetail = () => {
         pdf.addImage(img, "JPEG", x, y, width, height);
       });
 
-      pdf.save(`${topic.topic}_${subjectName}_${user.name}.pdf`);
+      pdf.save(
+        `${topicData.topic.topic}_${topicData.subject.subject}_${topicData.user.name}.pdf`
+      );
     } catch (err) {
       console.error("PDF error:", err);
     }
@@ -94,103 +106,89 @@ const UserDetail = () => {
   if (loading) {
     return (
       <div className="user-detail-loading">
-        <p>Loading user details...</p>
+        <p>Loading topic details...</p>
       </div>
     );
   }
 
-  if (!user) {
+  if (!topicData) {
     return (
       <div className="user-detail-error">
-        <p>User not found</p>
+        <p>Topic not found</p>
       </div>
     );
   }
+
+  const { user, subject, topic } = topicData;
+  const validImages = topic.images?.filter((i) => i.trim() !== "") || [];
+  const displayImages = expanded ? validImages : validImages.slice(0, 2);
 
   return (
     <div className="user-detail-container">
       <div className="user-detail-header">
-        <img src={user.profileimg} alt={user.name} className="user-detail-avatar" />
+        <img
+          src={user.profileimg}
+          alt={user.name}
+          className="user-detail-avatar"
+        />
         <div>
           <h2>{user.name}</h2>
           <p>{user.usn}</p>
         </div>
       </div>
 
-      {user.subjects && user.subjects.length > 0 ? (
-        user.subjects.map((subj, subjIndex) => (
-          <div key={subjIndex} className="user-subject-card">
-            <h3 className="user-subject-title">
-              <BookOpen size={16} /> {subj.subject}
-            </h3>
+      <div className="user-subject-card">
+        <h3 className="user-subject-title">
+          <BookOpen size={16} /> {subject.subject}
+        </h3>
 
-            {subj.topics && subj.topics.length > 0 ? (
-              subj.topics.map((topic, tIndex) => {
-                const topicKey = `${subj.subject}-${topic.topic}-${tIndex}`;
-                const validImages = topic.images?.filter((i) => i.trim() !== "") || [];
-                const isExpanded = expandedImages[topicKey];
-                const displayImages = isExpanded ? validImages : validImages.slice(0, 2);
-
-                return (
-                  <div key={tIndex} className="user-topic-card">
-                    <div className="user-topic-header">
-                      <h4>
-                        <User size={14} /> {topic.topic}
-                      </h4>
-                      <span>
-                        <Calendar size={14} />{" "}
-                        {new Date(topic.timestamp).toLocaleDateString()}
-                      </span>
-                      <button
-                        onClick={() => downloadTopicAsPDF(topic, subj.subject)}
-                        className="user-topic-download"
-                      >
-                        <Download size={16} />
-                      </button>
-                    </div>
-
-                    {topic.content && <p>{topic.content}</p>}
-
-                    {validImages.length > 0 && (
-                      <div className="user-topic-images">
-                        {displayImages.map((imgUrl, i) => (
-                          <img
-                            key={i}
-                            src={imgUrl}
-                            alt={`Topic ${i + 1}`}
-                            className="user-topic-img"
-                          />
-                        ))}
-                        {validImages.length > 2 && (
-                          <button
-                            className="user-topic-view-more"
-                            onClick={() => toggleImageExpansion(topicKey)}
-                          >
-                            <Eye size={16} />{" "}
-                            {isExpanded
-                              ? "Show Less"
-                              : `View More (${validImages.length - 2} more)`}{" "}
-                            <ChevronDown
-                              size={16}
-                              className={isExpanded ? "rotated" : ""}
-                            />
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })
-            ) : (
-              <p className="user-no-topics">No topics uploaded yet.</p>
-            )}
+        <div className="user-topic-card">
+          <div className="user-topic-header">
+            <h4>
+              <User size={14} /> {topic.topic}
+            </h4>
+            <span>
+              <Calendar size={14} />{" "}
+              {new Date(topic.timestamp).toLocaleDateString()}
+            </span>
+            <button
+              onClick={downloadTopicAsPDF}
+              className="user-topic-download"
+            >
+              <Download size={16} />
+            </button>
           </div>
-        ))
-      ) : (
-        <p className="user-no-subjects">No subjects available.</p>
-      )}
+
+          {topic.content && <p>{topic.content}</p>}
+
+          {validImages.length > 0 && (
+            <div className="user-topic-images">
+              {displayImages.map((imgUrl, i) => (
+                <img
+                  key={i}
+                  src={imgUrl}
+                  alt={`Topic ${i + 1}`}
+                  className="user-topic-img"
+                />
+              ))}
+              {validImages.length > 2 && (
+                <button
+                  className="user-topic-view-more"
+                  onClick={() => setExpanded(!expanded)}
+                >
+                  <Eye size={16} />{" "}
+                  {expanded
+                    ? "Show Less"
+                    : `View More (${validImages.length - 2} more)`}{" "}
+                  <ChevronDown size={16} className={expanded ? "rotated" : ""} />
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
 
-export default UserDetail;
+export default TopicDetail;
