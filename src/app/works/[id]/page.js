@@ -5,6 +5,8 @@ import { useParams } from "next/navigation";
 import { Navbar } from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import WorkTopicPage from "./WorkTopicPage";
+import Link from "next/link";
+
 
 const WorkTopicPageWrapper = () => {
   const params = useParams();
