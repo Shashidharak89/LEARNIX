@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Calendar, BookOpen, ImageIcon, Eye, EyeOff, User, GraduationCap, Clock, ChevronDown, Search } from "lucide-react";
 import './styles/UserDetailsPage.css';
+import UserDetailsPageSkeleton from "./UserDetailsPageSkeleton";
 
 export default function UserDetailsPage({ usn }) {
   const [user, setUser] = useState(null);
@@ -184,10 +185,7 @@ export default function UserDetailsPage({ usn }) {
   if (loading) {
     return (
       <div className="user-details-container">
-        <div className="user-details-loading">
-          <div className="user-details-spinner"></div>
-          <p>Loading user details...</p>
-        </div>
+        <UserDetailsPageSkeleton/>
       </div>
     );
   }
