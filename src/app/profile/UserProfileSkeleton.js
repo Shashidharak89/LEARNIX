@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { 
   FiBook, 
   FiImage, 
@@ -15,6 +16,28 @@ import { HiAcademicCap } from "react-icons/hi";
 import './styles/UserProfileSkeleton.css';
 
 export default function UserProfileSkeleton() {
+  const [quote, setQuote] = useState("");
+  const [isLoadingQuote, setIsLoadingQuote] = useState(true);
+
+  useEffect(() => {
+    fetchQuote();
+  }, []);
+
+  const fetchQuote = async () => {
+    try {
+      setIsLoadingQuote(true);
+      const response = await fetch('https://zenquotes.io/api/random');
+      const data = await response.json();
+      if (data && data[0] && data[0].q) {
+        setQuote(data[0].q);
+      }
+    } catch (error) {
+      console.error('Error fetching quote:', error);
+      setQuote("Loading your experience...");
+    } finally {
+      setIsLoadingQuote(false);
+    }
+  };
 
   return (
     <div className="ups-container">
@@ -70,7 +93,16 @@ export default function UserProfileSkeleton() {
           <div className="ups-search">
             <FiSearch className="ups-search-icon" />
             <div className="ups-search-skeleton ups-shimmer"></div>
-                      </div>
+          </div>
+
+          {/* Quote Section */}
+          <div className="ups-quote-section">
+            {isLoadingQuote ? (
+              <div className="ups-quote-skeleton ups-shimmer"></div>
+            ) : (
+              <p className="ups-quote">{quote}</p>
+            )}
+          </div>
 
           {/* Content Skeleton */}
           <div className="ups-content">
