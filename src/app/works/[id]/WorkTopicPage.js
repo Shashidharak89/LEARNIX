@@ -15,124 +15,8 @@ import {
 } from "react-icons/fa";
 import "./styles/WorkTopicPage.css";
 
-// Lazy Loading Image Component
-const LazyImage = ({ src, alt, className, onClick, index }) => {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isInView, setIsInView] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const imgRef = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsInView(true);
-          observer.disconnect();
-        }
-      },
-      {
-        threshold: 0.1,
-        rootMargin: '50px'
-      }
-    );
-
-    if (imgRef.current) {
-      observer.observe(imgRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  const handleLoad = () => {
-    setIsLoaded(true);
-  };
-
-  const handleError = () => {
-    setHasError(true);
-  };
-
-  return (
-    <div ref={imgRef} className="wtp-lazy-image-container">
-      {!isInView && (
-        <div className="wtp-image-skeleton">
-          <div className="wtp-skeleton-content">
-            <FaImage className="wtp-skeleton-icon" />
-            <span>Loading image...</span>
-          </div>
-        </div>
-      )}
-      {isInView && !hasError && (
-        <>
-          {!isLoaded && (
-            <div className="wtp-image-skeleton">
-              <div className="wtp-skeleton-content">
-                <div className="wtp-loading-spinner-small"></div>
-                <span>Loading...</span>
-              </div>
-            </div>
-          )}
-          <img
-            src={src}
-            alt={alt}
-            className={`${className} ${isLoaded ? 'wtp-image-loaded' : 'wtp-image-loading'}`}
-            onClick={onClick}
-            onLoad={handleLoad}
-            onError={handleError}
-            loading="lazy"
-            style={{
-              display: isLoaded ? 'block' : 'none'
-            }}
-          />
-        </>
-      )}
-      {hasError && (
-        <div className="wtp-image-error">
-          <FaImage className="wtp-error-icon" />
-          <span>Failed to load image</span>
-        </div>
-      )}
-    </div>
-  );
-};
-
 const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
   const [expandedImages, setExpandedImages] = useState({});
-  const [visibleImages, setVisibleImages] = useState(6); // Initial load count
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const loadMoreRef = useRef(null);
-
-  // Intersection observer for loading more images
-  useEffect(() => {
-    if (!data?.topic?.images) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && visibleImages < data.topic.images.length) {
-          loadMoreImages();
-        }
-      },
-      {
-        threshold: 0.1,
-        rootMargin: '100px'
-      }
-    );
-
-    if (loadMoreRef.current) {
-      observer.observe(loadMoreRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [visibleImages, data?.topic?.images]);
-
-  const loadMoreImages = useCallback(() => {
-    if (isLoadingMore) return;
-    
-    setIsLoadingMore(true);
-    setTimeout(() => {
-      setVisibleImages(prev => Math.min(prev + 6, data?.topic?.images?.length || 0));
-      setIsLoadingMore(false);
-    }, 500);
-  }, [isLoadingMore, data?.topic?.images?.length]);
 
   const toggleImageExpansion = (imageIndex) => {
     setExpandedImages(prev => ({
@@ -286,15 +170,15 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
                 </h3>
               </div>
               <div className="wtp-images-grid">
-                {validImages.slice(0, visibleImages).map((imageUrl, index) => (
+                {validImages.map((imageUrl, index) => (
                   <div key={index} className="wtp-image-container">
                     <div className="wtp-image-wrapper">
-                      <LazyImage
-                        src={imageUrl}
+                      <img 
+                        src={imageUrl} 
                         alt={`${topic.topic} - Image ${index + 1}`}
                         className={`wtp-topic-image ${expandedImages[index] ? 'wtp-expanded' : ''}`}
                         onClick={() => toggleImageExpansion(index)}
-                        index={index}
+                        loading="lazy"
                       />
                       <div className="wtp-image-overlay">
                         <span>Click to {expandedImages[index] ? 'minimize' : 'expand'}</span>
@@ -303,25 +187,6 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
                   </div>
                 ))}
               </div>
-              
-              {/* Load More Images Trigger */}
-              {visibleImages < validImages.length && (
-                <div ref={loadMoreRef} className="wtp-load-more-images">
-                  {isLoadingMore ? (
-                    <div className="wtp-loading-more-images">
-                      <div className="wtp-loading-spinner-small"></div>
-                      <span>Loading more images...</span>
-                    </div>
-                  ) : (
-                    <button 
-                      onClick={loadMoreImages}
-                      className="wtp-load-more-btn"
-                    >
-                      Load More Images ({validImages.length - visibleImages} remaining)
-                    </button>
-                  )}
-                </div>
-              )}
             </div>
           )}
 
