@@ -17,38 +17,94 @@ import "./styles/WorkTopicPage.css";
 
 // Skeleton Components
 const UserProfileSkeleton = () => (
-  <div className="wtpc-user-section">
+  <div className="wtpc-user-section wtpc-skeleton-container">
     <div className="wtpc-user-avatar">
-      <div className="wtpc-skeleton wtpc-skeleton-avatar"></div>
+      <div className="wtpc-skeleton-avatar"></div>
     </div>
     <div className="wtpc-user-info">
-      <div className="wtpc-skeleton wtpc-skeleton-title"></div>
+      <div className="wtpc-skeleton-user-name"></div>
       <div className="wtpc-user-details">
-        <div className="wtpc-skeleton wtpc-skeleton-detail"></div>
-        <div className="wtpc-skeleton wtpc-skeleton-detail"></div>
+        <div className="wtpc-detail-item wtpc-skeleton-detail">
+          <FaIdCard className="wtpc-detail-icon wtpc-skeleton-icon" />
+          <div className="wtpc-skeleton-text"></div>
+        </div>
+        <div className="wtpc-detail-item wtpc-skeleton-detail">
+          <FaBook className="wtpc-detail-icon wtpc-skeleton-icon" />
+          <div className="wtpc-skeleton-text"></div>
+        </div>
       </div>
     </div>
   </div>
 );
 
+const ActionButtonsSkeleton = () => (
+  <div className="wtpc-action-buttons-container wtpc-skeleton-container">
+    <div className="wtpc-action-btn wtpc-back-btn wtpc-skeleton-btn">
+      <FaArrowLeft className="wtpc-skeleton-icon" />
+      <span className="wtpc-btn-text wtpc-skeleton-btn-text">Back</span>
+    </div>
+    <div className="wtpc-action-btn wtpc-download-btn wtpc-skeleton-btn">
+      <FaDownload className="wtpc-skeleton-icon" />
+      <span className="wtpc-btn-text wtpc-skeleton-btn-text">Download</span>
+    </div>
+    <div className="wtpc-action-btn wtpc-share-btn wtpc-skeleton-btn">
+      <FaShare className="wtpc-skeleton-icon" />
+      <span className="wtpc-btn-text wtpc-skeleton-btn-text">Share</span>
+    </div>
+  </div>
+);
+
 const TopicContentSkeleton = () => (
-  <div className="wtpc-topic-section">
+  <div className="wtpc-topic-section wtpc-skeleton-container">
     <div className="wtpc-topic-header">
-      <div className="wtpc-skeleton wtpc-skeleton-topic-title"></div>
+      <div className="wtpc-skeleton-topic-title"></div>
       <div className="wtpc-topic-meta">
-        <div className="wtpc-skeleton wtpc-skeleton-meta"></div>
+        <div className="wtpc-meta-item wtpc-skeleton-meta">
+          <FaClock className="wtpc-meta-icon wtpc-skeleton-icon" />
+          <div className="wtpc-skeleton-text-small"></div>
+        </div>
       </div>
     </div>
-    <div className="wtpc-skeleton wtpc-skeleton-content"></div>
+    
+    <div className="wtpc-topic-content wtpc-skeleton-content-box">
+      <h3 className="wtpc-skeleton-content-heading">Description</h3>
+      <div className="wtpc-skeleton-content-lines">
+        <div className="wtpc-skeleton-line"></div>
+        <div className="wtpc-skeleton-line"></div>
+        <div className="wtpc-skeleton-line wtpc-skeleton-line-short"></div>
+      </div>
+    </div>
+
     <div className="wtpc-images-section">
-      <div className="wtpc-skeleton wtpc-skeleton-section-title"></div>
+      <div className="wtpc-images-header">
+        <h3>
+          <FaImage className="wtpc-section-icon wtpc-skeleton-icon" />
+          <span className="wtpc-skeleton-images-title"></span>
+        </h3>
+      </div>
       <div className="wtpc-images-grid">
-        {[...Array(3)].map((_, index) => (
-          <div key={index} className="wtpc-image-container">
-            <div className="wtpc-skeleton wtpc-skeleton-image"></div>
+        {[...Array(4)].map((_, index) => (
+          <div key={index} className="wtpc-image-container wtpc-skeleton-image-container">
+            <div className="wtpc-image-wrapper">
+              <div className="wtpc-skeleton-image"></div>
+            </div>
           </div>
         ))}
       </div>
+    </div>
+  </div>
+);
+
+// Main Loading Skeleton (shows when wrapper is loading)
+const FullPageSkeleton = () => (
+  <div className="wtpc-container">
+    <div className="wtpc-main-content">
+      <UserProfileSkeleton />
+      <ActionButtonsSkeleton />
+      <TopicContentSkeleton />
+    </div>
+    <div className="wtpc-footer">
+      <p>&copy; 2025 Work Topic Page. All rights reserved.</p>
     </div>
   </div>
 );
@@ -86,21 +142,9 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
     }
   };
 
-  // Loading state with skeleton
+  // Show skeleton if wrapper is loading
   if (loading) {
-    return (
-      <div className="wtpc-container">
-        <div className="wtpc-main-content">
-          <UserProfileSkeleton />
-          <div className="wtpc-action-buttons-container">
-            <div className="wtpc-skeleton wtpc-skeleton-btn"></div>
-            <div className="wtpc-skeleton wtpc-skeleton-btn"></div>
-            <div className="wtpc-skeleton wtpc-skeleton-btn"></div>
-          </div>
-          <TopicContentSkeleton />
-        </div>
-      </div>
-    );
+    return <FullPageSkeleton />;
   }
 
   if (error) {
@@ -146,6 +190,9 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
               src={user.profileimg} 
               alt={user.name}
               className="wtpc-profile-image"
+              onError={(e) => {
+                e.target.src = '/default-avatar.png'; // fallback image
+              }}
             />
           </div>
           <div className="wtpc-user-info">
@@ -165,7 +212,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
           </div>
         </div>
 
-        {/* Action Buttons - Now positioned after user profile */}
+        {/* Action Buttons */}
         <div className="wtpc-action-buttons-container">
           <Link href="/works" className="wtpc-action-btn wtpc-back-btn">
             <FaArrowLeft />
@@ -174,8 +221,8 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
           <button 
             onClick={downloadTopicAsPDF}
             className="wtpc-action-btn wtpc-download-btn"
-            disabled={!hasImages}
-            title="Download as PDF"
+            disabled={!hasImages || !validImages.length}
+            title={!hasImages || !validImages.length ? "No images available for download" : "Download as PDF"}
           >
             <FaDownload />
             <span className="wtpc-btn-text">Download</span>
@@ -242,6 +289,9 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
                         loading="lazy"
                         onLoadStart={() => handleImageStart(index)}
                         onLoad={() => handleImageLoad(index)}
+                        onError={(e) => {
+                          e.target.style.display = 'none'; // Hide broken images
+                        }}
                       />
                     </div>
                   </div>

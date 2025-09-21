@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import Link from "next/link"; // ✅ import Link
-import { FaArrowLeft } from "react-icons/fa"; // ✅ import arrow icon
+import Link from "next/link";
+import { FaArrowLeft } from "react-icons/fa";
 import { Navbar } from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import WorkTopicPage from "./WorkTopicPage";
@@ -20,7 +20,12 @@ const WorkTopicPageWrapper = () => {
 
     const fetchData = async () => {
       try {
-        const res = await fetch(`/api/work/getbytopicid/${id}`);
+        // Add a minimum loading time for better UX
+        const [res] = await Promise.all([
+          fetch(`/api/work/getbytopicid/${id}`),
+          new Promise(resolve => setTimeout(resolve, 800)) // Minimum 800ms loading
+        ]);
+        
         if (!res.ok) throw new Error("Failed to fetch data");
         const json = await res.json();
         setData(json);
@@ -69,18 +74,17 @@ const WorkTopicPageWrapper = () => {
       }
 
       // Process images
-      const imagePromises = data.topic.images
-        .filter((url) => url && url.trim() !== "")
-        .map(
-          (imageUrl, imgIndex) =>
-            new Promise((resolve, reject) => {
-              const img = new Image();
-              img.crossOrigin = "anonymous";
-              img.onload = () => resolve({ img, imgIndex });
-              img.onerror = () => reject(`Failed to load image ${imgIndex + 1}`);
-              img.src = imageUrl;
-            })
-        );
+      const validImages = data.topic.images.filter((url) => url && url.trim() !== "");
+      const imagePromises = validImages.map(
+        (imageUrl, imgIndex) =>
+          new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => resolve({ img, imgIndex });
+            img.onerror = () => reject(`Failed to load image ${imgIndex + 1}`);
+            img.src = imageUrl;
+          })
+      );
 
       const loadedImages = await Promise.all(imagePromises);
 
@@ -132,58 +136,11 @@ const WorkTopicPageWrapper = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="wtp-page-wrapper">
-        <Navbar />
-        <div className="wtp-loading-container">
-          <div className="wtp-loading-spinner"></div>
-          <p className="wtp-loading-text">Loading topic details...</p>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="wtp-page-wrapper">
-        <Navbar />
-        <div className="wtp-error-container">
-          <div className="wtp-error-content">
-            <h2>Error Loading Topic</h2>
-            <p>{error}</p>
-            <Link href="/works" className="wtp-back-link">
-              <FaArrowLeft /> Back to Topics
-            </Link>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (!data) {
-    return (
-      <div className="wtp-page-wrapper">
-        <Navbar />
-        <div className="wtp-error-container">
-          <div className="wtp-error-content">
-            <h2>Topic Not Found</h2>
-            <p>The requested topic could not be found.</p>
-            <Link href="/works" className="wtp-back-link">
-              <FaArrowLeft /> Back to Topics
-            </Link>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
   return (
     <div className="wtp-page-wrapper">
       <Navbar />
+      
+      {/* The WorkTopicPage component now handles all states including loading */}
       <WorkTopicPage
         data={data}
         loading={loading}
@@ -191,7 +148,17 @@ const WorkTopicPageWrapper = () => {
         onDownload={downloadTopicAsPDF}
         onShare={handleShare}
       />
+      
       <Footer />
+
+      <style jsx>{`
+        .wtp-page-wrapper {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          background-color: #ffffff;
+        }
+      `}</style>
     </div>
   );
 };
