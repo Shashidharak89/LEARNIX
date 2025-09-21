@@ -27,6 +27,8 @@ import DeleteSubjectButton from "./DeleteSubjectButton";
 import DeleteTopicButton from "./DeleteTopicButton";
 import "./styles/ManageSubjects.css";
 import LoginRequired from "../components/LoginRequired";
+import ManageSubjectsSkeleton from './ManageSubjectsSkeleton';
+
 
 export default function ManageSubjects() {
  
@@ -476,22 +478,13 @@ export default function ManageSubjects() {
     return <LoginRequired />;
   }
 
+  if (isLoading) {
+  return <ManageSubjectsSkeleton />;
+}
   // ***************************************************************
 
   return (
     <div className={`mse-container ${theme}`}>
-      <div className="mse-header">
-        <div className="mse-title">
-          <FiBook className="mse-title-icon" />
-          <h1>Manage Subjects & Topics</h1>
-        </div>
-        {message && (
-          <div className={`mse-message ${message.includes('Error') || message.includes('Failed') ? 'error' : 'success'}`}>
-            <FiCheck className="mse-message-icon" />
-            <span>{message}</span>
-          </div>
-        )}
-      </div>
 
       {/* Add Subject Section */}
       <div className="mse-section">
