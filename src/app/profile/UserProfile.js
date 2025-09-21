@@ -24,6 +24,7 @@ import { HiAcademicCap } from "react-icons/hi";
 import ChangeName from './ChangeName';
 import ChangePassword from './ChangePassword';
 import ProfileImageEditor from './ProfileImageEditor';
+import UserProfileSkeleton from './UserProfileSkeleton'; // Import the skeleton
 import './styles/UserProfile.css';
 
 export default function UserProfile() {
@@ -39,11 +40,14 @@ export default function UserProfile() {
   const [showSettings, setShowSettings] = useState(false);
   const [loadedImages, setLoadedImages] = useState(new Set());
   const [profileImage, setProfileImage] = useState("https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp");
+  const [quote, setQuote] = useState("");
+  const [isLoadingQuote, setIsLoadingQuote] = useState(false);
   
   const TOPICS_PER_LOAD = 5;
 
   useEffect(() => {
     fetchUserProfile();
+    fetchQuote();
   }, []);
 
   useEffect(() => {
@@ -93,6 +97,22 @@ export default function UserProfile() {
 
     return () => imageObserver.disconnect();
   }, [expandedUploads, loadedImages]);
+
+  const fetchQuote = async () => {
+    try {
+      setIsLoadingQuote(true);
+      const response = await fetch('https://zenquotes.io/api/random');
+      const data = await response.json();
+      if (data && data[0] && data[0].q) {
+        setQuote(data[0].q);
+      }
+    } catch (error) {
+      console.error('Error fetching quote:', error);
+      setQuote("Every journey begins with a single step.");
+    } finally {
+      setIsLoadingQuote(false);
+    }
+  };
 
   const fetchUserProfile = async () => {
     setLoading(true);
@@ -227,14 +247,7 @@ export default function UserProfile() {
   };
 
   if (loading) {
-    return (
-      <div className="up-container">
-        <div className="up-loading">
-          <div className="up-spinner"></div>
-          <p className="up-loading-text">Loading your profile...</p>
-        </div>
-      </div>
-    );
+    return <UserProfileSkeleton />;
   }
 
   if (hasError) {
@@ -332,6 +345,15 @@ export default function UserProfile() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="up-search-input"
               />
+            </div>
+
+            {/* Quote Section */}
+            <div className="up-quote-section">
+              {isLoadingQuote ? (
+                <div className="up-quote-skeleton up-shimmer"></div>
+              ) : (
+                <p className="up-quote">{quote}</p>
+              )}
             </div>
 
             <div className="up-content">
