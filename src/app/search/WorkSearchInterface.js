@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Search, Download, Eye, ChevronDown, Calendar, User, BookOpen, RefreshCw, RotateCcw, Share2 } from 'lucide-react';
+import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiUser, FiBook, FiRefreshCw, FiRotateCcw, FiShare2 } from 'react-icons/fi';
 import './styles/WorkSearchInterface.css';
 
 const WorkSearchInterface = () => {
@@ -33,7 +33,7 @@ const WorkSearchInterface = () => {
       { threshold: 0.1 }
     );
 
-    const sentinel = document.getElementById('scroll-sentinel');
+    const sentinel = document.getElementById('ws-scroll-sentinel');
     if (sentinel) {
       observer.observe(sentinel);
     }
@@ -227,7 +227,6 @@ const WorkSearchInterface = () => {
     }
   };
 
-  // ===== NEW: Share function =====
   const handleShare = (topicId) => {
     const url = `${window.location.origin}/works/${topicId}`;
     if (navigator.share) {
@@ -239,6 +238,32 @@ const WorkSearchInterface = () => {
     }
   };
 
+  const SkeletonLoader = () => (
+    <div className="ws-skeleton-grid">
+      {Array.from({ length: 6 }).map((_, index) => (
+        <div key={index} className="ws-skeleton-card">
+          <div className="ws-skeleton-header">
+            <div className="ws-skeleton-title"></div>
+            <div className="ws-skeleton-actions">
+              <div className="ws-skeleton-btn"></div>
+              <div className="ws-skeleton-btn"></div>
+            </div>
+          </div>
+          <div className="ws-skeleton-meta">
+            <div className="ws-skeleton-tag"></div>
+            <div className="ws-skeleton-tag"></div>
+            <div className="ws-skeleton-tag"></div>
+          </div>
+          <div className="ws-skeleton-content"></div>
+          <div className="ws-skeleton-images">
+            <div className="ws-skeleton-image"></div>
+            <div className="ws-skeleton-image"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
   const renderTopicCard = (topic, index) => {
     const topicKey = `${topic.userId}-${topic.subjectName}-${topic.topic}`;
     const isExpanded = expandedImages[topicKey];
@@ -247,55 +272,68 @@ const WorkSearchInterface = () => {
     const displayImages = isExpanded ? validImages : validImages.slice(0, 2);
 
     return (
-      <div key={`${topicKey}-${index}`} className="work-search-topic-card">
-        <div className="work-search-card-header">
-          <div className="work-search-topic-info">
-            <Link href={`/search/${topic.usn.toLowerCase()}`} className="work-search-profile-link">
-              <h3 className="work-search-topic-title">{topic.userName} ({topic.usn})</h3>
+      <div key={`${topicKey}-${index}`} className="ws-topic-card">
+        <div className="ws-card-header">
+          <div className="ws-topic-info">
+            <Link href={`/works/${topic.topicId}`} className="ws-topic-link">
+              <h3 className="ws-topic-title">{topic.topic}</h3>
             </Link>
-            <div className="work-search-topic-meta">
-              <span className="work-search-meta-item"><BookOpen size={14} />{topic.subjectName}</span>
-              <span className="work-search-meta-item"><User size={14} />{topic.topic}</span>
-              <span className="work-search-meta-item"><Calendar size={14} />{new Date(topic.timestamp).toLocaleDateString()}</span>
+            <Link href={`/search/${topic.usn.toLowerCase()}`} className="ws-user-link">
+              <p className="ws-user-name">{topic.userName} ({topic.usn})</p>
+            </Link>
+            <div className="ws-topic-meta">
+              <span className="ws-meta-item">
+                <FiBook className="ws-meta-icon" />
+                {topic.subjectName}
+              </span>
+              <span className="ws-meta-item">
+                <FiCalendar className="ws-meta-icon" />
+                {new Date(topic.timestamp).toLocaleDateString()}
+              </span>
             </div>
           </div>
-          <div className="work-search-card-actions">
+          <div className="ws-card-actions">
             <button 
               onClick={() => downloadTopicAsPDF(topic, index)}
-              className="work-search-action-btn work-search-download-btn"
+              className="ws-action-btn ws-download-btn"
               disabled={!hasImages}
               title="Download as PDF"
             >
-              <Download size={16} />
+              <FiDownload />
             </button>
             <button 
               onClick={() => handleShare(topic.topicId)}
-              className="work-search-action-btn work-search-share-btn"
+              className="ws-action-btn ws-share-btn"
               title="Share Topic"
             >
-              <Share2 size={16} />
+              <FiShare2 />
             </button>
           </div>
         </div>
 
-        {topic.content && <p className="work-search-topic-content">{topic.content}</p>}
+        {topic.content && <p className="ws-topic-content">{topic.content}</p>}
 
         {hasImages && (
-          <div className="work-search-images-section">
-            <div className="work-search-images-grid">
+          <div className="ws-images-section">
+            <div className="ws-images-grid">
               {displayImages.map((imageUrl, imgIndex) => (
-                <div key={imgIndex} className="work-search-image-container">
-                  <div className="work-search-image-wrapper">
-                    <img src={imageUrl} alt={`${topic.topic} - Image ${imgIndex + 1}`} className="work-search-topic-image" loading="lazy" />
+                <div key={imgIndex} className="ws-image-container">
+                  <div className="ws-image-wrapper">
+                    <img 
+                      src={imageUrl} 
+                      alt={`${topic.topic} - Image ${imgIndex + 1}`} 
+                      className="ws-topic-image" 
+                      loading="lazy" 
+                    />
                   </div>
                 </div>
               ))}
             </div>
             {validImages.length > 2 && (
-              <button onClick={() => toggleImageExpansion(topicKey)} className="work-search-view-more-btn">
-                <Eye size={16} />
+              <button onClick={() => toggleImageExpansion(topicKey)} className="ws-view-more-btn">
+                <FiEye />
                 {isExpanded ? 'Show Less' : `View More (${validImages.length - 2} more)`}
-                <ChevronDown size={16} className={`work-search-chevron ${isExpanded ? 'work-search-rotated' : ''}`} />
+                <FiChevronDown className={`ws-chevron ${isExpanded ? 'ws-rotated' : ''}`} />
               </button>
             )}
           </div>
@@ -305,58 +343,92 @@ const WorkSearchInterface = () => {
   };
 
   return (
-    <div className="work-search-container">
-      <div className="work-search-header">
-        <div className="work-search-search-container">
-          <div className="work-search-search-box">
-            <Search className="work-search-search-icon" size={20} />
+    <div className="ws-container">
+      <div className="ws-header">
+        <div className="ws-search-container">
+          <div className="ws-search-box">
+            <FiSearch className="ws-search-icon" />
             <input
               type="text"
               placeholder="Search by name, USN, subject, or topic..."
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); handleSearch(e.target.value); }}
-              className="work-search-search-input"
+              className="ws-search-input"
             />
           </div>
         </div>
       </div>
 
-      <div className="work-search-content">
-        {isLoading && <div className="work-search-loading"><div className="work-search-spinner"></div><p>Loading...</p></div>}
+      <div className="ws-content">
+        {isLoading && <SkeletonLoader />}
 
         {!searchQuery && !isLoading && (
-          <div className="work-search-latest-section">
-            <h2 className="work-search-section-title">Latest Topics</h2>
-            <div className="work-search-topics-grid">{displayedTopics.map(renderTopicCard)}</div>
+          <div className="ws-latest-section">
+            <h2 className="ws-section-title">Latest Topics</h2>
+            <div className="ws-topics-grid">{displayedTopics.map(renderTopicCard)}</div>
 
-            {hasMore && <div id="scroll-sentinel" className="work-search-scroll-sentinel">{isLoadingMore && <div className="work-search-loading-more"><div className="work-search-spinner"></div><p>Loading more topics...</p></div>}</div>}
+            {hasMore && (
+              <div id="ws-scroll-sentinel" className="ws-scroll-sentinel">
+                {isLoadingMore && (
+                  <div className="ws-loading-more">
+                    <div className="ws-spinner"></div>
+                    <p>Loading more topics...</p>
+                  </div>
+                )}
+              </div>
+            )}
 
             {hasMore && !isLoadingMore && !isManualReloading && (
-              <div className="work-search-reload-section">
-                <button onClick={handleManualReload} className="work-search-reload-btn" disabled={isLoadingMore || isManualReloading}>
-                  <RefreshCw size={20} className="work-search-reload-icon" />
-                  <span className="work-search-reload-text">Load More Topics</span>
+              <div className="ws-reload-section">
+                <button 
+                  onClick={handleManualReload} 
+                  className="ws-reload-btn" 
+                  disabled={isLoadingMore || isManualReloading}
+                >
+                  <FiRefreshCw className="ws-reload-icon" />
+                  <span>Load More Topics</span>
                 </button>
               </div>
             )}
 
             {(!hasMore || displayedTopics.length === 0) && (
-              <div className="work-search-end-reload-section">
-                {displayedTopics.length > 0 && <div className="work-search-end-message">🎉 You have reached the end! All topics have been loaded.</div>}
-                <button onClick={handleEndReload} className="work-search-end-reload-btn" disabled={isLoadingMore || isManualReloading}>
-                  <RotateCcw size={18} className="work-search-end-reload-icon" />
-                  <span className="work-search-reload-text">{displayedTopics.length > 0 ? 'Refresh Topics' : 'Load Topics'}</span>
+              <div className="ws-end-reload-section">
+                {displayedTopics.length > 0 && (
+                  <div className="ws-end-message">
+                    🎉 You have reached the end! All topics have been loaded.
+                  </div>
+                )}
+                <button 
+                  onClick={handleEndReload} 
+                  className="ws-end-reload-btn" 
+                  disabled={isLoadingMore || isManualReloading}
+                >
+                  <FiRotateCcw className="ws-end-reload-icon" />
+                  <span>{displayedTopics.length > 0 ? 'Refresh Topics' : 'Load Topics'}</span>
                 </button>
-                {isManualReloading && <div className="work-search-loading-more"><div className="work-search-spinner"></div><p>Refreshing...</p></div>}
+                {isManualReloading && (
+                  <div className="ws-loading-more">
+                    <div className="ws-spinner"></div>
+                    <p>Refreshing...</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
         )}
 
         {searchQuery && !isLoading && (
-          <div className="work-search-results-section">
-            <h2 className="work-search-section-title">Search Results ({searchResults.length} found)</h2>
-            {searchResults.length > 0 ? <div className="work-search-topics-grid">{searchResults.map(renderTopicCard)}</div> : <div className="work-search-no-results"><Search size={48} /><h3>No results found</h3><p>Try searching with different keywords</p></div>}
+          <div className="ws-results-section">
+            <h2 className="ws-section-title">Search Results ({searchResults.length} found)</h2>
+            {searchResults.length > 0 ? (
+              <div className="ws-topics-grid">{searchResults.map(renderTopicCard)}</div>
+            ) : (
+              <div className="ws-no-results">
+                <FiSearch className="ws-no-results-icon" />
+                <h3>No results found</h3>
+                <p>Try searching with different keywords</p>
+              </div>
+            )}
           </div>
         )}
       </div>
