@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FiBook, FiPlus } from "react-icons/fi";
+import { FiBook, FiPlus, FiFileText } from "react-icons/fi"; // ✅ added FiFileText
 import TopicCard from "./TopicCard";
 import DeleteSubjectButton from "./DeleteSubjectButton";
 import "./styles/SubjectsGrid.css";
