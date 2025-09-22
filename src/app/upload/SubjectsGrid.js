@@ -4,7 +4,7 @@ import { useState } from "react";
 import { FiBook, FiPlus } from "react-icons/fi";
 import TopicCard from "./TopicCard";
 import DeleteSubjectButton from "./DeleteSubjectButton";
-import "./styles/ManageSubjects.css";
+import "./styles/SubjectsGrid.css";
 
 export default function SubjectsGrid({ 
   subjects, 

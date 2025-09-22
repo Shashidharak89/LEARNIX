@@ -1,7 +1,7 @@
 "use client";
 
 import { FiCheckCircle, FiAlertTriangle } from "react-icons/fi";
-import "./styles/ManageSubjects.css";
+import "./styles/MessageDisplay.css";
 
 export default function MessageDisplay({ message }) {
   if (!message) return null;

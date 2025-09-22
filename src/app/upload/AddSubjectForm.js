@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { FiPlus } from "react-icons/fi";
-import "./styles/ManageSubjects.css";
+import "./styles/AddSubjectForm.css";
 
 export default function AddSubjectForm({ allUsers, isLoading, onAddSubject }) {
   const [newSubject, setNewSubject] = useState("");

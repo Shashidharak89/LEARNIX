@@ -20,7 +20,7 @@ import {
 } from "react-icons/fi";
 import PDFProcessor from "./PDFProcessor";
 import DeleteTopicButton from "./DeleteTopicButton";
-import "./styles/ManageSubjects.css";
+import "./styles/TopicCard.css";
 
 export default function TopicCard({ 
   subject, 
