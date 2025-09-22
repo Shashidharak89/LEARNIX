@@ -26,9 +26,9 @@ import {
 import PDFProcessor from "./PDFProcessor";
 import DeleteSubjectButton from "./DeleteSubjectButton";
 import DeleteTopicButton from "./DeleteTopicButton";
-import "./styles/ManageSubjects.css";
 import LoginRequired from "../components/LoginRequired";
 import ManageSubjectsSkeleton from './ManageSubjectsSkeleton';
+import './styles/ManageSubjects.css';
 
 export default function ManageSubjects() {
   const [usn, setUsn] = useState("");
@@ -383,28 +383,33 @@ export default function ManageSubjects() {
       return;
     }
 
+    // Sort files by their lastModified timestamp (oldest first)
+    const sortedFiles = validFiles.sort((a, b) => a.lastModified - b.lastModified);
+
     try {
       setCompressionStates(prev => ({ ...prev, [key]: true }));
-      showMessage(`Processing ${validFiles.length} images...`, "");
+      showMessage(`Processing ${sortedFiles.length} images...`, "");
 
       const processedFiles = [];
       const previewUrls = [];
 
-      for (let i = 0; i < validFiles.length; i++) {
-        const file = validFiles[i];
-        showMessage(`Compressing image ${i + 1}/${validFiles.length}...`, "");
+      for (let i = 0; i < sortedFiles.length; i++) {
+        const file = sortedFiles[i];
+        showMessage(`Compressing image ${i + 1}/${sortedFiles.length}...`, "");
 
         const compressedFile = await compressImage(file);
+        // Preserve the original lastModified timestamp
         const finalFile = new File([compressedFile], file.name, {
           type: compressedFile.type,
-          lastModified: Date.now(),
+          lastModified: file.lastModified, // Keep original timestamp
         });
 
         processedFiles.push({
           file: finalFile,
           originalSize: file.size,
           compressedSize: finalFile.size,
-          name: file.name
+          name: file.name,
+          lastModified: file.lastModified // Store original timestamp
         });
 
         const previewUrl = URL.createObjectURL(finalFile);
@@ -418,7 +423,7 @@ export default function ManageSubjects() {
       const totalCompressedSize = processedFiles.reduce((sum, f) => sum + f.compressedSize, 0);
       const overallCompressionRatio = ((totalOriginalSize - totalCompressedSize) / totalOriginalSize * 100).toFixed(1);
 
-      showMessage(`${validFiles.length} images processed. Overall compression: ${overallCompressionRatio}% (${(totalOriginalSize / 1024 / 1024).toFixed(2)}MB → ${(totalCompressedSize / 1024 / 1024).toFixed(2)}MB)`, "success", 5000);
+      showMessage(`${sortedFiles.length} images processed and sorted by date. Overall compression: ${overallCompressionRatio}% (${(totalOriginalSize / 1024 / 1024).toFixed(2)}MB → ${(totalCompressedSize / 1024 / 1024).toFixed(2)}MB)`, "success", 5000);
 
     } catch (error) {
       console.error('Image compression failed:', error);
@@ -635,9 +640,12 @@ export default function ManageSubjects() {
     showMessage(`PDF upload failed: ${error}`, "error");
   };
 
-  // Helper function to get valid images (non-empty)
+  // Helper function to get valid images (non-empty) and sort by timestamp (newest first)
   const getValidImages = (images) => {
-    return images.filter(img => img && img.trim() !== "" && img !== null && img !== undefined);
+    if (!images || !Array.isArray(images)) return [];
+    return images
+      .filter(img => img && img.trim() !== "" && img !== null && img !== undefined)
+      .reverse(); // Reverse to show newest first (assuming API returns oldest first)
   };
 
   const uniqueSubjects = getAllSubjects();
@@ -653,27 +661,27 @@ export default function ManageSubjects() {
   }
 
   return (
-    <div className={`mse-container ${theme}`}>
+    <div className="subj-container">
       {/* Message Display */}
       {message && (
-        <div className={`mse-message ${message.includes('success') ? 'success' : message.includes('error') || message.includes('Failed') ? 'error' : ''}`}>
-          {message.includes('success') && <FiCheckCircle className="mse-message-icon" />}
-          {(message.includes('error') || message.includes('Failed')) && <FiAlertTriangle className="mse-message-icon" />}
-          {message}
+        <div className={`subj-message ${message.includes('success') ? 'success' : message.includes('error') || message.includes('Failed') ? 'error' : ''}`}>
+          {message.includes('success') && <FiCheckCircle />}
+          {(message.includes('error') || message.includes('Failed')) && <FiAlertTriangle />}
+          <span>{message}</span>
         </div>
       )}
 
       {/* Add Subject Section */}
-      <div className="mse-section">
-        <div className="mse-section-header">
-          <FiPlus className="mse-section-icon" />
+      <div className="subj-section">
+        <div className="subj-header">
+          <FiPlus />
           <h2>Add New Subject</h2>
         </div>
-        <div className="mse-input-group">
+        <div className="subj-form">
           <select
             value={isCustomSubject ? "custom" : selectedSubject}
             onChange={handleSubjectSelect}
-            className="mse-input"
+            className="subj-select"
             disabled={isLoading}
           >
             <option value="">Select existing subject</option>
@@ -688,101 +696,100 @@ export default function ManageSubjects() {
               placeholder="Enter custom subject name..."
               value={newSubject}
               onChange={(e) => setNewSubject(e.target.value)}
-              className="mse-input"
+              className="subj-input"
               disabled={isLoading}
             />
           )}
           <button 
             onClick={handleAddSubject} 
-            className="mse-btn mse-btn-primary"
+            className="subj-btn primary"
             disabled={isLoading || (!isCustomSubject && !selectedSubject) || (isCustomSubject && !newSubject.trim())}
           >
-            <FiPlus className="mse-btn-icon" />
+            <FiPlus />
             Add Subject
           </button>
         </div>
       </div>
 
       {/* Subjects List */}
-      <div className="mse-section">
-        <div className="mse-section-header">
-          <FiFolder className="mse-section-icon" />
+      <div className="subj-section">
+        <div className="subj-header">
+          <FiFolder />
           <h2>Subjects & Topics</h2>
         </div>
 
         {isLoading && subjects.length === 0 && (
-          <div className="mse-loading">
-            <div className="mse-spinner"></div>
+          <div className="subj-loading">
+            <div className="spinner"></div>
             <span>Loading...</span>
           </div>
         )}
 
         {subjects.length === 0 && !isLoading && (
-          <div className="mse-empty-state">
-            <FiBook className="mse-empty-icon" />
+          <div className="subj-empty">
+            <FiBook />
             <p>No subjects added yet. Create your first subject above!</p>
           </div>
         )}
 
-        <div className="mse-subjects-grid">
+        <div className="subj-grid">
           {subjects.map((sub, idx) => {
             const topicsForThisSubject = getAllTopicsForSubject(sub.subject);
             
             return (
-              <div key={idx} className="mse-subject-card">
-                <div className="mse-subject-header">
-                  <FiBook className="mse-subject-icon" />
-                  <div className="mse-subject-title-container">
-                    <h3>{sub.subject} <DeleteSubjectButton 
+              <div key={idx} className="subj-card">
+                <div className="subj-card-header">
+                  <div className="subj-title">
+                    <FiBook />
+                    <h3>{sub.subject}</h3>
+                    <DeleteSubjectButton 
                       usn={usn} 
                       subject={sub.subject} 
                       onDelete={handleSubjectDelete} 
-                    /></h3>
+                    />
                   </div>
                 </div>
 
                 {/* Add Topic Input */}
-                <div className="mse-topic-input-section">
-                  <div className="mse-input-group">
-                    <select
-                      value=""
-                      onChange={(e) => handleTopicSelectForSubject(e, sub.subject)}
-                      className="mse-input mse-input-sm"
-                      disabled={isLoading}
-                    >
-                      <option value="">Select existing topic for {sub.subject}</option>
-                      {topicsForThisSubject.map(topic => (
-                        <option key={topic} value={topic}>{topic}</option>
-                      ))}
-                    </select>
-                    <input
-                      type="text"
-                      placeholder="Or enter new topic name..."
-                      value={topicName}
-                      onChange={(e) => setTopicName(e.target.value)}
-                      className="mse-input mse-input-sm"
-                      disabled={isLoading}
-                    />
-                    <button 
-                      onClick={() => handleAddTopic(sub.subject)} 
-                      className="mse-btn mse-btn-secondary mse-btn-sm"
-                      disabled={isLoading || !topicName.trim()}
-                    >
-                      <FiPlus className="mse-btn-icon" />
-                      Add Topic
-                    </button>
-                  </div>
+                <div className="topic-form">
+                  <select
+                    value=""
+                    onChange={(e) => handleTopicSelectForSubject(e, sub.subject)}
+                    className="subj-select small"
+                    disabled={isLoading}
+                  >
+                    <option value="">Select existing topic</option>
+                    {topicsForThisSubject.map(topic => (
+                      <option key={topic} value={topic}>{topic}</option>
+                    ))}
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Or enter new topic name..."
+                    value={topicName}
+                    onChange={(e) => setTopicName(e.target.value)}
+                    className="subj-input small"
+                    disabled={isLoading}
+                  />
+                  <button 
+                    onClick={() => handleAddTopic(sub.subject)} 
+                    className="subj-btn secondary small"
+                    disabled={isLoading || !topicName.trim()}
+                  >
+                    <FiPlus />
+                    Add Topic
+                  </button>
                 </div>
 
                 {/* Topics List */}
-                <div className="mse-topics-container">
+                <div className="topics-container">
                   {!sub.topics || sub.topics.length === 0 ? (
-                    <div className="mse-empty-topics">
-                      <FiFileText className="mse-empty-icon-sm" />
+                    <div className="empty-topics">
+                      <FiFileText />
                       <span>No topics yet</span>
                     </div>
                   ) : (
-                    <div className="mse-topics-list">
+                    <div className="topics-list">
                       {sub.topics.map((t, tIdx) => {
                         const validImages = getValidImages(t.images || []);
                         const compressionKey = `${sub.subject}-${t.topic}`;
@@ -790,10 +797,10 @@ export default function ManageSubjects() {
                         const isMultipleFiles = Array.isArray(filesForTopic);
                         
                         return (
-                          <div key={tIdx} className="mse-topic-card">
-                            <div className="mse-topic-header">
-                              <div className="mse-topic-title">
-                                <FiFileText className="mse-topic-icon" />
+                          <div key={tIdx} className="topic-card">
+                            <div className="topic-header">
+                              <div className="topic-title">
+                                <FiFileText />
                                 <h4>{t.topic}</h4>
                                 <DeleteTopicButton 
                                   usn={usn} 
@@ -802,129 +809,101 @@ export default function ManageSubjects() {
                                   onDelete={handleTopicDelete} 
                                 />
                               </div>
-                              <div className="mse-topic-timestamp">
-                                <FiCalendar className="mse-timestamp-icon" />
+                              <div className="topic-date">
+                                <FiCalendar />
                                 <span>{new Date(t.timestamp).toLocaleDateString()}</span>
                               </div>
                             </div>
 
                             {/* Images Section */}
-                            <div className="mse-images-section">
-                              <div className="mse-images-header">
-                                <FiImage className="mse-images-icon" />
+                            <div className="images-section">
+                              <div className="images-header">
+                                <FiImage />
                                 <span>Images ({validImages.length})</span>
                               </div>
                               
                               {validImages.length > 0 && (
-                                <div className="mse-images-container">
-                                  <div className="mse-images-grid">
-                                    {validImages
-                                      .slice(0, expandedImages[`${sub.subject}-${t.topic}`] ? validImages.length : 3)
-                                      .map((img, iIdx) => (
-                                      <div key={iIdx} className="mse-image-card">
-                                        <div className="mse-image-wrapper">
-                                          <img 
-                                            src={img} 
-                                            alt={`Topic image ${iIdx + 1}`}
-                                            className="mse-image"
-                                            loading="lazy"
-                                          />
-                                          <div className="mse-image-overlay">
-                                            <button
-                                              onClick={() => showDeleteConfirmation(sub.subject, t.topic, img)}
-                                              className="mse-btn mse-btn-danger mse-btn-xs mse-image-delete"
-                                              disabled={isLoading}
-                                            >
-                                              <FiTrash2 className="mse-btn-icon" />
-                                            </button>
-                                          </div>
-                                        </div>
+                                <div className="images-container">
+                                  <div className="images-grid">
+                                    {validImages.map((img, iIdx) => (
+                                      <div key={iIdx} className="image-item">
+                                        <img 
+                                          src={img} 
+                                          alt={`Topic image ${iIdx + 1}`}
+                                          loading="lazy"
+                                        />
+                                        <button
+                                          onClick={() => showDeleteConfirmation(sub.subject, t.topic, img)}
+                                          className="delete-btn"
+                                          disabled={isLoading}
+                                        >
+                                          <FiTrash2 />
+                                        </button>
                                       </div>
                                     ))}
                                   </div>
-                                  
-                                  {validImages.length > 3 && (
-                                    <button
-                                      onClick={() => toggleImageExpansion(sub.subject, t.topic)}
-                                      className="mse-btn mse-btn-secondary mse-btn-sm mse-view-more-btn"
-                                    >
-                                      {expandedImages[`${sub.subject}-${t.topic}`] ? (
-                                        <>
-                                          <FiChevronUp className="mse-btn-icon" />
-                                          Show Less
-                                        </>
-                                      ) : (
-                                        <>
-                                          <FiChevronDown className="mse-btn-icon" />
-                                          View More ({validImages.length - 3})
-                                        </>
-                                      )}
-                                    </button>
-                                  )}
                                 </div>
                               )}
                             </div>
 
                             {/* Upload Section */}
-                            <div className="mse-upload-section">
-                              <div className="mse-capture-options">
-                                <button
-                                  onClick={() => toggleCaptureOptions(sub.subject, t.topic)}
-                                  className="mse-btn mse-btn-secondary mse-btn-sm mse-capture-toggle"
-                                >
-                                  <FiCamera className="mse-btn-icon" />
-                                  {showCaptureOptions[`${sub.subject}-${t.topic}`] ? 'Hide Options' : 'Add Content'}
-                                </button>
+                            <div className="upload-section">
+                              <button
+                                onClick={() => toggleCaptureOptions(sub.subject, t.topic)}
+                                className="subj-btn secondary small"
+                              >
+                                <FiCamera />
+                                {showCaptureOptions[`${sub.subject}-${t.topic}`] ? 'Hide Options' : 'Add Content'}
+                              </button>
                                 
-                                {showCaptureOptions[`${sub.subject}-${t.topic}`] && (
-                                  <div className="mse-capture-methods">
-                                    <button
-                                      onClick={() => triggerCameraCapture(sub.subject, t.topic)}
-                                      className="mse-btn mse-btn-accent mse-btn-sm"
-                                      disabled={isLoading || compressionStates[compressionKey]}
-                                    >
-                                      <FiCamera className="mse-btn-icon" />
-                                      Capture Photo
-                                    </button>
-                                    
-                                    <label className={`mse-file-browse-btn mse-btn mse-btn-accent mse-btn-sm ${(isLoading || compressionStates[compressionKey]) ? 'disabled' : ''}`}>
-                                      <FiFile className="mse-btn-icon" />
-                                      Browse Images
-                                      <input
-                                        type="file"
-                                        multiple
-                                        onChange={(e) => handleMultipleFileChange(sub.subject, t.topic, e)}
-                                        className="mse-file-input-hidden"
-                                        accept="image/*"
-                                        disabled={isLoading || compressionStates[compressionKey]}
-                                      />
-                                    </label>
-
-                                    <button
-                                      onClick={() => togglePDFProcessor(sub.subject, t.topic)}
-                                      className="mse-btn mse-btn-accent mse-btn-sm"
-                                      disabled={isLoading}
-                                    >
-                                      <FiFileText className="mse-btn-icon" />
-                                      Upload PDF
-                                    </button>
-
-                                    {/* Hidden camera input for direct capture */}
+                              {showCaptureOptions[`${sub.subject}-${t.topic}`] && (
+                                <div className="capture-options">
+                                  <button
+                                    onClick={() => triggerCameraCapture(sub.subject, t.topic)}
+                                    className="subj-btn yellow small"
+                                    disabled={isLoading || compressionStates[compressionKey]}
+                                  >
+                                    <FiCamera />
+                                    Capture Photo
+                                  </button>
+                                  
+                                  <label className={`file-upload-btn ${(isLoading || compressionStates[compressionKey]) ? 'disabled' : ''}`}>
+                                    <FiFile />
+                                    Browse Images
                                     <input
-                                      ref={el => cameraInputRefs.current[`${sub.subject}-${t.topic}`] = el}
                                       type="file"
+                                      multiple
+                                      onChange={(e) => handleMultipleFileChange(sub.subject, t.topic, e)}
+                                      className="file-input"
                                       accept="image/*"
-                                      capture="environment"
-                                      onChange={(e) => handleCameraCapture(sub.subject, t.topic, e)}
-                                      style={{ display: 'none' }}
+                                      disabled={isLoading || compressionStates[compressionKey]}
                                     />
-                                  </div>
-                                )}
-                              </div>
+                                  </label>
+
+                                  <button
+                                    onClick={() => togglePDFProcessor(sub.subject, t.topic)}
+                                    className="subj-btn yellow small"
+                                    disabled={isLoading}
+                                  >
+                                    <FiFileText />
+                                    Upload PDF
+                                  </button>
+
+                                  {/* Hidden camera input for direct capture */}
+                                  <input
+                                    ref={el => cameraInputRefs.current[`${sub.subject}-${t.topic}`] = el}
+                                    type="file"
+                                    accept="image/*"
+                                    capture="environment"
+                                    onChange={(e) => handleCameraCapture(sub.subject, t.topic, e)}
+                                    style={{ display: 'none' }}
+                                  />
+                                </div>
+                              )}
                               
                               {/* PDF Processor */}
                               {showPDFProcessor[`${sub.subject}-${t.topic}`] && (
-                                <div className="mse-pdf-processor-container">
+                                <div className="pdf-processor">
                                   <PDFProcessor
                                     usn={usn}
                                     subject={sub.subject}
@@ -938,78 +917,80 @@ export default function ManageSubjects() {
                               
                               {/* Compression indicator */}
                               {compressionStates[compressionKey] && (
-                                <div className="mse-compression-indicator">
-                                  <div className="mse-upload-spinner"></div>
+                                <div className="compression-indicator">
+                                  <div className="spinner small"></div>
                                   <span>Processing images...</span>
                                 </div>
                               )}
                               
                               {/* Upload Complete Animation */}
                               {uploadComplete[compressionKey] && (
-                                <div className="mse-upload-complete-animation">
-                                  <FiCheckCircle className="mse-upload-success-icon" />
-                                  <div className="mse-upload-success-text">
-                                    Upload Completed Successfully!
-                                  </div>
+                                <div className="upload-success">
+                                  <FiCheckCircle />
+                                  <div>Upload Completed Successfully!</div>
                                 </div>
                               )}
                               
                               {/* Multiple Files Preview and Upload */}
                               {isMultipleFiles && filesForTopic && filesForTopic.length > 0 && !uploadComplete[compressionKey] && (
-                                <div className="mse-multiple-files-section">
-                                  <div className="mse-files-preview-grid">
+                                <div className="files-preview-section">
+                                  <div className="files-preview-container">
                                     {filesForTopic.map((fileData, fIdx) => {
                                       const isUploaded = uploadedFiles[compressionKey]?.has(fIdx + 1);
+                                      const fileDate = new Date(fileData.lastModified);
                                       return (
                                         <div 
                                           key={fIdx} 
-                                          className={`mse-file-preview-card ${isUploaded ? 'uploaded' : ''}`}
+                                          className={`file-preview ${isUploaded ? 'uploaded' : ''}`}
                                         >
-                                          <div className="mse-file-preview-header">
-                                            <span className="mse-file-preview-name">
-                                              <FiImage /> {fileData.name}
-                                            </span>
-                                            {isUploaded && <FiCheck className="mse-file-uploaded-icon" />}
+                                          <div className="file-info">
+                                            <FiImage />
+                                            <span>{fileData.name}</span>
+                                            {isUploaded && <FiCheck />}
                                           </div>
-                                          <div className="mse-file-preview-thumb-container">
+                                          <div className="file-thumb">
                                             <img 
                                               src={filePreviewMap[compressionKey][fIdx]} 
                                               alt={`Preview ${fIdx + 1}`} 
-                                              className="mse-file-preview-thumb"
                                             />
                                           </div>
-                                          <div className="mse-file-preview-info">
-                                            <span className="mse-file-size">
+                                          <div className="file-details">
+                                            <div className="file-size">
                                               {(fileData.compressedSize / 1024 / 1024).toFixed(2)}MB
-                                            </span>
+                                            </div>
+                                            <div className="file-date">
+                                              {fileDate.toLocaleDateString()}
+                                            </div>
                                           </div>
                                         </div>
                                       );
                                     })}
                                   </div>
                                   
+                                  <div className="upload-info">
+                                    <p>Files are sorted by date (oldest first) and will be uploaded in this order.</p>
+                                  </div>
+                                  
                                   {!uploadingStates[compressionKey] && (
                                     <button 
                                       onClick={() => uploadMultipleFilesSequentially(sub.subject, t.topic)}
-                                      className="mse-btn mse-btn-primary mse-btn-sm mse-upload-all-btn"
+                                      className="subj-btn primary"
                                       disabled={isLoading}
                                     >
-                                      <FiUpload className="mse-btn-icon" />
+                                      <FiUpload />
                                       Upload All Files ({filesForTopic.length})
                                     </button>
                                   )}
 
                                   {uploadingStates[compressionKey] && (
-                                    <div className="mse-upload-progress-section">
-                                      <div className="mse-upload-progress-container">
+                                    <div className="upload-progress">
+                                      <div className="progress-bar">
                                         <div 
-                                          className="mse-upload-progress-bar" 
+                                          className="progress-fill" 
                                           style={{ width: `${uploadProgress[compressionKey] || 0}%` }}
                                         ></div>
                                       </div>
-                                      <span className="mse-upload-progress-text">
-                                        {uploadProgress[compressionKey] || 0}% Completed
-                                      </span>
+                                      <span>{uploadProgress[compressionKey] || 0}% Completed</span>
                                     </div>
                                   )}
                                 </div>
@@ -1017,16 +998,15 @@ export default function ManageSubjects() {
                               
                               {/* Single File Preview (for camera capture) */}
                               {!isMultipleFiles && filePreviewMap[`${sub.subject}-${t.topic}`] && !uploadComplete[compressionKey] && (
-                                <div className="mse-preview-section">
-                                  <div className="mse-preview-wrapper">
+                                <div className="single-preview">
+                                  <div className="preview-wrapper">
                                     <img 
                                       src={filePreviewMap[`${sub.subject}-${t.topic}`]} 
                                       alt="Preview"
-                                      className="mse-preview-image"
                                     />
                                     <button
                                       onClick={() => handleSingleFileChange(sub.subject, t.topic, null)}
-                                      className="mse-preview-remove"
+                                      className="remove-btn"
                                       disabled={isLoading || compressionStates[compressionKey]}
                                     >
                                       <FiX />
@@ -1035,17 +1015,17 @@ export default function ManageSubjects() {
                                   
                                   <button 
                                     onClick={() => handleUploadImage(sub.subject, t.topic)} 
-                                    className="mse-btn mse-btn-primary mse-btn-sm mse-upload-btn"
+                                    className="subj-btn primary"
                                     disabled={uploadingStates[`${sub.subject}-${t.topic}`] || !filesMap[`${sub.subject}-${t.topic}`] || compressionStates[compressionKey]}
                                   >
                                     {uploadingStates[`${sub.subject}-${t.topic}`] ? (
                                       <>
-                                        <div className="mse-upload-spinner"></div>
+                                        <div className="spinner small"></div>
                                         Uploading...
                                       </>
                                     ) : (
                                       <>
-                                        <FiUpload className="mse-btn-icon" />
+                                        <FiUpload />
                                         Upload
                                       </>
                                     )}
@@ -1067,30 +1047,30 @@ export default function ManageSubjects() {
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm.show && (
-        <div className="mse-modal-overlay">
-          <div className="mse-modal">
-            <div className="mse-modal-header">
-              <FiAlertTriangle className="mse-modal-icon" />
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <FiAlertTriangle />
               <h3>Confirm Delete</h3>
             </div>
-            <div className="mse-modal-body">
+            <div className="modal-body">
               <p>Are you sure you want to delete this image?</p>
-              <p className="mse-modal-warning">This action cannot be undone.</p>
+              <p className="warning">This action cannot be undone.</p>
             </div>
-            <div className="mse-modal-footer">
+            <div className="modal-footer">
               <button 
                 onClick={cancelDelete} 
-                className="mse-btn mse-btn-secondary mse-btn-sm"
+                className="subj-btn secondary"
                 disabled={isLoading}
               >
                 Cancel
               </button>
               <button 
                 onClick={confirmDelete} 
-                className="mse-btn mse-btn-danger mse-btn-sm"
+                className="subj-btn danger"
                 disabled={isLoading}
               >
-                <FiTrash2 className="mse-btn-icon" />
+                <FiTrash2 />
                 Delete
               </button>
             </div>
