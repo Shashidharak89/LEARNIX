@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { FiTrash2 } from "react-icons/fi";
+import { useTheme } from "@/context/ThemeContext";
 import "./styles/DeleteButton.css";
 
 export default function DeleteSubjectButton({ usn, subject, onDelete }) {
   const [confirming, setConfirming] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { theme } = useTheme();
 
   const handleDelete = async () => {
     setLoading(true);
@@ -22,7 +24,7 @@ export default function DeleteSubjectButton({ usn, subject, onDelete }) {
       if (!res.ok) {
         alert(data.error || "Failed to delete subject");
       } else {
-        if (onDelete) onDelete(data.subjects); // parent gets updated subjects
+        if (onDelete) onDelete(data.subjects);
       }
     } catch (err) {
       console.error(err);
@@ -34,12 +36,13 @@ export default function DeleteSubjectButton({ usn, subject, onDelete }) {
   };
 
   return (
-    <div className="delete-button-container">
+    <div className={`delete-button-container ${theme}`}>
       {!confirming ? (
         <button
           className="delete-btn"
           onClick={() => setConfirming(true)}
           disabled={loading}
+          aria-label="Delete subject"
         >
           <FiTrash2 size={18} />
         </button>
@@ -51,6 +54,7 @@ export default function DeleteSubjectButton({ usn, subject, onDelete }) {
               className="confirm-yes"
               onClick={handleDelete}
               disabled={loading}
+              aria-label="Confirm delete subject"
             >
               {loading ? "..." : "Yes"}
             </button>
@@ -58,6 +62,7 @@ export default function DeleteSubjectButton({ usn, subject, onDelete }) {
               className="confirm-no"
               onClick={() => setConfirming(false)}
               disabled={loading}
+              aria-label="Cancel delete subject"
             >
               No
             </button>

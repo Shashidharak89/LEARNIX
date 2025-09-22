@@ -2,69 +2,119 @@
   display: inline-block;
   position: relative;
   margin-left: 8px;
+  isolation: isolate; /* Prevents parent styles from interfering */
 }
 
 /* Delete button (trash icon) */
 .delete-btn {
   background: transparent;
   border: none;
-  color: #000; /* black by default */
   cursor: pointer;
   transition: color 0.3s ease, transform 0.2s ease;
+  padding: 4px;
+  z-index: 50; /* Ensure button is above other elements */
+}
+
+.delete-button-container.light .delete-btn {
+  color: #1a202c; /* Dark color for light theme */
+}
+
+.delete-button-container.dark .delete-btn {
+  color: #f7fafc; /* Light color for dark theme */
 }
 
 .delete-btn:hover {
-  color: #e63946; /* red on hover */
+  color: #e63946; /* Red on hover */
   transform: scale(1.1);
+}
+
+.delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* Confirmation box */
 .confirm-box {
   position: absolute;
-  top: -45px;
-  left: 0;
-  background: #fff; /* white background */
-  border: 1px solid #000;
-  padding: 8px 10px;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  top: -60px; /* Adjusted for better visibility */
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
   align-items: center;
   animation: fadeIn 0.2s ease-in-out;
-  z-index: 10;
+  z-index: 1000; /* High z-index to ensure visibility */
+  min-width: 160px;
+  backdrop-filter: blur(4px); /* Adds slight blur for better contrast */
+}
+
+.delete-button-container.light .confirm-box {
+  background: rgba(255, 255, 255, 0.95); /* Semi-transparent white */
+  border: 1px solid #e2e8f0;
+  color: #1a202c !important; /* Force text color */
+}
+
+.delete-button-container.dark .confirm-box {
+  background: rgba(45, 55, 72, 0.95); /* Semi-transparent dark */
+  border: 1px solid #4a5568;
+  color: #f7fafc !important; /* Force text color */
 }
 
 /* Confirmation text */
 .confirm-box p {
-  font-size: 13px;
-  color: #000;
-  margin-bottom: 5px;
-  font-weight: 500;
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.4;
+  color: inherit !important; /* Inherit from confirm-box */
+  background: none !important; /* Reset any background gradient */
+  -webkit-background-clip: border-box !important; /* Reset clip to normal */
+  -webkit-text-fill-color: currentColor !important; /* Force solid text color */
+  background-clip: border-box !important;
+  text-fill-color: currentColor !important;
 }
 
 /* Action buttons inside confirmation */
 .confirm-actions {
   display: flex;
-  gap: 6px;
+  gap: 10px;
 }
 
 .confirm-yes,
 .confirm-no {
-  padding: 4px 10px;
+  padding: 6px 14px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   transition: background 0.3s ease, transform 0.2s ease;
+  min-width: 60px;
+  text-align: center;
+  background: initial; /* Reset any background */
+  -webkit-background-clip: border-box !important; /* Reset clip */
+  -webkit-text-fill-color: currentColor !important; /* Force solid text */
+  color: inherit !important;
+}
+
+.confirm-yes:disabled,
+.confirm-no:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* Yes button - Blue */
 .confirm-yes {
-  background: #1d4ed8; /* blue */
-  color: white;
+  background: #1d4ed8;
+  color: #ffffff !important; /* Force white text */
 }
+
 .confirm-yes:hover {
   background: #2563eb;
   transform: scale(1.05);
@@ -72,9 +122,10 @@
 
 /* No button - Yellow */
 .confirm-no {
-  background: #facc15; /* yellow */
-  color: black;
+  background: #facc15;
+  color: #1a202c !important; /* Force dark text */
 }
+
 .confirm-no:hover {
   background: #fde047;
   transform: scale(1.05);
@@ -84,10 +135,75 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-5px);
+    transform: translateX(-50%) translateY(-10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .confirm-box {
+    top: -70px;
+    min-width: 140px;
+    padding: 10px 12px;
+  }
+
+  .confirm-box p {
+    font-size: 13px;
+  }
+
+  .confirm-yes,
+  .confirm-no {
+    padding: 5px 12px;
+    font-size: 12px;
+    min-width: 50px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .delete-button-container.light .delete-btn {
+    color: #000000;
+  }
+
+  .delete-button-container.dark .delete-btn {
+    color: #ffffff;
+  }
+
+  .delete-button-container.light .confirm-box {
+    background: #ffffff;
+    border: 2px solid #000000;
+    color: #000000 !important;
+  }
+
+  .delete-button-container.dark .confirm-box {
+    background: #000000;
+    border: 2px solid #ffffff;
+    color: #ffffff !important;
+  }
+
+  .confirm-no {
+    background: #ffff00;
+    color: #000000 !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .delete-btn,
+  .confirm-yes,
+  .confirm-no,
+  .confirm-box {
+    animation: none;
+    transition: none;
+  }
+
+  .delete-btn:hover,
+  .confirm-yes:hover,
+  .confirm-no:hover {
+    transform: none;
   }
 }
