@@ -196,6 +196,9 @@ export default function TopicCard({
       return;
     }
 
+    // Sort valid files by lastModified date ascending
+    validFiles.sort((a, b) => a.lastModified - b.lastModified);
+
     try {
       setCompressionStates(prev => ({ ...prev, [topicKey]: true }));
       showMessage(`Processing ${validFiles.length} images...`, "");
