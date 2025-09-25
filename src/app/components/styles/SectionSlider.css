@@ -1,0 +1,112 @@
+/* SectionSlider.css */
+
+.section-slider-unique {
+  margin: 32px auto;
+  width: 100%;
+  max-width: 1000px;
+  border: 1px solid black;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: white;
+}
+
+.section-title-unique {
+  margin: 0;
+  padding: 12px;
+  background-color: #f9f9f9;
+  color: black;
+  font-size: 20px;
+  border-bottom: 1px solid #ddd;
+  text-align: center;
+}
+
+.slide-wrapper-unique {
+  display: block;
+  position: relative;
+  text-decoration: none;
+  color: black;
+  width: 100%;
+  height: auto;
+}
+
+.slide-img-unique {
+  display: block;
+  margin: 0 auto; /* center horizontally */
+  width: 100%;
+  height: auto;
+  max-height: 500px; /* optional upper bound */
+  object-fit: cover;
+  object-position: center center;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.slide-caption-unique {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  padding: 8px 12px;
+  background-color: rgba(255, 255, 255, 0.85);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #ccc;
+  transition: transform 0.3s ease;
+}
+
+.slide-wrapper-unique:hover .slide-caption-unique {
+  transform: translateY(-4px);
+}
+
+.slide-caption-unique span {
+  font-weight: bold;
+  color: blue;
+}
+
+.slide-arrow-unique {
+  color: black;
+  font-size: 18px;
+}
+
+/* Responsive tweaks */
+
+@media (max-width: 900px) {
+  .slide-img-unique {
+    max-height: 400px;
+  }
+  .section-title-unique {
+    font-size: 18px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .slide-img-unique {
+    max-height: 300px;
+  }
+  .slide-caption-unique {
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    padding: 6px 10px;
+  }
+  .section-title-unique {
+    font-size: 16px;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 400px) {
+  .slide-img-unique {
+    max-height: 220px;
+  }
+  .slide-caption-unique {
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    padding: 4px 8px;
+  }
+  .slide-arrow-unique {
+    font-size: 16px;
+  }
+}
