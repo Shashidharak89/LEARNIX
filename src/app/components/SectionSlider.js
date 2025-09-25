@@ -1,33 +1,78 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { FaArrowRight } from "react-icons/fa";
-
+import { FaArrowRight, FaCircle, FaEye } from "react-icons/fa";
 import "./styles/SectionSlider.css";
 
-export default function SectionSlider({ title, images, route }) {
-  const [currIndex, setCurrIndex] = useState(0);
+export default function SectionSlider({ title, description, images, route }) {
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrIndex((prev) => (prev + 1) % images.length);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [images.length]);
+    if (images.length <= 1) return;
+    
+    const slideTimer = setInterval(() => {
+      if (!isPaused) {
+        setActiveImageIndex((prevIndex) => (prevIndex + 1) % images.length);
+      }
+    }, 4000);
+    
+    return () => clearInterval(slideTimer);
+  }, [images.length, isPaused]);
+
+  const handleSliderPause = () => setIsPaused(true);
+  const handleSliderResume = () => setIsPaused(false);
+
+  const handleIndicatorClick = (index) => {
+    setActiveImageIndex(index);
+  };
 
   return (
-    <div className="section-slider-unique">
-      <h3 className="section-title-unique">{title}</h3>
-      <Link href={route} className="slide-wrapper-unique">
-        <img
-          src={images[currIndex]}
-          alt={`${title} image ${currIndex}`}
-          className="slide-img-unique"
-        />
-        <div className="slide-caption-unique">
-          <span>{title}</span>
-          <FaArrowRight className="slide-arrow-unique" />
+    <div className="enhanced-slider-wrapper">
+      <Link 
+        href={route} 
+        className="enhanced-image-link"
+        onMouseEnter={handleSliderPause}
+        onMouseLeave={handleSliderResume}
+      >
+        <div className="enhanced-image-stack">
+          {images.map((imageUrl, idx) => (
+            <img
+              key={idx}
+              src={imageUrl}
+              alt={`${title} showcase ${idx + 1}`}
+              className={`enhanced-slider-image ${idx === activeImageIndex ? 'enhanced-image-visible' : ''}`}
+              draggable="false"
+              onContextMenu={(e) => e.preventDefault()}
+              loading="lazy"
+            />
+          ))}
+          
+          <div className="enhanced-content-overlay">
+            <div className="enhanced-overlay-content">
+              <h3 className="enhanced-overlay-title">{title}</h3>
+              <p className="enhanced-overlay-description">{description}</p>
+            </div>
+          </div>
         </div>
+        
+        {images.length > 1 && (
+          <div className="enhanced-indicators-container">
+            {images.map((_, idx) => (
+              <button
+                key={idx}
+                className={`enhanced-indicator ${idx === activeImageIndex ? 'enhanced-indicator-current' : ''}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleIndicatorClick(idx);
+                }}
+                aria-label={`View image ${idx + 1}`}
+              >
+                <FaCircle />
+              </button>
+            ))}
+          </div>
+        )}
       </Link>
     </div>
   );
