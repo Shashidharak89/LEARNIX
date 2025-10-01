@@ -50,7 +50,11 @@ const WorkSearchInterface = () => {
       const topics = [];
       data.users.forEach(user => {
         user.subjects?.forEach(subject => {
+          const subjectPublic = subject.public !== false;
+          if (!subjectPublic) return;
           subject.topics?.forEach(topic => {
+            const topicPublic = topic.public !== false;
+            if (!topicPublic) return;
             topics.push({
               ...topic,
               userName: user.name,
