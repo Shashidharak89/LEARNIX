@@ -5,7 +5,7 @@ import Work from "@/models/Work";
 export async function POST(req) {
   try {
     await connectDB();
-    const { usn, subject, topic, content, images } = await req.json();
+    const { usn, subject, topic, content, images, public: isPublic } = await req.json();
 
     if (!usn || !subject || !topic) {
       return NextResponse.json({ error: "USN, subject, and topic are required" }, { status: 400 });
@@ -22,12 +22,13 @@ export async function POST(req) {
       return NextResponse.json({ error: "Subject not found" }, { status: 404 });
     }
 
-    // Add topic
+    // Add topic (default public = true if not given)
     subj.topics.push({
       topic,
       content: content || "",
-      images: images || [], // array of URLs
-      timestamp: new Date()
+      images: images || [],
+      timestamp: new Date(),
+      public: typeof isPublic === "boolean" ? isPublic : true
     });
 
     await user.save();
