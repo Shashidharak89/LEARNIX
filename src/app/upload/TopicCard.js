@@ -16,7 +16,8 @@ import {
   FiAlertTriangle,
   FiCamera,
   FiFile,
-  FiCheckCircle
+  FiCheckCircle,
+  FiLoader
 } from "react-icons/fi";
 import PDFProcessor from "./PDFProcessor";
 import DeleteTopicButton from "./DeleteTopicButton";
@@ -42,6 +43,7 @@ export default function TopicCard({
   const [uploadProgress, setUploadProgress] = useState({});
   const [uploadedFiles, setUploadedFiles] = useState({});
   const [uploadComplete, setUploadComplete] = useState({});
+  const [isTogglingPublic, setIsTogglingPublic] = useState(false);
   
   const cameraInputRefs = useRef({});
 
@@ -422,8 +424,11 @@ export default function TopicCard({
 
   // Handle public/private toggle
   const handlePublicToggle = async () => {
-    if (isLoading) return;
+    if (isLoading || isTogglingPublic) return;
+    
     const newPublic = !topic.public;
+    setIsTogglingPublic(true);
+    
     try {
       await axios.put("/api/topic/public", {
         usn,
@@ -432,10 +437,15 @@ export default function TopicCard({
         public: newPublic
       });
       onRefreshSubjects();
-      showMessage("Topic visibility updated", "success");
+      showMessage(
+        `Topic is now ${newPublic ? 'public' : 'private'}`, 
+        "success"
+      );
     } catch (err) {
       console.error(err);
       showMessage(err.response?.data?.error || "Failed to update visibility", "error");
+    } finally {
+      setIsTogglingPublic(false);
     }
   };
 
@@ -472,22 +482,32 @@ export default function TopicCard({
             topic={topic.topic} 
             onDelete={onTopicDelete} 
           />
-          <div style={{ display: 'flex', alignItems: 'center', marginLeft: 'auto', fontSize: '0.9em' }}>
-            <input
-              type="checkbox"
-              checked={topic.public || false}
-              onChange={handlePublicToggle}
-              disabled={isLoading}
-              style={{ marginRight: '5px', width: '16px', height: '16px' }}
-            />
-            <span style={{ color: topic.public ? '#22c55e' : '#ef4444' }}>
+        </div>
+        <div className="mse-topic-meta">
+          <div className="mse-topic-timestamp">
+            <FiCalendar className="mse-timestamp-icon" />
+            <span>{new Date(topic.timestamp).toLocaleDateString()}</span>
+          </div>
+          <div className="mse-visibility-toggle">
+            <span className="mse-visibility-label">Visibility:</span>
+            <button
+              className={`mse-toggle-switch ${topic.public ? 'active' : ''} ${isTogglingPublic ? 'loading' : ''}`}
+              onClick={handlePublicToggle}
+              disabled={isLoading || isTogglingPublic}
+              aria-label={`Toggle visibility to ${topic.public ? 'private' : 'public'}`}
+            >
+              <span className="mse-toggle-slider">
+                {isTogglingPublic ? (
+                  <FiLoader className="mse-toggle-loader" />
+                ) : (
+                  <FiCheck className="mse-toggle-check" />
+                )}
+              </span>
+            </button>
+            <span className={`mse-visibility-status ${topic.public ? 'public' : 'private'}`}>
               {topic.public ? 'Public' : 'Private'}
             </span>
           </div>
-        </div>
-        <div className="mse-topic-timestamp">
-          <FiCalendar className="mse-timestamp-icon" />
-          <span>{new Date(topic.timestamp).toLocaleDateString()}</span>
         </div>
       </div>
 
@@ -715,7 +735,6 @@ export default function TopicCard({
                 <FiX />
               </button>
             </div>
-            
             <button 
               onClick={handleUploadImage} 
               className="mse-btn mse-btn-primary mse-btn-sm mse-upload-btn"
