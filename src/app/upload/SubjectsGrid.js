@@ -6,6 +6,7 @@ import TopicCard from "./TopicCard";
 import DeleteSubjectButton from "./DeleteSubjectButton";
 import axios from "axios";
 import "./styles/SubjectsGrid.css";
+import "./styles/SubjectToggle.css";
 
 export default function SubjectsGrid({ 
   subjects, 
@@ -19,6 +20,7 @@ export default function SubjectsGrid({
   showMessage 
 }) {
   const [topicName, setTopicName] = useState("");
+  const [togglingSubject, setTogglingSubject] = useState(null);
 
   const getAllTopicsForSubject = (subjectName) => {
     const topicSet = new Set();
@@ -43,22 +45,28 @@ export default function SubjectsGrid({
   };
 
   const handleAddTopicWithReset = async (subject) => {
-    await onAddTopic(subject, topicName, true); // default public
+    await onAddTopic(subject, topicName, true);
     setTopicName("");
   };
 
   const toggleSubjectPublic = async (subjectId, currentValue) => {
+    setTogglingSubject(subjectId);
     try {
       await axios.put("/api/subject/public", {
         usn,
         subjectId,
         public: !currentValue
       });
-      onRefreshSubjects();
-      showMessage("Subject public status updated!", "success");
+      await onRefreshSubjects();
+      showMessage(
+        `Subject ${!currentValue ? 'enabled' : 'disabled'} successfully!`, 
+        "success"
+      );
     } catch (err) {
       console.error(err);
-      showMessage("Failed to update subject", "error");
+      showMessage("Failed to update subject status", "error");
+    } finally {
+      setTogglingSubject(null);
     }
   };
 
@@ -67,6 +75,7 @@ export default function SubjectsGrid({
       {subjects.map((sub, idx) => {
         const topicsForThisSubject = getAllTopicsForSubject(sub.subject);
         const subjectPublic = sub.public !== undefined ? sub.public : true;
+        const isToggling = togglingSubject === sub._id;
 
         return (
           <div key={idx} className="mse-subject-card">
@@ -74,17 +83,20 @@ export default function SubjectsGrid({
               <div className="flex items-center gap-2">
                 <FiBook className="mse-subject-icon" />
                 <h3>{sub.subject}</h3>
-                <span 
-                  style={{ 
-                    fontSize: "0.75rem", 
-                    padding: "2px 6px", 
-                    borderRadius: "4px",
-                    backgroundColor: subjectPublic ? "#4ade80" : "#f87171",
-                    color: "white"
-                  }}
+                <button
+                  onClick={() => toggleSubjectPublic(sub._id, subjectPublic)}
+                  disabled={isToggling}
+                  className={`mse-toggle-btn ${subjectPublic ? 'mse-toggle-enabled' : 'mse-toggle-disabled'} ${isToggling ? 'mse-toggle-loading' : ''}`}
                 >
-                  {subjectPublic ? "Public" : "Private"}
-                </span>
+                  {isToggling ? (
+                    <>
+                      <span className="mse-toggle-spinner"></span>
+                      <span>Processing...</span>
+                    </>
+                  ) : (
+                    <span>{subjectPublic ? 'Public' : 'Private'}</span>
+                  )}
+                </button>
               </div>
               <div className="flex items-center gap-2">
                 <DeleteSubjectButton 
@@ -92,12 +104,6 @@ export default function SubjectsGrid({
                   subject={sub.subject} 
                   onDelete={onSubjectDelete} 
                 />
-                <button
-                  onClick={() => toggleSubjectPublic(sub._id, subjectPublic)}
-                  className="px-2 py-1 border rounded text-sm"
-                >
-                  Public/Private
-                </button>
               </div>
             </div>
 
