@@ -15,10 +15,43 @@ export default function UserDetailsPage({ usn }) {
   const [filteredSubjects, setFilteredSubjects] = useState([]);
   const [visibleTopics, setVisibleTopics] = useState({});
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [publicSubjectsCount, setPublicSubjectsCount] = useState(0);
+  const [publicTotalTopics, setPublicTotalTopics] = useState(0);
+  const [publicTotalImages, setPublicTotalImages] = useState(0);
   
   
   const TOPICS_PER_LOAD = 3; // Load 3 topics at a time per subject
   const DEFAULT_PROFILE_IMAGE = "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp";
+
+  const filterSubjects = useCallback((subjects, searchTerm = '') => {
+    return subjects
+      .filter(subject => subject.public !== false)
+      .map(subject => {
+        const filteredTopics = subject.topics?.filter(topic => {
+          if (!(topic.public !== false)) return false;
+          if (searchTerm) {
+            return (
+              topic.topic.toLowerCase().includes(searchTerm) ||
+              (topic.content && topic.content.toLowerCase().includes(searchTerm))
+            );
+          }
+          return true;
+        }) || [];
+        if (searchTerm) {
+          if (
+            !subject.subject.toLowerCase().includes(searchTerm) &&
+            filteredTopics.length === 0
+          ) {
+            return null;
+          }
+        }
+        return {
+          ...subject,
+          topics: filteredTopics
+        };
+      })
+      .filter(Boolean);
+  }, []);
 
   useEffect(() => {
     if (usn) {
@@ -66,17 +99,23 @@ export default function UserDetailsPage({ usn }) {
     setLoading(true);
     try {
       const res = await axios.get(`/api/user?usn=${usnToSearch}`);
-      setUser(res.data.user);
+      const rawUser = res.data.user;
+      setUser(rawUser);
       setMessage("");
       
-      // Initialize visible topics for each subject
-      const initialVisible = {};
-      if (res.data.user.subjects) {
-        res.data.user.subjects.forEach((subject, index) => {
-          initialVisible[index] = Math.min(TOPICS_PER_LOAD, subject.topics?.length || 0);
+      const publicSubjectsForStats = filterSubjects(rawUser.subjects || [], '');
+      let topicsCount = 0;
+      let imagesCount = 0;
+      publicSubjectsForStats.forEach(subject => {
+        topicsCount += subject.topics.length;
+        subject.topics.forEach(topic => {
+          const validImages = getValidImages(topic.images || []);
+          imagesCount += validImages.length;
         });
-      }
-      setVisibleTopics(initialVisible);
+      });
+      setPublicSubjectsCount(publicSubjectsForStats.length);
+      setPublicTotalTopics(topicsCount);
+      setPublicTotalImages(imagesCount);
       
     } catch (err) {
       console.error(err);
@@ -113,31 +152,11 @@ export default function UserDetailsPage({ usn }) {
     }, 500);
   }, [filteredSubjects, visibleTopics, isLoadingMore]);
 
-  const handleSearch = (query) => {
+  const handleSearch = useCallback((query) => {
     if (!user || !user.subjects) return;
     
-    if (!query.trim()) {
-      setFilteredSubjects(user.subjects);
-      return;
-    }
-
     const searchTerm = query.toLowerCase();
-    const filtered = user.subjects.map(subject => {
-      const filteredTopics = subject.topics?.filter(topic => 
-        subject.subject.toLowerCase().includes(searchTerm) ||
-        topic.topic.toLowerCase().includes(searchTerm) ||
-        topic.content.toLowerCase().includes(searchTerm)
-      ) || [];
-      
-      return {
-        ...subject,
-        topics: filteredTopics
-      };
-    }).filter(subject => 
-      subject.subject.toLowerCase().includes(searchTerm) || 
-      subject.topics.length > 0
-    );
-    
+    const filtered = filterSubjects(user.subjects, searchTerm);
     setFilteredSubjects(filtered);
     
     // Reset visible topics for filtered results
@@ -146,7 +165,7 @@ export default function UserDetailsPage({ usn }) {
       newVisible[index] = Math.min(TOPICS_PER_LOAD, subject.topics?.length || 0);
     });
     setVisibleTopics(newVisible);
-  };
+  }, [user, filterSubjects]);
 
   const toggleTopicExpansion = (subjectIndex, topicIndex) => {
     const key = `${subjectIndex}-${topicIndex}`;
@@ -156,18 +175,8 @@ export default function UserDetailsPage({ usn }) {
     }));
   };
 
-  const getTotalTopics = () => {
-    if (!user || !user.subjects) return 0;
-    return user.subjects.reduce((total, subject) => total + (subject.topics?.length || 0), 0);
-  };
-
-  const getTotalImages = () => {
-    if (!user || !user.subjects) return 0;
-    return user.subjects.reduce((total, subject) => {
-      return total + (subject.topics?.reduce((topicTotal, topic) => {
-        return topicTotal + (topic.images?.filter(img => img && img.trim() !== '').length || 0);
-      }, 0) || 0);
-    }, 0);
+  const getValidImages = (images) => {
+    return images ? images.filter(img => img && img.trim() !== '') : [];
   };
 
   const formatDate = (timestamp) => {
@@ -176,10 +185,6 @@ export default function UserDetailsPage({ usn }) {
       month: 'short',
       day: 'numeric'
     });
-  };
-
-  const getValidImages = (images) => {
-    return images ? images.filter(img => img && img.trim() !== '') : [];
   };
 
   if (loading) {
@@ -222,15 +227,15 @@ export default function UserDetailsPage({ usn }) {
                 </div>
                 <div className="user-details-stats">
                   <div className="user-details-stat-item">
-                    <span className="user-details-stat-number">{user.subjects?.length || 0}</span>
+                    <span className="user-details-stat-number">{publicSubjectsCount}</span>
                     <span className="user-details-stat-label">Subjects</span>
                   </div>
                   <div className="user-details-stat-item">
-                    <span className="user-details-stat-number">{getTotalTopics()}</span>
+                    <span className="user-details-stat-number">{publicTotalTopics}</span>
                     <span className="user-details-stat-label">Topics</span>
                   </div>
                   <div className="user-details-stat-item">
-                    <span className="user-details-stat-number">{getTotalImages()}</span>
+                    <span className="user-details-stat-number">{publicTotalImages}</span>
                     <span className="user-details-stat-label">Images</span>
                   </div>
                 </div>
