@@ -6,9 +6,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { 
   FiPlus, 
   FiBook, 
-  FiFolder,
-  FiCheckCircle,
-  FiAlertTriangle
+  FiFolder
 } from "react-icons/fi";
 import AddSubjectForm from "./AddSubjectForm";
 import SubjectsGrid from "./SubjectsGrid";
@@ -23,6 +21,7 @@ export default function ManageSubjects() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
+  const [subjectPublic, setSubjectPublic] = useState(true); // ✅ toggle state
 
   const { theme } = useTheme();
 
@@ -78,7 +77,11 @@ export default function ManageSubjects() {
   const handleAddSubject = async (subjectName) => {
     setIsLoading(true);
     try {
-      const res = await axios.post("/api/subject", { usn, subject: subjectName });
+      const res = await axios.post("/api/subject", { 
+        usn, 
+        subject: subjectName,
+        public: subjectPublic // ✅ send public
+      });
       setSubjects(res.data.subjects);
       showMessage("Subject added successfully!", "success");
     } catch (err) {
@@ -131,10 +134,30 @@ export default function ManageSubjects() {
 
       {/* Add Subject Section */}
       <div className="mse-section">
-        <div className="mse-section-header">
+        <div className="mse-section-header flex items-center gap-2">
           <FiPlus className="mse-section-icon" />
           <h2>Add New Subject</h2>
+
+          {/* Public / Private Toggle */}
+          <button
+            onClick={() => setSubjectPublic(!subjectPublic)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              fontSize: "14px",
+              padding: "4px 8px",
+              borderRadius: "8px",
+              backgroundColor: subjectPublic ? "#16a34a" : "#dc2626",
+              color: "white",
+              border: "none",
+              cursor: "pointer"
+            }}
+          >
+            {subjectPublic ? "Public" : "Private"}
+          </button>
         </div>
+
         <AddSubjectForm
           allUsers={allUsers}
           isLoading={isLoading}
