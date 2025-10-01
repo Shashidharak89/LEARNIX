@@ -29,7 +29,8 @@ export default function TopicCard({
   isLoading, 
   onTopicDelete, 
   onRefreshSubjects,
-  showMessage 
+  showMessage,
+  subjectId
 }) {
   const [uploadingStates, setUploadingStates] = useState({});
   const [compressionStates, setCompressionStates] = useState({});
@@ -42,6 +43,7 @@ export default function TopicCard({
   const [uploadProgress, setUploadProgress] = useState({});
   const [uploadedFiles, setUploadedFiles] = useState({});
   const [uploadComplete, setUploadComplete] = useState({});
+  const [isPublic, setIsPublic] = useState(topic.public || false);
   
   const cameraInputRefs = useRef({});
 
@@ -432,6 +434,25 @@ export default function TopicCard({
     showMessage(`PDF upload failed: ${error}`, "error");
   };
 
+  // Handle public toggle
+  const handlePublicToggle = async () => {
+    const newPublic = !isPublic;
+    setIsPublic(newPublic);
+    try {
+      await axios.put("/api/topic/public", {
+        usn,
+        subjectId,
+        topicId: topic._id,
+        public: newPublic
+      });
+      onRefreshSubjects();
+      showMessage("Topic visibility updated", "success");
+    } catch (err) {
+      setIsPublic(!newPublic);
+      showMessage("Failed to update visibility", "error");
+    }
+  };
+
   // Helper function to get valid images (non-empty)
   const getValidImages = (images) => {
     return images.filter(img => img && img.trim() !== "" && img !== null && img !== undefined);
@@ -457,6 +478,44 @@ export default function TopicCard({
         <div className="mse-topic-timestamp">
           <FiCalendar className="mse-timestamp-icon" />
           <span>{new Date(topic.timestamp).toLocaleDateString()}</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto' }}>
+          <span style={{ fontSize: '14px', color: '#666' }}>Public</span>
+          <label style={{ position: 'relative', display: 'inline-block', width: '40px', height: '20px' }}>
+            <input 
+              type="checkbox" 
+              checked={isPublic} 
+              onChange={handlePublicToggle} 
+              style={{ display: 'none' }} 
+              disabled={isLoading}
+            />
+            <span 
+              style={{ 
+                position: 'absolute', 
+                cursor: 'pointer', 
+                top: 0, 
+                left: 0, 
+                right: 0, 
+                bottom: 0, 
+                backgroundColor: isPublic ? '#4CAF50' : '#ccc', 
+                borderRadius: '20px', 
+                transition: '0.4s' 
+              }} 
+            ></span>
+            <span 
+              style={{ 
+                position: 'absolute', 
+                content: '', 
+                height: '18px', 
+                width: '18px', 
+                left: isPublic ? '22px' : '2px', 
+                bottom: '1px', 
+                backgroundColor: 'white', 
+                borderRadius: '50%', 
+                transition: '0.4s' 
+              }} 
+            ></span>
+          </label>
         </div>
       </div>
 

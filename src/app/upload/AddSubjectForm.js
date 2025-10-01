@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import "./styles/AddSubjectForm.css";
 
@@ -8,8 +8,8 @@ export default function AddSubjectForm({ allUsers, isLoading, onAddSubject }) {
   const [newSubject, setNewSubject] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
   const [isCustomSubject, setIsCustomSubject] = useState(false);
+  const [isPublic, setIsPublic] = useState(true);
 
-  // Get unique subjects from all users
   const getAllSubjects = () => {
     const subjectSet = new Set();
     allUsers.forEach(user => {
@@ -24,7 +24,6 @@ export default function AddSubjectForm({ allUsers, isLoading, onAddSubject }) {
     return Array.from(subjectSet).sort();
   };
 
-  // Handle subject selection
   const handleSubjectSelect = (e) => {
     const value = e.target.value;
     if (value === "custom") {
@@ -38,17 +37,16 @@ export default function AddSubjectForm({ allUsers, isLoading, onAddSubject }) {
     }
   };
 
-  // Handle form submission
   const handleSubmit = async () => {
     const subjectToAdd = isCustomSubject ? newSubject : selectedSubject;
     if (!subjectToAdd.trim()) return;
-    
-    await onAddSubject(subjectToAdd);
-    
-    // Reset form
+
+    await onAddSubject(subjectToAdd, isPublic);
+
     setNewSubject("");
     setSelectedSubject("");
     setIsCustomSubject(false);
+    setIsPublic(true);
   };
 
   const uniqueSubjects = getAllSubjects();
@@ -77,9 +75,19 @@ export default function AddSubjectForm({ allUsers, isLoading, onAddSubject }) {
           disabled={isLoading}
         />
       )}
+      <div className="flex items-center gap-2 mt-2">
+        <label style={{ fontSize: "0.875rem" }}>Public</label>
+        <input
+          type="checkbox"
+          checked={isPublic}
+          onChange={() => setIsPublic(!isPublic)}
+          disabled={isLoading}
+          className="cursor-pointer"
+        />
+      </div>
       <button 
         onClick={handleSubmit} 
-        className="mse-btn mse-btn-primary"
+        className="mse-btn mse-btn-primary mt-2"
         disabled={isLoading || (!isCustomSubject && !selectedSubject) || (isCustomSubject && !newSubject.trim())}
       >
         <FiPlus className="mse-btn-icon" />

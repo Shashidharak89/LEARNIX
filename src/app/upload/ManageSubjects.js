@@ -21,7 +21,6 @@ export default function ManageSubjects() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
-  const [subjectPublic, setSubjectPublic] = useState(true); // ✅ toggle state
 
   const { theme } = useTheme();
 
@@ -32,7 +31,6 @@ export default function ManageSubjects() {
     fetchAllUsers();
   }, []);
 
-  // Show message helper
   const showMessage = (text, type = "", duration = 3000) => {
     setMessage(text);
     setTimeout(() => setMessage(""), duration);
@@ -51,7 +49,6 @@ export default function ManageSubjects() {
     }
   };
 
-  // Fetch all users data for dropdown population
   const fetchAllUsers = async () => {
     try {
       const res = await axios.get("/api/work/getall");
@@ -61,26 +58,24 @@ export default function ManageSubjects() {
     }
   };
 
-  // Handle successful subject delete
   const handleSubjectDelete = (updatedSubjects) => {
     setSubjects(updatedSubjects);
     showMessage("Subject deleted successfully!", "success");
   };
 
-  // Handle successful topic delete
   const handleTopicDelete = (updatedSubjects) => {
     setSubjects(updatedSubjects);
     showMessage("Topic deleted successfully!", "success");
   };
 
-  // Add Subject
-  const handleAddSubject = async (subjectName) => {
+  // Add Subject with public option
+  const handleAddSubject = async (subjectName, isPublic) => {
     setIsLoading(true);
     try {
       const res = await axios.post("/api/subject", { 
         usn, 
         subject: subjectName,
-        public: subjectPublic // ✅ send public
+        public: isPublic
       });
       setSubjects(res.data.subjects);
       showMessage("Subject added successfully!", "success");
@@ -92,8 +87,7 @@ export default function ManageSubjects() {
     }
   };
 
-  // Add Topic
-  const handleAddTopic = async (subject, topicName) => {
+  const handleAddTopic = async (subject, topicName, isPublic) => {
     if (!subject || !topicName.trim()) return;
     setIsLoading(true);
     try {
@@ -101,7 +95,8 @@ export default function ManageSubjects() {
         usn,
         subject,
         topic: topicName,
-        images: []
+        images: [],
+        public: isPublic
       });
       setSubjects(res.data.subjects);
       showMessage("Topic added successfully!", "success");
@@ -113,12 +108,10 @@ export default function ManageSubjects() {
     }
   };
 
-  // Refresh subjects after operations
   const refreshSubjects = () => {
     fetchSubjects(usn);
   };
 
-  // Check usn existence in LocalStorage
   const usnl = typeof window !== "undefined" ? localStorage.getItem("usn") : null;
   if (!usnl) {
     return <LoginRequired />;
@@ -134,30 +127,10 @@ export default function ManageSubjects() {
 
       {/* Add Subject Section */}
       <div className="mse-section">
-        <div className="mse-section-header flex items-center gap-2">
+        <div className="mse-section-header">
           <FiPlus className="mse-section-icon" />
           <h2>Add New Subject</h2>
-
-          {/* Public / Private Toggle */}
-          <button
-            onClick={() => setSubjectPublic(!subjectPublic)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              fontSize: "14px",
-              padding: "4px 8px",
-              borderRadius: "8px",
-              backgroundColor: subjectPublic ? "#16a34a" : "#dc2626",
-              color: "white",
-              border: "none",
-              cursor: "pointer"
-            }}
-          >
-            {subjectPublic ? "Public" : "Private"}
-          </button>
         </div>
-
         <AddSubjectForm
           allUsers={allUsers}
           isLoading={isLoading}
@@ -181,7 +154,6 @@ export default function ManageSubjects() {
 
         {subjects.length === 0 && !isLoading && (
           <div className="mse-empty-state">
-            <FiBook className="mse-empty-icon" />
             <p>No subjects added yet. Create your first subject above!</p>
           </div>
         )}
