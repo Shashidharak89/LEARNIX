@@ -62,6 +62,7 @@ const materialsData = [
                     {url:"https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unite%20I/Chapter%201/Introduction_to_DSA.pdf"},
                     {url:"https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unite%20I/Chapter%201/Pointers.pdf"},
                     {url:"https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unite%20I/Chapter%201/structures-edited.pdf"},
+                    {url:"https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unite%20I/Chapter%201/Abstract_Data_Types.pdf"},
                     {name:"UNIT-1--CPT2-1", url:"https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unite%20I/Chapter%202/Design%20and%20Analysis%20of%20Algorithms.pdf"},
                     {url:"https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20II/Doubly%20Linked%20Lists.pdf"},
                     {url:"https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20II/Realization%20of%20DLL%20program.pdf"},
