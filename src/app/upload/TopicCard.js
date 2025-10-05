@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import axios from "axios";
 import imageCompression from 'browser-image-compression';
 import { 
@@ -17,7 +18,8 @@ import {
   FiCamera,
   FiFile,
   FiCheckCircle,
-  FiLoader
+  FiLoader,
+  FiShare2
 } from "react-icons/fi";
 import PDFProcessor from "./PDFProcessor";
 import DeleteTopicButton from "./DeleteTopicButton";
@@ -466,6 +468,23 @@ export default function TopicCard({
     return images.filter(img => img && img.trim() !== "" && img !== null && img !== undefined);
   };
 
+  const handleShare = async () => {
+    const url = `${window.location.origin}/works/${topic._id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: topic.topic, url });
+        return;
+      } catch (err) {
+        // fallback to copy
+      }
+    }
+    navigator.clipboard.writeText(url).then(() => {
+      showMessage("Link copied to clipboard!", "success");
+    }).catch(() => {
+      showMessage("Failed to copy link", "error");
+    });
+  };
+
   const validImages = getValidImages(topic.images || []);
   const filesForTopic = filesMap[topicKey];
   const isMultipleFiles = Array.isArray(filesForTopic);
@@ -475,7 +494,16 @@ export default function TopicCard({
       <div className="mse-topic-header">
         <div className="mse-topic-title">
           <FiFileText className="mse-topic-icon" />
-          <h4>{topic.topic}</h4>
+          <Link href={`/works/${topic._id}`} className="cursor-pointer hover:underline">
+            <h4>{topic.topic}</h4>
+          </Link>
+          <button 
+            onClick={handleShare}
+            className="ml-2 text-gray-500 hover:text-gray-700 p-1 rounded cursor-pointer"
+            aria-label="Share topic"
+          >
+            <FiShare2 />
+          </button>
           <DeleteTopicButton 
             usn={usn} 
             subject={subject} 
