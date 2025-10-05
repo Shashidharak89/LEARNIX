@@ -246,16 +246,68 @@
   color: inherit;
   text-decoration: none;
   transition: color 0.2s ease;
+  cursor: pointer;
 }
 
 .mse-topic-title a:hover {
   color: #3b82f6;
+  text-decoration: underline;
 }
 
 .mse-topic-icon {
   font-size: 1.25rem;
   color: #6366f1;
   flex-shrink: 0;
+}
+
+/* Share and Delete Icon Buttons */
+.mse-topic-title button {
+  margin-left: 0.5rem;
+  color: #6b7280;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.mse-topic-title button:hover {
+  color: #374151;
+  background-color: rgba(107, 114, 128, 0.1);
+}
+
+.mse-topic-title button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* Specific for Share Icon (FiShare2) */
+.mse-topic-title button[aria-label="Share topic"] {
+  color: #6b7280;
+}
+
+.mse-topic-title button[aria-label="Share topic"]:hover {
+  color: #374151;
+}
+
+/* Specific for Delete Icon (assuming DeleteTopicButton uses FiTrash2 and mse-btn-danger) */
+.mse-topic-title .mse-btn-danger {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.mse-topic-title .mse-btn-danger:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.1);
+  border-color: rgba(220, 38, 38, 0.3);
+  color: #dc2626;
 }
 
 .mse-topic-meta {
