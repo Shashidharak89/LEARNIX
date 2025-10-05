@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { FiSearch, FiUser, FiLoader } from "react-icons/fi";
 import { HiOutlineUsers } from "react-icons/hi";
+import UsersPageSkeleton from "./UsersPageSkeleton";
 import "./styles/UsersPage.css";
 
 export default function UsersPage() {
@@ -13,11 +14,14 @@ export default function UsersPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const limit = 10;
 
   useEffect(() => {
     // when query changes, reset and fetch from page 1
     setPage(1);
+    setUsers([]);
+    setIsInitialLoading(true);
     fetchUsers(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
@@ -52,6 +56,9 @@ export default function UsersPage() {
       console.error("Error fetching users:", err);
     } finally {
       setLoading(false);
+      if (reset) {
+        setIsInitialLoading(false);
+      }
     }
   };
 
@@ -71,6 +78,10 @@ export default function UsersPage() {
     return () => window.removeEventListener("scroll", handleScroll);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasMore, loading]);
+
+  if (isInitialLoading) {
+    return <UsersPageSkeleton />;
+  }
 
   return (
     <div className="modern-users-wrapper">
@@ -132,7 +143,7 @@ export default function UsersPage() {
         ))}
       </div>
 
-      {loading && (
+      {loading && !isInitialLoading && (
         <div className="modern-loading-section">
           <FiLoader className="loading-spinner" />
           <span className="loading-text-modern">Loading more users...</span>
