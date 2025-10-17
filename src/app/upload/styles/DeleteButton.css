@@ -1,3 +1,5 @@
+/* styles/DeleteButton.css - Modified for better visibility in light theme (white background) */
+
 .delete-button-container {
   display: inline-block;
   position: relative;
@@ -5,7 +7,7 @@
   isolation: isolate; /* Prevents parent styles from interfering */
 }
 
-/* Delete button (trash icon) */
+/* Delete button (trash icon) - Default to light theme colors for visibility on white bg */
 .delete-btn {
   background: transparent;
   border: none;
@@ -13,10 +15,7 @@
   transition: color 0.3s ease, transform 0.2s ease;
   padding: 4px;
   z-index: 50; /* Ensure button is above other elements */
-}
-
-.delete-button-container.light .delete-btn {
-  color: #1a202c; /* Dark color for light theme */
+  color: #1a202c; /* Dark color by default for light theme visibility */
 }
 
 .delete-button-container.dark .delete-btn {
@@ -24,7 +23,7 @@
 }
 
 .delete-btn:hover {
-  color: #e63946; /* Red on hover */
+  color: #e63946; /* Red on hover for danger indication, visible on white */
   transform: scale(1.1);
 }
 
@@ -34,7 +33,7 @@
   transform: none;
 }
 
-/* Confirmation box */
+/* Confirmation box - Default to light theme (semi-transparent white with dark text) */
 .confirm-box {
   position: absolute;
   top: -60px; /* Adjusted for better visibility */
@@ -50,28 +49,25 @@
   z-index: 1000; /* High z-index to ensure visibility */
   min-width: 160px;
   backdrop-filter: blur(4px); /* Adds slight blur for better contrast */
-}
-
-.delete-button-container.light .confirm-box {
-  background: rgba(255, 255, 255, 0.95); /* Semi-transparent white */
+  background: rgba(255, 255, 255, 0.95); /* Default light: semi-transparent white */
   border: 1px solid #e2e8f0;
-  color: #1a202c !important; /* Force text color */
+  color: #1a202c !important; /* Default dark text for light theme */
 }
 
 .delete-button-container.dark .confirm-box {
-  background: rgba(45, 55, 72, 0.95); /* Semi-transparent dark */
+  background: rgba(45, 55, 72, 0.95); /* Dark theme override */
   border: 1px solid #4a5568;
-  color: #f7fafc !important; /* Force text color */
+  color: #f7fafc !important;
 }
 
-/* Confirmation text */
+/* Confirmation text - Ensure dark color in light theme */
 .confirm-box p {
   font-size: 14px;
   margin: 0 0 10px 0;
   font-weight: 600;
   text-align: center;
   line-height: 1.4;
-  color: inherit !important; /* Inherit from confirm-box */
+  color: inherit !important; /* Inherit from confirm-box (dark in light theme) */
   background: none !important; /* Reset any background gradient */
   -webkit-background-clip: border-box !important; /* Reset clip to normal */
   -webkit-text-fill-color: currentColor !important; /* Force solid text color */
@@ -79,7 +75,7 @@
   text-fill-color: currentColor !important;
 }
 
-/* Action buttons inside confirmation */
+/* Action buttons inside confirmation - Defaults suitable for light theme */
 .confirm-actions {
   display: flex;
   gap: 10px;
@@ -109,25 +105,25 @@
   transform: none;
 }
 
-/* Yes button - Blue */
+/* Yes button (Delete) - Sky blue for visibility and theme match (as per "syblue"), with white text */
 .confirm-yes {
-  background: #1d4ed8;
-  color: #ffffff !important; /* Force white text */
+  background: #06b6d4; /* Sky blue/cyan blue for light theme visibility */
+  color: #ffffff !important; /* White text for contrast on blue bg */
 }
 
 .confirm-yes:hover {
-  background: #2563eb;
+  background: #0891b2; /* Darker sky blue on hover */
   transform: scale(1.05);
 }
 
-/* No button - Yellow */
+/* No button (Cancel) - Yellow for visibility and theme match */
 .confirm-no {
-  background: #facc15;
-  color: #1a202c !important; /* Force dark text */
+  background: #facc15; /* Yellow */
+  color: #1a202c !important; /* Dark text for contrast on yellow bg */
 }
 
 .confirm-no:hover {
-  background: #fde047;
+  background: #fde047; /* Lighter yellow on hover */
   transform: scale(1.05);
 }
 
@@ -163,17 +159,17 @@
   }
 }
 
-/* High contrast mode support */
+/* High contrast mode support - Enhanced for light theme */
 @media (prefers-contrast: high) {
-  .delete-button-container.light .delete-btn {
-    color: #000000;
+  .delete-btn {
+    color: #000000; /* Black for max contrast */
   }
 
   .delete-button-container.dark .delete-btn {
     color: #ffffff;
   }
 
-  .delete-button-container.light .confirm-box {
+  .confirm-box {
     background: #ffffff;
     border: 2px solid #000000;
     color: #000000 !important;
@@ -186,8 +182,13 @@
   }
 
   .confirm-no {
-    background: #ffff00;
+    background: #ffff00; /* Bright yellow */
     color: #000000 !important;
+  }
+
+  .confirm-yes {
+    background: #0000ff; /* Blue for high contrast */
+    color: #ffffff !important;
   }
 }
 
