@@ -1,51 +1,67 @@
+// UsersPageSkeleton.js
 "use client";
 
-import { FiSearch, FiLoader, FiUser } from "react-icons/fi";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { FiSearch, FiUser, FiLoader } from "react-icons/fi";
 import { HiOutlineUsers } from "react-icons/hi";
-import './styles/UsersPageSkeleton.css';
+import "./styles/UsersPageSkeleton.css";
 
 export default function UsersPageSkeleton() {
+  // Initial skeleton state: show loading for initial load
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const skeletonCount = 10; // Number of skeleton cards to show
+
+  // Simulate initial load delay for skeleton
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialLoading(false);
+    }, 2000); // Adjust delay as needed for demo
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <div className="mus-skeleton-wrapper">
-      <div className="mus-search-section">
-        <div className="mus-search-container">
-          <div className="mus-search-icon mus-skeleton mus-skeleton-circle"></div>
-          <div className="mus-search-input mus-skeleton"></div>
+    <div className="modern-users-wrapper-skeleton">
+      <div className="modern-search-section-skeleton">
+        <div className="modern-search-container-skeleton">
+          <FiSearch className="search-icon-modern-skeleton" />
+          <div className="modern-search-input-skeleton"></div>
         </div>
       </div>
 
-      <div className="mus-users-grid">
-        {[1,2,3,4,5,6,7,8].map((index) => (
-          <div 
-            key={index} 
-            className="mus-user-card mus-skeleton"
+      <div className="modern-users-grid-skeleton">
+        {[...Array(skeletonCount)].map((_, index) => (
+          <div
+            key={index}
+            className="modern-user-card-skeleton"
             style={{ "--animation-delay": `${index * 0.1}s` }}
           >
-            <div className="mus-card-inner">
-              <div className="mus-avatar-section">
-                <div className="mus-avatar-ring mus-skeleton mus-skeleton-circle"></div>
-              </div>
-              
-              <div className="mus-details-section">
-                <div className="mus-name mus-skeleton mus-skeleton-text"></div>
-                <div className="mus-usn mus-skeleton">
-                  <div className="mus-usn-icon mus-skeleton mus-skeleton-circle"></div>
-                  <div className="mus-usn-text mus-skeleton mus-skeleton-text"></div>
+            <div className="user-card-inner-skeleton">
+              <div className="user-avatar-section-skeleton">
+                <div className="avatar-ring-skeleton">
+                  <div className="modern-user-avatar-skeleton"></div>
                 </div>
               </div>
               
-              <div className="mus-card-hover-indicator mus-skeleton">
-                <div className="mus-hover-arrow mus-skeleton mus-skeleton-circle"></div>
+              <div className="user-details-section-skeleton">
+                <div className="modern-user-name-skeleton"></div>
+                <div className="modern-user-usn-skeleton">
+                  <FiUser className="usn-icon-skeleton" />
+                  <div className="usn-text-skeleton"></div>
+                </div>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="mus-loading-section">
-        <div className="mus-spinner mus-skeleton mus-skeleton-circle"></div>
-        <div className="mus-loading-text mus-skeleton mus-skeleton-text"></div>
-      </div>
+      {isInitialLoading && (
+        <div className="modern-loading-section-skeleton">
+          <FiLoader className="loading-spinner-skeleton" />
+          <span className="loading-text-modern-skeleton">Loading users...</span>
+        </div>
+      )}
     </div>
   );
 }

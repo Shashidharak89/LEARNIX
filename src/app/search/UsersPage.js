@@ -1,3 +1,4 @@
+// UsersPage.js
 "use client";
 
 import { useState, useEffect } from "react";
@@ -5,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { FiSearch, FiUser, FiLoader } from "react-icons/fi";
 import { HiOutlineUsers } from "react-icons/hi";
+import UsersPageSkeleton from "./UsersPageSkeleton"; // Import the skeleton
 import "./styles/UsersPage.css";
 
 export default function UsersPage() {
@@ -13,12 +15,21 @@ export default function UsersPage() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true); // New state for initial load
   const limit = 10;
 
   useEffect(() => {
-    // when query changes, reset and fetch from page 1
-    setPage(1);
+    // Fetch initial users on mount
     fetchUsers(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    // When query changes (after initial), reset and fetch from page 1
+    if (!initialLoading) {
+      setPage(1);
+      fetchUsers(true);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
@@ -52,6 +63,7 @@ export default function UsersPage() {
       console.error("Error fetching users:", err);
     } finally {
       setLoading(false);
+      setInitialLoading(false); // Set initial loading to false after first fetch
     }
   };
 
@@ -70,7 +82,12 @@ export default function UsersPage() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMore, loading]);
+  }, [hasMore, loading, page]);
+
+  // Show skeleton during initial loading
+  if (initialLoading) {
+    return <UsersPageSkeleton />;
+  }
 
   return (
     <div className="modern-users-wrapper">
@@ -141,7 +158,7 @@ export default function UsersPage() {
       
       {!hasMore && users.length > 0 && (
         <div className="modern-end-message">
-          <p className="end-text-modern">🎉 You have seen all users!</p>
+          <p className="end-text-modern">You've seen all users!</p>
         </div>
       )}
       

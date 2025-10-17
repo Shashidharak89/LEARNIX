@@ -1,384 +1,305 @@
-/* UsersPageSkeleton.css */
+/* styles/UsersPageSkeleton.css */
+/* Skeleton Styles for UsersPage - Follows the original pattern with shimmer effects */
 
-/* Skeleton Base - Lighter and Subtle */
-.mus-skeleton {
-  background: linear-gradient(90deg, #f8fafc 25%, #f1f5f9 50%, #f8fafc 75%);
-  background-size: 200% 100%;
-  position: relative;
-  overflow: hidden;
-  border-radius: 0.5rem;
-  border: 1px solid #f1f5f9;
+.modern-users-wrapper-skeleton {
+    min-height: 100vh;
+    background-color: #ffffff;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.mus-skeleton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -200%;
-  width: 200%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.4),
-    transparent
-  );
-  animation: musShimmer 1.5s infinite;
+/* Search Section - Always visible */
+.modern-search-section-skeleton {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
 }
 
-/* Specific Skeleton Variations */
-.mus-skeleton-text {
-  border-radius: 0.25rem;
+.modern-search-container-skeleton {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
 }
 
-.mus-skeleton-circle {
-  border-radius: 50%;
+.search-icon-modern-skeleton {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #3B82F6;
+    font-size: 1.2rem;
+    pointer-events: none;
+    z-index: 2;
 }
 
-.mus-skeleton-button {
-  border-radius: 0.5rem;
+.modern-search-input-skeleton {
+    width: 100%;
+    height: 3.2rem; /* Matches original input height */
+    padding: 1rem 1rem 1rem 3rem;
+    border: 2px solid #E5E7EB;
+    border-radius: 25px;
+    background-color: #F9FAFB;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
 }
 
-/* Wrapper */
-.mus-skeleton-wrapper {
-  min-height: 100vh;
-  background-color: #f8fafc;
-  padding: 1rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  animation: musFadeIn 0.6s ease-out;
-}
-
-@keyframes musFadeIn {
-  from { opacity: 0.8; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Search Section Skeleton */
-.mus-search-section {
-  margin-bottom: 2rem;
-  display: flex;
-  justify-content: center;
-  animation: musSlideUp 0.4s ease-out 0.1s both;
-}
-
-@keyframes musSlideUp {
-  from { opacity: 0.7; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.mus-search-container {
-  position: relative;
-  width: 100%;
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-.mus-search-icon {
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 1.25rem;
-  height: 1.25rem;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.mus-search-input {
-  width: 100%;
-  padding: 1rem 1rem 1rem 3rem;
-  height: 3rem;
-  box-sizing: border-box;
-}
-
-/* Users Grid Skeleton */
-.mus-users-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-  animation: musSlideUp 0.4s ease-out 0.3s both;
+/* Users Grid */
+.modern-users-grid-skeleton {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
 }
 
 /* User Cards Skeleton */
-.mus-user-card {
-  background-color: #ffffff;
-  border: 1px solid #f1f5f9;
-  border-radius: 1rem;
-  overflow: hidden;
-  transition: all 0.2s ease;
-  animation: musCardSlideIn 0.4s ease-out var(--animation-delay, 0s) both;
-  position: relative;
+.modern-user-card-skeleton {
+    display: block;
+    border-radius: 16px;
+    background-color: #ffffff;
+    border: 1px solid #F3F4F6;
+    overflow: hidden;
+    animation: cardSlideIn-skeleton 0.5s ease-out var(--animation-delay, 0s) both;
 }
 
-@keyframes musCardSlideIn {
-  from {
-    opacity: 0.7;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes cardSlideIn-skeleton {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-.mus-user-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.2s ease;
-}
-
-.mus-user-card:hover::before {
-  transform: scaleX(1);
-}
-
-.mus-user-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
-  border-color: #e2e8f0;
-}
-
-.mus-card-inner {
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  position: relative;
-}
-
-.mus-avatar-section {
-  flex-shrink: 0;
-}
-
-.mus-avatar-ring {
-  width: 3.75rem;
-  height: 3.75rem;
-  padding: 0.125rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.mus-details-section {
-  flex: 1;
-  min-width: 0;
-}
-
-.mus-name {
-  height: 1.25rem;
-  width: 100%;
-  margin-bottom: 0.5rem;
-}
-
-.mus-usn {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  height: 1rem;
-  margin-top: 0.25rem;
-}
-
-.mus-usn-icon {
-  width: 0.875rem;
-  height: 0.875rem;
-}
-
-.mus-usn-text {
-  height: 0.875rem;
-  width: 6rem;
-  flex: 1;
-}
-
-.mus-card-hover-indicator {
-  opacity: 0;
-  transform: translateX(-10px);
-  transition: all 0.2s ease;
-  width: 2rem;
-  height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.mus-user-card:hover .mus-card-hover-indicator {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.mus-hover-arrow {
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-/* Loading Section Skeleton */
-.mus-loading-section {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 2rem;
-  margin-top: 1rem;
-  animation: musPulse 1.5s ease-in-out infinite;
-}
-
-@keyframes musPulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 0.9; }
-}
-
-.mus-spinner {
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-.mus-loading-text {
-  height: 1rem;
-  width: 10rem;
-}
-
-/* Animations */
-@keyframes musShimmer {
-  0% { left: -200%; }
-  100% { left: 200%; }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .mus-skeleton-wrapper {
-    padding: 0.75rem;
-  }
-  
-  .mus-users-grid {
-    grid-template-columns: 1fr;
+.user-card-inner-skeleton {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
     gap: 1rem;
-  }
-  
-  .mus-card-inner {
-    padding: 1.25rem;
-    gap: 0.75rem;
-  }
-  
-  .mus-avatar-ring {
-    width: 3.125rem;
-    height: 3.125rem;
-  }
-  
-  .mus-name {
-    width: 80%;
-  }
-  
-  .mus-usn-text {
-    width: 5rem;
-  }
-  
-  .mus-card-hover-indicator {
-    display: none;
-  }
+    position: relative;
+}
+
+.user-avatar-section-skeleton {
+    flex-shrink: 0;
+}
+
+.avatar-ring-skeleton {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #F3F4F6;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modern-user-avatar-skeleton {
+    width: 56px;
+    height:  zu56px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.user-details-section-skeleton {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.modern-user-name-skeleton {
+    height: 1.2rem;
+    width: 70%;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+.modern-user-usn-skeleton {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.usn-icon-skeleton {
+    font-size: 0.8rem;
+    color: #3B82F6;
+}
+
+.usn-text-skeleton {
+    height: 1rem;
+    width: 50%;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+/* Shimmer Animation */
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Loading Section */
+.modern-loading-section-skeleton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    padding: 2rem;
+    margin-top: 1rem;
+}
+
+.loading-spinner-skeleton {
+    font-size: 1.2rem;
+    color: #3B82F6;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-text-modern-skeleton {
+    color: #6B7280;
+    font-weight: 500;
+}
+
+/* Responsive Design - Mirroring original */
+@media (max-width: 768px) {
+    .modern-users-wrapper-skeleton {
+        padding: 0.8rem;
+    }
+
+    .modern-search-section-skeleton {
+        margin-bottom: 1.5rem;
+        padding: 0 0.5rem;
+    }
+
+    .modern-search-container-skeleton {
+        max-width: 100%;
+    }
+
+    .modern-search-input-skeleton {
+        padding: 0.9rem 0.9rem 0.9rem 2.8rem;
+        border-radius: 20px;
+    }
+
+    .search-icon-modern-skeleton {
+        left: 0.9rem;
+        font-size: 1.1rem;
+    }
+
+    .modern-users-grid-skeleton {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .user-card-inner-skeleton {
+        padding: 1.2rem;
+        gap: 0.8rem;
+    }
+
+    .avatar-ring-skeleton {
+        width: 50px;
+        height: 50px;
+    }
+
+    .modern-user-avatar-skeleton {
+        width: 46px;
+        height: 46px;
+    }
+
+    .modern-user-name-skeleton {
+        height: 1.1rem;
+    }
+
+    .modern-user-usn-skeleton {
+        font-size: 0.85rem;
+    }
 }
 
 @media (max-width: 480px) {
-  .mus-skeleton-wrapper {
-    padding: 0.5rem;
-  }
-  
-  .mus-search-input {
-    height: 2.75rem;
-    padding: 0.875rem 0.875rem 0.875rem 2.75rem;
-  }
-  
-  .mus-search-icon {
-    left: 0.875rem;
-    width: 1.125rem;
-    height: 1.125rem;
-  }
-  
-  .mus-card-inner {
-    padding: 1rem;
-  }
-  
-  .mus-avatar-ring {
-    width: 2.75rem;
-    height: 2.75rem;
-  }
-  
-  .mus-name {
-    height: 1.125rem;
-  }
-  
-  .mus-usn {
-    height: 0.875rem;
-  }
-  
-  .mus-usn-text {
-    width: 4rem;
-  }
+    .modern-users-wrapper-skeleton {
+        padding: 0.5rem;
+    }
+
+    .modern-search-section-skeleton {
+        padding: 0 0.3rem;
+    }
+
+    .modern-search-input-skeleton {
+        padding: 0.8rem 0.8rem 0.8rem 2.6rem;
+        border-radius: 18px;
+    }
+
+    .search-icon-modern-skeleton {
+        left: 0.8rem;
+    }
+
+    .user-card-inner-skeleton {
+        padding: 1rem;
+    }
 }
 
 @media (max-width: 360px) {
-  .mus-skeleton-wrapper {
-    padding: 0.375rem;
-  }
-  
-  .mus-search-input {
-    height: 2.5rem;
-    padding: 0.75rem 0.75rem 0.75rem 2.5rem;
-  }
-  
-  .mus-search-icon {
-    left: 0.75rem;
-    width: 1rem;
-    height: 1rem;
-  }
-  
-  .mus-card-inner {
-    padding: 0.875rem;
-    gap: 0.625rem;
-  }
-  
-  .mus-avatar-ring {
-    width: 2.5rem;
-    height: 2.5rem;
-  }
+    .modern-users-wrapper-skeleton {
+        padding: 0.4rem;
+    }
+
+    .modern-search-section-skeleton {
+        padding: 0 0.2rem;
+    }
+
+    .modern-search-input-skeleton {
+        padding: 0.7rem 0.7rem 0.7rem 2.4rem;
+        min-height: 44px;
+    }
+
+    .search-icon-modern-skeleton {
+        left: 0.7rem;
+        font-size: 1rem;
+    }
 }
 
-/* Accessibility - Reduced Motion */
-@media (prefers-reduced-motion: reduce) {
-  .mus-skeleton::before {
-    animation: none;
-    background: #f1f5f9;
-  }
-  
-  .mus-skeleton-wrapper,
-  .mus-search-section,
-  .mus-users-grid,
-  .mus-loading-section {
-    animation: none;
-  }
-  
-  .mus-user-card {
-    animation: none;
-  }
-  
-  .mus-loading-section {
-    animation: none;
-  }
-}
-
-/* High Contrast Support */
+/* High contrast and reduced motion support - Mirroring original */
 @media (prefers-contrast: high) {
-  .mus-skeleton {
-    border-color: #e2e8f0;
-    background: #f1f5f9;
-  }
-  
-  .mus-user-card {
-    border-color: #e2e8f0;
-  }
+    .modern-user-card-skeleton {
+        border-color: #000000;
+    }
+
+    .modern-search-input-skeleton {
+        border-color: #000000;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
