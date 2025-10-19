@@ -97,6 +97,14 @@ const materialsData = [
             },
         ],
     },
+    {
+        semester: "Other Resources",
+        subjects: [
+            {
+
+            },
+        ],
+    },
 ];
 
 export default materialsData;
