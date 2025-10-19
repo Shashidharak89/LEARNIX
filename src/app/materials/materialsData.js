@@ -100,7 +100,12 @@ const materialsData = [
     {
         semester: "Other Resources",
         subjects: [
-            {
+            { 
+                subject: "Advanced Operating System with Unix",
+                files: [
+                    {  url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/OTHER_RESOURCES/Operating_System/OPERATING-SYSTEM.docx" },
+                    {  url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/OTHER_RESOURCES/Operating_System/OPERATING-SYSTEM.pdf" },
+                ],
 
             },
         ],
