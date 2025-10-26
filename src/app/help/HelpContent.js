@@ -46,9 +46,10 @@ const ImageSlider = ({ images = [DEFAULT_IMAGE, DEFAULT_IMAGE, DEFAULT_IMAGE] })
             <Image 
               src={src} 
               alt={`Help guide slide ${index + 1}`}
-              width={800}
-              height={400}
+              width={1280}
+              height={720}
               className="slide-image"
+              priority={index === 0}
             />
           </div>
         ))}
