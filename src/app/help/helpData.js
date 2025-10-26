@@ -102,13 +102,13 @@ export const STEPS_DATA = {
 
 export const PROFILE_FEATURES = [
     {
-        image: DEFAULT_IMAGE,
+        image: "https://res.cloudinary.com/ddycnd409/image/upload/v1761497654/c1_20251026_22210867_xan8me.jpg",
         alt: "Profile Settings",
         title: "Profile Settings",
         description: "Customize your profile picture and update personal information."
     },
     {
-        image: DEFAULT_IMAGE,
+        image: "https://res.cloudinary.com/ddycnd409/image/upload/v1761497654/c1_20251026_22210852_ilsgen.jpg",
         alt: "Security Settings",
         title: "Security",
         description: "Change your password and manage account security settings."
@@ -126,7 +126,7 @@ export const LIST_SECTIONS = [
             "Checking recent uploads on the dashboard"
         ],
         imageAlt: "Accessing Materials",
-        imageSrc: DEFAULT_IMAGE
+        imageSrc: "https://res.cloudinary.com/ddycnd409/image/upload/v1761497653/c1_20251026_22210889_srvwqd.jpg"
     },
     {
         title: "Providing Feedback",
@@ -139,6 +139,6 @@ export const LIST_SECTIONS = [
             "Contact administrators"
         ],
         imageAlt: "Feedback System",
-        imageSrc: DEFAULT_IMAGE
+        imageSrc: "https://res.cloudinary.com/ddycnd409/image/upload/v1761497654/c1_20251026_22210834_bkxrpv.jpg"
     }
 ];
