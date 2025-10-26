@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import axios from "axios";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FiUser, FiHash, FiLock, FiArrowRight, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import "../login/styles/Login.css";
 
-export default function Signup({ onSwitch } = {}) {
+export default function Signup() {
   const [name, setName] = useState("");
   const [usn, setUsn] = useState("");
   const [password, setPassword] = useState("");
@@ -21,7 +22,7 @@ export default function Signup({ onSwitch } = {}) {
     setMessage("");
 
     try {
-      const res = await axios.post("/api/auth/signup", { name, usn: usn.trim().toUpperCase(), password });
+      const res = await axios.post("/api/auth", { name, usn: usn.trim().toUpperCase(), password });
       setMessage(res.data.message);
       setIsSuccess(true);
 
@@ -122,9 +123,9 @@ export default function Signup({ onSwitch } = {}) {
 
           <div className="auth-switch-line">
             <span>Already registered? </span>
-            <button type="button" className="auth-switch-link" onClick={() => onSwitch ? onSwitch('login') : window.location.href = '/login'} disabled={isLoading}>
+            <Link href="/login" className="auth-switch-link">
               Login
-            </button>
+            </Link>
           </div>
         </form>
 

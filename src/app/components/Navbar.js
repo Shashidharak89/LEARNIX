@@ -141,7 +141,7 @@ export const Navbar = () => {
           
           {!hasUSN && (
             <Link 
-              href="/auth" 
+              href="/login" 
               className="learnix-nav-item" 
               onClick={closeSidebar}
               tabIndex={isOpen ? 0 : -1}
