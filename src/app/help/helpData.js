@@ -2,9 +2,14 @@
 export const DEFAULT_IMAGE = "https://res.cloudinary.com/ddycnd409/image/upload/v1761484468/users/NU25MCA117/Research%20Methodology%20and%20Publication%20Ethics/Assignment%201%20-%20Review%20paper/jnmpibrmfnz5t1npksuq.jpg";
 
 export const SLIDER_IMAGES = [
-  DEFAULT_IMAGE,
-  DEFAULT_IMAGE,
-  DEFAULT_IMAGE
+  "https://res.cloudinary.com/ddycnd409/image/upload/v1761497653/c1_20251026_22210915_txdxug.jpg",
+  "https://res.cloudinary.com/ddycnd409/image/upload/v1761497655/c1_20251026_22210901_ollncb.jpg",
+  "https://res.cloudinary.com/ddycnd409/image/upload/v1761497654/c1_20251026_22210852_ilsgen.jpg",
+  "https://res.cloudinary.com/ddycnd409/image/upload/v1761497654/c1_20251026_22210867_xan8me.jpg",
+  "https://res.cloudinary.com/ddycnd409/image/upload/v1761497654/c1_20251026_22210834_bkxrpv.jpg",
+  "https://res.cloudinary.com/ddycnd409/image/upload/v1761497654/c1_20251026_22210877_g3imci.jpg",
+  "https://res.cloudinary.com/ddycnd409/image/upload/v1761497653/c1_20251026_22210889_srvwqd.jpg"
+
 ];
 
 export const STEPS_DATA = {
