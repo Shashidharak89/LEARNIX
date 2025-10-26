@@ -2,132 +2,160 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
+import {
+  DEFAULT_IMAGE,
+  SLIDER_IMAGES,
+  GETTING_STARTED_STEPS,
+  UPLOADING_STEPS,
+  PROFILE_FEATURES,
+  ACCESSING_METHODS,
+  FEEDBACK_OPTIONS
+} from './helpData';
 import './styles/HelpContent.css';
 
-const DEFAULT_IMAGE = "https://res.cloudinary.com/ddycnd409/image/upload/v1761484468/users/NU25MCA117/Research%20Methodology%20and%20Publication%20Ethics/Assignment%201%20-%20Review%20paper/jnmpibrmfnz5t1npksuq.jpg";
+const HelpContent = () => {
+  const [expandedSections, setExpandedSections] = useState({});
 
-const ExpandableSection = ({ title, children }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const toggleSection = (title) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [title]: !prev[title]
+    }));
+  };
 
-  return (
-    <div className="help-expandable-section">
-      <button 
-        className={`help-section-header ${isExpanded ? 'expanded' : ''}`}
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        {isExpanded ? <FiChevronDown /> : <FiChevronRight />}
-        <h3>{title}</h3>
-      </button>
-      {isExpanded && (
-        <div className="help-section-content">
-          {children}
+  const sections = [
+    {
+      title: "Getting Started",
+      content: (
+        <div className="help-steps">
+          {GETTING_STARTED_STEPS.map((step, index) => (
+            <div key={index} className="help-step">
+              <div className="step-number">{index + 1}</div>
+              <div className="step-content">
+                <h4>{step.title}</h4>
+                <p>{step.description}</p>
+                {step.image && (
+                  <div className="step-image-container">
+                    <Image 
+                      src={step.image}
+                      alt={step.title}
+                      fill
+                      sizes="(max-width: 768px) 90vw, 80vw"
+                      className="step-image"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
-      )}
-    </div>
-  );
-};
+      )
+    },
+    {
+      title: "Uploading Study Materials",
+      content: (
+        <div className="help-steps">
+          {UPLOADING_STEPS.map((step, index) => (
+            <div key={index} className="help-step">
+              <div className="step-number">{index + 1}</div>
+              <div className="step-content">
+                <h4>{step.title}</h4>
+                <p>{step.description}</p>
+                {step.image && (
+                  <div className="step-image-container">
+                    <Image 
+                      src={step.image}
+                      alt={step.title}
+                      fill
+                      sizes="(max-width: 768px) 90vw, 80vw"
+                      className="step-image"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )
+    },
+    {
+      title: "Managing Your Profile",
+      content: (
+        <div className="feature-grid">
+          {PROFILE_FEATURES.map((feature, index) => (
+            <div key={index} className="feature-card">
+              <div className="feature-image-container">
+                <Image 
+                  src={feature.image}
+                  alt={feature.alt}
+                  fill
+                  sizes="(max-width: 768px) 90vw, 300px"
+                  className="feature-image"
+                />
+              </div>
+              <h4>{feature.title}</h4>
+              <p>{feature.description}</p>
+            </div>
+          ))}
+        </div>
+      )
+    },
+    {
+      title: "Using Study Materials",
+      content: (
+        <div className="help-section">
+          <h4>Accessing Materials</h4>
+          <p>You can access study materials by:</p>
+          <ul>
+            {ACCESSING_METHODS.map((method, index) => (
+              <li key={index}>{method}</li>
+            ))}
+          </ul>
+          <div className="help-image-container">
+            <Image 
+              src={DEFAULT_IMAGE}
+              alt="Accessing Materials"
+              fill
+              sizes="(max-width: 768px) 90vw, 80vw"
+              className="help-image"
+            />
+          </div>
+        </div>
+      )
+    },
+    {
+      title: "Providing Feedback",
+      content: (
+        <div className="help-section">
+          <p>Your feedback helps us improve! You can:</p>
+          <ul>
+            {FEEDBACK_OPTIONS.map((option, index) => (
+              <li key={index}>{option}</li>
+            ))}
+          </ul>
+          <div className="help-image-container">
+            <Image 
+              src={DEFAULT_IMAGE}
+              alt="Feedback System"
+              fill
+              sizes="(max-width: 768px) 90vw, 80vw"
+              className="help-image"
+            />
+          </div>
+        </div>
+      )
+    }
+  ];
 
-const ImageSlider = ({ images = [DEFAULT_IMAGE, DEFAULT_IMAGE, DEFAULT_IMAGE] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Auto-slide every 3 seconds
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % SLIDER_IMAGES.length);
     }, 3000);
     return () => clearInterval(timer);
-  }, [images.length]);
-
-  return (
-    <div className="help-image-slider">
-      <div className="slider-container" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
-        {images.map((src, index) => (
-          <div key={index} className="slide">
-            <Image 
-              src={src} 
-              alt={`Help guide slide ${index + 1}`}
-              width={1280}
-              height={720}
-              className="slide-image"
-              priority={index === 0}
-            />
-          </div>
-        ))}
-      </div>
-      <div className="slider-dots">
-        {images.map((_, index) => (
-          <button
-            key={index}
-            className={`dot ${index === currentIndex ? 'active' : ''}`}
-            onClick={() => setCurrentIndex(index)}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
-
-const StepByStepGuide = ({ steps }) => {
-  return (
-    <div className="help-steps">
-      {steps.map((step, index) => (
-        <div key={index} className="help-step">
-          <div className="step-number">{index + 1}</div>
-          <div className="step-content">
-            <h4>{step.title}</h4>
-            <p>{step.description}</p>
-            {step.image && (
-              <Image 
-                src={step.image}
-                alt={step.title}
-                width={600}
-                height={300}
-                className="step-image"
-              />
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-export default function HelpContent() {
-  const gettingStartedSteps = [
-    {
-      title: "Create an Account",
-      description: "Click on 'Login / Register' in the sidebar and choose 'Register'. Enter your full name, University Seat Number (USN), and choose a password.",
-      image: DEFAULT_IMAGE
-    },
-    {
-      title: "Complete Your Profile",
-      description: "After registration, visit your profile page to add a profile picture and update your information.",
-      image: DEFAULT_IMAGE
-    },
-    {
-      title: "Explore Study Materials",
-      description: "Browse through available study materials by subject. You can view and download materials shared by others.",
-      image: DEFAULT_IMAGE
-    }
-  ];
-
-  const uploadingSteps = [
-    {
-      title: "Select Subject",
-      description: "Choose the subject for which you want to upload materials. If the subject doesn't exist, you can create a new one.",
-      image: DEFAULT_IMAGE
-    },
-    {
-      title: "Choose Files",
-      description: "Select the PDF files you want to upload. Make sure they're properly named and organized.",
-      image: DEFAULT_IMAGE
-    },
-    {
-      title: "Add Details",
-      description: "Provide a description and any relevant tags to help others find your materials.",
-      image: DEFAULT_IMAGE
-    }
-  ];
+  }, [SLIDER_IMAGES.length]);
 
   return (
     <div className="help-content">
@@ -137,80 +165,52 @@ export default function HelpContent() {
         of our platform effectively.
       </p>
 
-      <ImageSlider />
-
-      <ExpandableSection title="Getting Started">
-        <StepByStepGuide steps={gettingStartedSteps} />
-      </ExpandableSection>
-
-      <ExpandableSection title="Uploading Study Materials">
-        <StepByStepGuide steps={uploadingSteps} />
-      </ExpandableSection>
-
-      <ExpandableSection title="Managing Your Profile">
-        <div className="feature-grid">
-          <div className="feature-card">
-            <Image 
-              src={DEFAULT_IMAGE}
-              alt="Profile Settings"
-              width={300}
-              height={200}
-              className="feature-image"
+      <div className="help-image-slider">
+        <div className="slider-container" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
+          {SLIDER_IMAGES.map((src, index) => (
+            <div key={index} className="slide">
+              <div className="slide-image-container">
+                <Image 
+                  src={src} 
+                  alt={`Help guide slide ${index + 1}`}
+                  fill
+                  sizes="100vw"
+                  className="slide-image"
+                  priority={index === 0}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="slider-dots">
+          {SLIDER_IMAGES.map((_, index) => (
+            <button
+              key={index}
+              className={`dot ${index === currentIndex ? 'active' : ''}`}
+              onClick={() => setCurrentIndex(index)}
             />
-            <h4>Profile Settings</h4>
-            <p>Customize your profile picture and update personal information.</p>
-          </div>
-          <div className="feature-card">
-            <Image 
-              src={DEFAULT_IMAGE}
-              alt="Security Settings"
-              width={300}
-              height={200}
-              className="feature-image"
-            />
-            <h4>Security</h4>
-            <p>Change your password and manage account security settings.</p>
-          </div>
+          ))}
         </div>
-      </ExpandableSection>
+      </div>
 
-      <ExpandableSection title="Using Study Materials">
-        <div className="help-section">
-          <h4>Accessing Materials</h4>
-          <p>You can access study materials by:</p>
-          <ul>
-            <li>Browsing through subjects in the Study Materials section</li>
-            <li>Using the search function to find specific topics</li>
-            <li>Checking recent uploads on the dashboard</li>
-          </ul>
-          <Image 
-            src={DEFAULT_IMAGE}
-            alt="Accessing Materials"
-            width={600}
-            height={300}
-            className="help-image"
-          />
+      {sections.map((section, index) => (
+        <div key={index} className="help-expandable-section">
+          <button 
+            className={`help-section-header ${expandedSections[section.title] ? 'expanded' : ''}`}
+            onClick={() => toggleSection(section.title)}
+          >
+            {expandedSections[section.title] ? <FiChevronDown /> : <FiChevronRight />}
+            <h3>{section.title}</h3>
+          </button>
+          {expandedSections[section.title] && (
+            <div className="help-section-content">
+              {section.content}
+            </div>
+          )}
         </div>
-      </ExpandableSection>
-
-      <ExpandableSection title="Providing Feedback">
-        <div className="help-section">
-          <p>Your feedback helps us improve! You can:</p>
-          <ul>
-            <li>Rate study materials</li>
-            <li>Report inappropriate content</li>
-            <li>Suggest improvements</li>
-            <li>Contact administrators</li>
-          </ul>
-          <Image 
-            src={DEFAULT_IMAGE}
-            alt="Feedback System"
-            width={600}
-            height={300}
-            className="help-image"
-          />
-        </div>
-      </ExpandableSection>
+      ))}
     </div>
   );
-}
+};
+
+export default HelpContent;
