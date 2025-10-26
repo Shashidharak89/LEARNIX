@@ -10,11 +10,7 @@ import {
   PROFILE_FEATURES,
   LIST_SECTIONS
 } from './helpData';
-import './styles/HelpPage.css';
-import './styles/ExpandableSection.css';
-import './styles/ImageSlider.css';
-import './styles/StepByStepGuide.css';
-import './styles/FeatureGrid.css';
+import './styles/HelpContent.css';
 
 const HelpContent = () => {
   return (
