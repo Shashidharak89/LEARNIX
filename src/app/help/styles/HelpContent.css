@@ -1,0 +1,213 @@
+.help-content {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+.help-intro {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+/* Expandable Section Styles */
+.help-expandable-section {
+  margin-bottom: 1.5rem;
+  border: 1px solid #e1e1e1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.help-section-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.help-section-header:hover {
+  background: #f1f3f5;
+}
+
+.help-section-header svg {
+  margin-right: 0.5rem;
+  color: #666;
+}
+
+.help-section-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.help-section-content {
+  padding: 1.5rem;
+  background: white;
+}
+
+/* Image Slider Styles */
+.help-image-slider {
+  position: relative;
+  width: 100%;
+  margin: 2rem 0;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.slider-container {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.slide {
+  min-width: 100%;
+  position: relative;
+}
+
+.slide-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.slider-dots {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.dot.active {
+  background: white;
+}
+
+/* Step by Step Guide Styles */
+.help-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.help-step {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #007bff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-content h4 {
+  margin: 0 0 0.5rem;
+  color: #333;
+}
+
+.step-image {
+  margin-top: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Feature Grid Styles */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.feature-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.feature-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.feature-card h4 {
+  margin: 0.5rem 0;
+  color: #333;
+}
+
+.feature-card p {
+  color: #666;
+  margin: 0;
+}
+
+/* Help Section List Styles */
+.help-section ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.help-section li {
+  margin-bottom: 0.5rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.help-section li:before {
+  content: "•";
+  color: #007bff;
+  position: absolute;
+  left: 0;
+}
+
+.help-image {
+  margin-top: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .help-step {
+    flex-direction: column;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .help-content {
+    padding: 0 1rem;
+  }
+}

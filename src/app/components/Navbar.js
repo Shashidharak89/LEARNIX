@@ -13,7 +13,8 @@ import {
   FiLogOut,
   FiMessageCircle,   
   FiBookOpen,        
-  FiFolder           
+  FiFolder,
+  FiHelpCircle
 } from "react-icons/fi";
 import "./styles/Navbar.css";
 import { Fill } from "./Fill";
@@ -211,6 +212,18 @@ export const Navbar = () => {
               <FiMessageCircle size={18} />
             </span>
             <span className="learnix-nav-text">Feedback</span>
+          </Link>
+
+          <Link 
+            href="/help"
+            className="learnix-nav-item" 
+            onClick={closeSidebar}
+            tabIndex={isOpen ? 0 : -1}
+          >
+            <span className="learnix-nav-icon">
+              <FiHelpCircle size={18} />
+            </span>
+            <span className="learnix-nav-text">Help</span>
           </Link>
           
           <Link 
