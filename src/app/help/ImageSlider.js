@@ -1,38 +1,37 @@
 // components/ImageSlider.jsx
 "use client";
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import '../styles/HelpContent.css';
+import ImageContainer from './ImageContainer';
+import './styles/HelpContent.css';
+import { SLIDER_IMAGES } from './helpData';
 
-const ImageSlider = ({ images }) => {
+const ImageSlider = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Auto-slide every 3 seconds
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % SLIDER_IMAGES.length);
     }, 3000);
     return () => clearInterval(timer);
-  }, [images.length]);
+  }, [SLIDER_IMAGES.length]);
 
   return (
     <div className="help-image-slider">
       <div className="slider-container" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
-        {images.map((src, index) => (
+        {SLIDER_IMAGES.map((src, index) => (
           <div key={index} className="slide">
-            <Image 
-              src={src} 
+            <ImageContainer
+              src={src}
               alt={`Help guide slide ${index + 1}`}
-              width={1280}
-              height={720}
+              containerClass="slide-image-container"
               className="slide-image"
-              priority={index === 0}
+              sizes="100vw"
             />
           </div>
         ))}
       </div>
       <div className="slider-dots">
-        {images.map((_, index) => (
+        {SLIDER_IMAGES.map((_, index) => (
           <button
             key={index}
             className={`dot ${index === currentIndex ? 'active' : ''}`}

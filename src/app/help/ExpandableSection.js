@@ -2,7 +2,7 @@
 "use client";
 import { useState } from 'react';
 import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
-import '../styles/HelpContent.css';
+import './styles/HelpContent.css';
 
 const ExpandableSection = ({ title, children }) => {
   const [isExpanded, setIsExpanded] = useState(false);
