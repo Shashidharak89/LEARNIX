@@ -4,9 +4,9 @@ import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { FiUser, FiHash, FiLock, FiArrowRight, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
-import "./styles/Login.css";
+import "../login/styles/Login.css";
 
-export default function Login() {
+export default function Signup() {
   const [name, setName] = useState("");
   const [usn, setUsn] = useState("");
   const [password, setPassword] = useState("");
@@ -19,20 +19,20 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
     setMessage("");
-    
+
     try {
-      const res = await axios.post("/api/auth/login", { usn: usn.trim().toUpperCase(), password });
+      const res = await axios.post("/api/auth/signup", { name, usn: usn.trim().toUpperCase(), password });
       setMessage(res.data.message);
       setIsSuccess(true);
 
       if (typeof window !== "undefined") {
-        localStorage.setItem("usn", res.data.user.usn); // 🔹 store in localStorage
+        localStorage.setItem("usn", res.data.user.usn);
         localStorage.setItem("name", res.data.user.name);
       }
 
       setTimeout(() => {
         router.push("/dashboard");
-      }, 1500);
+      }, 1400);
     } catch (err) {
       setMessage(err.response?.data?.error || "Something went wrong");
       setIsSuccess(false);
@@ -48,12 +48,25 @@ export default function Login() {
           <div className="auth-icon-circle">
             <FiUser className="auth-main-icon" />
           </div>
-          <h1 className="auth-title">Sign In</h1>
-          <p className="auth-subtitle">Sign in to your account</p>
+          <h1 className="auth-title">Create Account</h1>
+          <p className="auth-subtitle">Register a new account to get started</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          {/* Name not required for login - only required for signup */}
+          <div className="input-group">
+            <div className="input-wrapper">
+              <FiUser className="input-icon" />
+              <input
+                type="text"
+                placeholder="Full Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="auth-input"
+                disabled={isLoading}
+              />
+            </div>
+          </div>
 
           <div className="input-group">
             <div className="input-wrapper">
@@ -85,13 +98,13 @@ export default function Login() {
             </div>
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className={`auth-submit-btn ${isLoading ? "loading" : ""}`}
             disabled={isLoading}
           >
             <span className="btn-text">
-              {isLoading ? "Processing..." : "Continue"}
+              {isLoading ? "Processing..." : "Sign up"}
             </span>
             <FiArrowRight className={`btn-icon ${isLoading ? "spinning" : ""}`} />
           </button>
