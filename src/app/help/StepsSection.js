@@ -1,7 +1,7 @@
 // components/StepsSection.jsx
 "use client";
 import ImageContainer from './ImageContainer';
-import './styles/HelpContent.css';
+import './styles/StepByStepGuide.css';
 
 const StepsSection = ({ steps, title }) => {
   return (

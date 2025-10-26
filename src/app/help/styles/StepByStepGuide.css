@@ -1,0 +1,41 @@
+.help-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.help-step {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #007bff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-content h4 {
+  margin: 0 0 0.5rem;
+  color: #333;
+}
+
+.step-image-container {
+  max-width: 800px;
+  margin: 1rem auto 0;
+}
+
+.step-image {
+  box-shadow: 0 1px 3px rgba(135, 206, 235, 0.2);
+}

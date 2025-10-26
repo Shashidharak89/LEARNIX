@@ -2,7 +2,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import ImageContainer from './ImageContainer';
-import './styles/HelpContent.css';
+import './styles/ImageSlider.css';
 import { SLIDER_IMAGES } from './helpData';
 
 const ImageSlider = () => {

@@ -2,7 +2,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import './styles/HelpContent.css';
+import './styles/StepByStepGuide.css';
 
 const StepByStepGuide = ({ steps }) => {
   return (

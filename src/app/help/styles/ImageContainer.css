@@ -1,0 +1,21 @@
+.image-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9; /* Fixed 16:9 ratio - height adjusts exactly to width */
+  background: #ffffff;
+  border: 1px solid rgba(135, 206, 235, 0.12);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1rem auto;
+  display: block;
+  max-height: 50vh; /* Cap to prevent excessive height on wide screens */
+}
+
+.responsive-image {
+  position: absolute;
+  inset: 0; /* Full coverage */
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Image fits within 16:9 without distortion, rest filled by bg */
+  background: inherit; /* Inherit fill from container */
+}

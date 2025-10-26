@@ -1,0 +1,39 @@
+.help-expandable-section {
+  margin-bottom: 1.5rem;
+  border: 1px solid #e1e1e1;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.help-section-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.help-section-header:hover {
+  background: #f1f3f5;
+}
+
+.help-section-header svg {
+  margin-right: 0.5rem;
+  color: #666;
+}
+
+.help-section-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.help-section-content {
+  padding: 1.5rem;
+  background: white;
+}

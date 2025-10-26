@@ -1,0 +1,52 @@
+.help-image-slider {
+  position: relative;
+  width: 100%;
+  margin: 2rem 0;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.slider-container {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.slide {
+  min-width: 100%;
+  position: relative;
+  background: white;
+}
+
+.slide-image-container {
+  aspect-ratio: 16 / 9; /* Fixed 16:9 */
+  max-height: 50vh;
+  margin: 0 auto;
+  border-radius: 8px;
+}
+
+.slide-image {
+  border-radius: 8px;
+}
+
+.slider-dots {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.dot.active {
+  background: white;
+}

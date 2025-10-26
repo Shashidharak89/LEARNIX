@@ -1,7 +1,7 @@
 // components/ProfileSection.jsx
 "use client";
 import ImageContainer from './ImageContainer';
-import './styles/HelpContent.css';
+import './styles/FeatureGrid.css';
 
 const ProfileSection = ({ features }) => {
   return (
