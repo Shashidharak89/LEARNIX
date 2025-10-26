@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { FiUser, FiHash, FiLock, FiArrowRight, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import "./styles/Login.css";
 
-export default function Login() {
+export default function Login({ onSwitch } = {}) {
   const [name, setName] = useState("");
   const [usn, setUsn] = useState("");
   const [password, setPassword] = useState("");
@@ -106,6 +106,13 @@ export default function Login() {
               <span>{message}</span>
             </div>
           )}
+
+            <div className="auth-switch-line">
+              <span>New here? </span>
+              <button type="button" className="auth-switch-link" onClick={() => onSwitch ? onSwitch('signup') : window.location.href = '/signup'} disabled={isLoading}>
+                Register
+              </button>
+            </div>
         </form>
 
         <div className="auth-footer">

@@ -141,7 +141,7 @@ export const Navbar = () => {
           
           {!hasUSN && (
             <Link 
-              href="/login" 
+              href="/auth" 
               className="learnix-nav-item" 
               onClick={closeSidebar}
               tabIndex={isOpen ? 0 : -1}
@@ -149,20 +149,7 @@ export const Navbar = () => {
               <span className="learnix-nav-icon">
                 <FiLogIn size={18} />
               </span>
-              <span className="learnix-nav-text">Login</span>
-            </Link>
-          )}
-          {!hasUSN && (
-            <Link 
-              href="/signup" 
-              className="learnix-nav-item" 
-              onClick={closeSidebar}
-              tabIndex={isOpen ? 0 : -1}
-            >
-              <span className="learnix-nav-icon">
-                <FiUser size={18} />
-              </span>
-              <span className="learnix-nav-text">Signup</span>
+              <span className="learnix-nav-text">Login / Register</span>
             </Link>
           )}
           
