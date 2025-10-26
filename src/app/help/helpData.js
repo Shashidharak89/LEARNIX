@@ -48,19 +48,54 @@ export const STEPS_DATA = {
     ],
     uploading: [
         {
+            title: "Open Sidebar and select Upload",
+            description: "Initially navigate to the Upload section by clicking on the Upload button in the sidebar menu.",
+            image: "https://res.cloudinary.com/ddycnd409/image/upload/v1761500303/c1_20251026_23035377_za50de.jpg"
+        },
+        {
+            title: "Click on Select existing Subject",
+            description: "Click on existing subject dropdown to choose the subject you want to upload materials to.",
+            image: "https://res.cloudinary.com/ddycnd409/image/upload/v1761500302/c1_20251026_23035367_fcgdki.jpg"
+        },
+        {
             title: "Select Subject",
-            description: "Choose the subject for which you want to upload materials. If the subject doesn't exist, you can create a new one.",
-            image: DEFAULT_IMAGE
+            description: "From the dropdown, select the subject relevant to your study material upload or create a new custom subject if needed.",
+            image: "https://res.cloudinary.com/ddycnd409/image/upload/v1761500307/c1_20251026_23035420_agtmt6.jpg"
         },
         {
-            title: "Choose Files",
-            description: "Select the PDF files you want to upload. Make sure they're properly named and organized.",
-            image: DEFAULT_IMAGE
+            title: "Visibility",
+            description: "Verify the visibility settings to ensure your uploaded materials are accessible to others. Then click on Add subject button to proceed.",
+            image: "https://res.cloudinary.com/ddycnd409/image/upload/v1761500309/c1_20251026_23035356_kynzry.jpg"
         },
         {
-            title: "Add Details",
-            description: "Provide a description and any relevant tags to help others find your materials.",
-            image: DEFAULT_IMAGE
+            title: "You can change visibility setting later",
+            description: "After creating new subject you can change the visibility public to private and private to public",
+            image: "https://res.cloudinary.com/ddycnd409/image/upload/v1761500308/c1_20251026_23035346_lrjrc8.jpg"
+        },
+        {
+            title: "Select topic",
+            description: "After selecting or creating subject, enter the topic name for the study material you are uploading.",
+            image: "https://res.cloudinary.com/ddycnd409/image/upload/v1761500304/c1_20251026_23035410_ws9ahy.jpg"
+        },
+        {
+            title: "Add content",
+            description: "After that you have to click Add Content button to upload files.And select files from your device.",
+            image: "https://res.cloudinary.com/ddycnd409/image/upload/v1761500305/c1_20251026_23035335_lhkzpf.jpg"
+        },
+        {
+            title: "Upload Files",
+            description: "Click on Upload all files button to upload selected files to the platform.and note that the files will be arranged in the ascending order of its date and time of file creation.",
+            image: "https://res.cloudinary.com/ddycnd409/image/upload/v1761500308/c1_20251026_23035316_g91uoa.jpg"
+        },
+        {
+            title: "Files will be uploaded one by one",
+            description: "Selected files will be uploaded one by one and it will be uploaded in the order that is arranged.",
+            image: "https://res.cloudinary.com/ddycnd409/image/upload/v1761500304/c1_20251026_23035399_e8mbks.jpg"
+        },
+        {
+            title: "Upload Complete",
+            description: "After successful upload, you will see a confirmation message indicating that your files upload completed successfully.",
+            image: "https://res.cloudinary.com/ddycnd409/image/upload/v1761500303/c1_20251026_23035388_kp0o7o.jpg"
         }
     ]
 };
