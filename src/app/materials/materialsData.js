@@ -14,7 +14,7 @@ const materialsData = [
                 subject: "Mathematics",
                 files: [
                     { name: "Mathematics Textbook", url: "https://github.com/Shashidharak89/Study_Materials_Collection/blob/main/MCA-NMAMIT/1st-Sem/Mathematics/MATHS-TEXT-BOOK.pdf" },
-                    { name: "VassXMSE1SEM1%262.pdf Handwritten Notes", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Mathematics/VassXMSE1SEM1%262.pdf" },
+                    { name: "VassXMSE1SEM1 262.pdf Handwritten Notes", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Mathematics/VassXMSE1SEM1%262.pdf" },
                 ],
             },
             {
@@ -29,9 +29,9 @@ const materialsData = [
             {
                 subject: "Research Methodology and Publication Ethics",
                 files: [
-                    { url: "https://fdaiokzqlgiwevwfqbfy.supabase.co/storage/v1/object/sign/Study-Metereals/1-sem/Research_Methodology_And_Publication_Ethics/RM_U1.pptx?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV81NTU3NmU1OS0zMWY3LTQ3YTktODE5NC05MmU3YmNhODliNmUiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTdHVkeS1NZXRlcmVhbHMvMS1zZW0vUmVzZWFyY2hfTWV0aG9kb2xvZ3lfQW5kX1B1YmxpY2F0aW9uX0V0aGljcy9STV9VMS5wcHR4IiwiaWF0IjoxNzU4MzQ3MzMzLCJleHAiOjE3ODk4ODMzMzN9.lKCNckEILpEt705szak51QgAKdsKOYjC6lVb3nWzSA0" },
-                    { url: "https://fdaiokzqlgiwevwfqbfy.supabase.co/storage/v1/object/sign/Study-Metereals/1-sem/Research_Methodology_And_Publication_Ethics/RM_U2.pptx?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV81NTU3NmU1OS0zMWY3LTQ3YTktODE5NC05MmU3YmNhODliNmUiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTdHVkeS1NZXRlcmVhbHMvMS1zZW0vUmVzZWFyY2hfTWV0aG9kb2xvZ3lfQW5kX1B1YmxpY2F0aW9uX0V0aGljcy9STV9VMi5wcHR4IiwiaWF0IjoxNzU4MzQ3MzY4LCJleHAiOjE3ODk4ODMzNjh9.1kKXo2ApNK4gIp5L_3a8QVBtXE_56fjdy1LR97HzGds" },
-                    { url: "https://fdaiokzqlgiwevwfqbfy.supabase.co/storage/v1/object/sign/Study-Metereals/1-sem/Research_Methodology_And_Publication_Ethics/RM_U3.pptx?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV81NTU3NmU1OS0zMWY3LTQ3YTktODE5NC05MmU3YmNhODliNmUiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTdHVkeS1NZXRlcmVhbHMvMS1zZW0vUmVzZWFyY2hfTWV0aG9kb2xvZ3lfQW5kX1B1YmxpY2F0aW9uX0V0aGljcy9STV9VMy5wcHR4IiwiaWF0IjoxNzU4MzQ3MzgwLCJleHAiOjE3ODk4ODMzODB9.YXILKTNK1llipJJ6nmHGyYYfMBz4GRLScrOu8aZvjhs" },
+                    { url: "https://github.com/Shashidharak89/Study_Materials_Collection/blob/main/MCA-NMAMIT/1st-Sem/Research-Methodology-And-Publication-Ethics/RM_U1.pptx" },
+                    { url: "https://github.com/Shashidharak89/Study_Materials_Collection/blob/main/MCA-NMAMIT/1st-Sem/Research-Methodology-And-Publication-Ethics/RM_U2.pptx" },
+                    { url: "https://github.com/Shashidharak89/Study_Materials_Collection/blob/main/MCA-NMAMIT/1st-Sem/Research-Methodology-And-Publication-Ethics/RM_U3.pptx" },
                 ],
             },
             {
