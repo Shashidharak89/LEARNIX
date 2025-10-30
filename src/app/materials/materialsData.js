@@ -47,8 +47,14 @@ const materialsData = [
             {
                 subject: "Advanced Operating System with Unix",
                 files: [
-                    { name: "AOS Ch2", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Advanced-Operating-System-with-Unix/AOS%20ch2.pptx" },
                     { name: "AOS ch1", url: "https://raw.githubusercontent.com/Shashidharak89/Study\_Materials\_Collection/main/MCA-NMAMIT/1st-Sem/Advanced-Operating-System-with-Unix/Aos%20ch1.pptx](https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Advanced-Operating-System-with-Unix/Aos%20ch1.pptx" },
+                    { url: "https://github.com/Shashidharak89/Study_Materials_Collection/blob/main/MCA-NMAMIT/1st-Sem/Advanced-Operating-System-with-Unix/Aos%20ch1.pdf" },
+                    { url: "https://github.com/Shashidharak89/Study_Materials_Collection/blob/main/MCA-NMAMIT/1st-Sem/Advanced-Operating-System-with-Unix/~%24Aos%20ch1.pptx" },
+                    { name: "AOS Ch2", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Advanced-Operating-System-with-Unix/AOS%20ch2.pptx" },
+                    { url: "https://github.com/Shashidharak89/Study_Materials_Collection/blob/main/MCA-NMAMIT/1st-Sem/Advanced-Operating-System-with-Unix/AOS%20ch2.pdf" },
+                    { url: "https://github.com/Shashidharak89/Study_Materials_Collection/blob/main/MCA-NMAMIT/1st-Sem/Advanced-Operating-System-with-Unix/Aos%20unit2.pptx" },
+                    { url: "https://github.com/Shashidharak89/Study_Materials_Collection/blob/main/MCA-NMAMIT/1st-Sem/Advanced-Operating-System-with-Unix/Aos%20unit3.pptx" },
+
                 ],
             },
             {
