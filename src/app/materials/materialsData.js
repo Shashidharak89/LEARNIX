@@ -40,6 +40,8 @@ const materialsData = [
                     { name: "ADBS Textbook", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/refs/heads/main/MCA-NMAMIT/1st-Sem/Advanced-Data-Base-Systems/ADBS-Text-Book.pdf" },
                     { name: "ADBS Unit-1", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Advanced-Data-Base-Systems/ADBS_Unit%201_Intro%20to%20DB.pdf" },
                     { name: "ADBS Unit-2", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Advanced-Data-Base-Systems/ADBS_Unit%202_SQL.pdf" },
+                    { name: "ADBS Unit-3", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Advanced-Data-Base-Systems/ADBS_Unit%203_MySQL.pdf" },
+                    { name: "ADBS Unit-4", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Advanced-Data-Base-Systems/ADBS_Unit%204_Database%20Design.pdf" },
                 ],
             },
             {
