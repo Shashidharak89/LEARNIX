@@ -13,7 +13,7 @@ const materialsData = [
             {
                 subject: "Mathematics",
                 files: [
-                    { name: "Mathematics Textbook", url: "https://fdaiokzqlgiwevwfqbfy.supabase.co/storage/v1/object/sign/Study-Metereals/1-sem/Mathematics/MATHS-TEXT%20BOOK.pdf?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV81NTU3NmU1OS0zMWY3LTQ3YTktODE5NC05MmU3YmNhODliNmUiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJTdHVkeS1NZXRlcmVhbHMvMS1zZW0vTWF0aGVtYXRpY3MvTUFUSFMtVEVYVCBCT09LLnBkZiIsImlhdCI6MTc1ODM0Njg1OCwiZXhwIjo0OTExOTQ2ODU4fQ.tqCoCnOVL7kaCeGRvUAYMdLtOQljb51LxbEgVHQCEM4" },
+                    { name: "Mathematics Textbook", url: "https://github.com/Shashidharak89/Study_Materials_Collection/blob/main/MCA-NMAMIT/1st-Sem/Mathematics/MATHS-TEXT-BOOK.pdf" },
                     { name: "VassXMSE1SEM1%262.pdf Handwritten Notes", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Mathematics/VassXMSE1SEM1%262.pdf" },
                 ],
             },
