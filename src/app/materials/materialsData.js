@@ -29,9 +29,9 @@ const materialsData = [
             {
                 subject: "Research Methodology and Publication Ethics",
                 files: [
-                    { url: "https://github.com/Shashidharak89/Study_Materials_Collection/blob/main/MCA-NMAMIT/1st-Sem/Research-Methodology-And-Publication-Ethics/RM_U1.pptx" },
-                    { url: "https://github.com/Shashidharak89/Study_Materials_Collection/blob/main/MCA-NMAMIT/1st-Sem/Research-Methodology-And-Publication-Ethics/RM_U2.pptx" },
-                    { url: "https://github.com/Shashidharak89/Study_Materials_Collection/blob/main/MCA-NMAMIT/1st-Sem/Research-Methodology-And-Publication-Ethics/RM_U3.pptx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Research-Methodology-And-Publication-Ethics/RM_U1.pptx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Research-Methodology-And-Publication-Ethics/RM_U2.pptx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Research-Methodology-And-Publication-Ethics/RM_U3.pptx" },
                 ],
             },
             {
