@@ -51,6 +51,43 @@ export default function UserProfile() {
     fetchQuote();
   }, []);
 
+  // NEW: interval to call POST /api/user/active every 60s and update local user.active
+  useEffect(() => {
+    let intervalId = null;
+
+    const tick = async () => {
+      try {
+        const usn = localStorage.getItem("usn");
+        if (!usn) return; // not logged in
+
+        const res = await axios.post("/api/user/active", { usn });
+        const updatedActive = res?.data?.active;
+
+        // Update local user state with new active value (if user already loaded)
+        if (typeof updatedActive !== "undefined") {
+          setUser(prev => {
+            if (!prev) return prev; // if user not loaded yet, keep it null
+            return { ...prev, active: updatedActive };
+          });
+        }
+      } catch (err) {
+        // Fail silently but log for debugging
+        console.error("Failed to update active time:", err);
+      }
+    };
+
+    // Start interval
+    intervalId = setInterval(tick, 60000); // 60s
+
+    // Optionally, you can run once immediately to sync right away.
+    // If you prefer NOT to increment on mount, comment the next line out.
+    // tick();
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, []);
+
   useEffect(() => {
     if (user) {
       handleSearch(searchQuery);
