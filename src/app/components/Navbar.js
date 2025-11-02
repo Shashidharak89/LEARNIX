@@ -25,21 +25,76 @@ export const Navbar = () => {
   const [hasUSN, setHasUSN] = useState(false);
 
   useEffect(() => {
+    // initialize hasUSN from localStorage
     const storedUsn = localStorage.getItem("usn");
     setHasUSN(!!storedUsn);
 
-    // Set up timer to increment active time every 60 seconds if user is logged in
-    if (storedUsn) {
-      const interval = setInterval(async () => {
-        try {
-          await axios.post("/api/user/active", { usn: storedUsn });
-        } catch (error) {
-          console.error("Failed to update active time:", error);
-        }
-      }, 60000); // 60 seconds = 60000 milliseconds
+    // keep hasUSN in sync if localStorage changes in other tabs
+    const onStorage = (e) => {
+      if (e.key === "usn") {
+        setHasUSN(!!e.newValue);
+      }
+    };
+    window.addEventListener("storage", onStorage);
 
-      return () => clearInterval(interval);
-    }
+    // ---------- aligned interval logic ----------
+    let intervalId = null;
+    let timeoutId = null;
+    let stopped = false;
+
+    const sendActive = async () => {
+      try {
+        const currentUsn = localStorage.getItem("usn");
+        if (!currentUsn) return; // don't call if not logged in
+        await axios.post("/api/user/active", { usn: currentUsn });
+      } catch (error) {
+        console.error("Failed to update active time:", error);
+      }
+    };
+
+    const startAligned = () => {
+      // clear previous timers if any
+      if (timeoutId) clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
+
+      // calculate ms until next full minute (:00)
+      const now = new Date();
+      const msUntilNextMinute = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+
+      // wait until the next minute boundary, then send and schedule every 60s
+      timeoutId = setTimeout(async () => {
+        if (stopped) return;
+        await sendActive(); // fire exactly at :00
+        intervalId = setInterval(sendActive, 60000); // thereafter every 60s
+      }, msUntilNextMinute);
+    };
+
+    // visibility handling: pause when hidden to avoid wasted calls
+    const handleVisibility = () => {
+      if (document.visibilityState === "hidden") {
+        stopped = true;
+        if (timeoutId) clearTimeout(timeoutId);
+        if (intervalId) clearInterval(intervalId);
+        timeoutId = null;
+        intervalId = null;
+      } else {
+        stopped = false;
+        startAligned();
+      }
+    };
+
+    // start aligned interval only if user exists now OR start anyway (it will early-return if no usn)
+    startAligned();
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    // cleanup on unmount
+    return () => {
+      stopped = true;
+      if (timeoutId) clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
+      window.removeEventListener("storage", onStorage);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, []);
 
   const toggleSidebar = () => {
@@ -94,8 +149,8 @@ export const Navbar = () => {
         </div>
 
         {/* Menu Toggle Button */}
-        <button 
-          className="learnix-menu-toggle-btn" 
+        <button
+          className="learnix-menu-toggle-btn"
           onClick={toggleSidebar}
           aria-label="Toggle navigation menu"
           aria-expanded={isOpen}
@@ -108,15 +163,15 @@ export const Navbar = () => {
 
       {/* Sidebar Overlay */}
       {isOpen && (
-        <div 
-          className="learnix-sidebar-backdrop" 
+        <div
+          className="learnix-sidebar-backdrop"
           onClick={closeSidebar}
           aria-label="Close navigation menu"
         />
       )}
 
       {/* Sidebar */}
-      <aside 
+      <aside
         className={`learnix-navigation-sidebar ${isOpen ? "learnix-sidebar-active" : ""}`}
         aria-hidden={!isOpen}
       >
@@ -131,8 +186,8 @@ export const Navbar = () => {
               className="learnix-sidebar-logo-img"
             />
           </div>
-          <button 
-            className="learnix-sidebar-close-button" 
+          <button
+            className="learnix-sidebar-close-button"
             onClick={closeSidebar}
             aria-label="Close navigation menu"
           >
@@ -142,9 +197,9 @@ export const Navbar = () => {
 
         {/* Sidebar Navigation Links */}
         <nav className="learnix-sidebar-menu">
-          <Link 
-            href="/dashboard" 
-            className="learnix-nav-item" 
+          <Link
+            href="/dashboard"
+            className="learnix-nav-item"
             onClick={closeSidebar}
             tabIndex={isOpen ? 0 : -1}
           >
@@ -153,11 +208,11 @@ export const Navbar = () => {
             </span>
             <span className="learnix-nav-text">Dashboard</span>
           </Link>
-          
+
           {!hasUSN && (
-            <Link 
-              href="/login" 
-              className="learnix-nav-item" 
+            <Link
+              href="/login"
+              className="learnix-nav-item"
               onClick={closeSidebar}
               tabIndex={isOpen ? 0 : -1}
             >
@@ -167,10 +222,10 @@ export const Navbar = () => {
               <span className="learnix-nav-text">Login / Register</span>
             </Link>
           )}
-          
-          <Link 
-            href="/search" 
-            className="learnix-nav-item" 
+
+          <Link
+            href="/search"
+            className="learnix-nav-item"
             onClick={closeSidebar}
             tabIndex={isOpen ? 0 : -1}
           >
@@ -180,9 +235,9 @@ export const Navbar = () => {
             <span className="learnix-nav-text">Search</span>
           </Link>
 
-          <Link 
-            href="/works" 
-            className="learnix-nav-item" 
+          <Link
+            href="/works"
+            className="learnix-nav-item"
             onClick={closeSidebar}
             tabIndex={isOpen ? 0 : -1}
           >
@@ -191,10 +246,10 @@ export const Navbar = () => {
             </span>
             <span className="learnix-nav-text">Uploaded Works</span>
           </Link>
-          
-          <Link 
-            href="/upload" 
-            className="learnix-nav-item" 
+
+          <Link
+            href="/upload"
+            className="learnix-nav-item"
             onClick={closeSidebar}
             tabIndex={isOpen ? 0 : -1}
           >
@@ -204,9 +259,9 @@ export const Navbar = () => {
             <span className="learnix-nav-text">Upload</span>
           </Link>
 
-          <Link 
-            href="/materials" 
-            className="learnix-nav-item" 
+          <Link
+            href="/materials"
+            className="learnix-nav-item"
             onClick={closeSidebar}
             tabIndex={isOpen ? 0 : -1}
           >
@@ -216,9 +271,9 @@ export const Navbar = () => {
             <span className="learnix-nav-text">Study Materials</span>
           </Link>
 
-          <Link 
-            href="/feedback" 
-            className="learnix-nav-item" 
+          <Link
+            href="/feedback"
+            className="learnix-nav-item"
             onClick={closeSidebar}
             tabIndex={isOpen ? 0 : -1}
           >
@@ -228,9 +283,9 @@ export const Navbar = () => {
             <span className="learnix-nav-text">Feedback</span>
           </Link>
 
-          <Link 
+          <Link
             href="/help"
-            className="learnix-nav-item" 
+            className="learnix-nav-item"
             onClick={closeSidebar}
             tabIndex={isOpen ? 0 : -1}
           >
@@ -239,10 +294,10 @@ export const Navbar = () => {
             </span>
             <span className="learnix-nav-text">Help</span>
           </Link>
-          
-          <Link 
-            href="/profile" 
-            className="learnix-nav-item" 
+
+          <Link
+            href="/profile"
+            className="learnix-nav-item"
             onClick={closeSidebar}
             tabIndex={isOpen ? 0 : -1}
           >
@@ -253,8 +308,8 @@ export const Navbar = () => {
           </Link>
 
           {hasUSN && (
-            <button 
-              onClick={handleSignout} 
+            <button
+              onClick={handleSignout}
               className="learnix-nav-item learnix-signout-btn"
               tabIndex={isOpen ? 0 : -1}
             >
