@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { FiBook, FiPlus, FiFileText } from "react-icons/fi";
+import { FiBook, FiPlus, FiFileText, FiChevronDown, FiChevronRight } from "react-icons/fi";
 import TopicCard from "./TopicCard";
 import DeleteSubjectButton from "./DeleteSubjectButton";
 import axios from "axios";
-import "./styles/SubjectsGrid.css";
-import "./styles/SubjectToggle.css";
+
+/*
+  Minimal change: subjects are collapsed by default (show header only).
+  Click subject header toggles expansion to show add-topic inputs + topics list.
+  Uses inline styles only; no external CSS changes required.
+*/
 
 export default function SubjectsGrid({ 
   subjects, 
@@ -21,6 +25,7 @@ export default function SubjectsGrid({
 }) {
   const [topicName, setTopicName] = useState("");
   const [togglingSubject, setTogglingSubject] = useState(null);
+  const [expandedSubjects, setExpandedSubjects] = useState(new Set());
 
   const getAllTopicsForSubject = (subjectName) => {
     const topicSet = new Set();
@@ -70,35 +75,107 @@ export default function SubjectsGrid({
     }
   };
 
+  const toggleExpand = (subjectId) => {
+    const s = new Set([...expandedSubjects]);
+    if (s.has(subjectId)) s.delete(subjectId);
+    else s.add(subjectId);
+    setExpandedSubjects(s);
+  };
+
+  // Inline style helpers (kept simple, following your theme)
+  const cardStyle = {
+    background: "rgba(255,255,255,0.95)",
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 12,
+    boxShadow: "0 6px 18px rgba(14,165,233,0.06)",
+    border: "1px solid rgba(14,165,233,0.06)"
+  };
+
+  const headerStyle = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+    cursor: "pointer"
+  };
+
+  const leftHeaderStyle = { display: "flex", alignItems: "center", gap: 10 };
+
+  const subjectTitleStyle = { fontWeight: 700, fontSize: 16, margin: 0 };
+
+  const addTopicSectionStyle = { marginTop: 10, display: "flex", gap: 8, alignItems: "center" };
+
+  const inputSmallStyle = {
+    padding: "8px 10px",
+    borderRadius: 8,
+    border: "1px solid rgba(15,23,42,0.06)",
+    minWidth: 160
+  };
+
+  const btnStyle = {
+    padding: "8px 10px",
+    borderRadius: 8,
+    border: "none",
+    cursor: "pointer",
+    background: "linear-gradient(90deg,#0ea5e9,#60a5fa)",
+    color: "#fff",
+    fontWeight: 700,
+    display: "inline-flex",
+    gap: 6,
+    alignItems: "center"
+  };
+
+  const topicsContainerStyle = { marginTop: 12 };
+
+  const emptyTopicsStyle = { display: "flex", gap: 8, alignItems: "center", color: "#64748b" };
+
   return (
     <div className="mse-subjects-grid">
       {subjects.map((sub, idx) => {
         const topicsForThisSubject = getAllTopicsForSubject(sub.subject);
         const subjectPublic = sub.public !== undefined ? sub.public : true;
         const isToggling = togglingSubject === sub._id;
+        const isExpanded = expandedSubjects.has(sub._id ?? `${idx}-${sub.subject}`);
 
         return (
-          <div key={idx} className="mse-subject-card">
-            <div className="mse-subject-header flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <FiBook className="mse-subject-icon" />
-                <h3>{sub.subject}</h3>
+          <div key={idx} style={cardStyle}>
+            <div
+              style={headerStyle}
+              // clicking header toggles expand/collapse
+              onClick={() => toggleExpand(sub._id ?? `${idx}-${sub.subject}`)}
+              role="button"
+              aria-expanded={isExpanded}
+            >
+              <div style={leftHeaderStyle}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  {isExpanded ? <FiChevronDown /> : <FiChevronRight />}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <FiBook style={{ color: "#0ea5e9" }} />
+                  <h3 style={subjectTitleStyle}>{sub.subject}</h3>
+                </div>
+
                 <button
-                  onClick={() => toggleSubjectPublic(sub._id, subjectPublic)}
+                  onClick={(e) => {
+                    e.stopPropagation(); // prevent toggling when clicking this button
+                    toggleSubjectPublic(sub._id, subjectPublic);
+                  }}
                   disabled={isToggling}
-                  className={`mse-toggle-btn ${subjectPublic ? 'mse-toggle-enabled' : 'mse-toggle-disabled'} ${isToggling ? 'mse-toggle-loading' : ''}`}
+                  style={{
+                    marginLeft: 8,
+                    padding: "6px 8px",
+                    borderRadius: 8,
+                    border: "1px solid rgba(15,23,42,0.06)",
+                    background: subjectPublic ? "rgba(14,165,233,0.08)" : "rgba(15,23,42,0.04)",
+                    cursor: isToggling ? "not-allowed" : "pointer"
+                  }}
                 >
-                  {isToggling ? (
-                    <>
-                      <span className="mse-toggle-spinner"></span>
-                      <span>Processing...</span>
-                    </>
-                  ) : (
-                    <span>{subjectPublic ? 'Public' : 'Private'}</span>
-                  )}
+                  {isToggling ? "Processing..." : subjectPublic ? "Public" : "Private"}
                 </button>
               </div>
-              <div className="flex items-center gap-2">
+
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <DeleteSubjectButton 
                   usn={usn} 
                   subject={sub.subject} 
@@ -107,63 +184,69 @@ export default function SubjectsGrid({
               </div>
             </div>
 
-            {/* Add Topic Input */}
-            <div className="mse-topic-input-section">
-              <div className="mse-input-group">
-                <select
-                  value=""
-                  onChange={handleTopicSelectForSubject}
-                  className="mse-input mse-input-sm"
-                  disabled={isLoading}
-                >
-                  <option value="">Select existing topic for {sub.subject}</option>
-                  {topicsForThisSubject.map(topic => (
-                    <option key={topic} value={topic}>{topic}</option>
-                  ))}
-                </select>
-                <input
-                  type="text"
-                  placeholder="Or enter new topic name..."
-                  value={topicName}
-                  onChange={(e) => setTopicName(e.target.value)}
-                  className="mse-input mse-input-sm"
-                  disabled={isLoading}
-                />
-                <button 
-                  onClick={() => handleAddTopicWithReset(sub.subject)} 
-                  className="mse-btn mse-btn-secondary mse-btn-sm"
-                  disabled={isLoading || !topicName.trim()}
-                >
-                  <FiPlus className="mse-btn-icon" />
-                  Add Topic
-                </button>
-              </div>
-            </div>
+            {/* Expanded area: add-topic + topics list (only rendered when expanded) */}
+            {isExpanded && (
+              <div style={{ marginTop: 10 }}>
+                {/* Add Topic Input */}
+                <div style={addTopicSectionStyle}>
+                  <select
+                    value=""
+                    onChange={handleTopicSelectForSubject}
+                    style={inputSmallStyle}
+                    disabled={isLoading}
+                  >
+                    <option value="">Select existing topic for {sub.subject}</option>
+                    {topicsForThisSubject.map(topic => (
+                      <option key={topic} value={topic}>{topic}</option>
+                    ))}
+                  </select>
 
-            {/* Topics List */}
-            <div className="mse-topics-container">
-              {!sub.topics || sub.topics.length === 0 ? (
-                <div className="mse-empty-topics">
-                  <FiFileText className="mse-empty-icon-sm" />
-                  <span>No topics yet</span>
+                  <input
+                    type="text"
+                    placeholder={`Or enter new topic name...`}
+                    value={topicName}
+                    onChange={(e) => setTopicName(e.target.value)}
+                    style={inputSmallStyle}
+                    disabled={isLoading}
+                  />
+
+                  <button 
+                    onClick={() => handleAddTopicWithReset(sub.subject)} 
+                    style={{ ...btnStyle, padding: "8px 12px" }}
+                    disabled={isLoading || !topicName.trim()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                  >
+                    <FiPlus />
+                    <span style={{ fontSize: 13 }}>Add Topic</span>
+                  </button>
                 </div>
-              ) : (
-                <div className="mse-topics-list">
-                  {sub.topics.map((topic, tIdx) => (
-                    <TopicCard
-                      key={tIdx}
-                      subject={sub.subject}
-                      topic={topic}
-                      usn={usn}
-                      isLoading={isLoading}
-                      onTopicDelete={onTopicDelete}
-                      onRefreshSubjects={onRefreshSubjects}
-                      showMessage={showMessage}
-                    />
-                  ))}
+
+                {/* Topics List */}
+                <div style={topicsContainerStyle}>
+                  {!sub.topics || sub.topics.length === 0 ? (
+                    <div style={emptyTopicsStyle}>
+                      <FiFileText />
+                      <span>No topics yet</span>
+                    </div>
+                  ) : (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {sub.topics.map((topic, tIdx) => (
+                        <TopicCard
+                          key={tIdx}
+                          subject={sub.subject}
+                          topic={topic}
+                          usn={usn}
+                          isLoading={isLoading}
+                          onTopicDelete={onTopicDelete}
+                          onRefreshSubjects={onRefreshSubjects}
+                          showMessage={showMessage}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         );
       })}

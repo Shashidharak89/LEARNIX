@@ -10,7 +10,7 @@ export default function upload() {
     <div >
       <Navbar />
       <ManageSubjects />
-    <Footer/>
+      <Footer/>
     </div>
   );
 }
