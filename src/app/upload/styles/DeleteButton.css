@@ -108,7 +108,7 @@
 /* Yes button (Delete) - Sky blue for visibility and theme match (as per "syblue"), with white text */
 .confirm-yes {
   background: #06b6d4; /* Sky blue/cyan blue for light theme visibility */
-  color: #ffffff !important; /* White text for contrast on blue bg */
+  color: #000000 !important; /* White text for contrast on blue bg */
 }
 
 .confirm-yes:hover {
