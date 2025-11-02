@@ -3,16 +3,16 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import axios from "axios";
-import { 
-  FiCalendar, 
-  FiBook, 
-  FiImage, 
-  FiEye, 
-  FiEyeOff, 
-  FiUser, 
-  FiClock, 
-  FiChevronDown, 
-  FiSearch, 
+import {
+  FiCalendar,
+  FiBook,
+  FiImage,
+  FiEye,
+  FiEyeOff,
+  FiUser,
+  FiClock,
+  FiChevronDown,
+  FiSearch,
   FiSettings,
   FiUpload,
   FiGrid,
@@ -21,6 +21,7 @@ import {
   FiAlertCircle
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
+import { formatActiveTime } from '@/lib/utils';
 import ChangeName from './ChangeName';
 import ChangePassword from './ChangePassword';
 import ProfileImageEditor from './ProfileImageEditor';
@@ -320,6 +321,10 @@ export default function UserProfile() {
                   <div className="up-stat">
                     <span className="up-stat-number">{getTotalImages()}</span>
                     <span className="up-stat-label">Uploads</span>
+                  </div>
+                  <div className="up-stat">
+                    <span className="up-stat-number">{formatActiveTime(user.active || 0)}</span>
+                    <span className="up-stat-label">Active</span>
                   </div>
                 </div>
               </div>

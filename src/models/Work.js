@@ -18,11 +18,12 @@ const WorkSchema = new mongoose.Schema({
   name: { type: String, required: true },
   usn: { type: String, required: true, unique: true },
   password: { type: String },
-  profileimg: { 
-    type: String, 
-    default: "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp" 
+  profileimg: {
+    type: String,
+    default: "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp"
   },
   subjects: { type: [SubjectSchema], default: [] },
+  active: { type: Number, default: 0 }, // Active time in minutes
   createdAt: { type: Date, default: Date.now }
 });
 

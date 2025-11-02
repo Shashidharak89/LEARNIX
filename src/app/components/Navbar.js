@@ -2,17 +2,18 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { 
-  FiMenu, 
-  FiX, 
-  FiHome, 
-  FiLogIn, 
-  FiSearch, 
-  FiUpload, 
-  FiUser, 
+import axios from "axios";
+import {
+  FiMenu,
+  FiX,
+  FiHome,
+  FiLogIn,
+  FiSearch,
+  FiUpload,
+  FiUser,
   FiLogOut,
-  FiMessageCircle,   
-  FiBookOpen,        
+  FiMessageCircle,
+  FiBookOpen,
   FiFolder,
   FiHelpCircle
 } from "react-icons/fi";
@@ -26,6 +27,19 @@ export const Navbar = () => {
   useEffect(() => {
     const storedUsn = localStorage.getItem("usn");
     setHasUSN(!!storedUsn);
+
+    // Set up timer to increment active time every 60 seconds if user is logged in
+    if (storedUsn) {
+      const interval = setInterval(async () => {
+        try {
+          await axios.post("/api/user/active", { usn: storedUsn });
+        } catch (error) {
+          console.error("Failed to update active time:", error);
+        }
+      }, 60000); // 60 seconds = 60000 milliseconds
+
+      return () => clearInterval(interval);
+    }
   }, []);
 
   const toggleSidebar = () => {

@@ -39,6 +39,7 @@ export const GET = async (req) => {
         subjects: user.subjects || [],
         createdAt: user.createdAt,
         profileimg: user.profileimg,
+        active: user.active || 0,
       },
     });
   } catch (err) {

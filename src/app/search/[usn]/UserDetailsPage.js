@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { Calendar, BookOpen, ImageIcon, Eye, EyeOff, User, GraduationCap, Clock, ChevronDown, Search } from "lucide-react";
+import { formatActiveTime } from '@/lib/utils';
 import './styles/UserDetailsPage.css';
 import UserDetailsPageSkeleton from "./UserDetailsPageSkeleton";
 
@@ -237,6 +238,10 @@ export default function UserDetailsPage({ usn }) {
                   <div className="user-details-stat-item">
                     <span className="user-details-stat-number">{publicTotalImages}</span>
                     <span className="user-details-stat-label">Images</span>
+                  </div>
+                  <div className="user-details-stat-item">
+                    <span className="user-details-stat-number">{formatActiveTime(user.active || 0)}</span>
+                    <span className="user-details-stat-label">Active</span>
                   </div>
                 </div>
               </div>
