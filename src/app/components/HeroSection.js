@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FiBookOpen, FiUsers, FiTrendingUp, FiArrowRight } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import "./styles/HeroSection.css";
+import TutVideo from "./TutVideo";
 
 export default function HeroSection() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -48,6 +49,8 @@ export default function HeroSection() {
               </span>
             </h1>
           </div>
+
+          <TutVideo/>
 
           {/* Subtitle */}
           <p className="learnix-hero-subtitle">
