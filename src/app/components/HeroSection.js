@@ -18,12 +18,12 @@ export default function HeroSection() {
         setLoggedIn(true);
       }
     }
-    
+
     // Trigger animation after component mounts
     const timer = setTimeout(() => {
       setIsVisible(true);
     }, 100);
-    
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -50,12 +50,17 @@ export default function HeroSection() {
             </h1>
           </div>
 
-          <TutVideo/>
+
 
           {/* Subtitle */}
           <p className="learnix-hero-subtitle">
             Share homework, study materials, and build your profile with ease.
           </p>
+          <TutVideo />
+          <br />
+          <br />
+          <br />
+
 
           {/* Feature Cards */}
           <div className="learnix-feature-grid">
