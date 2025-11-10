@@ -637,7 +637,7 @@ export default function TopicCard({
                 disabled={isLoading}
               >
                 <FiFileText className="mse-btn-icon" />
-                Upload PDF
+                Upload PDF/DOCX
               </button>
 
               {/* Hidden camera input for direct capture */}

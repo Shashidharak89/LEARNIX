@@ -7,6 +7,7 @@ import "./styles/PDFProcessor.css";
 
 export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuccess, onUploadError }) {
   const [pdfFile, setPdfFile] = useState(null);
+  const [originalFile, setOriginalFile] = useState(null);
   const [pages, setPages] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -33,13 +34,17 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
       return;
     }
     
-    if (file.type !== "application/pdf") {
-      showMessage("Please select a valid PDF file.", "error");
+    const isPDF = file.type === "application/pdf";
+    const isDOCX = file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || file.name.toLowerCase().endsWith('.docx');
+    
+    if (!isPDF && !isDOCX) {
+      showMessage("Please select a valid PDF or DOCX file.", "error");
       return;
     }
 
     // Reset states when new file is selected
-    setPdfFile(file);
+    setPdfFile(null);
+    setOriginalFile(null);
     setPages([]);
     setUploadedPages(new Set());
     setProgress(0);
@@ -48,7 +53,52 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
     setMessage("");
     setMessageType("");
     
-    await processPDF(file);
+    setOriginalFile(file);
+    
+    try {
+      if (isDOCX) {
+        await convertDOCX(file);
+      } else {
+        setPdfFile(file);
+        await processPDF(file);
+      }
+    } catch (error) {
+      console.error("Error handling file:", error);
+      showMessage("Error processing file. Please try again.", "error");
+    }
+  };
+
+  const convertDOCX = async (docxFile) => {
+    setIsProcessing(true);
+    showMessage("Converting DOCX to PDF...", "");
+
+    try {
+      const fd = new FormData();
+      fd.append("file", docxFile);
+      const res = await axios.post("/api/convert-docx", fd, {
+        responseType: "blob",
+        timeout: 120000,
+      });
+
+      const ct = res.headers["content-type"] || "";
+      if (ct.includes("application/json")) {
+        const txt = await res.data.text();
+        throw new Error("Conversion error: " + txt);
+      }
+
+      const blob = res.data;
+      const pdfName = docxFile.name.replace(/\.docx$/i, ".pdf");
+      const pdfFile = new File([blob], pdfName, { type: "application/pdf" });
+
+      setPdfFile(pdfFile);
+      showMessage("DOCX converted to PDF successfully. Extracting pages...", "success");
+      await processPDF(pdfFile);
+    } catch (error) {
+      console.error("DOCX conversion error:", error);
+      let errorMsg = error.message || "Conversion failed";
+      showMessage(errorMsg, "error");
+      setIsProcessing(false);
+    }
   };
 
   const processPDF = async (file) => {
@@ -347,10 +397,10 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
             <div className="pdf-processor-file-select">
               <label className="pdf-processor-select-btn">
                 <FiFile className="pdf-select-icon" />
-                {pdfFile ? 'Change PDF File' : 'Select PDF File'}
+                {originalFile ? 'Change File' : 'Select PDF or DOCX File'}
                 <input 
                   type="file" 
-                  accept=".pdf,application/pdf" 
+                  accept=".pdf,application/pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
                   onChange={handleFileSelect} 
                   disabled={isProcessing || uploading} 
                   className="pdf-processor-file-input"
@@ -358,13 +408,13 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
               </label>
             </div>
 
-            {pdfFile && (
+            {originalFile && (
               <div className="pdf-processor-file-info">
                 <div className="pdf-file-details">
                   <FiFile className="pdf-file-icon" />
                   <div className="pdf-file-text">
-                    <div className="pdf-file-name">{pdfFile.name}</div>
-                    <div className="pdf-file-size">{(pdfFile.size / 1024 / 1024).toFixed(2)} MB</div>
+                    <div className="pdf-file-name">{originalFile.name}</div>
+                    <div className="pdf-file-size">{(originalFile.size / 1024 / 1024).toFixed(2)} MB</div>
                   </div>
                 </div>
               </div>
