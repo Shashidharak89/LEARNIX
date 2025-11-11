@@ -127,6 +127,22 @@ export default function Signup() {
               Login
             </Link>
           </div>
+
+          <button
+            type="button"
+            className="auth-guest-btn"
+            onClick={() => {
+              setName("Guest");
+              setUsn("GUEST092025");
+              setPassword("abcd1234");
+              setTimeout(() => {
+                document.querySelector('form').requestSubmit();
+              }, 100);
+            }}
+            disabled={isLoading}
+          >
+            Continue as Guest
+          </button>
         </form>
 
         <div className="auth-footer">
