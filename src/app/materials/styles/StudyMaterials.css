@@ -480,3 +480,86 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* -------------------------
+   File action (download/view) helpers
+   ------------------------- */
+
+/* Ensure inline action anchors behave like buttons and align with .file-link-card */
+.file-link-card .file-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  min-height: 34px;
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
+  box-sizing: border-box;
+}
+
+/* Download action: background + color (keeps the blue theme) */
+.file-link-card .download-action {
+  background: #eff6ff;
+  color: #3b82f6; /* lucide icons use stroke=currentColor so this sets icon color */
+  border: 1px solid rgba(59,130,246,0.08);
+}
+
+/* Hover & active states for download */
+.file-link-card .download-action:hover {
+  background: #3b82f6;
+  color: #fff;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 20px rgba(59,130,246,0.12);
+}
+.file-link-card .download-action:active { transform: translateY(0) scale(0.99); }
+
+/* If the download-action contains an svg, make sure its strokes/fills follow currentColor */
+.file-link-card .download-action svg,
+.file-link-card .file-action svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none; /* lucide uses stroke; ensure no accidental fill */
+}
+
+/* View action — keep inline style (as you requested), but ensure svg inherits color
+   and provide a subtle hover pop (won't override inline bg/color) */
+.file-link-card .view-action svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+}
+.file-link-card .view-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.22);
+}
+
+/* Keep spacing consistent: place actions at the end and make file-name take remaining space */
+.file-link-card {
+  align-items: center; /* ensure actions align vertically */
+  gap: 0.75rem; /* keeps existing spacing */
+}
+.file-link-card .file-name {
+  flex: 1 1 auto; /* allow name to expand and push actions to the right */
+  min-width: 0; /* prevents overflow on long names */
+}
+
+/* Mobile: slightly reduce sizing for action buttons */
+@media (max-width: 480px) {
+  .file-link-card .file-action {
+    min-width: 30px;
+    min-height: 30px;
+    padding: 5px;
+    border-radius: 6px;
+  }
+  .file-link-card .download-action svg,
+  .file-link-card .view-action svg {
+    width: 14px;
+    height: 14px;
+  }
+}
