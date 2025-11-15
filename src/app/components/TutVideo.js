@@ -5,9 +5,10 @@ import './styles/TutVideo.css';
 const TutVideo = () => {
   // List of video URLs
   const videos = [
-    'https://res.cloudinary.com/dsojdpkgh/video/upload/v1762276525/uploaded-resources_gqgxrd.mp4',
-    'https://res.cloudinary.com/dsojdpkgh/video/upload/v1762276525/uploaded-resources_gqgxrd.mp4',
-    'https://res.cloudinary.com/dsojdpkgh/video/upload/v1762276525/uploaded-resources_gqgxrd.mp4',
+    'https://res.cloudinary.com/dsojdpkgh/video/upload/v1763215646/InShot_20251115_190620485_pttofu.mp4',
+    'https://res.cloudinary.com/dsojdpkgh/video/upload/v1763215646/InShot_20251115_191654212_dm18ly.mp4',
+    'https://res.cloudinary.com/dsojdpkgh/video/upload/v1763215642/InShot_20251115_192640273_vvhepx.mp4',
+    'https://res.cloudinary.com/dsojdpkgh/video/upload/v1763215640/InShot_20251115_192206908_in1n3m.mp4',
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
