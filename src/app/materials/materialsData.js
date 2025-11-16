@@ -77,6 +77,26 @@ const materialsData = [
                     { name: "Realization of DLL", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20II/Realization%20of%20DLL%20program.pdf" },
                     { name: "Realization if Singly Linked List", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20II/Realization%20of%20Singly%20Linked%20List-edited.pdf" },
                     { name: "Realization of SLL Program", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20II/realization%20of%20SLL%20program.pdf" },
+                   
+                //    Unit III Files
+
+                    {name:"U3 Evaluate Postfix.c.pdf",url:"raw.https://github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20III/Evaluate%20Postfix.c.pdf"},
+                    {name:"U3 Interger Stack realization.docx",url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20III/Interger%20Stack%20realization.docx"},
+                    {name:"U3 Postfix_Evaluation.pdf",url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20III/Postfix_Evaluation.pdf"},
+                    {name:"U3 Queues as Lists in C.pdf",url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20III/Queues%20as%20Lists%20in%20C.pdf"},
+                    {name:"U3 Recursion.pdf",url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20III/Recursion.pdf"},
+                    {name:"U3 Recursive Program for Fibonacci numbers in C.pdf",url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20III/Recursive%20Program%20for%20Fibonacci%20numbers%20in%20C.pdf"},
+                    {name:"U3 Stack Data Structure.pdf",url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20III/Recursive%20Program%20for%20Fibonacci%20numbers%20in%20C.pdf"},
+                    {name:"U3 Stack.pdf",url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20III/Stack.pdf"},
+                    {name:"U3 Static student stack.pdf",url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20III/Static%20student%20stack.pdf"},
+                    {name:"U3 circular queue-student.pdf",url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20III/circular%20queue-student.pdf"},
+                    {name:"U3 circular queue.pdf",url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20III/circular%20queue.pdf"},
+                    {name:"U3 convert from infix to postfix-Algorithm.pdf",url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20III/convert%20from%20infix%20to%20postfix-Algorithm.pdf"},
+                    {name:"U3 convert infix to postfix.c.pdf",url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20III/convert%20infix%20to%20postfix.c.pdf"},
+                    {name:"U3 dynamic integer stack.pdf",url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20III/dynamic%20integer%20stack.pdf"},
+                    {name:"U3 ordinary queue- student.pdf",url:"raw.https://github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20III/ordinary%20queue-%20student.pdf"},
+                    {name:"U3 ordinary queue.pdf",url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem/Data-Structures-And-Algorithms/Unit%20III/ordinary%20queue.pdf"},
+                   
 
                 ],
             },
