@@ -2,13 +2,13 @@
 
 import { Navbar } from "../components/Navbar";
 import Footer from "../components/Footer";
-import ToolsPage from "./ToolsPage";
+import WordToPdf from "./WordToPdf";
 
 export default function Tools() {
   return (
     <div>
       <Navbar />
-      <ToolsPage />
+    
       <Footer />
     </div>
   );
