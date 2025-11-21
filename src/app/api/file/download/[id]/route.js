@@ -2,13 +2,12 @@ import { NextResponse } from "next/server";
 import cloudinary from "../../../../../lib/cloudinary.js";
 import { connectDB } from "../../../../../lib/db.js";
 import File from "../../../../../models/File.js";
-import axios from "axios";
 
 export async function GET(req, { params }) {
   try {
     await connectDB();
 
-    const { id } = params;
+    const { id } = await params;
 
     // Find file in database
     const fileDoc = await File.findById(id);
@@ -16,26 +15,19 @@ export async function GET(req, { params }) {
       return NextResponse.json({ error: "File not found" }, { status: 404 });
     }
 
-    // Get the Cloudinary URL
-    const fileUrl = cloudinary.url(fileDoc.publicId, {
+    // Generate a download URL with attachment disposition
+    const downloadUrl = cloudinary.url(fileDoc.publicId, {
       resource_type: "auto",
-      secure: true
+      secure: true,
+      attachment: fileDoc.originalName,
+      flags: 'attachment'
     });
 
-    // Fetch the file from Cloudinary
-    const response = await axios.get(fileUrl, {
-      responseType: 'arraybuffer'
-    });
-
-    // Return the file with proper headers for download
-    const headers = new Headers();
-    headers.set('Content-Type', fileDoc.mimeType || 'application/octet-stream');
-    headers.set('Content-Length', response.data.length);
-    headers.set('Content-Disposition', `attachment; filename="${encodeURIComponent(fileDoc.originalName)}"`);
-
-    return new Response(response.data, {
-      status: 200,
-      headers
+    // Return the download URL as JSON response
+    return NextResponse.json({
+      success: true,
+      downloadUrl: downloadUrl,
+      fileName: fileDoc.originalName
     });
 
   } catch (error) {

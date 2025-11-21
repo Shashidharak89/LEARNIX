@@ -63,13 +63,29 @@ export default function FileUploadDownload() {
     }
 
     setDownloadLoading(true);
-    setStatus("");
+    setStatus("Fetching download link...");
 
     try {
-      // Redirect to the download URL
-      window.open(`/api/file/download/${downloadId.trim()}`, "_blank");
-      setStatus("Download initiated. Check your downloads.");
+      const response = await fetch(`/api/file/download/${downloadId.trim()}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        setStatus(data.error || "Failed to fetch download link");
+        return;
+      }
+
+      // Create a temporary link to trigger download
+      const link = document.createElement('a');
+      link.href = data.downloadUrl;
+      link.download = data.fileName;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setStatus("Download initiated successfully!");
       setDownloadId("");
+
     } catch (err) {
       console.error("Download error:", err);
       setStatus("Failed to initiate download. Please try again.");
