@@ -95,6 +95,36 @@
 .ilp-status{ margin-top:12px; color:var(--muted); min-height:20px; }
 .ilp-note{ margin-top:12px; color:var(--muted); font-size:13px; }
 
+.download-input{
+  margin: 16px 0;
+}
+
+.id-input{
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid rgba(17,18,23,0.12);
+  border-radius: 10px;
+  font-size: 16px;
+  font-family: inherit;
+  background: #fbfcff;
+}
+
+.id-input:focus{
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(12,113,195,0.08);
+}
+
+.file-id{
+  margin: 12px 0;
+  padding: 12px;
+  background: rgba(242, 183, 5, 0.08);
+  border: 1px solid rgba(242, 183, 5, 0.2);
+  border-radius: 8px;
+  font-family: monospace;
+  word-break: break-all;
+}
+
 /* responsive */
 @media (max-width:720px){
   .ilp-container{ margin:18px; padding:18px; }
