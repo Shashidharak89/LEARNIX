@@ -2,7 +2,7 @@
 
 const materialsData = [
     {
-        semester: "1st Sem - MCA",
+        semester: "1st Sem - MCA 2025-26",
         subjects: [
             {
                 subject: "Syllabus",
@@ -121,7 +121,7 @@ const materialsData = [
         ],
     },
     {
-        semester: "3rd Sem - MCA",
+        semester: "3rd Sem - MCA 2025-26",
         subjects: [
             {
 
