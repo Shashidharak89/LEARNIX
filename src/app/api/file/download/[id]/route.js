@@ -9,15 +9,15 @@ export async function GET(req, { params }) {
 
     const { id } = await params;
 
-    // Find file in database
-    const fileDoc = await File.findById(id);
+    // Find file in database by fileid
+    const fileDoc = await File.findOne({ fileid: id });
     if (!fileDoc) {
       return NextResponse.json({ error: "File not found" }, { status: 404 });
     }
 
     // Generate a download URL with attachment disposition
     const downloadUrl = cloudinary.url(fileDoc.publicId, {
-      resource_type: "auto",
+      resource_type: "raw",
       secure: true,
       attachment: fileDoc.originalName,
       flags: 'attachment'

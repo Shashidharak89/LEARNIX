@@ -3,6 +3,16 @@ import cloudinary from "../../../../lib/cloudinary.js";
 import { connectDB } from "../../../../lib/db.js";
 import File from "../../../../models/File.js";
 
+// Function to generate a unique 8-character alphanumeric fileid
+const generateFileId = () => {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let fileid = '';
+  for (let i = 0; i < 8; i++) {
+    fileid += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return fileid;
+};
+
 export async function POST(req) {
   try {
     await connectDB();
@@ -39,20 +49,34 @@ export async function POST(req) {
       uploadStream.end(buffer);
     });
 
-    // Save file info to database
+    // Save file info to database with unique fileid
     const newFile = new File({
       originalName: file.name,
+      fileid: '', // placeholder
       mimeType: file.type || "application/octet-stream",
       size: file.size,
       cloudinaryUrl: uploadResult.secure_url,
       publicId: uploadResult.public_id
     });
 
-    await newFile.save();
+    // Attempt to save with retries in case of duplicate fileid
+    for (let attempt = 0; attempt < 5; attempt++) {
+      newFile.fileid = generateFileId();
+      try {
+        await newFile.save();
+        break;
+      } catch (err) {
+        if (err.code === 11000 && attempt < 4) {
+          // Duplicate key error, retry with new fileid
+          continue;
+        }
+        throw err;
+      }
+    }
 
     return NextResponse.json({
       success: true,
-      fileId: newFile._id,
+      fileId: newFile.fileid,
       cloudinaryUrl: uploadResult.secure_url
     });
 

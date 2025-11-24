@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const FileSchema = new mongoose.Schema({
   originalName: { type: String, required: true },
+  fileid: { type: String, required: true, unique: true },
   mimeType: { type: String, required: true },
   size: { type: Number, required: true },
   cloudinaryUrl: { type: String, required: true },

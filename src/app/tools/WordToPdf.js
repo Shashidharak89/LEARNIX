@@ -1,6 +1,6 @@
 // app/components/WordToPdf.jsx
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiUpload, FiDownload, FiTrash2 } from "react-icons/fi";
 import "./styles/WordToPdf.css";
 
@@ -11,6 +11,17 @@ export default function FileUploadDownload() {
   const [downloadId, setDownloadId] = useState("");
   const [downloadLoading, setDownloadLoading] = useState(false);
   const [fileId, setFileId] = useState("");
+  const [persistentFileId, setPersistentFileId] = useState("");
+  const [persistentFileName, setPersistentFileName] = useState("");
+
+  useEffect(() => {
+    const storedFileId = localStorage.getItem('uploadedFileId');
+    const storedFileName = localStorage.getItem('uploadedFileName');
+    if (storedFileId && storedFileName) {
+      setPersistentFileId(storedFileId);
+      setPersistentFileName(storedFileName);
+    }
+  }, []);
 
   function onFileChange(e) {
     const f = e.target.files?.[0];
@@ -47,6 +58,10 @@ export default function FileUploadDownload() {
       }
 
       setFileId(data.fileId);
+      setPersistentFileId(data.fileId);
+      setPersistentFileName(file.name);
+      localStorage.setItem('uploadedFileId', data.fileId);
+      localStorage.setItem('uploadedFileName', file.name);
       setStatus(`Upload complete! File ID: ${data.fileId}`);
     } catch (err) {
       console.error("Upload error:", err);
@@ -143,6 +158,24 @@ export default function FileUploadDownload() {
         {fileId && (
           <div className="file-id">
             <strong>File ID:</strong> {fileId}
+          </div>
+        )}
+
+        {persistentFileId && (
+          <div className="persistent-info" style={{marginTop: "10px", padding: "10px", backgroundColor: "#f0f0f0", borderRadius: "4px"}}>
+            <strong>Last Uploaded:</strong> {persistentFileName} - File ID: {persistentFileId}
+            <button 
+              className="ilp-btn ghost" 
+              onClick={() => {
+                localStorage.removeItem('uploadedFileId');
+                localStorage.removeItem('uploadedFileName');
+                setPersistentFileId("");
+                setPersistentFileName("");
+              }}
+              style={{marginLeft: "10px"}}
+            >
+              <FiTrash2 /> Remove
+            </button>
           </div>
         )}
       </div>
