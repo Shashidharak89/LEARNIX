@@ -13,6 +13,9 @@ export default function FileUploadDownload() {
   const [fileId, setFileId] = useState("");
   const [persistentFileId, setPersistentFileId] = useState("");
   const [persistentFileName, setPersistentFileName] = useState("");
+  const [allFiles, setAllFiles] = useState([]);
+  const [showAll, setShowAll] = useState(false);
+  const [allFilesLoading, setAllFilesLoading] = useState(false);
 
   useEffect(() => {
     const storedFileId = localStorage.getItem('uploadedFileId');
@@ -120,6 +123,21 @@ export default function FileUploadDownload() {
     setStatus("");
   }
 
+  async function fetchAllFiles() {
+    setAllFilesLoading(true);
+    try {
+      const res = await fetch("/api/files");
+      const data = await res.json();
+      if (data.files) {
+        setAllFiles(data.files);
+      }
+    } catch (err) {
+      console.error("Failed to fetch files:", err);
+    } finally {
+      setAllFilesLoading(false);
+    }
+  }
+
   return (
     <div className="ilp-container">
       {/* Upload Section */}
@@ -164,8 +182,8 @@ export default function FileUploadDownload() {
         {persistentFileId && (
           <div className="persistent-info" style={{marginTop: "10px", padding: "10px", backgroundColor: "#f0f0f0", borderRadius: "4px"}}>
             <strong>Last Uploaded:</strong> {persistentFileName} - File ID: {persistentFileId}
-            <button 
-              className="ilp-btn ghost" 
+            <button
+              className="ilp-btn ghost"
               onClick={() => {
                 localStorage.removeItem('uploadedFileId');
                 localStorage.removeItem('uploadedFileName');
@@ -178,6 +196,27 @@ export default function FileUploadDownload() {
             </button>
           </div>
         )}
+
+        <div style={{marginTop: "10px"}}>
+          <button className="ilp-btn ghost" onClick={() => { setShowAll(!showAll); if (!showAll) fetchAllFiles(); }}>
+            {showAll ? "Hide" : "See All"} Uploads
+          </button>
+          {showAll && (
+            <div style={{marginTop: "10px", border: "1px solid #ccc", padding: "10px", maxHeight: "200px", overflowY: "auto"}}>
+              {allFilesLoading ? <p>Loading...</p> :
+                allFiles.length === 0 ? <p>No files uploaded yet.</p> :
+                allFiles.map(file => (
+                  <div key={file._id} style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "5px"}}>
+                    <span>{file.originalName}</span>
+                    <button className="ilp-btn ghost" style={{fontSize: "small"}} onClick={() => { navigator.clipboard.writeText(file.fileid); setStatus("ID copied to clipboard!"); }}>
+                      Copy ID
+                    </button>
+                  </div>
+                ))
+              }
+            </div>
+          )}
+        </div>
       </div>
 
       <hr style={{margin: "20px 0"}} />

@@ -15,18 +15,10 @@ export async function GET(req, { params }) {
       return NextResponse.json({ error: "File not found" }, { status: 404 });
     }
 
-    // Generate a download URL with attachment disposition
-    const downloadUrl = cloudinary.url(fileDoc.publicId, {
-      resource_type: "raw",
-      secure: true,
-      attachment: fileDoc.originalName,
-      flags: 'attachment'
-    });
-
-    // Return the download URL as JSON response
+    // Return the direct Cloudinary URL as download URL
     return NextResponse.json({
       success: true,
-      downloadUrl: downloadUrl,
+      downloadUrl: fileDoc.cloudinaryUrl,
       fileName: fileDoc.originalName
     });
 
