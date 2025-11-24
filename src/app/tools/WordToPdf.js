@@ -74,17 +74,12 @@ export default function FileUploadDownload() {
     }
   }
 
-  async function handleDownload() {
-    if (!downloadId.trim()) {
-      setStatus("Please enter a file ID.");
-      return;
-    }
-
+  async function downloadFile(id) {
     setDownloadLoading(true);
     setStatus("Fetching download link...");
 
     try {
-      const response = await fetch(`/api/file/download/${downloadId.trim()}`);
+      const response = await fetch(`/api/file/download/${id}`);
       const data = await response.json();
 
       if (!response.ok) {
@@ -101,7 +96,6 @@ export default function FileUploadDownload() {
       document.body.removeChild(link);
 
       setStatus("Download initiated successfully!");
-      setDownloadId("");
 
     } catch (err) {
       console.error("Download error:", err);
@@ -109,6 +103,16 @@ export default function FileUploadDownload() {
     } finally {
       setDownloadLoading(false);
     }
+  }
+
+  async function handleDownload() {
+    if (!downloadId.trim()) {
+      setStatus("Please enter a file ID.");
+      return;
+    }
+
+    downloadFile(downloadId.trim());
+    setDownloadId("");
   }
 
   function clearUpload() {
@@ -135,6 +139,10 @@ export default function FileUploadDownload() {
     } finally {
       setAllFilesLoading(false);
     }
+  }
+
+  function removeFile(id) {
+    setAllFiles(allFiles.filter(file => file.fileid !== id));
   }
 
   return (
@@ -220,6 +228,13 @@ export default function FileUploadDownload() {
                       </button>
                       <button className="ilp-btn ghost" style={{fontSize: "small"}} onClick={() => { navigator.clipboard.writeText(file.fileid); setStatus("ID copied to clipboard!"); }}>
                         Copy ID
+                      </button>
+                      <button
+                        className="ilp-btn ghost"
+                        style={{fontSize: "small"}}
+                        onClick={() => removeFile(file.fileid)}
+                      >
+                        <FiTrash2 />
                       </button>
                     </div>
                   </div>
