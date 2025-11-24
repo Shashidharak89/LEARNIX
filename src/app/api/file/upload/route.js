@@ -3,13 +3,19 @@ import cloudinary from "../../../../lib/cloudinary.js";
 import { connectDB } from "../../../../lib/db.js";
 import File from "../../../../models/File.js";
 
-// Function to generate a unique 8-character alphanumeric fileid
+// Function to generate a unique 4-character alphanumeric fileid in format cncc (c=char, n=number)
 const generateFileId = () => {
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  const letters = 'abcdefghijklmnopqrstuvwxyz';
+  const numbers = '0123456789';
   let fileid = '';
-  for (let i = 0; i < 8; i++) {
-    fileid += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
+  // First char: letter
+  fileid += letters.charAt(Math.floor(Math.random() * letters.length));
+  // Second char: number
+  fileid += numbers.charAt(Math.floor(Math.random() * numbers.length));
+  // Third char: letter
+  fileid += letters.charAt(Math.floor(Math.random() * letters.length));
+  // Fourth char: letter
+  fileid += letters.charAt(Math.floor(Math.random() * letters.length));
   return fileid;
 };
 
