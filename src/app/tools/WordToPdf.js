@@ -96,7 +96,6 @@ export default function FileUploadDownload() {
       const link = document.createElement('a');
       link.href = data.downloadUrl;
       link.download = data.fileName;
-      link.target = '_blank';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -181,19 +180,26 @@ export default function FileUploadDownload() {
 
         {persistentFileId && (
           <div className="persistent-info" style={{marginTop: "10px", padding: "10px", backgroundColor: "#f0f0f0", borderRadius: "4px"}}>
-            <strong>Last Uploaded:</strong> {persistentFileName} - File ID: {persistentFileId}
-            <button
-              className="ilp-btn ghost"
-              onClick={() => {
-                localStorage.removeItem('uploadedFileId');
-                localStorage.removeItem('uploadedFileName');
-                setPersistentFileId("");
-                setPersistentFileName("");
-              }}
-              style={{marginLeft: "10px"}}
-            >
-              <FiTrash2 /> Remove
-            </button>
+            <strong>Last Uploaded:</strong> {persistentFileName}
+            <div style={{display: "flex", gap: "5px", marginTop: "5px"}}>
+              <button className="ilp-btn ghost" style={{fontSize: "small"}} onClick={() => downloadFile(persistentFileId)} disabled={downloadLoading}>
+                Download
+              </button>
+              <button className="ilp-btn ghost" style={{fontSize: "small"}} onClick={() => { navigator.clipboard.writeText(persistentFileId); setStatus("ID copied to clipboard!"); }}>
+                Copy ID
+              </button>
+              <button
+                className="ilp-btn ghost"
+                onClick={() => {
+                  localStorage.removeItem('uploadedFileId');
+                  localStorage.removeItem('uploadedFileName');
+                  setPersistentFileId("");
+                  setPersistentFileName("");
+                }}
+              >
+                <FiTrash2 /> Remove
+              </button>
+            </div>
           </div>
         )}
 
@@ -208,9 +214,14 @@ export default function FileUploadDownload() {
                 allFiles.map(file => (
                   <div key={file._id} style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "5px"}}>
                     <span>{file.originalName}</span>
-                    <button className="ilp-btn ghost" style={{fontSize: "small"}} onClick={() => { navigator.clipboard.writeText(file.fileid); setStatus("ID copied to clipboard!"); }}>
-                      Copy ID
-                    </button>
+                    <div style={{display: "flex", gap: "3px"}}>
+                      <button className="ilp-btn ghost" style={{fontSize: "small"}} onClick={() => downloadFile(file.fileid)} disabled={downloadLoading}>
+                        Download
+                      </button>
+                      <button className="ilp-btn ghost" style={{fontSize: "small"}} onClick={() => { navigator.clipboard.writeText(file.fileid); setStatus("ID copied to clipboard!"); }}>
+                        Copy ID
+                      </button>
+                    </div>
                   </div>
                 ))
               }
