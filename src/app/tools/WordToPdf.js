@@ -15,7 +15,6 @@ export default function FileUploadDownload() {
   const [persistentFileName, setPersistentFileName] = useState("");
   const [allFiles, setAllFiles] = useState([]);
   const [showAll, setShowAll] = useState(false);
-  const [allFilesLoading, setAllFilesLoading] = useState(false);
 
   useEffect(() => {
     const storedFileId = localStorage.getItem('uploadedFileId');
@@ -24,6 +23,10 @@ export default function FileUploadDownload() {
       setPersistentFileId(storedFileId);
       setPersistentFileName(storedFileName);
     }
+
+    // Load user uploaded files from localStorage
+    const userFiles = JSON.parse(localStorage.getItem('userUploadedFiles') || '[]');
+    setAllFiles(userFiles);
   }, []);
 
   function onFileChange(e) {
@@ -65,6 +68,14 @@ export default function FileUploadDownload() {
       setPersistentFileName(file.name);
       localStorage.setItem('uploadedFileId', data.fileId);
       localStorage.setItem('uploadedFileName', file.name);
+
+      // Add to user uploaded files in localStorage
+      const userFiles = JSON.parse(localStorage.getItem('userUploadedFiles') || '[]');
+      const newFile = { fileid: data.fileId, originalName: file.name };
+      const updatedFiles = [newFile, ...userFiles]; // Add to beginning
+      localStorage.setItem('userUploadedFiles', JSON.stringify(updatedFiles));
+      setAllFiles(updatedFiles);
+
       setStatus(`Upload complete! File ID: ${data.fileId}`);
     } catch (err) {
       console.error("Upload error:", err);
@@ -126,23 +137,10 @@ export default function FileUploadDownload() {
     setStatus("");
   }
 
-  async function fetchAllFiles() {
-    setAllFilesLoading(true);
-    try {
-      const res = await fetch("/api/files");
-      const data = await res.json();
-      if (data.files) {
-        setAllFiles(data.files);
-      }
-    } catch (err) {
-      console.error("Failed to fetch files:", err);
-    } finally {
-      setAllFilesLoading(false);
-    }
-  }
-
   function removeFile(id) {
-    setAllFiles(allFiles.filter(file => file.fileid !== id));
+    const updatedFiles = allFiles.filter(file => file.fileid !== id);
+    setAllFiles(updatedFiles);
+    localStorage.setItem('userUploadedFiles', JSON.stringify(updatedFiles));
   }
 
   return (
@@ -212,15 +210,14 @@ export default function FileUploadDownload() {
         )}
 
         <div style={{marginTop: "10px"}}>
-          <button className="ilp-btn ghost" onClick={() => { setShowAll(!showAll); if (!showAll) fetchAllFiles(); }}>
+          <button className="ilp-btn ghost" onClick={() => { setShowAll(!showAll); }}>
             {showAll ? "Hide" : "See All"} Uploads
           </button>
           {showAll && (
             <div style={{marginTop: "10px", border: "1px solid #ccc", padding: "10px", maxHeight: "200px", overflowY: "auto"}}>
-              {allFilesLoading ? <p>Loading...</p> :
-                allFiles.length === 0 ? <p>No files uploaded yet.</p> :
+              {allFiles.length === 0 ? <p>No files uploaded yet.</p> :
                 allFiles.map(file => (
-                  <div key={file._id} style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "5px"}}>
+                  <div key={file.fileid} style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "5px"}}>
                     <span>{file.originalName}</span>
                     <div style={{display: "flex", gap: "3px"}}>
                       <button className="ilp-btn ghost" style={{fontSize: "small"}} onClick={() => downloadFile(file.fileid)} disabled={downloadLoading}>
