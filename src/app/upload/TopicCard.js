@@ -51,27 +51,6 @@ export default function TopicCard({
 
   const topicKey = `${subject}-${topic.topic}`;
 
-  // Helper functions to manage uploaded files in localStorage keyed by usn
-  const getUploadedFilesFromLocalStorage = () => {
-    if (typeof window === 'undefined') return [];
-    const data = localStorage.getItem(`uploadedFiles_${usn}`);
-    return data ? JSON.parse(data) : [];
-  };
-
-  const addUploadedFileToLocalStorage = (fileRecord) => {
-    if (typeof window === 'undefined') return;
-    const existing = getUploadedFilesFromLocalStorage();
-    existing.push(fileRecord);
-    localStorage.setItem(`uploadedFiles_${usn}`, JSON.stringify(existing));
-  };
-
-  const removeUploadedFileFromLocalStorage = (imageUrl) => {
-    if (typeof window === 'undefined') return;
-    const existing = getUploadedFilesFromLocalStorage();
-    const filtered = existing.filter(file => file.imageUrl !== imageUrl);
-    localStorage.setItem(`uploadedFiles_${usn}`, JSON.stringify(filtered));
-  };
-
   // Clean up preview URLs on unmount
   useEffect(() => {
     return () => {
@@ -255,17 +234,15 @@ export default function TopicCard({
       setFilesMap(prev => ({ ...prev, [topicKey]: processedFiles }));
       setFilePreviewMap(prev => ({ ...prev, [topicKey]: previewUrls }));
 
-      // Calculate overall compression stats
-      const totalOriginal = processedFiles.reduce((sum, f) => sum + f.originalSize, 0);
-      const totalCompressed = processedFiles.reduce((sum, f) => sum + f.compressedSize, 0);
-      const overallRatio = ((totalOriginal - totalCompressed) / totalOriginal * 100).toFixed(1);
-      showMessage(`All images processed! Overall compression: ${overallRatio}% (${(totalOriginal / 1024 / 1024).toFixed(2)}MB → ${(totalCompressed / 1024 / 1024).toFixed(2)}MB)`, "success", 5000);
+      const totalOriginalSize = processedFiles.reduce((sum, f) => sum + f.originalSize, 0);
+      const totalCompressedSize = processedFiles.reduce((sum, f) => sum + f.compressedSize, 0);
+      const overallCompressionRatio = ((totalOriginalSize - totalCompressedSize) / totalOriginalSize * 100).toFixed(1);
+
+      showMessage(`${validFiles.length} images processed. Overall compression: ${overallCompressionRatio}% (${(totalOriginalSize / 1024 / 1024).toFixed(2)}MB → ${(totalCompressedSize / 1024 / 1024).toFixed(2)}MB)`, "success", 5000);
 
     } catch (error) {
-      console.error('Image processing failed:', error);
-      showMessage("Image processing failed. Please try again.", "error");
-      // Clean up any preview URLs created so far
-      previewUrls.forEach(url => URL.revokeObjectURL(url));
+      console.error('Image compression failed:', error);
+      showMessage("Image compression failed. Please try again.", "error");
     } finally {
       setCompressionStates(prev => {
         const newState = { ...prev };
@@ -275,78 +252,69 @@ export default function TopicCard({
     }
   };
 
-  // Handle file upload
-  const handleFileUpload = async () => {
-    const files = filesMap[topicKey];
-    if (!files || files.length === 0) {
-      showMessage("No files selected for upload.", "error");
+  // Toggle expanded images view
+  const toggleImageExpansion = () => {
+    setExpandedImages(prev => ({
+      ...prev,
+      [topicKey]: !prev[topicKey]
+    }));
+  };
+
+  // Show delete confirmation
+  const showDeleteConfirmation = (imageUrl) => {
+    setDeleteConfirm({
+      show: true,
+      subject,
+      topic: topic.topic,
+      imageUrl
+    });
+  };
+
+  // Cancel delete
+  const cancelDelete = () => {
+    setDeleteConfirm({ show: false, subject: '', topic: '', imageUrl: '' });
+  };
+
+  // Confirm delete
+  const confirmDelete = async () => {
+    await handleDeleteImage(deleteConfirm.imageUrl);
+    setDeleteConfirm({ show: false, subject: '', topic: '', imageUrl: '' });
+  };
+
+  // Upload single compressed image (for camera capture)
+  const handleUploadImage = async () => {
+    const file = filesMap[topicKey];
+    if (!file) {
+      showMessage("Please select a file first.", "error");
       return;
     }
 
     setUploadingStates(prev => ({ ...prev, [topicKey]: true }));
-    setUploadProgress(prev => ({ ...prev, [topicKey]: 0 }));
 
     const formData = new FormData();
-    files.forEach((fileObj, index) => {
-      formData.append('files', fileObj.file);
-    });
-    formData.append('subject', subject);
-    formData.append('topic', topic.topic);
-    formData.append('usn', usn);
+    formData.append("usn", usn);
+    formData.append("subject", subject);
+    formData.append("topic", topic.topic);
+    formData.append("file", file);
 
     try {
-      const response = await axios.post('/api/topic/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setUploadProgress(prev => ({ ...prev, [topicKey]: percentCompleted }));
-        },
+      const res = await axios.post("/api/topic/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
       });
-
-      if (response.data.success) {
-        // Add uploaded files to localStorage
-        response.data.uploadedFiles.forEach(fileRecord => {
-          addUploadedFileToLocalStorage(fileRecord);
-        });
-
-        setUploadedFiles(prev => ({
-          ...prev,
-          [topicKey]: [...(prev[topicKey] || []), ...response.data.uploadedFiles]
-        }));
-
-        setUploadComplete(prev => ({ ...prev, [topicKey]: true }));
-
-        // Clear uploaded files map and preview after 5 seconds
-        setTimeout(() => {
-          setFilesMap(prev => {
-            const newMap = { ...prev };
-            delete newMap[topicKey];
-            return newMap;
-          });
-          setFilePreviewMap(prev => {
-            const newMap = { ...prev };
-            if (newMap[topicKey]) {
-              newMap[topicKey].forEach(url => URL.revokeObjectURL(url));
-            }
-            delete newMap[topicKey];
-            return newMap;
-          });
-          setUploadComplete(prev => {
-            const newState = { ...prev };
-            delete newState[topicKey];
-            return newState;
-          });
-        }, 5000);
-
-        showMessage(`${files.length} files uploaded successfully!`, "success", 5000);
-      } else {
-        showMessage(response.data.error || "Upload failed", "error");
+      onRefreshSubjects();
+      setFilesMap({ ...filesMap, [topicKey]: null });
+      
+      if (filePreviewMap[topicKey]) {
+        URL.revokeObjectURL(filePreviewMap[topicKey]);
+        const newPreviewMap = { ...filePreviewMap };
+        delete newPreviewMap[topicKey];
+        setFilePreviewMap(newPreviewMap);
       }
-    } catch (error) {
-      console.error('Upload error:', error);
-      showMessage("Upload failed. Please try again.", "error");
+      
+      showMessage("Image uploaded successfully!", "success");
+    } catch (err) {
+      console.error(err);
+      showMessage(err.response?.data?.error || "Upload failed", "error");
     } finally {
       setUploadingStates(prev => {
         const newState = { ...prev };
@@ -356,330 +324,492 @@ export default function TopicCard({
     }
   };
 
-  // Delete uploaded image
-  const handleDeleteImage = async (imageUrl) => {
-    setDeleteConfirm({ show: true, subject, topic: topic.topic, imageUrl });
+  // Upload multiple files sequentially
+  const uploadMultipleFilesSequentially = async () => {
+    const files = filesMap[topicKey];
+    if (!files || !Array.isArray(files) || files.length === 0) {
+      showMessage("Please select files first.", "error");
+      return;
+    }
+
+    setUploadingStates(prev => ({ ...prev, [topicKey]: true }));
+    setUploadProgress(prev => ({ ...prev, [topicKey]: 0 }));
+    setUploadedFiles(prev => ({ ...prev, [topicKey]: new Set() }));
+    setUploadComplete(prev => ({ ...prev, [topicKey]: false }));
+    showMessage("Upload started...", "");
+
+    for (let i = 0; i < files.length; i++) {
+      const fileData = files[i];
+      await uploadSingleFile(fileData, i + 1, files.length);
+    }
+
+    setUploadingStates(prev => {
+      const newState = { ...prev };
+      delete newState[topicKey];
+      return newState;
+    });
+    setUploadComplete(prev => ({ ...prev, [topicKey]: true }));
+    showMessage("All images uploaded successfully!", "success");
+    
+    // Show success for 2 seconds then clear files
+    setTimeout(() => {
+      setFilesMap(prev => {
+        const newMap = { ...prev };
+        delete newMap[topicKey];
+        return newMap;
+      });
+      
+      if (filePreviewMap[topicKey]) {
+        filePreviewMap[topicKey].forEach(url => URL.revokeObjectURL(url));
+        setFilePreviewMap(prev => {
+          const newMap = { ...prev };
+          delete newMap[topicKey];
+          return newMap;
+        });
+      }
+      
+      setUploadComplete(prev => {
+        const newState = { ...prev };
+        delete newState[topicKey];
+        return newState;
+      });
+    }, 2000);
   };
 
-  // Confirm delete
-  const confirmDelete = async () => {
+  // Upload single file in the sequence
+  const uploadSingleFile = async (fileData, currentIndex, totalFiles) => {
+    const formData = new FormData();
+    formData.append("usn", usn);
+    formData.append("subject", subject);
+    formData.append("topic", topic.topic);
+    formData.append("file", fileData.file, fileData.name);
+
     try {
-      const response = await axios.delete('/api/topic/deleteimage', {
-        data: {
-          subject: deleteConfirm.subject,
-          topic: deleteConfirm.topic,
-          imageUrl: deleteConfirm.imageUrl
-        }
+      const res = await axios.post("/api/topic/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
       });
 
-      if (response.data.success) {
-        // Remove from localStorage
-        removeUploadedFileFromLocalStorage(deleteConfirm.imageUrl);
+      onRefreshSubjects();
 
-        setUploadedFiles(prev => ({
-          ...prev,
-          [topicKey]: (prev[topicKey] || []).filter(file => file.imageUrl !== deleteConfirm.imageUrl)
-        }));
-        showMessage("Image deleted successfully!", "success");
-      } else {
-        showMessage(response.data.error || "Failed to delete image", "error");
-      }
+      setUploadedFiles(prev => ({
+        ...prev,
+        [topicKey]: new Set([...(prev[topicKey] || []), currentIndex])
+      }));
+
+      const percent = Math.round((currentIndex / totalFiles) * 100);
+      setUploadProgress(prev => ({ ...prev, [topicKey]: percent }));
+      
+      showMessage(`Uploaded ${fileData.name} (${percent}% completed)`, "");
+
     } catch (error) {
-      console.error('Delete error:', error);
-      showMessage("Failed to delete image. Please try again.", "error");
-    } finally {
-      setDeleteConfirm({ show: false, subject: '', topic: '', imageUrl: '' });
+      console.error("Upload error:", error);
+      showMessage(`Failed to upload ${fileData.name}`, "error");
     }
   };
 
-  // Toggle public/private
-  const togglePublic = async () => {
-    setIsTogglingPublic(true);
+  // Delete image from topic
+  const handleDeleteImage = async (imageUrl) => {
     try {
-      const newPublicState = !topic.public;
-      const response = await axios.patch('/api/topic/update', {
+      const res = await axios.put("/api/topic/deleteimage", {
+        usn,
         subject,
-        topicName: topic.topic,
-        isPublic: newPublicState
+        topic: topic.topic,
+        imageUrl
       });
+      onRefreshSubjects();
+      showMessage("Image deleted successfully!", "success");
+    } catch (err) {
+      console.error(err);
+      showMessage(err.response?.data?.error || "Failed to delete image", "error");
+    }
+  };
 
-      if (response.data.success) {
-        onRefreshSubjects();
-        showMessage(`Topic is now ${newPublicState ? 'public' : 'private'}`, "success");
-      } else {
-        showMessage(response.data.error || "Failed to update topic visibility", "error");
-      }
-    } catch (error) {
-      console.error('Toggle public error:', error);
-      showMessage("Failed to update topic visibility. Please try again.", "error");
+  // Handle public/private toggle
+  const handlePublicToggle = async () => {
+    if (isLoading || isTogglingPublic) return;
+    
+    const newPublic = !topic.public;
+    setIsTogglingPublic(true);
+    
+    try {
+      await axios.put("/api/topic/public", {
+        usn,
+        subject,
+        topic: topic.topic,
+        public: newPublic
+      });
+      onRefreshSubjects();
+      showMessage(
+        `Topic is now ${newPublic ? 'public' : 'private'}`, 
+        "success"
+      );
+    } catch (err) {
+      console.error(err);
+      showMessage(err.response?.data?.error || "Failed to update visibility", "error");
     } finally {
       setIsTogglingPublic(false);
     }
   };
 
-  // Get uploaded files from topic (this could be from props or API)
-  const displayUploadedFiles = topic.images || uploadedFiles[topicKey] || [];
+  // Handle successful PDF upload from PDFProcessor
+  const handlePDFUploadSuccess = () => {
+    onRefreshSubjects();
+    showMessage("PDF pages uploaded successfully!", "success");
+    setShowPDFProcessor(prev => ({ ...prev, [topicKey]: false }));
+  };
+
+  // Handle PDF upload error
+  const handlePDFUploadError = (error) => {
+    showMessage(`PDF upload failed: ${error}`, "error");
+  };
+
+  // Helper function to get valid images (non-empty)
+  const getValidImages = (images) => {
+    return images.filter(img => img && img.trim() !== "" && img !== null && img !== undefined);
+  };
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/works/${topic._id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: topic.topic, url });
+        return;
+      } catch (err) {
+        // fallback to copy
+      }
+    }
+    navigator.clipboard.writeText(url).then(() => {
+      showMessage("Link copied to clipboard!", "success");
+    }).catch(() => {
+      showMessage("Failed to copy link", "error");
+    });
+  };
+
+  const validImages = getValidImages(topic.images || []);
+  const filesForTopic = filesMap[topicKey];
+  const isMultipleFiles = Array.isArray(filesForTopic);
 
   return (
-    <div className="topic-card">
-      <div className="topic-header">
-        <div className="topic-info">
-          <h3 className="topic-title">{topic.topic}</h3>
-          <div className="topic-meta">
-            <span className="topic-date">
-              <FiCalendar size={14} />
-              {new Date(topic.createdAt).toLocaleDateString()}
-            </span>
-            <span className={`topic-visibility ${topic.public ? 'public' : 'private'}`}>
-              <FiShare2 size={14} />
-              {topic.public ? 'Public' : 'Private'}
-            </span>
-            <span className="topic-images-count">
-              <FiImage size={14} />
-              {displayUploadedFiles.length} images
-            </span>
-          </div>
-        </div>
-
-        <div className="topic-actions">
-          <button
-            onClick={togglePublic}
-            disabled={isTogglingPublic}
-            className={`btn-visibility ${topic.public ? 'btn-private' : 'btn-public'}`}
+    <div className="mse-topic-card">
+      <div className="mse-topic-header">
+        <div className="mse-topic-title">
+          <FiFileText className="mse-topic-icon" />
+          <Link href={`/works/${topic._id}`} className="cursor-pointer hover:underline">
+            <h4>{topic.topic}</h4>
+          </Link>
+          <button 
+            onClick={handleShare}
+            className="ml-2 text-gray-500 hover:text-gray-700 p-1 rounded cursor-pointer"
+            aria-label="Share topic"
           >
-            {isTogglingPublic ? <FiLoader className="spinner" size={14} /> : <FiShare2 size={14} />}
-            {topic.public ? 'Make Private' : 'Make Public'}
+            <FiShare2 />
           </button>
-
-          <DeleteTopicButton
-            subject={subject}
-            topicName={topic.topic}
-            onDelete={onTopicDelete}
+          <DeleteTopicButton 
+            usn={usn} 
+            subject={subject} 
+            topic={topic.topic} 
+            onDelete={onTopicDelete} 
           />
         </div>
-      </div>
-
-      {/* File Selection Area */}
-      <div className="file-selection">
-        <div className="file-input-section">
-          <label className="file-input-label">
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleMultipleFileChange}
-              disabled={compressionStates[topicKey] || uploadingStates[topicKey]}
-              className="hidden-file-input"
-            />
-            <div className={`file-input-area ${compressionStates[topicKey] ? 'compressing' : ''} ${uploadingStates[topicKey] ? 'uploading' : ''}`}>
-              <FiUpload size={20} />
-              <span>{compressionStates[topicKey] ? 'Compressing...' : uploadingStates[topicKey] ? 'Uploading...' : 'Select Images'}</span>
-              {compressionStates[topicKey] && <FiLoader className="spinner" size={16} />}
-            </div>
-          </label>
-
-          <div className="capture-options">
-            <button
-              type="button"
-              onClick={toggleCaptureOptions}
-              className="btn-capture-toggle"
-            >
-              <FiCamera size={16} />
-              Camera
-              {showCaptureOptions[topicKey] ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
-            </button>
-
-            {showCaptureOptions[topicKey] && (
-              <div className="capture-menu">
-                <button
-                  type="button"
-                  onClick={triggerCameraCapture}
-                  className="btn-capture"
-                >
-                  <FiCamera size={14} />
-                  Take Photo
-                </button>
-                <input
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  ref={el => cameraInputRefs.current[topicKey] = el}
-                  onChange={handleCameraCapture}
-                  className="hidden-camera-input"
-                />
-              </div>
-            )}
+        <div className="mse-topic-meta">
+          <div className="mse-topic-timestamp">
+            <FiCalendar className="mse-timestamp-icon" />
+            <span>{new Date(topic.timestamp).toLocaleDateString()}</span>
           </div>
-
-          <div className="pdf-options">
+          <div className="mse-visibility-toggle">
+            <span className="mse-visibility-label">Visibility:</span>
             <button
-              type="button"
-              onClick={togglePDFProcessor}
-              className="btn-pdf-toggle"
+              className={`mse-toggle-switch ${topic.public ? 'active' : ''} ${isTogglingPublic ? 'loading' : ''}`}
+              onClick={handlePublicToggle}
+              disabled={isLoading || isTogglingPublic}
+              aria-label={`Toggle visibility to ${topic.public ? 'private' : 'public'}`}
             >
-              <FiFile size={16} />
-              PDF Tools
-              {showPDFProcessor[topicKey] ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
+              <span className="mse-toggle-slider">
+                {isTogglingPublic ? (
+                  <FiLoader className="mse-toggle-loader" />
+                ) : (
+                  <FiCheck className="mse-toggle-check" />
+                )}
+              </span>
             </button>
-
-            {showPDFProcessor[topicKey] && (
-              <div className="pdf-processor-container">
-                <PDFProcessor
-                  subject={subject}
-                  topic={topic.topic}
-                  usn={usn}
-                  showMessage={showMessage}
-                  onFilesUploaded={(files) => {
-                    setUploadedFiles(prev => ({
-                      ...prev,
-                      [topicKey]: [...(prev[topicKey] || []), ...files]
-                    }));
-                  }}
-                />
-              </div>
-            )}
+            <span className={`mse-visibility-status ${topic.public ? 'public' : 'private'}`}>
+              {topic.public ? 'Public' : 'Private'}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* File Preview */}
-      {filesMap[topicKey] && filesMap[topicKey].length > 0 && (
-        <div className="file-preview">
-          <div className="preview-header">
-            <h4>Ready to Upload ({filesMap[topicKey].length} files)</h4>
-            <div className="preview-actions">
+      {/* Images Section */}
+      <div className="mse-images-section">
+        <div className="mse-images-header">
+          <FiImage className="mse-images-icon" />
+          <span>Images ({validImages.length})</span>
+        </div>
+        
+        {validImages.length > 0 && (
+          <div className="mse-images-container">
+            <div className="mse-images-grid">
+              {validImages
+                .slice(0, expandedImages[topicKey] ? validImages.length : 3)
+                .map((img, iIdx) => (
+                <div key={iIdx} className="mse-image-card">
+                  <div className="mse-image-wrapper">
+                    <img 
+                      src={img} 
+                      alt={`Topic image ${iIdx + 1}`}
+                      className="mse-image"
+                      loading="lazy"
+                    />
+                    <div className="mse-image-overlay">
+                      <button
+                        onClick={() => showDeleteConfirmation(img)}
+                        className="mse-btn mse-btn-danger mse-btn-xs mse-image-delete"
+                        disabled={isLoading}
+                      >
+                        <FiTrash2 className="mse-btn-icon" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {validImages.length > 3 && (
               <button
-                onClick={() => setFilesMap(prev => {
-                  const newMap = { ...prev };
-                  if (newMap[topicKey]) {
-                    newMap[topicKey].forEach(fileObj => URL.revokeObjectURL(URL.createObjectURL(fileObj.file)));
-                  }
-                  delete newMap[topicKey];
-                  return newMap;
-                })}
-                className="btn-clear"
-                disabled={uploadingStates[topicKey]}
+                onClick={toggleImageExpansion}
+                className="mse-btn mse-btn-secondary mse-btn-sm mse-view-more-btn"
               >
-                <FiX size={14} />
-                Clear All
-              </button>
-              <button
-                onClick={handleFileUpload}
-                disabled={uploadingStates[topicKey]}
-                className="btn-upload"
-              >
-                {uploadingStates[topicKey] ? (
+                {expandedImages[topicKey] ? (
                   <>
-                    <FiLoader className="spinner" size={14} />
-                    {uploadProgress[topicKey] ? `${uploadProgress[topicKey]}%` : 'Uploading...'}
+                    <FiChevronUp className="mse-btn-icon" />
+                    Show Less
                   </>
                 ) : (
                   <>
-                    <FiUpload size={14} />
-                    Upload {filesMap[topicKey].length} Files
+                    <FiChevronDown className="mse-btn-icon" />
+                    View More ({validImages.length - 3})
                   </>
                 )}
               </button>
-            </div>
+            )}
           </div>
+        )}
+      </div>
 
-          <div className="preview-grid">
-            {filesMap[topicKey].map((fileObj, index) => (
-              <div key={index} className="preview-item">
-                <img
-                  src={filePreviewMap[topicKey][index]}
-                  alt={`Preview ${index + 1}`}
-                  className="preview-image"
+      {/* Upload Section */}
+      <div className="mse-upload-section">
+        <div className="mse-capture-options">
+          <button
+            onClick={toggleCaptureOptions}
+            className="mse-btn mse-btn-secondary mse-btn-sm mse-capture-toggle"
+          >
+            <FiCamera className="mse-btn-icon" />
+            {showCaptureOptions[topicKey] ? 'Hide Options' : 'Add Content'}
+          </button>
+          
+          {showCaptureOptions[topicKey] && (
+            <div className="mse-capture-methods">
+              <button
+                onClick={triggerCameraCapture}
+                className="mse-btn mse-btn-accent mse-btn-sm"
+                disabled={isLoading || compressionStates[topicKey]}
+              >
+                <FiCamera className="mse-btn-icon" />
+                Capture Photo
+              </button>
+              
+              <label className={`mse-file-browse-btn mse-btn mse-btn-accent mse-btn-sm ${(isLoading || compressionStates[topicKey]) ? 'disabled' : ''}`}>
+                <FiFile className="mse-btn-icon" />
+                Browse Images
+                <input
+                  type="file"
+                  multiple
+                  onChange={handleMultipleFileChange}
+                  className="mse-file-input-hidden"
+                  accept="image/*"
+                  disabled={isLoading || compressionStates[topicKey]}
                 />
-                <div className="preview-info">
-                  <span className="file-name">{fileObj.name}</span>
-                  <span className="file-size">
-                    {fileObj.compressedSize ? `${(fileObj.compressedSize / 1024 / 1024).toFixed(2)}MB` : `${(fileObj.file.size / 1024 / 1024).toFixed(2)}MB`}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+              </label>
 
-      {/* Upload Complete Message */}
-      {uploadComplete[topicKey] && (
-        <div className="upload-complete">
-          <FiCheckCircle size={20} />
-          <span>Upload complete! Files will be cleared shortly.</span>
-        </div>
-      )}
+              <button
+                onClick={togglePDFProcessor}
+                className="mse-btn mse-btn-accent mse-btn-sm"
+                disabled={isLoading}
+              >
+                <FiFileText className="mse-btn-icon" />
+                Upload PDF/DOCX
+              </button>
 
-      {/* Uploaded Images */}
-      {displayUploadedFiles.length > 0 && (
-        <div className="uploaded-images">
-          <h4>Uploaded Images</h4>
-          <div className="images-grid">
-            {displayUploadedFiles.map((image, index) => (
-              <div key={index} className="image-item">
-                <div className="image-container">
-                  <img
-                    src={image.imageUrl}
-                    alt={`Uploaded ${index + 1}`}
-                    className="uploaded-image"
-                    onClick={() => setExpandedImages(prev => ({
-                      ...prev,
-                      [topicKey]: { ...prev[topicKey], [image.imageUrl]: true }
-                    }))}
-                  />
-                  <button
-                    className="btn-delete-image"
-                    onClick={() => handleDeleteImage(image.imageUrl)}
-                  >
-                    <FiTrash2 size={16} />
-                  </button>
-                </div>
-                <div className="image-info">
-                  <span className="image-date">
-                    {new Date(image.uploadedAt).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+              {/* Hidden camera input for direct capture */}
+              <input
+                ref={el => cameraInputRefs.current[topicKey] = el}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleCameraCapture}
+                style={{ display: 'none' }}
+              />
+            </div>
+          )}
         </div>
-      )}
-
-      {/* Expanded Image */}
-      {expandedImages[topicKey] && Object.entries(expandedImages[topicKey]).some(([url, isExpanded]) => isExpanded) && (
-        <div className="expanded-image-overlay" onClick={() => setExpandedImages(prev => ({
-          ...prev,
-          [topicKey]: {}
-        }))}>
-          <div className="expanded-image-container">
-            <img
-              src={Object.keys(expandedImages[topicKey]).find(url => expandedImages[topicKey][url])}
-              alt="Expanded"
-              className="expanded-image"
+        
+        {/* PDF Processor */}
+        {showPDFProcessor[topicKey] && (
+          <div className="mse-pdf-processor-container">
+            <PDFProcessor
+              usn={usn}
+              subject={subject}
+              topic={topic.topic}
+              onClose={togglePDFProcessor}
+              onUploadSuccess={handlePDFUploadSuccess}
+              onUploadError={handlePDFUploadError}
             />
           </div>
-        </div>
-      )}
+        )}
+        
+        {/* Compression indicator */}
+        {compressionStates[topicKey] && (
+          <div className="mse-compression-indicator">
+            <div className="mse-upload-spinner"></div>
+            <span>Processing images...</span>
+          </div>
+        )}
+        
+        {/* Upload Complete Animation */}
+        {uploadComplete[topicKey] && (
+          <div className="mse-upload-complete-animation">
+            <FiCheckCircle className="mse-upload-success-icon" />
+            <div className="mse-upload-success-text">
+              Upload Completed Successfully!
+            </div>
+          </div>
+        )}
+        
+        {/* Multiple Files Preview and Upload */}
+        {isMultipleFiles && filesForTopic && filesForTopic.length > 0 && !uploadComplete[topicKey] && (
+          <div className="mse-multiple-files-section">
+            <div className="mse-files-preview-grid">
+              {filesForTopic.map((fileData, fIdx) => {
+                const isUploaded = uploadedFiles[topicKey]?.has(fIdx + 1);
+                return (
+                  <div 
+                    key={fIdx} 
+                    className={`mse-file-preview-card ${isUploaded ? 'uploaded' : ''}`}
+                  >
+                    <div className="mse-file-preview-header">
+                      <span className="mse-file-preview-name">
+                        <FiImage /> {fileData.name}
+                      </span>
+                      {isUploaded && <FiCheck className="mse-file-uploaded-icon" />}
+                    </div>
+                    <div className="mse-file-preview-thumb-container">
+                      <img 
+                        src={filePreviewMap[topicKey][fIdx]} 
+                        alt={`Preview ${fIdx + 1}`} 
+                        className="mse-file-preview-thumb"
+                      />
+                    </div>
+                    <div className="mse-file-preview-info">
+                      <span className="mse-file-size">
+                        {(fileData.compressedSize / 1024 / 1024).toFixed(2)}MB
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            {!uploadingStates[topicKey] && (
+              <button 
+                onClick={uploadMultipleFilesSequentially}
+                className="mse-btn mse-btn-primary mse-btn-sm mse-upload-all-btn"
+                disabled={isLoading}
+              >
+                <FiUpload className="mse-btn-icon" />
+                Upload All Files ({filesForTopic.length})
+              </button>
+            )}
 
-      {/* Delete Confirmation */}
-      {deleteConfirm.show && deleteConfirm.subject === subject && deleteConfirm.topic === topic.topic && (
-        <div className="delete-confirm-overlay">
-          <div className="delete-confirm-modal">
-            <FiAlertTriangle size={24} />
-            <h3>Delete Image</h3>
-            <p>Are you sure you want to delete this image? This action cannot be undone.</p>
-            <div className="delete-confirm-actions">
+            {uploadingStates[topicKey] && (
+              <div className="mse-upload-progress-section">
+                <div className="mse-upload-progress-container">
+                  <div 
+                    className="mse-upload-progress-bar" 
+                    style={{ width: `${uploadProgress[topicKey] || 0}%` }}
+                  ></div>
+                </div>
+                <span className="mse-upload-progress-text">
+                  {uploadProgress[topicKey] || 0}% Completed
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {/* Single File Preview (for camera capture) */}
+        {!isMultipleFiles && filePreviewMap[topicKey] && !uploadComplete[topicKey] && (
+          <div className="mse-preview-section">
+            <div className="mse-preview-wrapper">
+              <img 
+                src={filePreviewMap[topicKey]} 
+                alt="Preview"
+                className="mse-preview-image"
+              />
               <button
-                onClick={() => setDeleteConfirm({ show: false, subject: '', topic: '', imageUrl: '' })}
-                className="btn-cancel"
+                onClick={() => handleSingleFileChange(null)}
+                className="mse-preview-remove"
+                disabled={isLoading || compressionStates[topicKey]}
+              >
+                <FiX />
+              </button>
+            </div>
+            <button 
+              onClick={handleUploadImage} 
+              className="mse-btn mse-btn-primary mse-btn-sm mse-upload-btn"
+              disabled={uploadingStates[topicKey] || !filesMap[topicKey] || compressionStates[topicKey]}
+            >
+              {uploadingStates[topicKey] ? (
+                <>
+                  <div className="mse-upload-spinner"></div>
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <FiUpload className="mse-btn-icon" />
+                  Upload
+                </>
+              )}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm.show && (
+        <div className="mse-modal-overlay">
+          <div className="mse-modal">
+            <div className="mse-modal-header">
+              <FiAlertTriangle className="mse-modal-icon" />
+              <h3>Confirm Delete</h3>
+            </div>
+            <div className="mse-modal-body">
+              <p>Are you sure you want to delete this image?</p>
+              <p className="mse-modal-warning">This action cannot be undone.</p>
+            </div>
+            <div className="mse-modal-footer">
+              <button 
+                onClick={cancelDelete} 
+                className="mse-btn mse-btn-secondary mse-btn-sm"
+                disabled={isLoading}
               >
                 Cancel
               </button>
-              <button
-                onClick={confirmDelete}
-                className="btn-delete"
+              <button 
+                onClick={confirmDelete} 
+                className="mse-btn mse-btn-danger mse-btn-sm"
+                disabled={isLoading}
               >
+                <FiTrash2 className="mse-btn-icon" />
                 Delete
               </button>
             </div>
