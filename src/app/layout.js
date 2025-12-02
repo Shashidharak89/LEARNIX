@@ -34,6 +34,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
+        <meta name="google-adsense-account" content="ca-pub-4934238485595915" />
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4934238485595915" crossOrigin="anonymous"></script>
       </head>
       <body>
