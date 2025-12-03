@@ -1,0 +1,176 @@
+/* styles/TermsPage.css
+   Colors: blue (#0b74ff), darker blue (#04518a), yellow (#f2c200), black and white
+   Notes: no gradients, subtle animations, responsive
+*/
+
+:root {
+  --tp-bg: #ffffff;
+  --tp-text: #0b0b0b;
+  --tp-blue: #0b74ff;       /* primary blue */
+  --tp-blue-dark: #04518a;  /* subheading/darker blue */
+  --tp-yellow: #f2c200;     /* accent yellow */
+  --tp-gap: 20px;
+  --tp-radius: 10px;
+  --tp-ease: cubic-bezier(.2,.9,.3,1);
+}
+
+.tp-page-container {
+  background: var(--tp-bg);
+  color: var(--tp-text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* decorative header icon area (keeps page creative but simple) */
+.tp-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 18px 28px 0 28px;
+}
+.tp-header-icon {
+  color: var(--tp-blue);
+  font-size: 36px;
+  opacity: 0.92;
+  transform: translateY(0);
+  animation: tp-icon-pop 420ms var(--tp-ease) both;
+}
+
+/* main layout */
+.tp-main {
+  width: 100%;
+  max-width: 980px;
+  margin: 12px auto 36px;
+  padding: 0 18px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--tp-gap);
+  box-sizing: border-box;
+}
+
+/* each section card */
+.tp-card {
+  background: #fff; /* explicit white, no gradient */
+  border: 1px solid rgba(4,81,138,0.06);
+  border-radius: var(--tp-radius);
+  padding: 18px 20px;
+  box-shadow: 0 6px 18px rgba(4,81,138,0.04);
+  transform: translateY(8px);
+  opacity: 0;
+  animation: tp-card-appear 420ms var(--tp-ease) forwards;
+}
+
+/* slight stagger for cards */
+.tp-card:nth-child(1) { animation-delay: 0ms; }
+.tp-card:nth-child(2) { animation-delay: 70ms; }
+.tp-card:nth-child(3) { animation-delay: 130ms; }
+.tp-card:nth-child(4) { animation-delay: 190ms; }
+.tp-card:nth-child(5) { animation-delay: 250ms; }
+.tp-card:nth-child(6) { animation-delay: 310ms; }
+.tp-card:nth-child(7) { animation-delay: 370ms; }
+.tp-card:nth-child(8) { animation-delay: 430ms; }
+.tp-card:nth-child(9) { animation-delay: 490ms; }
+
+/* intro card gets a subtle accent line */
+.tp-intro {
+  border-left: 4px solid var(--tp-blue);
+}
+
+/* titles & typography */
+.tp-title {
+  color: var(--tp-blue);
+  font-size: 28px;
+  margin: 0 0 6px 0;
+  line-height: 1.05;
+}
+
+.tp-subtitle {
+  color: var(--tp-blue-dark);
+  font-size: 18px;
+  margin: 0 0 8px 0;
+}
+
+/* paragraphs */
+.tp-plain {
+  color: var(--tp-text);
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* links (yellow accent) */
+.tp-link {
+  color: var(--tp-yellow);
+  text-decoration: none;
+  font-weight: 600;
+}
+.tp-link:hover {
+  text-decoration: underline;
+}
+
+/* footer */
+.tp-footer {
+  margin-top: auto;
+  padding: 18px 28px;
+  text-align: center;
+  color: rgba(11,11,11,0.6);
+}
+
+/* small screens tweak: reduce padding and card radius */
+@media (max-width: 640px) {
+  .tp-main { padding: 0 12px; gap: 14px; }
+  .tp-card { padding: 14px; border-radius: 8px; }
+  .tp-title { font-size: 22px; }
+  .tp-subtitle { font-size: 16px; }
+}
+
+/* larger screens: slightly wider cards with two-column layout for creativity */
+@media (min-width: 1100px) {
+  .tp-main {
+    grid-template-columns: 1fr 420px; /* two-column layout: content + aside-ish column */
+    align-items: start;
+    gap: 22px;
+  }
+
+  /* move some later cards to the aside column visually by using order */
+  .tp-card:nth-child(1) { grid-column: 1 / span 2; } /* title across */
+  .tp-card:nth-child(2) { order: 1; grid-column: 1; }
+  .tp-card:nth-child(3) { order: 2; grid-column: 1; }
+  .tp-card:nth-child(4) { order: 3; grid-column: 2; }
+  .tp-card:nth-child(5) { order: 4; grid-column: 1; }
+  .tp-card:nth-child(6) { order: 5; grid-column: 2; }
+  .tp-card:nth-child(7) { order: 6; grid-column: 1; }
+  .tp-card:nth-child(8) { order: 7; grid-column: 2; }
+  .tp-card:nth-child(9) { order: 8; grid-column: 1; }
+}
+
+/* Hover micro-interaction for cards */
+.tp-card:hover {
+  transform: translateY(0);
+  transition: transform 260ms var(--tp-ease), box-shadow 260ms var(--tp-ease);
+  box-shadow: 0 12px 30px rgba(4,81,138,0.06);
+}
+
+/* subtle focus outlines for accessibility */
+.tp-card :focus,
+.tp-link:focus,
+.tp-title:focus {
+  outline: 3px solid rgba(11,116,255,0.12);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* keyframes */
+@keyframes tp-card-appear {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes tp-icon-pop {
+  from { transform: scale(.95) translateY(6px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
