@@ -1,11 +1,11 @@
 import React from "react";
-import { FiShield } from "react-icons/fi"; // example icon from react-icons
+import { FiShield } from "react-icons/fi";
 import "./styles/TermsPage.css";
 
 export default function TermsPage() {
   return (
     <div className="tp-page-container">
-      <header className="tp-header" aria-hidden>
+      <header className="tp-header" aria-hidden={true}>
         <FiShield className="tp-header-icon" />
       </header>
 
@@ -62,7 +62,7 @@ export default function TermsPage() {
         <section className="tp-card" aria-labelledby="tp-disclaimer">
           <h2 id="tp-disclaimer" className="tp-subtitle">Disclaimer of Liability</h2>
           <p className="tp-plain">
-            Learnix is provided "as is". We are not responsible for user-uploaded content, its accuracy, or for losses arising from use of the platform. See our Disclaimer page for details.
+            Learnix is provided &quot;as is&quot;. We are not responsible for user-uploaded content, its accuracy, or for losses arising from use of the platform. See our Disclaimer page for details.
           </p>
         </section>
 
@@ -82,7 +82,7 @@ export default function TermsPage() {
         </section>
       </main>
 
-      <footer className="tp-footer" aria-hidden>
+      <footer className="tp-footer" aria-hidden={true}>
         <small className="tp-footnote">© Learnix — Terms last updated: December 3, 2025</small>
       </footer>
     </div>
