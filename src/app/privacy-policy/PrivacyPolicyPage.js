@@ -9,8 +9,8 @@ export default function PrivacyPolicyPage() {
 
         <h2 className="privacy-subtitle">1. Introduction</h2>
         <p className="privacy-paragraph">
-          Learnix ("we", "us", "our") is committed to protecting the privacy of
-          our users. This Privacy Policy describes what information we collect,
+          Learnix (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) is committed to protecting the
+          privacy of our users. This Privacy Policy describes what information we collect,
           how we use it, and the choices you have regarding your information.
         </p>
 
