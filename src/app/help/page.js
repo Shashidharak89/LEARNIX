@@ -9,7 +9,7 @@ export default function HelpPage() {
     <div>
       <Navbar />
       <HelpContent />
-      <Footer />
+   
     </div>
   );
 }

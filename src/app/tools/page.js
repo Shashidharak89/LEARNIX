@@ -9,7 +9,6 @@ export default function Tools() {
     <div>
       <Navbar />
       <FileUploadDownload />
-      <Footer />
     </div>
   );
 }

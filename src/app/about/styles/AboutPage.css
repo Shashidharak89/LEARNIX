@@ -1,0 +1,59 @@
+/* Global CSS for AboutPage — using unique prefix 'lx-' for class names */
+
+.lx-page-container {
+  background-color: #ffffff;
+  color: #333333;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.lx-main-content {
+  max-width: 980px;
+  margin: 24px auto;
+  padding: 0 16px;
+  flex: 1;
+}
+
+.lx-title {
+  color: #00C9FC; /* sky-blue accent */
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.lx-subtitle {
+  color: #227FA5; /* darker sky-blue variant */
+  font-size: 1.75rem;
+  margin-top: 2em;
+  margin-bottom: 0.75em;
+}
+
+.lx-paragraph {
+  line-height: 1.6;
+  font-size: 1rem;
+  margin-bottom: 1em;
+  color: #333333;
+}
+
+.lx-list {
+  list-style-type: disc;
+  padding-left: 1.4em;
+  margin-bottom: 1.5em;
+}
+
+.lx-list li {
+  margin-bottom: 0.6em;
+}
+
+.lx-link {
+  color: #F9DB0F; /* warm yellow accent */
+  text-decoration: none;
+}
+
+.lx-link:hover {
+  text-decoration: underline;
+}
+
+.lx-footer {
+  margin-top: auto;
+}

@@ -11,7 +11,7 @@ export default function feedback() {
     <div >
       <Navbar />
       <Feedback/>
-      <Footer />
+     
     </div>
   );
 }

@@ -77,7 +77,7 @@ export default function PrivacyPolicyPage() {
           practices, please contact us at <a href="mailto:learnixp@gmail.com">learnixp@gmail.com</a>.
         </p>
       </main>
-      <Footer />
+
     </div>
   );
 }

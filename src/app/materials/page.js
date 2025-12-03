@@ -11,7 +11,7 @@ export default function materials() {
         <div >
             <Navbar />
             <StudyMaterials/>
-            <Footer/>
+        
         </div>
     );
 }

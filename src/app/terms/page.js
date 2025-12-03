@@ -70,7 +70,6 @@ export default function TermsPage() {
           For questions about these Terms, contact <a href="mailto:learnixp@gmail.com">learnixp@gmail.com</a>.
         </p>
       </main>
-      <Footer />
     </div>
   );
 }

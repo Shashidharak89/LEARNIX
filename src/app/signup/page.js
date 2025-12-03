@@ -9,7 +9,6 @@ export default function register() {
     <div>
       <Navbar />
       <Signup />
-      <Footer />
     </div>
   );
 }

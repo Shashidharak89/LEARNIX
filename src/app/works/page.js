@@ -10,7 +10,6 @@ export default function works() {
         <div >
             <Navbar />
             <WorkSearchInterface />
-            <Footer />
         </div>
     );
 }

@@ -41,7 +41,7 @@ export default function DisclaimerPage() {
           For concerns about content or this disclaimer, contact <a href="mailto:learnixp@gmail.com">learnixp@gmail.com</a>.
         </p>
       </main>
-      <Footer />
+  
     </div>
   );
 }

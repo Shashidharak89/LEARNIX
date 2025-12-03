@@ -11,7 +11,6 @@ export default function profile() {
         <div >
             <Navbar />
             <UserProfile/>
-            <Footer/>
         </div>
     );
 }

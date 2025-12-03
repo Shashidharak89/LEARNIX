@@ -43,7 +43,6 @@ export default function ReportContentPage() {
           details and any supporting documents.
         </p>
       </main>
-      <Footer />
     </div>
   );
 }

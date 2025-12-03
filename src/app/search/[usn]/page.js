@@ -9,7 +9,6 @@ export default function Page({ params }) {
     <div>
       <Navbar />
       <UserDetailsPage usn={usn} />
-      <Footer/>
     </div>
   );
 }

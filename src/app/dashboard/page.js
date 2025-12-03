@@ -12,7 +12,7 @@ export default function dashboard() {
     <div >
       <Navbar />
       <DashBoard />
-      <Footer />
+   
     </div>
   );
 }
