@@ -1,6 +1,7 @@
 // app/layout.js
 import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
+import Footer from "./components/Footer";
 
 export const metadata = {
   title: "Learnix",
@@ -42,6 +43,7 @@ export default function RootLayout({ children }) {
       <body>
         <ThemeProvider>
           {children}
+          <Footer />
         </ThemeProvider>
       </body>
     </html>

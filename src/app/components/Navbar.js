@@ -309,6 +309,18 @@ export const Navbar = () => {
           </Link>
 
           <Link
+            href="/about"
+            className="learnix-nav-item"
+            onClick={closeSidebar}
+            tabIndex={isOpen ? 0 : -1}
+          >
+            <span className="learnix-nav-icon">
+              <FiBookOpen size={18} />
+            </span>
+            <span className="learnix-nav-text">About</span>
+          </Link>
+
+          <Link
             href="/profile"
             className="learnix-nav-item"
             onClick={closeSidebar}

@@ -31,7 +31,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Contact Section */}
+        {/* Contact & Links Section */}
         <div className="learnix-footer-section">
           <h3 className="learnix-footer-title">Get in Touch</h3>
           <div className="learnix-contact-info">
@@ -56,6 +56,20 @@ export default function Footer() {
               </a>
             </div>
           </div>
+        </div>
+
+        {/* Quick Links Section */}
+        <div className="learnix-footer-section">
+          <h3 className="learnix-footer-title">Quick Links</h3>
+          <ul className="learnix-footer-links">
+            <li><Link href="/about">About</Link></li>
+            <li><Link href="/privacy-policy">Privacy Policy</Link></li>
+            <li><Link href="/terms">Terms &amp; Conditions</Link></li>
+            <li><Link href="/disclaimer">Disclaimer</Link></li>
+            <li><Link href="/help">Help / FAQ</Link></li>
+            <li><Link href="/report-content">Report Content</Link></li>
+            <li><a href="mailto:learnixp@gmail.com">Contact</a></li>
+          </ul>
         </div>
 
 

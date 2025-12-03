@@ -1,1 +1,5 @@
+# Placeholder ads.txt
+# After AdSense approval, add the exact lines provided by Google AdSense.
+# Example format (do NOT use unless provided by AdSense):
+# google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
 google.com, pub-4934238485595915, DIRECT, f08c47fec0942fa0

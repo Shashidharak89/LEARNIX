@@ -141,4 +141,43 @@ export const LIST_SECTIONS = [
         imageAlt: "Feedback System",
         imageSrc: "https://res.cloudinary.com/ddycnd409/image/upload/v1761497654/c1_20251026_22210834_bkxrpv.jpg"
     }
+    ,
+    {
+        title: "Allowed File Types",
+        subtitle: null,
+        intro: "Accepted file types and size guidance:",
+        items: [
+            "PDF, DOCX, PPTX are preferred for documents",
+            "Images (JPG, PNG) for diagrams or photos",
+            "Keep individual files under reasonable size limits (e.g., < 50MB)",
+            "Avoid uploading executable or archive files unless necessary"
+        ],
+        imageAlt: "File Types",
+        imageSrc: DEFAULT_IMAGE
+    },
+    {
+        title: "What Not To Upload",
+        subtitle: null,
+        intro: "Please do not upload:",
+        items: [
+            "Pirated or copyrighted materials without permission",
+            "Adult, violent, hateful, or harassing content",
+            "Personal sensitive information (financial, medical, etc.)",
+            "Malicious software or files intended to harm others"
+        ],
+        imageAlt: "Not Allowed",
+        imageSrc: DEFAULT_IMAGE
+    },
+    {
+        title: "Reporting Inappropriate Content",
+        subtitle: null,
+        intro: "If you find inappropriate content:",
+        items: [
+            "Use the Report button on the content page",
+            "Provide details and optional evidence",
+            "You may also email learnixp@gmail.com for urgent takedowns"
+        ],
+        imageAlt: "Report Content",
+        imageSrc: DEFAULT_IMAGE
+    }
 ];
