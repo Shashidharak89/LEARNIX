@@ -29,6 +29,13 @@ const materialsData = [
                 ],
             },
             {
+                subject: "Data Communication and Networking Lab",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication-Lab/25MCA108-DCN-lab%20manual.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication-Lab/dcn-lab-ns2-wrkng-pgms.docx" }
+                ],
+            },
+            {
                 subject: "Research Methodology and Publication Ethics",
                 files: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Research-Methodology-And-Publication-Ethics/RM_U1.pptx" },
