@@ -65,7 +65,7 @@ const materialsData = [
             {
                 subject: "Advanced Operating System with Unix",
                 files: [
-                    { name: "AOS ch1", url: "https://raw.githubusercontent.com/Shashidharak89/Study\_Materials\_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Operating-System-with-Unix/Aos%20ch1.pptx](https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Operating-System-with-Unix/Aos%20ch1.pptx" },
+                    { name: "AOS ch1", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Operating-System-with-Unix/Aos%20ch1.pptx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Operating-System-with-Unix/Aos%20ch1.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Operating-System-with-Unix/~%24Aos%20ch1.pptx" },
                     { name: "AOS Ch2", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Operating-System-with-Unix/AOS%20ch2.pptx" },
@@ -98,7 +98,7 @@ const materialsData = [
 
                     //    Unit III Files
 
-                    { name: "U3 Evaluate Postfix.c.pdf", url: "raw.https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20III/Evaluate%20Postfix.c.pdf" },
+                    { name: "U3 Evaluate Postfix.c.pdf", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20III/Evaluate%20Postfix.c.pdf" },
                     { name: "U3 Interger Stack realization.docx", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20III/Interger%20Stack%20realization.docx" },
                     { name: "U3 Postfix_Evaluation.pdf", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20III/Postfix_Evaluation.pdf" },
                     { name: "U3 Queues as Lists in C.pdf", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20III/Queues%20as%20Lists%20in%20C.pdf" },
@@ -112,7 +112,7 @@ const materialsData = [
                     { name: "U3 convert from infix to postfix-Algorithm.pdf", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20III/convert%20from%20infix%20to%20postfix-Algorithm.pdf" },
                     { name: "U3 convert infix to postfix.c.pdf", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20III/convert%20infix%20to%20postfix.c.pdf" },
                     { name: "U3 dynamic integer stack.pdf", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20III/dynamic%20integer%20stack.pdf" },
-                    { name: "U3 ordinary queue- student.pdf", url: "raw.https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20III/ordinary%20queue-%20student.pdf" },
+                    { name: "U3 ordinary queue- student.pdf", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20III/ordinary%20queue-%20student.pdf" },
                     { name: "U3 ordinary queue.pdf", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20III/ordinary%20queue.pdf" },
 
 
@@ -150,6 +150,8 @@ const materialsData = [
                 files: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/3rd-sem-2025-26/Syllabus/2024-2026%20Batch%20-%20III%20Semester%20MCA%20Syllabus%20with%20Regulations.pdf" },
                 ],
+            },
+            {
                 subject: "Advanced web technologies lab",
                 files: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/3rd-sem-2025-26/Advanced-web-technologies-lab/ASSIGNMENT%201%20(3).docx" },
@@ -162,12 +164,16 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/3rd-sem-2025-26/Advanced-web-technologies-lab/Assignment%208.docx" },
 
                 ],
+            },
+            {
                 subject: "Advanced web technologies",
                 files: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/3rd-sem-2025-26/Advanced-web-technologies/UNIT%20I.pptx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/3rd-sem-2025-26/Advanced-web-technologies/JavaScript%20Introduction.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/3rd-sem-2025-26/Advanced-web-technologies/Task%201_AWT..docx" },
                 ],
+            },
+            {
                 subject: "Artificial-Intelligence-and-Machine-Learning",
                 files: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/3rd-sem-2025-26/Artificial-Intelligence-and-Machine-Learning/ASSIGNMENT-1.pdf" },
@@ -182,6 +188,8 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/3rd-sem-2025-26/Artificial-Intelligence-and-Machine-Learning/Unit-1-AI%20%20ML-2025.odp" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/3rd-sem-2025-26/Artificial-Intelligence-and-Machine-Learning/heart.data.csv" },
                 ],
+            },
+            {
                 subject: "Block-Chain-Technology",
                 files: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/3rd-sem-2025-26/Block-Chain-Technology/BCT%20Syllabus.pdf" },
@@ -194,6 +202,8 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/3rd-sem-2025-26/Block-chain-technology/block%20chain_unit-2%20(2).pptx" },
 
                 ],
+            },
+            {
                 subject: "Cloud-computing-and-big-data",
                 files: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/3rd-sem-2025-26/Cloud-computing-and-big-data/Unit%201%20ppt.pdf" },
@@ -208,17 +218,13 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/3rd-sem-2025-26/Cloud-computing-and-big-data/BDA6.pdf" },
 
                 ],
+            },
+            {
                 subject: "Mobile-computing-and-application-development",
                 files: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/3rd-sem-2025-26/Mobile-computing-and-application-development/MC%20%20AD%20assignment%202.docx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/3rd-sem-2025-26/Mobile-computing-and-application-development/MC%20%20AD%20task.pdf" },
                 ],
-                subject: "",
-                files: [
-                    { url: "" },
-                    { url: "" },
-                ],
-
             },
         ],
     },
