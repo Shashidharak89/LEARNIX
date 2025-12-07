@@ -59,7 +59,9 @@ export default function StudyMaterials() {
                     {openSubjectIndex === subjIndex && (
                       <div className="files-container">
                         {subj.files.map((file, fIndex) => {
-                          const fileName = file.name || file.url.split("/").pop().split("?")[0];
+                          const rawFileName = file.name || file.url.split("/").pop().split("?")[0];
+                          // Decode URL-encoded characters (%20 -> space, etc.) for display
+                          const fileName = decodeURIComponent(rawFileName);
                           // construct view URL: view.shashi-k.in/[encoded original file url]
                           const viewPath = encodeURIComponent(file.url);
                           const viewUrl = `https://view.shashi-k.in/${viewPath}`;
