@@ -51,7 +51,7 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication-Lab/a8prog.c" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication-Lab/Assignment%208.doc" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication-Lab/program1.tcl" },
-                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication-Lab/program2.docx"},
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication-Lab/program2.docx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication-Lab/CN%20assignment%203%20NS-2.pdf" },
 
                 ],
@@ -73,10 +73,26 @@ const materialsData = [
                     { name: "ADBS Unit-2", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/ADBS_Unit%202_SQL.pdf" },
                     { name: "ADBS Unit-3", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/ADBS_Unit%203_MySQL.pdf" },
                     { name: "ADBS Unit-4", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/ADBS_Unit%204_Database%20Design.pdf" },
+                    { name: "ADBS Unit-5", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/ADBS_Unit%205_MongoDB.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/adbs-unit3-custom-notes-shashidharak.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/MongoDB-Student-Projects(A-and-B-Sections).docx" },
-
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/ADBS%20Assignment(Task).docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/View%20constraint%20details.docx" },
                 ],
+            },
+            {
+                subject: "Advanced Data Base Systems Lab",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems-Lab/Assignment%201.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems-Lab/Assignment%202.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems-Lab/Assignment%203.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems-Lab/Assignment%204.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems-Lab/Assignment%205.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems-Lab/Assignment%206.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems-Lab/Assignment%207_MongoDB.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems-Lab/Assignment%20Related%20to%20Lab.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems-Lab/Sample%20SEE%20Lab%20QP.docx" },
+                ]
             },
             {
                 subject: "Advanced Operating System with Unix",
