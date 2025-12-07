@@ -1,0 +1,245 @@
+/* What's New Component Styles */
+
+.whats-new-section {
+  margin-top: 60px;
+  padding: 40px 30px;
+  background: white;
+  border-radius: 20px;
+  border: 2px solid #e5e7eb;
+  box-shadow: 0 10px 40px rgba(87, 206, 235, 0.08);
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  animation: whatsNewSlide 0.8s ease-out 2s both;
+}
+
+.whats-new-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.whats-new-icon {
+  font-size: 2rem;
+  color: #57ceeb;
+  animation: newIconBounce 2s ease-in-out infinite;
+}
+
+.whats-new-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #57ceeb 0%, #fbbf24 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.updates-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.update-card {
+  background: linear-gradient(135deg, #f0f9ff 0%, #fef9c3 100%);
+  border: 2px solid #57ceeb;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.update-card:hover {
+  border-color: #fbbf24;
+  box-shadow: 0 8px 24px rgba(87, 206, 235, 0.15);
+  transform: translateX(5px);
+}
+
+.update-toggle {
+  width: 100%;
+  padding: 18px 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.update-toggle:hover {
+  background: rgba(87, 206, 235, 0.05);
+}
+
+.update-title-text {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f2937;
+  text-align: left;
+  flex: 1;
+  transition: color 0.2s ease;
+}
+
+.update-toggle:hover .update-title-text {
+  color: #57ceeb;
+}
+
+.update-chevron {
+  font-size: 1.3rem;
+  color: #57ceeb;
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+.update-chevron-open {
+  transform: rotate(180deg);
+  color: #fbbf24;
+}
+
+.update-content {
+  padding: 0 20px 20px 20px;
+  animation: contentExpand 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  max-height: 300px;
+  overflow: hidden;
+}
+
+.update-content p {
+  margin: 0;
+  color: #4b5563;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.update-expanded {
+  background: linear-gradient(135deg, #e0f7ff 0%, #fffacd 100%);
+  border-color: #fbbf24;
+  box-shadow: 0 12px 32px rgba(87, 206, 235, 0.2);
+}
+
+/* Keyframe Animations */
+@keyframes whatsNewSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes newIconBounce {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.05);
+  }
+}
+
+@keyframes contentExpand {
+  0% {
+    opacity: 0;
+    max-height: 0;
+  }
+  100% {
+    opacity: 1;
+    max-height: 300px;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .whats-new-section {
+    padding: 30px 25px;
+    max-width: 700px;
+  }
+
+  .whats-new-title {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .whats-new-section {
+    padding: 25px 15px;
+    margin: 40px 0;
+    max-width: 100%;
+  }
+
+  .whats-new-title {
+    font-size: 1.4rem;
+  }
+
+  .update-toggle {
+    padding: 14px 15px;
+  }
+
+  .update-title-text {
+    font-size: 1rem;
+  }
+
+  .update-content {
+    padding: 0 15px 15px 15px;
+  }
+
+  .update-content p {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .whats-new-section {
+    padding: 20px 12px;
+    margin: 30px 0;
+    border-radius: 12px;
+  }
+
+  .whats-new-header {
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .whats-new-icon {
+    font-size: 1.5rem;
+  }
+
+  .whats-new-title {
+    font-size: 1.2rem;
+  }
+
+  .updates-container {
+    gap: 8px;
+  }
+
+  .update-card {
+    border-radius: 10px;
+  }
+
+  .update-toggle {
+    padding: 12px 12px;
+  }
+
+  .update-title-text {
+    font-size: 0.95rem;
+  }
+
+  .update-chevron {
+    font-size: 1.1rem;
+  }
+
+  .update-content {
+    padding: 0 12px 12px 12px;
+  }
+
+  .update-content p {
+    font-size: 0.85rem;
+  }
+}

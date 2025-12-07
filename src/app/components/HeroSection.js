@@ -6,6 +6,7 @@ import { FiBookOpen, FiUsers, FiTrendingUp, FiArrowRight } from "react-icons/fi"
 import { HiAcademicCap } from "react-icons/hi";
 import "./styles/HeroSection.css";
 import TutVideo from "./TutVideo";
+import WhatsNew from "./WhatsNew";
 
 export default function HeroSection() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -99,6 +100,9 @@ export default function HeroSection() {
               </div>
             )}
           </div>
+
+          {/* What's New Component */}
+          <WhatsNew />
         </div>
 
         {/* Decorative Elements */}
