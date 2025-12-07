@@ -62,13 +62,14 @@ export default function StudyMaterials() {
                           const rawFileName = file.name || file.url.split("/").pop().split("?")[0];
                           // Decode URL-encoded characters (%20 -> space, etc.) for display
                           const fileName = decodeURIComponent(rawFileName);
-                          // construct view URL: view.shashi-k.in/[encoded original file url]
-                          const viewPath = encodeURIComponent(file.url);
-                          const viewUrl = `https://view.shashi-k.in/${viewPath}`;
+
+                          // 🔍 Google Docs Viewer URL
+                          const encodedUrl = encodeURIComponent(file.url);
+                          const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodedUrl}`;
 
                           return (
                             <div key={fIndex} className="file-link-card">
-                              {/* Download link (keeps existing behavior) */}
+                              {/* Download / open original file */}
                               <a
                                 href={file.url}
                                 target="_blank"
@@ -83,12 +84,12 @@ export default function StudyMaterials() {
                               {/* File name */}
                               <span className="file-name">{fileName}</span>
 
-                              {/* Eye (view) link - using inline style only as requested */}
+                              {/* Eye (view) link - opens in Google Docs Viewer */}
                               <a
                                 href={viewUrl}
                                 target="_blank"
                                 rel="noreferrer"
-                                title="View file in viewer"
+                                title="View file online"
                                 aria-label={`View ${fileName}`}
                                 className="file-action view-action"
                                 style={{
