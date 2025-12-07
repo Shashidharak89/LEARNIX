@@ -6,53 +6,64 @@ import { MdNewReleases } from "react-icons/md";
 import "./styles/WhatsNew.css";
 
 export default function WhatsNew() {
-  const [expandedUpdate, setExpandedUpdate] = useState(0);
+  const [expandedUpdate, setExpandedUpdate] = useState(-1);
 
   const latestUpdates = [
     {
       title: "Quick File Share - New Feature",
-      description: "Upload any file instantly and get a unique code! Share your files with anyone without login required. Perfect for quick file transfers, assignments, and documents. Simply upload, get a code, and others can download using that code on any device."
+      description:
+        "Upload any file instantly and get a unique code! Share your files with anyone without login required. Perfect for quick file transfers, assignments, and documents. Simply upload, get a code, and others can download using that code on any device.",
     },
     {
       title: "New Study Materials Available",
-      description: "We've added comprehensive study materials for 3rd semester courses including Blockchain Technology, Cloud Computing, and AI/ML modules. All materials are now available in the Study Materials section with downloadable resources."
+      description:
+        "We've added comprehensive study materials for 3rd semester courses including Blockchain Technology, Cloud Computing, and AI/ML modules. All materials are now available in the Study Materials section with downloadable resources.",
     },
     {
       title: "Improved File Viewer",
-      description: "Experience faster document viewing with our new integrated file viewer. Preview PDFs, documents, and presentations directly without leaving the platform."
-    }
+      description:
+        "Experience faster document viewing with our new integrated file viewer. Preview PDFs, documents, and presentations directly without leaving the platform.",
+    },
   ];
 
   return (
-    <div className="whats-new-section">
-      <div className="whats-new-header">
-        <MdNewReleases className="whats-new-icon" />
-        <h3 className="whats-new-title">What's New</h3>
+    <section className="wn__section_wrapper">
+      <div className="wn__header_container">
+        <div className="wn__icon_wrapper">
+          <MdNewReleases className="wn__header_icon" />
+        </div>
+        <h2 className="wn__main_title">What's New</h2>
       </div>
-      
-      <div className="updates-container">
-        {latestUpdates.map((update, index) => (
-          <div 
-            key={index} 
-            className={`update-card ${expandedUpdate === index ? 'update-expanded' : ''}`}
+
+      <div className="wn__updates_grid">
+        {latestUpdates.map((update, idx) => (
+          <div
+            key={idx}
+            className={`wn__card ${
+              expandedUpdate === idx ? "wn__card_expanded" : ""
+            }`}
           >
             <button
-              className="update-toggle"
-              onClick={() => setExpandedUpdate(expandedUpdate === index ? -1 : index)}
-              aria-expanded={expandedUpdate === index}
+              className="wn__card_header"
+              onClick={() =>
+                setExpandedUpdate(expandedUpdate === idx ? -1 : idx)
+              }
+              aria-expanded={expandedUpdate === idx}
             >
-              <span className="update-title-text">{update.title}</span>
-              <FiChevronDown className={`update-chevron ${expandedUpdate === index ? 'update-chevron-open' : ''}`} />
+              <span className="wn__card_title">{update.title}</span>
+              <FiChevronDown
+                className={`wn__chevron_icon ${
+                  expandedUpdate === idx ? "wn__chevron_rotated" : ""
+                }`}
+              />
             </button>
-            
-            {expandedUpdate === index && (
-              <div className="update-content">
-                <p>{update.description}</p>
-              </div>
-            )}
+
+            <div className={`wn__content_wrapper ${expandedUpdate === idx ? "wn__content_visible" : ""}`}>
+              <div className="wn__content_text">{update.description}</div>
+            </div>
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
