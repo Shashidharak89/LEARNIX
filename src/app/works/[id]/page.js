@@ -46,73 +46,64 @@ const WorkTopicPageWrapper = () => {
     }
 
     try {
-      const jsPDF = (await import("jspdf")).default;
-      const pdf = new jsPDF();
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 10;
-
-      // Add title and metadata
-      pdf.setFontSize(20);
-      pdf.text(`${data.topic.topic}`, margin, 30);
-      pdf.setFontSize(12);
-      pdf.text(`Subject: ${data.subject.subject}`, margin, 50);
-      pdf.text(`Student: ${data.user.name} (${data.user.usn})`, margin, 65);
-      pdf.text(
-        `Date: ${new Date(data.topic.timestamp).toLocaleDateString()}`,
-        margin,
-        80
-      );
-
-      // Add content if available
-      if (data.topic.content) {
-        const splitText = pdf.splitTextToSize(
-          `Content: ${data.topic.content}`,
-          pageWidth - 2 * margin
-        );
-        pdf.text(splitText, margin, 95);
+      // Show loading state
+      const downloadBtn = document.querySelector('.wtpc-download-btn');
+      const originalText = downloadBtn?.querySelector('.wtpc-btn-text')?.textContent;
+      if (downloadBtn) {
+        downloadBtn.disabled = true;
+        const btnText = downloadBtn.querySelector('.wtpc-btn-text');
+        if (btnText) btnText.textContent = 'Generating...';
       }
 
-      // Process images
-      const validImages = data.topic.images.filter((url) => url && url.trim() !== "");
-      const imagePromises = validImages.map(
-        (imageUrl, imgIndex) =>
-          new Promise((resolve, reject) => {
-            const img = new Image();
-            img.crossOrigin = "anonymous";
-            img.onload = () => resolve({ img, imgIndex });
-            img.onerror = () => reject(`Failed to load image ${imgIndex + 1}`);
-            img.src = imageUrl;
-          })
-      );
+      // Call the API to generate PDF with template
+      const response = await fetch('/api/work/download-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          topicId: id,
+          user: data.user,
+          subject: data.subject,
+          topic: data.topic,
+        }),
+      });
 
-      const loadedImages = await Promise.all(imagePromises);
-
-      for (let i = 0; i < loadedImages.length; i++) {
-        const { img } = loadedImages[i];
-        if (i > 0) pdf.addPage();
-
-        const imgWidth = img.naturalWidth;
-        const imgHeight = img.naturalHeight;
-        const ratio = Math.min(
-          (pageWidth - 2 * margin) / imgWidth,
-          (pageHeight - 150) / imgHeight
-        );
-
-        const width = imgWidth * ratio;
-        const height = imgHeight * ratio;
-        const x = (pageWidth - width) / 2;
-        const y = 120; // Start below the text content
-
-        pdf.addImage(img, "JPEG", x, y, width, height);
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
       }
 
-      const fileName = `${data.topic.topic}_${data.subject.subject}_${data.user.name}`
+      // Get the PDF blob
+      const blob = await response.blob();
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${data.topic.topic}_${data.subject.subject}_${data.user.name}`
         .replace(/[^a-zA-Z0-9]/g, "_") + ".pdf";
-      pdf.save(fileName);
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      // Restore button state
+      if (downloadBtn) {
+        downloadBtn.disabled = false;
+        const btnText = downloadBtn.querySelector('.wtpc-btn-text');
+        if (btnText) btnText.textContent = originalText;
+      }
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Error generating PDF. Please try again.");
+      
+      // Restore button state
+      const downloadBtn = document.querySelector('.wtpc-download-btn');
+      if (downloadBtn) {
+        downloadBtn.disabled = false;
+        const btnText = downloadBtn.querySelector('.wtpc-btn-text');
+        if (btnText) btnText.textContent = 'Download';
+      }
     }
   };
 
