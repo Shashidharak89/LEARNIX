@@ -714,6 +714,28 @@
   }
 }
 
+/* Clickable Topic Title */
+.user-details-clickable-title {
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.user-details-clickable-title:hover {
+  color: #1976d2;
+  text-decoration: underline;
+}
+
+/* Clickable Image Container */
+.user-details-clickable-image {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.user-details-clickable-image:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
 /* Focus states for accessibility */
 .user-details-search-input:focus,
 .user-details-view-more-btn:focus {

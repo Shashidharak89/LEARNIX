@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Calendar, BookOpen, ImageIcon, Eye, EyeOff, User, GraduationCap, Clock, ChevronDown, Search } from "lucide-react";
 import { formatActiveTime } from '@/lib/utils';
@@ -8,6 +9,7 @@ import './styles/UserDetailsPage.css';
 import UserDetailsPageSkeleton from "./UserDetailsPageSkeleton";
 
 export default function UserDetailsPage({ usn }) {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState("");
   const [expandedTopics, setExpandedTopics] = useState({});
@@ -327,7 +329,12 @@ export default function UserDetailsPage({ usn }) {
                                 <div key={topicIndex} className="user-details-topic-card">
                                   <div className="user-details-topic-header">
                                     <div className="user-details-topic-info">
-                                      <h4 className="user-details-topic-title">{topic.topic}</h4>
+                                      <h4 
+                                        className="user-details-topic-title user-details-clickable-title"
+                                        onClick={() => router.push(`/works/${topic._id}`)}
+                                      >
+                                        {topic.topic}
+                                      </h4>
                                       <div className="user-details-topic-meta">
                                         <span className="user-details-topic-date">
                                           <Clock size={12} />
@@ -353,7 +360,11 @@ export default function UserDetailsPage({ usn }) {
                                     <div className="user-details-images-section">
                                       <div className="user-details-images-grid">
                                         {displayImages.map((imageUrl, imageIndex) => (
-                                          <div key={imageIndex} className="user-details-image-container">
+                                          <div 
+                                            key={imageIndex} 
+                                            className="user-details-image-container user-details-clickable-image"
+                                            onClick={() => router.push(`/works/${topic._id}`)}
+                                          >
                                             <div className="user-details-image-wrapper">
                                               <img 
                                                 src={imageUrl} 
