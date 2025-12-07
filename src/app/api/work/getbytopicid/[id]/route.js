@@ -7,7 +7,7 @@ export const GET = async (req, { params }) => {
   try {
     await connectDB();
 
-    const { id } = params; // topic _id
+    const { id } = await params; // topic _id
 
     // Find the user that has this topic
     const user = await Work.findOne({ "subjects.topics._id": id });
