@@ -63,6 +63,8 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Research-Methodology-And-Publication-Ethics/RM_U2.pptx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Research-Methodology-And-Publication-Ethics/RM_U3.pptx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Research-Methodology-And-Publication-Ethics/RM_Unit_4.pptx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Research-Methodology-And-Publication-Ethics/Unit4-plagiarism.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Research-Methodology-And-Publication-Ethics/Materials_Unit5.docx" },
                 ],
             },
             {
@@ -105,6 +107,7 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Operating-System-with-Unix/Aos%20unit2.pptx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Operating-System-with-Unix/Aos%20unit3.pptx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Operating-System-with-Unix/Aos%20unit4.pptx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Operating-System-with-Unix/Aos%20unit5.pptx" },
 
                 ],
             },
@@ -153,7 +156,16 @@ const materialsData = [
             {
                 subject: "Data Structures And Algorithms Lab",
                 files: [
+                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms-Lab/Fundamentals%20of%20Programming%20using%20C%20Lab%20Assignment.pdf"},
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms-Lab/DSA-ASSIGNMENT-QA.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms-Lab/DSA%20Lab%20Assignment-2.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms-Lab/DSA%20Lab%20Assignment-3.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms-Lab/DSA%20Lab%20Assignment-4.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms-Lab/DSA%20Lab%20Assignment-5.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms-Lab/DSA%20Lab%20Assignment-6.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms-Lab/DSA%20Lab%20Assignment-7.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms-Lab/DSA-ASSIGNMENT-QA.pdf" },
+
                 ],
             },
             //    {
