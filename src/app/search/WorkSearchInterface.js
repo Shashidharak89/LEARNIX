@@ -179,55 +179,72 @@ const WorkSearchInterface = () => {
       alert('No images available for this topic');
       return;
     }
+    
     try {
-      const jsPDF = (await import('jspdf')).default;
-      const pdf = new jsPDF();
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 10;
-
-      pdf.setFontSize(20);
-      pdf.text(`${topic.topic}`, margin, 30);
-      pdf.setFontSize(12);
-      pdf.text(`Subject: ${topic.subjectName}`, margin, 50);
-      pdf.text(`Student: ${topic.userName} (${topic.usn})`, margin, 65);
-      pdf.text(`Date: ${new Date(topic.timestamp).toLocaleDateString()}`, margin, 80);
-
-      const imagePromises = topic.images
-        .filter(url => url && url.trim() !== '')
-        .map((imageUrl, imgIndex) => {
-          return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.onload = () => resolve({ img, imgIndex });
-            img.onerror = () => reject(`Failed to load image ${imgIndex + 1}`);
-            img.src = imageUrl;
-          });
-        });
-
-      const loadedImages = await Promise.all(imagePromises);
-
-      for (let i = 0; i < loadedImages.length; i++) {
-        const { img } = loadedImages[i];
-        if (i > 0) pdf.addPage();
-
-        const imgWidth = img.naturalWidth;
-        const imgHeight = img.naturalHeight;
-        const ratio = Math.min((pageWidth - 2 * margin) / imgWidth, (pageHeight - 2 * margin) / imgHeight);
-
-        const width = imgWidth * ratio;
-        const height = imgHeight * ratio;
-        const x = (pageWidth - width) / 2;
-        const y = (pageHeight - height) / 2;
-
-        pdf.addImage(img, 'JPEG', x, y, width, height);
+      // Show loading state
+      const downloadBtn = document.querySelector(`[data-topic-index="${index}"] .ws-download-btn`);
+      if (downloadBtn) {
+        downloadBtn.disabled = true;
+        downloadBtn.innerHTML = '<span>Generating...</span>';
       }
 
-      const fileName = `${topic.topic}_${topic.subjectName}_${topic.userName}.pdf`.replace(/[^a-zA-Z0-9]/g, '_');
-      pdf.save(fileName);
+      // Call the API to generate PDF with template
+      const response = await fetch('/api/work/download-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          topicId: topic._id,
+          user: {
+            name: topic.userName,
+            usn: topic.usn,
+            profileimg: topic.userProfileImg || '',
+          },
+          subject: {
+            subject: topic.subjectName,
+          },
+          topic: {
+            topic: topic.topic,
+            timestamp: topic.timestamp,
+            images: topic.images,
+            content: topic.content || '',
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+
+      // Get the PDF blob
+      const blob = await response.blob();
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${topic.topic}_${topic.subjectName}_${topic.userName}`.replace(/[^a-zA-Z0-9]/g, '_') + '.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      // Restore button state
+      if (downloadBtn) {
+        downloadBtn.disabled = false;
+        downloadBtn.innerHTML = '<span>Download</span>';
+      }
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Error generating PDF. Please try again.');
+      
+      // Restore button state
+      const downloadBtn = document.querySelector(`[data-topic-index="${index}"] .ws-download-btn`);
+      if (downloadBtn) {
+        downloadBtn.disabled = false;
+        downloadBtn.innerHTML = '<span>Download</span>';
+      }
     }
   };
 
@@ -276,7 +293,7 @@ const WorkSearchInterface = () => {
     const displayImages = isExpanded ? validImages : validImages.slice(0, 2);
 
     return (
-      <div key={`${topicKey}-${index}`} className="ws-topic-card">
+      <div key={`${topicKey}-${index}`} className="ws-topic-card" data-topic-index={index}>
         <div className="ws-card-header">
           <div className="ws-topic-info">
             <Link href={`/works/${topic.topicId}`} className="ws-topic-link">

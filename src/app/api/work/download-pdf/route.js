@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
-import { PDFDocument, rgb, StandardFonts, degrees } from "pdf-lib";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import fs from "fs/promises";
 import path from "path";
+import * as fontkit from "fontkit";
 
 export async function POST(req) {
   try {
@@ -20,79 +21,86 @@ export async function POST(req) {
       "src/app/works/[id]/download-resource-template.pdf"
     );
     const templateBytes = await fs.readFile(templatePath);
+    
+    // Create a new PDF document to work with
     const pdfDoc = await PDFDocument.load(templateBytes);
+    
+    // Register fontkit
+    pdfDoc.registerFontkit(fontkit);
 
     // Get the first page (template page)
     const pages = pdfDoc.getPages();
     const firstPage = pages[0];
+    const { width, height } = firstPage.getSize();
 
-    // Embed fonts
+    // Embed fonts - using standard fonts that closely match common fonts
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    // Get page dimensions
-    const { width, height } = firstPage.getSize();
-
     // Prepare replacement values
     const replacements = {
-      '[name]': user.name,
-      '[usn]': user.usn,
-      '[date]': new Date(topic.timestamp).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      }),
-      '[subjectname]': subject.subject,
-      '[topicname]': topic.topic,
-      '[topicid]': topicId,
+      '[name]': { value: user.name, size: 14, bold: true, color: rgb(0, 0, 0) },
+      '[usn]': { value: user.usn, size: 12, bold: false, color: rgb(0, 0, 0) },
+      '[date]': { 
+        value: new Date(topic.timestamp).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }), 
+        size: 12, 
+        bold: false, 
+        color: rgb(0, 0, 0) 
+      },
+      '[subjectname]': { value: subject.subject, size: 14, bold: true, color: rgb(0, 0, 0) },
+      '[topicname]': { value: topic.topic, size: 16, bold: true, color: rgb(0.1, 0.3, 0.6) },
+      '[topicid]': { value: topicId, size: 10, bold: false, color: rgb(0.4, 0.4, 0.4) },
     };
 
-    // Function to draw text (Y coordinate from top)
-    const drawText = (text, x, yFromTop, size = 12, fontType = font, color = rgb(0, 0, 0)) => {
-      firstPage.drawText(text, {
-        x,
-        y: height - yFromTop,
-        size,
-        font: fontType,
-        color,
-      });
-    };
-
-    // Draw white rectangles to cover placeholders and write actual values
-    // Adjust these coordinates based on your template layout
-    // Standard A4 PDF: width=595.3, height=841.89
+    // Get the content of the first page
+    const pageContent = firstPage.node.Contents();
     
-    // These are example positions - you'll need to adjust based on your template
-    // Position format: (x, y_from_top, width, height, text, fontSize, isBold)
-    const textPositions = [
-      { x: 180, y: 285, w: 300, h: 20, value: replacements['[name]'], size: 14, bold: true },
-      { x: 180, y: 315, w: 300, h: 20, value: replacements['[usn]'], size: 12, bold: false },
-      { x: 180, y: 385, w: 300, h: 20, value: replacements['[subjectname]'], size: 14, bold: true },
-      { x: 180, y: 455, w: 300, h: 25, value: replacements['[topicname]'], size: 16, bold: true, color: rgb(0.1, 0.3, 0.6) },
-      { x: 180, y: 515, w: 300, h: 20, value: replacements['[date]'], size: 12, bold: false },
-      { x: 180, y: 675, w: 300, h: 20, value: replacements['[topicid]'], size: 10, bold: false },
-    ];
+    // Since we can't directly edit text in PDF, we'll overlay rectangles and new text
+    // We need to find approximate positions of placeholders and cover them
+    
+    // Common positions for a standard template (adjust based on your template)
+    const placeholderPositions = {
+      '[name]': { x: 180, y: 285, width: 350 },
+      '[usn]': { x: 180, y: 315, width: 350 },
+      '[subjectname]': { x: 180, y: 385, width: 350 },
+      '[topicname]': { x: 180, y: 455, width: 350 },
+      '[date]': { x: 180, y: 515, width: 350 },
+      '[topicid]': { x: 180, y: 675, width: 350 },
+    };
 
-    // Draw white rectangles over placeholders and add actual text
-    textPositions.forEach(pos => {
-      // Draw white rectangle to cover placeholder
-      firstPage.drawRectangle({
-        x: pos.x - 5,
-        y: height - pos.y - pos.h,
-        width: pos.w,
-        height: pos.h,
-        color: rgb(1, 1, 1),
-      });
+    // For each placeholder, draw a white rectangle to cover it and add the replacement text
+    Object.keys(replacements).forEach((placeholder) => {
+      const position = placeholderPositions[placeholder];
+      const replacement = replacements[placeholder];
+      
+      if (position && replacement) {
+        // Calculate text height based on font size
+        const textHeight = replacement.size + 4;
+        
+        // Draw white rectangle to cover the placeholder
+        firstPage.drawRectangle({
+          x: position.x - 5,
+          y: height - position.y - textHeight,
+          width: position.width,
+          height: textHeight + 2,
+          color: rgb(1, 1, 1),
+          borderColor: rgb(1, 1, 1),
+          borderWidth: 0,
+        });
 
-      // Draw the actual text
-      drawText(
-        pos.value,
-        pos.x,
-        pos.y,
-        pos.size,
-        pos.bold ? fontBold : font,
-        pos.color || rgb(0, 0, 0)
-      );
+        // Draw the replacement text
+        firstPage.drawText(replacement.value, {
+          x: position.x,
+          y: height - position.y,
+          size: replacement.size,
+          font: replacement.bold ? fontBold : font,
+          color: replacement.color,
+        });
+      }
     });
 
     // Process and add images starting from page 2

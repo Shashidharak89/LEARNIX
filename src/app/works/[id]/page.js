@@ -140,7 +140,6 @@ const WorkTopicPageWrapper = () => {
         onShare={handleShare}
       />
       
-      <Footer />
 
       <style jsx>{`
         .wtp-page-wrapper {
