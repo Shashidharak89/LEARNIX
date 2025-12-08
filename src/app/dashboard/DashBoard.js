@@ -114,7 +114,7 @@ export default function DashBoard() {
             <FiUsers size={20} />
           </div>
           <div className="learnix-stat-info">
-            <span className="learnix-stat-value">30+</span>
+            <span className="learnix-stat-value">50+</span>
             <span className="learnix-stat-label">Active Users</span>
           </div>
         </div>
