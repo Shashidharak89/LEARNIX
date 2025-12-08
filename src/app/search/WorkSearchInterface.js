@@ -16,12 +16,55 @@ const WorkSearchInterface = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isManualReloading, setIsManualReloading] = useState(false);
+  const [notificationPermission, setNotificationPermission] = useState('default');
 
   const ITEMS_PER_LOAD = 8;
+
+  // Request notification permission on component mount
+  useEffect(() => {
+    requestNotificationPermission();
+  }, []);
 
   useEffect(() => {
     fetchAllTopics();
   }, []);
+
+  const requestNotificationPermission = async () => {
+    // Check if notifications are supported
+    if (!('Notification' in window)) {
+      console.log('This browser does not support notifications');
+      return;
+    }
+
+    // Check current permission status
+    const currentPermission = Notification.permission;
+    setNotificationPermission(currentPermission);
+
+    // If permission hasn't been granted or denied, request it
+    if (currentPermission === 'default') {
+      try {
+        const permission = await Notification.requestPermission();
+        setNotificationPermission(permission);
+        
+        if (permission === 'granted') {
+          console.log('Notification permission granted for Learnix');
+          // Show a welcome notification
+          new Notification('Welcome to Learnix!', {
+            body: 'You will now receive notifications about new topics and updates.',
+            icon: '/favicon.ico',
+            badge: '/favicon.ico',
+            tag: 'learnix-welcome',
+          });
+        } else {
+          console.log('Notification permission denied');
+        }
+      } catch (error) {
+        console.error('Error requesting notification permission:', error);
+      }
+    } else if (currentPermission === 'granted') {
+      console.log('Notification permission already granted');
+    }
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
