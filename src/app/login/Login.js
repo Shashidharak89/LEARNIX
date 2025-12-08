@@ -5,7 +5,6 @@ import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FiUser, FiHash, FiLock, FiArrowRight, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
-import { savePendingNotificationSubscription } from "@/lib/notificationSubscription";
 import "./styles/Login.css";
 
 export default function Login() {
@@ -30,9 +29,6 @@ export default function Login() {
       if (typeof window !== "undefined") {
         localStorage.setItem("usn", res.data.user.usn); // 🔹 store in localStorage
         localStorage.setItem("name", res.data.user.name);
-        
-        // Save any pending notification subscription
-        savePendingNotificationSubscription(res.data.user.usn);
       }
 
       setTimeout(() => {
