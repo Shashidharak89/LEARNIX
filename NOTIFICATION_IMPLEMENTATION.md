@@ -3,9 +3,68 @@
 ## Overview
 This implementation adds browser notification support to Learnix, allowing users to receive push notifications about new topics, updates, and other important information.
 
+## ⚠️ IMPORTANT: How Notifications Currently Work
+
+### Current Implementation Status
+
+**When you hit the `/api/notifications/send` endpoint:**
+- ✅ The API accepts your request and returns success
+- ✅ The notification payload is logged to the console
+- ❌ **NO notifications are actually sent to users' browsers yet**
+
+### Why?
+
+The current implementation only includes:
+1. **Permission Request System** - Users are asked to allow notifications when they visit any route
+2. **API Endpoint** - Ready to receive notification data
+3. **Basic Infrastructure** - Foundation for sending notifications
+
+### What's Missing?
+
+To actually send notifications to users, you need:
+1. **Service Worker** - Runs in the background to receive push notifications
+2. **Web Push Library** - Sends notifications from server to browsers
+3. **VAPID Keys** - Authentication for push notifications
+4. **Subscription Storage** - Database to store user notification subscriptions
+
+### Current Behavior
+
+When you call the API:
+```bash
+curl -X POST http://localhost:3000/api/notifications/send \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Test", "message": "Hello!"}'
+```
+
+**What happens:**
+- ✅ API receives the request
+- ✅ Validates the data
+- ✅ Logs the notification to console
+- ✅ Returns success response
+- ❌ But users don't receive any notification
+
+**To actually send notifications, you need to:**
+1. Follow the "Next Steps" section below
+2. Implement Service Worker
+3. Set up web-push integration
+4. Store user subscriptions
+
+---
+
 ## Files Created/Modified
 
-### 1. API Routes
+### 1. Global Notification Permission
+
+#### `src/app/components/NotificationPermission.js`
+Client component that requests notification permission globally across all routes.
+
+**Features:**
+- Runs on every page load (added to root layout)
+- Requests permission 2 seconds after page load (non-intrusive)
+- Shows welcome notification when permission is granted
+- Only requests once if permission already granted/denied
+
+### 2. API Routes
 
 #### `/api/notifications/send/route.js` (POST)
 Endpoint to send notifications to users.
@@ -100,19 +159,28 @@ Endpoint to unsubscribe a user from push notifications.
 
 ### 2. Frontend Implementation
 
-#### `WorkSearchInterface.js`
-Added notification permission request logic that:
-- Requests notification permission when the component mounts
-- Shows a welcome notification when permission is granted
-- Tracks permission state in component state
+#### `src/app/layout.js`
+Added `NotificationPermission` component to root layout so it runs on every route.
 
 **Key Features:**
-- Automatic permission request on page load
-- Browser compatibility check
-- Welcome notification on successful permission grant
-- Permission state tracking
+- Global permission request across all pages
+- Non-intrusive (2-second delay after page load)
+- Only asks once per browser
+- Welcome notification on successful grant
 
-## Usage Examples
+#### `src/app/search/WorkSearchInterface.js`
+Removed notification logic (moved to global component).
+
+## How It Works Now
+
+1. **User visits ANY route** → NotificationPermission component loads
+2. **After 2 seconds** → Browser shows permission dialog
+3. **User clicks "Allow"** → Permission granted, welcome notification shown
+4. **You hit the API** → Data received but notification NOT sent (needs implementation)
+
+## To Actually Send Notifications
+
+You need to implement these additional steps:
 
 ### Sending a Notification (Backend)
 

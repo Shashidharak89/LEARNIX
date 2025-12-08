@@ -2,6 +2,7 @@
 import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import Footer from "./components/Footer";
+import NotificationPermission from "./components/NotificationPermission";
 
 export const metadata = {
   title: "Learnix",
@@ -42,6 +43,7 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <ThemeProvider>
+          <NotificationPermission />
           {children}
           <Footer />
         </ThemeProvider>
