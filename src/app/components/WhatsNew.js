@@ -10,6 +10,16 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Page Number Toggle for Topic Images",
+      description:
+        "Now you can easily view page numbers on topic images with our new optional toggle button. Enable or disable page numbers (displayed 1, 2, 3, etc.) directly on each image. Disabled by default, giving you full control over your viewing preference. Perfect for referencing and studying materials.",
+    },
+    {
+      title: "Customized Pages Download as PDF",
+      description:
+        "Download exactly the pages you need from any topic! Instead of downloading all pages, select specific pages or choose a range (From: X, To: Y) to create your custom PDF. Use the new dropdown menu on the Download button to access the page selection modal and download only what matters to you.",
+    },
+    {
       title: "Quick File Share - New Feature",
       description:
         "Upload any file instantly and get a unique code! Share your files with anyone without login required. Perfect for quick file transfers, assignments, and documents. Simply upload, get a code, and others can download using that code on any device.",
