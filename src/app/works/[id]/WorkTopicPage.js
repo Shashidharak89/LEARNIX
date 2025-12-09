@@ -11,7 +11,8 @@ import {
   FaArrowLeft,
   FaImage,
   FaClock,
-  FaIdCard
+  FaIdCard,
+  FaListOl
 } from "react-icons/fa";
 import "./styles/WorkTopicPage.css";
 
@@ -112,6 +113,7 @@ const FullPageSkeleton = () => (
 const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
   const [expandedImages, setExpandedImages] = useState({});
   const [imageLoading, setImageLoading] = useState({});
+  const [showPageNumbers, setShowPageNumbers] = useState(false);
 
   const handleImageLoad = (index) => {
     setTimeout(() => {
@@ -140,6 +142,10 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
     if (onShare) {
       onShare(data);
     }
+  };
+
+  const togglePageNumbers = () => {
+    setShowPageNumbers((prev) => !prev);
   };
 
   // Show skeleton if wrapper is loading
@@ -270,10 +276,26 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
                   <FaImage className="wtpc-section-icon" />
                   Images ({validImages.length})
                 </h3>
+                <button
+                  type="button"
+                  onClick={togglePageNumbers}
+                  className={`wtpc-page-toggle ${showPageNumbers ? "wtpc-page-toggle-active" : ""}`}
+                  aria-pressed={showPageNumbers}
+                  title={showPageNumbers ? "Hide page numbers" : "Show page numbers"}
+                >
+                  <span className="wtpc-toggle-switch" aria-hidden="true">
+                    <span className="wtpc-toggle-knob" />
+                  </span>
+                  <FaListOl className="wtpc-toggle-icon" aria-hidden="true" />
+                  <span className="wtpc-toggle-label">Page #</span>
+                </button>
               </div>
               <div className="wtpc-images-grid">
                 {validImages.map((imageUrl, index) => (
                   <div key={index} className="wtpc-image-container">
+                    {showPageNumbers && (
+                      <span className="wtpc-page-badge">{index + 1}</span>
+                    )}
                     <div className="wtpc-image-wrapper">
                       {imageLoading[index] && (
                         <div className="wtpc-image-loader">
