@@ -6,7 +6,7 @@ import * as fontkit from "fontkit";
 
 export async function POST(req) {
   try {
-    const { topicId, user, subject, topic } = await req.json();
+    const { topicId, user, subject, topic, startPage, endPage, allPages, selectedPages } = await req.json();
 
     if (!topic || !topic.images || topic.images.length === 0) {
       return NextResponse.json(
@@ -105,9 +105,33 @@ export async function POST(req) {
 
     // Process and add images starting from page 2
     const validImages = topic.images.filter((url) => url && url.trim() !== "");
+
+    // Determine which images to include
+    const total = validImages.length;
+    let rangedImages = validImages;
+
+    if (Array.isArray(selectedPages) && selectedPages.length > 0) {
+      const uniqueSelection = Array.from(new Set(selectedPages.map((n) => parseInt(n, 10)))).filter((n) => !Number.isNaN(n) && n >= 1 && n <= total).sort((a, b) => a - b);
+      rangedImages = uniqueSelection.map((n) => validImages[n - 1]).filter(Boolean);
+    } else if (!allPages) {
+      let sliceStart = 1;
+      let sliceEnd = total;
+      const s = Math.max(1, Math.min(total, parseInt(startPage, 10) || 1));
+      const e = Math.max(s, Math.min(total, parseInt(endPage, 10) || total));
+      sliceStart = s;
+      sliceEnd = e;
+      rangedImages = validImages.slice(sliceStart - 1, sliceEnd);
+    }
+
+    if (!rangedImages.length) {
+      return NextResponse.json(
+        { error: "Selected page range has no images" },
+        { status: 400 }
+      );
+    }
     
-    for (let i = 0; i < validImages.length; i++) {
-      const imageUrl = validImages[i];
+    for (let i = 0; i < rangedImages.length; i++) {
+      const imageUrl = rangedImages[i];
       
       try {
         // Fetch image

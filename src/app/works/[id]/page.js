@@ -39,7 +39,7 @@ const WorkTopicPageWrapper = () => {
     fetchData();
   }, [id]);
 
-  const downloadTopicAsPDF = async (data) => {
+  const downloadTopicAsPDF = async (data, options = {}) => {
     if (!data?.topic?.images || data.topic.images.length === 0) {
       alert("No images available for this topic");
       return;
@@ -66,6 +66,10 @@ const WorkTopicPageWrapper = () => {
           user: data.user,
           subject: data.subject,
           topic: data.topic,
+          startPage: options.startPage,
+          endPage: options.endPage,
+          allPages: options.allPages,
+          selectedPages: options.selectedPages,
         }),
       });
 
