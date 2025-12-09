@@ -331,6 +331,11 @@
   animation: wtpc-slide-up 0.6s ease-out;
 }
 
+.wtpc-download-btn + .wtpc-download-btn {
+  margin-left: -12px !important;
+  gap: 0 !important;
+}
+
 .wtpc-action-btn {
   display: flex;
   align-items: center;
@@ -379,14 +384,17 @@
 
 .wtpc-download-primary {
   flex: 1.4;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+  border-radius: 10px 0 0 10px;
+  margin-right: -2px;
+  border-right: none;
+  z-index: 1;
 }
 
 .wtpc-download-caret {
   flex: 0.6;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
+  border-radius: 0 10px 10px 0;
+  border-left: none;
+  margin-left: -2px;
   padding-inline: 10px;
 }
 
@@ -1082,6 +1090,17 @@
     font-size: 0.85rem;
     min-height: 40px;
     gap: 4px;
+  }
+
+  .wtpc-download-btn + .wtpc-download-btn {
+    margin-left: -6px !important;
+  }
+
+  .wtpc-download-primary,
+  .wtpc-download-caret {
+    margin: 0 !important;
+    margin-right: -1px;
+    border-width: 1px;
   }
 
   /* Hide text on small screens, show only icons */
