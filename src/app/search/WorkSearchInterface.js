@@ -384,16 +384,18 @@ const WorkSearchInterface = () => {
           <div className="ws-images-section">
             <div className="ws-images-grid">
               {displayImages.map((imageUrl, imgIndex) => (
-                <div key={imgIndex} className="ws-image-container">
-                  <div className="ws-image-wrapper">
-                    <img 
-                      src={imageUrl} 
-                      alt={`${topic.topic} - Image ${imgIndex + 1}`} 
-                      className="ws-topic-image" 
-                      loading="lazy" 
-                    />
+                <Link key={imgIndex} href={`/works/${topic.topicId}`} className="ws-image-link">
+                  <div className="ws-image-container">
+                    <div className="ws-image-wrapper">
+                      <img 
+                        src={imageUrl} 
+                        alt={`${topic.topic} - Image ${imgIndex + 1}`} 
+                        className="ws-topic-image" 
+                        loading="lazy" 
+                      />
+                    </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
             {validImages.length > 2 && (
