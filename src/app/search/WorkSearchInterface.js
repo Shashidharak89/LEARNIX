@@ -17,8 +17,8 @@ const WorkSearchInterface = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isManualReloading, setIsManualReloading] = useState(false);
-  const [selectedSubject, setSelectedSubject] = useState(null);
-  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
+  const [selectedTopics, setSelectedTopics] = useState([]);
 
   const ITEMS_PER_LOAD = 8;
 
@@ -177,19 +177,30 @@ const WorkSearchInterface = () => {
 
   const getFilteredTopics = (topics) => {
     return topics.filter(topic => {
-      if (selectedSubject && topic.subjectName !== selectedSubject) {
+      // If no subjects selected, show all
+      if (selectedSubjects.length === 0) {
+        return true;
+      }
+      
+      // OR logic for subjects - if topic matches any selected subject
+      const subjectMatch = selectedSubjects.includes(topic.subjectName);
+      if (!subjectMatch) {
         return false;
       }
-      if (selectedTopic && topic.topic !== selectedTopic) {
-        return false;
+      
+      // OR logic for topics - if no topics selected, show all from matched subjects
+      if (selectedTopics.length === 0) {
+        return true;
       }
-      return true;
+      
+      // If topics are selected, topic must match any selected topic
+      return selectedTopics.includes(topic.topic);
     });
   };
 
   const handleFilterChange = (filters) => {
-    setSelectedSubject(filters.subject);
-    setSelectedTopic(filters.topic);
+    setSelectedSubjects(filters.subjects || []);
+    setSelectedTopics(filters.topics || []);
   };
 
   // Apply filters when they change
@@ -203,7 +214,7 @@ const WorkSearchInterface = () => {
     } else {
       handleSearch(searchQuery);
     }
-  }, [selectedSubject, selectedTopic]);
+  }, [selectedSubjects, selectedTopics]);
 
   const toggleImageExpansion = (topicKey) => {
     setExpandedImages(prev => ({ ...prev, [topicKey]: !prev[topicKey] }));

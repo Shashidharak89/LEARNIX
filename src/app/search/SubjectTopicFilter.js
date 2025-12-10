@@ -6,9 +6,9 @@ import './SubjectTopicFilter.css';
 
 const SubjectTopicFilter = ({ onFilterChange }) => {
   const [subjects, setSubjects] = useState([]);
-  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [topics, setTopics] = useState([]);
-  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [selectedTopics, setSelectedTopics] = useState([]);
   const [isLoadingSubjects, setIsLoadingSubjects] = useState(false);
   const [isLoadingTopics, setIsLoadingTopics] = useState(false);
   
@@ -35,18 +35,25 @@ const SubjectTopicFilter = ({ onFilterChange }) => {
     fetchSubjects();
   }, []);
 
-  // Fetch topics when subject is selected
+  // Fetch topics when subjects are selected
   useEffect(() => {
-    if (selectedSubject) {
+    if (selectedSubjects.length > 0) {
       const fetchTopics = async () => {
         setIsLoadingTopics(true);
         try {
-          const response = await fetch(`/api/topic/by-subject?subject=${encodeURIComponent(selectedSubject)}`);
-          const data = await response.json();
-          if (data.topics) {
-            setTopics(data.topics);
-            setSelectedTopic(null);
+          const topicsSet = new Set();
+          
+          // Fetch topics for each selected subject
+          for (const subject of selectedSubjects) {
+            const response = await fetch(`/api/topic/by-subject?subject=${encodeURIComponent(subject)}`);
+            const data = await response.json();
+            if (data.topics) {
+              data.topics.forEach(topic => topicsSet.add(topic));
+            }
           }
+          
+          setTopics(Array.from(topicsSet).sort());
+          setSelectedTopics([]);
         } catch (error) {
           console.error('Error fetching topics:', error);
         } finally {
@@ -57,34 +64,42 @@ const SubjectTopicFilter = ({ onFilterChange }) => {
       fetchTopics();
     } else {
       setTopics([]);
-      setSelectedTopic(null);
+      setSelectedTopics([]);
     }
-  }, [selectedSubject]);
+  }, [selectedSubjects]);
 
   // Notify parent of filter changes
   useEffect(() => {
     onFilterChange({
-      subject: selectedSubject,
-      topic: selectedTopic
+      subjects: selectedSubjects,
+      topics: selectedTopics
     });
-  }, [selectedSubject, selectedTopic, onFilterChange]);
+  }, [selectedSubjects, selectedTopics, onFilterChange]);
 
   const handleSubjectClick = (subject) => {
-    setSelectedSubject(selectedSubject === subject ? null : subject);
+    setSelectedSubjects(prev => 
+      prev.includes(subject) 
+        ? prev.filter(s => s !== subject)
+        : [...prev, subject]
+    );
   };
 
   const handleTopicClick = (topic) => {
-    setSelectedTopic(selectedTopic === topic ? null : topic);
+    setSelectedTopics(prev =>
+      prev.includes(topic)
+        ? prev.filter(t => t !== topic)
+        : [...prev, topic]
+    );
   };
 
-  const handleClearSubject = (e) => {
+  const handleClearSubject = (e, subject) => {
     e.stopPropagation();
-    setSelectedSubject(null);
+    setSelectedSubjects(prev => prev.filter(s => s !== subject));
   };
 
-  const handleClearTopic = (e) => {
+  const handleClearTopic = (e, topic) => {
     e.stopPropagation();
-    setSelectedTopic(null);
+    setSelectedTopics(prev => prev.filter(t => t !== topic));
   };
 
   return (
@@ -99,16 +114,16 @@ const SubjectTopicFilter = ({ onFilterChange }) => {
               <button
                 key={subject.name}
                 className={`stf-chip stf-subject-chip ${
-                  selectedSubject === subject.name ? 'stf-active' : ''
+                  selectedSubjects.includes(subject.name) ? 'stf-active' : ''
                 }`}
                 onClick={() => handleSubjectClick(subject.name)}
               >
                 <span className="stf-chip-text">{subject.name}</span>
-                {selectedSubject === subject.name && (
+                {selectedSubjects.includes(subject.name) && (
                   <FiX
                     size={16}
                     className="stf-chip-close"
-                    onClick={handleClearSubject}
+                    onClick={(e) => handleClearSubject(e, subject.name)}
                   />
                 )}
               </button>
@@ -119,8 +134,8 @@ const SubjectTopicFilter = ({ onFilterChange }) => {
         </div>
       </div>
 
-      {/* Topics Section - Shows when subject is selected */}
-      {selectedSubject && (
+      {/* Topics Section - Shows when subjects are selected */}
+      {selectedSubjects.length > 0 && (
         <div className="stf-scroll-wrapper">
           <div className="stf-scroll-container" ref={topicsScrollRef}>
             {isLoadingTopics ? (
@@ -130,16 +145,16 @@ const SubjectTopicFilter = ({ onFilterChange }) => {
                 <button
                   key={topic}
                   className={`stf-chip stf-topic-chip ${
-                    selectedTopic === topic ? 'stf-active' : ''
+                    selectedTopics.includes(topic) ? 'stf-active' : ''
                   }`}
                   onClick={() => handleTopicClick(topic)}
                 >
                   <span className="stf-chip-text">{topic}</span>
-                  {selectedTopic === topic && (
+                  {selectedTopics.includes(topic) && (
                     <FiX
                       size={16}
                       className="stf-chip-close"
-                      onClick={handleClearTopic}
+                      onClick={(e) => handleClearTopic(e, topic)}
                     />
                   )}
                 </button>
