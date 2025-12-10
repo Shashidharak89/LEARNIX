@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiUser, FiBook, FiRefreshCw, FiRotateCcw, FiShare2 } from 'react-icons/fi';
+import SubjectTopicFilter from './SubjectTopicFilter';
 import './styles/WorkSearchInterface.css';
 
 const WorkSearchInterface = () => {
@@ -16,6 +17,8 @@ const WorkSearchInterface = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isManualReloading, setIsManualReloading] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [selectedTopic, setSelectedTopic] = useState(null);
 
   const ITEMS_PER_LOAD = 8;
 
@@ -131,10 +134,11 @@ const WorkSearchInterface = () => {
   const handleSearch = async (query) => {
     if (!query.trim()) {
       setSearchResults([]);
-      const initialTopics = allTopics.slice(0, ITEMS_PER_LOAD);
+      const filteredTopics = getFilteredTopics(allTopics);
+      const initialTopics = filteredTopics.slice(0, ITEMS_PER_LOAD);
       setDisplayedTopics(initialTopics);
       setCurrentIndex(ITEMS_PER_LOAD);
-      setHasMore(allTopics.length > ITEMS_PER_LOAD);
+      setHasMore(filteredTopics.length > ITEMS_PER_LOAD);
       return;
     }
 
@@ -162,13 +166,44 @@ const WorkSearchInterface = () => {
           )
       );
 
-      setSearchResults(uniqueResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)));
+      const filteredResults = getFilteredTopics(uniqueResults);
+      setSearchResults(filteredResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)));
     } catch (error) {
       console.error('Error searching:', error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const getFilteredTopics = (topics) => {
+    return topics.filter(topic => {
+      if (selectedSubject && topic.subjectName !== selectedSubject) {
+        return false;
+      }
+      if (selectedTopic && topic.topic !== selectedTopic) {
+        return false;
+      }
+      return true;
+    });
+  };
+
+  const handleFilterChange = (filters) => {
+    setSelectedSubject(filters.subject);
+    setSelectedTopic(filters.topic);
+  };
+
+  // Apply filters when they change
+  useEffect(() => {
+    if (!searchQuery) {
+      const filteredTopics = getFilteredTopics(allTopics);
+      const initialTopics = filteredTopics.slice(0, ITEMS_PER_LOAD);
+      setDisplayedTopics(initialTopics);
+      setCurrentIndex(ITEMS_PER_LOAD);
+      setHasMore(filteredTopics.length > ITEMS_PER_LOAD);
+    } else {
+      handleSearch(searchQuery);
+    }
+  }, [selectedSubject, selectedTopic]);
 
   const toggleImageExpansion = (topicKey) => {
     setExpandedImages(prev => ({ ...prev, [topicKey]: !prev[topicKey] }));
@@ -378,6 +413,7 @@ const WorkSearchInterface = () => {
             />
           </div>
         </div>
+        <SubjectTopicFilter onFilterChange={handleFilterChange} />
       </div>
 
       <div className="ws-content">
