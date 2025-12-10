@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import Work from "@/models/Work";
+import User from "@/models/User";
 
 // 📍 POST → Increment active time
 export const POST = async (req) => {
@@ -13,19 +13,8 @@ export const POST = async (req) => {
       return NextResponse.json({ error: "USN is required" }, { status: 400 });
     }
 
-    const normalizedUsn = usn.trim().toUpperCase();
-
-    const user = await Work.findOneAndUpdate(
-      { usn: normalizedUsn },
-      { $inc: { active: 1 } }, // Increment active time by 1 minute
-      { new: true }
-    );
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    return NextResponse.json({ success: true, active: user.active });
+    // Active tracking deprecated; return dummy value without modifying DB
+    return NextResponse.json({ success: true, active: 0 });
   } catch (err) {
     console.error("Error updating active time:", err);
     return NextResponse.json(
@@ -48,13 +37,8 @@ export const GET = async (req) => {
     }
 
     const normalizedUsn = usn.trim().toUpperCase();
-    const user = await Work.findOne({ usn: normalizedUsn });
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    return NextResponse.json({ success: true, active: user.active ?? 0 });
+    // Active tracking deprecated; return dummy value without DB read
+    return NextResponse.json({ success: true, active: 0 });
   } catch (err) {
     console.error("Error fetching active time:", err);
     return NextResponse.json(

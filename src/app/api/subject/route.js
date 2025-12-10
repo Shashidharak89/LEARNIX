@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import Work from "@/models/Work";
+import User from "@/models/User";
+import Subject from "@/models/Subject";
 
 export async function POST(req) {
   try {
@@ -11,20 +12,22 @@ export async function POST(req) {
       return NextResponse.json({ error: "USN and subject are required" }, { status: 400 });
     }
 
-    const user = await Work.findOne({ usn: usn.toUpperCase() });
+    const user = await User.findOne({ usn: usn.toUpperCase() });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Add new subject with public (default true if not passed)
-    user.subjects.push({ 
-      subject, 
-      public: isPublic !== undefined ? isPublic : true, 
-      topics: [] 
+    // Create new subject for this user
+    const newSubject = await Subject.create({
+      userId: user._id,
+      subject,
+      public: isPublic !== undefined ? isPublic : true
     });
-    await user.save();
 
-    return NextResponse.json({ message: "Subject added successfully", subjects: user.subjects });
+    // Fetch all subjects for response (to maintain compatibility)
+    const subjects = await Subject.find({ userId: user._id }).lean();
+
+    return NextResponse.json({ message: "Subject added successfully", subjects });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });

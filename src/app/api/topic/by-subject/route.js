@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import Work from "@/models/Work";
+import Subject from "@/models/Subject";
+import Topic from "@/models/Topic";
 
 export const GET = async (request) => {
   try {
@@ -17,23 +18,25 @@ export const GET = async (request) => {
       );
     }
 
-    const users = await Work.find({});
+    // Find all public subjects with this name
+    const subjects = await Subject.find({ 
+      subject: subjectName,
+      public: { $ne: false }
+    }).lean();
     
     const topicsSet = new Set();
     
-    users.forEach(user => {
-      user.subjects?.forEach(subject => {
-        // Only include if subject is public and matches the filter
-        if (subject.public !== false && subject.subject === subjectName) {
-          subject.topics?.forEach(topic => {
-            // Only include if topic is public
-            if (topic.public !== false) {
-              topicsSet.add(topic.topic);
-            }
-          });
-        }
+    // Get all public topics from these subjects
+    for (const subject of subjects) {
+      const topics = await Topic.find({
+        subjectId: subject._id,
+        public: { $ne: false }
+      }).lean();
+      
+      topics.forEach(topic => {
+        topicsSet.add(topic.topic);
       });
-    });
+    }
 
     const topics = Array.from(topicsSet).sort();
 

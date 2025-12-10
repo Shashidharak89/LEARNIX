@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import Work from "@/models/Work";
+import User from "@/models/User";
 import bcrypt from "bcryptjs";
 
 export const PUT = async (req) => {
@@ -15,7 +15,7 @@ export const PUT = async (req) => {
       );
     }
 
-    const user = await Work.findOne({ usn: usn.toUpperCase() });
+    const user = await User.findOne({ usn: usn.toUpperCase() });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import Work from "@/models/Work";
+import User from "@/models/User";
 import bcrypt from "bcryptjs";
 
 export async function POST(req) {
@@ -13,7 +13,7 @@ export async function POST(req) {
     }
 
     const usnUpper = usn.toUpperCase();
-    const user = await Work.findOne({ usn: usnUpper });
+    const user = await User.findOne({ usn: usnUpper });
 
     if (!user || !user.password) {
       return NextResponse.json({ error: "Account not found or password not set. Please signup first." }, { status: 404 });

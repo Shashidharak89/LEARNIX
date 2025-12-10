@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import Work from "@/models/Work";
+import User from "@/models/User";
+import Subject from "@/models/Subject";
+import Topic from "@/models/Topic";
 
 export async function PUT(req) {
   try {
@@ -11,29 +13,53 @@ export async function PUT(req) {
       return NextResponse.json({ error: "USN, subject, topic, and images array are required" }, { status: 400 });
     }
 
-    const user = await Work.findOne({ usn: usn.toUpperCase() });
+    const user = await User.findOne({ usn: usn.toUpperCase() });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Find the subject
-    const subj = user.subjects.find((s) => s.subject === subject);
+    const subj = await Subject.findOne({ userId: user._id, subject });
     if (!subj) {
       return NextResponse.json({ error: "Subject not found" }, { status: 404 });
     }
 
-    // Find the topic
-    const t = subj.topics.find((tp) => tp.topic === topic);
-    if (!t) {
+    // Find and update the topic
+    const topicDoc = await Topic.findOne({ 
+      userId: user._id, 
+      subjectId: subj._id, 
+      topic 
+    });
+    if (!topicDoc) {
       return NextResponse.json({ error: "Topic not found" }, { status: 404 });
     }
 
     // Append new images
-    t.images.push(...images);
+    topicDoc.images.push(...images);
+    await topicDoc.save();
 
-    await user.save();
+    // Fetch all subjects with topics for response
+    const subjects = await Subject.find({ userId: user._id }).lean();
+    const subjectsWithTopics = await Promise.all(
+      subjects.map(async (s) => {
+        const topics = await Topic.find({ subjectId: s._id }).lean();
+        return {
+          _id: s._id,
+          subject: s.subject,
+          public: s.public,
+          topics: topics.map(t => ({
+            _id: t._id,
+            topic: t.topic,
+            content: t.content,
+            images: t.images,
+            public: t.public,
+            timestamp: t.timestamp
+          }))
+        };
+      })
+    );
 
-    return NextResponse.json({ message: "Images added successfully", subjects: user.subjects });
+    return NextResponse.json({ message: "Images added successfully", subjects: subjectsWithTopics });
 
   } catch (error) {
     console.error(error);

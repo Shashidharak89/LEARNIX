@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import Work from "@/models/Work";
+import User from "@/models/User";
+import Subject from "@/models/Subject";
+import Topic from "@/models/Topic";
 
 // GET /api/work/getbytopicid/:id
 export const GET = async (req, { params }) => {
@@ -9,32 +11,30 @@ export const GET = async (req, { params }) => {
 
     const { id } = await params; // topic _id
 
-    // Find the user that has this topic
-    const user = await Work.findOne({ "subjects.topics._id": id });
+    // Find the topic
+    const topic = await Topic.findById(id);
 
-    if (!user) {
+    if (!topic) {
       return NextResponse.json(
         { error: "Topic not found" },
         { status: 404 }
       );
     }
 
-    // Find the subject + topic inside the user
-    let foundSubject = null;
-    let foundTopic = null;
-
-    for (const subj of user.subjects) {
-      const topic = subj.topics.find((t) => t._id.toString() === id);
-      if (topic) {
-        foundSubject = subj;
-        foundTopic = topic;
-        break;
-      }
+    // Find the user
+    const user = await User.findById(topic.userId).lean();
+    if (!user) {
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404 }
+      );
     }
 
-    if (!foundTopic) {
+    // Find the subject
+    const subject = await Subject.findById(topic.subjectId).lean();
+    if (!subject) {
       return NextResponse.json(
-        { error: "Topic not found in user" },
+        { error: "Subject not found" },
         { status: 404 }
       );
     }
@@ -47,9 +47,16 @@ export const GET = async (req, { params }) => {
         profileimg: user.profileimg,
       },
       subject: {
-        subject: foundSubject.subject,
+        subject: subject.subject,
       },
-      topic: foundTopic,
+      topic: {
+        _id: topic._id,
+        topic: topic.topic,
+        content: topic.content,
+        images: topic.images,
+        public: topic.public,
+        timestamp: topic.timestamp
+      },
     });
   } catch (err) {
     console.error("Error in getbytopicid:", err);

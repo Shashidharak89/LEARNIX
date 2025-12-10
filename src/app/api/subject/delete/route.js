@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import Work from "@/models/Work";
+import User from "@/models/User";
+import Subject from "@/models/Subject";
+import Topic from "@/models/Topic";
 
 export const DELETE = async (req) => {
   try {
@@ -14,24 +16,29 @@ export const DELETE = async (req) => {
       );
     }
 
-    const user = await Work.findOne({ usn: usn.toUpperCase() });
+    const user = await User.findOne({ usn: usn.toUpperCase() });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Filter out the subject
-    const initialLength = user.subjects.length;
-    user.subjects = user.subjects.filter((s) => s.subject !== subject);
-
-    if (user.subjects.length === initialLength) {
+    // Find and delete the subject
+    const subjectDoc = await Subject.findOne({ userId: user._id, subject });
+    if (!subjectDoc) {
       return NextResponse.json({ error: "Subject not found" }, { status: 404 });
     }
 
-    await user.save();
+    // Delete all topics related to this subject
+    await Topic.deleteMany({ subjectId: subjectDoc._id });
+
+    // Delete the subject
+    await Subject.deleteOne({ _id: subjectDoc._id });
+
+    // Fetch remaining subjects for response
+    const subjects = await Subject.find({ userId: user._id }).lean();
 
     return NextResponse.json({
       message: "Subject deleted successfully",
-      subjects: user.subjects,
+      subjects,
     });
   } catch (err) {
     console.error(err);

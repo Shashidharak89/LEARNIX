@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import Work from "@/models/Work";
+import User from "@/models/User";
+import Subject from "@/models/Subject";
+import Topic from "@/models/Topic";
 import cloudinary from "@/lib/cloudinary";
 
 export const PUT = async (req) => {
@@ -12,13 +14,13 @@ export const PUT = async (req) => {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const user = await Work.findOne({ usn: usn.toUpperCase() });
+    const user = await User.findOne({ usn: usn.toUpperCase() });
     if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-    const sub = user.subjects.find((s) => s.subject === subject);
+    const sub = await Subject.findOne({ userId: user._id, subject });
     if (!sub) return NextResponse.json({ error: "Subject not found" }, { status: 404 });
 
-    const t = sub.topics.find((t) => t.topic === topic);
+    const t = await Topic.findOne({ userId: user._id, subjectId: sub._id, topic });
     if (!t) return NextResponse.json({ error: "Topic not found" }, { status: 404 });
 
     // Delete image from Cloudinary
@@ -31,10 +33,30 @@ export const PUT = async (req) => {
 
     // Remove image from topic
     t.images = t.images.filter((img) => img !== imageUrl);
+    await t.save();
 
-    await user.save();
+    // Fetch all subjects with topics for response
+    const subjects = await Subject.find({ userId: user._id }).lean();
+    const subjectsWithTopics = await Promise.all(
+      subjects.map(async (s) => {
+        const topics = await Topic.find({ subjectId: s._id }).lean();
+        return {
+          _id: s._id,
+          subject: s.subject,
+          public: s.public,
+          topics: topics.map(tp => ({
+            _id: tp._id,
+            topic: tp.topic,
+            content: tp.content,
+            images: tp.images,
+            public: tp.public,
+            timestamp: tp.timestamp
+          }))
+        };
+      })
+    );
 
-    return NextResponse.json({ subjects: user.subjects });
+    return NextResponse.json({ subjects: subjectsWithTopics });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Failed to delete image", details: err.message }, { status: 500 });

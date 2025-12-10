@@ -1,7 +1,9 @@
 // api/user/get-user/route.js
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import Work from "@/models/Work";
+import User from "@/models/User";
+import Subject from "@/models/Subject";
+import Topic from "@/models/Topic";
 
 export const GET = async (req) => {
   try {
@@ -20,7 +22,7 @@ export const GET = async (req) => {
     const usn = usnParam.trim().toUpperCase();
 
     // Case-insensitive search
-    const user = await Work.findOne({
+    const user = await User.findOne({
       usn: { $regex: new RegExp(`^${usn}$`, "i") }
     }).lean();
 
@@ -31,15 +33,39 @@ export const GET = async (req) => {
       );
     }
 
+    // Fetch subjects for this user
+    const subjects = await Subject.find({ userId: user._id }).lean();
+    
+    // Fetch topics for each subject
+    const subjectsWithTopics = await Promise.all(
+      subjects.map(async (subject) => {
+        const topics = await Topic.find({ subjectId: subject._id }).lean();
+        return {
+          _id: subject._id,
+          subject: subject.subject,
+          public: subject.public,
+          topics: topics.map(t => ({
+            _id: t._id,
+            topic: t.topic,
+            content: t.content,
+            images: t.images,
+            public: t.public,
+            timestamp: t.timestamp
+          }))
+        };
+      })
+    );
+
     return NextResponse.json({
       user: {
         id: user._id.toString(),
         name: user.name,
         usn: user.usn,
-        subjects: user.subjects || [],
+        subjects: subjectsWithTopics,
         createdAt: user.createdAt,
         profileimg: user.profileimg,
-        active: user.active || 0,
+        // Active is deprecated; return dummy value for compatibility
+        active: user.active ?? 0,
       },
     });
   } catch (err) {

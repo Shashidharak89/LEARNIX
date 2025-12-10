@@ -1,7 +1,7 @@
 // api/auth/route.js
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import Work from "@/models/Work";
+import User from "@/models/User";
 import bcrypt from "bcryptjs";
 
 const DEFAULT_PROFILE_IMG =
@@ -20,7 +20,7 @@ export async function POST(req) {
     }
 
     const usnUpper = usn.toUpperCase();
-    let user = await Work.findOne({ usn: usnUpper });
+    let user = await User.findOne({ usn: usnUpper });
 
     if (user) {
       if (!user.password) {
@@ -51,11 +51,10 @@ export async function POST(req) {
     } else {
       // Create new account with password
       const hashedPassword = await bcrypt.hash(password, 10);
-      const newUser = new Work({
+      const newUser = new User({
         name,
         usn: usnUpper,
         password: hashedPassword,
-        subjects: [],
         profileimg: DEFAULT_PROFILE_IMG, // explicitly set
       });
       await newUser.save();
