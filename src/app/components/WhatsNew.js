@@ -10,6 +10,11 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Search Filter in Uploaded Works",
+      description:
+        "Filter study materials by subject and topic in the Uploaded Works section! Scroll through subjects horizontally and select multiple subjects to view content from all of them together (OR logic). Then drill down by selecting multiple topics to narrow your search. Works seamlessly with the search bar for powerful content discovery. Find exactly what you're looking for with ease!",
+    },
+    {
       title: "Page Number Toggle for Topic Images",
       description:
         "Now you can easily view page numbers on topic images with our new optional toggle button. Enable or disable page numbers (displayed 1, 2, 3, etc.) directly on each image. Disabled by default, giving you full control over your viewing preference. Perfect for referencing and studying materials.",
