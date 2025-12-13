@@ -281,6 +281,45 @@ body {
   font-weight: 500;
 }
 
+/* Load More Button */
+.learnix-notif-load-more {
+  padding: 12px 16px;
+  text-align: center;
+  border-top: 1px solid #e5f3ff;
+}
+
+.learnix-load-more-btn {
+  width: 100%;
+  padding: 10px 16px;
+  background-color: #f0f9ff;
+  border: 1px solid #0ea5e9;
+  border-radius: 8px;
+  color: #0ea5e9;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.learnix-load-more-btn:hover:not(:disabled) {
+  background-color: #0ea5e9;
+  color: #ffffff;
+}
+
+.learnix-load-more-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.learnix-notif-all-loaded {
+  padding: 12px 16px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  background-color: #f8fafc;
+  border-top: 1px solid #e5f3ff;
+}
+
 /* Responsive adjustments for notification popup */
 @media (max-width: 480px) {
   .learnix-notification-popup {

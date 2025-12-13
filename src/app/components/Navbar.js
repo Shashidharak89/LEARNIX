@@ -31,6 +31,10 @@ export const Navbar = () => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifLoading, setNotifLoading] = useState(false);
+  const [notifLoadingMore, setNotifLoadingMore] = useState(false);
+  const [notifPage, setNotifPage] = useState(1);
+  const [hasMoreNotifs, setHasMoreNotifs] = useState(false);
+  const [totalNotifs, setTotalNotifs] = useState(0);
   const notifRef = useRef(null);
 
   useEffect(() => {
@@ -119,23 +123,43 @@ export const Navbar = () => {
     window.location.href = "/";
   };
 
-  // Fetch notifications
-  const fetchNotifications = async () => {
+  // Fetch notifications (with pagination support)
+  const fetchNotifications = async (page = 1, append = false) => {
     const usn = localStorage.getItem("usn");
     if (!usn) return;
     
     try {
-      setNotifLoading(true);
-      const res = await fetch(`/api/review/notifications/${usn}`);
+      if (append) {
+        setNotifLoadingMore(true);
+      } else {
+        setNotifLoading(true);
+      }
+      
+      const res = await fetch(`/api/review/notifications/${usn}?page=${page}&limit=10`);
       if (res.ok) {
         const data = await res.json();
-        setNotifications(data.notifications || []);
+        if (append) {
+          setNotifications(prev => [...prev, ...(data.notifications || [])]);
+        } else {
+          setNotifications(data.notifications || []);
+        }
         setUnreadCount(data.unreadCount || 0);
+        setHasMoreNotifs(data.hasMore || false);
+        setTotalNotifs(data.total || 0);
+        setNotifPage(page);
       }
     } catch (error) {
       console.error("Failed to fetch notifications:", error);
     } finally {
       setNotifLoading(false);
+      setNotifLoadingMore(false);
+    }
+  };
+
+  // Load more notifications
+  const loadMoreNotifications = () => {
+    if (hasMoreNotifs && !notifLoadingMore) {
+      fetchNotifications(notifPage + 1, true);
     }
   };
 
@@ -172,7 +196,10 @@ export const Navbar = () => {
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
     if (!showNotifications) {
-      fetchNotifications(); // Refresh when opening
+      // Reset to first page and fetch fresh
+      setNotifPage(1);
+      setNotifications([]);
+      fetchNotifications(1, false);
     }
   };
 
@@ -264,22 +291,44 @@ export const Navbar = () => {
                         <p>No notifications yet</p>
                       </div>
                     ) : (
-                      notifications.map((notif) => (
-                        <Link
-                          key={notif._id}
-                          href={`/reviews/${notif.topicId}`}
-                          className={`learnix-notif-item ${!notif.isRead ? 'learnix-notif-unread' : ''}`}
-                          onClick={() => setShowNotifications(false)}
-                        >
-                          <div className="learnix-notif-content">
-                            <p className="learnix-notif-text">
-                              <strong>{notif.reviewerUsn}</strong> sent a {notif.type} on your topic <strong>{notif.topicName}</strong> of <strong>{notif.subjectName}</strong>
-                            </p>
-                            <span className="learnix-notif-time">{formatNotifTime(notif.timestamp)}</span>
+                      <>
+                        {notifications.map((notif) => (
+                          <Link
+                            key={notif._id}
+                            href={`/reviews/${notif.topicId}`}
+                            className={`learnix-notif-item ${!notif.isRead ? 'learnix-notif-unread' : ''}`}
+                            onClick={() => setShowNotifications(false)}
+                          >
+                            <div className="learnix-notif-content">
+                              <p className="learnix-notif-text">
+                                <strong>{notif.reviewerUsn}</strong> sent a {notif.type} on your topic <strong>{notif.topicName}</strong> of <strong>{notif.subjectName}</strong>
+                              </p>
+                              <span className="learnix-notif-time">{formatNotifTime(notif.timestamp)}</span>
+                            </div>
+                            <span className="learnix-notif-link">Click to view →</span>
+                          </Link>
+                        ))}
+                        
+                        {/* Load More Button */}
+                        {hasMoreNotifs && (
+                          <div className="learnix-notif-load-more">
+                            <button 
+                              onClick={loadMoreNotifications}
+                              disabled={notifLoadingMore}
+                              className="learnix-load-more-btn"
+                            >
+                              {notifLoadingMore ? "Loading..." : `Load More (${notifications.length} of ${totalNotifs})`}
+                            </button>
                           </div>
-                          <span className="learnix-notif-link">Click to view →</span>
-                        </Link>
-                      ))
+                        )}
+                        
+                        {/* All Loaded Message */}
+                        {!hasMoreNotifs && notifications.length > 0 && (
+                          <div className="learnix-notif-all-loaded">
+                            All {totalNotifs} notifications loaded
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
