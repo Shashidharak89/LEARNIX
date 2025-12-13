@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { 
   FaComment, 
@@ -13,7 +13,10 @@ import {
   FaCommentDots,
   FaTimes,
   FaChevronDown,
-  FaChevronUp
+  FaChevronUp,
+  FaEllipsisV,
+  FaCopy,
+  FaCheck
 } from "react-icons/fa";
 import "./styles/TopicReviews.css";
 
@@ -55,6 +58,107 @@ const formatDate = (dateString) => {
   }
 };
 
+// Delete Confirmation Modal
+const DeleteConfirmModal = ({ isOpen, onConfirm, onCancel, itemType = "review" }) => {
+  if (!isOpen) return null;
+  
+  return (
+    <div className="tr-modal-overlay" onClick={onCancel}>
+      <div className="tr-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="tr-modal-icon">
+          <FaTrash />
+        </div>
+        <h4>Delete {itemType}?</h4>
+        <p>Are you sure you want to delete this {itemType}? This action cannot be undone.</p>
+        <div className="tr-modal-actions">
+          <button className="tr-modal-cancel" onClick={onCancel}>No, Cancel</button>
+          <button className="tr-modal-confirm" onClick={onConfirm}>Yes, Delete</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Three Dot Menu Component
+const ThreeDotMenu = ({ message, onDelete, canDelete }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const menuRef = useRef(null);
+
+  // Close menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(message);
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+        setIsOpen(false);
+      }, 1000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
+  const handleDeleteClick = () => {
+    setIsOpen(false);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    setShowDeleteModal(false);
+    onDelete();
+  };
+
+  return (
+    <>
+      <div className="tr-three-dot-menu" ref={menuRef}>
+        <button 
+          className="tr-three-dot-btn"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-label="More options"
+        >
+          <FaEllipsisV />
+        </button>
+        
+        {isOpen && (
+          <div className="tr-menu-dropdown">
+            <button className="tr-menu-item" onClick={handleCopy}>
+              {copied ? <FaCheck className="tr-menu-icon" /> : <FaCopy className="tr-menu-icon" />}
+              <span>{copied ? "Copied!" : "Copy"}</span>
+            </button>
+            {canDelete && (
+              <button className="tr-menu-item tr-menu-delete" onClick={handleDeleteClick}>
+                <FaTrash className="tr-menu-icon" />
+                <span>Delete</span>
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+      
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
+    </>
+  );
+};
+
 // Single Review Card Component
 const ReviewCard = ({ 
   review, 
@@ -63,6 +167,7 @@ const ReviewCard = ({
   uploaderId,
   onReply, 
   onDelete,
+  onDeleteReply,
   isReplying,
   setReplyingTo,
   isLoggedIn
@@ -111,15 +216,11 @@ const ReviewCard = ({
             </span>
           </div>
         </div>
-        {canDelete && (
-          <button 
-            className="tr-delete-btn"
-            onClick={() => onDelete(review._id)}
-            title="Delete review"
-          >
-            <FaTrash />
-          </button>
-        )}
+        <ThreeDotMenu 
+          message={review.message}
+          onDelete={() => onDelete(review._id)}
+          canDelete={canDelete}
+        />
       </div>
 
       <div className="tr-review-content">
@@ -139,30 +240,38 @@ const ReviewCard = ({
           
           {showReplies && (
             <div className="tr-replies-list">
-              {review.replies.map((reply, index) => (
-                <div key={index} className="tr-reply-card">
-                  <div className="tr-reply-header">
-                    <img 
-                      src={reply.userId.profileimg} 
-                      alt={reply.userId.name}
-                      className="tr-reply-avatar"
-                      onError={(e) => {
-                        e.target.src = 'https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp';
-                      }}
-                    />
-                    <div className="tr-reply-info">
-                      <span className="tr-reply-name">
-                        {reply.userId.name}
-                        {reply.userId._id === uploaderId && (
-                          <span className="tr-uploader-badge">Uploader</span>
-                        )}
-                      </span>
-                      <span className="tr-reply-time">{formatDate(reply.timestamp)}</span>
+              {review.replies.map((reply, index) => {
+                const canDeleteReply = isLoggedIn && currentUserId && reply.userId._id === currentUserId;
+                return (
+                  <div key={index} className="tr-reply-card">
+                    <div className="tr-reply-header">
+                      <img 
+                        src={reply.userId.profileimg} 
+                        alt={reply.userId.name}
+                        className="tr-reply-avatar"
+                        onError={(e) => {
+                          e.target.src = 'https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp';
+                        }}
+                      />
+                      <div className="tr-reply-info">
+                        <span className="tr-reply-name">
+                          {reply.userId.name}
+                          {reply.userId._id === uploaderId && (
+                            <span className="tr-uploader-badge">Uploader</span>
+                          )}
+                        </span>
+                        <span className="tr-reply-time">{formatDate(reply.timestamp)}</span>
+                      </div>
+                      <ThreeDotMenu 
+                        message={reply.message}
+                        onDelete={() => onDeleteReply(review._id, index)}
+                        canDelete={canDeleteReply}
+                      />
                     </div>
+                    <p className="tr-reply-content">{reply.message}</p>
                   </div>
-                  <p className="tr-reply-content">{reply.message}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -363,8 +472,6 @@ const TopicReviews = ({ topicId }) => {
 
   // Delete a review
   const handleDelete = async (reviewId) => {
-    if (!confirm("Are you sure you want to delete this review?")) return;
-
     try {
       const res = await fetch(`/api/review/${reviewId}?userId=${currentUserId}`, {
         method: "DELETE"
@@ -379,6 +486,33 @@ const TopicReviews = ({ topicId }) => {
     } catch (err) {
       alert("Failed to delete review");
       console.error("Error deleting review:", err);
+    }
+  };
+
+  // Delete a reply
+  const handleDeleteReply = async (reviewId, replyIndex) => {
+    try {
+      const res = await fetch(`/api/review/${reviewId}/reply`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: currentUserId,
+          replyIndex
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setReviews(reviews.map(r => 
+          r._id === reviewId ? data.review : r
+        ));
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to delete reply");
+      }
+    } catch (err) {
+      alert("Failed to delete reply");
+      console.error("Error deleting reply:", err);
     }
   };
 
@@ -519,8 +653,10 @@ const TopicReviews = ({ topicId }) => {
                       uploaderId={uploaderId}
                       onReply={handleReply}
                       onDelete={handleDelete}
+                      onDeleteReply={handleDeleteReply}
                       isReplying={replyingTo === review._id}
                       setReplyingTo={setReplyingTo}
+                      isLoggedIn={isLoggedIn}
                     />
                   ))}
                 </>
