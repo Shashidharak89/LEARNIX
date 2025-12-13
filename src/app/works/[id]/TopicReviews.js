@@ -423,31 +423,12 @@ const TopicReviews = ({ topicId }) => {
 
       {isExpanded && (
         <div className="tr-content">
-          {/* Add Review Button */}
-          {!isUploader && !showNewReview && (
-            <div className="tr-add-review-section">
-              <button 
-                className="tr-add-review-btn"
-                onClick={() => setShowNewReview(true)}
-              >
-                <FaComment /> Send Feedback to Uploader
-              </button>
-              <span className="tr-private-hint">Private - only visible to you & the uploader</span>
-            </div>
-          )}
-
-          {/* New Review Form */}
-          {showNewReview && !isUploader && (
+          {/* Review Form - Show directly for non-uploaders */}
+          {!isUploader && (
             <form className="tr-new-review-form" onSubmit={handleSubmitReview}>
               <div className="tr-form-header">
-                <h4>Add Your Review</h4>
-                <button 
-                  type="button" 
-                  className="tr-close-form"
-                  onClick={() => setShowNewReview(false)}
-                >
-                  <FaTimes />
-                </button>
+                <h4>Send Private Feedback</h4>
+                <span className="tr-private-badge">🔒 Only you & uploader can see</span>
               </div>
 
               <div className="tr-type-selector">
@@ -477,27 +458,17 @@ const TopicReviews = ({ topicId }) => {
                 placeholder="Share your feedback, suggestions, or report any mistakes..."
                 value={newReviewMessage}
                 onChange={(e) => setNewReviewMessage(e.target.value)}
-                rows={4}
+                rows={3}
                 required
               />
 
               <div className="tr-form-actions">
                 <button 
-                  type="button" 
-                  className="tr-cancel-btn"
-                  onClick={() => {
-                    setShowNewReview(false);
-                    setNewReviewMessage("");
-                  }}
-                >
-                  Cancel
-                </button>
-                <button 
                   type="submit" 
                   className="tr-submit-btn"
                   disabled={submitting || !newReviewMessage.trim()}
                 >
-                  {submitting ? "Submitting..." : "Submit Review"}
+                  {submitting ? "Sending..." : "Send Feedback"}
                 </button>
               </div>
             </form>
@@ -526,40 +497,33 @@ const TopicReviews = ({ topicId }) => {
             </div>
           )}
 
-          {/* Reviews List */}
+          {/* Reviews List - Only show for uploaders or when there are reviews */}
           {!loading && !error && (
             <div className="tr-reviews-list">
               {reviews.length === 0 ? (
-                <div className="tr-no-reviews">
-                  <FaCommentDots className="tr-empty-icon" />
-                  <p>
-                    {isUploader 
-                      ? "No feedback received yet for this topic." 
-                      : "Share your thoughts with the uploader"}
-                  </p>
-                  {!isUploader && (
-                    <div className="tr-security-info">
-                      <span className="tr-security-badge">🔒 100% Private & Secure</span>
-                      <p className="tr-security-text">
-                        Your message is completely confidential. Only you and the uploader can see it — no one else has access.
-                      </p>
-                    </div>
-                  )}
-                </div>
+                isUploader && (
+                  <div className="tr-no-reviews">
+                    <FaCommentDots className="tr-empty-icon" />
+                    <p>No feedback received yet for this topic.</p>
+                  </div>
+                )
               ) : (
-                reviews.map(review => (
-                  <ReviewCard
-                    key={review._id}
-                    review={review}
-                    currentUserId={currentUserId}
-                    isUploader={isUploader}
-                    uploaderId={uploaderId}
-                    onReply={handleReply}
-                    onDelete={handleDelete}
-                    isReplying={replyingTo === review._id}
-                    setReplyingTo={setReplyingTo}
-                  />
-                ))
+                <>
+                  {!isUploader && <div className="tr-your-feedback-title">Your Feedback</div>}
+                  {reviews.map(review => (
+                    <ReviewCard
+                      key={review._id}
+                      review={review}
+                      currentUserId={currentUserId}
+                      isUploader={isUploader}
+                      uploaderId={uploaderId}
+                      onReply={handleReply}
+                      onDelete={handleDelete}
+                      isReplying={replyingTo === review._id}
+                      setReplyingTo={setReplyingTo}
+                    />
+                  ))}
+                </>
               )}
             </div>
           )}
