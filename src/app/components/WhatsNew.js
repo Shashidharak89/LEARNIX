@@ -10,6 +10,11 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Personal Review/Comment on Topics",
+      description:
+        "Share private feedback directly with content uploaders! Leave personalized reviews on any topic - choose from Feedback, Suggestion, Mistake, or Appreciation types. Your reviews are private and visible only to you and the uploader. Uploaders receive instant notifications via the bell icon and can view all feedback in a dedicated management page. Features include reply threads, copy text, mark as read, and delete options through a convenient 3-dot menu. Perfect for constructive feedback and improving study materials!",
+    },
+    {
       title: "Search Filter in Uploaded Works",
       description:
         "Filter study materials by subject and topic in the Uploaded Works section! Scroll through subjects horizontally and select multiple subjects to view content from all of them together (OR logic). Then drill down by selecting multiple topics to narrow your search. Works seamlessly with the search bar for powerful content discovery. Find exactly what you're looking for with ease!",
