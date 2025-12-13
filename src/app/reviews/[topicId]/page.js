@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Navbar } from "../../components/Navbar";
@@ -19,7 +19,10 @@ import {
   FaChevronUp,
   FaBook,
   FaUser,
-  FaEye
+  FaEye,
+  FaEllipsisV,
+  FaCopy,
+  FaCheck
 } from "react-icons/fa";
 import "./styles/ManageReviews.css";
 
@@ -61,11 +64,112 @@ const formatDate = (dateString) => {
   }
 };
 
+// Delete Confirmation Modal
+const DeleteConfirmModal = ({ isOpen, onConfirm, onCancel, itemType = "review" }) => {
+  if (!isOpen) return null;
+  
+  return (
+    <div className="mr-modal-overlay" onClick={onCancel}>
+      <div className="mr-modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="mr-modal-icon">
+          <FaTrash />
+        </div>
+        <h4>Delete {itemType}?</h4>
+        <p>Are you sure you want to delete this {itemType}? This action cannot be undone.</p>
+        <div className="mr-modal-actions">
+          <button className="mr-modal-cancel" onClick={onCancel}>No, Cancel</button>
+          <button className="mr-modal-confirm" onClick={onConfirm}>Yes, Delete</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Three Dot Menu Component
+const ThreeDotMenu = ({ message, onDelete, canDelete }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(message);
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+        setIsOpen(false);
+      }, 1000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
+
+  const handleDeleteClick = () => {
+    setIsOpen(false);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    setShowDeleteModal(false);
+    onDelete();
+  };
+
+  return (
+    <>
+      <div className="mr-three-dot-menu" ref={menuRef}>
+        <button 
+          className="mr-three-dot-btn"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-label="More options"
+        >
+          <FaEllipsisV />
+        </button>
+        
+        {isOpen && (
+          <div className="mr-menu-dropdown">
+            <button className="mr-menu-item" onClick={handleCopy}>
+              {copied ? <FaCheck className="mr-menu-icon" /> : <FaCopy className="mr-menu-icon" />}
+              <span>{copied ? "Copied!" : "Copy"}</span>
+            </button>
+            {canDelete && (
+              <button className="mr-menu-item mr-menu-delete" onClick={handleDeleteClick}>
+                <FaTrash className="mr-menu-icon" />
+                <span>Delete</span>
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+      
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
+    </>
+  );
+};
+
 // Review Card Component
 const ReviewCard = ({
   review,
   currentUserId,
   onReply,
+  onDeleteReply,
   replyingTo,
   setReplyingTo
 }) => {
@@ -116,6 +220,12 @@ const ReviewCard = ({
             </div>
           </div>
         </div>
+        {/* Three dot menu for review - Copy only (uploader can't delete reviewer's review) */}
+        <ThreeDotMenu 
+          message={review.message}
+          onDelete={() => {}}
+          canDelete={false}
+        />
       </div>
 
       <div className="mr-review-content">
@@ -135,30 +245,38 @@ const ReviewCard = ({
 
           {showReplies && (
             <div className="mr-replies-list">
-              {review.replies.map((reply, index) => (
-                <div key={index} className="mr-reply-card">
-                  <div className="mr-reply-header">
-                    <img
-                      src={reply.userId?.profileimg || 'https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp'}
-                      alt={reply.userId?.name || 'User'}
-                      className="mr-reply-avatar"
-                      onError={(e) => {
-                        e.target.src = 'https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp';
-                      }}
-                    />
-                    <div className="mr-reply-info">
-                      <span className="mr-reply-name">
-                        {reply.userId?.name || 'Unknown'}
-                        {reply.userId?._id === currentUserId && (
-                          <span className="mr-you-badge">You</span>
-                        )}
-                      </span>
-                      <span className="mr-reply-time">{formatDate(reply.timestamp)}</span>
+              {review.replies.map((reply, index) => {
+                const canDeleteReply = reply.userId?._id === currentUserId;
+                return (
+                  <div key={index} className="mr-reply-card">
+                    <div className="mr-reply-header">
+                      <img
+                        src={reply.userId?.profileimg || 'https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp'}
+                        alt={reply.userId?.name || 'User'}
+                        className="mr-reply-avatar"
+                        onError={(e) => {
+                          e.target.src = 'https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp';
+                        }}
+                      />
+                      <div className="mr-reply-info">
+                        <span className="mr-reply-name">
+                          {reply.userId?.name || 'Unknown'}
+                          {reply.userId?._id === currentUserId && (
+                            <span className="mr-you-badge">You</span>
+                          )}
+                        </span>
+                        <span className="mr-reply-time">{formatDate(reply.timestamp)}</span>
+                      </div>
+                      <ThreeDotMenu 
+                        message={reply.message}
+                        onDelete={() => onDeleteReply(review._id, index)}
+                        canDelete={canDeleteReply}
+                      />
                     </div>
+                    <p className="mr-reply-content">{reply.message}</p>
                   </div>
-                  <p className="mr-reply-content">{reply.message}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -312,6 +430,33 @@ const ManageReviewsPage = () => {
     }
   };
 
+  // Delete a reply
+  const handleDeleteReply = async (reviewId, replyIndex) => {
+    try {
+      const res = await fetch(`/api/review/${reviewId}/reply`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: currentUserId,
+          replyIndex
+        })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setReviews(reviews.map(r => 
+          r._id === reviewId ? data.review : r
+        ));
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to delete reply");
+      }
+    } catch (err) {
+      alert("Failed to delete reply");
+      console.error("Error deleting reply:", err);
+    }
+  };
+
   // Filter reviews
   const filteredReviews = filterType === "all"
     ? reviews
@@ -449,6 +594,7 @@ const ManageReviewsPage = () => {
                   review={review}
                   currentUserId={currentUserId}
                   onReply={handleReply}
+                  onDeleteReply={handleDeleteReply}
                   replyingTo={replyingTo}
                   setReplyingTo={setReplyingTo}
                 />
