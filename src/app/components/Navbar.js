@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import axios from "axios";
@@ -16,7 +16,8 @@ import {
   FiBookOpen,
   FiFolder,
   FiHelpCircle,
-  FiTool
+  FiTool,
+  FiBell
 } from "react-icons/fi";
 import "./styles/Navbar.css";
 import { Fill } from "./Fill";
@@ -24,6 +25,13 @@ import { Fill } from "./Fill";
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [hasUSN, setHasUSN] = useState(false);
+  
+  // Notification state
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifLoading, setNotifLoading] = useState(false);
+  const notifRef = useRef(null);
 
   useEffect(() => {
     // initialize hasUSN from localStorage
@@ -111,6 +119,78 @@ export const Navbar = () => {
     window.location.href = "/";
   };
 
+  // Fetch notifications
+  const fetchNotifications = async () => {
+    const usn = localStorage.getItem("usn");
+    if (!usn) return;
+    
+    try {
+      setNotifLoading(true);
+      const res = await fetch(`/api/review/notifications/${usn}`);
+      if (res.ok) {
+        const data = await res.json();
+        setNotifications(data.notifications || []);
+        setUnreadCount(data.unreadCount || 0);
+      }
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
+    } finally {
+      setNotifLoading(false);
+    }
+  };
+
+  // Fetch unread count periodically
+  useEffect(() => {
+    if (!hasUSN) return;
+    
+    // Initial fetch
+    fetchNotifications();
+    
+    // Fetch every 30 seconds
+    const interval = setInterval(fetchNotifications, 30000);
+    
+    return () => clearInterval(interval);
+  }, [hasUSN]);
+
+  // Close notifications on click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    };
+    
+    if (showNotifications) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showNotifications]);
+
+  const toggleNotifications = () => {
+    setShowNotifications(!showNotifications);
+    if (!showNotifications) {
+      fetchNotifications(); // Refresh when opening
+    }
+  };
+
+  const formatNotifTime = (timestamp) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now - date;
+    
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    
+    if (days > 0) return `${days}d ago`;
+    if (hours > 0) return `${hours}h ago`;
+    if (minutes > 0) return `${minutes}m ago`;
+    return "Just now";
+  };
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === "Escape" && isOpen) {
@@ -149,17 +229,76 @@ export const Navbar = () => {
           </Link>
         </div>
 
-        {/* Menu Toggle Button */}
-        <button
-          className="learnix-menu-toggle-btn"
-          onClick={toggleSidebar}
-          aria-label="Toggle navigation menu"
-          aria-expanded={isOpen}
-        >
-          <span className="learnix-menu-icon">
-            {isOpen ? <FiX size={22} /> : <FiMenu size={22} />}
-          </span>
-        </button>
+        {/* Right Section - Notification & Menu */}
+        <div className="learnix-navbar-right">
+          {/* Notification Bell */}
+          {hasUSN && (
+            <div className="learnix-notification-wrapper" ref={notifRef}>
+              <button
+                className="learnix-notification-btn"
+                onClick={toggleNotifications}
+                aria-label="Notifications"
+              >
+                <FiBell size={20} />
+                {unreadCount > 0 && (
+                  <span className="learnix-notification-badge">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Popup */}
+              {showNotifications && (
+                <div className="learnix-notification-popup">
+                  <div className="learnix-notif-header">
+                    <h4>Notifications</h4>
+                    <span className="learnix-notif-count">{unreadCount} unread</span>
+                  </div>
+                  
+                  <div className="learnix-notif-list">
+                    {notifLoading ? (
+                      <div className="learnix-notif-loading">Loading...</div>
+                    ) : notifications.length === 0 ? (
+                      <div className="learnix-notif-empty">
+                        <FiBell size={32} />
+                        <p>No notifications yet</p>
+                      </div>
+                    ) : (
+                      notifications.map((notif) => (
+                        <Link
+                          key={notif._id}
+                          href={`/reviews/${notif.topicId}`}
+                          className={`learnix-notif-item ${!notif.isRead ? 'learnix-notif-unread' : ''}`}
+                          onClick={() => setShowNotifications(false)}
+                        >
+                          <div className="learnix-notif-content">
+                            <p className="learnix-notif-text">
+                              <strong>{notif.reviewerUsn}</strong> sent a {notif.type} on your topic <strong>{notif.topicName}</strong> of <strong>{notif.subjectName}</strong>
+                            </p>
+                            <span className="learnix-notif-time">{formatNotifTime(notif.timestamp)}</span>
+                          </div>
+                          <span className="learnix-notif-link">Click to view →</span>
+                        </Link>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Menu Toggle Button */}
+          <button
+            className="learnix-menu-toggle-btn"
+            onClick={toggleSidebar}
+            aria-label="Toggle navigation menu"
+            aria-expanded={isOpen}
+          >
+            <span className="learnix-menu-icon">
+              {isOpen ? <FiX size={22} /> : <FiMenu size={22} />}
+            </span>
+          </button>
+        </div>
       </nav>
 
       {/* Sidebar Overlay */}
