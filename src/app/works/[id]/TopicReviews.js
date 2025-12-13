@@ -411,7 +411,7 @@ const TopicReviews = ({ topicId }) => {
       <div className="tr-header" onClick={() => setIsExpanded(!isExpanded)}>
         <h3 className="tr-title">
           <FaComment className="tr-title-icon" />
-          Reviews & Feedback
+          {isUploader ? "Reviews & Feedback" : "Send Private Feedback"}
           {reviews.length > 0 && (
             <span className="tr-count-badge">{reviews.length}</span>
           )}
@@ -425,12 +425,15 @@ const TopicReviews = ({ topicId }) => {
         <div className="tr-content">
           {/* Add Review Button */}
           {!isUploader && !showNewReview && (
-            <button 
-              className="tr-add-review-btn"
-              onClick={() => setShowNewReview(true)}
-            >
-              <FaComment /> Add Review
-            </button>
+            <div className="tr-add-review-section">
+              <button 
+                className="tr-add-review-btn"
+                onClick={() => setShowNewReview(true)}
+              >
+                <FaComment /> Send Feedback to Uploader
+              </button>
+              <span className="tr-private-hint">Private - only visible to you & the uploader</span>
+            </div>
           )}
 
           {/* New Review Form */}
@@ -531,9 +534,17 @@ const TopicReviews = ({ topicId }) => {
                   <FaCommentDots className="tr-empty-icon" />
                   <p>
                     {isUploader 
-                      ? "No reviews yet for this topic." 
-                      : "Be the first to add a review!"}
+                      ? "No feedback received yet for this topic." 
+                      : "Share your thoughts with the uploader"}
                   </p>
+                  {!isUploader && (
+                    <div className="tr-security-info">
+                      <span className="tr-security-badge">🔒 100% Private & Secure</span>
+                      <p className="tr-security-text">
+                        Your message is completely confidential. Only you and the uploader can see it — no one else has access.
+                      </p>
+                    </div>
+                  )}
                 </div>
               ) : (
                 reviews.map(review => (

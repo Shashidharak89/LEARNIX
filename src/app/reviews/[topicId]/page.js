@@ -434,11 +434,11 @@ const ManageReviewsPage = () => {
           {filteredReviews.length === 0 ? (
             <div className="mr-no-reviews">
               <FaCommentDots className="mr-empty-icon" />
-              <h3>No Reviews Yet</h3>
+              <h3>No Feedback Received</h3>
               <p>
                 {filterType === 'all'
-                  ? "No one has reviewed this topic yet."
-                  : `No ${filterType} reviews found.`}
+                  ? "You haven't received any private feedback for this topic yet."
+                  : `No ${filterType} feedback found.`}
               </p>
             </div>
           ) : (
