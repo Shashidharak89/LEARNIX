@@ -215,6 +215,12 @@ body {
 .learnix-notif-list {
   max-height: 400px;
   overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.learnix-notif-list::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .learnix-notif-loading,
@@ -235,8 +241,9 @@ body {
 }
 
 .learnix-notif-item {
-  display: block;
-  padding: 14px 16px;
+  display: flex;
+  align-items: stretch;
+  padding: 0;
   border-bottom: 1px solid #f1f5f9;
   text-decoration: none;
   transition: background-color 0.2s ease;
@@ -254,6 +261,33 @@ body {
 
 .learnix-notif-unread:hover {
   background-color: #fef3c7;
+}
+
+.learnix-notif-link-area {
+  flex: 1;
+  display: block;
+  padding: 14px 16px;
+  text-decoration: none;
+  min-width: 0;
+}
+
+.learnix-mark-read-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  background-color: transparent;
+  border: none;
+  border-left: 1px solid #f1f5f9;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.learnix-mark-read-btn:hover {
+  background-color: #dcfce7;
+  color: #22c55e;
 }
 
 .learnix-notif-content {

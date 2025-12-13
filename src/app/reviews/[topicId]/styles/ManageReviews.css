@@ -767,6 +767,18 @@
   color: #ef4444;
 }
 
+.mr-menu-mark-read {
+  color: #22c55e;
+}
+
+.mr-menu-mark-read:hover {
+  background-color: #dcfce7;
+}
+
+.mr-menu-mark-read .mr-menu-icon {
+  color: #22c55e;
+}
+
 /* Delete Confirmation Modal */
 .mr-modal-overlay {
   position: fixed;

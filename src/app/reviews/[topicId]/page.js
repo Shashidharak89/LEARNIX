@@ -86,7 +86,7 @@ const DeleteConfirmModal = ({ isOpen, onConfirm, onCancel, itemType = "review" }
 };
 
 // Three Dot Menu Component
-const ThreeDotMenu = ({ message, onDelete, canDelete }) => {
+const ThreeDotMenu = ({ message, onDelete, canDelete, isRead, onMarkAsRead, showMarkAsRead = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -128,6 +128,11 @@ const ThreeDotMenu = ({ message, onDelete, canDelete }) => {
     onDelete();
   };
 
+  const handleMarkAsReadClick = () => {
+    setIsOpen(false);
+    if (onMarkAsRead) onMarkAsRead();
+  };
+
   return (
     <>
       <div className="mr-three-dot-menu" ref={menuRef}>
@@ -145,6 +150,12 @@ const ThreeDotMenu = ({ message, onDelete, canDelete }) => {
               {copied ? <FaCheck className="mr-menu-icon" /> : <FaCopy className="mr-menu-icon" />}
               <span>{copied ? "Copied!" : "Copy"}</span>
             </button>
+            {showMarkAsRead && !isRead && (
+              <button className="mr-menu-item mr-menu-mark-read" onClick={handleMarkAsReadClick}>
+                <FaCheck className="mr-menu-icon" />
+                <span>Mark as Read</span>
+              </button>
+            )}
             {canDelete && (
               <button className="mr-menu-item mr-menu-delete" onClick={handleDeleteClick}>
                 <FaTrash className="mr-menu-icon" />
@@ -170,6 +181,7 @@ const ReviewCard = ({
   currentUserId,
   onReply,
   onDeleteReply,
+  onMarkAsRead,
   replyingTo,
   setReplyingTo
 }) => {
@@ -220,11 +232,14 @@ const ReviewCard = ({
             </div>
           </div>
         </div>
-        {/* Three dot menu for review - Copy only (uploader can't delete reviewer's review) */}
+        {/* Three dot menu for review - Copy and Mark as Read */}
         <ThreeDotMenu 
           message={review.message}
           onDelete={() => {}}
           canDelete={false}
+          isRead={review.isRead}
+          onMarkAsRead={() => onMarkAsRead(review._id)}
+          showMarkAsRead={true}
         />
       </div>
 
@@ -457,6 +472,24 @@ const ManageReviewsPage = () => {
     }
   };
 
+  // Mark a review as read
+  const handleMarkAsRead = async (reviewId) => {
+    try {
+      const res = await fetch(`/api/review/${reviewId}/read`, {
+        method: "PATCH"
+      });
+
+      if (res.ok) {
+        // Update local state - mark this review as read
+        setReviews(reviews.map(r => 
+          r._id === reviewId ? { ...r, isRead: true } : r
+        ));
+      }
+    } catch (err) {
+      console.error("Error marking review as read:", err);
+    }
+  };
+
   // Filter reviews
   const filteredReviews = filterType === "all"
     ? reviews
@@ -595,6 +628,7 @@ const ManageReviewsPage = () => {
                   currentUserId={currentUserId}
                   onReply={handleReply}
                   onDeleteReply={handleDeleteReply}
+                  onMarkAsRead={handleMarkAsRead}
                   replyingTo={replyingTo}
                   setReplyingTo={setReplyingTo}
                 />

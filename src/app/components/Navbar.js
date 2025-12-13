@@ -17,7 +17,8 @@ import {
   FiFolder,
   FiHelpCircle,
   FiTool,
-  FiBell
+  FiBell,
+  FiCheck
 } from "react-icons/fi";
 import "./styles/Navbar.css";
 import { Fill } from "./Fill";
@@ -218,6 +219,28 @@ export const Navbar = () => {
     return "Just now";
   };
 
+  const handleMarkAsRead = async (e, reviewId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    try {
+      const res = await fetch(`/api/review/${reviewId}/read`, {
+        method: "PATCH"
+      });
+      
+      if (res.ok) {
+        // Update local state - mark this notification as read
+        setNotifications(prev => 
+          prev.map(n => n._id === reviewId ? { ...n, isRead: true } : n)
+        );
+        // Decrease unread count
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+    } catch (error) {
+      console.error("Failed to mark as read:", error);
+    }
+  };
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === "Escape" && isOpen) {
@@ -293,20 +316,30 @@ export const Navbar = () => {
                     ) : (
                       <>
                         {notifications.map((notif) => (
-                          <Link
-                            key={notif._id}
-                            href={`/reviews/${notif.topicId}`}
-                            className={`learnix-notif-item ${!notif.isRead ? 'learnix-notif-unread' : ''}`}
-                            onClick={() => setShowNotifications(false)}
-                          >
-                            <div className="learnix-notif-content">
-                              <p className="learnix-notif-text">
-                                <strong>{notif.reviewerUsn}</strong> sent a {notif.type} on your topic <strong>{notif.topicName}</strong> of <strong>{notif.subjectName}</strong>
-                              </p>
-                              <span className="learnix-notif-time">{formatNotifTime(notif.timestamp)}</span>
-                            </div>
-                            <span className="learnix-notif-link">Click to view →</span>
-                          </Link>
+                          <div key={notif._id} className={`learnix-notif-item ${!notif.isRead ? 'learnix-notif-unread' : ''}`}>
+                            <Link
+                              href={`/reviews/${notif.topicId}`}
+                              className="learnix-notif-link-area"
+                              onClick={() => setShowNotifications(false)}
+                            >
+                              <div className="learnix-notif-content">
+                                <p className="learnix-notif-text">
+                                  <strong>{notif.reviewerUsn}</strong> sent a {notif.type} on your topic <strong>{notif.topicName}</strong> of <strong>{notif.subjectName}</strong>
+                                </p>
+                                <span className="learnix-notif-time">{formatNotifTime(notif.timestamp)}</span>
+                              </div>
+                              <span className="learnix-notif-link">Click to view →</span>
+                            </Link>
+                            {!notif.isRead && (
+                              <button
+                                className="learnix-mark-read-btn"
+                                onClick={(e) => handleMarkAsRead(e, notif._id)}
+                                title="Mark as read"
+                              >
+                                <FiCheck size={14} />
+                              </button>
+                            )}
+                          </div>
                         ))}
                         
                         {/* Load More Button */}
