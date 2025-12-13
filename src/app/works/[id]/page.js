@@ -142,6 +142,7 @@ const WorkTopicPageWrapper = () => {
         error={error}
         onDownload={downloadTopicAsPDF}
         onShare={handleShare}
+        topicId={id}
       />
       
 

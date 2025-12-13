@@ -15,6 +15,7 @@ import {
   FaListOl
 } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
+import TopicReviews from "./TopicReviews";
 import "./styles/WorkTopicPage.css";
 
 // Skeleton Components
@@ -111,7 +112,7 @@ const FullPageSkeleton = () => (
   </div>
 );
 
-const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
+const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId }) => {
   const [expandedImages, setExpandedImages] = useState({});
   const [imageLoading, setImageLoading] = useState({});
   const [showPageNumbers, setShowPageNumbers] = useState(false);
@@ -429,6 +430,11 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare }) => {
               <p>No images available for this topic</p>
             </div>
           )}
+
+          {/* Reviews Section */}
+          <TopicReviews 
+            topicId={topicId} 
+          />
         </div>
       </div>
 
