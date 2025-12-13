@@ -47,8 +47,8 @@ export async function POST(req, { params }) {
     }
 
     // Only the topic uploader or the original reviewer can reply
-    const isUploader = topic.userId.toString() === userId;
-    const isReviewer = review.reviewerId.toString() === userId;
+    const isUploader = topic.userId.toString() === userId.toString();
+    const isReviewer = review.reviewerId.toString() === userId.toString();
 
     if (!isUploader && !isReviewer) {
       return NextResponse.json(
@@ -113,7 +113,7 @@ export async function DELETE(req, { params }) {
     }
 
     // Only the reviewer can delete their review
-    if (review.reviewerId.toString() !== userId) {
+    if (review.reviewerId.toString() !== userId.toString()) {
       return NextResponse.json(
         { error: "You are not authorized to delete this review." },
         { status: 403 }

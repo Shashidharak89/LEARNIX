@@ -38,7 +38,7 @@ export async function POST(req) {
     }
 
     // Prevent users from reviewing their own topics
-    if (topic.userId.toString() === reviewerId) {
+    if (topic.userId.toString() === reviewerId.toString()) {
       return NextResponse.json(
         { error: "You cannot review your own topic." },
         { status: 400 }

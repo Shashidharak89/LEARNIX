@@ -34,7 +34,7 @@ export async function GET(req, { params }) {
     
     if (userId) {
       // If user is the topic uploader, show all reviews for this topic
-      if (topic.userId.toString() === userId) {
+      if (topic.userId.toString() === userId.toString()) {
         reviews = await Review.find({ topicId })
           .populate("reviewerId", "name usn profileimg")
           .populate("replies.userId", "name usn profileimg")
@@ -53,8 +53,8 @@ export async function GET(req, { params }) {
 
     return NextResponse.json({
       reviews,
-      isUploader: topic.userId.toString() === userId,
-      uploaderId: topic.userId
+      isUploader: topic.userId.toString() === (userId ? userId.toString() : ''),
+      uploaderId: topic.userId.toString()
     });
   } catch (error) {
     console.error("Error fetching topic reviews:", error);

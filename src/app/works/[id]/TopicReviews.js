@@ -245,8 +245,9 @@ const TopicReviews = ({ topicId }) => {
           setIsLoggedIn(true);
           const res = await fetch(`/api/user?usn=${usn}`);
           if (res.ok) {
-            const userData = await res.json();
-            setCurrentUserId(userData._id);
+            const data = await res.json();
+            // API returns { user: { id: "...", name: "...", ... } }
+            setCurrentUserId(data.user.id);
           }
         } else {
           setIsLoggedIn(false);
