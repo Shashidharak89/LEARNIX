@@ -19,7 +19,8 @@ import {
   FiFile,
   FiCheckCircle,
   FiLoader,
-  FiShare2
+  FiShare2,
+  FiMessageSquare
 } from "react-icons/fi";
 import PDFProcessor from "./PDFProcessor";
 import DeleteTopicButton from "./DeleteTopicButton";
@@ -504,6 +505,13 @@ export default function TopicCard({
           >
             <FiShare2 />
           </button>
+          <Link 
+            href={`/reviews/${topic._id}`}
+            className="ml-2 text-gray-500 hover:text-sky-600 p-1 rounded cursor-pointer"
+            title="Manage Reviews"
+          >
+            <FiMessageSquare />
+          </Link>
           <DeleteTopicButton 
             usn={usn} 
             subject={subject} 
