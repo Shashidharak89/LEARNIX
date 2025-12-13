@@ -240,6 +240,7 @@ body {
   border-bottom: 1px solid #f1f5f9;
   text-decoration: none;
   transition: background-color 0.2s ease;
+  overflow: hidden;
 }
 
 .learnix-notif-item:hover {
@@ -257,6 +258,7 @@ body {
 
 .learnix-notif-content {
   margin-bottom: 6px;
+  overflow: hidden;
 }
 
 .learnix-notif-text {
@@ -264,10 +266,13 @@ body {
   font-size: 0.85rem;
   color: #374151;
   line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .learnix-notif-text strong {
   color: #0ea5e9;
+  word-break: break-word;
 }
 
 .learnix-notif-time {
@@ -321,10 +326,114 @@ body {
 }
 
 /* Responsive adjustments for notification popup */
+@media (max-width: 768px) {
+  .learnix-notification-popup {
+    position: fixed;
+    top: 70px;
+    left: 16px;
+    right: 16px;
+    width: auto;
+    max-height: calc(100vh - 100px);
+  }
+  
+  .learnix-notif-list {
+    max-height: calc(100vh - 200px);
+  }
+  
+  .learnix-notif-text {
+    font-size: 0.8rem;
+  }
+  
+  .learnix-notif-item {
+    padding: 12px 14px;
+  }
+}
+
 @media (max-width: 480px) {
   .learnix-notification-popup {
-    width: calc(100vw - 32px);
-    right: -8px;
+    left: 8px;
+    right: 8px;
+    top: 70px;
+    max-height: calc(100vh - 90px);
+    border-radius: 10px;
+  }
+  
+  .learnix-notif-header {
+    padding: 12px 14px;
+  }
+  
+  .learnix-notif-header h4 {
+    font-size: 0.95rem;
+  }
+  
+  .learnix-notif-count {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+  }
+  
+  .learnix-notif-item {
+    padding: 10px 12px;
+  }
+  
+  .learnix-notif-text {
+    font-size: 0.78rem;
+    line-height: 1.35;
+  }
+  
+  .learnix-notif-text strong {
+    word-break: break-word;
+  }
+  
+  .learnix-notif-time {
+    font-size: 0.7rem;
+  }
+  
+  .learnix-notif-link {
+    font-size: 0.75rem;
+  }
+  
+  .learnix-load-more-btn {
+    padding: 8px 14px;
+    font-size: 0.8rem;
+  }
+  
+  .learnix-notif-all-loaded {
+    padding: 10px 14px;
+    font-size: 0.75rem;
+  }
+  
+  .learnix-notification-btn {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .learnix-notification-badge {
+    min-width: 16px;
+    height: 16px;
+    font-size: 0.65rem;
+    top: -3px;
+    right: -3px;
+  }
+}
+
+@media (max-width: 360px) {
+  .learnix-notification-popup {
+    left: 4px;
+    right: 4px;
+  }
+  
+  .learnix-notif-text {
+    font-size: 0.75rem;
+  }
+  
+  .learnix-navbar-right {
+    gap: 8px;
+  }
+  
+  .learnix-notification-btn,
+  .learnix-menu-toggle-btn {
+    width: 38px;
+    height: 38px;
   }
 }
 
