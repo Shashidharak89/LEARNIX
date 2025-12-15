@@ -36,6 +36,19 @@
   animation: lx-help-slide-up 0.8s ease-out 0.2s both;
 }
 
+.lx-help-back-link {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  text-decoration: none;
+  font-weight: 600;
+  color: #0ea5e9;
+}
+
+.lx-help-back-link:hover {
+  color: #0c4a6e;
+  text-decoration: underline;
+}
+
 /* Section Styles */
 .help-section {
   margin-bottom: 2rem;

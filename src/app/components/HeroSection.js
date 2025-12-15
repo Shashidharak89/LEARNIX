@@ -55,7 +55,7 @@ export default function HeroSection() {
 
           {/* Subtitle */}
           <p className="learnix-hero-subtitle">
-            Share homework, study materials, and build your profile with ease.
+            Share resources, study materials, and build your profile with ease.
           </p>
           <TutVideo />
           <br />

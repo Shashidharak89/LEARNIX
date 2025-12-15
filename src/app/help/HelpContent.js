@@ -5,6 +5,7 @@ import ExpandableSection from './ExpandableSection';
 import StepsSection from './StepsSection';
 import ProfileSection from './ProfileSection';
 import ListSection from './ListSection';
+import HelpQuickLinks from './HelpQuickLinks';
 import {
   STEPS_DATA,
   PROFILE_FEATURES,
@@ -20,6 +21,14 @@ const HelpContent = () => {
         Welcome to Learnix! This guide will help you understand how to use all features
         of our platform effectively.
       </p>
+
+      <div className="help-section">
+        <h2>Quick Links</h2>
+        <p>
+          Short explanations with <strong>View more</strong> links.
+        </p>
+        <HelpQuickLinks />
+      </div>
 
       <ImageSlider />
 

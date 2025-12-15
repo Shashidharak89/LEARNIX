@@ -1,6 +1,27 @@
 // data/helpData.js
 export const DEFAULT_IMAGE = "https://res.cloudinary.com/ddycnd409/image/upload/v1761499257/c1_20251026_22500355_eajjdd.jpg";
 
+export const HELP_QUICK_LINKS = [
+    {
+        href: "/help/subjects",
+        title: "What is a Subject?",
+        description: "Understand how Subjects organize your courses and content.",
+        image: DEFAULT_IMAGE
+    },
+    {
+        href: "/help/topics",
+        title: "What is a Topic?",
+        description: "Learn how Topics contain pages/files and where to review or download.",
+        image: DEFAULT_IMAGE
+    },
+    {
+        href: "/help/features",
+        title: "All Features",
+        description: "A simple overview of everything you can do in Learnix.",
+        image: DEFAULT_IMAGE
+    }
+];
+
 export const SLIDER_IMAGES = [
     "https://res.cloudinary.com/ddycnd409/image/upload/v1761499257/c1_20251026_22500355_eajjdd.jpg",
     "https://res.cloudinary.com/ddycnd409/image/upload/v1761497653/c1_20251026_22210915_txdxug.jpg",
