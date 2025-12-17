@@ -40,6 +40,7 @@ export default function TopicCard({
   showMessage 
 }) {
   const router = useRouter();
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [uploadingStates, setUploadingStates] = useState({});
   const [compressionStates, setCompressionStates] = useState({});
   const [filesMap, setFilesMap] = useState({});
@@ -64,6 +65,44 @@ export default function TopicCard({
   const cameraInputRefs = useRef({});
 
   const topicKey = `${subject}-${topic.topic}`;
+
+  const toggleCollapse = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setOpenMenu(false);
+    setIsCollapsed((prev) => !prev);
+  };
+
+  const shouldIgnoreCollapseToggle = (target) => {
+    if (!target) return false;
+    const el = target instanceof Element ? target : null;
+    if (!el) return false;
+
+    return Boolean(
+      el.closest(
+        [
+          ".mse-topic-options",
+          ".mse-options-menu",
+          ".mse-options-btn",
+          ".mse-options-item",
+          "a",
+          "button",
+          "input",
+          "select",
+          "textarea",
+          "label",
+        ].join(",")
+      )
+    );
+  };
+
+  const handleCardClick = (e) => {
+    if (!isCollapsed) return;
+    if (shouldIgnoreCollapseToggle(e.target)) return;
+    toggleCollapse(e);
+  };
 
   // Clean up preview URLs on unmount
   useEffect(() => {
@@ -610,7 +649,7 @@ export default function TopicCard({
   const isMultipleFiles = Array.isArray(filesForTopic);
 
   return (
-    <div className="mse-topic-card">
+    <div className="mse-topic-card" onClick={handleCardClick} data-collapsed={isCollapsed ? "true" : "false"}>
       {renameModal && (
         <div className="mse-options-modal-overlay" onClick={cancelRenameTopic}>
           <div className="mse-options-modal" onClick={(e) => e.stopPropagation()}>
@@ -669,12 +708,31 @@ export default function TopicCard({
         </div>
       )}
 
-      <div className="mse-topic-header">
+      <div
+        className={`mse-topic-header ${isCollapsed ? "is-collapsed" : "is-expanded"}`}
+        role="button"
+        aria-expanded={!isCollapsed}
+        tabIndex={0}
+        onClick={(e) => {
+          if (shouldIgnoreCollapseToggle(e.target)) return;
+          toggleCollapse(e);
+        }}
+        onKeyDown={(e) => {
+          if (shouldIgnoreCollapseToggle(e.target)) return;
+          if (e.key === "Enter" || e.key === " ") toggleCollapse(e);
+        }}
+      >
         <div className="mse-topic-title">
           <FiFileText className="mse-topic-icon" />
-          <Link href={`/works/${topic._id}`} className="mse-topic-open-link">
-            <h4>{topic.topic}</h4>
-          </Link>
+          {isCollapsed ? (
+            <span className="mse-topic-open-link">
+              <h4>{topic.topic}</h4>
+            </span>
+          ) : (
+            <Link href={`/works/${topic._id}`} className="mse-topic-open-link" onClick={(e) => e.stopPropagation()}>
+              <h4>{topic.topic}</h4>
+            </Link>
+          )}
         </div>
 
         <div className="mse-topic-right">
@@ -683,14 +741,15 @@ export default function TopicCard({
             <span>{new Date(topic.timestamp).toLocaleDateString()}</span>
           </div>
 
-          <span
-            className={`mse-visibility-status ${topic.public ? 'public' : 'private'}`}
-            aria-label="Topic visibility"
-          >
-            {topic.public ? 'Public' : 'Private'}
-          </span>
+          <div className="mse-topic-actions">
+            <span
+              className={`mse-visibility-status ${topic.public ? 'public' : 'private'}`}
+              aria-label="Topic visibility"
+            >
+              {topic.public ? 'Public' : 'Private'}
+            </span>
 
-          <div className="mse-topic-options" ref={menuRef}>
+            <div className="mse-topic-options" ref={menuRef}>
             <button
               type="button"
               className="mse-options-btn"
@@ -750,9 +809,13 @@ export default function TopicCard({
               </div>
             )}
           </div>
+
+          </div>
         </div>
       </div>
 
+      {!isCollapsed && (
+        <>
       {/* Images Section */}
       <div className="mse-images-section">
         <div className="mse-images-header">
@@ -997,6 +1060,9 @@ export default function TopicCard({
           </div>
         )}
       </div>
+
+        </>
+      )}
 
       {/* Delete Confirmation Modal */}
       {deleteConfirm.show && (
