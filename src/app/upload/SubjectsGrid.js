@@ -1,9 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { FiBook, FiPlus, FiFileText, FiChevronDown, FiChevronRight } from "react-icons/fi";
+import { useEffect, useRef, useState } from "react";
+import {
+  FiBook,
+  FiPlus,
+  FiFileText,
+  FiChevronDown,
+  FiChevronRight,
+  FiMoreVertical,
+  FiTrash2,
+  FiLock,
+  FiUnlock
+} from "react-icons/fi";
 import TopicCard from "./TopicCard";
-import DeleteSubjectButton from "./DeleteSubjectButton";
 import axios from "axios";
 
 /*
@@ -26,6 +35,25 @@ export default function SubjectsGrid({
   const [topicName, setTopicName] = useState("");
   const [togglingSubject, setTogglingSubject] = useState(null);
   const [expandedSubjects, setExpandedSubjects] = useState(new Set());
+
+  const [openMenuFor, setOpenMenuFor] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState({ open: false, subjectId: null, subjectName: "" });
+  const [deletingSubjectId, setDeletingSubjectId] = useState(null);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setOpenMenuFor(null);
+      }
+    };
+
+    if (openMenuFor) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openMenuFor]);
 
   const getAllTopicsForSubject = (subjectName) => {
     const topicSet = new Set();
@@ -82,6 +110,46 @@ export default function SubjectsGrid({
     setExpandedSubjects(s);
   };
 
+  const requestDeleteSubject = (subjectId, subjectName) => {
+    setOpenMenuFor(null);
+    setDeleteConfirm({ open: true, subjectId, subjectName });
+  };
+
+  const cancelDeleteSubject = () => {
+    if (deletingSubjectId) return;
+    setDeleteConfirm({ open: false, subjectId: null, subjectName: "" });
+  };
+
+  const confirmDeleteSubject = async () => {
+    const { subjectId, subjectName } = deleteConfirm;
+    if (!subjectName || !usn) return;
+
+    setDeletingSubjectId(subjectId || subjectName);
+    try {
+      const res = await fetch("/api/subject/delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ usn, subject: subjectName })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showMessage(data.error || "Failed to delete subject", "error");
+        return;
+      }
+
+      if (onSubjectDelete) onSubjectDelete(data.subjects);
+      showMessage("Subject deleted successfully!", "success");
+    } catch (err) {
+      console.error(err);
+      showMessage("Error deleting subject", "error");
+    } finally {
+      setDeletingSubjectId(null);
+      setDeleteConfirm({ open: false, subjectId: null, subjectName: "" });
+    }
+  };
+
   // Inline style helpers (kept simple, following your theme)
   const cardStyle = {
     background: "rgba(255,255,255,0.95)",
@@ -132,6 +200,28 @@ export default function SubjectsGrid({
 
   return (
     <div className="mse-subjects-grid">
+      {deleteConfirm.open && (
+        <div className="mse-options-modal-overlay" onClick={cancelDeleteSubject}>
+          <div className="mse-options-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="mse-options-modal-icon">
+              <FiTrash2 />
+            </div>
+            <h4>Delete subject?</h4>
+            <p>
+              Are you sure you want to delete <strong>{deleteConfirm.subjectName}</strong>? This can’t be undone.
+            </p>
+            <div className="mse-options-modal-actions">
+              <button className="mse-options-cancel" onClick={cancelDeleteSubject} disabled={!!deletingSubjectId}>
+                Cancel
+              </button>
+              <button className="mse-options-delete" onClick={confirmDeleteSubject} disabled={!!deletingSubjectId}>
+                {deletingSubjectId ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {subjects.map((sub, idx) => {
         const topicsForThisSubject = getAllTopicsForSubject(sub.subject);
         const subjectPublic = sub.public !== undefined ? sub.public : true;
@@ -155,32 +245,58 @@ export default function SubjectsGrid({
                   <FiBook style={{ color: "#0ea5e9" }} />
                   <h3 style={subjectTitleStyle}>{sub.subject}</h3>
                 </div>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation(); // prevent toggling when clicking this button
-                    toggleSubjectPublic(sub._id, subjectPublic);
-                  }}
-                  disabled={isToggling}
-                  style={{
-                    marginLeft: 8,
-                    padding: "6px 8px",
-                    borderRadius: 8,
-                    border: "1px solid rgba(15,23,42,0.06)",
-                    background: subjectPublic ? "rgba(14,165,233,0.08)" : "rgba(15,23,42,0.04)",
-                    cursor: isToggling ? "not-allowed" : "pointer"
-                  }}
-                >
-                  {isToggling ? "Processing..." : subjectPublic ? "Public" : "Private"}
-                </button>
               </div>
 
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <DeleteSubjectButton 
-                  usn={usn} 
-                  subject={sub.subject} 
-                  onDelete={onSubjectDelete} 
-                />
+                <span
+                  className={`mse-visibility-badge ${subjectPublic ? "is-public" : "is-private"}`}
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  role="status"
+                  aria-label={`Subject visibility: ${subjectPublic ? "Public" : "Private"}`}
+                >
+                  {subjectPublic ? "Public" : "Private"}
+                </span>
+                <div className="mse-subject-options" ref={openMenuFor === sub._id ? menuRef : null}>
+                  <button
+                    className="mse-options-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenMenuFor((prev) => (prev === sub._id ? null : sub._id));
+                    }}
+                    aria-label="More options"
+                    aria-expanded={openMenuFor === sub._id}
+                  >
+                    <FiMoreVertical />
+                  </button>
+
+                  {openMenuFor === sub._id && (
+                    <div className="mse-options-menu" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        className="mse-options-item"
+                        onClick={() => toggleSubjectPublic(sub._id, subjectPublic)}
+                        disabled={isToggling}
+                      >
+                        {subjectPublic ? <FiLock className="mse-options-icon" /> : <FiUnlock className="mse-options-icon" />}
+                        <span>
+                          {isToggling
+                            ? "Processing..."
+                            : subjectPublic
+                              ? "Public → Private"
+                              : "Private → Public"}
+                        </span>
+                      </button>
+
+                      <button
+                        className="mse-options-item mse-options-danger"
+                        onClick={() => requestDeleteSubject(sub._id, sub.subject)}
+                      >
+                        <FiTrash2 className="mse-options-icon" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
