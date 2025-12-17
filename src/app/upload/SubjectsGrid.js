@@ -11,7 +11,8 @@ import {
   FiTrash2,
   FiEdit2,
   FiLock,
-  FiUnlock
+  FiUnlock,
+  FiShare2
 } from "react-icons/fi";
 import TopicCard from "./TopicCard";
 import axios from "axios";
@@ -205,6 +206,25 @@ export default function SubjectsGrid({
     }
   };
 
+  const handleShareSubject = (subjectId) => {
+    setOpenMenuFor(null);
+    const shareUrl = `${window.location.origin}/works/subject/${subjectId}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: "Check out this subject!",
+        text: "View this subject and its topics",
+        url: shareUrl
+      }).catch((err) => console.log("Share cancelled:", err));
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard
+        .writeText(shareUrl)
+        .then(() => showMessage("Subject share link copied to clipboard!", "success"))
+        .catch(() => showMessage("Failed to copy link", "error"));
+    }
+  };
+
   // Inline style helpers (kept simple, following your theme)
   const cardStyle = {
     background: "rgba(255,255,255,0.95)",
@@ -369,6 +389,14 @@ export default function SubjectsGrid({
                       >
                         <FiEdit2 className="mse-options-icon" />
                         <span>Edit (Rename)</span>
+                      </button>
+
+                      <button
+                        className="mse-options-item"
+                        onClick={() => handleShareSubject(sub._id)}
+                      >
+                        <FiShare2 className="mse-options-icon" />
+                        <span>Share Subject</span>
                       </button>
 
                       <button
