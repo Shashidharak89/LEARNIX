@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   FiBook,
   FiPlus,
@@ -34,6 +35,7 @@ export default function SubjectsGrid({
   onRefreshSubjects,
   showMessage 
 }) {
+  const router = useRouter();
   const [topicName, setTopicName] = useState("");
   const [togglingSubject, setTogglingSubject] = useState(null);
   const [expandedSubjects, setExpandedSubjects] = useState(new Set());
@@ -118,6 +120,12 @@ export default function SubjectsGrid({
   const requestDeleteSubject = (subjectId, subjectName) => {
     setOpenMenuFor(null);
     setDeleteConfirm({ open: true, subjectId, subjectName });
+  };
+
+  const handleOpenSubject = (subjectId) => {
+    setOpenMenuFor(null);
+    if (!subjectId) return;
+    router.push(`/works/subject/${subjectId}`);
   };
 
   const requestRenameSubject = (subjectId, currentName) => {
@@ -383,6 +391,14 @@ export default function SubjectsGrid({
 
                   {openMenuFor === sub._id && (
                     <div className="mse-options-menu" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        className="mse-options-item"
+                        onClick={() => handleOpenSubject(sub._id)}
+                      >
+                        <FiFileText className="mse-options-icon" />
+                        <span>Open</span>
+                      </button>
+
                       <button
                         className="mse-options-item"
                         onClick={() => requestRenameSubject(sub._id, sub.subject)}
