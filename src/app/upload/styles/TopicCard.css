@@ -220,7 +220,7 @@
 .mse-topic-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 1.5rem;
   gap: 1rem;
   flex-wrap: wrap;
@@ -232,6 +232,15 @@
   gap: 0.75rem;
   flex: 1;
   min-width: 200px;
+  justify-content: flex-start;
+}
+
+.mse-topic-right {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-left: 0.75rem;
 }
 
 .mse-topic-title h4 {
@@ -242,14 +251,14 @@
   line-height: 1.4;
 }
 
-.mse-topic-title a {
+.mse-topic-open-link {
   color: inherit;
   text-decoration: none;
   transition: color 0.2s ease;
   cursor: pointer;
 }
 
-.mse-topic-title a:hover {
+.mse-topic-open-link:hover {
   color: #3b82f6;
   text-decoration: underline;
 }
@@ -260,62 +269,9 @@
   flex-shrink: 0;
 }
 
-/* Share and Delete Icon Buttons */
-.mse-topic-title button {
-  margin-left: 0.5rem;
-  color: #6b7280;
-  padding: 0.25rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  background: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 1rem;
-}
+/* (Removed old header icon-button styles to avoid affecting the dropdown) */
 
-.mse-topic-title button:hover {
-  color: #374151;
-  background-color: rgba(107, 114, 128, 0.1);
-}
-
-.mse-topic-title button:focus-visible {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-  border-radius: 0.25rem;
-}
-
-/* Specific for Share Icon (FiShare2) */
-.mse-topic-title button[aria-label="Share topic"] {
-  color: #6b7280;
-}
-
-.mse-topic-title button[aria-label="Share topic"]:hover {
-  color: #374151;
-}
-
-/* Specific for Delete Icon (assuming DeleteTopicButton uses FiTrash2 and mse-btn-danger) */
-.mse-topic-title .mse-btn-danger {
-  color: #ef4444;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-}
-
-.mse-topic-title .mse-btn-danger:hover:not(:disabled) {
-  background: rgba(220, 38, 38, 0.1);
-  border-color: rgba(220, 38, 38, 0.3);
-  color: #dc2626;
-}
-
-.mse-topic-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  align-items: flex-end;
-}
+/* old meta block replaced by .mse-topic-right */
 
 .mse-topic-timestamp {
   display: flex;
@@ -1004,6 +960,12 @@
     flex-direction: column;
     align-items: flex-start;
   }
+
+  .mse-topic-right {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-end;
+  }
   
   .mse-topic-meta {
     align-items: flex-start;
@@ -1159,7 +1121,7 @@
   outline-offset: 2px;
 }
 
-.mse-topic-title a:focus-visible {
+.mse-topic-open-link:focus-visible {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
   border-radius: 0.25rem;
@@ -1182,4 +1144,219 @@
   .mse-image-card {
     border: 2px solid #000;
   }
+}
+
+/* ========================================
+   Topic 3-dot Options Menu
+   ======================================== */
+
+.mse-topic-options {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.mse-options-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(14, 165, 233, 0.14);
+  background: rgba(14, 165, 233, 0.08);
+  color: #0f172a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.mse-options-btn:hover {
+  background: rgba(14, 165, 233, 0.12);
+  transform: translateY(-1px);
+}
+
+.mse-options-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 210px;
+  background: #ffffff;
+  border: 1px solid rgba(14, 165, 233, 0.16);
+  border-radius: 12px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+  padding: 6px;
+  z-index: 50;
+  animation: mse-scaleIn 0.15s ease;
+}
+
+.mse-options-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #0f172a;
+  cursor: pointer;
+  font-weight: 700;
+  text-align: left;
+  justify-content: flex-start;
+  text-decoration: none;
+}
+
+.mse-options-item span {
+  flex: 1;
+  text-align: left;
+}
+
+.mse-options-icon {
+  font-size: 1.05rem;
+  color: #0ea5e9;
+}
+
+.mse-options-item:hover {
+  background: rgba(14, 165, 233, 0.08);
+}
+
+.mse-options-item:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mse-options-danger {
+  color: #b91c1c;
+}
+
+.mse-options-danger .mse-options-icon {
+  color: #ef4444;
+}
+
+/* Make topic meta visibility badge look neat when toggle is removed */
+.mse-visibility-toggle-static {
+  gap: 0.5rem;
+}
+
+/* ========================================
+   Reusable Options Modals (Rename/Delete)
+   ======================================== */
+
+.mse-options-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  z-index: 60;
+}
+
+.mse-options-modal {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid rgba(14, 165, 233, 0.14);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.22);
+  padding: 18px;
+  animation: mse-scaleIn 0.15s ease;
+}
+
+.mse-options-modal-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 14px;
+  background: rgba(239, 68, 68, 0.10);
+  color: #ef4444;
+  font-size: 1.3rem;
+}
+
+.mse-options-modal-icon-edit {
+  background: rgba(14, 165, 233, 0.12);
+  color: #0ea5e9;
+}
+
+.mse-options-modal h4 {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #0f172a;
+  text-align: center;
+}
+
+.mse-options-modal p {
+  margin: 0;
+  color: #475569;
+  font-weight: 600;
+  text-align: center;
+}
+
+.mse-options-input-wrap {
+  margin: 12px 0 16px;
+}
+
+.mse-options-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(14, 165, 233, 0.18);
+  background: rgba(255, 255, 255, 0.9);
+  color: #0f172a;
+  font-weight: 700;
+  outline: none;
+}
+
+.mse-options-input:focus {
+  border-color: rgba(14, 165, 233, 0.45);
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.10);
+}
+
+.mse-options-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.mse-options-cancel,
+.mse-options-delete,
+.mse-options-save {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.mse-options-cancel {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.mse-options-cancel:hover {
+  background: #e2e8f0;
+}
+
+.mse-options-delete {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+}
+
+.mse-options-delete:hover {
+  filter: brightness(1.03);
+}
+
+.mse-options-save {
+  background: linear-gradient(135deg, #0ea5e9, #60a5fa);
+  color: #fff;
+}
+
+.mse-options-save:hover {
+  filter: brightness(1.02);
 }

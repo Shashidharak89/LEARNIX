@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import axios from "axios";
 import imageCompression from 'browser-image-compression';
 import { 
@@ -20,10 +21,13 @@ import {
   FiCheckCircle,
   FiLoader,
   FiShare2,
-  FiMessageSquare
+  FiMessageSquare,
+  FiMoreVertical,
+  FiEdit2,
+  FiLock,
+  FiUnlock
 } from "react-icons/fi";
 import PDFProcessor from "./PDFProcessor";
-import DeleteTopicButton from "./DeleteTopicButton";
 import "./styles/TopicCard.css";
 
 export default function TopicCard({ 
@@ -35,6 +39,7 @@ export default function TopicCard({
   onRefreshSubjects,
   showMessage 
 }) {
+  const router = useRouter();
   const [uploadingStates, setUploadingStates] = useState({});
   const [compressionStates, setCompressionStates] = useState({});
   const [filesMap, setFilesMap] = useState({});
@@ -47,6 +52,14 @@ export default function TopicCard({
   const [uploadedFiles, setUploadedFiles] = useState({});
   const [uploadComplete, setUploadComplete] = useState({});
   const [isTogglingPublic, setIsTogglingPublic] = useState(false);
+
+  const [openMenu, setOpenMenu] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [isDeletingTopic, setIsDeletingTopic] = useState(false);
+  const [renameModal, setRenameModal] = useState(false);
+  const [renameValue, setRenameValue] = useState("");
+  const [isRenamingTopic, setIsRenamingTopic] = useState(false);
+  const menuRef = useRef(null);
   
   const cameraInputRefs = useRef({});
 
@@ -64,6 +77,17 @@ export default function TopicCard({
       });
     };
   }, [filePreviewMap]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setOpenMenu(false);
+      }
+    };
+
+    if (openMenu) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openMenu]);
 
   // Image compression function
   const compressImage = async (file) => {
@@ -486,63 +510,245 @@ export default function TopicCard({
     });
   };
 
+  const handleOpenTopic = () => {
+    setOpenMenu(false);
+    router.push(`/works/${topic._id}`);
+  };
+
+  const handleOpenReviews = () => {
+    setOpenMenu(false);
+    router.push(`/reviews/${topic._id}`);
+  };
+
+  const requestRenameTopic = () => {
+    setOpenMenu(false);
+    setRenameValue(topic.topic || "");
+    setRenameModal(true);
+  };
+
+  const cancelRenameTopic = () => {
+    if (isRenamingTopic) return;
+    setRenameModal(false);
+    setRenameValue("");
+  };
+
+  const confirmRenameTopic = async () => {
+    const nextName = String(renameValue || "").trim();
+    if (!nextName) {
+      showMessage("Please enter a topic name", "error");
+      return;
+    }
+    if (nextName.toLowerCase() === String(topic.topic || "").trim().toLowerCase()) {
+      cancelRenameTopic();
+      return;
+    }
+
+    setIsRenamingTopic(true);
+    try {
+      const res = await fetch("/api/topic/rename", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ usn, topicId: topic._id, newTopic: nextName }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showMessage(data.error || "Failed to rename topic", "error");
+        return;
+      }
+
+      await onRefreshSubjects();
+      showMessage("Topic renamed successfully!", "success");
+      cancelRenameTopic();
+    } catch (err) {
+      console.error(err);
+      showMessage("Error renaming topic", "error");
+    } finally {
+      setIsRenamingTopic(false);
+    }
+  };
+
+  const requestDeleteTopic = () => {
+    setOpenMenu(false);
+    setDeleteModal(true);
+  };
+
+  const cancelDeleteTopic = () => {
+    if (isDeletingTopic) return;
+    setDeleteModal(false);
+  };
+
+  const confirmDeleteTopic = async () => {
+    if (!usn) return;
+    setIsDeletingTopic(true);
+    try {
+      const res = await fetch("/api/topic/delete", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ usn, subject, topic: topic.topic }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showMessage(data.error || "Failed to delete topic", "error");
+        return;
+      }
+
+      if (onTopicDelete) onTopicDelete(data.subjects);
+      showMessage("Topic deleted successfully!", "success");
+      setDeleteModal(false);
+    } catch (err) {
+      console.error(err);
+      showMessage("Error deleting topic", "error");
+    } finally {
+      setIsDeletingTopic(false);
+    }
+  };
+
   const validImages = getValidImages(topic.images || []);
   const filesForTopic = filesMap[topicKey];
   const isMultipleFiles = Array.isArray(filesForTopic);
 
   return (
     <div className="mse-topic-card">
+      {renameModal && (
+        <div className="mse-options-modal-overlay" onClick={cancelRenameTopic}>
+          <div className="mse-options-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="mse-options-modal-icon mse-options-modal-icon-edit">
+              <FiEdit2 />
+            </div>
+            <h4>Rename topic</h4>
+            <p>Enter a new name for <strong>{topic.topic}</strong>.</p>
+
+            <div className="mse-options-input-wrap">
+              <input
+                className="mse-options-input"
+                value={renameValue}
+                onChange={(e) => setRenameValue(e.target.value)}
+                placeholder="New topic name"
+                autoFocus
+                disabled={!!isRenamingTopic}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") confirmRenameTopic();
+                  if (e.key === "Escape") cancelRenameTopic();
+                }}
+              />
+            </div>
+
+            <div className="mse-options-modal-actions">
+              <button className="mse-options-cancel" onClick={cancelRenameTopic} disabled={!!isRenamingTopic}>
+                Cancel
+              </button>
+              <button className="mse-options-save" onClick={confirmRenameTopic} disabled={!!isRenamingTopic}>
+                {isRenamingTopic ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteModal && (
+        <div className="mse-options-modal-overlay" onClick={cancelDeleteTopic}>
+          <div className="mse-options-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="mse-options-modal-icon">
+              <FiTrash2 />
+            </div>
+            <h4>Delete topic?</h4>
+            <p>
+              Are you sure you want to delete <strong>{topic.topic}</strong>? This can’t be undone.
+            </p>
+            <div className="mse-options-modal-actions">
+              <button className="mse-options-cancel" onClick={cancelDeleteTopic} disabled={!!isDeletingTopic}>
+                Cancel
+              </button>
+              <button className="mse-options-delete" onClick={confirmDeleteTopic} disabled={!!isDeletingTopic}>
+                {isDeletingTopic ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mse-topic-header">
         <div className="mse-topic-title">
           <FiFileText className="mse-topic-icon" />
-          <Link href={`/works/${topic._id}`} className="cursor-pointer hover:underline">
+          <Link href={`/works/${topic._id}`} className="mse-topic-open-link">
             <h4>{topic.topic}</h4>
           </Link>
-          <button 
-            onClick={handleShare}
-            className="ml-2 text-gray-500 hover:text-gray-700 p-1 rounded cursor-pointer"
-            aria-label="Share topic"
-          >
-            <FiShare2 />
-          </button>
-          <Link 
-            href={`/reviews/${topic._id}`}
-            className="ml-2 text-gray-500 hover:text-sky-600 p-1 rounded cursor-pointer"
-            title="Manage Reviews"
-          >
-            <FiMessageSquare />
-          </Link>
-          <DeleteTopicButton 
-            usn={usn} 
-            subject={subject} 
-            topic={topic.topic} 
-            onDelete={onTopicDelete} 
-          />
         </div>
-        <div className="mse-topic-meta">
-          <div className="mse-topic-timestamp">
+
+        <div className="mse-topic-right">
+          <div className="mse-topic-timestamp" title="Created date">
             <FiCalendar className="mse-timestamp-icon" />
             <span>{new Date(topic.timestamp).toLocaleDateString()}</span>
           </div>
-          <div className="mse-visibility-toggle">
-            <span className="mse-visibility-label">Visibility:</span>
+
+          <span
+            className={`mse-visibility-status ${topic.public ? 'public' : 'private'}`}
+            aria-label="Topic visibility"
+          >
+            {topic.public ? 'Public' : 'Private'}
+          </span>
+
+          <div className="mse-topic-options" ref={menuRef}>
             <button
-              className={`mse-toggle-switch ${topic.public ? 'active' : ''} ${isTogglingPublic ? 'loading' : ''}`}
-              onClick={handlePublicToggle}
-              disabled={isLoading || isTogglingPublic}
-              aria-label={`Toggle visibility to ${topic.public ? 'private' : 'public'}`}
+              type="button"
+              className="mse-options-btn"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setOpenMenu((prev) => !prev);
+              }}
+              aria-label="More options"
+              aria-expanded={openMenu}
             >
-              <span className="mse-toggle-slider">
-                {isTogglingPublic ? (
-                  <FiLoader className="mse-toggle-loader" />
-                ) : (
-                  <FiCheck className="mse-toggle-check" />
-                )}
-              </span>
+              <FiMoreVertical />
             </button>
-            <span className={`mse-visibility-status ${topic.public ? 'public' : 'private'}`}>
-              {topic.public ? 'Public' : 'Private'}
-            </span>
+
+            {openMenu && (
+              <div className="mse-options-menu" onClick={(e) => e.stopPropagation()}>
+                <button className="mse-options-item" type="button" onClick={handleOpenTopic}>
+                  <FiFileText className="mse-options-icon" />
+                  <span>Open</span>
+                </button>
+
+                <button className="mse-options-item" type="button" onClick={handleOpenReviews}>
+                  <FiMessageSquare className="mse-options-icon" />
+                  <span>Reviews</span>
+                </button>
+
+                <button className="mse-options-item" type="button" onClick={requestRenameTopic}>
+                  <FiEdit2 className="mse-options-icon" />
+                  <span>Edit (Rename)</span>
+                </button>
+
+                <button className="mse-options-item" type="button" onClick={handleShare}>
+                  <FiShare2 className="mse-options-icon" />
+                  <span>Share</span>
+                </button>
+
+                <button
+                  className="mse-options-item"
+                  type="button"
+                  onClick={handlePublicToggle}
+                  disabled={isLoading || isTogglingPublic}
+                >
+                  {topic.public ? <FiLock className="mse-options-icon" /> : <FiUnlock className="mse-options-icon" />}
+                  <span>
+                    {isTogglingPublic
+                      ? "Processing..."
+                      : topic.public
+                        ? "Public → Private"
+                        : "Private → Public"}
+                  </span>
+                </button>
+
+                <button className="mse-options-item mse-options-danger" type="button" onClick={requestDeleteTopic}>
+                  <FiTrash2 className="mse-options-icon" />
+                  <span>Delete</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
