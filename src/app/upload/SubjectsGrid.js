@@ -9,6 +9,7 @@ import {
   FiChevronRight,
   FiMoreVertical,
   FiTrash2,
+  FiEdit2,
   FiLock,
   FiUnlock
 } from "react-icons/fi";
@@ -39,6 +40,9 @@ export default function SubjectsGrid({
   const [openMenuFor, setOpenMenuFor] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState({ open: false, subjectId: null, subjectName: "" });
   const [deletingSubjectId, setDeletingSubjectId] = useState(null);
+  const [renameModal, setRenameModal] = useState({ open: false, subjectId: null, currentName: "" });
+  const [renameValue, setRenameValue] = useState("");
+  const [renamingSubjectId, setRenamingSubjectId] = useState(null);
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -113,6 +117,57 @@ export default function SubjectsGrid({
   const requestDeleteSubject = (subjectId, subjectName) => {
     setOpenMenuFor(null);
     setDeleteConfirm({ open: true, subjectId, subjectName });
+  };
+
+  const requestRenameSubject = (subjectId, currentName) => {
+    setOpenMenuFor(null);
+    setRenameValue(currentName || "");
+    setRenameModal({ open: true, subjectId, currentName: currentName || "" });
+  };
+
+  const cancelRenameSubject = () => {
+    if (renamingSubjectId) return;
+    setRenameModal({ open: false, subjectId: null, currentName: "" });
+    setRenameValue("");
+  };
+
+  const confirmRenameSubject = async () => {
+    const { subjectId, currentName } = renameModal;
+    const nextName = String(renameValue || "").trim();
+    if (!subjectId) return;
+    if (!nextName) {
+      showMessage("Please enter a subject name", "error");
+      return;
+    }
+    if (nextName.toLowerCase() === String(currentName || "").trim().toLowerCase()) {
+      cancelRenameSubject();
+      return;
+    }
+
+    setRenamingSubjectId(subjectId);
+    try {
+      const res = await fetch("/api/subject/rename", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ usn, subjectId, newSubject: nextName })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showMessage(data.error || "Failed to rename subject", "error");
+        return;
+      }
+
+      // keep UI in sync
+      await onRefreshSubjects();
+      showMessage("Subject renamed successfully!", "success");
+      cancelRenameSubject();
+    } catch (err) {
+      console.error(err);
+      showMessage("Error renaming subject", "error");
+    } finally {
+      setRenamingSubjectId(null);
+    }
   };
 
   const cancelDeleteSubject = () => {
@@ -222,6 +277,42 @@ export default function SubjectsGrid({
         </div>
       )}
 
+      {renameModal.open && (
+        <div className="mse-options-modal-overlay" onClick={cancelRenameSubject}>
+          <div className="mse-options-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="mse-options-modal-icon mse-options-modal-icon-edit">
+              <FiEdit2 />
+            </div>
+            <h4>Rename subject</h4>
+            <p>Enter a new name for <strong>{renameModal.currentName}</strong>.</p>
+
+            <div className="mse-options-input-wrap">
+              <input
+                className="mse-options-input"
+                value={renameValue}
+                onChange={(e) => setRenameValue(e.target.value)}
+                placeholder="New subject name"
+                autoFocus
+                disabled={!!renamingSubjectId}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") confirmRenameSubject();
+                  if (e.key === "Escape") cancelRenameSubject();
+                }}
+              />
+            </div>
+
+            <div className="mse-options-modal-actions">
+              <button className="mse-options-cancel" onClick={cancelRenameSubject} disabled={!!renamingSubjectId}>
+                Cancel
+              </button>
+              <button className="mse-options-save" onClick={confirmRenameSubject} disabled={!!renamingSubjectId}>
+                {renamingSubjectId ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {subjects.map((sub, idx) => {
         const topicsForThisSubject = getAllTopicsForSubject(sub.subject);
         const subjectPublic = sub.public !== undefined ? sub.public : true;
@@ -272,6 +363,14 @@ export default function SubjectsGrid({
 
                   {openMenuFor === sub._id && (
                     <div className="mse-options-menu" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        className="mse-options-item"
+                        onClick={() => requestRenameSubject(sub._id, sub.subject)}
+                      >
+                        <FiEdit2 className="mse-options-icon" />
+                        <span>Edit (Rename)</span>
+                      </button>
+
                       <button
                         className="mse-options-item"
                         onClick={() => toggleSubjectPublic(sub._id, subjectPublic)}

@@ -269,6 +269,54 @@
   font-size: 1.3rem;
 }
 
+.mse-options-modal-icon-edit {
+  background: rgba(14, 165, 233, 0.12);
+  color: #0ea5e9;
+}
+
+.mse-options-input-wrap {
+  margin: 10px 0 16px;
+}
+
+.mse-options-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(14, 165, 233, 0.18);
+  background: rgba(255, 255, 255, 0.9);
+  color: #0f172a;
+  font-weight: 700;
+  outline: none;
+}
+
+.mse-options-input:focus {
+  border-color: rgba(14, 165, 233, 0.45);
+  box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.10);
+}
+
+.mse-container.dark .mse-options-input {
+  background: rgba(17, 24, 39, 0.7);
+  color: #e2e8f0;
+  border-color: rgba(96, 165, 250, 0.25);
+}
+
+.mse-options-save {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 800;
+  transition: transform 0.2s ease, filter 0.2s ease;
+  background: linear-gradient(135deg, #0ea5e9, #60a5fa);
+  color: #ffffff;
+}
+
+.mse-options-save:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+}
+
 .mse-options-modal h4 {
   margin: 0 0 8px;
   text-align: center;
