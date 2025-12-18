@@ -2,7 +2,17 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FiBookOpen, FiUsers, FiTrendingUp, FiArrowRight } from "react-icons/fi";
+import {
+  FiBookOpen,
+  FiUsers,
+  FiTrendingUp,
+  FiArrowRight,
+  FiSearch,
+  FiTool,
+  FiHelpCircle,
+  FiUpload,
+  FiShield,
+} from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import "./styles/HeroSection.css";
 import TutVideo from "./TutVideo";
@@ -11,7 +21,6 @@ import WhatIsLearnix from "./home/WhatIsLearnix";
 
 export default function HeroSection() {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -20,101 +29,102 @@ export default function HeroSection() {
         setLoggedIn(true);
       }
     }
-
-    // Trigger animation after component mounts
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 100);
-
-    return () => clearTimeout(timer);
   }, []);
 
   return (
     <section className="learnix-hero-main">
       <div className="learnix-hero-container">
-        {/* Floating Icons */}
-        <div className="learnix-floating-icons">
-          <FiBookOpen className="learnix-float-icon learnix-float-1" />
-          <HiAcademicCap className="learnix-float-icon learnix-float-2" />
-          <FiUsers className="learnix-float-icon learnix-float-3" />
-          <FiTrendingUp className="learnix-float-icon learnix-float-4" />
-        </div>
-
-        <div className={`learnix-hero-content ${isVisible ? 'learnix-content-visible' : ''}`}>
-          {/* Main Title with Animation */}
-          <div className="learnix-title-wrapper">
-            <h1 className="learnix-main-title">
-              Welcome to{" "}
-              <span className="learnix-brand-text">
-                LEARNIX
-                <div className="learnix-brand-underline"></div>
-              </span>
-            </h1>
-          </div>
-
-
-
-          {/* Subtitle */}
-          <p className="learnix-hero-subtitle">
-            Share resources, study materials, and build your profile with ease.
-          </p>
-          <TutVideo />
-          <br />
-          <br />
-          <br />
-
-
-          {/* Feature Cards */}
-          <div className="learnix-feature-grid">
-            <div className="learnix-feature-card">
-              <FiBookOpen className="learnix-feature-icon" />
-              <span>Study Materials</span>
-            </div>
-            <div className="learnix-feature-card">
-              <FiUsers className="learnix-feature-icon" />
-              <span>Community</span>
-            </div>
-            <div className="learnix-feature-card">
-              <HiAcademicCap className="learnix-feature-icon" />
-              <span>Build Profile</span>
-            </div>
-          </div>
-
-          {/* Login Status */}
-          <div className="learnix-status-section">
-            {loggedIn ? (
-              <div className="learnix-welcome-card">
-                <div className="learnix-success-indicator"></div>
-                <p className="learnix-status-text">
-                  You are logged in. Enjoy all features of Learnix 🚀
-                </p>
+        <div className="learnix-hero-content">
+          <div className="learnix-hero-layout">
+            <div className="learnix-hero-left">
+              <div className="learnix-title-wrapper">
+                <h1 className="learnix-main-title">
+                  Welcome to{" "}
+                  <span className="learnix-brand-text">
+                    LEARNIX
+                    <div className="learnix-brand-underline"></div>
+                  </span>
+                </h1>
               </div>
-            ) : (
-              <div className="learnix-login-prompt">
-                <p className="learnix-prompt-text">
-                  Please login to access extra features
-                </p>
-                <Link href="/login" className="learnix-cta-button">
-                  Login
+
+              <p className="learnix-hero-subtitle">
+               Learnix is a Learning platform where students can share and explore educational resources, making learning collaborative and accessible.
+              </p>
+
+              <ul className="learnix-hero-points">
+                <li>
+                  <FiSearch className="learnix-point-icon" />
+                  Search notes, question papers, and topic-wise resources.
+                </li>
+                <li>
+                  <FiUpload className="learnix-point-icon" />
+                  Upload your work and manage subjects/topics in one place.
+                </li>
+                <li>
+                  <FiUsers className="learnix-point-icon" />
+                  Get feedback via reviews and improve content quality.
+                </li>
+              </ul>
+
+              <div className="learnix-hero-ctas">
+                <Link href="/works" className="learnix-cta-button">
+                  ✔ Explore Resources
                   <FiArrowRight className="learnix-button-icon" />
                 </Link>
+                <Link href="/learn" className="learnix-cta-secondary">
+                  ✔ Start Learning
+                </Link>
               </div>
-            )}
+
+              <div className="learnix-adsense-note">
+                <FiShield className="learnix-adsense-icon" />
+                <span>
+                  We support original & permitted content. See{" "}
+                  <Link href="/terms">Terms</Link>, <Link href="/privacy-policy">Privacy</Link>, or{" "}
+                  <Link href="/report-content">report content</Link>.
+                </span>
+              </div>
+            </div>
+
+            <div className="learnix-hero-right">
+              <TutVideo />
+            </div>
+          </div>
+
+          <div className="learnix-nav-card-grid">
+            <Link href="/learn" className="learnix-nav-card">
+              <HiAcademicCap className="learnix-nav-card-icon" />
+              <span>Learn</span>
+            </Link>
+            <Link href="/search" className="learnix-nav-card">
+              <FiSearch className="learnix-nav-card-icon" />
+              <span>Search</span>
+            </Link>
+            <Link href="/materials" className="learnix-nav-card">
+              <FiBookOpen className="learnix-nav-card-icon" />
+              <span>Materials</span>
+            </Link>
+            <Link href="/tools" className="learnix-nav-card">
+              <FiTool className="learnix-nav-card-icon" />
+              <span>Tools</span>
+            </Link>
+            <Link href="/help" className="learnix-nav-card">
+              <FiHelpCircle className="learnix-nav-card-icon" />
+              <span>Help</span>
+            </Link>
+            <Link href={loggedIn ? "/upload" : "/login"} className="learnix-nav-card">
+              <FiUpload className="learnix-nav-card-icon" />
+              <span>Upload</span>
+            </Link>
+            <Link href="/dashboard" className="learnix-nav-card">
+              <FiTrendingUp className="learnix-nav-card-icon" />
+              <span>Dashboard</span>
+            </Link>
           </div>
           <WhatIsLearnix/>
 
           {/* What's New Component */}
           <WhatsNew />
-        </div>
-
-        {/* Decorative Elements */}
-        <div className="learnix-decoration-dots">
-          <div className="learnix-dot learnix-dot-1"></div>
-          <div className="learnix-dot learnix-dot-2"></div>
-          <div className="learnix-dot learnix-dot-3"></div>
-          <div className="learnix-dot learnix-dot-4"></div>
-          <div className="learnix-dot learnix-dot-5"></div>
-          <div className="learnix-dot learnix-dot-6"></div>
         </div>
       </div>
     </section>
