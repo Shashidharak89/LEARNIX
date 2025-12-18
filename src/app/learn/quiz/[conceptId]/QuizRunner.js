@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { ArrowLeft, CheckCircle, XCircle, ChevronRight, Award } from "lucide-react";
 
 const QUESTIONS_PER_STEP = 10;
 
@@ -15,7 +16,6 @@ export default function QuizRunner({ conceptTitle, questions }) {
   const [submittedSteps, setSubmittedSteps] = useState(() => Array(totalSteps).fill(false));
   const [stepScores, setStepScores] = useState(() => Array(totalSteps).fill(null));
 
-  // Calculate range of questions for current step
   const stepRange = useMemo(() => {
     const start = currentStep * QUESTIONS_PER_STEP;
     const end = Math.min(start + QUESTIONS_PER_STEP, questions.length);
@@ -25,7 +25,6 @@ export default function QuizRunner({ conceptTitle, questions }) {
   const currentQuestions = questions.slice(stepRange.start, stepRange.end);
   const isStepSubmitted = submittedSteps[currentStep];
 
-  // Check if all questions in current step are answered
   const allAnswered = useMemo(() => {
     for (let i = stepRange.start; i < stepRange.end; i++) {
       if (answers[i] === null) return false;
@@ -33,7 +32,6 @@ export default function QuizRunner({ conceptTitle, questions }) {
     return true;
   }, [answers, stepRange]);
 
-  // Check if a step can be accessed - all steps are accessible
   const canAccessStep = (stepIndex) => {
     return true;
   };
@@ -52,7 +50,6 @@ export default function QuizRunner({ conceptTitle, questions }) {
   const handleSubmitStep = () => {
     if (!allAnswered || isStepSubmitted) return;
 
-    // Calculate score for this step
     let score = 0;
     for (let i = stepRange.start; i < stepRange.end; i++) {
       if (answers[i] === questions[i].answerIndex) {
@@ -86,112 +83,143 @@ export default function QuizRunner({ conceptTitle, questions }) {
   };
 
   return (
-    <div className="quiz-card">
-      <h2 className="quiz-card-title">{conceptTitle} Quiz</h2>
-
-      {/* Step Navigation */}
-      <div className="quiz-steps-nav">
-        {Array.from({ length: totalSteps }).map((_, idx) => (
-          <button
-            key={idx}
-            type="button"
-            className={`quiz-step-btn ${idx === currentStep ? "active" : ""}`}
-            disabled={!canAccessStep(idx)}
-            onClick={() => handleStepClick(idx)}
-          >
-            Step {idx + 1}
-            {submittedSteps[idx] ? " ✓" : ""}
+    <div className="qr-wrapper">
+      <div className="qr-container">
+        {/* Header */}
+        <div className="qr-header">
+          <button className="qr-back-button" onClick={() => window.history.back()}>
+            <ArrowLeft size={18} />
+            <span>Back</span>
           </button>
-        ))}
-      </div>
-
-      {/* Questions */}
-      {currentQuestions.map((q, localIdx) => {
-        const globalIdx = stepRange.start + localIdx;
-        const selectedOption = answers[globalIdx];
-        const correctAnswer = q.answerIndex;
-
-        return (
-          <div key={q.id || globalIdx} className="quiz-question">
-            <p className="quiz-question-text">
-              {globalIdx + 1}. {q.question}
-            </p>
-            <div className="quiz-options">
-              {q.options.map((option, optIdx) => {
-                let optionClass = "quiz-option-btn";
-                
-                if (isStepSubmitted) {
-                  // After submission, show correct/wrong
-                  if (optIdx === correctAnswer) {
-                    optionClass += " correct";
-                  } else if (optIdx === selectedOption && selectedOption !== correctAnswer) {
-                    optionClass += " wrong";
-                  }
-                } else {
-                  // Before submission, just show selected
-                  if (selectedOption === optIdx) {
-                    optionClass += " selected";
-                  }
-                }
-
-                return (
-                  <button
-                    key={optIdx}
-                    type="button"
-                    className={optionClass}
-                    disabled={isStepSubmitted}
-                    onClick={() => handleSelectOption(localIdx, optIdx)}
-                  >
-                    {option}
-                    {isStepSubmitted && optIdx === correctAnswer && (
-                      <span className="quiz-correct-label"> ✓ Correct</span>
-                    )}
-                    {isStepSubmitted && optIdx === selectedOption && selectedOption !== correctAnswer && (
-                      <span className="quiz-wrong-label"> ✗ Your answer</span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+          <div className="qr-title-section">
+            <h1 className="qr-main-title">{conceptTitle}</h1>
+            <p className="qr-subtitle">Test your knowledge with this interactive quiz</p>
           </div>
-        );
-      })}
-
-      {/* Actions */}
-      <div className="quiz-actions">
-        <button
-          type="button"
-          className="quiz-submit-btn"
-          disabled={!allAnswered || isStepSubmitted}
-          onClick={handleSubmitStep}
-        >
-          Submit Step {currentStep + 1}
-        </button>
-
-        {isStepSubmitted && currentStep < totalSteps - 1 && (
-          <button
-            type="button"
-            className="quiz-next-btn"
-            onClick={handleNextStep}
-          >
-            Next Step →
-          </button>
-        )}
-
-        {!allAnswered && !isStepSubmitted && (
-          <span className="quiz-hint">
-            Answer all {stepRange.end - stepRange.start} questions to submit
-          </span>
-        )}
-      </div>
-
-      {/* Score */}
-      {isStepSubmitted && stepScores[currentStep] !== null && (
-        <div className="quiz-score">
-          ✅ Step {currentStep + 1} Score: {stepScores[currentStep]} / {stepRange.end - stepRange.start}
-          {currentStep === totalSteps - 1 && " — Quiz Complete!"}
         </div>
-      )}
+
+        {/* Quiz Card */}
+        <div className="qr-quiz-card">
+          {/* Step Navigation */}
+          <div className="qr-step-nav">
+            {Array.from({ length: totalSteps }).map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className={`qr-step-pill ${idx === currentStep ? "qr-step-active" : ""} ${submittedSteps[idx] ? "qr-step-complete" : ""}`}
+                disabled={!canAccessStep(idx)}
+                onClick={() => handleStepClick(idx)}
+              >
+                <span className="qr-step-number">Step {idx + 1}</span>
+                {submittedSteps[idx] && <CheckCircle size={14} />}
+              </button>
+            ))}
+          </div>
+
+          {/* Questions */}
+          <div className="qr-questions-container">
+            {currentQuestions.map((q, localIdx) => {
+              const globalIdx = stepRange.start + localIdx;
+              const selectedOption = answers[globalIdx];
+              const correctAnswer = q.answerIndex;
+
+              return (
+                <div key={q.id || globalIdx} className="qr-question-block">
+                  <div className="qr-question-header">
+                    <span className="qr-question-number">{globalIdx + 1}</span>
+                    <p className="qr-question-text">{q.question}</p>
+                  </div>
+                  
+                  <div className="qr-options-grid">
+                    {q.options.map((option, optIdx) => {
+                      let optionClassName = "qr-option-card";
+                      
+                      if (isStepSubmitted) {
+                        if (optIdx === correctAnswer) {
+                          optionClassName += " qr-option-correct";
+                        } else if (optIdx === selectedOption && selectedOption !== correctAnswer) {
+                          optionClassName += " qr-option-wrong";
+                        }
+                      } else {
+                        if (selectedOption === optIdx) {
+                          optionClassName += " qr-option-selected";
+                        }
+                      }
+
+                      return (
+                        <button
+                          key={optIdx}
+                          type="button"
+                          className={optionClassName}
+                          disabled={isStepSubmitted}
+                          onClick={() => handleSelectOption(localIdx, optIdx)}
+                        >
+                          <span className="qr-option-text">{option}</span>
+                          {isStepSubmitted && optIdx === correctAnswer && (
+                            <span className="qr-option-badge qr-badge-correct">
+                              <CheckCircle size={14} />
+                              Correct
+                            </span>
+                          )}
+                          {isStepSubmitted && optIdx === selectedOption && selectedOption !== correctAnswer && (
+                            <span className="qr-option-badge qr-badge-wrong">
+                              <XCircle size={14} />
+                              Wrong
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Actions */}
+          <div className="qr-actions-bar">
+            <div className="qr-action-buttons">
+              <button
+                type="button"
+                className="qr-submit-button"
+                disabled={!allAnswered || isStepSubmitted}
+                onClick={handleSubmitStep}
+              >
+                Submit Step {currentStep + 1}
+              </button>
+
+              {isStepSubmitted && currentStep < totalSteps - 1 && (
+                <button
+                  type="button"
+                  className="qr-next-button"
+                  onClick={handleNextStep}
+                >
+                  <span>Next Step</span>
+                  <ChevronRight size={18} />
+                </button>
+              )}
+            </div>
+
+            {!allAnswered && !isStepSubmitted && (
+              <span className="qr-hint-text">
+                Answer all {stepRange.end - stepRange.start} questions to submit
+              </span>
+            )}
+          </div>
+
+          {/* Score Display */}
+          {isStepSubmitted && stepScores[currentStep] !== null && (
+            <div className="qr-score-card">
+              <Award size={20} />
+              <span className="qr-score-text">
+                Step {currentStep + 1} Score: <strong>{stepScores[currentStep]}</strong> / {stepRange.end - stepRange.start}
+              </span>
+              {currentStep === totalSteps - 1 && (
+                <span className="qr-complete-badge">Quiz Complete!</span>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
