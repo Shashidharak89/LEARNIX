@@ -114,6 +114,7 @@ export default function QuizRunner({ conceptTitle, questions }) {
       {currentQuestions.map((q, localIdx) => {
         const globalIdx = stepRange.start + localIdx;
         const selectedOption = answers[globalIdx];
+        const correctAnswer = q.answerIndex;
 
         return (
           <div key={q.id || globalIdx} className="quiz-question">
@@ -121,17 +122,41 @@ export default function QuizRunner({ conceptTitle, questions }) {
               {globalIdx + 1}. {q.question}
             </p>
             <div className="quiz-options">
-              {q.options.map((option, optIdx) => (
-                <button
-                  key={optIdx}
-                  type="button"
-                  className={`quiz-option-btn ${selectedOption === optIdx ? "selected" : ""}`}
-                  disabled={isStepSubmitted}
-                  onClick={() => handleSelectOption(localIdx, optIdx)}
-                >
-                  {option}
-                </button>
-              ))}
+              {q.options.map((option, optIdx) => {
+                let optionClass = "quiz-option-btn";
+                
+                if (isStepSubmitted) {
+                  // After submission, show correct/wrong
+                  if (optIdx === correctAnswer) {
+                    optionClass += " correct";
+                  } else if (optIdx === selectedOption && selectedOption !== correctAnswer) {
+                    optionClass += " wrong";
+                  }
+                } else {
+                  // Before submission, just show selected
+                  if (selectedOption === optIdx) {
+                    optionClass += " selected";
+                  }
+                }
+
+                return (
+                  <button
+                    key={optIdx}
+                    type="button"
+                    className={optionClass}
+                    disabled={isStepSubmitted}
+                    onClick={() => handleSelectOption(localIdx, optIdx)}
+                  >
+                    {option}
+                    {isStepSubmitted && optIdx === correctAnswer && (
+                      <span className="quiz-correct-label"> ✓ Correct</span>
+                    )}
+                    {isStepSubmitted && optIdx === selectedOption && selectedOption !== correctAnswer && (
+                      <span className="quiz-wrong-label"> ✗ Your answer</span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
         );

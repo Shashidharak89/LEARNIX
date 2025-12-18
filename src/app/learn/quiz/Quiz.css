@@ -221,6 +221,34 @@
   color: #1d4ed8;
 }
 
+/* Correct answer after submission */
+.quiz-option-btn.correct {
+  border-color: #22c55e;
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* Wrong answer after submission */
+.quiz-option-btn.wrong {
+  border-color: #ef4444;
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.quiz-correct-label {
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 900;
+  color: #16a34a;
+}
+
+.quiz-wrong-label {
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 900;
+  color: #dc2626;
+}
+
 .quiz-option-btn:disabled {
   cursor: not-allowed;
   opacity: 0.85;
