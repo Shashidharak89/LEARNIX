@@ -22,6 +22,7 @@ import WhoIsLearnixFor from "./home/WhoIsLearnixFor";
 import WhatYouCanLearn from "./home/WhatYouCanLearn";
 import HowLearnixWorks from "./home/HowLearnixWorks";
 import SamplePublicContent from "./home/SamplePublicContent";
+import WhyLearnixTrustworthy from "./home/WhyLearnixTrustworthy";
 
 export default function HeroSection() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -130,6 +131,7 @@ export default function HeroSection() {
           <WhatYouCanLearn/>
           <HowLearnixWorks/>
           <SamplePublicContent/>
+          <WhyLearnixTrustworthy/>
 
           {/* What's New Component */}
           <WhatsNew />

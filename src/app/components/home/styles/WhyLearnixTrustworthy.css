@@ -1,0 +1,143 @@
+.lx-trust-section {
+  padding: 90px 20px;
+  background: #ffffff;
+}
+
+/* Container with separator feel */
+.lx-trust-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 50px;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #f8fbff 100%
+  );
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+  text-align: left;
+  animation: trustFadeUp 0.6s ease;
+}
+
+/* Header */
+.lx-trust-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 10px;
+}
+
+.lx-trust-subtitle {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  max-width: 850px;
+  margin-bottom: 40px;
+  color: #000;
+}
+
+/* Trust points */
+.lx-trust-points {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+.lx-trust-point {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.lx-trust-point h4 {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  color: #000;
+}
+
+.lx-trust-point p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #000;
+}
+
+/* Expandable section */
+.lx-trust-extra {
+  overflow: hidden;
+  transition: max-height 0.6s ease, opacity 0.4s ease;
+  margin-top: 30px;
+}
+
+.lx-trust-close {
+  max-height: 0;
+  opacity: 0;
+}
+
+.lx-trust-open {
+  max-height: 500px;
+  opacity: 1;
+}
+
+.lx-trust-extra p {
+  font-size: 1rem;
+  line-height: 1.8;
+  margin-bottom: 16px;
+  color: #000;
+}
+
+/* Privacy link */
+.lx-trust-link-wrap {
+  margin-top: 20px;
+}
+
+.lx-trust-link {
+  font-weight: 600;
+  text-decoration: none;
+  color: #38bdf8;
+}
+
+/* View more button */
+.lx-trust-view-btn {
+  margin-top: 30px;
+  background: transparent;
+  border: 1px solid #38bdf8;
+  padding: 10px 26px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.lx-trust-view-btn:hover {
+  background: #e0f2fe;
+}
+
+/* Animation */
+@keyframes trustFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .lx-trust-points {
+    grid-template-columns: 1fr;
+  }
+
+  .lx-trust-container {
+    width: 95%;
+    padding: 32px 24px;
+  }
+
+  .lx-trust-title {
+    font-size: 2rem;
+  }
+}
