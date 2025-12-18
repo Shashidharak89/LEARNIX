@@ -19,6 +19,7 @@ import TutVideo from "./TutVideo";
 import WhatsNew from "./WhatsNew";
 import WhatIsLearnix from "./home/WhatIsLearnix";
 import WhoIsLearnixFor from "./home/WhoIsLearnixFor";
+import WhatYouCanLearn from "./home/WhatYouCanLearn";
 
 export default function HeroSection() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -124,6 +125,7 @@ export default function HeroSection() {
           </div>
           <WhatIsLearnix/>
           <WhoIsLearnixFor/>
+          <WhatYouCanLearn/>
 
           {/* What's New Component */}
           <WhatsNew />
