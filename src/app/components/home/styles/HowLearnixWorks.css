@@ -1,0 +1,96 @@
+.lx-work-section {
+  background: #ffffff;
+  padding: 90px 20px;
+}
+
+/* Container */
+.lx-work-container {
+  max-width: 1050px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+/* Header */
+.lx-work-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 12px;
+}
+
+.lx-work-subtitle {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #000;
+  max-width: 800px;
+  margin-bottom: 45px;
+}
+
+/* Steps wrapper */
+.lx-work-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 35px;
+  position: relative;
+}
+
+/* Vertical line */
+.lx-work-steps::before {
+  content: "";
+  position: absolute;
+  left: 22px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #e5e7eb;
+}
+
+/* Step */
+.lx-work-step {
+  display: flex;
+  gap: 25px;
+  position: relative;
+}
+
+/* Step number */
+.lx-work-number {
+  width: 46px;
+  height: 46px;
+  background: #38bdf8;
+  color: #000;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Content */
+.lx-work-content h4 {
+  font-size: 1.15rem;
+  margin-bottom: 6px;
+  color: #000;
+}
+
+.lx-work-content p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #000;
+  max-width: 800px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .lx-work-steps::before {
+    left: 20px;
+  }
+
+  .lx-work-number {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+}
