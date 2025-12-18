@@ -1,0 +1,128 @@
+{
+  "conceptId": 2,
+  "slug": "dcn",
+  "title": "Data Communication and Networking",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Which layer of the OSI model is responsible for routing?",
+      "options": ["Data Link", "Network", "Transport", "Application"],
+      "answerIndex": 1
+    },
+    {
+      "id": 2,
+      "question": "Which protocol provides reliable, connection-oriented transport?",
+      "options": ["UDP", "TCP", "ICMP", "ARP"],
+      "answerIndex": 1
+    },
+    {
+      "id": 3,
+      "question": "What does DNS primarily do?",
+      "options": ["Encrypt data", "Map domain names to IP addresses", "Assign MAC addresses", "Route packets"],
+      "answerIndex": 1
+    },
+    {
+      "id": 4,
+      "question": "Which device forwards frames using MAC addresses?",
+      "options": ["Router", "Switch", "Repeater", "Modem"],
+      "answerIndex": 1
+    },
+    {
+      "id": 5,
+      "question": "Which addressing is used at the Data Link layer?",
+      "options": ["IP address", "Port number", "MAC address", "URL"],
+      "answerIndex": 2
+    },
+    {
+      "id": 6,
+      "question": "Which protocol is used to resolve an IP address to a MAC address on a LAN?",
+      "options": ["ARP", "RARP", "DHCP", "SNMP"],
+      "answerIndex": 0
+    },
+    {
+      "id": 7,
+      "question": "Which of the following is a private IPv4 range?",
+      "options": ["8.8.8.8", "172.16.0.0/12", "1.1.1.1", "100.64.0.0/10"],
+      "answerIndex": 1
+    },
+    {
+      "id": 8,
+      "question": "In TCP, what is the purpose of the 3-way handshake?",
+      "options": ["Terminate connection", "Establish connection", "Encrypt payload", "Assign IP"],
+      "answerIndex": 1
+    },
+    {
+      "id": 9,
+      "question": "Which layer adds sequence numbers and acknowledgements in TCP/IP model?",
+      "options": ["Internet", "Link", "Transport", "Application"],
+      "answerIndex": 2
+    },
+    {
+      "id": 10,
+      "question": "Which protocol assigns IP addresses dynamically?",
+      "options": ["DHCP", "DNS", "HTTP", "FTP"],
+      "answerIndex": 0
+    },
+
+    {
+      "id": 11,
+      "question": "Which of these is a congestion control mechanism in TCP?",
+      "options": ["Slow start", "CSMA/CD", "ARP cache", "CRC"],
+      "answerIndex": 0
+    },
+    {
+      "id": 12,
+      "question": "What does HTTP primarily run over?",
+      "options": ["UDP", "TCP", "ICMP", "ARP"],
+      "answerIndex": 1
+    },
+    {
+      "id": 13,
+      "question": "A subnet mask is used to:",
+      "options": ["Encrypt packets", "Identify network and host parts", "Resolve MAC", "Assign ports"],
+      "answerIndex": 1
+    },
+    {
+      "id": 14,
+      "question": "Which OSI layer is responsible for end-to-end error recovery and flow control?",
+      "options": ["Transport", "Network", "Session", "Physical"],
+      "answerIndex": 0
+    },
+    {
+      "id": 15,
+      "question": "Which switching method forwards frames only after receiving the entire frame?",
+      "options": ["Cut-through", "Store-and-forward", "Fragment-free", "Broadcast"],
+      "answerIndex": 1
+    },
+    {
+      "id": 16,
+      "question": "Which protocol is used for secure web browsing?",
+      "options": ["HTTP", "HTTPS", "FTP", "Telnet"],
+      "answerIndex": 1
+    },
+    {
+      "id": 17,
+      "question": "Which of the following is a routing protocol?",
+      "options": ["RIP", "ARP", "SMTP", "POP3"],
+      "answerIndex": 0
+    },
+    {
+      "id": 18,
+      "question": "A firewall primarily helps with:",
+      "options": ["Increasing CPU speed", "Access control and traffic filtering", "Compressing data", "Signal amplification"],
+      "answerIndex": 1
+    },
+    {
+      "id": 19,
+      "question": "In IPv4, how many bits are in an address?",
+      "options": ["16", "32", "48", "128"],
+      "answerIndex": 1
+    },
+    {
+      "id": 20,
+      "question": "Which term refers to the delay for a signal to travel from sender to receiver?",
+      "options": ["Propagation delay", "Serialization", "Jitter only", "Throughput"],
+      "answerIndex": 0
+    }
+  ]
+}

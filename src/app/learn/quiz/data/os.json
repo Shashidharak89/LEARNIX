@@ -1,0 +1,128 @@
+{
+  "conceptId": 3,
+  "slug": "os",
+  "title": "Operating Systems",
+  "questions": [
+    {
+      "id": 1,
+      "question": "A process is:",
+      "options": ["A program in execution", "A compiled program only", "A CPU register", "A device driver"],
+      "answerIndex": 0
+    },
+    {
+      "id": 2,
+      "question": "Which scheduling algorithm can cause starvation?",
+      "options": ["FCFS", "SJF", "Round Robin", "FIFO"],
+      "answerIndex": 1
+    },
+    {
+      "id": 3,
+      "question": "Which memory management technique uses fixed-size blocks?",
+      "options": ["Segmentation", "Paging", "Swapping only", "Spooling"],
+      "answerIndex": 1
+    },
+    {
+      "id": 4,
+      "question": "A deadlock requires which condition?",
+      "options": ["No preemption", "Polling", "Broadcast", "Encryption"],
+      "answerIndex": 0
+    },
+    {
+      "id": 5,
+      "question": "Which is NOT a classical IPC mechanism?",
+      "options": ["Pipes", "Message queues", "Semaphores", "DNS"],
+      "answerIndex": 3
+    },
+    {
+      "id": 6,
+      "question": "Thrashing is related to:",
+      "options": ["CPU overheating", "Excessive paging", "Disk formatting", "Network congestion"],
+      "answerIndex": 1
+    },
+    {
+      "id": 7,
+      "question": "Which of the following is a non-preemptive scheduling algorithm?",
+      "options": ["Round Robin", "SJF (non-preemptive)", "Priority (preemptive)", "SRTF"],
+      "answerIndex": 1
+    },
+    {
+      "id": 8,
+      "question": "In a critical section problem, mutual exclusion means:",
+      "options": ["Only one process in CS at a time", "No process enters CS", "All processes enter together", "Only CPU enters"],
+      "answerIndex": 0
+    },
+    {
+      "id": 9,
+      "question": "Which page replacement algorithm can suffer from Belady’s anomaly?",
+      "options": ["FIFO", "LRU", "Optimal", "LFU"],
+      "answerIndex": 0
+    },
+    {
+      "id": 10,
+      "question": "A system call is used to:",
+      "options": ["Access OS services", "Compile code", "Create hardware", "Format RAM"],
+      "answerIndex": 0
+    },
+
+    {
+      "id": 11,
+      "question": "Which of the following is a purpose of an OS?",
+      "options": ["Resource management", "Only gaming", "Only networking", "Only printing"],
+      "answerIndex": 0
+    },
+    {
+      "id": 12,
+      "question": "Which mechanism prevents two processes from entering critical section simultaneously?",
+      "options": ["Mutual exclusion", "DMA", "Caching", "Routing"],
+      "answerIndex": 0
+    },
+    {
+      "id": 13,
+      "question": "A semaphore is primarily used for:",
+      "options": ["Synchronization", "Compression", "Rendering", "Compilation"],
+      "answerIndex": 0
+    },
+    {
+      "id": 14,
+      "question": "Which of these is a CPU scheduling criterion?",
+      "options": ["Turnaround time", "Disk size", "Screen resolution", "Cable length"],
+      "answerIndex": 0
+    },
+    {
+      "id": 15,
+      "question": "Virtual memory allows:",
+      "options": ["Running large programs with limited RAM", "Increasing monitor size", "Replacing CPU", "Reducing power supply"],
+      "answerIndex": 0
+    },
+    {
+      "id": 16,
+      "question": "Context switch happens when:",
+      "options": ["CPU switches from one process to another", "Disk changes sector", "Keyboard is pressed", "Network cable unplugged"],
+      "answerIndex": 0
+    },
+    {
+      "id": 17,
+      "question": "Which of the following is a deadlock avoidance algorithm?",
+      "options": ["Banker’s algorithm", "FIFO", "Round Robin", "CRC"],
+      "answerIndex": 0
+    },
+    {
+      "id": 18,
+      "question": "Spooling is commonly associated with:",
+      "options": ["Printing", "Paging", "Routing", "Encryption"],
+      "answerIndex": 0
+    },
+    {
+      "id": 19,
+      "question": "The best page replacement algorithm (theoretical) is:",
+      "options": ["Optimal", "FIFO", "Random", "MRU"],
+      "answerIndex": 0
+    },
+    {
+      "id": 20,
+      "question": "A kernel is:",
+      "options": ["Core part of an OS", "A database", "A browser", "A programming language"],
+      "answerIndex": 0
+    }
+  ]
+}

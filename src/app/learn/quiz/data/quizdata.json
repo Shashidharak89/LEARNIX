@@ -1,0 +1,39 @@
+{
+  "concepts": [
+    {
+      "id": 1,
+      "slug": "dbms",
+      "title": "Database Management Systems",
+      "short": "Keys, normalization, transactions, SQL basics.",
+      "dataFile": "dbms.json"
+    },
+    {
+      "id": 2,
+      "slug": "dcn",
+      "title": "Data Communication and Networking",
+      "short": "OSI/TCP-IP, routing, IP, transport.",
+      "dataFile": "dcn.json"
+    },
+    {
+      "id": 3,
+      "slug": "os",
+      "title": "Operating Systems",
+      "short": "Processes, scheduling, memory, deadlocks.",
+      "dataFile": "os.json"
+    },
+    {
+      "id": 4,
+      "slug": "foc",
+      "title": "Fundamentals of Computing",
+      "short": "Basics of computing, number systems, memory.",
+      "dataFile": "foc.json"
+    },
+    {
+      "id": 5,
+      "slug": "programming",
+      "title": "Programming",
+      "short": "Practice problems and language concepts (coming soon).",
+      "dataFile": null
+    }
+  ]
+}

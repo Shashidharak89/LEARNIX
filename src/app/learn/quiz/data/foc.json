@@ -1,0 +1,128 @@
+{
+  "conceptId": 4,
+  "slug": "foc",
+  "title": "Fundamentals of Computing",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Which number system uses base 2?",
+      "options": ["Decimal", "Binary", "Octal", "Hexadecimal"],
+      "answerIndex": 1
+    },
+    {
+      "id": 2,
+      "question": "The binary representation of decimal 10 is:",
+      "options": ["1010", "1110", "1001", "1100"],
+      "answerIndex": 0
+    },
+    {
+      "id": 3,
+      "question": "Which logic gate outputs 1 only when both inputs are 1?",
+      "options": ["OR", "AND", "XOR", "NOT"],
+      "answerIndex": 1
+    },
+    {
+      "id": 4,
+      "question": "Which is a volatile memory?",
+      "options": ["ROM", "RAM", "SSD", "HDD"],
+      "answerIndex": 1
+    },
+    {
+      "id": 5,
+      "question": "Which is NOT an input device?",
+      "options": ["Keyboard", "Mouse", "Monitor", "Scanner"],
+      "answerIndex": 2
+    },
+    {
+      "id": 6,
+      "question": "CPU stands for:",
+      "options": ["Central Processing Unit", "Computer Primary Unit", "Control Program Utility", "Central Print Unit"],
+      "answerIndex": 0
+    },
+    {
+      "id": 7,
+      "question": "Which unit performs arithmetic and logic operations?",
+      "options": ["ALU", "CU", "RAM", "I/O Unit"],
+      "answerIndex": 0
+    },
+    {
+      "id": 8,
+      "question": "The smallest unit of data in a computer is:",
+      "options": ["Byte", "Bit", "Word", "Nibble"],
+      "answerIndex": 1
+    },
+    {
+      "id": 9,
+      "question": "Which is an example of system software?",
+      "options": ["Operating system", "Spreadsheet", "Photo editor", "Browser"],
+      "answerIndex": 0
+    },
+    {
+      "id": 10,
+      "question": "Which storage is fastest?",
+      "options": ["Cache", "HDD", "DVD", "Tape"],
+      "answerIndex": 0
+    },
+
+    {
+      "id": 11,
+      "question": "1 byte equals:",
+      "options": ["4 bits", "8 bits", "16 bits", "32 bits"],
+      "answerIndex": 1
+    },
+    {
+      "id": 12,
+      "question": "Which is a high-level programming language?",
+      "options": ["Machine code", "Assembly", "Python", "Microcode"],
+      "answerIndex": 2
+    },
+    {
+      "id": 13,
+      "question": "An algorithm is:",
+      "options": ["A step-by-step procedure", "A hardware device", "A compiler", "A database"],
+      "answerIndex": 0
+    },
+    {
+      "id": 14,
+      "question": "Which of these is a web browser?",
+      "options": ["Chrome", "Linux", "Oracle", "C"],
+      "answerIndex": 0
+    },
+    {
+      "id": 15,
+      "question": "Which memory is non-volatile?",
+      "options": ["RAM", "Cache", "ROM", "Registers"],
+      "answerIndex": 2
+    },
+    {
+      "id": 16,
+      "question": "A compiler translates:",
+      "options": ["High-level code to machine code", "Machine code to high-level", "Binary to decimal", "Text to image"],
+      "answerIndex": 0
+    },
+    {
+      "id": 17,
+      "question": "Which network is used within a small area like a building?",
+      "options": ["LAN", "WAN", "MAN", "PAN"],
+      "answerIndex": 0
+    },
+    {
+      "id": 18,
+      "question": "What does GUI stand for?",
+      "options": ["Graphical User Interface", "General Utility Input", "Global User Internet", "Graphics Unit Integration"],
+      "answerIndex": 0
+    },
+    {
+      "id": 19,
+      "question": "Which is an example of output device?",
+      "options": ["Printer", "Microphone", "Joystick", "Webcam"],
+      "answerIndex": 0
+    },
+    {
+      "id": 20,
+      "question": "Which storage holds the OS while running?",
+      "options": ["RAM", "HDD", "ROM", "DVD"],
+      "answerIndex": 0
+    }
+  ]
+}

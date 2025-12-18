@@ -1,0 +1,128 @@
+{
+  "conceptId": 1,
+  "slug": "dbms",
+  "title": "Database Management Systems",
+  "questions": [
+    {
+      "id": 1,
+      "question": "Which key uniquely identifies each row in a table?",
+      "options": ["Foreign key", "Primary key", "Candidate key", "Composite key"],
+      "answerIndex": 1
+    },
+    {
+      "id": 2,
+      "question": "Which normal form removes partial dependency?",
+      "options": ["1NF", "2NF", "3NF", "BCNF"],
+      "answerIndex": 1
+    },
+    {
+      "id": 3,
+      "question": "In SQL, which clause is used to filter rows after grouping?",
+      "options": ["WHERE", "HAVING", "ORDER BY", "DISTINCT"],
+      "answerIndex": 1
+    },
+    {
+      "id": 4,
+      "question": "Which isolation level prevents dirty reads?",
+      "options": ["Read Uncommitted", "Read Committed", "Read Only", "Write Committed"],
+      "answerIndex": 1
+    },
+    {
+      "id": 5,
+      "question": "A foreign key primarily enforces which property?",
+      "options": ["Atomicity", "Referential integrity", "Isolation", "Durability"],
+      "answerIndex": 1
+    },
+    {
+      "id": 6,
+      "question": "Which join returns only matching rows from both tables?",
+      "options": ["LEFT JOIN", "RIGHT JOIN", "INNER JOIN", "FULL OUTER JOIN"],
+      "answerIndex": 2
+    },
+    {
+      "id": 7,
+      "question": "Which index structure is most commonly used in DBMS for range queries?",
+      "options": ["Heap", "B-Tree", "Hash index", "Bitmap only"],
+      "answerIndex": 1
+    },
+    {
+      "id": 8,
+      "question": "Which command is used to remove a table definition and data?",
+      "options": ["DELETE", "TRUNCATE", "DROP", "REMOVE"],
+      "answerIndex": 2
+    },
+    {
+      "id": 9,
+      "question": "Which ACID property ensures changes persist after commit?",
+      "options": ["Atomicity", "Consistency", "Isolation", "Durability"],
+      "answerIndex": 3
+    },
+    {
+      "id": 10,
+      "question": "Normalization mainly aims to reduce:",
+      "options": ["Indexing", "Redundancy", "Security", "Encryption"],
+      "answerIndex": 1
+    },
+
+    {
+      "id": 11,
+      "question": "Which SQL statement is used to add a new column?",
+      "options": ["ALTER TABLE", "UPDATE TABLE", "MODIFY TABLE", "INSERT COLUMN"],
+      "answerIndex": 0
+    },
+    {
+      "id": 12,
+      "question": "Which term describes a set of attributes that can uniquely identify a tuple?",
+      "options": ["Super key", "Foreign key", "Non-key", "Partial key"],
+      "answerIndex": 0
+    },
+    {
+      "id": 13,
+      "question": "A view in SQL is best described as:",
+      "options": ["A physical copy of a table", "A virtual table defined by a query", "An index", "A trigger"],
+      "answerIndex": 1
+    },
+    {
+      "id": 14,
+      "question": "Which of these is a DCL command?",
+      "options": ["GRANT", "SELECT", "CREATE", "ALTER"],
+      "answerIndex": 0
+    },
+    {
+      "id": 15,
+      "question": "Which of these is a DDL command?",
+      "options": ["INSERT", "UPDATE", "CREATE", "DELETE"],
+      "answerIndex": 2
+    },
+    {
+      "id": 16,
+      "question": "Which constraint ensures column values are not NULL?",
+      "options": ["UNIQUE", "NOT NULL", "CHECK", "DEFAULT"],
+      "answerIndex": 1
+    },
+    {
+      "id": 17,
+      "question": "A transaction is a sequence of operations that is:",
+      "options": ["Always parallel", "Always read-only", "All-or-nothing", "Always encrypted"],
+      "answerIndex": 2
+    },
+    {
+      "id": 18,
+      "question": "Which function returns the number of rows?",
+      "options": ["SUM()", "COUNT()", "AVG()", "MIN()"],
+      "answerIndex": 1
+    },
+    {
+      "id": 19,
+      "question": "In ER modeling, a relationship between two entities is represented by:",
+      "options": ["Rectangle", "Diamond", "Ellipse", "Line only"],
+      "answerIndex": 1
+    },
+    {
+      "id": 20,
+      "question": "Which anomaly is reduced by normalization?",
+      "options": ["Insertion anomaly", "Compilation anomaly", "Rendering anomaly", "Routing anomaly"],
+      "answerIndex": 0
+    }
+  ]
+}
