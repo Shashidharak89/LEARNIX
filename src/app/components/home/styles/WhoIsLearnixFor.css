@@ -3,18 +3,15 @@
   padding: 80px 20px;
 }
 
-/* Container */
+/* Main container */
 .lx-for-container {
   max-width: 1100px;
-  margin: auto;
+  margin: 0 auto; /* container centered, content left */
   padding: 50px;
   border-radius: 12px;
-  background: linear-gradient(
-    180deg,
-    #ffffff 0%,
-    #f8fbff 100%
-  );
+  background: #ffffff;
   border: 1px solid #e5e7eb;
+  text-align: left; /* 🔴 FORCE LEFT */
 }
 
 /* Title */
@@ -23,6 +20,7 @@
   font-weight: 700;
   color: #000;
   margin-bottom: 16px;
+  text-align: left;
 }
 
 .lx-for-title span {
@@ -36,45 +34,46 @@
   color: #000;
   margin-bottom: 35px;
   max-width: 850px;
+  text-align: left;
 }
 
-/* Grid cards */
+/* Grid */
 .lx-for-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+  text-align: left;
 }
 
+/* Cards */
 .lx-for-card {
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   padding: 22px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: left; /* 🔴 FORCE LEFT */
 }
 
 .lx-for-card h4 {
   font-size: 1.1rem;
   margin-bottom: 8px;
   color: #000;
+  text-align: left;
 }
 
 .lx-for-card p {
   font-size: 0.95rem;
   line-height: 1.6;
   color: #000;
+  text-align: left;
 }
 
-.lx-for-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-}
-
-/* Expandable content */
+/* Expandable section */
 .lx-for-extra {
   overflow: hidden;
   transition: max-height 0.6s ease, opacity 0.4s ease;
   margin-top: 25px;
+  text-align: left;
 }
 
 .lx-for-close {
@@ -91,11 +90,14 @@
   font-size: 1rem;
   line-height: 1.8;
   margin-bottom: 18px;
+  color: #000;
+  text-align: left;
 }
 
 /* CTA */
 .lx-for-cta {
   margin-top: 25px;
+  text-align: left; /* 🔴 NOT CENTER */
 }
 
 .lx-for-cta-btn {
@@ -107,12 +109,6 @@
   color: #000;
   background: #facc15;
   border-radius: 6px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.lx-for-cta-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
 /* View more button */
@@ -126,11 +122,7 @@
   font-weight: 600;
   border-radius: 6px;
   cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.lx-for-view-btn:hover {
-  background: #38bdf8;
+  text-align: left; /* 🔴 BUTTON TEXT LEFT */
 }
 
 /* Responsive */
@@ -141,5 +133,6 @@
 
   .lx-for-container {
     padding: 32px 24px;
+    text-align: left;
   }
 }
