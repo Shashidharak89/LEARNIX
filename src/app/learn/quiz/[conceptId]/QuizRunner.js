@@ -33,13 +33,8 @@ export default function QuizRunner({ conceptTitle, questions }) {
     return true;
   }, [answers, stepRange]);
 
-  // Check if a step can be accessed
+  // Check if a step can be accessed - all steps are accessible
   const canAccessStep = (stepIndex) => {
-    if (stepIndex === 0) return true;
-    // Can access step if all previous steps are submitted
-    for (let i = 0; i < stepIndex; i++) {
-      if (!submittedSteps[i]) return false;
-    }
     return true;
   };
 
