@@ -1,0 +1,145 @@
+.lx-for-section {
+  background: #ffffff;
+  padding: 80px 20px;
+}
+
+/* Container */
+.lx-for-container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 50px;
+  border-radius: 12px;
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #f8fbff 100%
+  );
+  border: 1px solid #e5e7eb;
+}
+
+/* Title */
+.lx-for-title {
+  font-size: 2.3rem;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 16px;
+}
+
+.lx-for-title span {
+  color: #38bdf8;
+}
+
+/* Intro */
+.lx-for-intro {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #000;
+  margin-bottom: 35px;
+  max-width: 850px;
+}
+
+/* Grid cards */
+.lx-for-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.lx-for-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 22px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.lx-for-card h4 {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  color: #000;
+}
+
+.lx-for-card p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #000;
+}
+
+.lx-for-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+/* Expandable content */
+.lx-for-extra {
+  overflow: hidden;
+  transition: max-height 0.6s ease, opacity 0.4s ease;
+  margin-top: 25px;
+}
+
+.lx-for-close {
+  max-height: 0;
+  opacity: 0;
+}
+
+.lx-for-open {
+  max-height: 700px;
+  opacity: 1;
+}
+
+.lx-for-extra p {
+  font-size: 1rem;
+  line-height: 1.8;
+  margin-bottom: 18px;
+}
+
+/* CTA */
+.lx-for-cta {
+  margin-top: 25px;
+}
+
+.lx-for-cta-btn {
+  display: inline-block;
+  padding: 12px 26px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: #000;
+  background: #facc15;
+  border-radius: 6px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lx-for-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* View more button */
+.lx-for-view-btn {
+  margin-top: 30px;
+  background: transparent;
+  border: 1px solid #38bdf8;
+  color: #000;
+  padding: 10px 26px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.lx-for-view-btn:hover {
+  background: #38bdf8;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .lx-for-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lx-for-container {
+    padding: 32px 24px;
+  }
+}
