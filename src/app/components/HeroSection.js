@@ -7,6 +7,7 @@ import { HiAcademicCap } from "react-icons/hi";
 import "./styles/HeroSection.css";
 import TutVideo from "./TutVideo";
 import WhatsNew from "./WhatsNew";
+import WhatIsLearnix from "./home/WhatIsLearnix";
 
 export default function HeroSection() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -100,6 +101,7 @@ export default function HeroSection() {
               </div>
             )}
           </div>
+          <WhatIsLearnix/>
 
           {/* What's New Component */}
           <WhatsNew />

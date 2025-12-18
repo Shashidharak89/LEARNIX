@@ -1,0 +1,153 @@
+.lx-what-section {
+  background: #ffffff;
+  padding: 80px 20px;
+}
+
+/* Card container */
+.lx-what-container {
+  max-width: 1050px;
+  margin: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 50px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+}
+
+/* Title */
+.lx-what-title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.lx-what-title span {
+  color: #38bdf8; /* sky blue */
+}
+
+/* Intro text */
+.lx-what-intro {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #000;
+  max-width: 850px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+/* Bullet points */
+.lx-what-points {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+.lx-what-points li {
+  font-size: 1rem;
+  color: #000;
+  padding-left: 30px;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.lx-what-points li::before {
+  content: "✔";
+  position: absolute;
+  left: 0;
+  color: #facc15; /* yellow */
+  font-weight: bold;
+}
+
+/* Expandable content */
+.lx-what-extra {
+  overflow: hidden;
+  transition: max-height 0.6s ease, opacity 0.4s ease;
+}
+
+.lx-expand-close {
+  max-height: 0;
+  opacity: 0;
+}
+
+.lx-expand-open {
+  max-height: 800px;
+  opacity: 1;
+}
+
+/* Extra paragraphs */
+.lx-what-extra p {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #000;
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+/* Note box */
+.lx-what-note {
+  margin-top: 20px;
+  padding: 16px;
+  background: #fff7cc;
+  border-left: 5px solid #facc15;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+/* Button */
+.lx-view-btn {
+  margin-top: 28px;
+  background: #38bdf8;
+  color: #000;
+  border: none;
+  padding: 12px 30px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.lx-view-btn:hover {
+  background: #facc15;
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .lx-what-container {
+    padding: 30px 22px;
+  }
+
+  .lx-what-title {
+    font-size: 2rem;
+  }
+
+  .lx-what-intro {
+    font-size: 1rem;
+  }
+}
+.lx-read-more-wrap {
+  margin-top: 25px;
+  text-align: left;
+}
+
+.lx-read-more-btn {
+  display: inline-block;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #000;
+  padding: 10px 22px;
+  border: 1px solid #38bdf8;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.lx-read-more-btn:hover {
+  background: #38bdf8;
+  color: #000;
+  transform: translateX(4px);
+}
