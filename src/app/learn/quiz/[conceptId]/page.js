@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Navbar } from "../../../components/Navbar";
 import QuizRunner from "./QuizRunner";
 import quizData from "../data/quizdata.json";
-import "../Quiz.css";
+import "./QuizRunner.css";
 
 // Import all quiz data files
 import dbmsQuiz from "../data/dbms.json";

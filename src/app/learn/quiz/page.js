@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Navbar } from "../../components/Navbar";
 import quizData from "./data/quizdata.json";
-import "./Quiz.css";
+import "./QuizList.css";
 
 export const metadata = {
   title: "Quiz | LEARNIX",
