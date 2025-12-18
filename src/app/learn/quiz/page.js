@@ -1,40 +1,42 @@
 import Link from "next/link";
 import { Navbar } from "../../components/Navbar";
-import { listQuizConcepts } from "./quizRegistry";
-import "./styles/Quiz.css";
+import quizData from "./data/quizdata.json";
+import "./Quiz.css";
 
 export const metadata = {
   title: "Quiz | LEARNIX",
   description: "Choose a concept and solve quizzes step-by-step.",
 };
 
-export default function QuizHomePage() {
-  const concepts = listQuizConcepts();
+export default function QuizListPage() {
+  const concepts = quizData.concepts;
 
   return (
-    <div className="learnix-quiz-page">
+    <div className="quiz-page">
       <Navbar />
-      <main className="learnix-quiz-wrap">
-        <header className="learnix-quiz-head">
-          <div>
-            <h1 className="learnix-quiz-title">Solve quizzes</h1>
-            <p className="learnix-quiz-subtitle">
-              Pick a concept. Each step has 10 questions. Submit after answering
-              all questions to see your score.
-            </p>
-          </div>
+      <main className="quiz-container">
+        <header className="quiz-header">
+          <h1 className="quiz-main-title">Solve Quizzes</h1>
+          <p className="quiz-main-subtitle">
+            Pick a concept below. Each quiz has multiple steps with 10 questions each.
+            Answer all questions in a step, then submit to see your score.
+          </p>
         </header>
 
-        <section className="learnix-quiz-grid">
-          {concepts.map((c) => {
-            const isComingSoon = !c.dataFile;
+        <section className="quiz-concepts-grid">
+          {concepts.map((concept) => {
+            const isComingSoon = !concept.dataFile;
             return (
-              <Link key={c.slug} href={`/learn/quiz/${c.slug}`} className="learnix-quiz-concept">
-                <span className={`learnix-quiz-chip ${isComingSoon ? "coming" : ""}`}>
-                  {isComingSoon ? "Coming soon" : "Ready"}
+              <Link
+                key={concept.id}
+                href={`/learn/quiz/${concept.id}`}
+                className="quiz-concept-card"
+              >
+                <span className={`quiz-chip ${isComingSoon ? "coming-soon" : "ready"}`}>
+                  {isComingSoon ? "Coming Soon" : "Ready"}
                 </span>
-                <h2 className="learnix-quiz-concept-title">{c.title}</h2>
-                <p className="learnix-quiz-concept-short">{c.short}</p>
+                <h2 className="quiz-concept-title">{concept.title}</h2>
+                <p className="quiz-concept-desc">{concept.short}</p>
               </Link>
             );
           })}
