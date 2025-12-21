@@ -122,10 +122,19 @@
 }
 
 /* Skeleton Chip Loader */
+.stf-skeleton-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  overflow: hidden;
+}
+
 .stf-skeleton-chip {
   display: inline-flex;
   height: 32px;
+  flex: 1 1 80px;
   min-width: 60px;
+  max-width: 120px;
   border-radius: 18px;
   background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
   background-size: 200% 100%;
@@ -156,8 +165,16 @@
     gap: 3px;
   }
 
+  .stf-skeleton-row {
+    gap: 6px;
+  }
+
   .stf-skeleton-chip {
     height: 28px;
+    min-width: 50px;
+    max-width: 100px;
+    border-radius: 16px;
+    flex: 1 1 60px;
   }
 }
 
@@ -180,9 +197,29 @@
     height: 12px;
   }
 
+  .stf-skeleton-row {
+    gap: 5px;
+  }
+
   .stf-skeleton-chip {
     height: 24px;
-    min-width: 50px;
+    min-width: 40px;
+    max-width: 80px;
     border-radius: 14px;
+    flex: 1 1 50px;
+  }
+}
+
+@media (max-width: 360px) {
+  .stf-skeleton-row {
+    gap: 4px;
+  }
+
+  .stf-skeleton-chip {
+    height: 22px;
+    min-width: 35px;
+    max-width: 70px;
+    border-radius: 12px;
+    flex: 1 1 40px;
   }
 }
