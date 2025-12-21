@@ -21,9 +21,12 @@ export default function UserDetailsPage({ usn }) {
   const [publicSubjectsCount, setPublicSubjectsCount] = useState(0);
   const [publicTotalTopics, setPublicTotalTopics] = useState(0);
   const [publicTotalImages, setPublicTotalImages] = useState(0);
+  const [showResources, setShowResources] = useState(false);
+  const [visibleSubjectsCount, setVisibleSubjectsCount] = useState(3);
   
   
   const TOPICS_PER_LOAD = 3; // Load 3 topics at a time per subject
+  const SUBJECTS_PER_LOAD = 3;
   const DEFAULT_PROFILE_IMAGE = "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp";
 
   const filterSubjects = useCallback((subjects, searchTerm = '') => {
@@ -261,54 +264,81 @@ export default function UserDetailsPage({ usn }) {
               </div>
             </div>
 
-            {/* Search Bar */}
-            <div className="user-details-search-section">
-              <div className="user-details-search-container">
-                <Search className="user-details-search-icon" size={18} />
-                <input
-                  type="text"
-                  placeholder="Search subjects, topics, or content..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="user-details-search-input"
-                />
-              </div>
-            </div>
-
             {/* Content Section */}
             <div className="user-details-content">
-              {!filteredSubjects || filteredSubjects.length === 0 ? (
-                <div className="user-details-empty-state">
-                  {searchQuery ? (
-                    <>
-                      <Search size={48} />
-                      <h3>No Results Found</h3>
-                      <p>Try searching with different keywords</p>
-                    </>
-                  ) : (
-                    <>
-                      <BookOpen size={48} />
-                      <h3>No Subjects Added</h3>
-                      <p>This student has not added any subjects yet.</p>
-                    </>
-                  )}
+              {/* View Uploaded Resources Toggle Button */}
+              {!showResources ? (
+                <div className="user-details-resources-toggle-container">
+                  <button 
+                    className="user-details-show-resources-btn"
+                    onClick={() => setShowResources(true)}
+                  >
+                    <Eye size={18} />
+                    View Uploaded Resources
+                  </button>
                 </div>
               ) : (
-                <div className="user-details-subjects-grid">
-                  {filteredSubjects.map((subject, subjectIndex) => {
-                    const visibleCount = visibleTopics[subjectIndex] || 0;
-                    const hasMoreTopics = subject.topics && subject.topics.length > visibleCount;
-                    const displayTopics = subject.topics?.slice(0, visibleCount) || [];
+                <>
+                  <div className="user-details-resources-toggle-container">
+                    <button 
+                      className="user-details-hide-resources-btn"
+                      onClick={() => {
+                        setShowResources(false);
+                        setVisibleSubjectsCount(SUBJECTS_PER_LOAD);
+                      }}
+                    >
+                      <EyeOff size={16} />
+                      Hide Resources
+                    </button>
+                  </div>
+
+                  {/* Search Bar - only visible when resources are shown */}
+                  <div className="user-details-search-section">
+                    <div className="user-details-search-container">
+                      <Search className="user-details-search-icon" size={18} />
+                      <input
+                        type="text"
+                        placeholder="Search subjects, topics, or content..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="user-details-search-input"
+                      />
+                    </div>
+                  </div>
+
+                  {!filteredSubjects || filteredSubjects.length === 0 ? (
+                    <div className="user-details-empty-state">
+                      {searchQuery ? (
+                        <>
+                          <Search size={48} />
+                          <h3>No Results Found</h3>
+                          <p>Try searching with different keywords</p>
+                        </>
+                      ) : (
+                        <>
+                          <BookOpen size={48} />
+                          <h3>No Subjects Added</h3>
+                          <p>This student has not added any subjects yet.</p>
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      <div className="user-details-subjects-grid">
+                        {filteredSubjects.slice(0, visibleSubjectsCount).map((subject, subjectIndex) => {
+                          const visibleCount = visibleTopics[subjectIndex] || 0;
+                          const hasMoreTopics = subject.topics && subject.topics.length > visibleCount;
+                          const displayTopics = subject.topics?.slice(0, visibleCount) || [];
                     
-                    return (
-                      <div key={subjectIndex} className="user-details-subject-card">
-                        <div className="user-details-subject-header">
-                          <div className="user-details-subject-title">
-                            <BookOpen size={20} />
-                            <h3>{subject.subject}</h3>
-                          </div>
-                          <div className="user-details-subject-badge">
-                            {subject.topics?.length || 0} topics
+                          return (
+                            <div key={subjectIndex} className="user-details-subject-card">
+                              <div className="user-details-subject-header">
+                                <div className="user-details-subject-title">
+                                  <BookOpen size={20} />
+                                  <h3>{subject.subject}</h3>
+                                </div>
+                                <div className="user-details-subject-badge">
+                                  {subject.topics?.length || 0} topics
                           </div>
                         </div>
 
@@ -424,7 +454,23 @@ export default function UserDetailsPage({ usn }) {
                       </div>
                     );
                   })}
-                </div>
+                      </div>
+                      
+                      {/* View More Subjects Button */}
+                      {filteredSubjects.length > visibleSubjectsCount && (
+                        <div className="user-details-view-more-subjects-container">
+                          <button 
+                            className="user-details-view-more-subjects-btn"
+                            onClick={() => setVisibleSubjectsCount(prev => prev + SUBJECTS_PER_LOAD)}
+                          >
+                            <Eye size={16} />
+                            View More Subjects ({filteredSubjects.length - visibleSubjectsCount} more)
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </>
               )}
             </div>
           </div>
