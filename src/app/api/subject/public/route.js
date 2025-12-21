@@ -10,14 +10,15 @@ export const GET = async () => {
     // Get all public subjects
     const subjects = await Subject.find({ public: { $ne: false } }).lean();
     
-    // Extract unique subject names with their public topics
+    // Extract unique subject names with their public topics and latest timestamp
     const subjectMap = {};
     
     for (const subject of subjects) {
       if (!subjectMap[subject.subject]) {
         subjectMap[subject.subject] = {
           name: subject.subject,
-          topics: new Set()
+          topics: new Set(),
+          latestTimestamp: null
         };
       }
       
@@ -29,14 +30,28 @@ export const GET = async () => {
       
       topics.forEach(topic => {
         subjectMap[subject.subject].topics.add(topic.topic);
+        // Track the latest timestamp for this subject
+        if (topic.timestamp) {
+          const topicTime = new Date(topic.timestamp);
+          if (!subjectMap[subject.subject].latestTimestamp || topicTime > subjectMap[subject.subject].latestTimestamp) {
+            subjectMap[subject.subject].latestTimestamp = topicTime;
+          }
+        }
       });
     }
 
-    // Convert Set to Array and create response format
+    // Convert Set to Array and sort by latest timestamp (newest first)
     const subjectsArray = Object.values(subjectMap).map(subject => ({
       name: subject.name,
-      topics: Array.from(subject.topics).sort()
-    })).sort((a, b) => a.name.localeCompare(b.name));
+      topics: Array.from(subject.topics).sort(),
+      latestTimestamp: subject.latestTimestamp
+    })).sort((a, b) => {
+      // Sort by latest timestamp descending (newest first)
+      if (!a.latestTimestamp && !b.latestTimestamp) return a.name.localeCompare(b.name);
+      if (!a.latestTimestamp) return 1;
+      if (!b.latestTimestamp) return -1;
+      return new Date(b.latestTimestamp) - new Date(a.latestTimestamp);
+    });
 
     return NextResponse.json({ subjects: subjectsArray, count: subjectsArray.length });
   } catch (err) {

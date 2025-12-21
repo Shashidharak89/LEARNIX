@@ -24,7 +24,8 @@ export const GET = async (request) => {
       public: { $ne: false }
     }).lean();
     
-    const topicsSet = new Set();
+    // Map to store unique topics with their latest timestamp
+    const topicsMap = {};
     
     // Get all public topics from these subjects
     for (const subject of subjects) {
@@ -34,11 +35,28 @@ export const GET = async (request) => {
       }).lean();
       
       topics.forEach(topic => {
-        topicsSet.add(topic.topic);
+        const topicName = topic.topic;
+        const topicTime = topic.timestamp ? new Date(topic.timestamp) : null;
+        
+        // Keep the latest timestamp for each unique topic name
+        if (!topicsMap[topicName] || (topicTime && (!topicsMap[topicName].timestamp || topicTime > topicsMap[topicName].timestamp))) {
+          topicsMap[topicName] = {
+            name: topicName,
+            timestamp: topicTime
+          };
+        }
       });
     }
 
-    const topics = Array.from(topicsSet).sort();
+    // Sort topics by timestamp descending (newest first)
+    const topics = Object.values(topicsMap)
+      .sort((a, b) => {
+        if (!a.timestamp && !b.timestamp) return a.name.localeCompare(b.name);
+        if (!a.timestamp) return 1;
+        if (!b.timestamp) return -1;
+        return new Date(b.timestamp) - new Date(a.timestamp);
+      })
+      .map(t => t.name);
 
     return NextResponse.json({ 
       subject: subjectName,
