@@ -209,6 +209,38 @@
   color: #1976d2;
 }
 
+/* Quote & College Section */
+.user-details-quote-section {
+  background: linear-gradient(135deg, #f8faff 0%, #e8f4fd 100%);
+  padding: 20px 32px;
+  border-bottom: 1px solid #e8f0fe;
+  text-align: center;
+}
+
+.user-details-quote {
+  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+  font-style: italic;
+  color: #555;
+  margin: 0 0 10px 0;
+  line-height: 1.5;
+}
+
+.user-details-college {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: clamp(0.75rem, 2.2vw, 0.95rem);
+  color: #1976d2;
+  font-weight: 500;
+  margin: 0;
+}
+
+.user-details-college svg {
+  color: #1976d2;
+  flex-shrink: 0;
+}
+
 /* Search Section */
 .user-details-search-section {
   background: white;

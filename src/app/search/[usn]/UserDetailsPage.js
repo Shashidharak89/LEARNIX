@@ -264,6 +264,15 @@ export default function UserDetailsPage({ usn }) {
               </div>
             </div>
 
+            {/* Quote & College Section */}
+            <div className="user-details-quote-section">
+              <p className="user-details-quote">"Every journey begins with a single step."</p>
+              <p className="user-details-college">
+                <GraduationCap size={14} />
+                College: NMAM Institute of Technology, Nitte
+              </p>
+            </div>
+
             {/* Content Section */}
             <div className="user-details-content">
               {/* View Uploaded Resources Toggle Button */}
