@@ -102,13 +102,22 @@ const SubjectTopicFilter = ({ onFilterChange }) => {
     setSelectedTopics(prev => prev.filter(t => t !== topic));
   };
 
+  // Skeleton loader for chips
+  const SkeletonChips = ({ count = 5 }) => (
+    <>
+      {Array.from({ length: count }).map((_, index) => (
+        <div key={index} className="stf-skeleton-chip" style={{ width: `${60 + Math.random() * 40}px` }}></div>
+      ))}
+    </>
+  );
+
   return (
     <div className="stf-container">
       {/* Subjects Section */}
       <div className="stf-scroll-wrapper">
         <div className="stf-scroll-container" ref={subjectsScrollRef}>
           {isLoadingSubjects ? (
-            <div className="stf-loading-state">Loading...</div>
+            <SkeletonChips count={6} />
           ) : subjects.length > 0 ? (
             subjects.map((subject) => (
               <button
@@ -139,7 +148,7 @@ const SubjectTopicFilter = ({ onFilterChange }) => {
         <div className="stf-scroll-wrapper">
           <div className="stf-scroll-container" ref={topicsScrollRef}>
             {isLoadingTopics ? (
-              <div className="stf-loading-state">Loading...</div>
+              <SkeletonChips count={5} />
             ) : topics.length > 0 ? (
               topics.map((topic) => (
                 <button
