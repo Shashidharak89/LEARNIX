@@ -43,8 +43,11 @@ export default function UserProfile() {
   const [profileImage, setProfileImage] = useState("https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp");
   const [quote, setQuote] = useState("");
   const [isLoadingQuote, setIsLoadingQuote] = useState(false);
+  const [showResources, setShowResources] = useState(false);
+  const [visibleSubjectsCount, setVisibleSubjectsCount] = useState(3);
   
   const TOPICS_PER_LOAD = 5;
+  const SUBJECTS_PER_LOAD = 3;
 
   useEffect(() => {
     fetchUserProfile();
@@ -399,28 +402,58 @@ export default function UserProfile() {
             </div>
 
             <div className="up-content">
-              {!filteredSubjects || filteredSubjects.length === 0 ? (
-                <div className="up-empty">
-                  {searchQuery ? (
-                    <>
-                      <FiSearch className="up-empty-icon" />
-                      <h3 className="up-empty-title">No Results Found</h3>
-                      <p className="up-empty-text">Try different search terms</p>
-                    </>
-                  ) : (
-                    <>
-                      <FiBook className="up-empty-icon" />
-                      <h3 className="up-empty-title">No Subjects Added</h3>
-                      <p className="up-empty-text">Start building your learning profile!</p>
-                    </>
-                  )}
+              {/* View Uploaded Resources Button */}
+              {!showResources ? (
+                <div className="up-show-resources">
+                  <button 
+                    className="up-show-resources-btn"
+                    onClick={() => setShowResources(true)}
+                  >
+                    <FiBook className="up-show-resources-icon" />
+                    View Uploaded Resources
+                    <span className="up-resources-count">
+                      {user.subjects?.length || 0} subjects • {getTotalTopics()} topics
+                    </span>
+                  </button>
                 </div>
               ) : (
-                <div className="up-subjects">
-                  {filteredSubjects.map((subject, subjectIndex) => {
-                    const visibleCount = visibleTopics[subjectIndex] || 0;
-                    const hasMoreTopics = subject.topics && subject.topics.length > visibleCount;
-                    const displayTopics = subject.topics?.slice(0, visibleCount) || [];
+                <>
+                  {/* Hide Resources Button */}
+                  <div className="up-hide-resources">
+                    <button 
+                      className="up-hide-resources-btn"
+                      onClick={() => {
+                        setShowResources(false);
+                        setVisibleSubjectsCount(SUBJECTS_PER_LOAD);
+                      }}
+                    >
+                      <FiEyeOff />
+                      Hide Resources
+                    </button>
+                  </div>
+
+                  {!filteredSubjects || filteredSubjects.length === 0 ? (
+                    <div className="up-empty">
+                      {searchQuery ? (
+                        <>
+                          <FiSearch className="up-empty-icon" />
+                          <h3 className="up-empty-title">No Results Found</h3>
+                          <p className="up-empty-text">Try different search terms</p>
+                        </>
+                      ) : (
+                        <>
+                          <FiBook className="up-empty-icon" />
+                          <h3 className="up-empty-title">No Subjects Added</h3>
+                          <p className="up-empty-text">Start building your learning profile!</p>
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="up-subjects">
+                      {filteredSubjects.slice(0, visibleSubjectsCount).map((subject, subjectIndex) => {
+                        const visibleCount = visibleTopics[subjectIndex] || 0;
+                        const hasMoreTopics = subject.topics && subject.topics.length > visibleCount;
+                        const displayTopics = subject.topics?.slice(0, visibleCount) || [];
 
                     return (
                       <div key={subjectIndex} className="up-subject-card">
@@ -543,7 +576,24 @@ export default function UserProfile() {
                       </div>
                     );
                   })}
-                </div>
+
+                      {/* View More Subjects Button */}
+                      {filteredSubjects.length > visibleSubjectsCount && (
+                        <div className="up-view-more-subjects">
+                          <button 
+                            className="up-view-more-subjects-btn"
+                            onClick={() => setVisibleSubjectsCount(prev => prev + SUBJECTS_PER_LOAD)}
+                          >
+                            View More Subjects
+                            <span className="up-remaining-count">
+                              ({filteredSubjects.length - visibleSubjectsCount} remaining)
+                            </span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>

@@ -1004,3 +1004,110 @@
     padding: 0.75rem 1rem;
   }
 }
+
+/* Show/Hide Resources Styles */
+.up-show-resources {
+  display: flex;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.up-show-resources-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 320px;
+  height: 52px;
+  padding: 0 24px;
+  background: #007bff;
+  border: 2px solid #007bff;
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  box-shadow: none;
+}
+
+.up-show-resources-btn:hover {
+  background: #0056b3;
+  border-color: #0056b3;
+}
+
+.up-show-resources-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.up-resources-count {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.85;
+  margin-left: 4px;
+}
+
+.up-hide-resources {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.up-hide-resources-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 180px;
+  height: 42px;
+  padding: 0 16px;
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.up-hide-resources-btn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+/* View More Subjects Button */
+.up-view-more-subjects {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.up-view-more-subjects-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 260px;
+  height: 46px;
+  padding: 0 20px;
+  background: #ffffff;
+  border: 2px solid #007bff;
+  border-radius: 10px;
+  color: #007bff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.up-view-more-subjects-btn:hover {
+  background: rgba(0, 123, 255, 0.06);
+}
+
+.up-remaining-count {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.8;
+}
