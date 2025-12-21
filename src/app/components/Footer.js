@@ -14,8 +14,8 @@ export default function Footer() {
         <div className="learnix-footer-section">
           <h3 className="learnix-footer-title">About LEARNIX</h3>
           <p className="learnix-footer-description">
-            A collaborative platform designed for students to share homework, 
-            assignments, and learning resources among classmates. Built to make 
+            A collaborative platform designed for students to 
+            share learning resources among Students. Built to make 
             academic collaboration easier and more accessible.
           </p>
           <div className="learnix-footer-website">
