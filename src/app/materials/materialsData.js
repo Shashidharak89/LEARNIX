@@ -115,18 +115,20 @@ const materialsData = [
                 subject: "Data Structures And Algorithms",
                 files: [
 
-                    { name: "UNIT-1--CPT1", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unite%20I/Chapter%201/Arrays_in_C_Presentation.pdf" },
-                    { name: "C Structure program", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unite%20I/Chapter%201/C%20structure%20Program%20simple.pdf" },
-                    { name: "C Structure program using array", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unite%20I/Chapter%201/C%20structure%20Program%20using%20array%20of%20objects.pdf" },
-                    { name: "C Structure program using nested Structure", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unite%20I/Chapter%201/C%20structure%20Program%20using%20nested%20structure%20concept.pdf" },
-                    { url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unite%20I/Chapter%201/C_Functions_Presentation.pdf" },
-                    { name: "Introduction to DS", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unite%20I/Chapter%201/Introduction%20to%20DS-edited.pdf" },
-                    { name: "Introduction to DSA", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unite%20I/Chapter%201/Introduction_to_DSA.pdf" },
-                    { name: "Pointers", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unite%20I/Chapter%201/Pointers.pdf" },
-                    { name: "Structures Edited", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unite%20I/Chapter%201/structures-edited.pdf" },
-                    { name: "Abstract Data Types", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unite%20I/Chapter%201/Abstract_Data_Types.pdf" },
-                    { name: "Design and Analysis of Algorithms U1-CP1", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unite%20I/Chapter%202/Design%20and%20Analysis%20of%20Algorithms.pdf" },
-                    
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20I/Chapter%201/Abstract_Data_Types.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20I/Chapter%201/Arrays_in_C_Presentation.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20I/Chapter%201/C%20structure%20Program%20simple.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20I/Chapter%201/C%20structure%20Program%20using%20array%20of%20objects.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20I/Chapter%201/C%20structure%20Program%20using%20nested%20structure%20concept.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20I/Chapter%201/C_Functions_Presentation.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20I/Chapter%201/Introduction%20to%20DS-edited.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20I/Chapter%201/Introduction_to_DSA.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20I/Chapter%201/Pointers.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20I/Chapter%201/structures-edited.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20I/Chapter%202/Design%20and%20Analysis%20of%20Algorithms.pdf" },
+                   
+
+
                     { name: "U2 Doubly Linked lists", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20II/Doubly%20Linked%20Lists.pdf" },
                     { name: "Realization of DLL", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20II/Realization%20of%20DLL%20program.pdf" },
                     { name: "Realization if Singly Linked List", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20II/Realization%20of%20Singly%20Linked%20List-edited.pdf" },
