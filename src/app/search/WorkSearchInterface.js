@@ -541,7 +541,7 @@ const WorkSearchInterface = () => {
               </span>
               <span className="ws-meta-item">
                 <FiCalendar className="ws-meta-icon" />
-                {new Date(topic.timestamp).toLocaleDateString()}
+                {new Date(topic.timestamp).toLocaleDateString('en-GB')}
               </span>
             </div>
           </div>
