@@ -10,6 +10,11 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Save Topics for Instant Access",
+      description:
+        "Bookmark your favorite topics and access them instantly without any server delay! Save any topic from the Uploaded Works page using the 3-dot menu or from individual topic pages. Your saved topics are stored locally and load immediately when you revisit. Use the new filter icon to view only your saved topics. Perfect for quick revision and easy access to frequently referenced materials!",
+    },
+    {
       title: "Personal Review/Comment on Topics",
       description:
         "Share private feedback directly with content uploaders! Leave personalized reviews on any topic - choose from Feedback, Suggestion, Mistake, or Appreciation types. Your reviews are private and visible only to you and the uploader. Uploaders receive instant notifications via the bell icon and can view all feedback in a dedicated management page. Features include reply threads, copy text, mark as read, and delete options through a convenient 3-dot menu. Perfect for constructive feedback and improving study materials!",
