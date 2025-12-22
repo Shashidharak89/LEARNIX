@@ -381,6 +381,74 @@
   transform: scale(1.05);
 }
 
+/* Save Button */
+.ws-save-btn {
+  background: #ffffff;
+  color: #6b7280;
+  border: 2px solid #e5e7eb;
+}
+
+.ws-save-btn:hover {
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+  background: #f5f3ff;
+  transform: scale(1.05);
+}
+
+.ws-save-btn.ws-saved {
+  background: #8b5cf6;
+  color: #ffffff;
+  border-color: #8b5cf6;
+}
+
+.ws-save-btn.ws-saved:hover {
+  background: #7c3aed;
+  border-color: #7c3aed;
+}
+
+/* Saved Card Styling */
+.ws-topic-card.ws-saved-card {
+  border-color: #8b5cf6;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.15);
+  position: relative;
+}
+
+.ws-topic-card.ws-saved-card::before {
+  background: linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%);
+}
+
+.ws-saved-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 10;
+}
+
+/* Saved Section Title */
+.ws-saved-section {
+  margin-bottom: 32px;
+}
+
+.ws-section-title.ws-saved-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #8b5cf6;
+}
+
+.ws-saved-icon {
+  color: #8b5cf6;
+  font-size: 1.2rem;
+}
+
 .ws-topic-content {
   color: #4b5563;
   margin-bottom: 16px;

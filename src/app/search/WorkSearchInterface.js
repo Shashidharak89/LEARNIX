@@ -2,16 +2,88 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiUser, FiBook, FiRefreshCw, FiRotateCcw, FiShare2 } from 'react-icons/fi';
+import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiUser, FiBook, FiRefreshCw, FiRotateCcw, FiShare2, FiBookmark } from 'react-icons/fi';
+import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import SubjectTopicFilter from './SubjectTopicFilter';
 import './styles/WorkSearchInterface.css';
+
+// LocalStorage key for saved topics (same as in /works/[id])
+const SAVED_TOPICS_KEY = 'learnix_saved_topics';
+
+// Helper functions for localStorage
+const getSavedTopics = () => {
+  if (typeof window === 'undefined') return [];
+  try {
+    const saved = localStorage.getItem(SAVED_TOPICS_KEY);
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+};
+
+const isTopicSaved = (topicId) => {
+  const savedTopics = getSavedTopics();
+  return savedTopics.some(t => t.topic._id === topicId);
+};
+
+const saveTopic = (topic) => {
+  if (typeof window === 'undefined' || !topic) return false;
+  try {
+    const savedTopics = getSavedTopics();
+    const existingIndex = savedTopics.findIndex(t => t.topic._id === topic.topicId);
+    
+    const topicToSave = {
+      topic: {
+        _id: topic.topicId,
+        topic: topic.topic,
+        content: topic.content,
+        images: topic.images,
+        timestamp: topic.timestamp,
+      },
+      subject: {
+        subject: topic.subjectName,
+      },
+      user: {
+        name: topic.userName,
+        usn: topic.usn,
+        profileimg: topic.profileimg || '',
+      },
+      savedAt: new Date().toISOString(),
+    };
+    
+    if (existingIndex !== -1) {
+      savedTopics[existingIndex] = topicToSave;
+    } else {
+      savedTopics.push(topicToSave);
+    }
+    
+    localStorage.setItem(SAVED_TOPICS_KEY, JSON.stringify(savedTopics));
+    return true;
+  } catch (err) {
+    console.error('Error saving topic:', err);
+    return false;
+  }
+};
+
+const removeSavedTopic = (topicId) => {
+  if (typeof window === 'undefined') return false;
+  try {
+    const savedTopics = getSavedTopics();
+    const filtered = savedTopics.filter(t => t.topic._id !== topicId);
+    localStorage.setItem(SAVED_TOPICS_KEY, JSON.stringify(filtered));
+    return true;
+  } catch (err) {
+    console.error('Error removing saved topic:', err);
+    return false;
+  }
+};
 
 const WorkSearchInterface = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [displayedTopics, setDisplayedTopics] = useState([]);
   const [allTopics, setAllTopics] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [expandedImages, setExpandedImages] = useState({});
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -19,8 +91,34 @@ const WorkSearchInterface = () => {
   const [isManualReloading, setIsManualReloading] = useState(false);
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [selectedTopics, setSelectedTopics] = useState([]);
+  const [savedTopicIds, setSavedTopicIds] = useState([]);
+  const [cachedSavedTopics, setCachedSavedTopics] = useState([]);
 
   const ITEMS_PER_LOAD = 8;
+
+  // Load saved topics from localStorage immediately on mount (before server data)
+  useEffect(() => {
+    const saved = getSavedTopics();
+    setSavedTopicIds(saved.map(t => t.topic._id));
+    
+    // Convert saved topics to display format for immediate rendering
+    const savedForDisplay = saved.map(s => ({
+      ...s.topic,
+      topic: s.topic.topic,
+      content: s.topic.content || '',
+      images: s.topic.images || [],
+      timestamp: s.topic.timestamp,
+      topicId: s.topic._id,
+      userName: s.user?.name || 'Unknown',
+      usn: s.user?.usn || '',
+      profileimg: s.user?.profileimg || '',
+      subjectName: s.subject?.subject || 'Unknown Subject',
+      userId: s.user?._id || '',
+      isCached: true, // Mark as cached for visual indicator
+    })).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    setCachedSavedTopics(savedForDisplay);
+  }, []);
 
   useEffect(() => {
     fetchAllTopics();
@@ -62,6 +160,7 @@ const WorkSearchInterface = () => {
               ...topic,
               userName: user.name,
               usn: user.usn,
+              profileimg: user.profileimg || '',
               subjectName: subject.subject,
               userId: user._id,
               topicId: topic._id
@@ -70,9 +169,24 @@ const WorkSearchInterface = () => {
         });
       });
 
+      // Get saved topic IDs
+      const savedIds = getSavedTopics().map(t => t.topic._id);
+      setSavedTopicIds(savedIds);
+
+      // Sort: saved topics first, then by timestamp
       const sortedTopics = topics
         .filter(topic => topic.timestamp)
-        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        .sort((a, b) => {
+          const aIsSaved = savedIds.includes(a.topicId || a._id);
+          const bIsSaved = savedIds.includes(b.topicId || b._id);
+          
+          // Saved topics come first
+          if (aIsSaved && !bIsSaved) return -1;
+          if (!aIsSaved && bIsSaved) return 1;
+          
+          // Within same category, sort by timestamp (newest first)
+          return new Date(b.timestamp) - new Date(a.timestamp);
+        });
 
       setAllTopics(sortedTopics);
 
@@ -308,6 +422,19 @@ const WorkSearchInterface = () => {
     }
   };
 
+  const handleSaveToggle = (topic) => {
+    const topicId = topic.topicId || topic._id;
+    const isSaved = savedTopicIds.includes(topicId);
+    
+    if (isSaved) {
+      removeSavedTopic(topicId);
+      setSavedTopicIds(prev => prev.filter(id => id !== topicId));
+    } else {
+      saveTopic(topic);
+      setSavedTopicIds(prev => [...prev, topicId]);
+    }
+  };
+
   const SkeletonLoader = () => (
     <div className="ws-skeleton-grid">
       {Array.from({ length: 6 }).map((_, index) => (
@@ -340,9 +467,12 @@ const WorkSearchInterface = () => {
     const hasImages = topic.images && topic.images.filter(img => img && img.trim() !== '').length > 0;
     const validImages = hasImages ? topic.images.filter(img => img && img.trim() !== '') : [];
     const displayImages = isExpanded ? validImages : validImages.slice(0, 2);
+    const topicId = topic.topicId || topic._id;
+    const isSaved = savedTopicIds.includes(topicId);
 
     return (
-      <div key={`${topicKey}-${index}`} className="ws-topic-card" data-topic-index={index}>
+      <div key={`${topicKey}-${index}`} className={`ws-topic-card ${isSaved ? 'ws-saved-card' : ''}`} data-topic-index={index}>
+        {isSaved && <div className="ws-saved-badge">Saved</div>}
         <div className="ws-card-header">
           <div className="ws-topic-info">
             <Link href={`/works/${topic.topicId}`} className="ws-topic-link">
@@ -377,6 +507,13 @@ const WorkSearchInterface = () => {
               title="Share Topic"
             >
               <FiShare2 />
+            </button>
+            <button 
+              onClick={() => handleSaveToggle(topic)}
+              className={`ws-action-btn ws-save-btn ${isSaved ? 'ws-saved' : ''}`}
+              title={isSaved ? "Remove from Saved" : "Save Topic"}
+            >
+              {isSaved ? <FaBookmark /> : <FaRegBookmark />}
             </button>
           </div>
         </div>
@@ -433,6 +570,20 @@ const WorkSearchInterface = () => {
       </div>
 
       <div className="ws-content">
+        {/* Show cached saved topics immediately while loading */}
+        {isLoading && cachedSavedTopics.length > 0 && (
+          <div className="ws-saved-section">
+            <h2 className="ws-section-title ws-saved-title">
+              <FaBookmark className="ws-saved-icon" />
+              Your Saved Topics
+            </h2>
+            <div className="ws-topics-grid">
+              {cachedSavedTopics.map((topic, index) => renderTopicCard(topic, index))}
+            </div>
+          </div>
+        )}
+
+        {/* Show skeleton loader below cached topics or alone if no cached */}
         {isLoading && <SkeletonLoader />}
 
         {!searchQuery && !isLoading && (
