@@ -114,18 +114,19 @@ const WorkTopicPageWrapper = () => {
   const handleShare = (data) => {
     const url = window.location.href;
     const title = `${data.topic.topic} - ${data.subject.subject}`;
+    const text = `Check out "${data.topic.topic}" uploaded by ${data.user.name} on Learnix`;
 
     if (navigator.share) {
       navigator
         .share({
           title: title,
-          text: `Check out this topic by ${data.user.name}`,
+          text: text,
           url: url,
         })
         .catch((err) => console.log("Error sharing:", err));
     } else {
       navigator.clipboard
-        .writeText(url)
+        .writeText(`${text}\n${url}`)
         .then(() => alert("Link copied to clipboard!"))
         .catch(() => alert("Failed to copy link"));
     }

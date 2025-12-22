@@ -294,12 +294,15 @@ const WorkSearchInterface = () => {
     }
   };
 
-  const handleShare = (topicId) => {
-    const url = `${window.location.origin}/works/${topicId}`;
+  const handleShare = (topic) => {
+    const url = `${window.location.origin}/works/${topic.topicId}`;
+    const title = `${topic.topic} - ${topic.subjectName}`;
+    const text = `Check out "${topic.topic}" uploaded by ${topic.userName} on Learnix`;
+    
     if (navigator.share) {
-      navigator.share({ title: 'Check this topic', url }).catch(err => console.log(err));
+      navigator.share({ title, text, url }).catch(err => console.log(err));
     } else {
-      navigator.clipboard.writeText(url)
+      navigator.clipboard.writeText(`${text}\n${url}`)
         .then(() => alert('Link copied to clipboard!'))
         .catch(() => alert('Failed to copy link'));
     }
@@ -369,7 +372,7 @@ const WorkSearchInterface = () => {
               <FiDownload />
             </button>
             <button 
-              onClick={() => handleShare(topic.topicId)}
+              onClick={() => handleShare(topic)}
               className="ws-action-btn ws-share-btn"
               title="Share Topic"
             >
