@@ -331,11 +331,6 @@
   animation: wtpc-slide-up 0.6s ease-out;
 }
 
-.wtpc-download-btn + .wtpc-download-btn {
-  margin-left: -12px !important;
-  gap: 0 !important;
-}
-
 .wtpc-action-btn {
   display: flex;
   align-items: center;
@@ -386,23 +381,27 @@
 .wtpc-download-wrapper {
   display: flex;
   flex: 1;
+  min-width: 0;
 }
 
 .wtpc-download-wrapper .wtpc-action-btn {
   flex: none;
+  min-height: 48px;
 }
 
 .wtpc-download-primary {
   width: 70%;
   border-radius: 10px 0 0 10px;
   border-right: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 12px 12px;
 }
 
 .wtpc-download-caret {
   width: 30%;
   border-radius: 0 10px 10px 0;
   border-left: none;
-  padding-inline: 10px;
+  padding: 12px 8px;
+  min-width: 40px;
 }
 
 .wtpc-download-btn:hover:not(:disabled) {
@@ -1318,6 +1317,86 @@
   .wtpc-topic-section {
     border: 1px solid #000;
     box-shadow: none;
+  }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .wtpc-action-buttons-container {
+    gap: 8px;
+  }
+
+  .wtpc-action-btn {
+    padding: 10px 8px;
+    font-size: 0.8rem;
+    gap: 5px;
+  }
+
+  .wtpc-download-primary {
+    padding: 10px 6px;
+  }
+
+  .wtpc-download-caret {
+    padding: 10px 6px;
+    min-width: 32px;
+  }
+
+  .wtpc-btn-text {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 580px) {
+  .wtpc-action-buttons-container {
+    gap: 6px;
+  }
+
+  .wtpc-action-btn {
+    padding: 10px 6px;
+    font-size: 0.75rem;
+    gap: 4px;
+    min-height: 44px;
+  }
+
+  .wtpc-download-wrapper .wtpc-action-btn {
+    min-height: 44px;
+  }
+
+  .wtpc-download-primary {
+    padding: 10px 4px;
+  }
+
+  .wtpc-download-caret {
+    padding: 10px 4px;
+    min-width: 28px;
+  }
+
+  .wtpc-btn-text {
+    display: none;
+  }
+}
+
+@media (max-width: 400px) {
+  .wtpc-action-buttons-container {
+    gap: 4px;
+  }
+
+  .wtpc-action-btn {
+    padding: 8px 4px;
+    min-height: 40px;
+  }
+
+  .wtpc-download-wrapper .wtpc-action-btn {
+    min-height: 40px;
+  }
+
+  .wtpc-download-primary {
+    padding: 8px 3px;
+  }
+
+  .wtpc-download-caret {
+    padding: 8px 3px;
+    min-width: 24px;
   }
 }
 
