@@ -325,24 +325,26 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
             <FaArrowLeft />
             <span className="wtpc-btn-text">Back</span>
           </Link>
-          <button 
-            onClick={downloadTopicAsPDF}
-            className="wtpc-action-btn wtpc-download-btn wtpc-download-primary"
-            disabled={!hasImages || !validImages.length}
-            title={!hasImages || !validImages.length ? "No images available for download" : "Download as PDF"}
-          >
-            <FaDownload />
-            <span className="wtpc-btn-text">Download</span>
-          </button>
-          <button
-            type="button"
-            onClick={openRangeModal}
-            className="wtpc-action-btn wtpc-download-btn wtpc-download-caret"
-            disabled={!hasImages || !validImages.length}
-            title="Download selected pages"
-          >
-            <FaChevronDown />
-          </button>
+          <div className="wtpc-download-wrapper">
+            <button 
+              onClick={downloadTopicAsPDF}
+              className="wtpc-action-btn wtpc-download-btn wtpc-download-primary"
+              disabled={!hasImages || !validImages.length}
+              title={!hasImages || !validImages.length ? "No images available for download" : "Download as PDF"}
+            >
+              <FaDownload />
+              <span className="wtpc-btn-text">Download</span>
+            </button>
+            <button
+              type="button"
+              onClick={openRangeModal}
+              className="wtpc-action-btn wtpc-download-btn wtpc-download-caret"
+              disabled={!hasImages || !validImages.length}
+              title="Download selected pages"
+            >
+              <FaChevronDown />
+            </button>
+          </div>
           <button 
             onClick={handleShare}
             className="wtpc-action-btn wtpc-share-btn"

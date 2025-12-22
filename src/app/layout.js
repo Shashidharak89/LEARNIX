@@ -6,7 +6,7 @@ import Script from "next/script";
 
 export const metadata = {
   title: "Learnix",
-  description: "Learnix is a learning platform where students can share their homework, explore solutions, and make learning referable and collaborative.",
+  description: "Learnix is a learning platform where students can share their study resources, explore solutions, and make learning referable and collaborative.",
   keywords: [
     "Learnix",
     "student homework",
@@ -17,7 +17,7 @@ export const metadata = {
   ],
   authors: [{ name: "Shashidhara K." }],
   openGraph: {
-    title: "Learnix - Share and Explore Student Homework",
+    title: "Learnix - Learn Smarter",
     description: "Collaborative platform for students to share homework and learning resources.",
     url: "https://learnix.shashi-k.in",
     siteName: "Learnix",

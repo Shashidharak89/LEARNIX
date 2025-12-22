@@ -382,19 +382,26 @@
   border: 2px solid #f59e0b;
 }
 
+/* Download Wrapper - takes same space as other buttons */
+.wtpc-download-wrapper {
+  display: flex;
+  flex: 1;
+}
+
+.wtpc-download-wrapper .wtpc-action-btn {
+  flex: none;
+}
+
 .wtpc-download-primary {
-  flex: 1.4;
+  width: 70%;
   border-radius: 10px 0 0 10px;
-  margin-right: -2px;
-  border-right: none;
-  z-index: 1;
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .wtpc-download-caret {
-  flex: 0.6;
+  width: 30%;
   border-radius: 0 10px 10px 0;
   border-left: none;
-  margin-left: -2px;
   padding-inline: 10px;
 }
 
