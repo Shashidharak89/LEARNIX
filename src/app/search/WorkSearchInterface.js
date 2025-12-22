@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiUser, FiBook, FiRefreshCw, FiRotateCcw, FiShare2, FiBookmark, FiMoreVertical, FiExternalLink } from 'react-icons/fi';
+import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiUser, FiBook, FiRefreshCw, FiRotateCcw, FiShare2, FiBookmark, FiMoreVertical, FiExternalLink, FiFilter, FiCheck } from 'react-icons/fi';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import SubjectTopicFilter from './SubjectTopicFilter';
 import './styles/WorkSearchInterface.css';
@@ -96,7 +96,11 @@ const WorkSearchInterface = () => {
   const [savedTopicIds, setSavedTopicIds] = useState([]);
   const [cachedSavedTopics, setCachedSavedTopics] = useState([]);
   const [openMenuId, setOpenMenuId] = useState(null);
+  const [showFilterPopup, setShowFilterPopup] = useState(false);
+  const [sortOrder, setSortOrder] = useState('latest'); // 'latest' or 'oldest'
+  const [showSavedOnly, setShowSavedOnly] = useState(false);
   const menuRef = useRef(null);
+  const filterRef = useRef(null);
 
   const ITEMS_PER_LOAD = 8;
 
@@ -105,6 +109,9 @@ const WorkSearchInterface = () => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setOpenMenuId(null);
+      }
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setShowFilterPopup(false);
       }
     };
     
@@ -296,7 +303,15 @@ const WorkSearchInterface = () => {
   };
 
   const getFilteredTopics = (topics) => {
-    return topics.filter(topic => {
+    let filtered = topics.filter(topic => {
+      // Filter by saved if showSavedOnly is enabled
+      if (showSavedOnly) {
+        const topicId = topic.topicId || topic._id;
+        if (!savedTopicIds.includes(topicId)) {
+          return false;
+        }
+      }
+      
       // If no subjects selected, show all
       if (selectedSubjects.length === 0) {
         return true;
@@ -316,6 +331,16 @@ const WorkSearchInterface = () => {
       // If topics are selected, topic must match any selected topic
       return selectedTopics.includes(topic.topic);
     });
+    
+    // Apply sorting based on sortOrder
+    filtered = filtered.sort((a, b) => {
+      if (sortOrder === 'oldest') {
+        return new Date(a.timestamp) - new Date(b.timestamp);
+      }
+      return new Date(b.timestamp) - new Date(a.timestamp); // latest by default
+    });
+    
+    return filtered;
   };
 
   const handleFilterChange = (filters) => {
@@ -334,7 +359,7 @@ const WorkSearchInterface = () => {
     } else {
       handleSearch(searchQuery);
     }
-  }, [selectedSubjects, selectedTopics]);
+  }, [selectedSubjects, selectedTopics, sortOrder, showSavedOnly, savedTopicIds]);
 
   const toggleImageExpansion = (topicKey) => {
     setExpandedImages(prev => ({ ...prev, [topicKey]: !prev[topicKey] }));
@@ -627,7 +652,52 @@ const WorkSearchInterface = () => {
 
         {!searchQuery && !isLoading && (
           <div className="ws-latest-section">
-            <h2 className="ws-section-title">Latest Topics</h2>
+            <div className="ws-section-header">
+              <h2 className="ws-section-title">
+                {showSavedOnly ? 'Saved Topics' : (sortOrder === 'oldest' ? 'Oldest Topics' : 'Latest Topics')}
+              </h2>
+              <div className="ws-filter-container" ref={filterRef}>
+                <button 
+                  className={`ws-filter-btn ${(sortOrder !== 'latest' || showSavedOnly) ? 'ws-filter-active' : ''}`}
+                  onClick={() => setShowFilterPopup(!showFilterPopup)}
+                  title="Filter & Sort"
+                >
+                  <FiFilter />
+                </button>
+                {showFilterPopup && (
+                  <div className="ws-filter-popup">
+                    <div className="ws-filter-section">
+                      <h4 className="ws-filter-label">Sort by</h4>
+                      <button 
+                        className={`ws-filter-option ${sortOrder === 'latest' ? 'ws-filter-selected' : ''}`}
+                        onClick={() => setSortOrder('latest')}
+                      >
+                        <span>Latest</span>
+                        {sortOrder === 'latest' && <FiCheck className="ws-filter-check" />}
+                      </button>
+                      <button 
+                        className={`ws-filter-option ${sortOrder === 'oldest' ? 'ws-filter-selected' : ''}`}
+                        onClick={() => setSortOrder('oldest')}
+                      >
+                        <span>Oldest</span>
+                        {sortOrder === 'oldest' && <FiCheck className="ws-filter-check" />}
+                      </button>
+                    </div>
+                    <div className="ws-filter-divider"></div>
+                    <div className="ws-filter-section">
+                      <h4 className="ws-filter-label">Filter</h4>
+                      <button 
+                        className={`ws-filter-option ${showSavedOnly ? 'ws-filter-selected' : ''}`}
+                        onClick={() => setShowSavedOnly(!showSavedOnly)}
+                      >
+                        <span>Saved Only</span>
+                        {showSavedOnly && <FiCheck className="ws-filter-check" />}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
             <div className="ws-topics-grid">{displayedTopics.map(renderTopicCard)}</div>
 
             {hasMore && (
