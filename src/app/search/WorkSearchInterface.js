@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiUser, FiBook, FiRefreshCw, FiRotateCcw, FiShare2, FiBookmark } from 'react-icons/fi';
+import { useRouter } from 'next/navigation';
+import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiUser, FiBook, FiRefreshCw, FiRotateCcw, FiShare2, FiBookmark, FiMoreVertical, FiExternalLink } from 'react-icons/fi';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import SubjectTopicFilter from './SubjectTopicFilter';
 import './styles/WorkSearchInterface.css';
@@ -79,6 +80,7 @@ const removeSavedTopic = (topicId) => {
 };
 
 const WorkSearchInterface = () => {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [displayedTopics, setDisplayedTopics] = useState([]);
@@ -93,8 +95,22 @@ const WorkSearchInterface = () => {
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [savedTopicIds, setSavedTopicIds] = useState([]);
   const [cachedSavedTopics, setCachedSavedTopics] = useState([]);
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const menuRef = useRef(null);
 
   const ITEMS_PER_LOAD = 8;
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setOpenMenuId(null);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Load saved topics from localStorage immediately on mount (before server data)
   useEffect(() => {
@@ -459,10 +475,30 @@ const WorkSearchInterface = () => {
     const displayImages = isExpanded ? validImages : validImages.slice(0, 2);
     const topicId = topic.topicId || topic._id;
     const isSaved = savedTopicIds.includes(topicId);
+    const isMenuOpen = openMenuId === topicId;
+
+    const handleMenuToggle = (e) => {
+      e.stopPropagation();
+      setOpenMenuId(isMenuOpen ? null : topicId);
+    };
+
+    const handleOpenClick = () => {
+      setOpenMenuId(null);
+      router.push(`/works/${topic.topicId}`);
+    };
+
+    const handleShareClick = () => {
+      setOpenMenuId(null);
+      handleShare(topic);
+    };
+
+    const handleSaveClick = () => {
+      setOpenMenuId(null);
+      handleSaveToggle(topic);
+    };
 
     return (
       <div key={`${topicKey}-${index}`} className={`ws-topic-card ${isSaved ? 'ws-saved-card' : ''}`} data-topic-index={index}>
-        {isSaved && <div className="ws-saved-badge">Saved</div>}
         <div className="ws-card-header">
           <div className="ws-topic-info">
             <Link href={`/works/${topic.topicId}`} className="ws-topic-link">
@@ -491,20 +527,31 @@ const WorkSearchInterface = () => {
             >
               <FiDownload />
             </button>
-            <button 
-              onClick={() => handleShare(topic)}
-              className="ws-action-btn ws-share-btn"
-              title="Share Topic"
-            >
-              <FiShare2 />
-            </button>
-            <button 
-              onClick={() => handleSaveToggle(topic)}
-              className={`ws-action-btn ws-save-btn ${isSaved ? 'ws-saved' : ''}`}
-              title={isSaved ? "Remove from Saved" : "Save Topic"}
-            >
-              {isSaved ? <FaBookmark /> : <FaRegBookmark />}
-            </button>
+            <div className="ws-menu-container" ref={isMenuOpen ? menuRef : null}>
+              <button 
+                onClick={handleMenuToggle}
+                className="ws-action-btn ws-more-btn"
+                title="More options"
+              >
+                <FiMoreVertical />
+              </button>
+              {isMenuOpen && (
+                <div className="ws-dropdown-menu">
+                  <button className="ws-menu-item" onClick={handleOpenClick}>
+                    <FiExternalLink className="ws-menu-icon" />
+                    <span>Open</span>
+                  </button>
+                  <button className="ws-menu-item" onClick={handleShareClick}>
+                    <FiShare2 className="ws-menu-icon" />
+                    <span>Share</span>
+                  </button>
+                  <button className="ws-menu-item" onClick={handleSaveClick}>
+                    {isSaved ? <FaBookmark className="ws-menu-icon" /> : <FaRegBookmark className="ws-menu-icon" />}
+                    <span>{isSaved ? 'Unsave' : 'Save'}</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
