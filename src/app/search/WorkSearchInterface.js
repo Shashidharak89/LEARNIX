@@ -443,17 +443,19 @@ const WorkSearchInterface = () => {
 
   const SkeletonLoader = () => (
     <div className="ws-skeleton-grid">
-      {Array.from({ length: 6 }).map((_, index) => (
+      {Array.from({ length: 4 }).map((_, index) => (
         <div key={index} className="ws-skeleton-card">
           <div className="ws-skeleton-header">
-            <div className="ws-skeleton-title"></div>
+            <div className="ws-skeleton-info">
+              <div className="ws-skeleton-title"></div>
+              <div className="ws-skeleton-subtitle"></div>
+            </div>
             <div className="ws-skeleton-actions">
               <div className="ws-skeleton-btn"></div>
               <div className="ws-skeleton-btn"></div>
             </div>
           </div>
           <div className="ws-skeleton-meta">
-            <div className="ws-skeleton-tag"></div>
             <div className="ws-skeleton-tag"></div>
             <div className="ws-skeleton-tag"></div>
           </div>
