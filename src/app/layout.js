@@ -19,7 +19,7 @@ export const metadata = {
   openGraph: {
     title: "Learnix - Learn Smarter",
     description: "Collaborative platform for students to share homework and learning resources.",
-    url: "https://learnix.shashi-k.in",
+    url: "https://learnix.dev",
     siteName: "Learnix",
     type: "website",
     locale: "en_US",

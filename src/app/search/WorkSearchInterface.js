@@ -169,24 +169,14 @@ const WorkSearchInterface = () => {
         });
       });
 
-      // Get saved topic IDs
+      // Get saved topic IDs (just for tracking saved state, not for sorting)
       const savedIds = getSavedTopics().map(t => t.topic._id);
       setSavedTopicIds(savedIds);
 
-      // Sort: saved topics first, then by timestamp
+      // Sort only by timestamp (newest first) - no priority for saved topics
       const sortedTopics = topics
         .filter(topic => topic.timestamp)
-        .sort((a, b) => {
-          const aIsSaved = savedIds.includes(a.topicId || a._id);
-          const bIsSaved = savedIds.includes(b.topicId || b._id);
-          
-          // Saved topics come first
-          if (aIsSaved && !bIsSaved) return -1;
-          if (!aIsSaved && bIsSaved) return 1;
-          
-          // Within same category, sort by timestamp (newest first)
-          return new Date(b.timestamp) - new Date(a.timestamp);
-        });
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
       setAllTopics(sortedTopics);
 
