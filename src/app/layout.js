@@ -26,9 +26,9 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Learnix - Share and Explore Student Homework",
-    description: "Collaborative platform for students to share homework and learning resources.",
-    creator: "@YourTwitterHandle", // optional
+    title: "Learnix - Learn Smarter",
+    description: "Collaborative platform for students to share Resources and learning resources.",
+    creator: "", // optional
   },
 };
 

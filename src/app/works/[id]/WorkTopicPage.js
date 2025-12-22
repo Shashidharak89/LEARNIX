@@ -12,7 +12,9 @@ import {
   FaImage,
   FaClock,
   FaIdCard,
-  FaListOl
+  FaListOl,
+  FaBookmark,
+  FaRegBookmark
 } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
 import TopicReviews from "./TopicReviews";
@@ -112,7 +114,7 @@ const FullPageSkeleton = () => (
   </div>
 );
 
-const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId }) => {
+const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isSaved, onSaveToggle, usingCachedData }) => {
   const [expandedImages, setExpandedImages] = useState({});
   const [imageLoading, setImageLoading] = useState({});
   const [showPageNumbers, setShowPageNumbers] = useState(false);
@@ -127,6 +129,12 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId }) =
   const rawImages = Array.isArray(data?.topic?.images) ? data.topic.images : [];
   const validImages = rawImages.filter((img) => img && img.trim() !== "");
   const hasImages = validImages.length > 0;
+
+  const handleSave = () => {
+    if (onSaveToggle) {
+      onSaveToggle();
+    }
+  };
 
   const handleImageLoad = (index) => {
     setTimeout(() => {
@@ -343,7 +351,22 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId }) =
             <FaShare />
             <span className="wtpc-btn-text">Share</span>
           </button>
+          <button 
+            onClick={handleSave}
+            className={`wtpc-action-btn wtpc-save-btn ${isSaved ? 'wtpc-saved' : ''}`}
+            title={isSaved ? "Remove from Saved" : "Save Topic"}
+          >
+            {isSaved ? <FaBookmark /> : <FaRegBookmark />}
+            <span className="wtpc-btn-text">{isSaved ? 'Saved' : 'Save'}</span>
+          </button>
         </div>
+
+        {/* Cached Data Indicator */}
+        {usingCachedData && (
+          <div className="wtpc-cached-indicator">
+            <span>📦 Loading from saved data...</span>
+          </div>
+        )}
 
         {/* Topic Content Section */}
         <div className="wtpc-topic-section">

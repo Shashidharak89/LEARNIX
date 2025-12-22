@@ -427,6 +427,59 @@
   box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
 }
 
+/* Save Button */
+.wtpc-save-btn {
+  background-color: #ffffff;
+  color: #6b7280;
+  border: 2px solid #e2e8f0;
+}
+
+.wtpc-save-btn:hover {
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+  background-color: #f5f3ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+.wtpc-save-btn.wtpc-saved {
+  background-color: #8b5cf6;
+  color: #ffffff;
+  border-color: #8b5cf6;
+}
+
+.wtpc-save-btn.wtpc-saved:hover {
+  background-color: #7c3aed;
+  border-color: #7c3aed;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+/* Cached Data Indicator */
+.wtpc-cached-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+  color: #92400e;
+  font-weight: 500;
+  animation: wtpc-pulse-bg 2s ease-in-out infinite;
+}
+
+@keyframes wtpc-pulse-bg {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
 /* Topic Section */
 .wtpc-topic-section {
   background-color: #ffffff;
