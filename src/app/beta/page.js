@@ -29,7 +29,7 @@ function Model() {
     <Center>
       <primitive 
         object={scene} 
-        scale={2} 
+        scale={0.9} 
         position={[0, 0, 0]}
       />
     </Center>
