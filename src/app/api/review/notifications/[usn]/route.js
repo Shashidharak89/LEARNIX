@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import Review from "@/models/Review";
 import Topic from "@/models/Topic";
 import User from "@/models/User";
+import Subject from "@/models/Subject";
 
 // GET - Get review notifications for a user's topics (reviews they received as uploader)
 export async function GET(req, { params }) {
