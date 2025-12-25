@@ -22,16 +22,16 @@ const materialsData = [
                 subject: "Data Communication and Networking",
                 files: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/unit2-ch1.pdf" },
-                    { url: "https://github.com/Shashidharak89/Study_Materials_Collection/blob/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/1.%20UNIT%201%20DCN%20QUESTION%20BANK.pdf" },
-                    { url: "https://github.com/Shashidharak89/Study_Materials_Collection/blob/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/DCN-Data%20Encoding.pptx" },
-                    { url: "https://github.com/Shashidharak89/Study_Materials_Collection/blob/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/DCN-protocol%20architecture.pptx" },
-                    { url: "https://github.com/Shashidharak89/Study_Materials_Collection/blob/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/Data%20Communication%20and%20Networks-Introduction-final.pptx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/1.%20UNIT%201%20DCN%20QUESTION%20BANK.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/DCN-Data%20Encoding.pptx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/DCN-protocol%20architecture.pptx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/Data%20Communication%20and%20Networks-Introduction-final.pptx" },
 
 
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/App%20Layer-Unit2-Ch%202.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit2/App%20Layer-Unit2-Ch%202.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit2/unit2-ch1.pdf" },
-                    {url:"https://github.com/Shashidharak89/Study_Materials_Collection/blob/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit2/1.%20UNIT%202%20DCN%20QUESTION%20BANK.pdf"},
+                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit2/1.%20UNIT%202%20DCN%20QUESTION%20BANK.pdf"},
                     { name: "U3 Transport-Layer-3rd-unit.pdf", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit3/transport-layer-3rd%20unit.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit3/unit%203-transport%20layer%20protocol-part%202.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit3/unit%203-transport%20layer-part%201.pdf" },
