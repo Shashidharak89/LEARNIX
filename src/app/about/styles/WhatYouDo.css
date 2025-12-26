@@ -1,0 +1,90 @@
+/* WHAT YOU DO SECTION */
+.what-section {
+  padding: 60px 20px;
+  background: #ffffff;
+  color: #000000;
+}
+
+.what-container {
+  max-width: 900px;
+  margin: auto;
+}
+
+/* Title with underline effect */
+.what-title {
+  font-size: 2.6rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  text-align: left;
+  position: relative;
+}
+
+.what-title::after {
+  content: "";
+  width: 70px;
+  height: 3px;
+  background: #1f6feb;
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  border-radius: 2px;
+}
+
+/* Card style & scroll animation */
+.what-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-top: 28px;
+  opacity: 0;
+  transform: translateX(-30px);
+  animation: slideFadeIn 0.7s ease forwards;
+  animation-delay: calc(0.15s * var(--i));
+}
+
+/* Icon in card */
+.what-card-icon {
+  font-size: 26px;
+  color: #1f6feb;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* Text in card */
+.what-card-text {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #333333;
+  text-align: left;
+}
+
+/* Slide + fade animation */
+@keyframes slideFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .what-title {
+    font-size: 2.3rem;
+  }
+  .what-card-text {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .what-title {
+    font-size: 2rem;
+  }
+  .what-card-text {
+    font-size: 0.9rem;
+  }
+}
