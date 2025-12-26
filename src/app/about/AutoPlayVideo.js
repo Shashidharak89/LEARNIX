@@ -1,16 +1,22 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
+import { FaVolumeMute, FaVolumeUp } from "react-icons/fa";
 import "./styles/AutoPlayVideo.css";
 
 const AutoPlayVideo = ({ videoUrl }) => {
   const videoRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMuted, setIsMuted] = useState(true);
 
   useEffect(() => {
     const videoEl = videoRef.current;
     if (!videoEl) return;
 
+    // Ensure the video starts muted
+    videoEl.muted = isMuted;
+
+    // IntersectionObserver to play/pause video when visible
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -21,7 +27,7 @@ const AutoPlayVideo = ({ videoUrl }) => {
           }
         });
       },
-      { threshold: 0.5 }
+      { threshold: 0.5 } // play when 50% visible :contentReference[oaicite:1]{index=1}
     );
 
     observer.observe(videoEl);
@@ -29,10 +35,18 @@ const AutoPlayVideo = ({ videoUrl }) => {
     return () => {
       observer.unobserve(videoEl);
     };
-  }, [isLoading]);
+  }, [isLoading, isMuted]);
 
   const handleCanPlayThrough = () => {
     setIsLoading(false);
+  };
+
+  const toggleSound = () => {
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
+    const newMuted = !videoEl.muted;
+    videoEl.muted = newMuted;
+    setIsMuted(newMuted);
   };
 
   return (
@@ -42,19 +56,28 @@ const AutoPlayVideo = ({ videoUrl }) => {
           <div className="video-spinner"></div>
         </div>
       )}
+
       <video
         ref={videoRef}
-        className={`auto-video ${isLoading ? 'video-hidden' : ''}`}
+        className={`auto-video ${isLoading ? "video-hidden" : ""}`}
         src={videoUrl}
-        muted={false}
         loop
-        controls={false}
         playsInline
         disablePictureInPicture
+        controls={false}
         controlsList="nodownload nofullscreen noremoteplayback"
         onContextMenu={(e) => e.preventDefault()}
         onCanPlayThrough={handleCanPlayThrough}
       />
+
+      {/* SOUND TOGGLE ICON */}
+      <div className="sound-btn" onClick={toggleSound}>
+        {isMuted ? (
+          <FaVolumeMute className="sound-icon" />
+        ) : (
+          <FaVolumeUp className="sound-icon" />
+        )}
+      </div>
     </div>
   );
 };
