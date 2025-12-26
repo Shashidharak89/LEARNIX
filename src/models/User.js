@@ -8,6 +8,8 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp"
   },
+  token: { type: String, default: null },
+  tokenCreatedAt: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now }
 });
 

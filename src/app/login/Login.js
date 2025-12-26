@@ -27,8 +27,11 @@ export default function Login() {
       setIsSuccess(true);
 
       if (typeof window !== "undefined") {
-        localStorage.setItem("usn", res.data.user.usn); // 🔹 store in localStorage
+        localStorage.setItem("usn", res.data.user.usn);
         localStorage.setItem("name", res.data.user.name);
+        if (res.data.token) {
+          localStorage.setItem("token", res.data.token);
+        }
       }
 
       setTimeout(() => {

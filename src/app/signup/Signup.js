@@ -29,6 +29,9 @@ export default function Signup() {
       if (typeof window !== "undefined") {
         localStorage.setItem("usn", res.data.user.usn);
         localStorage.setItem("name", res.data.user.name);
+        if (res.data.token) {
+          localStorage.setItem("token", res.data.token);
+        }
       }
 
       setTimeout(() => {
