@@ -2,6 +2,7 @@
 import "./styles/WhoIsLearnixFor.css";
 import { useState } from "react";
 import Link from "next/link";
+import ImageContainer from "../ImageContainer";
 
 export default function WhoIsLearnixFor() {
   const [expanded, setExpanded] = useState(false);
@@ -9,6 +10,7 @@ export default function WhoIsLearnixFor() {
   return (
     <section className="lx-for-section">
       <div className="lx-for-container">
+        <ImageContainer imageUrl="https://res.cloudinary.com/dsojdpkgh/image/upload/v1766771791/bkt3nqfunv15aj7yyxhi.jpg" altText="Who is Learnix For" />
         {/* Title */}
         <h2 className="lx-for-title">
           Who is this platform <span>for?</span>

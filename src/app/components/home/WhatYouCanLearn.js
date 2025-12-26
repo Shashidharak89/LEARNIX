@@ -1,6 +1,7 @@
 "use client";
 import "./styles/WhatYouCanLearn.css";
 import { useRef, useEffect } from "react";
+import ImageContainer from "../ImageContainer";
 
 export default function WhatYouCanLearn() {
   const sliderRef = useRef(null);
@@ -41,6 +42,7 @@ export default function WhatYouCanLearn() {
   return (
     <section className="lx-learn-section">
       <div className="lx-learn-header">
+        <ImageContainer imageUrl="https://res.cloudinary.com/dsojdpkgh/image/upload/v1766771790/ifywt1ln6eh8bdvfutrm.jpg" altText="What You Can Learn" />
         <h2 className="lx-learn-title">What you can learn here</h2>
         <p className="lx-learn-subtitle">
           Explore academic and technical topics shared by students and learners.

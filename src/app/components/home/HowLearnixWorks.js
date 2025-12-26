@@ -1,10 +1,12 @@
 "use client";
 import "./styles/HowLearnixWorks.css";
+import ImageContainer from "../ImageContainer";
 
 export default function HowLearnixWorks() {
   return (
     <section className="lx-work-section">
       <div className="lx-work-container">
+        <ImageContainer imageUrl="https://res.cloudinary.com/dsojdpkgh/image/upload/v1766771791/lioov75raprzyxraof3w.jpg" altText="How Learnix Works" />
         {/* Header */}
         <h2 className="lx-work-title">How Learnix works</h2>
         <p className="lx-work-subtitle">

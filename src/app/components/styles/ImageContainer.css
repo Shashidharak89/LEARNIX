@@ -8,7 +8,7 @@
 
 .responsive-image {
   width: 100%;
-  max-width: 600px; /* max width on larger screens */
+  /* max-width: 800px;  */
   border-radius: 8px; /* small radius */
   object-fit: cover; /* maintain aspect */
 }
