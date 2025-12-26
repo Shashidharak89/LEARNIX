@@ -1,36 +1,30 @@
-/* Section Styling */
+/* WHO YOU ARE SECTION */
 .who-section {
   padding: 60px 20px;
-  background-color: #ffffff;
+  background: #ffffff;
   color: #000000;
-  text-align: center;
 }
 
-/* Container */
 .who-container {
-  max-width: 880px;
+  max-width: 900px;
   margin: auto;
-  animation: fadeInUp 0.7s ease-in-out;
+  animation: fadeInUp 0.8s ease-in-out;
 }
 
-/* Icon Styles */
-.who-icon-wrapper {
-  font-size: 50px;
-  color: #1f6feb;
-  margin-bottom: 14px;
-}
-
+/* Section Icon */
 .who-icon {
-  width: 1.6em;
-  height: 1.6em;
+  font-size: 42px;
+  color: #1f6feb;
+  margin-bottom: 10px;
+  text-align: center; /* icon centered above heading */
 }
 
-/* Title Styles */
+/* Section Title */
 .who-title {
-  font-size: 2.2rem;
-  color: #000000;
-  margin-bottom: 12px;
+  font-size: 2.4rem;
   font-weight: 700;
+  margin-bottom: 10px;
+  text-align: left;
 }
 
 /* Paragraph Text */
@@ -38,20 +32,21 @@
   font-size: 1rem;
   line-height: 1.6;
   color: #333333;
-  margin-top: 8px;
+  margin-top: 12px;
+  text-align: left;
 }
 
-/* Inline Icon */
+/* Inline Icon in text */
 .who-inline-icon {
   color: #1f6feb;
   margin-right: 6px;
 }
 
-/* Fade-In Animation */
+/* Light fade-up animation */
 @keyframes fadeInUp {
   0% {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(10px);
   }
   100% {
     opacity: 1;
@@ -59,24 +54,37 @@
   }
 }
 
-/* Responsive Adjustments */
+/* Responsive adjustments */
 @media (max-width: 768px) {
   .who-title {
-    font-size: 1.9rem;
+    font-size: 2.1rem;
   }
-
   .who-text {
     font-size: 0.95rem;
-    padding: 0 10px;
   }
 }
 
 @media (max-width: 480px) {
   .who-title {
-    font-size: 1.7rem;
+    font-size: 1.9rem;
   }
-
   .who-text {
     font-size: 0.9rem;
   }
+}
+/* Portfolio Link Styling */
+.who-portfolio-link {
+  color: #1f6feb;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.who-portfolio-link:hover {
+  color: #144bb4;
+  text-decoration: none;
+}
+
+.who-link-icon {
+  margin-left: 4px;
+  font-size: 0.9rem;
 }
