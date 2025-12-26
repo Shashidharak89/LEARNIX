@@ -1,0 +1,35 @@
+/* VIDEO CONTAINER: CENTER HORIZONTALLY */
+.video-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 20px 0;
+}
+
+/* VIDEO ITSELF (16:9) */
+.auto-video {
+  width: 500px;
+  height: calc(500px * 0.5625); /* 16:9 */
+  object-fit: cover;
+  border-radius: 12px;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* RESPONSIVE: MOBILE */
+@media (max-width: 500px) {
+  .auto-video {
+    width: 95%;
+    height: calc(95vw * 0.5625); /* maintain 16:9 */
+  }
+}
+
+/* NO DRAG OR SELECT */
+.auto-video,
+video {
+  pointer-events: none;
+  user-select: none;
+}

@@ -4,6 +4,7 @@ import Footer from "../components/Footer";
 import { Navbar } from "../components/Navbar";
 import AboutPage from "./AboutPage";
 import AboutTitle from "./AboutTitle";
+import AutoPlayVideo from "./AutoPlayVideo";
 import FeaturesSpotlight from "./FeaturesSpotlight";
 import HowItWorksCarousel from "./HowItWorksCarousel";
 import MissionVision from "./MissionVision";
@@ -20,6 +21,7 @@ export default function about() {
     <div >
       <Navbar />
       <AboutTitle/>
+      <AutoPlayVideo videoUrl="https://res.cloudinary.com/dsojdpkgh/video/upload/v1766751517/zglomku8o9iuxxv99qwx.mp4" />
       <WhoYouAre/>
       <WhatYouDo/>
       <HowItWorksCarousel/>
