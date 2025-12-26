@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import "./styles/AutoPlayVideo.css";
 
 const AutoPlayVideo = ({ videoUrl }) => {
   const videoRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const videoEl = videoRef.current;
@@ -13,7 +14,7 @@ const AutoPlayVideo = ({ videoUrl }) => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
+          if (entry.isIntersecting && !isLoading) {
             videoEl.play().catch(() => {});
           } else {
             videoEl.pause();
@@ -28,13 +29,22 @@ const AutoPlayVideo = ({ videoUrl }) => {
     return () => {
       observer.unobserve(videoEl);
     };
-  }, []);
+  }, [isLoading]);
+
+  const handleCanPlayThrough = () => {
+    setIsLoading(false);
+  };
 
   return (
     <div className="video-container">
+      {isLoading && (
+        <div className="video-loader">
+          <div className="video-spinner"></div>
+        </div>
+      )}
       <video
         ref={videoRef}
-        className="auto-video"
+        className={`auto-video ${isLoading ? 'video-hidden' : ''}`}
         src={videoUrl}
         muted={false}
         loop
@@ -43,6 +53,7 @@ const AutoPlayVideo = ({ videoUrl }) => {
         disablePictureInPicture
         controlsList="nodownload nofullscreen noremoteplayback"
         onContextMenu={(e) => e.preventDefault()}
+        onCanPlayThrough={handleCanPlayThrough}
       />
     </div>
   );
