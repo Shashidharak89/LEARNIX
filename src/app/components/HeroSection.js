@@ -23,6 +23,7 @@ import WhatYouCanLearn from "./home/WhatYouCanLearn";
 import HowLearnixWorks from "./home/HowLearnixWorks";
 import SamplePublicContent from "./home/SamplePublicContent";
 import WhyLearnixTrustworthy from "./home/WhyLearnixTrustworthy";
+import AutoPlayVideo from "../about/AutoPlayVideo";
 
 export default function HeroSection() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -127,8 +128,11 @@ export default function HeroSection() {
             </Link>
           </div>
           <WhatIsLearnix/>
+          <AutoPlayVideo videoUrl="https://res.cloudinary.com/dsojdpkgh/video/upload/v1766751517/zglomku8o9iuxxv99qwx.mp4" />
           <WhoIsLearnixFor/>
           <WhatYouCanLearn/>
+          <AutoPlayVideo videoUrl="https://res.cloudinary.com/dsojdpkgh/video/upload/v1766752160/x0wvwwcpxgnrkwkbye1k.mp4" />
+
           <HowLearnixWorks/>
           <SamplePublicContent/>
           <WhyLearnixTrustworthy/>
