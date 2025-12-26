@@ -1,0 +1,126 @@
+/* -------------------------
+   FEATURES SPOTLIGHT (NEW)
+-------------------------- */
+.fs-section {
+  padding: 80px 20px;
+  background: #ffffff;
+  color: #000000;
+}
+
+.fs-container {
+  max-width: 1020px;
+  margin: auto;
+}
+
+/* Section title */
+.fs-title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-align: left;
+  position: relative;
+}
+
+.fs-title::after {
+  content: "";
+  width: 80px;
+  height: 4px;
+  background: #1f6feb;
+  position: absolute;
+  left: 0;
+  bottom: -10px;
+  border-radius: 3px;
+}
+
+/* Section subtitle */
+.fs-subtitle {
+  margin-top: 14px;
+  color: #444;
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 700px;
+}
+
+/* Feature rows */
+.fs-feature-row {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  margin-top: 40px;
+  animation: fadeInUp 0.8s ease;
+}
+
+/* Icon blocks */
+.fs-icon {
+  flex-shrink: 0;
+  font-size: 36px;
+  color: #1f6feb;
+  margin-right: 16px;
+}
+
+/* Text blocks */
+.fs-text {
+  max-width: 780px;
+}
+
+.fs-feature-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #000000;
+}
+
+.fs-feature-desc {
+  font-size: 1rem;
+  color: #333333;
+  line-height: 1.6;
+}
+
+/* Alternating left/right alignment */
+.fs-feature-left {
+  flex-direction: row;
+}
+
+.fs-feature-right {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.fs-feature-right .fs-text {
+  text-align: right;
+}
+
+/* Fade animation */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .fs-feature-row,
+  .fs-feature-right,
+  .fs-feature-left {
+    flex-direction: column !important;
+    text-align: left !important;
+  }
+  .fs-icon {
+    font-size: 30px;
+    margin: 0 auto 8px;
+  }
+  .fs-feature-title {
+    font-size: 1.3rem;
+  }
+  .fs-feature-desc {
+    font-size: 0.95rem;
+  }
+  .fs-title {
+    font-size: 2.4rem;
+  }
+}

@@ -4,6 +4,7 @@ import Footer from "../components/Footer";
 import { Navbar } from "../components/Navbar";
 import AboutPage from "./AboutPage";
 import AboutTitle from "./AboutTitle";
+import FeaturesSpotlight from "./FeaturesSpotlight";
 import HowItWorksCarousel from "./HowItWorksCarousel";
 import MissionVision from "./MissionVision";
 import ValueHighlights from "./ValueHighlights";
@@ -24,6 +25,7 @@ export default function about() {
       <WhyLearnix/>
       <MissionVision/>
       <ValueHighlights/>
+      <FeaturesSpotlight/>
     </div>
   );
 }
