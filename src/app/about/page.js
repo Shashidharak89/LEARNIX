@@ -5,6 +5,7 @@ import { Navbar } from "../components/Navbar";
 import AboutPage from "./AboutPage";
 import AboutTitle from "./AboutTitle";
 import HowItWorksCarousel from "./HowItWorksCarousel";
+import MissionVision from "./MissionVision";
 import WhatYouDo from "./WhatYouDo";
 import WhoYouAre from "./WhoYouAre";
 import WhyLearnix from "./WhyLearnix";
@@ -20,6 +21,7 @@ export default function about() {
       <WhatYouDo/>
       <HowItWorksCarousel/>
       <WhyLearnix/>
+      <MissionVision/>
     </div>
   );
 }
