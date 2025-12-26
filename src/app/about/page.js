@@ -3,6 +3,8 @@
 import Footer from "../components/Footer";
 import { Navbar } from "../components/Navbar";
 import AboutPage from "./AboutPage";
+import AboutTitle from "./AboutTitle";
+import WhoYouAre from "./WhoYouAre";
 
 
 export default function about() {
@@ -10,7 +12,8 @@ export default function about() {
   return (
     <div >
       <Navbar />
-      <AboutPage/>
+      <AboutTitle/>
+      <WhoYouAre/>
     </div>
   );
 }
