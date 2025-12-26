@@ -152,27 +152,3 @@
   transform: translateX(4px);
 }
 
-/* -----------------------------
-   IMAGE BEFORE TITLE
------------------------------ */
-.lx-what-image-wrapper {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-.lx-what-image {
-  width: 100%;
-  max-width: 600px; /* Restrict to 600px on larger screens */
-  border-radius: 8px; /* small radius */
-  object-fit: cover;
-}
-
-/* RESPONSIVE IMAGE */
-@media (max-width: 600px) {
-  .lx-what-image {
-    width: 100%; 
-    height: auto;
-  }
-}

@@ -1,0 +1,22 @@
+/* IMAGE CONTAINER (centered and responsive) */
+.image-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.responsive-image {
+  width: 100%;
+  max-width: 600px; /* max width on larger screens */
+  border-radius: 8px; /* small radius */
+  object-fit: cover; /* maintain aspect */
+}
+
+/* Mobile / small screens */
+@media (max-width: 600px) {
+  .responsive-image {
+    width: 100%; 
+    height: auto;
+  }
+}

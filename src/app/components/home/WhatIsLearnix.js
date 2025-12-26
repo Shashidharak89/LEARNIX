@@ -1,8 +1,8 @@
 "use client";
-
 import "./styles/WhatIsLearnix.css";
 import { useState } from "react";
 import Link from "next/link";
+import ImageContainer from "../ImageContainer";
 
 export default function WhatIsLearnix() {
   const [expanded, setExpanded] = useState(false);
@@ -10,15 +10,7 @@ export default function WhatIsLearnix() {
   return (
     <section className="lx-what-section">
       <div className="lx-what-container">
-
-        {/* IMAGE BEFORE TITLE */}
-        <div className="lx-what-image-wrapper">
-          <img
-            src="https://res.cloudinary.com/dsojdpkgh/image/upload/v1766771789/cbvazjeytrm6u3g395nj.jpg"
-            alt="Learnix Overview"
-            className="lx-what-image"
-          />
-        </div>
+        <ImageContainer imageUrl="https://res.cloudinary.com/dsojdpkgh/image/upload/v1766771789/cbvazjeytrm6u3g395nj.jpg" altText="Learnix Overview" />
 
         {/* Title */}
         <h2 className="lx-what-title">
@@ -42,9 +34,8 @@ export default function WhatIsLearnix() {
 
         {/* Expandable content */}
         <div
-          className={`lx-what-extra ${
-            expanded ? "lx-expand-open" : "lx-expand-close"
-          }`}
+          className={`lx-what-extra ${expanded ? "lx-expand-open" : "lx-expand-close"
+            }`}
         >
           <p>
             Learnix provides separate tools for learning and file sharing.
