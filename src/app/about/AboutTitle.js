@@ -1,17 +1,31 @@
 "use client";
+
 import React from "react";
+import Image from "next/image";
 import "./styles/AboutTitle.css";
-import { FaBookOpen } from "react-icons/fa";
 
 const AboutTitle = () => {
   return (
-    <div className="about-title-section">
+    <section className="about-title-section">
       <div className="about-title-container">
-        <FaBookOpen className="about-title-icon" />
-        <h1 className="about-title-main">Learnix</h1>
+        <div className="about-title-logo">
+          <Image
+            src="/logo.png"
+            alt="Learnix Logo"
+            fill
+            style={{ objectFit: "contain" }}
+            priority
+          />
+        </div>
+
+        <h1 className="about-title-main">
+          Learnix
+          <span className="title-underline"></span>
+        </h1>
+
         <p className="about-title-sub">Learn Smarter</p>
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -1,31 +1,46 @@
-/* Container */
+/* ---------------------------
+  ABOUT TITLE SECTION
+---------------------------- */
 .about-title-section {
   padding: 60px 20px;
-  background-color: #ffffff;
+  background: #ffffff;
   text-align: center;
-  color: #000000;
+  overflow: hidden;
 }
 
-/* Inner wrapper */
+/* Container with light fade & scale animation */
 .about-title-container {
-  max-width: 780px;
+  max-width: 800px;
   margin: auto;
-  animation: fadeInDown 0.7s ease-in-out;
+  animation: fadeScaleIn 0.8s ease-in-out;
 }
 
-/* Icon */
-.about-title-icon {
-  font-size: 48px;
-  color: #1f6feb; /* blue */
-  margin-bottom: 8px;
+/* Logo — small, crisp, centered */
+.about-title-logo {
+  position: relative;
+  width: 120px;
+  height: 40px; /* 3:1 ratio */
+  margin: 0 auto 12px;
 }
 
-/* Main Title */
+/* MAIN TITLE */
 .about-title-main {
   font-size: 3rem;
-  font-weight: 700;
+  font-weight: 800;
   color: #000000;
-  margin: 6px 0;
+  position: relative;
+  margin: 4px 0;
+  display: inline-block;
+}
+
+/* Animated underline */
+.title-underline {
+  display: block;
+  height: 4px;
+  width: 0;
+  background: #1f6feb;
+  margin-top: 6px;
+  animation: expandWidth 1s ease forwards 0.4s;
 }
 
 /* Subtitle */
@@ -33,23 +48,50 @@
   font-size: 1.4rem;
   font-weight: 500;
   color: #1f6feb;
-  margin-top: 2px;
+  margin-top: 4px;
+  animation: fadeIn 1s ease forwards 0.6s;
 }
 
-/* Light fade-down animation */
-@keyframes fadeInDown {
+/* ---------------------------
+  ANIMATIONS
+---------------------------- */
+@keyframes fadeScaleIn {
   0% {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: scale(0.95);
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1);
   }
 }
 
-/* Responsive adjustments */
+@keyframes expandWidth {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 60%;
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* ---------------------------
+  RESPONSIVE
+---------------------------- */
 @media (max-width: 768px) {
+  .about-title-logo {
+    width: 100px;
+    height: 33px;
+  }
   .about-title-main {
     font-size: 2.6rem;
   }
@@ -59,6 +101,10 @@
 }
 
 @media (max-width: 480px) {
+  .about-title-logo {
+    width: 80px;
+    height: 27px;
+  }
   .about-title-main {
     font-size: 2.2rem;
   }
