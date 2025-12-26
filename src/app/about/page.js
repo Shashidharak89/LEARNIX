@@ -6,6 +6,7 @@ import AboutPage from "./AboutPage";
 import AboutTitle from "./AboutTitle";
 import HowItWorksCarousel from "./HowItWorksCarousel";
 import MissionVision from "./MissionVision";
+import ValueHighlights from "./ValueHighlights";
 import WhatYouDo from "./WhatYouDo";
 import WhoYouAre from "./WhoYouAre";
 import WhyLearnix from "./WhyLearnix";
@@ -22,6 +23,7 @@ export default function about() {
       <HowItWorksCarousel/>
       <WhyLearnix/>
       <MissionVision/>
+      <ValueHighlights/>
     </div>
   );
 }
