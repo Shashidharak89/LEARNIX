@@ -1,4 +1,5 @@
 "use client";
+
 import "./styles/WhatIsLearnix.css";
 import { useState } from "react";
 import Link from "next/link";
@@ -9,6 +10,16 @@ export default function WhatIsLearnix() {
   return (
     <section className="lx-what-section">
       <div className="lx-what-container">
+
+        {/* IMAGE BEFORE TITLE */}
+        <div className="lx-what-image-wrapper">
+          <img
+            src="https://res.cloudinary.com/dsojdpkgh/image/upload/v1766771789/cbvazjeytrm6u3g395nj.jpg"
+            alt="Learnix Overview"
+            className="lx-what-image"
+          />
+        </div>
+
         {/* Title */}
         <h2 className="lx-what-title">
           What is <span>Learnix?</span>
