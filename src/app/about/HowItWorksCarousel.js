@@ -9,6 +9,8 @@ import {
   FaUsers,
 } from "react-icons/fa";
 import "./styles/HowLearnixWorks.css";
+import ImageContainer from "../components/ImageContainer";
+
 
 const steps = [
   {
@@ -47,6 +49,7 @@ const HowLearnixWorks = () => {
   return (
     <section className="hlw-section">
       <div className="hlw-container">
+        <ImageContainer imageUrl="https://res.cloudinary.com/dsojdpkgh/image/upload/v1766771790/ltz7e4ai374yljxozkbf.jpg" altText="How Learnix Works" />
         <h2 className="hlw-title">How Learnix Works</h2>
         <p className="hlw-subtitle">
           Learnix follows a simple and transparent process that allows students

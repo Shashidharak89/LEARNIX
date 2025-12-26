@@ -2,6 +2,7 @@
 import "./styles/WhyLearnixTrustworthy.css";
 import { useState } from "react";
 import Link from "next/link";
+import ImageContainer from "../ImageContainer";
 
 export default function WhyLearnixTrustworthy() {
   const [expanded, setExpanded] = useState(false);
@@ -9,6 +10,7 @@ export default function WhyLearnixTrustworthy() {
   return (
     <section className="lx-trust-section">
       <div className="lx-trust-container">
+        <ImageContainer imageUrl="https://res.cloudinary.com/dsojdpkgh/image/upload/v1766771791/geqefidmbokppkwd1spk.jpg" altText="Why Learnix is Trustworthy" />
         {/* Header */}
         <h2 className="lx-trust-title">Why Learnix is trustworthy</h2>
         <p className="lx-trust-subtitle">

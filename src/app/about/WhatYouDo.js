@@ -3,6 +3,7 @@
 import React from "react";
 import { FaTools, FaDownload, FaUpload } from "react-icons/fa";
 import "./styles/WhatYouDo.css";
+import ImageContainer from "../components/ImageContainer";
 
 const items = [
   {
@@ -27,6 +28,7 @@ const WhatYouDo = () => {
   return (
     <section className="what-section">
       <div className="what-container">
+        <ImageContainer imageUrl="https://res.cloudinary.com/dsojdpkgh/image/upload/v1766771794/ibzasezt7fvrym0mt7xm.jpg" altText="What We Do" />
         <h2 className="what-title">What We Do</h2>
         {items.map((item, index) => (
           <div key={index} className="what-card">

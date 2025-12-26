@@ -3,14 +3,15 @@
 import React from "react";
 import { FaUserGraduate, FaSchool, FaExternalLinkAlt } from "react-icons/fa";
 import "./styles/WhoYouAre.css";
+import ImageContainer from "../components/ImageContainer";
 
 const WhoYouAre = () => {
   return (
     <section className="who-section">
       <div className="who-container">
-        <div className="who-icon">
-          <FaSchool />
-        </div>
+        
+        <ImageContainer imageUrl="https://res.cloudinary.com/dsojdpkgh/image/upload/v1766771794/xgzrkashrzfcztwtvmiu.jpg" altText="Who We Are" />
+
 
         <h2 className="who-title">Who We Are</h2>
 
