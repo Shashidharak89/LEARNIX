@@ -1,0 +1,99 @@
+/* =========================
+   SCROLL FEATURES SECTION
+========================= */
+.sf-section {
+  padding: 80px 20px;
+  background: #ffffff;
+  color: #000000;
+}
+
+.sf-container {
+  max-width: 1024px;
+  margin: auto;
+}
+
+/* Title */
+.sf-title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  text-align: left;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.sf-title::after {
+  content: "";
+  width: 80px;
+  height: 4px;
+  background: #1f6feb;
+  position: absolute;
+  left: 0;
+  bottom: -10px;
+  border-radius: 3px;
+}
+
+/* Subtitle */
+.sf-subtitle {
+  font-size: 1rem;
+  color: #444;
+  margin-top: 12px;
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+/* Cards */
+.sf-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+}
+
+/* Individual card */
+.sf-card {
+  display: flex;
+  gap: 18px;
+  padding: 20px;
+  background: #f9fbff;
+  border-radius: 14px;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: all 0.6s ease;
+}
+
+/* Add visible class on scroll */
+.sf-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Icon */
+.sf-icon {
+  font-size: 32px;
+  color: #1f6feb;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+/* Text */
+.sf-card-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #000000;
+  margin-bottom: 6px;
+}
+
+.sf-card-desc {
+  font-size: 1rem;
+  color: #333333;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .sf-cards {
+    grid-template-columns: 1fr;
+  }
+  .sf-title {
+    font-size: 2.4rem;
+  }
+}

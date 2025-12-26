@@ -7,6 +7,7 @@ import AboutTitle from "./AboutTitle";
 import FeaturesSpotlight from "./FeaturesSpotlight";
 import HowItWorksCarousel from "./HowItWorksCarousel";
 import MissionVision from "./MissionVision";
+import ScrollFeatures from "./ScrollFeatures";
 import ValueHighlights from "./ValueHighlights";
 import WhatYouDo from "./WhatYouDo";
 import WhoYouAre from "./WhoYouAre";
@@ -26,6 +27,7 @@ export default function about() {
       <MissionVision/>
       <ValueHighlights/>
       <FeaturesSpotlight/>
+      <ScrollFeatures/>
     </div>
   );
 }
