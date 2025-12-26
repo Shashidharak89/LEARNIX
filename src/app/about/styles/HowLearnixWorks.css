@@ -1,0 +1,120 @@
+/* HOW LEARNIX WORKS */
+.hlw-section {
+  padding: 70px 20px;
+  background: #ffffff;
+  color: #000000;
+}
+
+.hlw-container {
+  max-width: 1100px;
+  margin: auto;
+}
+
+/* Title */
+.hlw-title {
+  font-size: 2.6rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.hlw-title::after {
+  content: "";
+  width: 70px;
+  height: 3px;
+  background: #1f6feb;
+  position: absolute;
+  left: 0;
+  bottom: -8px;
+  border-radius: 2px;
+}
+
+/* Subtitle */
+.hlw-subtitle {
+  margin-top: 18px;
+  max-width: 720px;
+  font-size: 1rem;
+  color: #444;
+  line-height: 1.6;
+}
+
+/* Steps layout */
+.hlw-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  margin-top: 40px;
+}
+
+/* Card */
+.hlw-card {
+  background: #f9fbff;
+  padding: 24px;
+  border-radius: 14px;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.hlw-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 30px rgba(31, 111, 235, 0.12);
+}
+
+/* Step number */
+.hlw-step {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ffcc33;
+  margin-bottom: 8px;
+}
+
+/* Icon */
+.hlw-icon {
+  font-size: 28px;
+  color: #1f6feb;
+  margin-bottom: 10px;
+}
+
+/* Card title */
+.hlw-card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* Card description */
+.hlw-card-desc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* =========================
+   RESPONSIVE FIX (IMPORTANT)
+========================= */
+
+/* Tablets */
+@media (max-width: 1024px) {
+  .hlw-steps {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile — horizontal scroll (everything visible) */
+@media (max-width: 640px) {
+  .hlw-steps {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 10px;
+  }
+
+  .hlw-card {
+    min-width: 260px;
+    scroll-snap-align: start;
+  }
+
+  .hlw-steps::-webkit-scrollbar {
+    display: none;
+  }
+}
