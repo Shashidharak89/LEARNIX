@@ -1,0 +1,103 @@
+/* WHY LEARNIX SECTION */
+.why-section {
+  padding: 70px 20px;
+  background: #ffffff;
+  color: #000000;
+}
+
+.why-container {
+  max-width: 1100px;
+  margin: auto;
+}
+
+/* Title */
+.why-title {
+  font-size: 2.6rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  position: relative;
+  text-align: left;
+}
+
+.why-title::after {
+  content: "";
+  width: 70px;
+  height: 3px;
+  background: #1f6feb;
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  border-radius: 2px;
+}
+
+/* Subtitle text */
+.why-subtitle {
+  margin-top: 14px;
+  font-size: 1rem;
+  color: #555;
+  max-width: 720px;
+  line-height: 1.6;
+}
+
+/* Cards grid */
+.why-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
+  margin-top: 40px;
+}
+
+/* Individual card */
+.why-card {
+  background: #f9fbff;
+  padding: 24px 18px;
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(31, 111, 235, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.why-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 28px rgba(31, 111, 235, 0.15);
+}
+
+/* Card icon */
+.why-icon {
+  font-size: 30px;
+  color: #1f6feb;
+  margin-bottom: 10px;
+}
+
+/* Card title */
+.why-card-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #000000;
+}
+
+/* Card description */
+.why-card-desc {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #333333;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .why-cards {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  .why-title {
+    font-size: 2.4rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .why-title {
+    font-size: 2.2rem;
+  }
+  .why-card-desc {
+    font-size: 0.95rem;
+  }
+}
