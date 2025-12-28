@@ -20,6 +20,42 @@
   max-height: 80vh; /* prevent overflow on very tall videos */
   display: block;
   margin: 0 auto; /* ensure centered */
+  position: relative;
+  min-height: 300px;
+}
+
+/* Video Loader */
+.tutvideo-loader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  border-radius: 8px;
+  z-index: 5;
+}
+
+.tutvideo-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: tutvideo-spin 1s linear infinite;
+}
+
+@keyframes tutvideo-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Video hidden while loading */
+.tutvideo-wrapper video.tutvideo-hidden {
+  opacity: 0;
 }
 
 /* Clean, neat video: no border, no shadow, no rounding */
@@ -28,7 +64,8 @@
   height: auto; /* keep native aspect */
   display: block;
   object-fit: contain; /* show entire frame */
-  background: black; /* letterbox color if needed */
+  background: transparent;
+  transition: opacity 0.3s ease;
 
   /* make non-interactive */
   pointer-events: none;
@@ -46,6 +83,7 @@
   .tutvideo-wrapper{
     width: var(--max-fixed-width);
     max-width: var(--max-fixed-width);
+    min-height: 340px;
   }
 }
 
@@ -54,6 +92,7 @@
   .tutvideo-wrapper{
     width: 90%;
     max-width: 90%;
+    min-height: 200px;
   }
 }
 

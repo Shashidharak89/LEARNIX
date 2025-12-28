@@ -13,6 +13,7 @@ const TutVideo = () => {
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
   const videoRef = useRef(null);
 
   // When one video ends → play next
@@ -20,8 +21,15 @@ const TutVideo = () => {
     setCurrentIndex((prevIndex) => (prevIndex + 1) % videos.length);
   };
 
+  // Handle video ready to play
+  const handleCanPlayThrough = () => {
+    setIsLoading(false);
+  };
+
   // Auto-play the next video when index changes and enforce continuous play
   useEffect(() => {
+    setIsLoading(true); // Show loader when switching videos
+    
     const video = videoRef.current;
     if (!video) return;
 
@@ -75,10 +83,17 @@ const TutVideo = () => {
   return (
     <div className="tutvideo-container" onContextMenu={onContextMenu} onKeyDown={onKeyDown}>
       <div className="tutvideo-wrapper">
+        {isLoading && (
+          <div className="tutvideo-loader">
+            <div className="tutvideo-spinner"></div>
+          </div>
+        )}
         <video
           ref={videoRef}
           key={videos[currentIndex]}
+          className={isLoading ? 'tutvideo-hidden' : ''}
           onEnded={handleVideoEnd}
+          onCanPlayThrough={handleCanPlayThrough}
           muted
           autoPlay
           playsInline
