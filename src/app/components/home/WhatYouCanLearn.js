@@ -53,11 +53,14 @@ export default function WhatYouCanLearn() {
         <div className="lx-learn-slider" ref={sliderRef}>
           {/* ORIGINAL SET */}
           <div className="lx-learn-card">
+            <ImageContainer imageUrl="https://res.cloudinary.com/dsojdpkgh/image/upload/v1766912250/eqqz1sekysipjvre1i4y.jpg" altText="Data Structures" />
             <h4>Data Structures</h4>
             <p>Arrays, linked lists, stacks, queues, trees, and graphs.</p>
           </div>
 
           <div className="lx-learn-card">
+            <ImageContainer imageUrl="https://res.cloudinary.com/dsojdpkgh/image/upload/v1766912251/rhdb7wsqf5ne2gzrahth.jpg" altText="Data Structures" />
+
             <h4>Database Management Systems</h4>
             <p>Normalization, indexing, transactions, and DBMS concepts.</p>
           </div>
@@ -68,27 +71,37 @@ export default function WhatYouCanLearn() {
           </div>
 
           <div className="lx-learn-card">
+            <ImageContainer imageUrl="https://res.cloudinary.com/dsojdpkgh/image/upload/v1766912254/xtaub9hbe3srfpgtjct6.jpg" altText="Data Structures" />
+
             <h4>Operating Systems</h4>
             <p>Processes, memory management, scheduling, file systems.</p>
           </div>
 
           <div className="lx-learn-card">
+            <ImageContainer imageUrl="https://res.cloudinary.com/dsojdpkgh/image/upload/v1766912253/blprrfchskezyovolvle.jpg" altText="Data Structures" />
+
             <h4>Computer Networks</h4>
             <p>OSI model, TCP/IP, protocols, congestion control.</p>
           </div>
 
           <div className="lx-learn-card">
+            <ImageContainer imageUrl="https://res.cloudinary.com/dsojdpkgh/image/upload/v1766912253/kn5vjbiyqtghionzxouf.jpg" altText="Data Structures" />
+
             <h4>Interview Preparation</h4>
             <p>Technical concepts, notes, and interview resources.</p>
           </div>
 
           {/* DUPLICATE SET (for infinite loop) */}
           <div className="lx-learn-card">
+            <ImageContainer imageUrl="https://res.cloudinary.com/dsojdpkgh/image/upload/v1766912250/eqqz1sekysipjvre1i4y.jpg" altText="Data Structures" />
+
             <h4>Data Structures</h4>
             <p>Arrays, linked lists, stacks, queues, trees, and graphs.</p>
           </div>
 
           <div className="lx-learn-card">
+            <ImageContainer imageUrl="https://res.cloudinary.com/dsojdpkgh/image/upload/v1766912251/rhdb7wsqf5ne2gzrahth.jpg" altText="Data Structures" />
+
             <h4>Database Management Systems</h4>
             <p>Normalization, indexing, transactions, and DBMS concepts.</p>
           </div>
