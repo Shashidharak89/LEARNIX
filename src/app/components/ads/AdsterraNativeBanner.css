@@ -1,0 +1,46 @@
+/* Adsterra Native Banner - 4:1 Aspect Ratio */
+
+.adsterra-native-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 0;
+}
+
+.adsterra-native-container {
+  width: 100%;
+  max-width: 728px;
+  aspect-ratio: 4 / 1;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Ensure the ad container takes full space */
+.adsterra-native-container > div {
+  width: 100%;
+  height: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .adsterra-native-container {
+    max-width: 100%;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .adsterra-native-wrapper {
+    padding: 12px 0;
+  }
+  
+  .adsterra-native-container {
+    border-radius: 6px;
+  }
+}

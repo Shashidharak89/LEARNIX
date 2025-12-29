@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiUser, FiBook, FiRefreshCw, FiRotateCcw, FiShare2, FiBookmark, FiMoreVertical, FiExternalLink, FiFilter, FiCheck } from 'react-icons/fi';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import SubjectTopicFilter from './SubjectTopicFilter';
+import AdsterraNativeBanner from '../components/ads/AdsterraNativeBanner';
 import './styles/WorkSearchInterface.css';
 
 // LocalStorage key for saved topics (same as in /works/[id])
@@ -466,6 +467,26 @@ const WorkSearchInterface = () => {
     }
   };
 
+  // Ad component wrapper
+  const AdSlot = ({ index }) => (
+    <div className="ws-ad-slot" key={`ad-${index}`}>
+      <AdsterraNativeBanner />
+    </div>
+  );
+
+  // Render topics with ads after every 2 topics
+  const renderTopicsWithAds = (topics) => {
+    const elements = [];
+    topics.forEach((topic, index) => {
+      elements.push(renderTopicCard(topic, index));
+      // After every 2 topics, insert an ad (after index 1, 3, 5, etc.)
+      if ((index + 1) % 2 === 0) {
+        elements.push(<AdSlot key={`ad-${index}`} index={index} />);
+      }
+    });
+    return elements;
+  };
+
   const SkeletonLoader = () => (
     <div className="ws-skeleton-grid">
       {Array.from({ length: 4 }).map((_, index) => (
@@ -698,7 +719,7 @@ const WorkSearchInterface = () => {
                 )}
               </div>
             </div>
-            <div className="ws-topics-grid">{displayedTopics.map(renderTopicCard)}</div>
+            <div className="ws-topics-grid">{renderTopicsWithAds(displayedTopics)}</div>
 
             {hasMore && (
               <div id="ws-scroll-sentinel" className="ws-scroll-sentinel">
@@ -754,7 +775,7 @@ const WorkSearchInterface = () => {
           <div className="ws-results-section">
             <h2 className="ws-section-title">Search Results ({searchResults.length} found)</h2>
             {searchResults.length > 0 ? (
-              <div className="ws-topics-grid">{searchResults.map(renderTopicCard)}</div>
+              <div className="ws-topics-grid">{renderTopicsWithAds(searchResults)}</div>
             ) : (
               <div className="ws-no-results">
                 <FiSearch className="ws-no-results-icon" />

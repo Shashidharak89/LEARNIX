@@ -353,6 +353,16 @@
   margin: 0 12px;
 }
 
+/* Ad Slot */
+.ws-ad-slot {
+  grid-column: 1 / -1;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 0;
+}
+
 /* Topic Grid */
 .ws-topics-grid {
   display: grid;
