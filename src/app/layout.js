@@ -58,6 +58,22 @@ export default function RootLayout({ children }) {
             `,
           }}
         />
+
+        {/* Infolinks Ads */}
+        <Script
+          id="infolinks-config"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              var infolinks_pid = 3442499;
+              var infolinks_wsid = 0;
+            `,
+          }}
+        />
+        <Script
+          src="https://resources.infolinks.com/js/infolinks_main.js"
+          strategy="afterInteractive"
+        />
       </head>
       <body>
         <ThemeProvider>
