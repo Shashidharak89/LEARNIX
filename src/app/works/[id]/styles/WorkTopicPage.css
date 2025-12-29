@@ -676,6 +676,17 @@
   gap: 20px;
 }
 
+/* Ad Slot in Images Grid */
+.wtpc-ad-slot {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+/* Hide ad slot when the ad container is empty */
+.wtpc-ad-slot:has(#container-3f48fa797cccfd84ac5eff6718e9b79d:empty) {
+  display: none;
+}
+
 .wtpc-image-container {
   position: relative;
   border-radius: 12px;

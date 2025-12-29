@@ -18,6 +18,7 @@ import {
 } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
 import TopicReviews from "./TopicReviews";
+import AdsterraNativeBanner from "../../components/ads/AdsterraNativeBanner";
 import "./styles/WorkTopicPage.css";
 
 // Skeleton Components
@@ -419,32 +420,46 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
               </div>
               <div className="wtpc-images-grid">
                 {validImages.map((imageUrl, index) => (
-                  <div key={index} className="wtpc-image-container">
-                    {showPageNumbers && (
-                      <span className="wtpc-page-badge">{index + 1}</span>
-                    )}
-                    <div className="wtpc-image-wrapper">
-                      {imageLoading[index] && (
-                        <div className="wtpc-image-loader">
-                          <div className="wtpc-loader-spinner"></div>
-                          <span>Loading image...</span>
-                        </div>
+                  <React.Fragment key={index}>
+                    <div className="wtpc-image-container">
+                      {showPageNumbers && (
+                        <span className="wtpc-page-badge">{index + 1}</span>
                       )}
-                      <img 
-                        src={imageUrl} 
-                        alt={`${topic.topic} - Image ${index + 1}`}
-                        className={`wtpc-topic-image ${expandedImages[index] ? 'wtpc-expanded' : ''} ${imageLoading[index] ? 'wtpc-loading' : ''}`}
-                        onClick={() => toggleImageExpansion(index)}
-                        loading="lazy"
-                        onLoadStart={() => handleImageStart(index)}
-                        onLoad={() => handleImageLoad(index)}
-                        onError={(e) => {
-                          e.target.style.display = 'none'; // Hide broken images
-                        }}
-                      />
+                      <div className="wtpc-image-wrapper">
+                        {imageLoading[index] && (
+                          <div className="wtpc-image-loader">
+                            <div className="wtpc-loader-spinner"></div>
+                            <span>Loading image...</span>
+                          </div>
+                        )}
+                        <img 
+                          src={imageUrl} 
+                          alt={`${topic.topic} - Image ${index + 1}`}
+                          className={`wtpc-topic-image ${expandedImages[index] ? 'wtpc-expanded' : ''} ${imageLoading[index] ? 'wtpc-loading' : ''}`}
+                          onClick={() => toggleImageExpansion(index)}
+                          loading="lazy"
+                          onLoadStart={() => handleImageStart(index)}
+                          onLoad={() => handleImageLoad(index)}
+                          onError={(e) => {
+                            e.target.style.display = 'none'; // Hide broken images
+                          }}
+                        />
+                      </div>
                     </div>
-                  </div>
+                    {/* Ad after every 6 pages */}
+                    {(index + 1) % 6 === 0 && (
+                      <div className="wtpc-ad-slot">
+                        <AdsterraNativeBanner />
+                      </div>
+                    )}
+                  </React.Fragment>
                 ))}
+                {/* Ad at the end (only if last page wasn't already followed by an ad) */}
+                {validImages.length % 6 !== 0 && (
+                  <div className="wtpc-ad-slot">
+                    <AdsterraNativeBanner />
+                  </div>
+                )}
               </div>
             </div>
           )}
