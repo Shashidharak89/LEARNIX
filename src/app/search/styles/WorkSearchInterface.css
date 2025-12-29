@@ -357,10 +357,11 @@
 .ws-ad-slot {
   grid-column: 1 / -1;
   width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 8px 0;
+}
+
+/* Hide ad slot when the ad container is empty */
+.ws-ad-slot:has(#container-3f48fa797cccfd84ac5eff6718e9b79d:empty) {
+  display: none;
 }
 
 /* Topic Grid */
