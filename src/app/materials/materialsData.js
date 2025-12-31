@@ -107,8 +107,6 @@ const materialsData = [
                 subject: "Advanced Operating System with Unix",
                 files: [
                     { name: "AOS ch1", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Operating-System-with-Unix/Aos%20ch1.pptx" },
-                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Operating-System-with-Unix/Aos%20ch1.pdf" },
-                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Operating-System-with-Unix/~%24Aos%20ch1.pptx" },
                     { name: "AOS Ch2", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Operating-System-with-Unix/AOS%20ch2.pptx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Operating-System-with-Unix/AOS%20ch2.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Operating-System-with-Unix/Aos%20unit2.pptx" },
