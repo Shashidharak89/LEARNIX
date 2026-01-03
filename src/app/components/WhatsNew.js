@@ -10,6 +10,11 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Articles Section Added",
+      description:
+        "Discover insights, updates, and stories from the Learnix community! We've added a new Articles section where you can read about how Learnix is solving study material challenges, our journey from a personal project to a public platform, and learn about easy file sharing tools. Check it out in the footer Quick Links or visit /articles directly!",
+    },
+    {
       title: "Save Topics for Instant Access",
       description:
         "Bookmark your favorite topics and access them instantly without any server delay! Save any topic from the Uploaded Works page using the 3-dot menu or from individual topic pages. Your saved topics are stored locally and load immediately when you revisit. Use the new filter icon to view only your saved topics. Perfect for quick revision and easy access to frequently referenced materials!",
