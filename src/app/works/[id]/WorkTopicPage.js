@@ -18,6 +18,7 @@ import {
 } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
 import TopicReviews from "./TopicReviews";
+import Ads from "../../components/ads/Ads";
 import "./styles/WorkTopicPage.css";
 
 // Skeleton Components
@@ -445,10 +446,10 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
                         />
                       </div>
                     </div>
-                    {/* Ad after every 6 pages (empty for now) */}
+                    {/* Ad after every 6 pages */}
                     {(index + 1) % 6 === 0 && (
                       <div className="wtpc-ad-slot">
-                        {/* Ad component placeholder */}
+                        <Ads />
                       </div>
                     )}
                   </React.Fragment>
@@ -456,7 +457,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
                 {/* Ad at the end (only if last page wasn't already followed by an ad) */}
                 {validImages.length % 6 !== 0 && (
                   <div className="wtpc-ad-slot">
-                    {/* Ad component placeholder */}
+                    <Ads />
                   </div>
                 )}
               </div>
