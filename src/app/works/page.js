@@ -2,7 +2,7 @@
 
 import { Navbar } from "../components/Navbar";
 import Footer from "../components/Footer";
-import WorkSearchInterface from "../search/WorkSearchInterface";
+import WorkSearchInterface from "./WorkSearchInterface";
 
 export default function works() {
 

@@ -2,7 +2,7 @@
 
 import Footer from "../components/Footer";
 import { Navbar } from "../components/Navbar";
-import WorkSearchInterface from "../search/WorkSearchInterface";
+import WorkSearchInterface from "../works/WorkSearchInterface";
 import AllUsersRecords from "./AllUsersRecords";
 import DashBoard from "./DashBoard";
 

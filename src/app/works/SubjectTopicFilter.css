@@ -1,0 +1,225 @@
+/* SubjectTopicFilter.css - Horizontal Chip Design */
+
+.stf-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0;
+  margin: 8px 0 8px 0;
+}
+
+.stf-scroll-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.stf-scroll-container {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 4px 0;
+  flex: 1;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.stf-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+
+.stf-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 18px;
+  background-color: #ffffff;
+  color: #374151;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.stf-chip:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+  background-color: #f0f9ff;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
+}
+
+.stf-chip.stf-active {
+  border-color: #3b82f6;
+  background-color: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(59, 130, 246, 0.2);
+}
+
+.stf-chip.stf-active:hover {
+  background-color: #2563eb;
+  border-color: #2563eb;
+  box-shadow: 0 3px 12px rgba(37, 99, 235, 0.25);
+}
+
+.stf-chip-text {
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stf-chip-close {
+  display: none;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+}
+
+.stf-chip.stf-active .stf-chip-close {
+  display: inline-flex;
+  cursor: pointer;
+}
+
+.stf-chip-close:hover {
+  opacity: 0.7;
+}
+
+.stf-loading-state,
+.stf-empty-state {
+  padding: 12px 20px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.8rem;
+}
+
+.stf-loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.stf-loading-state::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: stf-spin 0.8s linear infinite;
+}
+
+@keyframes stf-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Skeleton Chip Loader */
+.stf-skeleton-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.stf-skeleton-chip {
+  display: inline-flex;
+  height: 32px;
+  flex: 1 1 80px;
+  min-width: 60px;
+  max-width: 120px;
+  border-radius: 18px;
+  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  background-size: 200% 100%;
+  animation: stf-skeleton-shimmer 1.5s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+@keyframes stf-skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .stf-container {
+    gap: 8px;
+    padding: 8px 0;
+    margin: 10px 0 16px 0;
+  }
+
+  .stf-chip {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+    gap: 3px;
+  }
+
+  .stf-skeleton-row {
+    gap: 6px;
+  }
+
+  .stf-skeleton-chip {
+    height: 28px;
+    min-width: 50px;
+    max-width: 100px;
+    border-radius: 16px;
+    flex: 1 1 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stf-container {
+    gap: 6px;
+    padding: 6px 0;
+    margin: 8px 0 12px 0;
+  }
+
+  .stf-chip {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    gap: 2px;
+    border-width: 1px;
+  }
+
+  .stf-chip-close {
+    width: 12px;
+    height: 12px;
+  }
+
+  .stf-skeleton-row {
+    gap: 5px;
+  }
+
+  .stf-skeleton-chip {
+    height: 24px;
+    min-width: 40px;
+    max-width: 80px;
+    border-radius: 14px;
+    flex: 1 1 50px;
+  }
+}
+
+@media (max-width: 360px) {
+  .stf-skeleton-row {
+    gap: 4px;
+  }
+
+  .stf-skeleton-chip {
+    height: 22px;
+    min-width: 35px;
+    max-width: 70px;
+    border-radius: 12px;
+    flex: 1 1 40px;
+  }
+}

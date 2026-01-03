@@ -6,9 +6,8 @@ import { useRouter } from 'next/navigation';
 import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiUser, FiBook, FiRefreshCw, FiRotateCcw, FiShare2, FiBookmark, FiMoreVertical, FiExternalLink, FiFilter, FiCheck } from 'react-icons/fi';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import SubjectTopicFilter from './SubjectTopicFilter';
-import Ads from '../components/ads/Ads';
+import AdsterraNativeBanner from '../components/ads/AdsterraNativeBanner';
 import './styles/WorkSearchInterface.css';
-
 
 // LocalStorage key for saved topics (same as in /works/[id])
 const SAVED_TOPICS_KEY = 'learnix_saved_topics';
@@ -471,7 +470,7 @@ const WorkSearchInterface = () => {
   // Ad component wrapper
   const AdSlot = ({ index }) => (
     <div className="ws-ad-slot" key={`ad-${index}`}>
-      <Ads />
+      <AdsterraNativeBanner />
     </div>
   );
 
