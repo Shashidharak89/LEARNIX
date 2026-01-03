@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiUser, FiBook, FiRefreshCw, FiRotateCcw, FiShare2, FiBookmark, FiMoreVertical, FiExternalLink, FiFilter, FiCheck } from 'react-icons/fi';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import SubjectTopicFilter from './SubjectTopicFilter';
-import AdsterraNativeBanner from '../components/ads/AdsterraNativeBanner';
 import './styles/WorkSearchInterface.css';
 
 // LocalStorage key for saved topics (same as in /works/[id])
@@ -467,10 +466,10 @@ const WorkSearchInterface = () => {
     }
   };
 
-  // Ad component wrapper
+  // Ad component wrapper (empty for now)
   const AdSlot = ({ index }) => (
     <div className="ws-ad-slot" key={`ad-${index}`}>
-      <AdsterraNativeBanner />
+      {/* Ad component placeholder */}
     </div>
   );
 
@@ -481,7 +480,7 @@ const WorkSearchInterface = () => {
       elements.push(renderTopicCard(topic, index));
       // After every 2 topics, insert an ad (after index 1, 3, 5, etc.)
       if ((index + 1) % 2 === 0) {
-        elements.push(<AdSlot key={`ad-${index}`} index={index} />);
+        elements.push(<AdSlont key={`ad-${index}`} index={index} />);
       }
     });
     return elements;
