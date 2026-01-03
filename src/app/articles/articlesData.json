@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1",
+    "title": "How Learnix is Solving the Study Material Crisis for Students",
+    "description": "Students often struggle to find reliable study materials. Learnix was born from this challenge, initially as a personal tool that evolved into a platform for everyone.",
+    "content": "Finding quality study materials has always been a challenge for students. Whether it's last-minute exam preparation or trying to understand a complex topic, the hunt for the right resources can be frustrating and time-consuming.\n\nThis was the exact problem that inspired the creation of Learnix. What started as a personal solution to organize and access study materials quickly, soon transformed into something much bigger – a collaborative platform where students can share and discover learning resources effortlessly.\n\nThe journey began when I realized that I wasn't alone in this struggle. Classmates were constantly asking for notes, previous year papers, and reference materials. Sharing through messaging apps was chaotic, and files would get lost in the endless scroll of chats.\n\nLearnix addresses these pain points by providing:\n\n• A centralized repository for all study materials\n• Easy organization by subjects and topics\n• Quick search functionality to find exactly what you need\n• A clean, distraction-free interface designed for students\n\nWhat makes Learnix special is its community-driven approach. Every student can contribute, making the platform richer with each upload. The more students participate, the more comprehensive the resource library becomes.\n\nToday, Learnix serves students across various courses and institutions, proving that sometimes the best solutions come from understanding real problems faced by real people.",
+    "image": "https://res.cloudinary.com/dsojdpkgh/image/upload/v1766771791/lioov75raprzyxraof3w.jpg",
+    "date": "2026-01-01",
+    "author": "Learnix Team",
+    "readTime": "4 min read"
+  },
+  {
+    "id": "2",
+    "title": "From Personal Project to Public Platform: The Learnix Story",
+    "description": "What began as a tool for personal use has transformed into a platform serving students everywhere. Here's the story of how Learnix evolved.",
+    "content": "Every great product starts with a simple idea. For Learnix, that idea was born out of necessity – the need to organize study materials in a way that made sense.\n\nInitially, Learnix was just a personal project. A way to keep track of notes, organize them by subject, and access them whenever needed. There was no grand vision of building a platform for thousands of students. It was purely utilitarian.\n\nBut as the tool grew more refined, something interesting happened. Friends started asking about it. They wanted to use it too. They faced the same challenges – scattered notes across different apps, difficulty finding specific materials, and the constant battle of keeping everything organized.\n\nThis feedback was the turning point. Why keep something useful to just one person when it could help many?\n\nThe transformation from a personal tool to a public platform required significant changes:\n\n• Building a robust backend to handle multiple users\n• Creating an intuitive upload system for contributors\n• Implementing search and filter capabilities\n• Designing a responsive interface that works on all devices\n• Adding features like subject categorization and topic tagging\n\nThe decision to make Learnix public wasn't just about sharing a tool – it was about building a community. A community of students helping students, where knowledge flows freely and everyone benefits from collective contributions.\n\nToday, every time a student uploads a resource or finds exactly what they were looking for, it validates the decision to transform this personal project into a public platform. The journey continues, with new features and improvements being added based on user feedback.",
+    "image": "https://res.cloudinary.com/dsojdpkgh/image/upload/v1766771791/lioov75raprzyxraof3w.jpg",
+    "date": "2025-12-20",
+    "author": "Learnix Team",
+    "readTime": "5 min read"
+  },
+  {
+    "id": "3",
+    "title": "Easy File Sharing Without the Hassle: Introducing Learnix Tools",
+    "description": "Tired of sharing files through WhatsApp or social media? Learnix Tools offers a simple, no-login-required solution for seamless file sharing.",
+    "content": "We've all been there. You need to share a file quickly, but the process is anything but quick. WhatsApp compresses your images, social media platforms have file size limits, and email attachments are a pain when dealing with large files.\n\nRecognizing this common frustration, we built Learnix Tools – a suite of utilities designed to make file sharing effortless and straightforward.\n\nHere's what makes Learnix Tools different:\n\n**No Login Required**\nForget about creating yet another account. Learnix Tools works without any registration or login. Just upload and share – it's that simple.\n\n**No Social Media Dependencies**\nYou don't need WhatsApp, Instagram, or any social platform to share files. This means no compression, no platform-specific limitations, and no need to worry about the recipient having the same app.\n\n**Direct Sharing**\nGet a shareable link instantly. Send it via any medium you prefer – email, SMS, or just copy-paste wherever needed.\n\n**Multiple File Formats**\nWhether it's documents, images, PDFs, or other file types, Learnix Tools handles them all. We've also added useful conversion tools like Word to PDF to make your workflow smoother.\n\n**Privacy First**\nYour files are handled securely. No tracking, no storing of personal information – just simple, efficient file sharing.\n\nThe tools section of Learnix was built with the same philosophy as the main platform: solve real problems with simple solutions. Students needed a quick way to share materials without jumping through hoops, and that's exactly what we delivered.\n\nTry it out at learnix.shashi-k.in/tools and experience hassle-free file sharing.",
+    "image": "https://res.cloudinary.com/dsojdpkgh/image/upload/v1766771791/lioov75raprzyxraof3w.jpg",
+    "date": "2025-10-18",
+    "author": "Learnix Team",
+    "readTime": "3 min read"
+  }
+]

@@ -63,6 +63,7 @@ export default function Footer() {
           <h3 className="learnix-footer-title">Quick Links</h3>
           <ul className="learnix-footer-links">
             <li><Link href="/about">About</Link></li>
+            <li><Link href="/articles">Articles</Link></li>
             <li><Link href="/privacy-policy">Privacy Policy</Link></li>
             <li><Link href="/terms">Terms &amp; Conditions</Link></li>
             <li><Link href="/disclaimer">Disclaimer</Link></li>
