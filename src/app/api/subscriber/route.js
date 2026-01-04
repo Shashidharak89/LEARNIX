@@ -6,8 +6,8 @@ export async function GET(req){
 try {
     await connectDB();
 
-    const body= await Subscriber.find();
-    return NextResponse.json(body,{status:201});
+    const res= await Subscriber.find();
+    return NextResponse.json(res,{status:200});
 } catch (error) {
     return NextResponse.json({error:"error"},{status:400});
     
