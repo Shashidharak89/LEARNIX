@@ -21,12 +21,12 @@ export default function Footer() {
           <div className="learnix-footer-website">
             <span className="learnix-website-label">Visit:</span>
             <a 
-              href="https://learnix.shashi-k.in" 
+              href="https://learnix.dev" 
               target="_blank" 
               rel="noopener noreferrer"
               className="learnix-website-link"
             >
-              learnix.shashi-k.in
+              learnix.dev
             </a>
           </div>
         </div>
