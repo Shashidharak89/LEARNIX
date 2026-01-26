@@ -7,7 +7,7 @@ try {
     await connectDB();
 
     const res= await Subscriber.find();
-    return NextResponse.json(res,{status:200});
+    return NextResponse.json(res,{status:201});
 } catch (error) {
     return NextResponse.json({error:"error"},{status:400});
     
