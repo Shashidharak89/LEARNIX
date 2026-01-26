@@ -1,0 +1,93 @@
+.textshare-container {
+  max-width: 600px;
+  margin: 30px auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 24px 20px;
+}
+.textshare-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+  text-align: center;
+}
+.textshare-section {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.textshare-textarea, .textshare-fetched {
+  width: 100%;
+  min-height: 90px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 1rem;
+  resize: vertical;
+}
+.textshare-btn {
+  background: #0070f3;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.2s;
+}
+.textshare-btn.ghost {
+  background: #f3f3f3;
+  color: #333;
+  border: 1px solid #ccc;
+}
+.textshare-btn:hover {
+  background: #0059c1;
+}
+.textshare-btn.ghost:hover {
+  background: #e0e0e0;
+}
+.textshare-codebox, .textshare-fetchedbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.textshare-label {
+  font-weight: 500;
+}
+.textshare-code {
+  font-family: monospace;
+  background: #f0f0f0;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 1.1em;
+}
+.textshare-input {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 8px;
+  font-size: 1rem;
+}
+.textshare-divider {
+  margin: 24px 0 18px 0;
+  border: none;
+  border-top: 1px solid #eee;
+}
+.textshare-status {
+  margin-top: 10px;
+  color: #d32f2f;
+  font-weight: 500;
+  text-align: center;
+}
+.textshare-note {
+  margin-top: 18px;
+  text-align: center;
+  color: #888;
+  font-size: 0.95em;
+}
