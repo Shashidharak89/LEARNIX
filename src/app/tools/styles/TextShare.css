@@ -1,56 +1,91 @@
-.textshare-container {
-  max-width: 600px;
+
+:root{
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --accent-blue: #0c71c3;
+  --accent-yellow: #f2b705;
+  --text: #0d1117;
+  --muted: #6b7280;
+  --radius: 12px;
+  --shadow: 0 8px 24px rgba(10,12,15,0.06);
+}
+
+.textshare-container{
+  max-width: 820px;
   margin: 30px auto;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-  padding: 24px 20px;
+  padding: 28px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: var(--text);
 }
-.textshare-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 18px;
-  text-align: center;
+
+.textshare-title{
+  margin: 0 0 14px 0;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  text-align: left;
 }
-.textshare-section {
+
+.textshare-section{
   margin-bottom: 18px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
+
 .textshare-textarea, .textshare-fetched {
   width: 100%;
   min-height: 90px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 10px;
+  border: 1px solid rgba(17,18,23,0.12);
+  border-radius: 10px;
+  padding: 14px;
   font-size: 1rem;
+  background: #fbfcff;
   resize: vertical;
+  font-family: inherit;
 }
-.textshare-btn {
-  background: #0070f3;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  padding: 8px 16px;
+
+.textshare-btn{
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:700;
+  border:none;
+  cursor:pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  display:inline-flex; align-items:center; gap:8px;
   font-size: 1rem;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  transition: background 0.2s;
 }
-.textshare-btn.ghost {
-  background: #f3f3f3;
-  color: #333;
-  border: 1px solid #ccc;
+
+.textshare-btn:active{ transform: translateY(1px); }
+
+.textshare-btn.primary{
+  background: var(--accent-blue);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(12,113,195,0.12);
 }
+
+.textshare-btn.ghost{
+  background:transparent;
+  color:var(--text);
+  border:1px solid rgba(17,18,23,0.06);
+}
+
+.textshare-btn.download{
+  background: var(--accent-yellow);
+  color: #111;
+}
+
 .textshare-btn:hover {
   background: #0059c1;
+  color: #fff;
 }
 .textshare-btn.ghost:hover {
   background: #e0e0e0;
 }
+
 .textshare-codebox, .textshare-fetchedbox {
   display: flex;
   align-items: center;
@@ -69,10 +104,17 @@
 }
 .textshare-input {
   width: 100%;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 8px;
-  font-size: 1rem;
+  border: 1px solid rgba(17,18,23,0.12);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 16px;
+  font-family: inherit;
+  background: #fbfcff;
+}
+.textshare-input:focus{
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(12,113,195,0.08);
 }
 .textshare-divider {
   margin: 24px 0 18px 0;
@@ -80,14 +122,22 @@
   border-top: 1px solid #eee;
 }
 .textshare-status {
-  margin-top: 10px;
-  color: #d32f2f;
+  margin-top: 12px;
+  color: var(--muted);
+  min-height: 20px;
   font-weight: 500;
   text-align: center;
 }
 .textshare-note {
-  margin-top: 18px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 13px;
   text-align: center;
-  color: #888;
-  font-size: 0.95em;
+}
+
+/* responsive */
+@media (max-width:720px){
+  .textshare-container{ margin:18px; padding:18px; }
+  .textshare-title{ font-size:20px; }
+  .textshare-btn{ padding:8px 10px; font-size:14px; }
 }
