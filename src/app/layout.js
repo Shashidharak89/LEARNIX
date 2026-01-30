@@ -36,6 +36,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
+        <meta name="2bbd1296af2eb5ebd68ec42b6afb506d0261227a" content="2bbd1296af2eb5ebd68ec42b6afb506d0261227a" />
         <meta name="referrer" content="no-referrer-when-downgrade" />
         <meta name="google-adsense-account" content="ca-pub-4934238485595915" />
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4934238485595915" crossOrigin="anonymous"></script>
