@@ -1,8 +1,8 @@
 "use client";
 import React, { useRef, useEffect } from "react";
 
-// Example VAST tag URL (replace with your actual VAST tag)
-const VAST_TAG_URL = "https://example.com/vast.xml";
+// VAST tag URL for zone #6762458
+const VAST_TAG_URL = "https://strong-training.com/d/mJFjz.dAGiNOvTZ/GeUw/YefmQ9LuXZxUslJkuPbTpYr3oNsjxI/0/NLTeggt/N/jvcL2MMkj/Q/1/OrS/ZzsUaIW-1/padNDw0dxu";
 
 const VastVideoPlayer = () => {
   const videoRef = useRef(null);
