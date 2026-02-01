@@ -1,3 +1,4 @@
+"use client";
 import React, { useRef, useEffect } from "react";
 
 // Example VAST tag URL (replace with your actual VAST tag)

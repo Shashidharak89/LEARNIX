@@ -5,6 +5,7 @@ import { Navbar } from "./components/Navbar";
 import HillTopAds from "./components/HillTopAds";
 import VideoAdEmbed from "./components/VideoAdEmbed";
 import VastVideoPlayer from "./components/VastVideoPlayer";
+import VideoSliderMultiTag from "./components/VideoSliderMultiTag";
 
 export default function Home() {
 
@@ -13,7 +14,6 @@ export default function Home() {
     <Navbar/>
     <HeroSection/>
     <HillTopAds />
-    <VideoAdEmbed />
     <VastVideoPlayer />
     </>
   );
