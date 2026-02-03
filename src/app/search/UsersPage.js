@@ -16,7 +16,7 @@ export default function UsersPage() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true); // New state for initial load
-  const limit = 10;
+  const limit = 12;
 
   useEffect(() => {
     // Fetch initial users on mount
