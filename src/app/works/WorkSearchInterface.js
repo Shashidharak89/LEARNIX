@@ -175,7 +175,9 @@ const WorkSearchInterface = () => {
   const fetchPagedTopics = async (pageToFetch = 1, reset = false) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/work/paged?page=${pageToFetch}&pageSize=${ITEMS_PER_LOAD}`);
+      // Use oldest API when sortOrder is 'oldest', otherwise use default (latest first)
+      const apiEndpoint = sortOrder === 'oldest' ? '/api/work/oldest/paged' : '/api/work/paged';
+      const response = await fetch(`${apiEndpoint}?page=${pageToFetch}&pageSize=${ITEMS_PER_LOAD}`);
       const data = await response.json();
       if (data && Array.isArray(data.topics)) {
         const newTopics = data.topics.map(topic => ({
@@ -233,7 +235,9 @@ const WorkSearchInterface = () => {
       const browserUrl = `${pathname}?${urlParams.toString()}`;
       window.history.replaceState({}, '', browserUrl);
       
-      const response = await fetch(`/api/work/search?${urlParams.toString()}`);
+      // Use oldest API when sortOrder is 'oldest', otherwise use default (latest first)
+      const apiEndpoint = sortOrder === 'oldest' ? '/api/work/search-oldest' : '/api/work/search';
+      const response = await fetch(`${apiEndpoint}?${urlParams.toString()}`);
       const data = await response.json();
       if (data && Array.isArray(data.topics)) {
         const newTopics = data.topics.map(topic => ({
@@ -350,13 +354,18 @@ const WorkSearchInterface = () => {
     // If any filter is applied (search query, subjects, or topics), use backend search
     if (searchQuery || selectedSubjects.length > 0 || selectedTopics.length > 0) {
       handleSearch(searchQuery, 1);
-    } else {
-      // No filters, show all topics with client-side filtering for saved/sort
+    } else if (showSavedOnly) {
+      // Show saved only - client-side filter
       const filteredTopics = getFilteredTopics(allTopics);
       const initialTopics = filteredTopics.slice(0, ITEMS_PER_LOAD);
       setDisplayedTopics(initialTopics);
       setCurrentIndex(ITEMS_PER_LOAD);
       setHasMore(filteredTopics.length > ITEMS_PER_LOAD);
+    } else {
+      // No search/subject/topic filters - fetch fresh from backend based on sortOrder
+      // Reset to page 1 and fetch from appropriate API (latest or oldest)
+      setPage(1);
+      fetchPagedTopics(1, true);
     }
   }, [selectedSubjects, selectedTopics, sortOrder, showSavedOnly, savedTopicIds, searchQuery]);
 
