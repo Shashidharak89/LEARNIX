@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiUser, FiBook, FiRefreshCw, FiRotateCcw, FiShare2, FiBookmark, FiMoreVertical, FiExternalLink, FiFilter, FiCheck } from 'react-icons/fi';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import SubjectTopicFilter from './SubjectTopicFilter';
@@ -33,7 +33,7 @@ const saveTopic = (topic) => {
   try {
     const savedTopics = getSavedTopics();
     const existingIndex = savedTopics.findIndex(t => t.topic._id === topic.topicId);
-    
+
     const topicToSave = {
       topic: {
         _id: topic.topicId,
@@ -52,13 +52,13 @@ const saveTopic = (topic) => {
       },
       savedAt: new Date().toISOString(),
     };
-    
+
     if (existingIndex !== -1) {
       savedTopics[existingIndex] = topicToSave;
     } else {
       savedTopics.push(topicToSave);
     }
-    
+
     localStorage.setItem(SAVED_TOPICS_KEY, JSON.stringify(savedTopics));
     return true;
   } catch (err) {
@@ -82,6 +82,8 @@ const removeSavedTopic = (topicId) => {
 
 const WorkSearchInterface = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [displayedTopics, setDisplayedTopics] = useState([]);
@@ -106,6 +108,8 @@ const WorkSearchInterface = () => {
   const ITEMS_PER_LOAD = 8;
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [searchPage, setSearchPage] = useState(1);
+  const [searchTotalPages, setSearchTotalPages] = useState(1);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -117,7 +121,7 @@ const WorkSearchInterface = () => {
         setShowFilterPopup(false);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -126,7 +130,7 @@ const WorkSearchInterface = () => {
   useEffect(() => {
     const saved = getSavedTopics();
     setSavedTopicIds(saved.map(t => t.topic._id));
-    
+
     // Convert saved topics to display format for immediate rendering
     const savedForDisplay = saved.map(s => ({
       ...s.topic,
@@ -142,7 +146,7 @@ const WorkSearchInterface = () => {
       userId: s.user?._id || '',
       isCached: true, // Mark as cached for visual indicator
     })).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-    
+
     setCachedSavedTopics(savedForDisplay);
   }, []);
 
@@ -167,7 +171,6 @@ const WorkSearchInterface = () => {
 
     return () => observer.disconnect();
   }, [hasMore, isLoadingMore, searchQuery, isManualReloading]);
-
 
   const fetchPagedTopics = async (pageToFetch = 1, reset = false) => {
     setIsLoading(true);
@@ -204,15 +207,69 @@ const WorkSearchInterface = () => {
     }
   };
 
+  const handleSearch = async (query, pageNum = 1) => {
+    if (!query.trim() && selectedSubjects.length === 0 && selectedTopics.length === 0) {
+      setSearchResults([]);
+      setSearchPage(1);
+      setSearchTotalPages(1);
+      const filteredTopics = getFilteredTopics(allTopics);
+      const initialTopics = filteredTopics.slice(0, ITEMS_PER_LOAD);
+      setDisplayedTopics(initialTopics);
+      setCurrentIndex(ITEMS_PER_LOAD);
+      setHasMore(filteredTopics.length > ITEMS_PER_LOAD);
+      window.history.replaceState({}, '', pathname);
+      return;
+    }
+    setIsLoading(true);
+    try {
+      // Build URL with query, subjects, and topics params
+      let urlParams = new URLSearchParams();
+      if (query.trim()) urlParams.set('q', query);
+      if (selectedSubjects.length > 0) urlParams.set('subjects', selectedSubjects.join(','));
+      if (selectedTopics.length > 0) urlParams.set('topics', selectedTopics.join(','));
+      urlParams.set('page', pageNum.toString());
+      urlParams.set('pageSize', ITEMS_PER_LOAD.toString());
+      
+      const browserUrl = `${pathname}?${urlParams.toString()}`;
+      window.history.replaceState({}, '', browserUrl);
+      
+      const response = await fetch(`/api/work/search?${urlParams.toString()}`);
+      const data = await response.json();
+      if (data && Array.isArray(data.topics)) {
+        const newTopics = data.topics.map(topic => ({
+          ...topic,
+          topicId: topic._id,
+          subjectName: topic.subject,
+          userName: topic.userName,
+          usn: topic.usn,
+          profileimg: topic.profileimg,
+          userId: topic.userId,
+        }));
+        setSearchResults(newTopics);
+        setDisplayedTopics(newTopics);
+        setSearchPage(data.page);
+        setSearchTotalPages(data.totalPages);
+        setHasMore(data.page < data.totalPages);
+      }
+    } catch (error) {
+      console.error('Error searching:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const loadMoreTopics = useCallback(() => {
-    if (isLoadingMore || !hasMore || searchQuery || isManualReloading) return;
+    if (isLoadingMore || !hasMore || isManualReloading) return;
     setIsLoadingMore(true);
     setTimeout(() => {
-      fetchPagedTopics(page + 1);
+      if (searchQuery) {
+        handleSearch(searchQuery, searchPage + 1);
+      } else {
+        fetchPagedTopics(page + 1);
+      }
       setIsLoadingMore(false);
     }, 500);
-  }, [hasMore, isLoadingMore, searchQuery, isManualReloading, page]);
+  }, [hasMore, isLoadingMore, isManualReloading, searchQuery, searchPage, page]);
 
   const handleManualReload = () => {
     if (!hasMore || isLoadingMore || searchQuery || isManualReloading) return;
@@ -226,7 +283,6 @@ const WorkSearchInterface = () => {
   const handleEndReload = () => {
     if (isLoadingMore || isManualReloading) return;
     setIsManualReloading(true);
-
     const remainingTopics = allTopics.length - currentIndex;
     if (remainingTopics > 0) {
       setTimeout(() => {
@@ -239,51 +295,7 @@ const WorkSearchInterface = () => {
         setIsManualReloading(false);
       }, 500);
     } else {
-      fetchAllTopics().then(() => setIsManualReloading(false));
-    }
-  };
-
-  const handleSearch = async (query) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      const filteredTopics = getFilteredTopics(allTopics);
-      const initialTopics = filteredTopics.slice(0, ITEMS_PER_LOAD);
-      setDisplayedTopics(initialTopics);
-      setCurrentIndex(ITEMS_PER_LOAD);
-      setHasMore(filteredTopics.length > ITEMS_PER_LOAD);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const searchTerm = query.toLowerCase();
-      const results = [];
-      allTopics.forEach(topic => {
-        if (
-          topic.userName.toLowerCase().includes(searchTerm) ||
-          topic.usn.toLowerCase().includes(searchTerm) ||
-          topic.subjectName.toLowerCase().includes(searchTerm) ||
-          topic.topic.toLowerCase().includes(searchTerm) ||
-          topic.content.toLowerCase().includes(searchTerm)
-        ) {
-          results.push({ ...topic, matchType: 'search' });
-        }
-      });
-
-      const uniqueResults = results.filter(
-        (item, index, self) =>
-          index ===
-          self.findIndex(
-            t => t.topic === item.topic && t.userId === item.userId && t.subjectName === item.subjectName
-          )
-      );
-
-      const filteredResults = getFilteredTopics(uniqueResults);
-      setSearchResults(filteredResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)));
-    } catch (error) {
-      console.error('Error searching:', error);
-    } finally {
-      setIsLoading(false);
+      fetchPagedTopics(1, true).then(() => setIsManualReloading(false));
     }
   };
 
@@ -296,27 +308,27 @@ const WorkSearchInterface = () => {
           return false;
         }
       }
-      
+
       // If no subjects selected, show all
       if (selectedSubjects.length === 0) {
         return true;
       }
-      
+
       // OR logic for subjects - if topic matches any selected subject
       const subjectMatch = selectedSubjects.includes(topic.subjectName);
       if (!subjectMatch) {
         return false;
       }
-      
+
       // OR logic for topics - if no topics selected, show all from matched subjects
       if (selectedTopics.length === 0) {
         return true;
       }
-      
+
       // If topics are selected, topic must match any selected topic
       return selectedTopics.includes(topic.topic);
     });
-    
+
     // Apply sorting based on sortOrder
     filtered = filtered.sort((a, b) => {
       if (sortOrder === 'oldest') {
@@ -324,7 +336,7 @@ const WorkSearchInterface = () => {
       }
       return new Date(b.timestamp) - new Date(a.timestamp); // latest by default
     });
-    
+
     return filtered;
   };
 
@@ -334,17 +346,19 @@ const WorkSearchInterface = () => {
   };
 
   // Apply filters when they change
-  useEffect(() => {
-    if (!searchQuery) {
+  const applyFilters = useEffect(() => {
+    // If any filter is applied (search query, subjects, or topics), use backend search
+    if (searchQuery || selectedSubjects.length > 0 || selectedTopics.length > 0) {
+      handleSearch(searchQuery, 1);
+    } else {
+      // No filters, show all topics with client-side filtering for saved/sort
       const filteredTopics = getFilteredTopics(allTopics);
       const initialTopics = filteredTopics.slice(0, ITEMS_PER_LOAD);
       setDisplayedTopics(initialTopics);
       setCurrentIndex(ITEMS_PER_LOAD);
       setHasMore(filteredTopics.length > ITEMS_PER_LOAD);
-    } else {
-      handleSearch(searchQuery);
     }
-  }, [selectedSubjects, selectedTopics, sortOrder, showSavedOnly, savedTopicIds]);
+  }, [selectedSubjects, selectedTopics, sortOrder, showSavedOnly, savedTopicIds, searchQuery]);
 
   const toggleImageExpansion = (topicKey) => {
     setExpandedImages(prev => ({ ...prev, [topicKey]: !prev[topicKey] }));
@@ -355,7 +369,7 @@ const WorkSearchInterface = () => {
       alert('No images available for this topic');
       return;
     }
-    
+
     try {
       // Show loading state
       const downloadBtn = document.querySelector(`[data-topic-index="${index}"] .ws-download-btn`);
@@ -395,7 +409,7 @@ const WorkSearchInterface = () => {
 
       // Get the PDF blob
       const blob = await response.blob();
-      
+
       // Create download link
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -414,7 +428,7 @@ const WorkSearchInterface = () => {
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Error generating PDF. Please try again.');
-      
+
       // Restore button state
       const downloadBtn = document.querySelector(`[data-topic-index="${index}"] .ws-download-btn`);
       if (downloadBtn) {
@@ -428,7 +442,7 @@ const WorkSearchInterface = () => {
     const url = `${window.location.origin}/works/${topic.topicId}`;
     const title = `${topic.topic} - ${topic.subjectName}`;
     const text = `Check out "${topic.topic}" uploaded by ${topic.userName} on Learnix`;
-    
+
     if (navigator.share) {
       navigator.share({ title, text, url }).catch(err => console.log(err));
     } else {
@@ -441,7 +455,7 @@ const WorkSearchInterface = () => {
   const handleSaveToggle = (topic) => {
     const topicId = topic.topicId || topic._id;
     const isSaved = savedTopicIds.includes(topicId);
-    
+
     if (isSaved) {
       removeSavedTopic(topicId);
       setSavedTopicIds(prev => prev.filter(id => id !== topicId));
@@ -551,7 +565,7 @@ const WorkSearchInterface = () => {
             </div>
           </div>
           <div className="ws-card-actions">
-            <button 
+            <button
               onClick={() => downloadTopicAsPDF(topic, index)}
               className="ws-action-btn ws-download-btn"
               disabled={!hasImages}
@@ -560,7 +574,7 @@ const WorkSearchInterface = () => {
               <FiDownload />
             </button>
             <div className="ws-menu-container" ref={isMenuOpen ? menuRef : null}>
-              <button 
+              <button
                 onClick={handleMenuToggle}
                 className="ws-action-btn ws-more-btn"
                 title="More options"
@@ -596,11 +610,11 @@ const WorkSearchInterface = () => {
                 <Link key={imgIndex} href={`/works/${topic.topicId}`} className="ws-image-link">
                   <div className="ws-image-container">
                     <div className="ws-image-wrapper">
-                      <img 
-                        src={imageUrl} 
-                        alt={`${topic.topic} - Image ${imgIndex + 1}`} 
-                        className="ws-topic-image" 
-                        loading="lazy" 
+                      <img
+                        src={imageUrl}
+                        alt={`${topic.topic} - Image ${imgIndex + 1}`}
+                        className="ws-topic-image"
+                        loading="lazy"
                       />
                     </div>
                   </div>
@@ -662,7 +676,7 @@ const WorkSearchInterface = () => {
                 {showSavedOnly ? 'Saved Topics' : (sortOrder === 'oldest' ? 'Oldest Topics' : 'Latest Topics')}
               </h2>
               <div className="ws-filter-container" ref={filterRef}>
-                <button 
+                <button
                   className={`ws-filter-btn ${(sortOrder !== 'latest' || showSavedOnly) ? 'ws-filter-active' : ''}`}
                   onClick={() => setShowFilterPopup(!showFilterPopup)}
                   title="Filter & Sort"
@@ -673,14 +687,14 @@ const WorkSearchInterface = () => {
                   <div className="ws-filter-popup">
                     <div className="ws-filter-section">
                       <h4 className="ws-filter-label">Sort by</h4>
-                      <button 
+                      <button
                         className={`ws-filter-option ${sortOrder === 'latest' ? 'ws-filter-selected' : ''}`}
                         onClick={() => setSortOrder('latest')}
                       >
                         <span>Latest</span>
                         {sortOrder === 'latest' && <FiCheck className="ws-filter-check" />}
                       </button>
-                      <button 
+                      <button
                         className={`ws-filter-option ${sortOrder === 'oldest' ? 'ws-filter-selected' : ''}`}
                         onClick={() => setSortOrder('oldest')}
                       >
@@ -691,7 +705,7 @@ const WorkSearchInterface = () => {
                     <div className="ws-filter-divider"></div>
                     <div className="ws-filter-section">
                       <h4 className="ws-filter-label">Filter</h4>
-                      <button 
+                      <button
                         className={`ws-filter-option ${showSavedOnly ? 'ws-filter-selected' : ''}`}
                         onClick={() => setShowSavedOnly(!showSavedOnly)}
                       >
@@ -718,9 +732,9 @@ const WorkSearchInterface = () => {
 
             {hasMore && !isLoadingMore && !isManualReloading && (
               <div className="ws-reload-section">
-                <button 
-                  onClick={handleManualReload} 
-                  className="ws-reload-btn" 
+                <button
+                  onClick={handleManualReload}
+                  className="ws-reload-btn"
                   disabled={isLoadingMore || isManualReloading}
                 >
                   <FiRefreshCw className="ws-reload-icon" />
@@ -736,9 +750,9 @@ const WorkSearchInterface = () => {
                     🎉 You have reached the end! All topics have been loaded.
                   </div>
                 )}
-                <button 
-                  onClick={handleEndReload} 
-                  className="ws-end-reload-btn" 
+                <button
+                  onClick={handleEndReload}
+                  className="ws-end-reload-btn"
                   disabled={isLoadingMore || isManualReloading}
                 >
                   <FiRotateCcw className="ws-end-reload-icon" />
