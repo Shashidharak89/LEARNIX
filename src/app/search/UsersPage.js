@@ -6,11 +6,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { FiSearch, FiUser, FiLoader } from "react-icons/fi";
 import { HiOutlineUsers } from "react-icons/hi";
+import { useSearchParams, usePathname } from "next/navigation";
 import UsersPageSkeleton from "./UsersPageSkeleton"; // Import the skeleton
 import "./styles/UsersPage.css";
 
 export default function UsersPage() {
-  const [query, setQuery] = useState("");
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const [query, setQuery] = useState(searchParams.get("q") || "");
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -28,6 +31,12 @@ export default function UsersPage() {
     // When query changes (after initial), reset and fetch from page 1
     if (!initialLoading) {
       setPage(1);
+      // Update URL with search query
+      if (query.trim()) {
+        window.history.replaceState({}, '', `${pathname}?q=${encodeURIComponent(query)}`);
+      } else {
+        window.history.replaceState({}, '', pathname);
+      }
       fetchUsers(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
