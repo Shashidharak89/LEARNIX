@@ -104,6 +104,8 @@ const WorkSearchInterface = () => {
   const filterRef = useRef(null);
 
   const ITEMS_PER_LOAD = 8;
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -145,7 +147,7 @@ const WorkSearchInterface = () => {
   }, []);
 
   useEffect(() => {
-    fetchAllTopics();
+    fetchPagedTopics(1, true);
   }, []);
 
   useEffect(() => {
@@ -166,69 +168,51 @@ const WorkSearchInterface = () => {
     return () => observer.disconnect();
   }, [hasMore, isLoadingMore, searchQuery, isManualReloading]);
 
-  const fetchAllTopics = async () => {
+
+  const fetchPagedTopics = async (pageToFetch = 1, reset = false) => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/work/getall');
+      const response = await fetch(`/api/work/paged?page=${pageToFetch}&pageSize=${ITEMS_PER_LOAD}`);
       const data = await response.json();
-
-      const topics = [];
-      data.users.forEach(user => {
-        user.subjects?.forEach(subject => {
-          const subjectPublic = subject.public !== false;
-          if (!subjectPublic) return;
-          subject.topics?.forEach(topic => {
-            const topicPublic = topic.public !== false;
-            if (!topicPublic) return;
-            topics.push({
-              ...topic,
-              userName: user.name,
-              usn: user.usn,
-              profileimg: user.profileimg || '',
-              subjectName: subject.subject,
-              userId: user._id,
-              topicId: topic._id
-            });
-          });
-        });
-      });
-
-      // Get saved topic IDs (just for tracking saved state, not for sorting)
-      const savedIds = getSavedTopics().map(t => t.topic._id);
-      setSavedTopicIds(savedIds);
-
-      // Sort only by timestamp (newest first) - no priority for saved topics
-      const sortedTopics = topics
-        .filter(topic => topic.timestamp)
-        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-      setAllTopics(sortedTopics);
-
-      const initialTopics = sortedTopics.slice(0, ITEMS_PER_LOAD);
-      setDisplayedTopics(initialTopics);
-      setCurrentIndex(ITEMS_PER_LOAD);
-      setHasMore(sortedTopics.length > ITEMS_PER_LOAD);
+      if (data && Array.isArray(data.topics)) {
+        const newTopics = data.topics.map(topic => ({
+          ...topic,
+          topicId: topic._id,
+          subjectName: topic.subject,
+          userName: topic.userName,
+          usn: topic.usn,
+          profileimg: topic.profileimg,
+          userId: topic.userId,
+        }));
+        if (reset) {
+          setAllTopics(newTopics);
+          setDisplayedTopics(newTopics);
+          setCurrentIndex(newTopics.length);
+        } else {
+          setAllTopics(prev => [...prev, ...newTopics]);
+          setDisplayedTopics(prev => [...prev, ...newTopics]);
+          setCurrentIndex(prev => prev + newTopics.length);
+        }
+        setPage(data.page);
+        setTotalPages(data.totalPages);
+        setHasMore(data.page < data.totalPages);
+      }
     } catch (error) {
-      console.error('Error fetching topics:', error);
+      console.error('Error fetching paged topics:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
+
   const loadMoreTopics = useCallback(() => {
     if (isLoadingMore || !hasMore || searchQuery || isManualReloading) return;
-
     setIsLoadingMore(true);
     setTimeout(() => {
-      const nextBatch = allTopics.slice(currentIndex, currentIndex + ITEMS_PER_LOAD);
-      if (nextBatch.length > 0) {
-        setDisplayedTopics(prev => [...prev, ...nextBatch]);
-        setCurrentIndex(prev => prev + ITEMS_PER_LOAD);
-        setHasMore(currentIndex + ITEMS_PER_LOAD < allTopics.length);
-      } else setHasMore(false);
+      fetchPagedTopics(page + 1);
       setIsLoadingMore(false);
     }, 500);
-  }, [allTopics, currentIndex, hasMore, isLoadingMore, searchQuery, isManualReloading]);
+  }, [hasMore, isLoadingMore, searchQuery, isManualReloading, page]);
 
   const handleManualReload = () => {
     if (!hasMore || isLoadingMore || searchQuery || isManualReloading) return;
