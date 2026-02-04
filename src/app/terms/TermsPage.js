@@ -82,9 +82,7 @@ export default function TermsPage() {
         </section>
       </main>
 
-      <footer className="tp-footer" aria-hidden={true}>
-        <small className="tp-footnote">© Learnix — Terms last updated: December 3, 2025</small>
-      </footer>
+      
     </div>
   );
 }
