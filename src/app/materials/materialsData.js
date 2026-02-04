@@ -2,7 +2,7 @@
 
 const materialsData = [
     {
-        semester: "1st Sem - MCA 2025-26",
+        semester: "1st Sem - MCA 2025-27",
         subjects: [
             {
                 subject: "Syllabus",
@@ -31,7 +31,7 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/App%20Layer-Unit2-Ch%202.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit2/App%20Layer-Unit2-Ch%202.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit2/unit2-ch1.pdf" },
-                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit2/1.%20UNIT%202%20DCN%20QUESTION%20BANK.pdf"},
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit2/1.%20UNIT%202%20DCN%20QUESTION%20BANK.pdf" },
                     { name: "U3 Transport-Layer-3rd-unit.pdf", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit3/transport-layer-3rd%20unit.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit3/unit%203-transport%20layer%20protocol-part%202.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit3/unit%203-transport%20layer-part%201.pdf" },
@@ -215,15 +215,58 @@ const materialsData = [
         ],
     },
     {
-        semester: "2nd Sem - MCA",
+        semester: "2nd Sem - MCA 2025-27",
         subjects: [
             {
+                subject: "Advanced Web Technologies Lab",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies-Lab/Assignment%201.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies-Lab/Assignment%202.docx" },
+
+                ]
 
             },
+            {
+                subject: "Advanced Web Technologies",
+                files: [
+                    {},
+                ]
+            },
+            {
+                subject: "Data Warehousing and Data Mining",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/25MCA204_DWDM_Syllabus.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/Task%201.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/Unit1_01_DataWarehousing-Introduction.pdf" },
+                ],
+            },
+            {
+                subject: "Enterprise Java",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/Unit-1%5BJava%5D.pdf" },
+                    // { url: "" },
+                    // { url: "" },
+
+                ]
+            },
+            {
+                subject: "Enterprise Java Lab",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java-Lab/Assignment-1_Java.docx" },
+                    // { url: "" },
+
+                ]
+            },
+            {
+                subject: "Web Development Using Ruby on Rails & PostgreSQL",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Web-Development-Using-Ruby-on-Rails-%26-PostgreSQL/Ruby_Rails_PostgreSQL_Installation_Guide.pptx" },
+                ]
+            }
         ],
     },
     {
-        semester: "3rd Sem - MCA 2025-26",
+        semester: "3rd Sem - MCA 2024-26",
         subjects: [
             {
                 subject: "Syllabus",
