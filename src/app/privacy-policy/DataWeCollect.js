@@ -3,9 +3,9 @@ import SavedContentLocalStorageSection from "./SavedContentLocalStorageSection";
 import ToolsDataSection from "./ToolsDataSection";
 import UploadedContentDataSection from "./UploadedContentDataSection";
 import UserCredentialsDataSection from "./UserCredentialsDataSection";
-import "./styles/TermsPage.css";
+import "./styles/DataWeCollect.css";
 
-const TermsData = () => {
+const DataWeCollect = () => {
     return (
         <div className="tp-page-container">
             <main className="tp-main" role="main">
@@ -25,4 +25,4 @@ const TermsData = () => {
     );
 };
 
-export default TermsData;
+export default DataWeCollect;
