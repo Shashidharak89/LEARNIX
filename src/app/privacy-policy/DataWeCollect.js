@@ -1,3 +1,5 @@
+import AnalyticsDataSection from "./AnalyticsDataSection";
+import ContentControlSection from "./ContentControlSection";
 import FeedbackDataSection from "./FeedbackDataSection";
 import SavedContentLocalStorageSection from "./SavedContentLocalStorageSection";
 import ToolsDataSection from "./ToolsDataSection";
@@ -20,6 +22,8 @@ const DataWeCollect = () => {
                 <SavedContentLocalStorageSection />
                 <FeedbackDataSection />
                 <ToolsDataSection />
+                <AnalyticsDataSection/>
+                <ContentControlSection/>
             </main>
         </div>
     );
