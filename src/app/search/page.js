@@ -1,17 +1,17 @@
 "use client";
 
-import Footer from "../components/Footer";
+import { Suspense } from "react";
 import { Navbar } from "../components/Navbar";
 import UsersPage from "./UsersPage";
-import WorkSearchInterface from "../works/WorkSearchInterface";
+import UsersPageSkeleton from "./UsersPageSkeleton";
 
-
-export default function search() {
-
+export default function Search() {
     return (
-        <div >
+        <div>
             <Navbar />
-            <UsersPage/>
+            <Suspense fallback={<UsersPageSkeleton />}>
+                <UsersPage />
+            </Suspense>
         </div>
     );
 }

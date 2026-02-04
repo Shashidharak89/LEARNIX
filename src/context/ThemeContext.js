@@ -1,18 +1,26 @@
 "use client";
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useSyncExternalStore } from "react";
 
 const ThemeContext = createContext();
 
-export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState("light");
+// Helper to get theme from localStorage (only runs on client)
+function getSnapshot() {
+  return localStorage.getItem("theme") || "light";
+}
 
-  // Load saved theme from localStorage on first render
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) {
-      setTheme(savedTheme);
-    }
-  }, []);
+function getServerSnapshot() {
+  return "light";
+}
+
+function subscribe(callback) {
+  window.addEventListener("storage", callback);
+  return () => window.removeEventListener("storage", callback);
+}
+
+export function ThemeProvider({ children }) {
+  // Use useSyncExternalStore to read from localStorage without triggering cascading renders
+  const storedTheme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const [theme, setTheme] = useState(storedTheme);
 
   // Save theme to localStorage whenever it changes
   useEffect(() => {
