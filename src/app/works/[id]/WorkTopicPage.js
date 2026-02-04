@@ -120,12 +120,12 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
   const [imageLoading, setImageLoading] = useState({});
   const [showPageNumbers, setShowPageNumbers] = useState(false);
   const [rangeModalOpen, setRangeModalOpen] = useState(false);
-  const [startPage, setStartPage] = useState(1);
-  const [endPage, setEndPage] = useState(1);
   const [allPages, setAllPages] = useState(true);
   const [customMode, setCustomMode] = useState(false);
   const [selectedPages, setSelectedPages] = useState([]);
   const [visiblePageCount, setVisiblePageCount] = useState(10);
+  const [startPage, setStartPage] = useState(1);
+  const [endPage, setEndPage] = useState(1);
 
   const rawImages = Array.isArray(data?.topic?.images) ? data.topic.images : [];
   const validImages = rawImages.filter((img) => img && img.trim() !== "");
@@ -182,17 +182,6 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
   };
 
   const closeRangeModal = () => setRangeModalOpen(false);
-
-  useEffect(() => {
-    if (validImages && validImages.length > 0) {
-      setStartPage(1);
-      setEndPage(validImages.length);
-      setAllPages(true);
-      setCustomMode(false);
-      setSelectedPages([]);
-      setVisiblePageCount(10);
-    }
-  }, [validImages.length]);
 
   const handleRangeDownload = (e) => {
     e.preventDefault();
