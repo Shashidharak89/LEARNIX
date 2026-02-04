@@ -26,22 +26,46 @@
   position: relative;
   width: 100%;
   max-width: 600px;
+  display: flex;
+  align-items: center;
+}
+
+.ws-search-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+
+.ws-search-btn:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.ws-search-btn:active {
+  transform: translateY(-50%) scale(0.95);
 }
 
 .ws-search-icon {
-  position: absolute;
-  left: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #6b7280;
-  z-index: 1;
+  color: #ffffff;
+  font-size: 18px;
   flex-shrink: 0;
-  font-size: 20px;
 }
 
 .ws-search-input {
   width: 100%;
-  padding: 15px 15px 15px 50px;
+  padding: 15px 55px 15px 18px;
   border: 2px solid #e5e7eb;
   border-radius: 12px;
   font-size: 1rem;
@@ -992,12 +1016,17 @@
   }
 
   .ws-search-input {
-    padding: 12px 12px 12px 45px;
+    padding: 12px 50px 12px 15px;
     font-size: 0.95rem;
   }
 
+  .ws-search-btn {
+    right: 6px;
+    padding: 8px 10px;
+  }
+
   .ws-search-icon {
-    left: 12px;
+    font-size: 16px;
   }
 
   .ws-topics-grid,
@@ -1066,13 +1095,17 @@
   }
 
   .ws-search-input {
-    padding: 10px 10px 10px 40px;
+    padding: 10px 45px 10px 12px;
     font-size: 0.9rem;
   }
 
+  .ws-search-btn {
+    right: 5px;
+    padding: 7px 9px;
+  }
+
   .ws-search-icon {
-    left: 10px;
-    font-size: 18px;
+    font-size: 15px;
   }
 
   .ws-topic-card,
