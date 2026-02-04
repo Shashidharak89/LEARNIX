@@ -42,8 +42,8 @@
 
 /* main layout */
 .tp-main {
-  width: 100%;
-  max-width: 980px;
+  width: 90%;
+  max-width: 96%;
   margin: 12px auto 36px;
   padding: 0 18px;
   display: grid;
@@ -193,8 +193,25 @@
   color: rgba(11,11,11,0.6);
 }
 
+/* very small screens: full width */
+@media (max-width: 500px) {
+  .tp-main { 
+    width: 100%; 
+    max-width: 100%;
+    padding: 0 8px; 
+    gap: 12px; 
+  }
+  .tp-card { padding: 12px; border-radius: 6px; }
+  .tp-title { font-size: 20px; }
+  .tp-subtitle { font-size: 15px; }
+  .tp-section-icon { font-size: 16px; }
+  .tp-subheading { font-size: 14px; }
+  .tp-list li { font-size: 13px; padding-left: 16px; }
+  .tp-list li::before { width: 5px; height: 5px; top: 7px; }
+}
+
 /* small screens tweak: reduce padding and card radius */
-@media (max-width: 640px) {
+@media (min-width: 501px) and (max-width: 640px) {
   .tp-main { padding: 0 12px; gap: 14px; }
   .tp-card { padding: 14px; border-radius: 8px; }
   .tp-title { font-size: 22px; }
@@ -205,10 +222,11 @@
   .tp-list li::before { width: 6px; height: 6px; top: 7px; }
 }
 
-/* larger screens: single column for better readability */
+/* larger screens: maintain 90% width */
 @media (min-width: 1100px) {
   .tp-main {
-    max-width: 800px;
+    width: 90%;
+    max-width: 96%;
     gap: 22px;
   }
 }

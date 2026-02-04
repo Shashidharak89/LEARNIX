@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { FiShield } from "react-icons/fi";
 import "./styles/TermsPage.css";
 
@@ -14,6 +15,14 @@ export default function TermsPage() {
           <h1 id="tp-title" className="tp-title">Terms &amp; Conditions</h1>
           <p className="tp-plain">
             By using Learnix you agree to these Terms &amp; Conditions. Please read them carefully.
+          </p>
+        </section>
+
+        <section className="tp-card tp-privacy-link-card" aria-labelledby="tp-privacy">
+          <h2 id="tp-privacy" className="tp-subtitle">Privacy &amp; Data Collection</h2>
+          <p className="tp-plain">
+            Want to know what data we collect and how we handle your information? Read our{" "}
+            <Link href="/privacy-policy" className="tp-link">Privacy Policy</Link> to learn more about our data practices.
           </p>
         </section>
 
