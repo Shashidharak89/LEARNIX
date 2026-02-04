@@ -349,10 +349,11 @@ const WorkSearchInterface = () => {
     setSelectedTopics(filters.topics || []);
   };
 
-  // Apply filters when they change
-  const applyFilters = useEffect(() => {
-    // If any filter is applied (search query, subjects, or topics), use backend search
-    if (searchQuery || selectedSubjects.length > 0 || selectedTopics.length > 0) {
+  // Apply filters when they change (subject/topic filters trigger search immediately)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    // If subject or topic filters are applied, trigger search with current query
+    if (selectedSubjects.length > 0 || selectedTopics.length > 0) {
       handleSearch(searchQuery, 1);
     } else if (showSavedOnly) {
       // Show saved only - client-side filter
@@ -361,13 +362,13 @@ const WorkSearchInterface = () => {
       setDisplayedTopics(initialTopics);
       setCurrentIndex(ITEMS_PER_LOAD);
       setHasMore(filteredTopics.length > ITEMS_PER_LOAD);
-    } else {
-      // No search/subject/topic filters - fetch fresh from backend based on sortOrder
+    } else if (!searchQuery) {
+      // No filters and no search query - fetch fresh from backend based on sortOrder
       // Reset to page 1 and fetch from appropriate API (latest or oldest)
       setPage(1);
       fetchPagedTopics(1, true);
     }
-  }, [selectedSubjects, selectedTopics, sortOrder, showSavedOnly, savedTopicIds, searchQuery]);
+  }, [selectedSubjects, selectedTopics, sortOrder, showSavedOnly, savedTopicIds]);
 
   const toggleImageExpansion = (topicKey) => {
     setExpandedImages(prev => ({ ...prev, [topicKey]: !prev[topicKey] }));
@@ -651,9 +652,15 @@ const WorkSearchInterface = () => {
             <FiSearch className="ws-search-icon" />
             <input
               type="text"
-              placeholder="Search by name, USN, subject, or topic..."
+              placeholder="Search by name, USN, subject, or topic... (Press Enter to search)"
               value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); handleSearch(e.target.value); }}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSearch(searchQuery, 1);
+                }
+              }}
               className="ws-search-input"
             />
           </div>
