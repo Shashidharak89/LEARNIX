@@ -77,7 +77,7 @@ export default function TopicCard({
 
   const shouldIgnoreCollapseToggle = (target) => {
     if (!target) return false;
-    const el = target instanceof Element ? target : null;
+    const el = target && typeof target.closest === 'function' ? target : null;
     if (!el) return false;
 
     return Boolean(

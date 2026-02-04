@@ -225,7 +225,7 @@ const WorkSearchInterface = () => {
     setIsLoading(true);
     try {
       // Build URL with query, subjects, and topics params
-      let urlParams = new URLSearchParams();
+      const urlParams = new globalThis.URLSearchParams();
       if (query.trim()) urlParams.set('q', query);
       if (selectedSubjects.length > 0) urlParams.set('subjects', selectedSubjects.join(','));
       if (selectedTopics.length > 0) urlParams.set('topics', selectedTopics.join(','));

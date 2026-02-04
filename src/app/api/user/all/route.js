@@ -55,8 +55,10 @@ export const GET = async (req) => {
       // Fetch users by IDs if not already fetched
       if (subjectsWithSearch.length > 0 || topicsWithSearch.length > 0) {
         const additionalUsers = await User.find({
-          _id: { $in: userIds },
-          _id: { $nin: matchingUsers.map(u => u._id) }
+          $and: [
+            { _id: { $in: userIds } },
+            { _id: { $nin: matchingUsers.map(u => u._id) } }
+          ]
         })
           .sort({ createdAt: -1 })
           .select("name usn profileimg createdAt")
