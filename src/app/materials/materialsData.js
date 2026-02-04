@@ -229,7 +229,7 @@ const materialsData = [
             {
                 subject: "Advanced Web Technologies",
                 files: [
-                    {},
+                    {url:""},
                 ]
             },
             {
