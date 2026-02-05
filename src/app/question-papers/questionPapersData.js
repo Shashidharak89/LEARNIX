@@ -17,8 +17,8 @@ const questionPapersData =
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759636097/users/NU25MCA117/Research%20Methodology%20and%20Publication%20Ethics/Class%20notes%20RMPE/gonzhatbvbpnkdah1wqv.jpg",
                         ],
                         visitlink: [
-                            "/works/6984a0ca838d91b67e95a1c7",
-                            "/works/6984a0ca838d91b67e95a1c7"
+                            "6984a0ca838d91b67e95a1c7",
+                            "6984a0ca838d91b67e95a1c7"
                         ]
 
                     },
@@ -30,8 +30,8 @@ const questionPapersData =
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759636097/users/NU25MCA117/Research%20Methodology%20and%20Publication%20Ethics/Class%20notes%20RMPE/gonzhatbvbpnkdah1wqv.jpg",
                         ],
                         visitlink: [
-                            "/works/6984a0ca838d91b67e95a1c7",
-                            "/works/6984a0ca838d91b67e95a1c7"
+                            "6984a0ca838d91b67e95a1c7",
+                            "6984a0ca838d91b67e95a1c7"
                         ]
 
                     },
@@ -43,8 +43,8 @@ const questionPapersData =
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759636097/users/NU25MCA117/Research%20Methodology%20and%20Publication%20Ethics/Class%20notes%20RMPE/gonzhatbvbpnkdah1wqv.jpg",
                         ],
                         visitlink: [
-                            "/works/6984a0ca838d91b67e95a1c7",
-                            "/works/6984a0ca838d91b67e95a1c7"
+                            "6984a0ca838d91b67e95a1c7",
+                            "6984a0ca838d91b67e95a1c7"
                         ]
 
                     },
