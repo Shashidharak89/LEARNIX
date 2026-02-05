@@ -18,7 +18,8 @@ import {
   FiHelpCircle,
   FiTool,
   FiBell,
-  FiCheck
+  FiCheck,
+  FiClipboard
 } from "react-icons/fi";
 import "./styles/Navbar.css";
 import { Fill } from "./Fill";
@@ -503,6 +504,18 @@ export const Navbar = () => {
               <FiBookOpen size={18} />
             </span>
             <span className="learnix-nav-text">Study Materials</span>
+          </Link>
+
+          <Link
+            href="/question-papers"
+            className="learnix-nav-item"
+            onClick={closeSidebar}
+            tabIndex={isOpen ? 0 : -1}
+          >
+            <span className="learnix-nav-icon">
+              <FiClipboard size={18} />
+            </span>
+            <span className="learnix-nav-text">Question Papers</span>
           </Link>
 
           <Link
