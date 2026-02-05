@@ -352,11 +352,11 @@ const TopicReviews = ({ topicId }) => {
         const usn = localStorage.getItem("usn");
         if (usn) {
           setIsLoggedIn(true);
-          const res = await fetch(`/api/user?usn=${usn}`);
+          // Use lightweight endpoint that only returns user ID
+          const res = await fetch(`/api/user/id?usn=${usn}`);
           if (res.ok) {
             const data = await res.json();
-            // API returns { user: { id: "...", name: "...", ... } }
-            setCurrentUserId(data.user.id);
+            setCurrentUserId(data.userId);
           }
         } else {
           setIsLoggedIn(false);
