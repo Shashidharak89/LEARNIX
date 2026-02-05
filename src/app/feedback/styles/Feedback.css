@@ -140,6 +140,25 @@
     margin-bottom: 2rem;
 }
 
+.success-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    color: #166534;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+}
+
+.success-message span {
+    font-size: 1.1rem;
+}
+
 .suggestions-title {
     color: #92400e;
     font-size: 1.1rem;
