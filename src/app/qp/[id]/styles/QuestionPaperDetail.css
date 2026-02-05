@@ -434,8 +434,8 @@
   height: 14px;
   background: #ffffff;
   border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  transition: all 0.25s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s ease;
 }
 
 .qpd-page-toggle-active .qpd-toggle-knob {
@@ -606,18 +606,16 @@
   align-items: center;
   gap: 8px;
   padding: 12px 20px;
-  background: linear-gradient(135deg, #0b74ff, #04518a);
+  background: #0b74ff;
   color: #ffffff;
   border-radius: 10px;
   text-decoration: none;
   font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(11, 116, 255, 0.2);
+  transition: background 0.15s ease;
 }
 
 .qpd-original-link:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(11, 116, 255, 0.3);
+  background: #04518a;
 }
 
 .qpd-link-icon {
