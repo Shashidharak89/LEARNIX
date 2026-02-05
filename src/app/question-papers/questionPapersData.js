@@ -11,7 +11,7 @@ const questionPapersData =
                     batchname: "2022-2024",
                     mse1:
                     {
-                        id: "1",
+                        id: "QP0101",
                         imageurls: [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759636097/users/NU25MCA117/Research%20Methodology%20and%20Publication%20Ethics/Class%20notes%20RMPE/gonzhatbvbpnkdah1wqv.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759636097/users/NU25MCA117/Research%20Methodology%20and%20Publication%20Ethics/Class%20notes%20RMPE/gonzhatbvbpnkdah1wqv.jpg",
@@ -24,7 +24,7 @@ const questionPapersData =
                     },
                     mse2:
                     {
-                        id: "2",
+                        id: "QP0102",
                         imageurls: [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759636097/users/NU25MCA117/Research%20Methodology%20and%20Publication%20Ethics/Class%20notes%20RMPE/gonzhatbvbpnkdah1wqv.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759636097/users/NU25MCA117/Research%20Methodology%20and%20Publication%20Ethics/Class%20notes%20RMPE/gonzhatbvbpnkdah1wqv.jpg",
@@ -37,7 +37,7 @@ const questionPapersData =
                     },
                     final:
                     {
-                        id: "3",
+                        id: "QP0103",
                         imageurls: [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759636097/users/NU25MCA117/Research%20Methodology%20and%20Publication%20Ethics/Class%20notes%20RMPE/gonzhatbvbpnkdah1wqv.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759636097/users/NU25MCA117/Research%20Methodology%20and%20Publication%20Ethics/Class%20notes%20RMPE/gonzhatbvbpnkdah1wqv.jpg",

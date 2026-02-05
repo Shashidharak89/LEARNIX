@@ -241,12 +241,13 @@ const QuestionPaperDetail = ({ id, paperInfo }) => {
 
   const handleShare = async () => {
     const shareUrl = window.location.href;
-    const shareText = `${examType} - ${semester} (${batch}) | Question Papers`;
+    const shareText = `📄 Question Paper - ${semester} | Batch: ${batch} | ${examType}\n\n🔗 View here: ${shareUrl}\n\n📚 LEARNIX - Your Study Companion`;
 
     if (navigator.share) {
       try {
         await navigator.share({
-          title: shareText,
+          title: `${examType} - ${semester} (${batch}) | LEARNIX`,
+          text: `Question Paper - ${semester} | Batch: ${batch} | ${examType}`,
           url: shareUrl,
         });
       } catch (err) {
@@ -255,9 +256,9 @@ const QuestionPaperDetail = ({ id, paperInfo }) => {
         }
       }
     } else {
-      // Fallback: copy to clipboard
+      // Fallback: copy to clipboard with full text
       try {
-        await navigator.clipboard.writeText(shareUrl);
+        await navigator.clipboard.writeText(shareText);
         alert('Link copied to clipboard!');
       } catch (err) {
         console.error('Copy failed:', err);
