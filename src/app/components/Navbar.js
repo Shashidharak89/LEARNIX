@@ -507,7 +507,7 @@ export const Navbar = () => {
           </Link>
 
           <Link
-            href="/question-papers"
+            href="/qp"
             className="learnix-nav-item"
             onClick={closeSidebar}
             tabIndex={isOpen ? 0 : -1}

@@ -100,7 +100,7 @@ const QuestionPaperDetail = ({ id, paperInfo }) => {
           <FaClipboardList className="qpd-error-icon" />
           <h2>Question Paper Not Found</h2>
           <p>The requested question paper could not be found.</p>
-          <Link href="/question-papers" className="qpd-back-link">
+          <Link href="/qp" className="qpd-back-link">
             <FaArrowLeft /> Back to Question Papers
           </Link>
         </div>
@@ -322,7 +322,7 @@ const QuestionPaperDetail = ({ id, paperInfo }) => {
 
         {/* Action Buttons */}
         <div className="qpd-action-buttons-container">
-          <Link href="/question-papers" className="qpd-action-btn qpd-back-btn">
+          <Link href="/qp" className="qpd-action-btn qpd-back-btn">
             <FaArrowLeft />
             <span className="qpd-btn-text">Back</span>
           </Link>

@@ -1,4 +1,4 @@
-// src/app/question-papers/questionPapersData.js
+// src/app/qp/questionPapersData.js
 
 
 const questionPapersData =

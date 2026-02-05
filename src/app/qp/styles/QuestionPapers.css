@@ -1,0 +1,633 @@
+/* styles/QuestionPapers.css
+   Colors: blue (#0b74ff), darker blue (#04518a), yellow (#f2c200), black and white
+   Matching the Privacy Policy page style pattern
+*/
+
+:root {
+  --qp-bg: #ffffff;
+  --qp-text: #0b0b0b;
+  --qp-blue: #0b74ff;
+  --qp-blue-dark: #04518a;
+  --qp-yellow: #f2c200;
+  --qp-gap: 20px;
+  --qp-radius: 10px;
+  --qp-ease: cubic-bezier(.2,.9,.3,1);
+}
+
+.qp-page-container {
+  background: var(--qp-bg);
+  color: var(--qp-text);
+  min-height: auto;
+  display: flex;
+  flex-direction: column;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* decorative header icon */
+.qp-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 18px 28px 0 28px;
+}
+
+.qp-header-icon {
+  color: var(--qp-blue);
+  font-size: 36px;
+  opacity: 0.92;
+  animation: qp-icon-pop 420ms var(--qp-ease) both;
+}
+
+/* main layout */
+.qp-main {
+  width: 90%;
+  max-width: 96%;
+  margin: 12px auto 36px;
+  padding: 0 18px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--qp-gap);
+  box-sizing: border-box;
+}
+
+/* each section card */
+.qp-card {
+  background: #fff;
+  border: 1px solid rgba(4,81,138,0.06);
+  border-radius: var(--qp-radius);
+  padding: 18px 20px;
+  box-shadow: 0 6px 18px rgba(4,81,138,0.04);
+  transform: translateY(8px);
+  opacity: 0;
+  animation: qp-card-appear 420ms var(--qp-ease) forwards;
+}
+
+/* card stagger animation */
+.qp-card:nth-child(1) { animation-delay: 0ms; }
+.qp-card:nth-child(2) { animation-delay: 70ms; }
+.qp-card:nth-child(3) { animation-delay: 130ms; }
+.qp-card:nth-child(4) { animation-delay: 190ms; }
+.qp-card:nth-child(5) { animation-delay: 250ms; }
+
+/* intro card accent */
+.qp-intro {
+  border-left: 4px solid var(--qp-blue);
+}
+
+/* section header with icon */
+.qp-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.qp-section-icon {
+  color: var(--qp-blue);
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+/* titles & typography */
+.qp-title {
+  color: var(--qp-blue);
+  font-size: 28px;
+  margin: 0 0 6px 0;
+  line-height: 1.05;
+}
+
+.qp-subtitle {
+  color: var(--qp-blue-dark);
+  font-size: 18px;
+  margin: 0;
+}
+
+/* paragraphs */
+.qp-plain {
+  color: var(--qp-text);
+  font-size: 15px;
+  line-height: 1.7;
+  margin: 0 0 12px 0;
+}
+
+.qp-plain:last-child {
+  margin-bottom: 0;
+}
+
+.qp-meta {
+  color: rgba(11,11,11,0.6);
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+/* Hover micro-interaction for cards */
+.qp-card:hover {
+  transform: translateY(-2px);
+  transition: transform 260ms var(--qp-ease), box-shadow 260ms var(--qp-ease);
+  box-shadow: 0 12px 30px rgba(4,81,138,0.08);
+}
+
+/* focus outlines for accessibility */
+.qp-card :focus,
+.qp-title:focus {
+  outline: 3px solid rgba(11,116,255,0.12);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* ============================================
+   Question Papers Content Section
+   ============================================ */
+
+.qp-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* Semester Card */
+.qp-semester-card {
+  background: #f8fafc;
+  border: 1px solid rgba(4,81,138,0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.qp-semester-card:hover {
+  border-color: var(--qp-blue);
+  box-shadow: 0 4px 12px rgba(11,116,255,0.1);
+}
+
+/* Semester Toggle */
+.qp-semester-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.qp-semester-toggle:hover {
+  background: rgba(11,116,255,0.04);
+}
+
+.qp-semester-toggle.qp-semester-active {
+  background: rgba(11,116,255,0.08);
+  border-bottom: 1px solid rgba(4,81,138,0.1);
+}
+
+.qp-semester-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--qp-blue-dark);
+  text-align: left;
+}
+
+/* Batches Container */
+.qp-batches-container {
+  padding: 12px;
+  background: #fff;
+  animation: qp-slideDown 0.3s var(--qp-ease);
+}
+
+/* Batch Card */
+.qp-batch-card {
+  background: #fafbfc;
+  border: 1px solid rgba(4,81,138,0.06);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.qp-batch-card:last-child {
+  margin-bottom: 0;
+}
+
+.qp-batch-card:hover {
+  border-color: var(--qp-yellow);
+}
+
+/* Batch Toggle */
+.qp-batch-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--qp-text);
+}
+
+.qp-batch-toggle:hover {
+  background: rgba(242,194,0,0.06);
+}
+
+.qp-batch-toggle.qp-batch-active {
+  background: rgba(242,194,0,0.1);
+  border-bottom: 1px solid rgba(4,81,138,0.06);
+}
+
+.qp-batch-toggle svg:first-child {
+  color: var(--qp-blue);
+}
+
+/* Exams Container */
+.qp-exams-container {
+  padding: 10px 12px;
+  background: #fff;
+  animation: qp-fadeIn 0.3s var(--qp-ease);
+}
+
+.qp-no-exams {
+  padding: 12px;
+  color: rgba(11,11,11,0.5);
+  font-size: 14px;
+  background: #f8f8f8;
+  border-radius: 6px;
+  border: 1px dashed rgba(4,81,138,0.1);
+  margin: 0;
+}
+
+/* Exam Card Wrapper */
+.qp-exam-card-wrapper {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(4,81,138,0.08);
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+.qp-exam-card-wrapper:last-child {
+  margin-bottom: 0;
+}
+
+.qp-exam-card-wrapper:hover {
+  border-color: var(--qp-yellow);
+  box-shadow: 0 2px 8px rgba(242,194,0,0.15);
+}
+
+/* Exam Card Link */
+.qp-exam-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  flex: 1;
+  background: transparent;
+  border: none;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.qp-exam-card:hover {
+  transform: translateX(3px);
+  text-decoration: none;
+  color: var(--qp-blue-dark);
+}
+
+.qp-exam-card svg:first-child {
+  color: var(--qp-blue);
+}
+
+.qp-exam-card svg:last-child {
+  color: rgba(11,11,11,0.3);
+  margin-left: auto;
+}
+
+.qp-exam-card:hover svg:last-child {
+  color: var(--qp-yellow);
+  transform: translateX(3px);
+}
+
+/* Download Button */
+.qp-download-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  background: rgba(11,116,255,0.06);
+  border: none;
+  border-left: 1px solid rgba(4,81,138,0.08);
+  color: var(--qp-blue);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.qp-download-btn:hover {
+  background: var(--qp-blue);
+  color: white;
+}
+
+.qp-download-btn:active {
+  transform: scale(0.95);
+}
+
+.qp-download-btn.qp-downloading {
+  background: var(--qp-yellow);
+  color: var(--qp-text);
+  cursor: wait;
+}
+
+.qp-download-btn:disabled {
+  cursor: wait;
+}
+
+/* ============================================
+   How It Works Steps Section
+   ============================================ */
+
+.qp-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.qp-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid rgba(4,81,138,0.04);
+  transition: all 0.2s ease;
+}
+
+.qp-step:hover {
+  background: rgba(11,116,255,0.04);
+  border-color: var(--qp-blue);
+}
+
+.qp-step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--qp-blue);
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.qp-step .qp-plain {
+  margin: 0;
+  padding-top: 4px;
+}
+
+/* ============================================
+   Features Grid Section
+   ============================================ */
+
+.qp-features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.qp-feature {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid rgba(4,81,138,0.04);
+  transition: all 0.2s ease;
+}
+
+.qp-feature:hover {
+  background: rgba(242,194,0,0.06);
+  border-color: var(--qp-yellow);
+}
+
+.qp-feature-icon {
+  color: var(--qp-blue);
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.qp-feature-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.qp-feature-content strong {
+  color: var(--qp-blue-dark);
+  font-size: 14px;
+}
+
+.qp-feature-content .qp-plain {
+  font-size: 13px;
+  color: rgba(11,11,11,0.7);
+  margin: 0;
+}
+
+/* ============================================
+   Feedback Section
+   ============================================ */
+
+.qp-feedback {
+  border-left: 4px solid var(--qp-yellow);
+}
+
+.qp-feedback-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px 14px;
+  border: 1px solid rgba(4,81,138,0.1);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+}
+
+.qp-feedback-textarea:focus {
+  outline: none;
+  border-color: var(--qp-blue);
+  box-shadow: 0 0 0 3px rgba(11,116,255,0.1);
+}
+
+.qp-feedback-textarea::placeholder {
+  color: rgba(11,11,11,0.4);
+}
+
+.qp-feedback-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--qp-blue);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.qp-feedback-btn:hover:not(:disabled) {
+  background: var(--qp-blue-dark);
+  transform: translateY(-1px);
+}
+
+.qp-feedback-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.qp-feedback-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes qp-card-appear {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes qp-icon-pop {
+  from { transform: scale(.95) translateY(6px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+@keyframes qp-slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes qp-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ============================================
+   Responsive Styles
+   ============================================ */
+
+/* very small screens: full width */
+@media (max-width: 500px) {
+  .qp-main { 
+    width: 100%; 
+    max-width: 100%;
+    padding: 0 8px; 
+    gap: 12px; 
+  }
+  .qp-card { padding: 12px; border-radius: 6px; }
+  .qp-title { font-size: 20px; }
+  .qp-subtitle { font-size: 15px; }
+  .qp-section-icon { font-size: 16px; }
+  .qp-header { padding: 12px 16px 0 16px; }
+  .qp-header-icon { font-size: 28px; }
+  
+  .qp-semester-toggle { padding: 12px 14px; }
+  .qp-semester-title { font-size: 14px; }
+  .qp-batch-toggle { padding: 10px 12px; font-size: 13px; }
+  .qp-exam-card { padding: 8px 10px; font-size: 13px; }
+  .qp-download-btn { width: 40px; }
+  
+  .qp-step { padding: 10px 12px; gap: 10px; }
+  .qp-step-number { width: 24px; height: 24px; font-size: 12px; }
+  
+  .qp-features-grid { grid-template-columns: 1fr; }
+  .qp-feature { padding: 12px; }
+}
+
+/* small screens */
+@media (min-width: 501px) and (max-width: 640px) {
+  .qp-main { padding: 0 12px; gap: 14px; }
+  .qp-card { padding: 14px; border-radius: 8px; }
+  .qp-title { font-size: 22px; }
+  .qp-subtitle { font-size: 16px; }
+  .qp-section-icon { font-size: 18px; }
+}
+
+/* larger screens */
+@media (min-width: 1100px) {
+  .qp-main {
+    width: 90%;
+    max-width: 96%;
+    gap: 22px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .qp-page-container {
+    background: white;
+  }
+  
+  .qp-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    break-inside: avoid;
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  
+  .qp-batches-container,
+  .qp-exams-container {
+    display: block !important;
+    animation: none !important;
+  }
+  
+  .qp-feedback {
+    display: none;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .qp-semester-card,
+  .qp-batch-card,
+  .qp-exam-card-wrapper {
+    border-color: #000;
+    border-width: 2px;
+  }
+}
