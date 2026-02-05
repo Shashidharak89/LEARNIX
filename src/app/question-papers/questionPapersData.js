@@ -9,32 +9,7 @@ const questionPapersData =
             batches: [
                 {
                     batchname: "2022-2024",
-                    mse1:
-                    {
-                        id: "QP0101",
-                        imageurls: [
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759636097/users/NU25MCA117/Research%20Methodology%20and%20Publication%20Ethics/Class%20notes%20RMPE/gonzhatbvbpnkdah1wqv.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759636097/users/NU25MCA117/Research%20Methodology%20and%20Publication%20Ethics/Class%20notes%20RMPE/gonzhatbvbpnkdah1wqv.jpg",
-                        ],
-                        visitlink: [
-                            "6984a0ca838d91b67e95a1c7",
-                            "6984a0ca838d91b67e95a1c7"
-                        ]
-
-                    },
-                    mse2:
-                    {
-                        id: "QP0102",
-                        imageurls: [
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759636097/users/NU25MCA117/Research%20Methodology%20and%20Publication%20Ethics/Class%20notes%20RMPE/gonzhatbvbpnkdah1wqv.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759636097/users/NU25MCA117/Research%20Methodology%20and%20Publication%20Ethics/Class%20notes%20RMPE/gonzhatbvbpnkdah1wqv.jpg",
-                        ],
-                        visitlink: [
-                            "6984a0ca838d91b67e95a1c7",
-                            "6984a0ca838d91b67e95a1c7"
-                        ]
-
-                    },
+                   
                     final:
                     {
                         id: "QP0103",
