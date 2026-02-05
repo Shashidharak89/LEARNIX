@@ -5,7 +5,7 @@ const questionPapersData =
 
     [
         {
-            semister: "Semester 1",
+            semister: "MCA Semester 1",
             batches: [
                 {
                     batchname: "2022-2024",
@@ -59,7 +59,7 @@ const questionPapersData =
 
         },
         {
-            semister: "Semester 2",
+            semister: "MCA Semester 2",
             batches: [
                 {
                     batchname: "2022-2024",
@@ -71,7 +71,7 @@ const questionPapersData =
             ]
         },
         {
-            semister: "Semester 3",
+            semister: "MCA Semester 3",
             batches: [
                 {
                     batchname: "2022-2024",
