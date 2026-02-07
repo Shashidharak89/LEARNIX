@@ -12,6 +12,7 @@ import {
   FiHelpCircle,
   FiUpload,
   FiShield,
+  FiFileText,
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import "./styles/HeroSection.css";
@@ -23,6 +24,7 @@ import WhatYouCanLearn from "./home/WhatYouCanLearn";
 import HowLearnixWorks from "./home/HowLearnixWorks";
 import SamplePublicContent from "./home/SamplePublicContent";
 import WhyLearnixTrustworthy from "./home/WhyLearnixTrustworthy";
+import QuestionPapersBanner from "./home/QuestionPapersBanner";
 import AutoPlayVideo from "../about/AutoPlayVideo";
 
 export default function HeroSection() {
@@ -110,6 +112,10 @@ export default function HeroSection() {
               <FiBookOpen className="learnix-nav-card-icon" />
               <span>Materials</span>
             </Link>
+            <Link href="/qp" className="learnix-nav-card">
+              <FiFileText className="learnix-nav-card-icon" />
+              <span>Question Papers</span>
+            </Link>
             <Link href="/tools" className="learnix-nav-card">
               <FiTool className="learnix-nav-card-icon" />
               <span>Tools</span>
@@ -135,6 +141,7 @@ export default function HeroSection() {
 
           <HowLearnixWorks/>
           <SamplePublicContent/>
+          <QuestionPapersBanner/>
           <WhyLearnixTrustworthy/>
 
           {/* What's New Component */}

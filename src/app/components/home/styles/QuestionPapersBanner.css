@@ -1,0 +1,225 @@
+/* QuestionPapersBanner.css - Matching Privacy Policy style pattern */
+
+.qpb-section {
+  background: #ffffff;
+  padding: 80px 20px;
+}
+
+.qpb-container {
+  max-width: 1050px;
+  margin: auto;
+  background: #fff;
+  border: 1px solid rgba(4, 81, 138, 0.08);
+  border-left: 4px solid #0b74ff;
+  border-radius: 14px;
+  padding: 40px 50px;
+  box-shadow: 0 6px 24px rgba(4, 81, 138, 0.06);
+  transition: box-shadow 0.2s ease;
+}
+
+.qpb-container:hover {
+  box-shadow: 0 10px 32px rgba(4, 81, 138, 0.1);
+}
+
+/* Header */
+.qpb-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  margin-top: 20px;
+}
+
+.qpb-header-icon {
+  color: #0b74ff;
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.qpb-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0b74ff;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Description */
+.qpb-description {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: #374151;
+  margin-bottom: 28px;
+  max-width: 850px;
+}
+
+/* Features grid */
+.qpb-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.qpb-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: #f8fafc;
+  border: 1px solid rgba(4, 81, 138, 0.06);
+  border-radius: 10px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.qpb-feature:hover {
+  background: rgba(11, 116, 255, 0.04);
+  border-color: #0b74ff;
+}
+
+.qpb-feature-icon {
+  color: #0b74ff;
+  font-size: 22px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.qpb-feature-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.qpb-feature-content strong {
+  color: #04518a;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.qpb-feature-content span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+/* Badges */
+.qpb-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.qpb-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.qpb-badge-blue {
+  background: rgba(11, 116, 255, 0.1);
+  color: #04518a;
+}
+
+.qpb-badge-yellow {
+  background: #f2c200;
+  color: #fff;
+}
+
+.qpb-badge-gray {
+  background: #f0f0f0;
+  color: #374151;
+}
+
+/* CTA Button */
+.qpb-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  background: #0b74ff;
+  color: #fff;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.15s ease;
+}
+
+.qpb-cta-btn:hover {
+  background: #04518a;
+}
+
+.qpb-cta-icon {
+  font-size: 18px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .qpb-section {
+    padding: 60px 16px;
+  }
+
+  .qpb-container {
+    padding: 28px 24px;
+  }
+
+  .qpb-title {
+    font-size: 1.5rem;
+  }
+
+  .qpb-header-icon {
+    font-size: 26px;
+  }
+
+  .qpb-description {
+    font-size: 1rem;
+  }
+
+  .qpb-features {
+    grid-template-columns: 1fr;
+  }
+
+  .qpb-feature {
+    padding: 14px;
+  }
+
+  .qpb-cta-btn {
+    padding: 12px 22px;
+    font-size: 0.95rem;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .qpb-section {
+    padding: 40px 12px;
+  }
+
+  .qpb-container {
+    padding: 20px 18px;
+    border-radius: 10px;
+  }
+
+  .qpb-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .qpb-title {
+    font-size: 1.3rem;
+  }
+
+  .qpb-badges {
+    gap: 8px;
+  }
+
+  .qpb-badge {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}

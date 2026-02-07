@@ -10,6 +10,11 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Previous Year Question Papers Added",
+      description:
+        "Access a comprehensive collection of previous year question papers! Browse and download MSE 1, MSE 2, and Final Exam papers organized by semester and batch. View papers online directly in the viewer, download as PDF (full or selected pages), and share with friends. Navigate to /qp or use the Question Papers link in the navigation to explore all available papers!",
+    },
+    {
       title: "Articles Section Added",
       description:
         "Discover insights, updates, and stories from the Learnix community! We've added a new Articles section where you can read about how Learnix is solving study material challenges, our journey from a personal project to a public platform, and learn about easy file sharing tools. Check it out in the footer Quick Links or visit /articles directly!",
