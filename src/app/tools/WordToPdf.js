@@ -1,7 +1,7 @@
 // app/components/WordToPdf.jsx
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { FiUpload, FiDownload, FiTrash2, FiCopy, FiFile, FiList } from "react-icons/fi";
+import { FiUpload, FiDownload, FiTrash2, FiCopy, FiFile, FiList, FiFileText, FiCloud, FiCheckCircle, FiStar } from "react-icons/fi";
 import "./styles/WordToPdf.css";
 
 export default function FileUploadDownload() {
@@ -206,10 +206,32 @@ export default function FileUploadDownload() {
       {/* Drag overlay */}
       {isDragging && (
         <div className="fud-drag-overlay">
-          <div className="fud-drag-content">
-            <FiUpload className="fud-drag-icon" />
-            <h3>Drop your file here</h3>
-            <p>Release to upload your file</p>
+          {/* Decorative floating icons */}
+          <div className="fud-drag-decorations">
+            <FiFileText className="fud-decor-icon" />
+            <FiCloud className="fud-decor-icon" />
+            <FiStar className="fud-decor-icon" />
+            <FiCheckCircle className="fud-decor-icon" />
+          </div>
+          
+          {/* Main drop zone */}
+          <div className="fud-drop-zone">
+            <div className="fud-drag-icon-wrapper">
+              <div className="fud-icon-glow"></div>
+              <FiUpload className="fud-drag-overlay-icon" />
+            </div>
+            <h3 className="fud-drag-overlay-text">Drop your file here</h3>
+            <p className="fud-drag-overlay-hint">
+              <FiStar /> Release to upload instantly
+            </p>
+            <div className="fud-file-badges">
+              <span className="fud-file-badge">
+                <FiFileText /> .DOC
+              </span>
+              <span className="fud-file-badge">
+                <FiFileText /> .DOCX
+              </span>
+            </div>
           </div>
         </div>
       )}
