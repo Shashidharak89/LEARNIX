@@ -1,12 +1,14 @@
 // app/tools/TextShareTool.jsx
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { FiCopy, FiSend, FiMessageSquare, FiCode, FiShare2, FiEdit3, FiRefreshCw, FiSave, FiLock, FiUnlock, FiList, FiTrash2, FiChevronDown, FiChevronUp, FiCheckCircle, FiAlertCircle, FiInfo, FiX } from "react-icons/fi";
+import { FiCopy, FiSend, FiMessageSquare, FiCode, FiShare2, FiEdit3, FiRefreshCw, FiSave, FiLock, FiUnlock, FiList, FiTrash2, FiChevronDown, FiChevronUp, FiCheckCircle, FiAlertCircle, FiInfo, FiX, FiMaximize, FiMinimize } from "react-icons/fi";
 import "./styles/TextShare.css";
 
 const STORAGE_KEY = 'textshare_codes';
 
 export default function TextShareTool() {
+    // Full screen state for textarea
+    const [isFullScreen, setIsFullScreen] = useState(false);
   const [text, setText] = useState("");
   const [code, setCode] = useState("");
   const [editAccess, setEditAccess] = useState(false); // Toggle for allowing edit access
@@ -648,6 +650,13 @@ export default function TextShareTool() {
                     title="Copy text"
                   >
                     <FiCopy />
+                  </button>
+                  <button
+                    className="tst-btn tst-btn-icon"
+                    onClick={() => setIsFullScreen(true)}
+                    title="Full Screen"
+                  >
+                    <FiMaximize />
                   </button>
                 </div>
               </div>
