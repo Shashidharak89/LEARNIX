@@ -15,17 +15,53 @@ function generateCode(length = 6) {
 export async function POST(req) {
   try {
     await connectDB();
-    const { text, editAccess } = await req.json();
+    const { text, editAccess, customCode, checkOnly } = await req.json();
+    
+    // Check availability only (for custom code feature)
+    if (checkOnly && customCode) {
+      const cleanCode = customCode.toLowerCase().trim();
+      if (!cleanCode || cleanCode.length < 3 || cleanCode.length > 20) {
+        return NextResponse.json({ error: 'Code must be 3-20 characters.' }, { status: 400 });
+      }
+      if (!/^[a-z0-9]+$/.test(cleanCode)) {
+        return NextResponse.json({ error: 'Only lowercase letters and numbers allowed.' }, { status: 400 });
+      }
+      const exists = await TextShare.findOne({ code: cleanCode });
+      return NextResponse.json({ 
+        available: !exists,
+        code: cleanCode 
+      });
+    }
+    
     if (!text || typeof text !== 'string' || text.length === 0) {
       return NextResponse.json({ error: 'Text is required.' }, { status: 400 });
     }
+    
     let code;
-    let exists = true;
-    // Ensure unique code
-    while (exists) {
-      code = generateCode();
-      exists = await TextShare.findOne({ code });
+    
+    // Use custom code if provided
+    if (customCode) {
+      const cleanCode = customCode.toLowerCase().trim();
+      if (!cleanCode || cleanCode.length < 3 || cleanCode.length > 20) {
+        return NextResponse.json({ error: 'Code must be 3-20 characters.' }, { status: 400 });
+      }
+      if (!/^[a-z0-9]+$/.test(cleanCode)) {
+        return NextResponse.json({ error: 'Only lowercase letters and numbers allowed.' }, { status: 400 });
+      }
+      const exists = await TextShare.findOne({ code: cleanCode });
+      if (exists) {
+        return NextResponse.json({ error: 'This code is already taken.' }, { status: 409 });
+      }
+      code = cleanCode;
+    } else {
+      // Generate random code
+      let exists = true;
+      while (exists) {
+        code = generateCode();
+        exists = await TextShare.findOne({ code });
+      }
     }
+    
     const doc = await TextShare.create({ 
       text, 
       code, 

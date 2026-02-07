@@ -1,7 +1,7 @@
 // app/tools/TextShareTool.jsx
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { FiCopy, FiSend, FiMessageSquare, FiCode, FiShare2, FiEdit3, FiRefreshCw, FiSave, FiLock, FiUnlock, FiList, FiTrash2, FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { FiCopy, FiSend, FiMessageSquare, FiCode, FiShare2, FiEdit3, FiRefreshCw, FiSave, FiLock, FiUnlock, FiList, FiTrash2, FiChevronDown, FiChevronUp, FiCheckCircle, FiAlertCircle, FiInfo, FiX } from "react-icons/fi";
 import "./styles/TextShare.css";
 
 const STORAGE_KEY = 'textshare_codes';
@@ -16,14 +16,24 @@ export default function TextShareTool() {
   const [editedText, setEditedText] = useState(""); // For editing fetched text
   const [isEditing, setIsEditing] = useState(false); // Edit mode toggle
   const [currentCode, setCurrentCode] = useState(""); // Store code for refresh/update
-  const [status, setStatus] = useState("");
-  const [statusType, setStatusType] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  
+  // Toast notification state
+  const [toast, setToast] = useState(null);
+  const toastTimeoutRef = useRef(null);
   const [saving, setSaving] = useState(false);
   const [myCodes, setMyCodes] = useState([]); // User's created codes
   const [showMyCodes, setShowMyCodes] = useState(false); // Toggle my codes section
   const [togglingAccess, setTogglingAccess] = useState(null); // Code being toggled
   const [deletingCode, setDeletingCode] = useState(null); // Code being deleted
+  
+  // Custom code modal state
+  const [showCustomCodeModal, setShowCustomCodeModal] = useState(false);
+  const [customCodeInput, setCustomCodeInput] = useState("");
+  const [customCodeAvailable, setCustomCodeAvailable] = useState(null); // null = not checked, true = available, false = taken
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
+  const [publishingCustom, setPublishingCustom] = useState(false);
+  
   const textareaRef = useRef(null);
   const fetchedTextareaRef = useRef(null);
 
@@ -37,6 +47,34 @@ export default function TextShareTool() {
     } catch (err) {
       console.error('Failed to load codes from localStorage:', err);
     }
+  }, []);
+
+  // Cleanup toast timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Show toast notification
+  const showToast = useCallback((message, type = "info") => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    setToast({ message, type });
+    toastTimeoutRef.current = setTimeout(() => {
+      setToast(null);
+    }, 4000);
+  }, []);
+
+  // Dismiss toast manually
+  const dismissToast = useCallback(() => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    setToast(null);
   }, []);
 
   // Save codes to localStorage
@@ -99,20 +137,14 @@ export default function TextShareTool() {
     autoExpand(fetchedTextareaRef);
   }, [fetchedText, editedText]);
 
-  function showStatus(message, type = "") {
-    setStatus(message);
-    setStatusType(type);
-  }
-
   async function handleGenerate() {
-    showStatus("", "");
     setCode("");
     if (!text.trim()) {
-      showStatus("Please enter some text.", "error");
+      showToast("Please enter some text.", "error");
       return;
     }
     try {
-      showStatus("Generating code...", "");
+      showToast("Generating code...", "info");
       const res = await fetch("/api/textshare", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -120,77 +152,75 @@ export default function TextShareTool() {
       });
       const data = await res.json();
       if (!res.ok) {
-        showStatus(data.error || "Failed to generate code.", "error");
+        showToast(data.error || "Failed to generate code.", "error");
         return;
       }
       setCode(data.code);
-      // Save to localStorage
       addCodeToStorage(data.code, editAccess);
       const accessMsg = editAccess ? "Anyone can view AND edit!" : "View-only access.";
-      showStatus(`Code generated! ${accessMsg}`, "success");
+      showToast(`Code generated! ${accessMsg}`, "success");
     } catch (err) {
-      showStatus("Network error. Try again.", "error");
+      showToast("Network error. Try again.", "error");
     }
   }
 
   async function handleFetch() {
-    showStatus("", "");
     setFetchedText("");
     setEditedText("");
     setIsEditing(false);
     setFetchedEditAccess(false);
     if (!fetchCode.trim()) {
-      showStatus("Please enter a code.", "error");
+      showToast("Please enter a code.", "error");
       return;
     }
     try {
-      showStatus("Fetching text...", "");
+      showToast("Fetching text...", "info");
       const res = await fetch(`/api/textshare?code=${fetchCode.trim()}`);
       const data = await res.json();
       if (!res.ok) {
-        showStatus(data.error || "Text not found.", "error");
+        showToast(data.error || "Text not found.", "error");
         return;
       }
       setFetchedText(data.text);
       setEditedText(data.text);
       setFetchedEditAccess(data.editAccess || false);
-      setCurrentCode(fetchCode.trim()); // Store for refresh/update
+      setCurrentCode(fetchCode.trim());
       const accessMsg = data.editAccess ? "(Editable)" : "(Read-only)";
-      showStatus(`Text retrieved! ${accessMsg}`, "success");
+      showToast(`Text retrieved! ${accessMsg}`, "success");
     } catch (err) {
-      showStatus("Network error. Try again.", "error");
+      showToast("Network error. Try again.", "error");
     }
   }
 
   async function handleRefresh() {
     if (!currentCode) return;
     setRefreshing(true);
-    showStatus("Refreshing...", "");
+    showToast("Refreshing...", "info");
     try {
       const res = await fetch(`/api/textshare?code=${currentCode}`);
       const data = await res.json();
       if (!res.ok) {
-        showStatus(data.error || "Failed to refresh.", "error");
+        showToast(data.error || "Failed to refresh.", "error");
         setRefreshing(false);
         return;
       }
       setFetchedText(data.text);
       setEditedText(data.text);
       setFetchedEditAccess(data.editAccess || false);
-      showStatus("Text refreshed!", "success");
+      showToast("Text refreshed successfully!", "success");
     } catch (err) {
-      showStatus("Network error. Try again.", "error");
+      showToast("Network error. Try again.", "error");
     }
     setRefreshing(false);
   }
 
   async function handleSaveEdit() {
     if (!currentCode || !editedText.trim()) {
-      showStatus("Cannot save empty text.", "error");
+      showToast("Cannot save empty text.", "error");
       return;
     }
     setSaving(true);
-    showStatus("Saving changes...", "");
+    showToast("Saving changes...", "info");
     try {
       const res = await fetch("/api/textshare", {
         method: "PUT",
@@ -199,15 +229,15 @@ export default function TextShareTool() {
       });
       const data = await res.json();
       if (!res.ok) {
-        showStatus(data.error || "Failed to save.", "error");
+        showToast(data.error || "Failed to save.", "error");
         setSaving(false);
         return;
       }
       setFetchedText(data.text);
       setIsEditing(false);
-      showStatus("Changes saved successfully!", "success");
+      showToast("Changes saved successfully!", "success");
     } catch (err) {
-      showStatus("Network error. Try again.", "error");
+      showToast("Network error. Try again.", "error");
     }
     setSaving(false);
   }
@@ -215,13 +245,104 @@ export default function TextShareTool() {
   function handleCancelEdit() {
     setEditedText(fetchedText);
     setIsEditing(false);
-    showStatus("Edit cancelled.", "");
+    showToast("Edit cancelled.", "info");
+  }
+
+  // Open custom code modal
+  function openCustomCodeModal() {
+    if (!text.trim()) {
+      showToast("Please enter some text first.", "error");
+      return;
+    }
+    setCustomCodeInput("");
+    setCustomCodeAvailable(null);
+    setShowCustomCodeModal(true);
+  }
+
+  // Close custom code modal
+  function closeCustomCodeModal() {
+    setShowCustomCodeModal(false);
+    setCustomCodeInput("");
+    setCustomCodeAvailable(null);
+  }
+
+  // Check if custom code is available
+  async function checkCodeAvailability() {
+    const cleanCode = customCodeInput.toLowerCase().trim();
+    if (!cleanCode) {
+      showToast("Please enter a code.", "error");
+      return;
+    }
+    if (cleanCode.length < 3) {
+      showToast("Code must be at least 3 characters.", "error");
+      return;
+    }
+    if (!/^[a-z0-9]+$/.test(cleanCode)) {
+      showToast("Only lowercase letters and numbers allowed.", "error");
+      return;
+    }
+    
+    setCheckingAvailability(true);
+    try {
+      const res = await fetch("/api/textshare", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ customCode: cleanCode, checkOnly: true }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data.error || "Failed to check availability.", "error");
+        setCustomCodeAvailable(null);
+      } else {
+        setCustomCodeAvailable(data.available);
+        if (data.available) {
+          showToast(`"${cleanCode}" is available!`, "success");
+        } else {
+          showToast(`"${cleanCode}" is already taken.`, "error");
+        }
+      }
+    } catch (err) {
+      showToast("Network error. Try again.", "error");
+      setCustomCodeAvailable(null);
+    }
+    setCheckingAvailability(false);
+  }
+
+  // Publish with custom code
+  async function publishWithCustomCode() {
+    if (!customCodeAvailable) return;
+    
+    const cleanCode = customCodeInput.toLowerCase().trim();
+    setPublishingCustom(true);
+    showToast("Publishing with custom code...", "info");
+    
+    try {
+      const res = await fetch("/api/textshare", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, editAccess, customCode: cleanCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data.error || "Failed to publish.", "error");
+        setPublishingCustom(false);
+        return;
+      }
+      setCode(data.code);
+      addCodeToStorage(data.code, editAccess);
+      closeCustomCodeModal();
+      const accessMsg = editAccess ? "Anyone can view AND edit!" : "View-only access.";
+      showToast(`Published with code "${data.code}"! ${accessMsg}`, "success");
+    } catch (err) {
+      showToast("Network error. Try again.", "error");
+    }
+    setPublishingCustom(false);
   }
 
   // Toggle edit access for a code (admin action)
   async function handleToggleAccess(codeToToggle, currentAccess) {
     setTogglingAccess(codeToToggle);
-    showStatus("Updating access...", "");
+    showToast("Updating access...", "info");
     try {
       const res = await fetch("/api/textshare", {
         method: "PUT",
@@ -234,15 +355,14 @@ export default function TextShareTool() {
       });
       const data = await res.json();
       if (!res.ok) {
-        showStatus(data.error || "Failed to update access.", "error");
+        showToast(data.error || "Failed to update access.", "error");
         setTogglingAccess(null);
         return;
       }
-      // Update localStorage
       updateCodeInStorage(codeToToggle, !currentAccess);
-      showStatus(`Access ${!currentAccess ? 'enabled' : 'disabled'} for ${codeToToggle}`, "success");
+      showToast(`Access ${!currentAccess ? 'enabled' : 'disabled'} for ${codeToToggle}`, "success");
     } catch (err) {
-      showStatus("Network error. Try again.", "error");
+      showToast("Network error. Try again.", "error");
     }
     setTogglingAccess(null);
   }
@@ -252,20 +372,18 @@ export default function TextShareTool() {
     if (!confirm(`Delete code "${codeToDelete}"? This cannot be undone.`)) return;
     
     setDeletingCode(codeToDelete);
-    showStatus("Deleting...", "");
+    showToast("Deleting...", "info");
     try {
       const res = await fetch(`/api/textshare?code=${codeToDelete}`, {
         method: "DELETE",
       });
       const data = await res.json();
       if (!res.ok) {
-        showStatus(data.error || "Failed to delete.", "error");
+        showToast(data.error || "Failed to delete.", "error");
         setDeletingCode(null);
         return;
       }
-      // Remove from localStorage
       removeCodeFromStorage(codeToDelete);
-      // Clear if this was the currently displayed code
       if (currentCode === codeToDelete) {
         setFetchedText("");
         setEditedText("");
@@ -275,9 +393,9 @@ export default function TextShareTool() {
       if (code === codeToDelete) {
         setCode("");
       }
-      showStatus("Deleted successfully!", "success");
+      showToast("Deleted successfully!", "success");
     } catch (err) {
-      showStatus("Network error. Try again.", "error");
+      showToast("Network error. Try again.", "error");
     }
     setDeletingCode(null);
   }
@@ -296,8 +414,103 @@ export default function TextShareTool() {
     return date.toLocaleDateString();
   }
 
+  // Get toast icon based on type
+  const getToastIcon = (type) => {
+    switch (type) {
+      case 'success':
+        return <FiCheckCircle />;
+      case 'error':
+        return <FiAlertCircle />;
+      default:
+        return <FiInfo />;
+    }
+  };
+
   return (
     <div className="tst-page-container">
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`tst-toast tst-toast-${toast.type}`}>
+          <div className="tst-toast-icon">
+            {getToastIcon(toast.type)}
+          </div>
+          <span className="tst-toast-message">{toast.message}</span>
+          <button className="tst-toast-close" onClick={dismissToast}>
+            <FiX />
+          </button>
+        </div>
+      )}
+
+      {/* Custom Code Modal */}
+      {showCustomCodeModal && (
+        <div className="tst-modal-overlay" onClick={closeCustomCodeModal}>
+          <div className="tst-modal" onClick={e => e.stopPropagation()}>
+            <div className="tst-modal-header">
+              <h3 className="tst-modal-title">
+                <FiCode /> Create Custom Code
+              </h3>
+              <button className="tst-modal-close" onClick={closeCustomCodeModal}>
+                <FiX />
+              </button>
+            </div>
+            
+            <div className="tst-modal-body">
+              <p className="tst-modal-desc">
+                Choose your own memorable code instead of a random one.
+              </p>
+              
+              <div className="tst-modal-input-group">
+                <input
+                  type="text"
+                  className="tst-modal-input"
+                  placeholder="Enter custom code (e.g., shashi)"
+                  value={customCodeInput}
+                  onChange={e => {
+                    setCustomCodeInput(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''));
+                    setCustomCodeAvailable(null); // Reset availability when input changes
+                  }}
+                  maxLength={20}
+                />
+                <span className="tst-modal-input-hint">
+                  3-20 characters • Letters and numbers only
+                </span>
+              </div>
+
+              {customCodeAvailable !== null && (
+                <div className={`tst-availability-status ${customCodeAvailable ? 'tst-available' : 'tst-taken'}`}>
+                  {customCodeAvailable ? (
+                    <><FiCheckCircle /> Code is available!</>
+                  ) : (
+                    <><FiAlertCircle /> Code is already taken</>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            <div className="tst-modal-footer">
+              {customCodeAvailable ? (
+                <button 
+                  className="tst-btn tst-btn-primary tst-btn-full"
+                  onClick={publishWithCustomCode}
+                  disabled={publishingCustom}
+                >
+                  <FiSend /> {publishingCustom ? 'Publishing...' : 'Publish with This Code'}
+                </button>
+              ) : (
+                <button 
+                  className="tst-btn tst-btn-primary tst-btn-full"
+                  onClick={checkCodeAvailability}
+                  disabled={checkingAvailability || !customCodeInput.trim() || customCodeInput.length < 3}
+                >
+                  <FiRefreshCw className={checkingAvailability ? 'tst-spin' : ''} />
+                  {checkingAvailability ? 'Checking...' : 'Check Availability'}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <header className="tst-header" aria-hidden={true}>
         <FiMessageSquare className="tst-header-icon" />
       </header>
@@ -350,6 +563,9 @@ export default function TextShareTool() {
             <button className="tst-btn tst-btn-primary" onClick={handleGenerate}>
               <FiSend /> Generate Code
             </button>
+            <button className="tst-btn tst-btn-secondary" onClick={openCustomCodeModal}>
+              <FiCode /> Custom Code
+            </button>
             {text && (
               <button
                 className="tst-btn tst-btn-ghost"
@@ -367,7 +583,7 @@ export default function TextShareTool() {
                 <span className="tst-code">{code}</span>
                 <button
                   className="tst-btn tst-btn-icon"
-                  onClick={() => { navigator.clipboard.writeText(code); showStatus("Code copied!", "success"); }}
+                  onClick={() => { navigator.clipboard.writeText(code); showToast("Code copied!", "success"); }}
                   title="Copy code"
                 >
                   <FiCopy />
@@ -428,7 +644,7 @@ export default function TextShareTool() {
                   </button>
                   <button
                     className="tst-btn tst-btn-icon"
-                    onClick={() => { navigator.clipboard.writeText(isEditing ? editedText : fetchedText); showStatus("Text copied!", "success"); }}
+                    onClick={() => { navigator.clipboard.writeText(isEditing ? editedText : fetchedText); showToast("Text copied!", "success"); }}
                     title="Copy text"
                   >
                     <FiCopy />
@@ -489,13 +705,6 @@ export default function TextShareTool() {
           )}
         </section>
 
-        {/* Status Message */}
-        {status && (
-          <div className={`tst-status ${statusType === 'error' ? 'tst-status-error' : statusType === 'success' ? 'tst-status-success' : ''}`}>
-            {status}
-          </div>
-        )}
-
         {/* My Codes Section */}
         {myCodes.length > 0 && (
           <section className="tst-card tst-my-codes-card">
@@ -525,7 +734,7 @@ export default function TextShareTool() {
                     <div className="tst-code-item-actions">
                       <button
                         className="tst-btn tst-btn-icon"
-                        onClick={() => { navigator.clipboard.writeText(item.code); showStatus("Code copied!", "success"); }}
+                        onClick={() => { navigator.clipboard.writeText(item.code); showToast("Code copied!", "success"); }}
                         title="Copy code"
                       >
                         <FiCopy />

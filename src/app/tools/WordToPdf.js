@@ -1,13 +1,11 @@
 // app/components/WordToPdf.jsx
 "use client";
-import { useState, useEffect, useCallback } from "react";
-import { FiUpload, FiDownload, FiTrash2, FiCopy, FiFile, FiList, FiFileText, FiCloud, FiCheckCircle, FiStar } from "react-icons/fi";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { FiUpload, FiDownload, FiTrash2, FiCopy, FiFile, FiList, FiFileText, FiCloud, FiCheckCircle, FiStar, FiAlertCircle, FiInfo, FiX } from "react-icons/fi";
 import "./styles/WordToPdf.css";
 
 export default function FileUploadDownload() {
   const [file, setFile] = useState(null);
-  const [status, setStatus] = useState("");
-  const [statusType, setStatusType] = useState(""); // "success" or "error"
   const [uploadLoading, setUploadLoading] = useState(false);
   const [downloadId, setDownloadId] = useState("");
   const [downloadLoading, setDownloadLoading] = useState(false);
@@ -18,6 +16,10 @@ export default function FileUploadDownload() {
   const [showAll, setShowAll] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragCounter, setDragCounter] = useState(0);
+  
+  // Toast notification state
+  const [toast, setToast] = useState(null);
+  const toastTimeoutRef = useRef(null);
 
   useEffect(() => {
     const storedFileId = localStorage.getItem('uploadedFileId');
@@ -30,6 +32,46 @@ export default function FileUploadDownload() {
     const userFiles = JSON.parse(localStorage.getItem('userUploadedFiles') || '[]');
     setAllFiles(userFiles);
   }, []);
+
+  // Cleanup toast timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Show toast notification
+  const showToast = useCallback((message, type = "info") => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    setToast({ message, type });
+    toastTimeoutRef.current = setTimeout(() => {
+      setToast(null);
+    }, 4000);
+  }, []);
+
+  // Dismiss toast manually
+  const dismissToast = useCallback(() => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    setToast(null);
+  }, []);
+
+  // Get toast icon based on type
+  const getToastIcon = (type) => {
+    switch (type) {
+      case 'success':
+        return <FiCheckCircle />;
+      case 'error':
+        return <FiAlertCircle />;
+      default:
+        return <FiInfo />;
+    }
+  };
 
   // Drag and drop handlers
   const handleDragEnter = useCallback((e) => {
@@ -67,34 +109,28 @@ export default function FileUploadDownload() {
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const droppedFile = e.dataTransfer.files[0];
       setFile(droppedFile);
-      showStatus(`File "${droppedFile.name}" ready to upload!`, "success");
+      showToast(`File "${droppedFile.name}" ready to upload!`, "success");
       setFileId("");
       e.dataTransfer.clearData();
     }
-  }, []);
-
-  function showStatus(message, type = "") {
-    setStatus(message);
-    setStatusType(type);
-  }
+  }, [showToast]);
 
   function onFileChange(e) {
     const f = e.target.files?.[0];
     if (f) {
       setFile(f);
-      showStatus("");
       setFileId("");
     }
   }
 
   async function handleUpload() {
     if (!file) {
-      showStatus("Please choose a file.", "error");
+      showToast("Please choose a file.", "error");
       return;
     }
 
     setUploadLoading(true);
-    showStatus("Uploading...");
+    showToast("Uploading...", "info");
 
     try {
       const fd = new FormData();
@@ -108,7 +144,7 @@ export default function FileUploadDownload() {
       const data = await res.json();
 
       if (!res.ok) {
-        showStatus(data.error || "Upload failed", "error");
+        showToast(data.error || "Upload failed", "error");
         return;
       }
 
@@ -124,10 +160,10 @@ export default function FileUploadDownload() {
       localStorage.setItem('userUploadedFiles', JSON.stringify(updatedFiles));
       setAllFiles(updatedFiles);
 
-      showStatus(`Upload complete! File ID: ${data.fileId}`, "success");
+      showToast(`Upload complete! File ID: ${data.fileId}`, "success");
     } catch (err) {
       console.error("Upload error:", err);
-      showStatus("Network error or server unavailable. Please try again.", "error");
+      showToast("Network error or server unavailable. Please try again.", "error");
     } finally {
       setUploadLoading(false);
     }
@@ -135,14 +171,14 @@ export default function FileUploadDownload() {
 
   async function downloadFile(id) {
     setDownloadLoading(true);
-    showStatus("Fetching download link...");
+    showToast("Fetching download link...", "info");
 
     try {
       const response = await fetch(`/api/file/download/${id}`);
       const data = await response.json();
 
       if (!response.ok) {
-        showStatus(data.error || "Failed to fetch download link", "error");
+        showToast(data.error || "Failed to fetch download link", "error");
         return;
       }
 
@@ -153,11 +189,11 @@ export default function FileUploadDownload() {
       link.click();
       document.body.removeChild(link);
 
-      showStatus("Download initiated successfully!", "success");
+      showToast("Download initiated successfully!", "success");
 
     } catch (err) {
       console.error("Download error:", err);
-      showStatus("Failed to initiate download. Please try again.", "error");
+      showToast("Failed to initiate download. Please try again.", "error");
     } finally {
       setDownloadLoading(false);
     }
@@ -165,7 +201,7 @@ export default function FileUploadDownload() {
 
   async function handleDownload() {
     if (!downloadId.trim()) {
-      showStatus("Please enter a file ID.", "error");
+      showToast("Please enter a file ID.", "error");
       return;
     }
 
@@ -175,13 +211,11 @@ export default function FileUploadDownload() {
 
   function clearUpload() {
     setFile(null);
-    showStatus("");
     setFileId("");
   }
 
   function clearDownload() {
     setDownloadId("");
-    showStatus("");
   }
 
   function removeFile(id) {
@@ -192,7 +226,7 @@ export default function FileUploadDownload() {
 
   function copyToClipboard(text) {
     navigator.clipboard.writeText(text);
-    showStatus("ID copied to clipboard!", "success");
+    showToast("ID copied to clipboard!", "success");
   }
 
   return (
@@ -203,6 +237,19 @@ export default function FileUploadDownload() {
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fud-toast fud-toast-${toast.type}`}>
+          <div className="fud-toast-icon">
+            {getToastIcon(toast.type)}
+          </div>
+          <span className="fud-toast-message">{toast.message}</span>
+          <button className="fud-toast-close" onClick={dismissToast}>
+            <FiX />
+          </button>
+        </div>
+      )}
+
       {/* Drag overlay */}
       {isDragging && (
         <div className="fud-drag-overlay">
@@ -393,13 +440,6 @@ export default function FileUploadDownload() {
             </div>
           </div>
         </section>
-
-        {/* Status Message */}
-        {status && (
-          <div className={`fud-status ${statusType === "success" ? "fud-status-success" : statusType === "error" ? "fud-status-error" : ""}`}>
-            {status}
-          </div>
-        )}
       </main>
     </div>
   );
