@@ -563,6 +563,158 @@
   animation: tst-spin 1s linear infinite;
 }
 
+/* ========== MY CODES SECTION ========== */
+.tst-my-codes-card {
+  border-left: 4px solid var(--tst-orange);
+  background: linear-gradient(135deg, rgba(255,149,0,0.04) 0%, rgba(242,194,0,0.02) 100%);
+  padding: 0;
+  overflow: hidden;
+}
+
+.tst-my-codes-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--tst-text);
+  font-size: 16px;
+  transition: background 0.2s ease;
+}
+
+.tst-my-codes-toggle:hover {
+  background: rgba(255,149,0,0.06);
+}
+
+.tst-my-codes-toggle-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tst-my-codes-toggle-left .tst-section-icon {
+  color: var(--tst-orange);
+}
+
+.tst-my-codes-toggle-left .tst-subtitle {
+  margin: 0;
+  font-size: 16px;
+}
+
+.tst-codes-count {
+  background: var(--tst-orange);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.tst-my-codes-list {
+  padding: 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: tst-slide-down 0.3s ease;
+}
+
+@keyframes tst-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tst-code-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid rgba(242,194,0,0.15);
+  border-radius: 8px;
+  padding: 12px 14px;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.tst-code-item:hover {
+  background: #fff;
+  border-color: rgba(242,194,0,0.3);
+  box-shadow: 0 2px 8px rgba(242,194,0,0.1);
+}
+
+.tst-code-item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.tst-code-item-code {
+  font-family: "SF Mono", Monaco, "Roboto Mono", Consolas, monospace;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--tst-yellow-dark);
+  background: rgba(242,194,0,0.1);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+.tst-code-item-time {
+  font-size: 12px;
+  color: var(--tst-muted);
+}
+
+.tst-code-item-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.tst-code-item .tst-badge {
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+/* Admin action button variants */
+.tst-btn-lock {
+  color: #16a34a;
+}
+
+.tst-btn-lock:hover {
+  background: rgba(34,197,94,0.1);
+  color: #16a34a;
+}
+
+.tst-btn-unlock {
+  color: var(--tst-skyblue-dark);
+}
+
+.tst-btn-unlock:hover {
+  background: rgba(135,206,235,0.15);
+  color: var(--tst-skyblue-dark);
+}
+
+.tst-btn-danger {
+  color: #ef4444;
+}
+
+.tst-btn-danger:hover {
+  background: rgba(239,68,68,0.1);
+  color: #dc2626;
+}
+
 /* ========== RESPONSIVE UPDATES ========== */
 @media (max-width: 500px) {
   .tst-toggle-wrapper {
@@ -592,5 +744,29 @@
   .tst-edit-actions .tst-btn {
     width: 100%;
     justify-content: center;
+  }
+  
+  /* My Codes responsive */
+  .tst-code-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .tst-code-item-left {
+    width: 100%;
+  }
+  
+  .tst-code-item-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .tst-my-codes-toggle {
+    padding: 14px 16px;
+  }
+  
+  .tst-my-codes-toggle-left .tst-subtitle {
+    font-size: 14px;
   }
 }

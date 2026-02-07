@@ -58,22 +58,35 @@ export async function GET(req) {
   }
 }
 
-// PUT - Update text (only if editAccess is true)
+// PUT - Update text or editAccess
 export async function PUT(req) {
   try {
     await connectDB();
-    const { code, text } = await req.json();
+    const { code, text, editAccess, updateAccessOnly } = await req.json();
     
     if (!code || typeof code !== 'string') {
       return NextResponse.json({ error: 'Code is required.' }, { status: 400 });
-    }
-    if (!text || typeof text !== 'string' || text.length === 0) {
-      return NextResponse.json({ error: 'Text is required.' }, { status: 400 });
     }
     
     const doc = await TextShare.findOne({ code });
     if (!doc) {
       return NextResponse.json({ error: 'Text not found.' }, { status: 404 });
+    }
+    
+    // If updating access only (admin action from localStorage)
+    if (updateAccessOnly === true) {
+      doc.editAccess = editAccess === true;
+      await doc.save();
+      return NextResponse.json({ 
+        success: true, 
+        editAccess: doc.editAccess,
+        message: 'Access updated successfully.' 
+      });
+    }
+    
+    // Otherwise updating text content
+    if (!text || typeof text !== 'string' || text.length === 0) {
+      return NextResponse.json({ error: 'Text is required.' }, { status: 400 });
     }
     
     if (!doc.editAccess) {
@@ -89,6 +102,31 @@ export async function PUT(req) {
       message: 'Text updated successfully.' 
     });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update text.' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update.' }, { status: 500 });
+  }
+}
+
+// DELETE - Delete a text share entry
+export async function DELETE(req) {
+  try {
+    await connectDB();
+    const { searchParams } = new URL(req.url);
+    const code = searchParams.get('code');
+    
+    if (!code) {
+      return NextResponse.json({ error: 'Code is required.' }, { status: 400 });
+    }
+    
+    const doc = await TextShare.findOneAndDelete({ code });
+    if (!doc) {
+      return NextResponse.json({ error: 'Text not found.' }, { status: 404 });
+    }
+    
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Text deleted successfully.' 
+    });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to delete text.' }, { status: 500 });
   }
 }

@@ -1,8 +1,10 @@
 // app/tools/TextShareTool.jsx
 "use client";
-import { useState, useRef, useEffect } from "react";
-import { FiCopy, FiSend, FiMessageSquare, FiCode, FiShare2, FiEdit3, FiRefreshCw, FiSave, FiLock, FiUnlock } from "react-icons/fi";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { FiCopy, FiSend, FiMessageSquare, FiCode, FiShare2, FiEdit3, FiRefreshCw, FiSave, FiLock, FiUnlock, FiList, FiTrash2, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import "./styles/TextShare.css";
+
+const STORAGE_KEY = 'textshare_codes';
 
 export default function TextShareTool() {
   const [text, setText] = useState("");
@@ -18,8 +20,66 @@ export default function TextShareTool() {
   const [statusType, setStatusType] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [myCodes, setMyCodes] = useState([]); // User's created codes
+  const [showMyCodes, setShowMyCodes] = useState(false); // Toggle my codes section
+  const [togglingAccess, setTogglingAccess] = useState(null); // Code being toggled
+  const [deletingCode, setDeletingCode] = useState(null); // Code being deleted
   const textareaRef = useRef(null);
   const fetchedTextareaRef = useRef(null);
+
+  // Load codes from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        setMyCodes(JSON.parse(stored));
+      }
+    } catch (err) {
+      console.error('Failed to load codes from localStorage:', err);
+    }
+  }, []);
+
+  // Save codes to localStorage
+  const saveToStorage = useCallback((codes) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(codes));
+    } catch (err) {
+      console.error('Failed to save codes to localStorage:', err);
+    }
+  }, []);
+
+  // Add a new code to localStorage
+  const addCodeToStorage = useCallback((newCode, hasEditAccess) => {
+    const codeEntry = {
+      code: newCode,
+      editAccess: hasEditAccess,
+      createdAt: new Date().toISOString()
+    };
+    const updatedCodes = [codeEntry, ...myCodes];
+    setMyCodes(updatedCodes);
+    saveToStorage(updatedCodes);
+  }, [myCodes, saveToStorage]);
+
+  // Remove a code from localStorage
+  const removeCodeFromStorage = useCallback((codeToRemove) => {
+    const updatedCodes = myCodes.filter(c => c.code !== codeToRemove);
+    setMyCodes(updatedCodes);
+    saveToStorage(updatedCodes);
+  }, [myCodes, saveToStorage]);
+
+  // Update editAccess for a code in localStorage
+  const updateCodeInStorage = useCallback((codeToUpdate, newEditAccess) => {
+    const updatedCodes = myCodes.map(c => 
+      c.code === codeToUpdate ? { ...c, editAccess: newEditAccess } : c
+    );
+    setMyCodes(updatedCodes);
+    saveToStorage(updatedCodes);
+  }, [myCodes, saveToStorage]);
+
+  // Check if a code was created by this user
+  const isMyCode = useCallback((codeToCheck) => {
+    return myCodes.some(c => c.code === codeToCheck);
+  }, [myCodes]);
 
   // Auto-expand textarea
   const autoExpand = (ref) => {
@@ -64,6 +124,8 @@ export default function TextShareTool() {
         return;
       }
       setCode(data.code);
+      // Save to localStorage
+      addCodeToStorage(data.code, editAccess);
       const accessMsg = editAccess ? "Anyone can view AND edit!" : "View-only access.";
       showStatus(`Code generated! ${accessMsg}`, "success");
     } catch (err) {
@@ -154,6 +216,84 @@ export default function TextShareTool() {
     setEditedText(fetchedText);
     setIsEditing(false);
     showStatus("Edit cancelled.", "");
+  }
+
+  // Toggle edit access for a code (admin action)
+  async function handleToggleAccess(codeToToggle, currentAccess) {
+    setTogglingAccess(codeToToggle);
+    showStatus("Updating access...", "");
+    try {
+      const res = await fetch("/api/textshare", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          code: codeToToggle, 
+          editAccess: !currentAccess,
+          updateAccessOnly: true 
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showStatus(data.error || "Failed to update access.", "error");
+        setTogglingAccess(null);
+        return;
+      }
+      // Update localStorage
+      updateCodeInStorage(codeToToggle, !currentAccess);
+      showStatus(`Access ${!currentAccess ? 'enabled' : 'disabled'} for ${codeToToggle}`, "success");
+    } catch (err) {
+      showStatus("Network error. Try again.", "error");
+    }
+    setTogglingAccess(null);
+  }
+
+  // Delete a code (admin action)
+  async function handleDeleteCode(codeToDelete) {
+    if (!confirm(`Delete code "${codeToDelete}"? This cannot be undone.`)) return;
+    
+    setDeletingCode(codeToDelete);
+    showStatus("Deleting...", "");
+    try {
+      const res = await fetch(`/api/textshare?code=${codeToDelete}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showStatus(data.error || "Failed to delete.", "error");
+        setDeletingCode(null);
+        return;
+      }
+      // Remove from localStorage
+      removeCodeFromStorage(codeToDelete);
+      // Clear if this was the currently displayed code
+      if (currentCode === codeToDelete) {
+        setFetchedText("");
+        setEditedText("");
+        setCurrentCode("");
+        setFetchCode("");
+      }
+      if (code === codeToDelete) {
+        setCode("");
+      }
+      showStatus("Deleted successfully!", "success");
+    } catch (err) {
+      showStatus("Network error. Try again.", "error");
+    }
+    setDeletingCode(null);
+  }
+
+  // Format time ago
+  function formatTimeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return date.toLocaleDateString();
   }
 
   return (
@@ -354,6 +494,74 @@ export default function TextShareTool() {
           <div className={`tst-status ${statusType === 'error' ? 'tst-status-error' : statusType === 'success' ? 'tst-status-success' : ''}`}>
             {status}
           </div>
+        )}
+
+        {/* My Codes Section */}
+        {myCodes.length > 0 && (
+          <section className="tst-card tst-my-codes-card">
+            <button 
+              className="tst-my-codes-toggle"
+              onClick={() => setShowMyCodes(!showMyCodes)}
+            >
+              <div className="tst-my-codes-toggle-left">
+                <FiList className="tst-section-icon" />
+                <h2 className="tst-subtitle">My Codes</h2>
+                <span className="tst-codes-count">{myCodes.length}</span>
+              </div>
+              {showMyCodes ? <FiChevronUp /> : <FiChevronDown />}
+            </button>
+            
+            {showMyCodes && (
+              <div className="tst-my-codes-list">
+                {myCodes.map((item) => (
+                  <div key={item.code} className="tst-code-item">
+                    <div className="tst-code-item-left">
+                      <span className="tst-code-item-code">{item.code}</span>
+                      <span className={`tst-badge ${item.editAccess ? 'tst-badge-editable' : 'tst-badge-readonly'}`}>
+                        {item.editAccess ? <><FiUnlock /> Editable</> : <><FiLock /> Read-only</>}
+                      </span>
+                      <span className="tst-code-item-time">{formatTimeAgo(item.createdAt)}</span>
+                    </div>
+                    <div className="tst-code-item-actions">
+                      <button
+                        className="tst-btn tst-btn-icon"
+                        onClick={() => { navigator.clipboard.writeText(item.code); showStatus("Code copied!", "success"); }}
+                        title="Copy code"
+                      >
+                        <FiCopy />
+                      </button>
+                      <button
+                        className={`tst-btn tst-btn-icon ${item.editAccess ? 'tst-btn-unlock' : 'tst-btn-lock'}`}
+                        onClick={() => handleToggleAccess(item.code, item.editAccess)}
+                        disabled={togglingAccess === item.code}
+                        title={item.editAccess ? 'Disable edit access' : 'Enable edit access'}
+                      >
+                        {togglingAccess === item.code ? (
+                          <FiRefreshCw className="tst-spin" />
+                        ) : item.editAccess ? (
+                          <FiLock />
+                        ) : (
+                          <FiUnlock />
+                        )}
+                      </button>
+                      <button
+                        className="tst-btn tst-btn-icon tst-btn-danger"
+                        onClick={() => handleDeleteCode(item.code)}
+                        disabled={deletingCode === item.code}
+                        title="Delete"
+                      >
+                        {deletingCode === item.code ? (
+                          <FiRefreshCw className="tst-spin" />
+                        ) : (
+                          <FiTrash2 />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
         )}
 
         {/* Notice Card */}
