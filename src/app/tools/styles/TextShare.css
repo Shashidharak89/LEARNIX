@@ -1192,44 +1192,40 @@
   box-shadow: none;
 }
 
-.tst-fullscreen-footer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 16px 24px;
-  background: linear-gradient(135deg, rgba(242, 194, 0, 0.04) 0%, rgba(255, 149, 0, 0.02) 100%);
-  border-top: 1px solid rgba(242, 194, 0, 0.15);
-  flex-shrink: 0;
+/* Fullscreen button variants */
+.tst-btn-save {
+  background: rgba(34, 197, 94, 0.12) !important;
+  color: #16a34a !important;
+}
+
+.tst-btn-save:hover {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #16a34a !important;
+}
+
+.tst-btn-cancel {
+  background: rgba(239, 68, 68, 0.12) !important;
+  color: #ef4444 !important;
+}
+
+.tst-btn-cancel:hover {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #dc2626 !important;
+}
+
+.tst-btn-edit {
+  background: rgba(242, 194, 0, 0.12) !important;
+  color: var(--tst-yellow-dark) !important;
+}
+
+.tst-btn-edit:hover {
+  background: rgba(242, 194, 0, 0.2) !important;
+  color: var(--tst-yellow-dark) !important;
 }
 
 /* Fullscreen toast positioning */
 .tst-toast-fullscreen {
   z-index: 10001;
-}
-
-/* Fullscreen keyboard hint */
-.tst-keyboard-hint {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: rgba(242, 194, 0, 0.1);
-  border-radius: 6px;
-  font-size: 12px;
-  color: var(--tst-muted);
-}
-
-.tst-keyboard-hint kbd {
-  display: inline-block;
-  padding: 2px 6px;
-  background: #fff;
-  border: 1px solid rgba(242, 194, 0, 0.3);
-  border-radius: 4px;
-  font-family: "SF Mono", Monaco, Consolas, monospace;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--tst-text);
 }
 
 /* Fullscreen responsive */
@@ -1249,6 +1245,7 @@
   .tst-fullscreen-header-right {
     justify-content: flex-end;
     width: 100%;
+    flex-wrap: wrap;
   }
   
   .tst-fullscreen-code {
@@ -1266,15 +1263,6 @@
   .tst-textarea-fullscreen {
     padding: 16px;
     font-size: 15px;
-  }
-  
-  .tst-fullscreen-footer {
-    padding: 12px 16px;
-    flex-wrap: wrap;
-  }
-  
-  .tst-keyboard-hint {
-    display: none;
   }
 }
 

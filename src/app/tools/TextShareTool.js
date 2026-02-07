@@ -61,29 +61,52 @@ export default function TextShareTool() {
     };
   }, []);
 
-  // Keyboard shortcut handler for Ctrl+S (save)
+  // Keyboard shortcuts handler
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Check for Ctrl+S or Cmd+S
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault(); // Prevent browser save dialog
-        
-        // Only trigger save if:
-        // 1. Fullscreen is active
-        // 2. User has edit access
-        // 3. Currently in editing mode
-        if (isFullScreen && fetchedEditAccess && isEditing) {
+      // Only work when fullscreen is active
+      if (!isFullScreen) return;
+
+      // Ctrl+S or Cmd+S - Save changes
+      if ((e.ctrlKey || e.metaKey) && e.key === 's' && !e.shiftKey) {
+        e.preventDefault();
+        if (fetchedEditAccess && isEditing) {
           handleSaveEdit();
         }
       }
+
+      // Ctrl+Shift+C - Copy all text
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C') {
+        e.preventDefault();
+        handleCopy(isEditing ? editedText : fetchedText);
+      }
+
+      // Ctrl+B - Cancel changes (only in edit mode)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'b' && !e.shiftKey) {
+        e.preventDefault();
+        if (fetchedEditAccess && isEditing) {
+          handleCancelEdit();
+        }
+      }
+
+      // Ctrl+R - Refresh
+      if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+        e.preventDefault();
+        handleRefresh();
+      }
+
+      // Windows Key + Down Arrow or Escape - Exit fullscreen
+      if ((e.metaKey && e.key === 'ArrowDown') || e.key === 'Escape') {
+        e.preventDefault();
+        setIsFullScreen(false);
+      }
     };
 
-    // Add event listener when fullscreen and editing
-    if (isFullScreen && fetchedEditAccess && isEditing) {
+    if (isFullScreen) {
       window.addEventListener('keydown', handleKeyDown);
       return () => window.removeEventListener('keydown', handleKeyDown);
     }
-  }, [isFullScreen, fetchedEditAccess, isEditing]); // Dependencies for the effect
+  }, [isFullScreen, fetchedEditAccess, isEditing, editedText, fetchedText]); // Dependencies for the effect
 
   // Show toast notification
   const showToast = useCallback((message, type = "info") => {
@@ -261,7 +284,7 @@ export default function TextShareTool() {
         return;
       }
       setFetchedText(data.text);
-      setIsEditing(false);
+      // Keep edit mode ON after saving (removed setIsEditing(false))
       showToast("Changes saved successfully!", "success");
     } catch (err) {
       showToast("Network error. Try again.", "error");
@@ -567,32 +590,61 @@ export default function TextShareTool() {
                 <span className="tst-fullscreen-code-label">Code:</span>
                 <span className="tst-fullscreen-code-value">{currentCode}</span>
               </div>
-              {fetchedEditAccess && isEditing && (
-                <div className="tst-keyboard-hint">
-                  <kbd>Ctrl</kbd>+<kbd>S</kbd> to save
-                </div>
-              )}
             </div>
             <div className="tst-fullscreen-header-right">
               <button
                 className="tst-btn tst-btn-icon"
                 onClick={handleRefresh}
                 disabled={refreshing}
-                title="Refresh"
+                title="Refresh (Ctrl+R)"
               >
                 <FiRefreshCw className={refreshing ? 'tst-spin' : ''} />
               </button>
               <button
                 className="tst-btn tst-btn-icon"
                 onClick={() => handleCopy(isEditing ? editedText : fetchedText)}
-                title="Copy text"
+                title="Copy All (Ctrl+Shift+C)"
               >
                 <FiCopy />
               </button>
+              
+              {/* Edit/Save/Cancel buttons - only show if has edit access */}
+              {fetchedEditAccess && (
+                <>
+                  {isEditing ? (
+                    <>
+                      <button 
+                        className="tst-btn tst-btn-icon tst-btn-save" 
+                        onClick={handleSaveEdit}
+                        disabled={saving}
+                        title="Save Changes (Ctrl+S)"
+                      >
+                        <FiSave />
+                      </button>
+                      <button 
+                        className="tst-btn tst-btn-icon tst-btn-cancel" 
+                        onClick={handleCancelEdit}
+                        title="Cancel Changes (Ctrl+B)"
+                      >
+                        <FiX />
+                      </button>
+                    </>
+                  ) : (
+                    <button 
+                      className="tst-btn tst-btn-icon tst-btn-edit" 
+                      onClick={() => setIsEditing(true)}
+                      title="Edit Text"
+                    >
+                      <FiEdit3 />
+                    </button>
+                  )}
+                </>
+              )}
+              
               <button
                 className="tst-btn tst-btn-icon"
                 onClick={() => setIsFullScreen(false)}
-                title="Exit Fullscreen"
+                title="Exit Fullscreen (Esc or Win+Down)"
               >
                 <FiMinimize />
               </button>
@@ -619,36 +671,6 @@ export default function TextShareTool() {
               />
             )}
           </div>
-
-          {/* Fullscreen Footer with Edit Actions */}
-          {fetchedEditAccess && (
-            <div className="tst-fullscreen-footer">
-              {isEditing ? (
-                <>
-                  <button 
-                    className="tst-btn tst-btn-primary" 
-                    onClick={handleSaveEdit}
-                    disabled={saving}
-                  >
-                    <FiSave /> {saving ? 'Saving...' : 'Save Changes'}
-                  </button>
-                  <button 
-                    className="tst-btn tst-btn-ghost" 
-                    onClick={handleCancelEdit}
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <button 
-                  className="tst-btn tst-btn-secondary" 
-                  onClick={() => setIsEditing(true)}
-                >
-                  <FiEdit3 /> Edit Text
-                </button>
-              )}
-            </div>
-          )}
         </div>
       )}
 
