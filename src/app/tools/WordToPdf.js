@@ -1,6 +1,6 @@
 // app/components/WordToPdf.jsx
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { FiUpload, FiDownload, FiTrash2, FiCopy, FiFile, FiList } from "react-icons/fi";
 import "./styles/WordToPdf.css";
 
@@ -16,6 +16,8 @@ export default function FileUploadDownload() {
   const [persistentFileName, setPersistentFileName] = useState("");
   const [allFiles, setAllFiles] = useState([]);
   const [showAll, setShowAll] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragCounter, setDragCounter] = useState(0);
 
   useEffect(() => {
     const storedFileId = localStorage.getItem('uploadedFileId');
@@ -27,6 +29,48 @@ export default function FileUploadDownload() {
 
     const userFiles = JSON.parse(localStorage.getItem('userUploadedFiles') || '[]');
     setAllFiles(userFiles);
+  }, []);
+
+  // Drag and drop handlers
+  const handleDragEnter = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragCounter(prev => prev + 1);
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setIsDragging(true);
+    }
+  }, []);
+
+  const handleDragLeave = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragCounter(prev => {
+      const newCount = prev - 1;
+      if (newCount === 0) {
+        setIsDragging(false);
+      }
+      return newCount;
+    });
+  }, []);
+
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    setDragCounter(0);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const droppedFile = e.dataTransfer.files[0];
+      setFile(droppedFile);
+      showStatus(`File "${droppedFile.name}" ready to upload!`, "success");
+      setFileId("");
+      e.dataTransfer.clearData();
+    }
   }, []);
 
   function showStatus(message, type = "") {
@@ -152,7 +196,24 @@ export default function FileUploadDownload() {
   }
 
   return (
-    <div className="fud-page-container">
+    <div 
+      className={`fud-page-container ${isDragging ? 'fud-dragging' : ''}`}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
+      {/* Drag overlay */}
+      {isDragging && (
+        <div className="fud-drag-overlay">
+          <div className="fud-drag-content">
+            <FiUpload className="fud-drag-icon" />
+            <h3>Drop your file here</h3>
+            <p>Release to upload your file</p>
+          </div>
+        </div>
+      )}
+
       <header className="fud-header" aria-hidden={true}>
         <FiFile className="fud-header-icon" />
       </header>
