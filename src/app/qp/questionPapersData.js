@@ -61,10 +61,17 @@ const questionPapersData =
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763211877/users/NU25MCA117/Previous%20year%20Question%20papers/MSE-2%202024/hr0douieu0b51v6fdtut.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763211883/users/NU25MCA117/Previous%20year%20Question%20papers/MSE-2%202024/zgvcfizfhde84i9gacvp.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763211889/users/NU25MCA117/Previous%20year%20Question%20papers/MSE-2%202024/lwsyqdqozzmov5kvkqua.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763211894/users/NU25MCA117/Previous%20year%20Question%20papers/MSE-2%202024/rrbejkdy4cc7gyvs3d7l.jpg"
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763211894/users/NU25MCA117/Previous%20year%20Question%20papers/MSE-2%202024/rrbejkdy4cc7gyvs3d7l.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585370/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/1-sem%20MSE%202024/kyj5hxbrqqfodbqzktfj.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585380/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/1-sem%20MSE%202024/dolkqzr4pntnbom6ne7t.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585394/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/1-sem%20MSE%202024/jvtatg2unebthkiyuldr.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585402/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/1-sem%20MSE%202024/gscz3kf0zqffhyqebynz.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585411/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/1-sem%20MSE%202024/dyfwdaiaubek1vkkc58n.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585421/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/1-sem%20MSE%202024/uj6q3xkptfftrfkp0grz.jpg"
                         ],
                         visitlink: [
-                            "6939bedaaae0ac272bda7cc3"
+                            "6939bedaaae0ac272bda7cc3",
+                            "6939bed9aae0ac272bda7caf"
                         ]
                     },
                     final:
@@ -90,6 +97,38 @@ const questionPapersData =
                 },
                 {
                     batchname: "2025-2027",
+                    mse1:
+                    {
+                        id: "QP0109",
+                        imageurls: [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759493478/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-1%20Oct/mi2dclhgiubjssi9sxbj.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759493641/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-1%20Oct/l5v1occrh5jgc4yxxfju.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759749586/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-1%20Oct/ponulb9ixnhzcrm7y8ef.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759749588/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-1%20Oct/sj6m47qf3kiit87em0rd.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759749683/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-1%20Oct/xcqxa5ey4f4kaamnk04i.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759749701/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-1%20Oct/ykubyze3qdl8lj3kgpqs.jpg"
+                        ],
+                        visitlink: [
+                            "6939bed8aae0ac272bda7cad"
+                        ]
+                    },
+                    mse2:
+                    {
+                        id: "QP0108",
+                        imageurls: [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763962533/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-2%20Nov%202025/lofotapdd4wnytsnyf6h.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763962540/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-2%20Nov%202025/wi8rhothlw9a50zbrbij.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763962756/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-2%20Nov%202025/w6mnr53wwuv9rxcvlohj.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763962763/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-2%20Nov%202025/utjuleg7eaqak2rpnmaf.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763962770/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-2%20Nov%202025/xfn0pmziohflquvvxzdf.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763962779/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-2%20Nov%202025/riwdaglv5ojxncjmbb3h.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763962796/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-2%20Nov%202025/ufwciyaxkbs8cmgjwewc.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763962927/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-2%20Nov%202025/fqhi4wm4pdkppwayxtka.jpg"
+                        ],
+                        visitlink: [
+                            "6939bed9aae0ac272bda7cb3"
+                        ]
+                    },
                     final:
                     {
                         id: "QP0106",
@@ -209,10 +248,19 @@ const questionPapersData =
                         imageurls: [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770307378/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2024-26%5D/tp8glu9rmddhrhx70k1d.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770307408/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2024-26%5D/p2lvouziiblfsnyqfef8.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1770307446/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2024-26%5D/wa6z3de3lohlvybiksqv.jpg"
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1770307446/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2024-26%5D/wa6z3de3lohlvybiksqv.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585514/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/2-sem%20MSE-1%202024/ehbfy9mqgihaxgxecubp.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585528/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/2-sem%20MSE-1%202024/xutb8mi3iuw4pvym017l.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585538/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/2-sem%20MSE-1%202024/mnfrasxsnqnfbwb9l9mn.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585542/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/2-sem%20MSE-1%202024/s7pqavq9qvw1jxtw9ctb.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585547/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/2-sem%20MSE-1%202024/dxx5wczsa4pqqostaztw.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585556/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/2-sem%20MSE-1%202024/obrwb6nlhrwjf9rai7ez.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585561/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/2-sem%20MSE-1%202024/pqdsrffzcjszkasnyipq.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585566/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/2-sem%20MSE-1%202024/yndbjuymezev9bjd58tf.jpg"
                         ],
                         visitlink: [
-                            "6984a716645014da2c7d84e4"
+                            "6984a716645014da2c7d84e4",
+                            "6939bed9aae0ac272bda7cb1"
                         ]
                     },
                     mse2:
