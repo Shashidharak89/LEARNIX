@@ -1,6 +1,6 @@
 // app/tools/ToolsInfo.jsx
 "use client";
-import { FiFile, FiInfo, FiUpload, FiDownload, FiShare2, FiClock, FiShield, FiAlertCircle, FiTool, FiMessageSquare, FiEdit3, FiCode, FiLock, FiUnlock, FiRefreshCw, FiCopy } from "react-icons/fi";
+import { FiFile, FiInfo, FiUpload, FiDownload, FiShare2, FiClock, FiShield, FiAlertCircle, FiTool, FiMessageSquare, FiEdit3, FiCode, FiLock, FiUnlock, FiRefreshCw, FiCopy, FiKey } from "react-icons/fi";
 import "./styles/ToolsInfo.css";
 
 export default function ToolsInfo() {
@@ -297,6 +297,24 @@ export default function ToolsInfo() {
               <li>Publish your text with your custom code</li>
             </ul>
             <p className="ti-meta">Example: Use "shashi" instead of "abc123" - easier to remember and share!</p>
+          </section>
+
+          {/* Keyboard Shortcuts (Fullscreen) */}
+          <section className="ti-card" aria-labelledby="ti-shortcuts-2">
+            <div className="ti-section-header">
+              <FiKey className="ti-section-icon ti-icon-textshare" />
+              <h3 id="ti-shortcuts-2" className="ti-subtitle">Keyboard Shortcuts (Fullscreen)</h3>
+            </div>
+            <p className="ti-plain">
+              When you open the retrieved text in Full Screen, the following keyboard shortcuts are available to speed up editing and navigation:
+            </p>
+            <ul className="ti-list">
+              <li><strong>Ctrl + S</strong>: Save changes (Changes will be saved in the server)</li>
+              <li><strong>Ctrl + Shift + C</strong>: Copy all text from the text area to clipboard</li>
+              <li><strong>Ctrl + B</strong>: Exit edit mode (cancel editing / close editor)</li>
+              <li><strong>Ctrl + R</strong>: Refresh the record (fetch latest text)</li>
+            </ul>
+            <p className="ti-meta">Shortcuts work while the Full Screen overlay is active and the textarea has focus. Toast messages remain visible in Full Screen.</p>
           </section>
 
           {/* Important Notice */}
