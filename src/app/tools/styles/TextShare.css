@@ -1,14 +1,17 @@
 /* styles/TextShare.css
-   Colors: blue (#0b74ff), darker blue (#04518a), yellow (#f2c200), black and white
+   Colors: 70% Yellow (#f2c200, #d4a800), 30% Orange (#ff9500), with Sky Blue accents (#87ceeb)
    Matching the Privacy Policy page style pattern
 */
 
 :root {
   --tst-bg: #ffffff;
   --tst-text: #0b0b0b;
-  --tst-blue: #0b74ff;
-  --tst-blue-dark: #04518a;
   --tst-yellow: #f2c200;
+  --tst-yellow-dark: #d4a800;
+  --tst-orange: #ff9500;
+  --tst-orange-dark: #e68600;
+  --tst-skyblue: #87ceeb;
+  --tst-skyblue-dark: #5fb4d9;
   --tst-muted: #6b7280;
   --tst-gap: 20px;
   --tst-radius: 10px;
@@ -35,7 +38,7 @@
 }
 
 .tst-header-icon {
-  color: var(--tst-blue);
+  color: var(--tst-yellow);
   font-size: 36px;
   opacity: 0.92;
   animation: tst-icon-pop 420ms var(--tst-ease) both;
@@ -56,10 +59,10 @@
 /* each section card */
 .tst-card {
   background: #fff;
-  border: 1px solid rgba(4,81,138,0.06);
+  border: 1px solid rgba(242,194,0,0.12);
   border-radius: var(--tst-radius);
   padding: 18px 20px;
-  box-shadow: 0 6px 18px rgba(4,81,138,0.04);
+  box-shadow: 0 6px 18px rgba(242,194,0,0.08);
   transform: translateY(8px);
   opacity: 0;
   animation: tst-card-appear 420ms var(--tst-ease) forwards;
@@ -74,7 +77,8 @@
 
 /* intro card accent */
 .tst-intro {
-  border-left: 4px solid var(--tst-blue);
+  border-left: 4px solid var(--tst-yellow);
+  background: linear-gradient(135deg, rgba(242,194,0,0.06) 0%, rgba(135,206,235,0.03) 100%);
   position: relative;
 }
 
@@ -84,14 +88,14 @@
   right: 20px;
   font-size: 48px;
   font-weight: 800;
-  color: rgba(11,116,255,0.1);
+  color: rgba(242,194,0,0.2);
   line-height: 1;
 }
 
 /* notice card */
 .tst-notice-card {
-  border-left: 4px solid var(--tst-yellow);
-  background: rgba(242,194,0,0.03);
+  border-left: 4px solid var(--tst-skyblue);
+  background: rgba(135,206,235,0.06);
 }
 
 .tst-notice {
@@ -114,21 +118,21 @@
 }
 
 .tst-section-icon {
-  color: var(--tst-blue);
+  color: var(--tst-yellow-dark);
   font-size: 22px;
   flex-shrink: 0;
 }
 
 /* titles & typography */
 .tst-title {
-  color: var(--tst-blue);
+  color: var(--tst-yellow-dark);
   font-size: 28px;
   margin: 0 0 6px 0;
   line-height: 1.05;
 }
 
 .tst-subtitle {
-  color: var(--tst-blue-dark);
+  color: var(--tst-orange-dark);
   font-size: 18px;
   margin: 0;
 }
@@ -157,9 +161,9 @@
   min-height: 100px;
   max-height: 90vh;
   padding: 14px 16px;
-  border: 2px dashed rgba(11,116,255,0.2);
+  border: 2px dashed rgba(242,194,0,0.35);
   border-radius: 10px;
-  background: rgba(11,116,255,0.02);
+  background: rgba(242,194,0,0.03);
   font-size: 15px;
   font-family: inherit;
   color: var(--tst-text);
@@ -171,9 +175,9 @@
 
 .tst-textarea:focus {
   outline: none;
-  border-color: var(--tst-blue);
+  border-color: var(--tst-skyblue);
   background: #fff;
-  box-shadow: 0 0 0 4px rgba(11,116,255,0.08);
+  box-shadow: 0 0 0 4px rgba(135,206,235,0.15);
 }
 
 .tst-textarea::placeholder {
@@ -181,8 +185,9 @@
 }
 
 .tst-textarea-readonly {
-  background: rgba(11,116,255,0.04);
+  background: rgba(242,194,0,0.05);
   border-style: solid;
+  border-color: rgba(242,194,0,0.25);
   cursor: default;
 }
 
@@ -210,15 +215,16 @@
 }
 
 .tst-btn-primary {
-  background: var(--tst-blue);
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(11,116,255,0.25);
+  background: linear-gradient(135deg, var(--tst-yellow), var(--tst-yellow-dark));
+  color: #000;
+  box-shadow: 0 4px 14px rgba(242,194,0,0.35);
 }
 
 .tst-btn-primary:hover {
-  background: var(--tst-blue-dark);
+  background: linear-gradient(135deg, var(--tst-orange), var(--tst-orange-dark));
+  color: #fff;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(11,116,255,0.35);
+  box-shadow: 0 6px 20px rgba(255,149,0,0.4);
 }
 
 .tst-btn-primary:active {
@@ -238,13 +244,13 @@
 
 .tst-btn-icon {
   padding: 10px;
-  background: rgba(11,116,255,0.08);
-  color: var(--tst-blue);
+  background: rgba(242,194,0,0.12);
+  color: var(--tst-yellow-dark);
   border-radius: 8px;
 }
 
 .tst-btn-icon:hover {
-  background: var(--tst-blue);
+  background: var(--tst-skyblue);
   color: #fff;
 }
 
@@ -252,9 +258,9 @@
 .tst-result-box {
   margin-top: 16px;
   padding: 16px;
-  background: rgba(11,116,255,0.04);
+  background: linear-gradient(135deg, rgba(242,194,0,0.08) 0%, rgba(135,206,235,0.04) 100%);
   border-radius: 10px;
-  border: 1px solid rgba(11,116,255,0.1);
+  border: 1px solid rgba(242,194,0,0.2);
   animation: tst-fade-in 300ms ease;
 }
 
@@ -277,12 +283,12 @@
   font-family: 'SF Mono', Monaco, Consolas, monospace;
   font-size: 24px;
   font-weight: 700;
-  color: var(--tst-blue);
+  color: var(--tst-yellow-dark);
   letter-spacing: 2px;
   background: #fff;
   padding: 8px 16px;
   border-radius: 6px;
-  border: 1px solid rgba(11,116,255,0.15);
+  border: 1px solid rgba(242,194,0,0.25);
 }
 
 /* Input group */
@@ -297,7 +303,7 @@
   flex: 1;
   min-width: 200px;
   padding: 12px 16px;
-  border: 2px solid rgba(11,116,255,0.15);
+  border: 2px solid rgba(242,194,0,0.25);
   border-radius: 8px;
   font-size: 16px;
   font-family: inherit;
@@ -308,8 +314,8 @@
 
 .tst-input:focus {
   outline: none;
-  border-color: var(--tst-blue);
-  box-shadow: 0 0 0 4px rgba(11,116,255,0.08);
+  border-color: var(--tst-skyblue);
+  box-shadow: 0 0 0 4px rgba(135,206,235,0.15);
 }
 
 .tst-input::placeholder {
@@ -322,9 +328,9 @@
 .tst-fetched-container {
   margin-top: 20px;
   padding: 16px;
-  background: rgba(11,116,255,0.02);
+  background: rgba(242,194,0,0.04);
   border-radius: 10px;
-  border: 1px solid rgba(11,116,255,0.08);
+  border: 1px solid rgba(242,194,0,0.15);
   animation: tst-slide-up 300ms var(--tst-ease);
 }
 
@@ -338,7 +344,7 @@
 .tst-fetched-label {
   font-size: 14px;
   font-weight: 600;
-  color: var(--tst-blue-dark);
+  color: var(--tst-skyblue-dark);
 }
 
 /* Status message */
@@ -367,13 +373,13 @@
 .tst-card:hover {
   transform: translateY(-2px);
   transition: transform 260ms var(--tst-ease), box-shadow 260ms var(--tst-ease);
-  box-shadow: 0 12px 30px rgba(4,81,138,0.08);
+  box-shadow: 0 12px 30px rgba(242,194,0,0.12);
 }
 
 /* focus outlines for accessibility */
 .tst-card :focus,
 .tst-title:focus {
-  outline: 3px solid rgba(11,116,255,0.12);
+  outline: 3px solid rgba(242,194,0,0.2);
   outline-offset: 3px;
   border-radius: 8px;
 }
