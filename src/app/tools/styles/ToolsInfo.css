@@ -1,0 +1,415 @@
+/* styles/ToolsInfo.css
+   Colors: blue (#0b74ff), darker blue (#04518a), yellow (#f2c200), black and white
+   Container for all tools information
+*/
+
+:root {
+  --ti-bg: #ffffff;
+  --ti-text: #0b0b0b;
+  --ti-blue: #0b74ff;
+  --ti-blue-dark: #04518a;
+  --ti-yellow: #f2c200;
+  --ti-muted: #6b7280;
+  --ti-gap: 20px;
+  --ti-radius: 10px;
+  --ti-ease: cubic-bezier(.2,.9,.3,1);
+}
+
+.ti-page-container {
+  background: var(--ti-bg);
+  color: var(--ti-text);
+  min-height: auto;
+  display: flex;
+  flex-direction: column;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* decorative header icon */
+.ti-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 18px 28px 0 28px;
+}
+
+.ti-header-icon {
+  color: var(--ti-blue);
+  font-size: 36px;
+  opacity: 0.92;
+  animation: ti-icon-pop 420ms var(--ti-ease) both;
+}
+
+/* main layout */
+.ti-main {
+  width: 90%;
+  max-width: 96%;
+  margin: 12px auto 36px;
+  padding: 0 18px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ti-gap);
+  box-sizing: border-box;
+}
+
+/* Main intro card */
+.ti-main-intro {
+  background: linear-gradient(135deg, rgba(11,116,255,0.08) 0%, rgba(4,81,138,0.04) 100%);
+  border-left: 4px solid var(--ti-blue);
+  text-align: center;
+  padding: 24px 20px;
+}
+
+.ti-main-title {
+  color: var(--ti-blue);
+  font-size: 32px;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+  line-height: 1.1;
+}
+
+/* Tool container - groups all cards for a single tool */
+.ti-tool-container {
+  background: rgba(11,116,255,0.02);
+  border: 1px solid rgba(4,81,138,0.08);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: ti-container-appear 500ms var(--ti-ease) forwards;
+  animation-delay: 150ms;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.ti-tool-container:nth-child(2) { animation-delay: 150ms; }
+.ti-tool-container:nth-child(3) { animation-delay: 300ms; }
+.ti-tool-container:nth-child(4) { animation-delay: 450ms; }
+.ti-tool-container:nth-child(5) { animation-delay: 600ms; }
+
+/* Tool header with badge */
+.ti-tool-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid rgba(11,116,255,0.1);
+  margin-bottom: 4px;
+}
+
+.ti-tool-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, var(--ti-blue), var(--ti-blue-dark));
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(11,116,255,0.25);
+}
+
+.ti-tool-title {
+  color: var(--ti-blue-dark);
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* each section card */
+.ti-card {
+  background: #fff;
+  border: 1px solid rgba(4,81,138,0.06);
+  border-radius: var(--ti-radius);
+  padding: 18px 20px;
+  box-shadow: 0 6px 18px rgba(4,81,138,0.04);
+  transform: translateY(8px);
+  opacity: 0;
+  animation: ti-card-appear 420ms var(--ti-ease) forwards;
+}
+
+/* card stagger animation within tool container */
+.ti-tool-container .ti-card:nth-child(1) { animation-delay: 200ms; }
+.ti-tool-container .ti-card:nth-child(2) { animation-delay: 270ms; }
+.ti-tool-container .ti-card:nth-child(3) { animation-delay: 340ms; }
+.ti-tool-container .ti-card:nth-child(4) { animation-delay: 410ms; }
+.ti-tool-container .ti-card:nth-child(5) { animation-delay: 480ms; }
+.ti-tool-container .ti-card:nth-child(6) { animation-delay: 550ms; }
+.ti-tool-container .ti-card:nth-child(7) { animation-delay: 620ms; }
+
+/* intro card accent */
+.ti-intro {
+  border-left: 4px solid var(--ti-blue);
+  position: relative;
+}
+
+/* warning card */
+.ti-warning-card {
+  border-left: 4px solid var(--ti-yellow);
+  background: rgba(242,194,0,0.03);
+}
+
+.ti-warning-icon {
+  color: var(--ti-yellow) !important;
+}
+
+/* section header with icon */
+.ti-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.ti-section-icon {
+  color: var(--ti-blue);
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+/* titles & typography */
+.ti-subtitle {
+  color: var(--ti-blue-dark);
+  font-size: 18px;
+  margin: 0;
+}
+
+/* paragraphs */
+.ti-plain {
+  color: var(--ti-text);
+  font-size: 15px;
+  line-height: 1.7;
+  margin: 0 0 12px 0;
+}
+
+.ti-plain:last-child {
+  margin-bottom: 0;
+}
+
+.ti-meta {
+  color: rgba(11,11,11,0.6);
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+/* Steps */
+.ti-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ti-step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.ti-step-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ti-blue);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.ti-step-content {
+  flex: 1;
+}
+
+.ti-step-content strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 4px;
+  color: var(--ti-blue-dark);
+}
+
+.ti-step-content p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ti-muted);
+  line-height: 1.5;
+}
+
+/* Features grid */
+.ti-features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.ti-feature {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px;
+  background: rgba(11,116,255,0.03);
+  border-radius: 8px;
+}
+
+.ti-feature-icon {
+  color: var(--ti-blue);
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ti-feature strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: var(--ti-blue-dark);
+}
+
+.ti-feature span {
+  font-size: 13px;
+  color: var(--ti-muted);
+}
+
+/* Notice items */
+.ti-notice-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ti-notice-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px;
+  background: rgba(242,194,0,0.06);
+  border-radius: 8px;
+}
+
+.ti-notice-icon {
+  color: var(--ti-yellow);
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ti-notice-item strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: var(--ti-text);
+}
+
+.ti-notice-item p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ti-muted);
+  line-height: 1.5;
+}
+
+/* Badges */
+.ti-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.ti-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  background: rgba(11,116,255,0.08);
+  color: var(--ti-blue-dark);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Hover micro-interaction */
+.ti-card:hover {
+  transform: translateY(-2px);
+  transition: transform 260ms var(--ti-ease), box-shadow 260ms var(--ti-ease);
+  box-shadow: 0 12px 30px rgba(4,81,138,0.08);
+}
+
+.ti-tool-container:hover {
+  border-color: rgba(11,116,255,0.15);
+  transition: border-color 260ms var(--ti-ease);
+}
+
+/* focus outlines for accessibility */
+.ti-card :focus,
+.ti-subtitle:focus {
+  outline: 3px solid rgba(11,116,255,0.12);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* very small screens: full width */
+@media (max-width: 500px) {
+  .ti-main { 
+    width: 100%; 
+    max-width: 100%;
+    padding: 0 8px; 
+    gap: 12px; 
+  }
+  .ti-card { padding: 12px; border-radius: 6px; }
+  .ti-main-title { font-size: 24px; }
+  .ti-tool-title { font-size: 18px; }
+  .ti-subtitle { font-size: 15px; }
+  .ti-section-icon { font-size: 16px; }
+  .ti-header { padding: 12px 16px 0 16px; }
+  .ti-header-icon { font-size: 28px; }
+  .ti-features-grid { grid-template-columns: 1fr; }
+  .ti-tool-container { padding: 14px; border-radius: 12px; }
+  .ti-tool-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .ti-tool-badge { font-size: 11px; padding: 5px 12px; }
+}
+
+/* small screens */
+@media (min-width: 501px) and (max-width: 640px) {
+  .ti-main { padding: 0 12px; gap: 14px; }
+  .ti-card { padding: 14px; border-radius: 8px; }
+  .ti-main-title { font-size: 26px; }
+  .ti-tool-title { font-size: 20px; }
+  .ti-subtitle { font-size: 16px; }
+  .ti-section-icon { font-size: 18px; }
+  .ti-features-grid { grid-template-columns: 1fr; }
+}
+
+/* larger screens */
+@media (min-width: 1100px) {
+  .ti-main {
+    width: 90%;
+    max-width: 96%;
+    gap: 22px;
+  }
+  
+  .ti-tool-container {
+    padding: 24px;
+  }
+}
+
+/* keyframes */
+@keyframes ti-card-appear {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ti-container-appear {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ti-icon-pop {
+  from { transform: scale(.95) translateY(6px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
