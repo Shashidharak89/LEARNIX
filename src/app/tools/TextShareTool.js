@@ -519,7 +519,7 @@ export default function TextShareTool() {
                 <input
                   type="text"
                   className="tst-modal-input"
-                  placeholder="Enter custom code (e.g., shashi)"
+                  placeholder="Enter custom code (e.g., learnix)"
                   value={customCodeInput}
                   onChange={e => {
                     setCustomCodeInput(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''));
