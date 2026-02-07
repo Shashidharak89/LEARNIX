@@ -7,8 +7,8 @@ import "./styles/TextShare.css";
 const STORAGE_KEY = 'textshare_codes';
 
 export default function TextShareTool() {
-    // Full screen state for textarea
-    const [isFullScreen, setIsFullScreen] = useState(false);
+  // Full screen state for textarea
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const [text, setText] = useState("");
   const [code, setCode] = useState("");
   const [editAccess, setEditAccess] = useState(false); // Toggle for allowing edit access
@@ -38,6 +38,7 @@ export default function TextShareTool() {
   
   const textareaRef = useRef(null);
   const fetchedTextareaRef = useRef(null);
+  const fullscreenTextareaRef = useRef(null);
 
   // Load codes from localStorage on mount
   useEffect(() => {
@@ -59,6 +60,30 @@ export default function TextShareTool() {
       }
     };
   }, []);
+
+  // Keyboard shortcut handler for Ctrl+S (save)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Check for Ctrl+S or Cmd+S
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault(); // Prevent browser save dialog
+        
+        // Only trigger save if:
+        // 1. Fullscreen is active
+        // 2. User has edit access
+        // 3. Currently in editing mode
+        if (isFullScreen && fetchedEditAccess && isEditing) {
+          handleSaveEdit();
+        }
+      }
+    };
+
+    // Add event listener when fullscreen and editing
+    if (isFullScreen && fetchedEditAccess && isEditing) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isFullScreen, fetchedEditAccess, isEditing]); // Dependencies for the effect
 
   // Show toast notification
   const showToast = useCallback((message, type = "info") => {
@@ -428,10 +453,16 @@ export default function TextShareTool() {
     }
   };
 
+  // Copy text to clipboard
+  const handleCopy = (textToCopy) => {
+    navigator.clipboard.writeText(textToCopy);
+    showToast("Copied to clipboard!", "success");
+  };
+
   return (
     <div className="tst-page-container">
-      {/* Toast Notification */}
-      {toast && (
+      {/* Toast Notification - visible in both normal and fullscreen mode */}
+      {toast && !isFullScreen && (
         <div className={`tst-toast tst-toast-${toast.type}`}>
           <div className="tst-toast-icon">
             {getToastIcon(toast.type)}
@@ -513,282 +544,395 @@ export default function TextShareTool() {
         </div>
       )}
 
-      <header className="tst-header" aria-hidden={true}>
-        <FiMessageSquare className="tst-header-icon" />
-      </header>
-
-      <main className="tst-main" role="main">
-        {/* Intro Card */}
-        <section className="tst-card tst-intro" aria-labelledby="tst-title">
-          <div className="tst-tool-number">2.</div>
-          <h1 id="tst-title" className="tst-title">Text Sharing Tool</h1>
-          <p className="tst-meta">Free to use • Share text instantly • Texts expire after 24 hours</p>
-        </section>
-
-        {/* Share Text Section */}
-        <section className="tst-card" aria-labelledby="tst-share">
-          <div className="tst-section-header">
-            <FiEdit3 className="tst-section-icon" />
-            <h2 id="tst-share" className="tst-subtitle">Share Text</h2>
-          </div>
-          <p className="tst-plain">Enter any text below and generate a unique code to share it with anyone.</p>
-          
-          <div className="tst-textarea-wrapper">
-            <textarea
-              ref={textareaRef}
-              className="tst-textarea"
-              placeholder="Type or paste any text here..."
-              value={text}
-              onChange={e => setText(e.target.value)}
-              rows={4}
-            />
-          </div>
-
-          {/* Edit Access Toggle */}
-          <div className="tst-toggle-wrapper">
-            <button
-              type="button"
-              className={`tst-toggle-btn ${editAccess ? 'tst-toggle-active' : ''}`}
-              onClick={() => setEditAccess(!editAccess)}
-            >
-              {editAccess ? <FiUnlock /> : <FiLock />}
-              <span>{editAccess ? 'Edit Access: ON' : 'Edit Access: OFF'}</span>
-            </button>
-            <span className="tst-toggle-hint">
-              {editAccess 
-                ? 'Anyone with the code can edit the text' 
-                : 'Anyone with the code can only view the text'}
-            </span>
-          </div>
-          
-          <div className="tst-actions">
-            <button className="tst-btn tst-btn-primary" onClick={handleGenerate}>
-              <FiSend /> Generate Code
-            </button>
-            <button className="tst-btn tst-btn-secondary" onClick={openCustomCodeModal}>
-              <FiCode /> Custom Code
-            </button>
-            {text && (
-              <button
-                className="tst-btn tst-btn-ghost"
-                onClick={() => setText("")}
-              >
-                Clear
+      {/* Fullscreen Overlay */}
+      {isFullScreen && (
+        <div className="tst-fullscreen-overlay">
+          {/* Fullscreen Toast - positioned above content */}
+          {toast && (
+            <div className={`tst-toast tst-toast-${toast.type} tst-toast-fullscreen`}>
+              <div className="tst-toast-icon">
+                {getToastIcon(toast.type)}
+              </div>
+              <span className="tst-toast-message">{toast.message}</span>
+              <button className="tst-toast-close" onClick={dismissToast}>
+                <FiX />
               </button>
-            )}
-          </div>
-
-          {code && (
-            <div className="tst-result-box">
-              <div className="tst-result-label">Your Code:</div>
-              <div className="tst-code-display">
-                <span className="tst-code">{code}</span>
-                <button
-                  className="tst-btn tst-btn-icon"
-                  onClick={() => { navigator.clipboard.writeText(code); showToast("Code copied!", "success"); }}
-                  title="Copy code"
-                >
-                  <FiCopy />
-                </button>
-              </div>
-              <div className="tst-access-badge">
-                {editAccess ? (
-                  <span className="tst-badge tst-badge-editable"><FiUnlock /> Editable</span>
-                ) : (
-                  <span className="tst-badge tst-badge-readonly"><FiLock /> Read-only</span>
-                )}
-              </div>
             </div>
           )}
-        </section>
 
-        {/* Retrieve Text Section */}
-        <section className="tst-card" aria-labelledby="tst-retrieve">
-          <div className="tst-section-header">
-            <FiCode className="tst-section-icon" />
-            <h2 id="tst-retrieve" className="tst-subtitle">Retrieve Text</h2>
-          </div>
-          <p className="tst-plain">Enter a code to view the shared text.</p>
-          
-          <div className="tst-input-group">
-            <input
-              className="tst-input"
-              type="text"
-              placeholder="Enter code (e.g., abc123)"
-              value={fetchCode}
-              onChange={e => setFetchCode(e.target.value.toLowerCase())}
-              maxLength={10}
-            />
-            <button className="tst-btn tst-btn-primary" onClick={handleFetch}>
-              <FiShare2 /> View Text
-            </button>
-          </div>
-
-          {fetchedText && (
-            <div className="tst-fetched-container">
-              <div className="tst-fetched-header">
-                <div className="tst-fetched-title-row">
-                  <span className="tst-fetched-label">Retrieved Text:</span>
-                  {fetchedEditAccess ? (
-                    <span className="tst-badge tst-badge-editable"><FiUnlock /> Editable</span>
-                  ) : (
-                    <span className="tst-badge tst-badge-readonly"><FiLock /> Read-only</span>
-                  )}
-                </div>
-                <div className="tst-fetched-actions">
-                  <button
-                    className="tst-btn tst-btn-icon"
-                    onClick={handleRefresh}
-                    disabled={refreshing}
-                    title="Refresh to get latest text"
-                  >
-                    <FiRefreshCw className={refreshing ? 'tst-spin' : ''} />
-                  </button>
-                  <button
-                    className="tst-btn tst-btn-icon"
-                    onClick={() => { navigator.clipboard.writeText(isEditing ? editedText : fetchedText); showToast("Text copied!", "success"); }}
-                    title="Copy text"
-                  >
-                    <FiCopy />
-                  </button>
-                  <button
-                    className="tst-btn tst-btn-icon"
-                    onClick={() => setIsFullScreen(true)}
-                    title="Full Screen"
-                  >
-                    <FiMaximize />
-                  </button>
-                </div>
+          {/* Fullscreen Header */}
+          <div className="tst-fullscreen-header">
+            <div className="tst-fullscreen-header-left">
+              <div className="tst-fullscreen-code">
+                <span className="tst-fullscreen-code-label">Code:</span>
+                <span className="tst-fullscreen-code-value">{currentCode}</span>
               </div>
-              
-              <div className="tst-textarea-wrapper">
-                {isEditing ? (
-                  <textarea
-                    ref={fetchedTextareaRef}
-                    className="tst-textarea tst-textarea-editing"
-                    value={editedText}
-                    onChange={e => setEditedText(e.target.value)}
-                    rows={4}
-                  />
-                ) : (
-                  <textarea
-                    ref={fetchedTextareaRef}
-                    className="tst-textarea tst-textarea-readonly"
-                    value={fetchedText}
-                    readOnly
-                    rows={4}
-                  />
-                )}
-              </div>
-
-              {/* Edit/Save Actions */}
-              {fetchedEditAccess && (
-                <div className="tst-edit-actions">
-                  {isEditing ? (
-                    <>
-                      <button 
-                        className="tst-btn tst-btn-primary" 
-                        onClick={handleSaveEdit}
-                        disabled={saving}
-                      >
-                        <FiSave /> {saving ? 'Saving...' : 'Save Changes'}
-                      </button>
-                      <button 
-                        className="tst-btn tst-btn-ghost" 
-                        onClick={handleCancelEdit}
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  ) : (
-                    <button 
-                      className="tst-btn tst-btn-secondary" 
-                      onClick={() => setIsEditing(true)}
-                    >
-                      <FiEdit3 /> Edit Text
-                    </button>
-                  )}
+              {fetchedEditAccess && isEditing && (
+                <div className="tst-keyboard-hint">
+                  <kbd>Ctrl</kbd>+<kbd>S</kbd> to save
                 </div>
               )}
             </div>
-          )}
-        </section>
+            <div className="tst-fullscreen-header-right">
+              <button
+                className="tst-btn tst-btn-icon"
+                onClick={handleRefresh}
+                disabled={refreshing}
+                title="Refresh"
+              >
+                <FiRefreshCw className={refreshing ? 'tst-spin' : ''} />
+              </button>
+              <button
+                className="tst-btn tst-btn-icon"
+                onClick={() => handleCopy(isEditing ? editedText : fetchedText)}
+                title="Copy text"
+              >
+                <FiCopy />
+              </button>
+              <button
+                className="tst-btn tst-btn-icon"
+                onClick={() => setIsFullScreen(false)}
+                title="Exit Fullscreen"
+              >
+                <FiMinimize />
+              </button>
+            </div>
+          </div>
 
-        {/* My Codes Section */}
-        {myCodes.length > 0 && (
-          <section className="tst-card tst-my-codes-card">
-            <button 
-              className="tst-my-codes-toggle"
-              onClick={() => setShowMyCodes(!showMyCodes)}
-            >
-              <div className="tst-my-codes-toggle-left">
-                <FiList className="tst-section-icon" />
-                <h2 className="tst-subtitle">My Codes</h2>
-                <span className="tst-codes-count">{myCodes.length}</span>
+          {/* Fullscreen Content */}
+          <div className="tst-fullscreen-content">
+            {isEditing ? (
+              <textarea
+                ref={fullscreenTextareaRef}
+                className="tst-textarea tst-textarea-editing tst-textarea-fullscreen"
+                value={editedText}
+                onChange={e => setEditedText(e.target.value)}
+                autoFocus
+              />
+            ) : (
+              <textarea
+                ref={fullscreenTextareaRef}
+                className="tst-textarea tst-textarea-readonly tst-textarea-fullscreen"
+                value={fetchedText}
+                readOnly
+                autoFocus
+              />
+            )}
+          </div>
+
+          {/* Fullscreen Footer with Edit Actions */}
+          {fetchedEditAccess && (
+            <div className="tst-fullscreen-footer">
+              {isEditing ? (
+                <>
+                  <button 
+                    className="tst-btn tst-btn-primary" 
+                    onClick={handleSaveEdit}
+                    disabled={saving}
+                  >
+                    <FiSave /> {saving ? 'Saving...' : 'Save Changes'}
+                  </button>
+                  <button 
+                    className="tst-btn tst-btn-ghost" 
+                    onClick={handleCancelEdit}
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button 
+                  className="tst-btn tst-btn-secondary" 
+                  onClick={() => setIsEditing(true)}
+                >
+                  <FiEdit3 /> Edit Text
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Normal View - hidden when fullscreen is active */}
+      {!isFullScreen && (
+        <>
+          <header className="tst-header" aria-hidden={true}>
+            <FiMessageSquare className="tst-header-icon" />
+          </header>
+
+          <main className="tst-main" role="main">
+            {/* Intro Card */}
+            <section className="tst-card tst-intro" aria-labelledby="tst-title">
+              <div className="tst-tool-number">2.</div>
+              <h1 id="tst-title" className="tst-title">Text Sharing Tool</h1>
+              <p className="tst-meta">Free to use • Share text instantly • Texts expire after 24 hours</p>
+            </section>
+
+            {/* Share Text Section */}
+            <section className="tst-card" aria-labelledby="tst-share">
+              <div className="tst-section-header">
+                <FiEdit3 className="tst-section-icon" />
+                <h2 id="tst-share" className="tst-subtitle">Share Text</h2>
               </div>
-              {showMyCodes ? <FiChevronUp /> : <FiChevronDown />}
-            </button>
-            
-            {showMyCodes && (
-              <div className="tst-my-codes-list">
-                {myCodes.map((item) => (
-                  <div key={item.code} className="tst-code-item">
-                    <div className="tst-code-item-left">
-                      <span className="tst-code-item-code">{item.code}</span>
-                      <span className={`tst-badge ${item.editAccess ? 'tst-badge-editable' : 'tst-badge-readonly'}`}>
-                        {item.editAccess ? <><FiUnlock /> Editable</> : <><FiLock /> Read-only</>}
-                      </span>
-                      <span className="tst-code-item-time">{formatTimeAgo(item.createdAt)}</span>
+              <p className="tst-plain">Enter any text below and generate a unique code to share it with anyone.</p>
+              
+              <div className="tst-textarea-wrapper">
+                <textarea
+                  ref={textareaRef}
+                  className="tst-textarea"
+                  placeholder="Type or paste any text here..."
+                  value={text}
+                  onChange={e => setText(e.target.value)}
+                  rows={4}
+                />
+              </div>
+
+              {/* Edit Access Toggle */}
+              <div className="tst-toggle-wrapper">
+                <button
+                  type="button"
+                  className={`tst-toggle-btn ${editAccess ? 'tst-toggle-active' : ''}`}
+                  onClick={() => setEditAccess(!editAccess)}
+                >
+                  {editAccess ? <FiUnlock /> : <FiLock />}
+                  <span>{editAccess ? 'Edit Access: ON' : 'Edit Access: OFF'}</span>
+                </button>
+                <span className="tst-toggle-hint">
+                  {editAccess 
+                    ? 'Anyone with the code can edit the text' 
+                    : 'Anyone with the code can only view the text'}
+                </span>
+              </div>
+              
+              <div className="tst-actions">
+                <button className="tst-btn tst-btn-primary" onClick={handleGenerate}>
+                  <FiSend /> Generate Code
+                </button>
+                <button className="tst-btn tst-btn-secondary" onClick={openCustomCodeModal}>
+                  <FiCode /> Custom Code
+                </button>
+                {text && (
+                  <button
+                    className="tst-btn tst-btn-ghost"
+                    onClick={() => setText("")}
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              {code && (
+                <div className="tst-result-box">
+                  <div className="tst-result-label">Your Code:</div>
+                  <div className="tst-code-display">
+                    <span className="tst-code">{code}</span>
+                    <button
+                      className="tst-btn tst-btn-icon"
+                      onClick={() => handleCopy(code)}
+                      title="Copy code"
+                    >
+                      <FiCopy />
+                    </button>
+                  </div>
+                  <div className="tst-access-badge">
+                    {editAccess ? (
+                      <span className="tst-badge tst-badge-editable"><FiUnlock /> Editable</span>
+                    ) : (
+                      <span className="tst-badge tst-badge-readonly"><FiLock /> Read-only</span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </section>
+
+            {/* Retrieve Text Section */}
+            <section className="tst-card" aria-labelledby="tst-retrieve">
+              <div className="tst-section-header">
+                <FiCode className="tst-section-icon" />
+                <h2 id="tst-retrieve" className="tst-subtitle">Retrieve Text</h2>
+              </div>
+              <p className="tst-plain">Enter a code to view the shared text.</p>
+              
+              <div className="tst-input-group">
+                <input
+                  className="tst-input"
+                  type="text"
+                  placeholder="Enter code (e.g., abc123)"
+                  value={fetchCode}
+                  onChange={e => setFetchCode(e.target.value.toLowerCase())}
+                  maxLength={10}
+                />
+                <button className="tst-btn tst-btn-primary" onClick={handleFetch}>
+                  <FiShare2 /> View Text
+                </button>
+              </div>
+
+              {fetchedText && (
+                <div className="tst-fetched-container">
+                  <div className="tst-fetched-header">
+                    <div className="tst-fetched-title-row">
+                      <span className="tst-fetched-label">Retrieved Text:</span>
+                      {fetchedEditAccess ? (
+                        <span className="tst-badge tst-badge-editable"><FiUnlock /> Editable</span>
+                      ) : (
+                        <span className="tst-badge tst-badge-readonly"><FiLock /> Read-only</span>
+                      )}
                     </div>
-                    <div className="tst-code-item-actions">
+                    <div className="tst-fetched-actions">
                       <button
                         className="tst-btn tst-btn-icon"
-                        onClick={() => { navigator.clipboard.writeText(item.code); showToast("Code copied!", "success"); }}
-                        title="Copy code"
+                        onClick={handleRefresh}
+                        disabled={refreshing}
+                        title="Refresh to get latest text"
+                      >
+                        <FiRefreshCw className={refreshing ? 'tst-spin' : ''} />
+                      </button>
+                      <button
+                        className="tst-btn tst-btn-icon"
+                        onClick={() => handleCopy(isEditing ? editedText : fetchedText)}
+                        title="Copy text"
                       >
                         <FiCopy />
                       </button>
                       <button
-                        className={`tst-btn tst-btn-icon ${item.editAccess ? 'tst-btn-unlock' : 'tst-btn-lock'}`}
-                        onClick={() => handleToggleAccess(item.code, item.editAccess)}
-                        disabled={togglingAccess === item.code}
-                        title={item.editAccess ? 'Disable edit access' : 'Enable edit access'}
+                        className="tst-btn tst-btn-icon"
+                        onClick={() => setIsFullScreen(true)}
+                        title="Fullscreen"
                       >
-                        {togglingAccess === item.code ? (
-                          <FiRefreshCw className="tst-spin" />
-                        ) : item.editAccess ? (
-                          <FiLock />
-                        ) : (
-                          <FiUnlock />
-                        )}
-                      </button>
-                      <button
-                        className="tst-btn tst-btn-icon tst-btn-danger"
-                        onClick={() => handleDeleteCode(item.code)}
-                        disabled={deletingCode === item.code}
-                        title="Delete"
-                      >
-                        {deletingCode === item.code ? (
-                          <FiRefreshCw className="tst-spin" />
-                        ) : (
-                          <FiTrash2 />
-                        )}
+                        <FiMaximize />
                       </button>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </section>
-        )}
 
-        {/* Notice Card */}
-        <section className="tst-card tst-notice-card">
-          <p className="tst-notice">
-            <strong>Note:</strong> Texts are automatically deleted after 24 hours. Only share text that you're comfortable making accessible to anyone with the code.
-          </p>
-        </section>
-      </main>
+                  <div className="tst-textarea-wrapper">
+                    {isEditing ? (
+                      <textarea
+                        ref={fetchedTextareaRef}
+                        className="tst-textarea tst-textarea-editing"
+                        value={editedText}
+                        onChange={e => setEditedText(e.target.value)}
+                        rows={4}
+                      />
+                    ) : (
+                      <textarea
+                        ref={fetchedTextareaRef}
+                        className="tst-textarea tst-textarea-readonly"
+                        value={fetchedText}
+                        readOnly
+                        rows={4}
+                      />
+                    )}
+                  </div>
+
+                  {/* Edit/Save Actions */}
+                  {fetchedEditAccess && (
+                    <div className="tst-edit-actions">
+                      {isEditing ? (
+                        <>
+                          <button 
+                            className="tst-btn tst-btn-primary" 
+                            onClick={handleSaveEdit}
+                            disabled={saving}
+                          >
+                            <FiSave /> {saving ? 'Saving...' : 'Save Changes'}
+                          </button>
+                          <button 
+                            className="tst-btn tst-btn-ghost" 
+                            onClick={handleCancelEdit}
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      ) : (
+                        <button 
+                          className="tst-btn tst-btn-secondary" 
+                          onClick={() => setIsEditing(true)}
+                        >
+                          <FiEdit3 /> Edit Text
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </section>
+
+            {/* My Codes Section */}
+            {myCodes.length > 0 && (
+              <section className="tst-card tst-my-codes-card">
+                <button 
+                  className="tst-my-codes-toggle"
+                  onClick={() => setShowMyCodes(!showMyCodes)}
+                >
+                  <div className="tst-my-codes-toggle-left">
+                    <FiList className="tst-section-icon" />
+                    <h2 className="tst-subtitle">My Codes</h2>
+                    <span className="tst-codes-count">{myCodes.length}</span>
+                  </div>
+                  {showMyCodes ? <FiChevronUp /> : <FiChevronDown />}
+                </button>
+                
+                {showMyCodes && (
+                  <div className="tst-my-codes-list">
+                    {myCodes.map((item) => (
+                      <div key={item.code} className="tst-code-item">
+                        <div className="tst-code-item-left">
+                          <span className="tst-code-item-code">{item.code}</span>
+                          <span className={`tst-badge ${item.editAccess ? 'tst-badge-editable' : 'tst-badge-readonly'}`}>
+                            {item.editAccess ? <><FiUnlock /> Editable</> : <><FiLock /> Read-only</>}
+                          </span>
+                          <span className="tst-code-item-time">{formatTimeAgo(item.createdAt)}</span>
+                        </div>
+                        <div className="tst-code-item-actions">
+                          <button
+                            className="tst-btn tst-btn-icon"
+                            onClick={() => handleCopy(item.code)}
+                            title="Copy code"
+                          >
+                            <FiCopy />
+                          </button>
+                          <button
+                            className={`tst-btn tst-btn-icon ${item.editAccess ? 'tst-btn-unlock' : 'tst-btn-lock'}`}
+                            onClick={() => handleToggleAccess(item.code, item.editAccess)}
+                            disabled={togglingAccess === item.code}
+                            title={item.editAccess ? 'Disable edit access' : 'Enable edit access'}
+                          >
+                            {togglingAccess === item.code ? (
+                              <FiRefreshCw className="tst-spin" />
+                            ) : item.editAccess ? (
+                              <FiLock />
+                            ) : (
+                              <FiUnlock />
+                            )}
+                          </button>
+                          <button
+                            className="tst-btn tst-btn-icon tst-btn-danger"
+                            onClick={() => handleDeleteCode(item.code)}
+                            disabled={deletingCode === item.code}
+                            title="Delete"
+                          >
+                            {deletingCode === item.code ? (
+                              <FiRefreshCw className="tst-spin" />
+                            ) : (
+                              <FiTrash2 />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* Notice Card */}
+            <section className="tst-card tst-notice-card">
+              <p className="tst-notice">
+                <strong>Note:</strong> Texts are automatically deleted after 24 hours. Only share text that you're comfortable making accessible to anyone with the code.
+              </p>
+            </section>
+          </main>
+        </>
+      )}
     </div>
   );
 }
