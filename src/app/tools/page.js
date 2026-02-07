@@ -1,7 +1,6 @@
 "use client";
 
 import { Navbar } from "../components/Navbar";
-import Footer from "../components/Footer";
 
 import FileUploadDownload from "./WordToPdf";
 import TextShareTool from "./TextShareTool";
