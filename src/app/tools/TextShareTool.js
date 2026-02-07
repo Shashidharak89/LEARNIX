@@ -1,16 +1,23 @@
 // app/tools/TextShareTool.jsx
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { FiCopy, FiSend, FiMessageSquare, FiCode, FiShare2, FiEdit3 } from "react-icons/fi";
+import { FiCopy, FiSend, FiMessageSquare, FiCode, FiShare2, FiEdit3, FiRefreshCw, FiSave, FiLock, FiUnlock } from "react-icons/fi";
 import "./styles/TextShare.css";
 
 export default function TextShareTool() {
   const [text, setText] = useState("");
   const [code, setCode] = useState("");
+  const [editAccess, setEditAccess] = useState(false); // Toggle for allowing edit access
   const [fetchCode, setFetchCode] = useState("");
   const [fetchedText, setFetchedText] = useState("");
+  const [fetchedEditAccess, setFetchedEditAccess] = useState(false); // Edit access of fetched text
+  const [editedText, setEditedText] = useState(""); // For editing fetched text
+  const [isEditing, setIsEditing] = useState(false); // Edit mode toggle
+  const [currentCode, setCurrentCode] = useState(""); // Store code for refresh/update
   const [status, setStatus] = useState("");
   const [statusType, setStatusType] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const textareaRef = useRef(null);
   const fetchedTextareaRef = useRef(null);
 
@@ -30,7 +37,7 @@ export default function TextShareTool() {
 
   useEffect(() => {
     autoExpand(fetchedTextareaRef);
-  }, [fetchedText]);
+  }, [fetchedText, editedText]);
 
   function showStatus(message, type = "") {
     setStatus(message);
@@ -49,7 +56,7 @@ export default function TextShareTool() {
       const res = await fetch("/api/textshare", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, editAccess }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -57,7 +64,8 @@ export default function TextShareTool() {
         return;
       }
       setCode(data.code);
-      showStatus("Share this code with anyone!", "success");
+      const accessMsg = editAccess ? "Anyone can view AND edit!" : "View-only access.";
+      showStatus(`Code generated! ${accessMsg}`, "success");
     } catch (err) {
       showStatus("Network error. Try again.", "error");
     }
@@ -66,6 +74,9 @@ export default function TextShareTool() {
   async function handleFetch() {
     showStatus("", "");
     setFetchedText("");
+    setEditedText("");
+    setIsEditing(false);
+    setFetchedEditAccess(false);
     if (!fetchCode.trim()) {
       showStatus("Please enter a code.", "error");
       return;
@@ -79,10 +90,70 @@ export default function TextShareTool() {
         return;
       }
       setFetchedText(data.text);
-      showStatus("Text retrieved successfully!", "success");
+      setEditedText(data.text);
+      setFetchedEditAccess(data.editAccess || false);
+      setCurrentCode(fetchCode.trim()); // Store for refresh/update
+      const accessMsg = data.editAccess ? "(Editable)" : "(Read-only)";
+      showStatus(`Text retrieved! ${accessMsg}`, "success");
     } catch (err) {
       showStatus("Network error. Try again.", "error");
     }
+  }
+
+  async function handleRefresh() {
+    if (!currentCode) return;
+    setRefreshing(true);
+    showStatus("Refreshing...", "");
+    try {
+      const res = await fetch(`/api/textshare?code=${currentCode}`);
+      const data = await res.json();
+      if (!res.ok) {
+        showStatus(data.error || "Failed to refresh.", "error");
+        setRefreshing(false);
+        return;
+      }
+      setFetchedText(data.text);
+      setEditedText(data.text);
+      setFetchedEditAccess(data.editAccess || false);
+      showStatus("Text refreshed!", "success");
+    } catch (err) {
+      showStatus("Network error. Try again.", "error");
+    }
+    setRefreshing(false);
+  }
+
+  async function handleSaveEdit() {
+    if (!currentCode || !editedText.trim()) {
+      showStatus("Cannot save empty text.", "error");
+      return;
+    }
+    setSaving(true);
+    showStatus("Saving changes...", "");
+    try {
+      const res = await fetch("/api/textshare", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: currentCode, text: editedText }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showStatus(data.error || "Failed to save.", "error");
+        setSaving(false);
+        return;
+      }
+      setFetchedText(data.text);
+      setIsEditing(false);
+      showStatus("Changes saved successfully!", "success");
+    } catch (err) {
+      showStatus("Network error. Try again.", "error");
+    }
+    setSaving(false);
+  }
+
+  function handleCancelEdit() {
+    setEditedText(fetchedText);
+    setIsEditing(false);
+    showStatus("Edit cancelled.", "");
   }
 
   return (
@@ -117,6 +188,23 @@ export default function TextShareTool() {
               rows={4}
             />
           </div>
+
+          {/* Edit Access Toggle */}
+          <div className="tst-toggle-wrapper">
+            <button
+              type="button"
+              className={`tst-toggle-btn ${editAccess ? 'tst-toggle-active' : ''}`}
+              onClick={() => setEditAccess(!editAccess)}
+            >
+              {editAccess ? <FiUnlock /> : <FiLock />}
+              <span>{editAccess ? 'Edit Access: ON' : 'Edit Access: OFF'}</span>
+            </button>
+            <span className="tst-toggle-hint">
+              {editAccess 
+                ? 'Anyone with the code can edit the text' 
+                : 'Anyone with the code can only view the text'}
+            </span>
+          </div>
           
           <div className="tst-actions">
             <button className="tst-btn tst-btn-primary" onClick={handleGenerate}>
@@ -145,6 +233,13 @@ export default function TextShareTool() {
                   <FiCopy />
                 </button>
               </div>
+              <div className="tst-access-badge">
+                {editAccess ? (
+                  <span className="tst-badge tst-badge-editable"><FiUnlock /> Editable</span>
+                ) : (
+                  <span className="tst-badge tst-badge-readonly"><FiLock /> Read-only</span>
+                )}
+              </div>
             </div>
           )}
         </section>
@@ -161,9 +256,9 @@ export default function TextShareTool() {
             <input
               className="tst-input"
               type="text"
-              placeholder="Enter code (e.g., ABC123)"
+              placeholder="Enter code (e.g., abc123)"
               value={fetchCode}
-              onChange={e => setFetchCode(e.target.value.toUpperCase())}
+              onChange={e => setFetchCode(e.target.value.toLowerCase())}
               maxLength={10}
             />
             <button className="tst-btn tst-btn-primary" onClick={handleFetch}>
@@ -174,24 +269,82 @@ export default function TextShareTool() {
           {fetchedText && (
             <div className="tst-fetched-container">
               <div className="tst-fetched-header">
-                <span className="tst-fetched-label">Retrieved Text:</span>
-                <button
-                  className="tst-btn tst-btn-icon"
-                  onClick={() => { navigator.clipboard.writeText(fetchedText); showStatus("Text copied!", "success"); }}
-                  title="Copy text"
-                >
-                  <FiCopy />
-                </button>
+                <div className="tst-fetched-title-row">
+                  <span className="tst-fetched-label">Retrieved Text:</span>
+                  {fetchedEditAccess ? (
+                    <span className="tst-badge tst-badge-editable"><FiUnlock /> Editable</span>
+                  ) : (
+                    <span className="tst-badge tst-badge-readonly"><FiLock /> Read-only</span>
+                  )}
+                </div>
+                <div className="tst-fetched-actions">
+                  <button
+                    className="tst-btn tst-btn-icon"
+                    onClick={handleRefresh}
+                    disabled={refreshing}
+                    title="Refresh to get latest text"
+                  >
+                    <FiRefreshCw className={refreshing ? 'tst-spin' : ''} />
+                  </button>
+                  <button
+                    className="tst-btn tst-btn-icon"
+                    onClick={() => { navigator.clipboard.writeText(isEditing ? editedText : fetchedText); showStatus("Text copied!", "success"); }}
+                    title="Copy text"
+                  >
+                    <FiCopy />
+                  </button>
+                </div>
               </div>
+              
               <div className="tst-textarea-wrapper">
-                <textarea
-                  ref={fetchedTextareaRef}
-                  className="tst-textarea tst-textarea-readonly"
-                  value={fetchedText}
-                  readOnly
-                  rows={4}
-                />
+                {isEditing ? (
+                  <textarea
+                    ref={fetchedTextareaRef}
+                    className="tst-textarea tst-textarea-editing"
+                    value={editedText}
+                    onChange={e => setEditedText(e.target.value)}
+                    rows={4}
+                  />
+                ) : (
+                  <textarea
+                    ref={fetchedTextareaRef}
+                    className="tst-textarea tst-textarea-readonly"
+                    value={fetchedText}
+                    readOnly
+                    rows={4}
+                  />
+                )}
               </div>
+
+              {/* Edit/Save Actions */}
+              {fetchedEditAccess && (
+                <div className="tst-edit-actions">
+                  {isEditing ? (
+                    <>
+                      <button 
+                        className="tst-btn tst-btn-primary" 
+                        onClick={handleSaveEdit}
+                        disabled={saving}
+                      >
+                        <FiSave /> {saving ? 'Saving...' : 'Save Changes'}
+                      </button>
+                      <button 
+                        className="tst-btn tst-btn-ghost" 
+                        onClick={handleCancelEdit}
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <button 
+                      className="tst-btn tst-btn-secondary" 
+                      onClick={() => setIsEditing(true)}
+                    >
+                      <FiEdit3 /> Edit Text
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </section>

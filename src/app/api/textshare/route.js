@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { connectDB } from "../../../lib/db.js";
 import TextShare from "../../../models/TextShare.js";
 
-// Generate a random 6-character code
+// Generate a random 6-character lowercase code
 function generateCode(length = 6) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
   let code = '';
   for (let i = 0; i < length; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -15,7 +15,7 @@ function generateCode(length = 6) {
 export async function POST(req) {
   try {
     await connectDB();
-    const { text } = await req.json();
+    const { text, editAccess } = await req.json();
     if (!text || typeof text !== 'string' || text.length === 0) {
       return NextResponse.json({ error: 'Text is required.' }, { status: 400 });
     }
@@ -26,8 +26,12 @@ export async function POST(req) {
       code = generateCode();
       exists = await TextShare.findOne({ code });
     }
-    const doc = await TextShare.create({ text, code });
-    return NextResponse.json({ code });
+    const doc = await TextShare.create({ 
+      text, 
+      code, 
+      editAccess: editAccess === true 
+    });
+    return NextResponse.json({ code, editAccess: doc.editAccess });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to save text.' }, { status: 500 });
   }
@@ -45,8 +49,46 @@ export async function GET(req) {
     if (!doc) {
       return NextResponse.json({ error: 'Text not found.' }, { status: 404 });
     }
-    return NextResponse.json({ text: doc.text });
+    return NextResponse.json({ 
+      text: doc.text, 
+      editAccess: doc.editAccess 
+    });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch text.' }, { status: 500 });
+  }
+}
+
+// PUT - Update text (only if editAccess is true)
+export async function PUT(req) {
+  try {
+    await connectDB();
+    const { code, text } = await req.json();
+    
+    if (!code || typeof code !== 'string') {
+      return NextResponse.json({ error: 'Code is required.' }, { status: 400 });
+    }
+    if (!text || typeof text !== 'string' || text.length === 0) {
+      return NextResponse.json({ error: 'Text is required.' }, { status: 400 });
+    }
+    
+    const doc = await TextShare.findOne({ code });
+    if (!doc) {
+      return NextResponse.json({ error: 'Text not found.' }, { status: 404 });
+    }
+    
+    if (!doc.editAccess) {
+      return NextResponse.json({ error: 'This text is read-only and cannot be edited.' }, { status: 403 });
+    }
+    
+    doc.text = text;
+    await doc.save();
+    
+    return NextResponse.json({ 
+      success: true, 
+      text: doc.text,
+      message: 'Text updated successfully.' 
+    });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to update text.' }, { status: 500 });
   }
 }
