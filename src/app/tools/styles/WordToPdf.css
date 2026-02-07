@@ -77,6 +77,17 @@
 /* intro card accent */
 .fud-intro {
   border-left: 4px solid var(--fud-blue);
+  position: relative;
+}
+
+.fud-tool-number {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  font-size: 48px;
+  font-weight: 800;
+  color: rgba(11,116,255,0.1);
+  line-height: 1;
 }
 
 /* section header with icon */

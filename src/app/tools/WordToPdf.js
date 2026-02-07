@@ -1,7 +1,7 @@
 // app/components/WordToPdf.jsx
 "use client";
 import { useState, useEffect } from "react";
-import { FiUpload, FiDownload, FiTrash2, FiCopy, FiFile, FiList, FiInfo, FiShield } from "react-icons/fi";
+import { FiUpload, FiDownload, FiTrash2, FiCopy, FiFile, FiList } from "react-icons/fi";
 import "./styles/WordToPdf.css";
 
 export default function FileUploadDownload() {
@@ -160,22 +160,9 @@ export default function FileUploadDownload() {
       <main className="fud-main" role="main">
         {/* Intro Card */}
         <section className="fud-card fud-intro" aria-labelledby="fud-title">
+          <div className="fud-tool-number">1.</div>
           <h1 id="fud-title" className="fud-title">File Upload & Download</h1>
-          <p className="fud-plain">
-            Upload any file securely to the cloud and download it anytime using the unique File ID. Share files easily with friends.
-          </p>
-          <p className="fud-meta">Free to use • Up to 100MB per file</p>
-        </section>
-
-        {/* About Section */}
-        <section className="fud-card" aria-labelledby="fud-about">
-          <div className="fud-section-header">
-            <FiInfo className="fud-section-icon" />
-            <h2 id="fud-about" className="fud-subtitle">How It Works</h2>
-          </div>
-          <p className="fud-plain">
-            Upload your file and receive a unique File ID. Share this ID with anyone, and they can download the file directly. Your files are stored securely in the cloud.
-          </p>
+          <p className="fud-meta">Free to use • Up to 100MB per file • Files expire after 24 hours</p>
         </section>
 
         {/* Upload Section */}
@@ -184,9 +171,6 @@ export default function FileUploadDownload() {
             <FiUpload className="fud-section-icon" />
             <h2 id="fud-upload" className="fud-subtitle">Upload File</h2>
           </div>
-          <p className="fud-plain">
-            Select any file from your device to upload. Once uploaded, you'll receive a unique File ID for downloading.
-          </p>
 
           <div className="fud-tool-body">
             <label className="fud-file-input">
@@ -305,9 +289,6 @@ export default function FileUploadDownload() {
             <FiDownload className="fud-section-icon" />
             <h2 id="fud-download" className="fud-subtitle">Download File by ID</h2>
           </div>
-          <p className="fud-plain">
-            Have a File ID? Enter it below to download the file directly.
-          </p>
 
           <div className="fud-tool-body">
             <input
@@ -336,18 +317,6 @@ export default function FileUploadDownload() {
             {status}
           </div>
         )}
-
-        {/* Security Note */}
-        <section className="fud-card" aria-labelledby="fud-security">
-          <div className="fud-section-header">
-            <FiShield className="fud-section-icon" />
-            <h2 id="fud-security" className="fud-subtitle">Security & Privacy</h2>
-          </div>
-          <p className="fud-plain">
-            Files are stored securely in Cloudinary. Only people with the File ID can download your files. We recommend not sharing sensitive personal information.
-          </p>
-          <p className="fud-meta">* Files are stored until manually deleted</p>
-        </section>
       </main>
     </div>
   );
