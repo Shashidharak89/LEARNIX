@@ -1,6 +1,7 @@
+// app/tools/TextShareTool.jsx
 "use client";
-import { useState } from "react";
-import { FiCopy, FiSend } from "react-icons/fi";
+import { useState, useRef, useEffect } from "react";
+import { FiCopy, FiSend, FiMessageSquare, FiCode, FiShare2, FiEdit3 } from "react-icons/fi";
 import "./styles/TextShare.css";
 
 export default function TextShareTool() {
@@ -9,15 +10,42 @@ export default function TextShareTool() {
   const [fetchCode, setFetchCode] = useState("");
   const [fetchedText, setFetchedText] = useState("");
   const [status, setStatus] = useState("");
+  const [statusType, setStatusType] = useState("");
+  const textareaRef = useRef(null);
+  const fetchedTextareaRef = useRef(null);
+
+  // Auto-expand textarea
+  const autoExpand = (ref) => {
+    if (ref.current) {
+      ref.current.style.height = 'auto';
+      const maxHeight = window.innerHeight * 0.9;
+      const newHeight = Math.min(ref.current.scrollHeight, maxHeight);
+      ref.current.style.height = newHeight + 'px';
+    }
+  };
+
+  useEffect(() => {
+    autoExpand(textareaRef);
+  }, [text]);
+
+  useEffect(() => {
+    autoExpand(fetchedTextareaRef);
+  }, [fetchedText]);
+
+  function showStatus(message, type = "") {
+    setStatus(message);
+    setStatusType(type);
+  }
 
   async function handleGenerate() {
-    setStatus("");
+    showStatus("", "");
     setCode("");
     if (!text.trim()) {
-      setStatus("Please enter some text.");
+      showStatus("Please enter some text.", "error");
       return;
     }
     try {
+      showStatus("Generating code...", "");
       const res = await fetch("/api/textshare", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -25,97 +53,163 @@ export default function TextShareTool() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setStatus(data.error || "Failed to generate code.");
+        showStatus(data.error || "Failed to generate code.", "error");
         return;
       }
       setCode(data.code);
-      setStatus("Share this code with anyone!");
+      showStatus("Share this code with anyone!", "success");
     } catch (err) {
-      setStatus("Network error. Try again.");
+      showStatus("Network error. Try again.", "error");
     }
   }
 
   async function handleFetch() {
-    setStatus("");
+    showStatus("", "");
     setFetchedText("");
     if (!fetchCode.trim()) {
-      setStatus("Please enter a code.");
+      showStatus("Please enter a code.", "error");
       return;
     }
     try {
+      showStatus("Fetching text...", "");
       const res = await fetch(`/api/textshare?code=${fetchCode.trim()}`);
       const data = await res.json();
       if (!res.ok) {
-        setStatus(data.error || "Text not found.");
+        showStatus(data.error || "Text not found.", "error");
         return;
       }
       setFetchedText(data.text);
-      setStatus("");
+      showStatus("Text retrieved successfully!", "success");
     } catch (err) {
-      setStatus("Network error. Try again.");
+      showStatus("Network error. Try again.", "error");
     }
   }
 
   return (
-    <div className="textshare-container">
-      <h2 className="textshare-title">Text Sharing Tool</h2>
-      <div className="textshare-section">
-        <textarea
-          className="textshare-textarea"
-          placeholder="Type or paste any text here..."
-          value={text}
-          onChange={e => setText(e.target.value)}
-          rows={6}
-        />
-        <button className="textshare-btn" onClick={handleGenerate}>
-          Generate Code <FiSend style={{ marginLeft: 6 }} />
-        </button>
-        {code && (
-          <div className="textshare-codebox">
-            <span className="textshare-label">Code:</span>
-            <span className="textshare-code">{code}</span>
-            <button
-              className="textshare-btn ghost"
-              onClick={() => { navigator.clipboard.writeText(code); setStatus("Code copied!"); }}
-            >
-              <FiCopy />
-            </button>
+    <div className="tst-page-container">
+      <header className="tst-header" aria-hidden={true}>
+        <FiMessageSquare className="tst-header-icon" />
+      </header>
+
+      <main className="tst-main" role="main">
+        {/* Intro Card */}
+        <section className="tst-card tst-intro" aria-labelledby="tst-title">
+          <div className="tst-tool-number">2.</div>
+          <h1 id="tst-title" className="tst-title">Text Sharing Tool</h1>
+          <p className="tst-meta">Free to use • Share text instantly • Texts expire after 24 hours</p>
+        </section>
+
+        {/* Share Text Section */}
+        <section className="tst-card" aria-labelledby="tst-share">
+          <div className="tst-section-header">
+            <FiEdit3 className="tst-section-icon" />
+            <h2 id="tst-share" className="tst-subtitle">Share Text</h2>
           </div>
-        )}
-      </div>
-      <hr className="textshare-divider" />
-      <div className="textshare-section">
-        <input
-          className="textshare-input"
-          type="text"
-          placeholder="Enter code to view text"
-          value={fetchCode}
-          onChange={e => setFetchCode(e.target.value)}
-        />
-        <button className="textshare-btn" onClick={handleFetch}>
-          View Text <FiSend style={{ marginLeft: 6 }} />
-        </button>
-        {fetchedText && (
-          <div className="textshare-fetchedbox">
+          <p className="tst-plain">Enter any text below and generate a unique code to share it with anyone.</p>
+          
+          <div className="tst-textarea-wrapper">
             <textarea
-              className="textshare-fetched"
-              value={fetchedText}
-              readOnly
-              rows={6}
+              ref={textareaRef}
+              className="tst-textarea"
+              placeholder="Type or paste any text here..."
+              value={text}
+              onChange={e => setText(e.target.value)}
+              rows={4}
             />
-            <button
-              className="textshare-btn ghost"
-              onClick={() => { navigator.clipboard.writeText(fetchedText); setStatus("Text copied!"); }}
-            >
-              <FiCopy />
+          </div>
+          
+          <div className="tst-actions">
+            <button className="tst-btn tst-btn-primary" onClick={handleGenerate}>
+              <FiSend /> Generate Code
+            </button>
+            {text && (
+              <button
+                className="tst-btn tst-btn-ghost"
+                onClick={() => setText("")}
+              >
+                Clear
+              </button>
+            )}
+          </div>
+
+          {code && (
+            <div className="tst-result-box">
+              <div className="tst-result-label">Your Code:</div>
+              <div className="tst-code-display">
+                <span className="tst-code">{code}</span>
+                <button
+                  className="tst-btn tst-btn-icon"
+                  onClick={() => { navigator.clipboard.writeText(code); showStatus("Code copied!", "success"); }}
+                  title="Copy code"
+                >
+                  <FiCopy />
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* Retrieve Text Section */}
+        <section className="tst-card" aria-labelledby="tst-retrieve">
+          <div className="tst-section-header">
+            <FiCode className="tst-section-icon" />
+            <h2 id="tst-retrieve" className="tst-subtitle">Retrieve Text</h2>
+          </div>
+          <p className="tst-plain">Enter a code to view the shared text.</p>
+          
+          <div className="tst-input-group">
+            <input
+              className="tst-input"
+              type="text"
+              placeholder="Enter code (e.g., ABC123)"
+              value={fetchCode}
+              onChange={e => setFetchCode(e.target.value.toUpperCase())}
+              maxLength={10}
+            />
+            <button className="tst-btn tst-btn-primary" onClick={handleFetch}>
+              <FiShare2 /> View Text
             </button>
           </div>
+
+          {fetchedText && (
+            <div className="tst-fetched-container">
+              <div className="tst-fetched-header">
+                <span className="tst-fetched-label">Retrieved Text:</span>
+                <button
+                  className="tst-btn tst-btn-icon"
+                  onClick={() => { navigator.clipboard.writeText(fetchedText); showStatus("Text copied!", "success"); }}
+                  title="Copy text"
+                >
+                  <FiCopy />
+                </button>
+              </div>
+              <div className="tst-textarea-wrapper">
+                <textarea
+                  ref={fetchedTextareaRef}
+                  className="tst-textarea tst-textarea-readonly"
+                  value={fetchedText}
+                  readOnly
+                  rows={4}
+                />
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* Status Message */}
+        {status && (
+          <div className={`tst-status ${statusType === 'error' ? 'tst-status-error' : statusType === 'success' ? 'tst-status-success' : ''}`}>
+            {status}
+          </div>
         )}
-      </div>
-      {status && <div className="textshare-status">{status}</div>}
-      <div className="textshare-note">
-        <small>Texts are deleted automatically after 24 hours.</small>
-      </div>
+
+        {/* Notice Card */}
+        <section className="tst-card tst-notice-card">
+          <p className="tst-notice">
+            <strong>Note:</strong> Texts are automatically deleted after 24 hours. Only share text that you're comfortable making accessible to anyone with the code.
+          </p>
+        </section>
+      </main>
     </div>
   );
 }
