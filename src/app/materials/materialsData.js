@@ -262,6 +262,12 @@ const materialsData = [
                 files: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Web-Development-Using-Ruby-on-Rails-%26-PostgreSQL/Ruby_Rails_PostgreSQL_Installation_Guide.pptx" },
                 ]
+            },
+            {
+                subject:"Full Stack development using Django",
+                files:[
+                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Full-Stack-development-using-Django/Module-1.pdf"}
+                ]
             }
         ],
     },
