@@ -32,6 +32,29 @@ export default function UpdatesPage() {
     fetchUpdates(1);
   }, []);
 
+  const formatRelativeTime = (iso) => {
+    try {
+      const then = new Date(iso);
+      const now = new Date();
+      const diffSec = Math.floor((now - then) / 1000);
+      if (diffSec < 60) {
+        return `${diffSec} second${diffSec === 1 ? '' : 's'} ago`;
+      }
+      const diffMin = Math.floor(diffSec / 60);
+      if (diffMin < 60) {
+        return `${diffMin} minute${diffMin === 1 ? '' : 's'} ago`;
+      }
+      const diffHour = Math.floor(diffMin / 60);
+      if (diffHour < 24) {
+        return `${diffHour} hour${diffHour === 1 ? '' : 's'} ago`;
+      }
+      // older than 24 hours -> show locale string
+      return then.toLocaleString();
+    } catch (e) {
+      return iso;
+    }
+  };
+
   const loadMore = () => {
     const next = pageIndex + 1;
     setPageIndex(next);
@@ -103,11 +126,7 @@ export default function UpdatesPage() {
                   </div>
                   <div className="upd-timestamp">
                     <FiClock className="upd-time-icon" />
-                    {new Date(u.createdAt).toLocaleDateString('en-US', { 
-                      month: 'short', 
-                      day: 'numeric',
-                      year: 'numeric'
-                    })}
+                    {formatRelativeTime(u.createdAt)}
                   </div>
                 </div>
 

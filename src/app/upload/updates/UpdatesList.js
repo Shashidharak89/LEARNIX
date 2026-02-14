@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import Link from 'next/link';
-import { FiTrash2, FiEdit2, FiSave, FiX } from "react-icons/fi";
+import { FiTrash2, FiEdit2, FiSave, FiX, FiUser, FiClock, FiExternalLink, FiChevronRight, FiAlertCircle, FiAlertTriangle } from "react-icons/fi";
+import './styles/UpdatesList.css';
 
 export default function UpdatesList() {
   const [updates, setUpdates] = useState([]);
@@ -15,6 +16,10 @@ export default function UpdatesList() {
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
   const [editLinksText, setEditLinksText] = useState("");
+  
+  // Modal states
+  const [deleteModal, setDeleteModal] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   const fetchPage = async (p = 1, append = false) => {
     setLoading(true);
@@ -23,12 +28,11 @@ export default function UpdatesList() {
       if (!res.ok) throw new Error('Failed to load updates');
       const data = await res.json();
       const items = data?.updates || [];
-      setHasMore(items.length === 10); // simple heuristic
+      setHasMore(items.length === 10);
       setUpdates(prev => (append ? [...prev, ...items] : items));
     } catch (err) {
       console.error(err);
-      setToast('Failed to load updates');
-      setTimeout(() => setToast(null), 3000);
+      showToast('Failed to load updates', 'error');
     } finally {
       setLoading(false);
     }
@@ -37,7 +41,6 @@ export default function UpdatesList() {
   useEffect(() => {
     fetchPage(1, false);
 
-    // resolve current user id from localStorage usn
     const usn = typeof window !== 'undefined' ? localStorage.getItem('usn') : null;
     if (!usn) return;
     (async () => {
@@ -59,10 +62,36 @@ export default function UpdatesList() {
     fetchPage(next, true);
   };
 
-  const formatDate = (iso) => {
+  const getRelativeTime = (iso) => {
     try {
-      const d = new Date(iso);
-      return d.toLocaleString();
+      const date = new Date(iso);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffSeconds = Math.floor(diffMs / 1000);
+      const diffMinutes = Math.floor(diffSeconds / 60);
+      const diffHours = Math.floor(diffMinutes / 60);
+      const diffDays = Math.floor(diffHours / 24);
+
+      // Under 24 hours - show relative time
+      if (diffDays < 1) {
+        if (diffSeconds < 60) return `${diffSeconds} second${diffSeconds !== 1 ? 's' : ''} ago`;
+        if (diffMinutes < 60) return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
+        return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+      }
+
+      // More than 24 hours - show formatted date and time
+      const dateStr = date.toLocaleDateString('en-US', { 
+        day: 'numeric',
+        month: 'short', 
+        year: 'numeric'
+      });
+      const timeStr = date.toLocaleTimeString('en-US', { 
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+      
+      return { date: dateStr, time: timeStr };
     } catch (e) {
       return iso;
     }
@@ -73,14 +102,21 @@ export default function UpdatesList() {
     return text.split(/[,\n]+/).map(s => s.trim()).filter(Boolean);
   };
 
-  const openEdit = (u) => {
+  const showToast = (message, type = 'info') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), type === 'error' ? 3000 : 2000);
+  };
+
+  const openEditWindow = (u) => {
     setEditingId(String(u._id));
     setEditTitle(u.title || "");
     setEditContent(u.content || "");
     setEditLinksText((u.links || []).join('\n'));
+    setEditModalOpen(true);
   };
 
-  const cancelEdit = () => {
+  const closeEditWindow = () => {
+    setEditModalOpen(false);
     setEditingId(null);
     setEditTitle('');
     setEditContent('');
@@ -89,8 +125,7 @@ export default function UpdatesList() {
 
   const saveEdit = async (updateId) => {
     if (!currentUserId) {
-      setToast('You must be signed in to edit');
-      setTimeout(() => setToast(null), 2500);
+      showToast('You must be signed in to edit', 'error');
       return;
     }
 
@@ -113,38 +148,46 @@ export default function UpdatesList() {
         throw new Error(data?.error || 'Edit failed');
       }
 
-      // Replace item in list
-      setUpdates(prev => prev.map(it => it._id === updateId ? { ...it, title: data.update.title, content: data.update.content, links: data.update.links || [] } : it));
-      setToast('Update saved');
-      setTimeout(() => setToast(null), 1800);
-      cancelEdit();
+      setUpdates(prev => prev.map(it => it._id === updateId ? { 
+        ...it, 
+        title: data.update.title, 
+        content: data.update.content, 
+        links: data.update.links || [] 
+      } : it));
+      showToast('Update saved successfully', 'success');
+      closeEditWindow();
     } catch (err) {
       console.error('Edit error', err);
-      setToast('Failed to save update');
-      setTimeout(() => setToast(null), 2500);
+      showToast('Failed to save update', 'error');
     }
   };
 
-  const handleDelete = async (updateId) => {
+  const openDeleteModal = (updateId, title) => {
+    setDeleteModal({ updateId, title });
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModal(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteModal) return;
+    
+    const updateId = deleteModal.updateId;
+    closeDeleteModal();
+
     if (!currentUserId) {
-      setToast('You must be signed in to delete');
-      setTimeout(() => setToast(null), 2500);
+      showToast('You must be signed in to delete', 'error');
       return;
     }
 
-    const ok = confirm('Delete this update? This cannot be undone.');
-    if (!ok) return;
-
-    // optimistic remove
     const prev = updates;
     const newList = updates.filter(u => u._id !== updateId);
     setUpdates(newList);
     pendingRef.current[updateId] = true;
 
     try {
-      const url = `/api/updates/delete`;
-      console.log('Deleting update (POST):', url, { updateId, userId: currentUserId });
-      const res = await fetch(url, {
+      const res = await fetch('/api/updates/delete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ updateId, userId: currentUserId }),
@@ -152,131 +195,279 @@ export default function UpdatesList() {
       let data;
       try { data = await res.json(); } catch (e) { data = null; }
       if (!res.ok) {
-        console.error('Delete response not ok', res.status, data);
         throw new Error(data?.error || `Delete failed (status ${res.status})`);
       }
-      setToast('Update deleted');
-      setTimeout(() => setToast(null), 2000);
+      showToast('Update deleted', 'success');
     } catch (err) {
       console.error('Delete error', err);
-      setToast('Failed to delete update');
-      setTimeout(() => setToast(null), 3000);
-      // revert
+      showToast('Failed to delete update', 'error');
       setUpdates(prev);
     } finally {
       delete pendingRef.current[updateId];
     }
   };
 
+  // Skeleton loader
+  const UpdateSkeleton = () => (
+    <div className="upl-card upl-skeleton">
+      <div className="upl-card-header">
+        <div className="upl-skeleton-avatar"></div>
+        <div className="upl-skeleton-text-group">
+          <div className="upl-skeleton-line upl-skeleton-title"></div>
+          <div className="upl-skeleton-line upl-skeleton-meta"></div>
+        </div>
+      </div>
+      <div className="upl-skeleton-content">
+        <div className="upl-skeleton-line upl-skeleton-text"></div>
+        <div className="upl-skeleton-line upl-skeleton-text upl-skeleton-text-short"></div>
+      </div>
+    </div>
+  );
+
   return (
-    <section style={{ marginTop: 20 }}>
-      <h4 style={{ margin: '6px 0 12px' }}>Recent Updates</h4>
-
-      {toast && (
-        <div style={{ marginBottom: 12, padding: 10, borderRadius: 6, background: '#fff7f0', color: '#333' }}>{toast}</div>
-      )}
-
-      {updates.length === 0 && !loading && (
-        <div style={{ padding: 12, borderRadius: 6, background: '#fbfbfb' }}>No updates yet.</div>
-      )}
-
-      <div style={{ display: 'grid', gap: 12 }}>
-        {updates.map(u => (
-          <article key={u._id} style={{ padding: 12, borderRadius: 8, border: '1px solid #eee', background: '#fff', position: 'relative' }}>
-            {currentUserId && u.userId && String(currentUserId) === String(u.userId) && (
-              <div style={{ position: 'absolute', right: 12, top: 12, display: 'flex', gap: 8 }}>
-                <button
-                  onClick={() => openEdit(u)}
-                  title="Edit"
-                  style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#2a7', padding: 4 }}
-                >
-                  <FiEdit2 />
-                </button>
-                <button
-                  onClick={() => handleDelete(String(u._id))}
-                  title="Delete"
-                  style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#c33', padding: 4 }}
-                >
-                  <FiTrash2 />
-                </button>
-              </div>
-            )}
-
-            <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-              <div style={{ width: 44, height: 44, borderRadius: 44, overflow: 'hidden', background: '#ddd' }}>
-                {u.profileUrl ? (
-                  <img src={u.profileUrl} alt={u.name || 'profile'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <div style={{ width: '100%', height: '100%' }} />
-                )}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
-                  {editingId === String(u._id) ? (
-                    <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} style={{ fontSize: 15, fontWeight: 700, flex: 1, padding: 6 }} />
-                  ) : (
-                    <strong style={{ fontSize: 15 }}>{u.title}</strong>
-                  )}
-                  <div style={{ marginLeft: 'auto', fontSize: 12, color: '#666' }}>{formatDate(u.createdAt)}</div>
-                </div>
-
-                {editingId === String(u._id) ? (
-                  <div style={{ marginTop: 8 }}>
-                    <textarea value={editContent} onChange={(e) => setEditContent(e.target.value)} rows={4} style={{ width: '100%', padding: 8 }} />
-                    <div style={{ marginTop: 8 }}>
-                      <label style={{ display: 'block', fontSize: 13, marginBottom: 6 }}>Links (one per line)</label>
-                      <textarea value={editLinksText} onChange={(e) => setEditLinksText(e.target.value)} rows={3} style={{ width: '100%', padding: 8 }} />
-                    </div>
-
-                    <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
-                      <button onClick={() => saveEdit(String(u._id))} style={{ padding: '6px 10px' }}><FiSave /> Save</button>
-                      <button onClick={cancelEdit} style={{ padding: '6px 10px' }}><FiX /> Cancel</button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <div style={{ marginTop: 6, color: '#333' }}>{u.content}</div>
-
-                    {u.links && u.links.length > 0 && (
-                      <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                        {u.links.map((ln, idx) => {
-                          const raw = String(ln || '').trim();
-                          const internal = raw.startsWith('/');
-                          if (internal) {
-                            return (
-                              <Link key={idx} href={raw} style={{ padding: '6px 10px', background: '#f5f5f5', borderRadius: 6, fontSize: 13, color: '#111', textDecoration: 'none' }}>
-                                Visit
-                              </Link>
-                            );
-                          }
-
-                          // External: ensure scheme exists, otherwise default to https://
-                          const hasScheme = /^https?:\/\//i.test(raw) || /^mailto:/i.test(raw);
-                          const href = hasScheme ? raw : `https://${raw}`;
-
-                          return (
-                            <a key={idx} href={href} target="_blank" rel="noreferrer noopener" style={{ padding: '6px 10px', background: '#f0f7ff', borderRadius: 6, fontSize: 13, color: '#0366d6', textDecoration: 'none' }}>
-                              {raw}
-                            </a>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </article>
-        ))}
+    <section className="upl-container">
+      <div className="upl-header-section">
+        <div className="upl-header-icon">
+          <FiClock />
+        </div>
+        <h4 className="upl-section-title">Recent Updates</h4>
       </div>
 
-      <div style={{ marginTop: 14, display: 'flex', justifyContent: 'center' }}>
-        {loading ? (
-          <button disabled style={{ padding: '8px 12px' }}>Loading...</button>
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`upl-toast upl-toast-${toast.type}`}>
+          <FiAlertCircle className="upl-toast-icon" />
+          <span>{toast.message}</span>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal && (
+        <div className="upl-modal-overlay" onClick={closeDeleteModal}>
+          <div className="upl-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="upl-modal-header">
+              <FiAlertTriangle className="upl-modal-icon upl-modal-icon-danger" />
+              <h3 className="upl-modal-title">Delete Update</h3>
+            </div>
+            <div className="upl-modal-body">
+              <p className="upl-modal-text">
+                Are you sure you want to delete <strong>"{deleteModal.title}"</strong>?
+              </p>
+              <p className="upl-modal-subtext">This action cannot be undone.</p>
+            </div>
+            <div className="upl-modal-actions">
+              <button onClick={closeDeleteModal} className="upl-modal-btn upl-modal-btn-cancel">
+                <FiX />
+                <span>Cancel</span>
+              </button>
+              <button onClick={confirmDelete} className="upl-modal-btn upl-modal-btn-danger">
+                <FiTrash2 />
+                <span>Delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Window Modal */}
+      {editModalOpen && (
+        <div className="upl-modal-overlay" onClick={closeEditWindow}>
+          <div className="upl-modal upl-modal-large" onClick={(e) => e.stopPropagation()}>
+            <div className="upl-modal-header">
+              <FiEdit2 className="upl-modal-icon upl-modal-icon-primary" />
+              <h3 className="upl-modal-title">Edit Update</h3>
+            </div>
+            <div className="upl-modal-body">
+              <div className="upl-edit-field">
+                <label className="upl-edit-label">Title</label>
+                <input 
+                  value={editTitle} 
+                  onChange={(e) => setEditTitle(e.target.value)} 
+                  className="upl-edit-title-input"
+                  placeholder="Update title..."
+                />
+              </div>
+
+              <div className="upl-edit-field">
+                <label className="upl-edit-label">Content</label>
+                <textarea 
+                  value={editContent} 
+                  onChange={(e) => setEditContent(e.target.value)} 
+                  rows={5}
+                  className="upl-edit-textarea"
+                  placeholder="Update content..."
+                />
+              </div>
+
+              <div className="upl-edit-field">
+                <label className="upl-edit-label">Links (one per line)</label>
+                <textarea 
+                  value={editLinksText} 
+                  onChange={(e) => setEditLinksText(e.target.value)} 
+                  rows={3}
+                  className="upl-edit-textarea"
+                  placeholder="/internal-link or https://external-link.com"
+                />
+              </div>
+            </div>
+            <div className="upl-modal-actions">
+              <button onClick={closeEditWindow} className="upl-modal-btn upl-modal-btn-cancel">
+                <FiX />
+                <span>Cancel</span>
+              </button>
+              <button onClick={() => saveEdit(editingId)} className="upl-modal-btn upl-modal-btn-primary">
+                <FiSave />
+                <span>Save Changes</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {updates.length === 0 && !loading && (
+        <div className="upl-empty-state">
+          <FiClock className="upl-empty-icon" />
+          <p className="upl-empty-text">No updates yet.</p>
+        </div>
+      )}
+
+      {/* Skeleton Loading */}
+      {loading && page === 1 && (
+        <div className="upl-list">
+          <UpdateSkeleton />
+          <UpdateSkeleton />
+          <UpdateSkeleton />
+        </div>
+      )}
+
+      {/* Updates List */}
+      <div className="upl-list">
+        {updates.map((u, idx) => {
+          const timeData = getRelativeTime(u.createdAt);
+          const isRelative = typeof timeData === 'string';
+          
+          return (
+            <article key={u._id} className="upl-card" style={{ animationDelay: `${idx * 50}ms` }}>
+              {/* Card Header */}
+              <div className="upl-card-header">
+                <div className="upl-avatar-wrapper">
+                  {u.profileUrl ? (
+                    <img src={u.profileUrl} alt={u.name || 'profile'} className="upl-avatar" />
+                  ) : (
+                    <div className="upl-avatar upl-avatar-placeholder">
+                      <FiUser />
+                    </div>
+                  )}
+                </div>
+
+                <div className="upl-user-info">
+                  <div className="upl-title-section">
+                    <strong className="upl-user-title">{u.title}</strong>
+                    <div className="upl-meta-row">
+                      {/* Action Buttons */}
+                      {currentUserId && u.userId && String(currentUserId) === String(u.userId) && (
+                        <div className="upl-actions">
+                          <button
+                            onClick={() => openEditWindow(u)}
+                            className="upl-action-btn upl-action-edit"
+                            title="Edit"
+                            aria-label="Edit update"
+                          >
+                            <FiEdit2 />
+                          </button>
+                          <button
+                            onClick={() => openDeleteModal(String(u._id), u.title)}
+                            className="upl-action-btn upl-action-delete"
+                            title="Delete"
+                            aria-label="Delete update"
+                          >
+                            <FiTrash2 />
+                          </button>
+                        </div>
+                      )}
+                      
+                      {/* Timestamp */}
+                      <div className="upl-timestamp">
+                        <FiClock className="upl-time-icon" />
+                        {isRelative ? (
+                          <span className="upl-time-relative">{timeData}</span>
+                        ) : (
+                          <div className="upl-time-absolute">
+                            <span className="upl-time-date">{timeData.date}</span>
+                            <span className="upl-time-clock">{timeData.time}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Content */}
+              {u.content && (
+                <p className="upl-content">{u.content}</p>
+              )}
+
+              {/* Links */}
+              {u.links && u.links.length > 0 && (
+                <div className="upl-links">
+                  {u.links.map((ln, idx) => {
+                    const raw = String(ln || '').trim();
+                    if (!raw) return null;
+                    
+                    const internal = raw.startsWith('/');
+                    
+                    if (internal) {
+                      return (
+                        <Link key={idx} href={raw} className="upl-link upl-link-internal">
+                          <span>Visit</span>
+                          <FiChevronRight className="upl-link-icon" />
+                        </Link>
+                      );
+                    }
+
+                    const hasScheme = /^https?:\/\//i.test(raw) || /^mailto:/i.test(raw);
+                    const href = hasScheme ? raw : `https://${raw}`;
+
+                    return (
+                      <a 
+                        key={idx} 
+                        href={href} 
+                        target="_blank" 
+                        rel="noreferrer noopener" 
+                        className="upl-link upl-link-external"
+                      >
+                        <span>{raw}</span>
+                        <FiExternalLink className="upl-link-icon" />
+                      </a>
+                    );
+                  })}
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </div>
+
+      {/* Load More Section */}
+      <div className="upl-load-more-section">
+        {loading && page > 1 ? (
+          <button className="upl-load-more-btn" disabled>
+            <span className="upl-spinner"></span>
+            <span>Loading...</span>
+          </button>
         ) : hasMore ? (
-          <button onClick={loadMore} style={{ padding: '8px 12px' }}>Load more</button>
+          <button onClick={loadMore} className="upl-load-more-btn">
+            <span>Load More</span>
+            <FiChevronRight className="upl-btn-icon" />
+          </button>
         ) : (
-          updates.length > 0 && <div style={{ color: '#666' }}>No more updates</div>
+          updates.length > 0 && (
+            <div className="upl-end-message">
+              <span>No more updates</span>
+            </div>
+          )
         )}
       </div>
     </section>
