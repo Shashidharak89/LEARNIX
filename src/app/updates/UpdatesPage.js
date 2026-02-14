@@ -61,16 +61,21 @@ export default function UpdatesPage() {
               <p style={{ marginTop: 10 }}>{u.content}</p>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 {u.links && u.links.map((l, i) => {
-                  const isInternal = typeof l === 'string' && l.startsWith('/');
+                  const raw = String(l || '').trim();
+                  const isInternal = raw.startsWith('/');
                   if (isInternal) {
                     return (
-                      <Link key={i} href={l} className="tst-btn tst-btn-ghost" style={{ fontSize: 14 }}>
+                      <Link key={i} href={raw} className="tst-btn tst-btn-ghost" style={{ fontSize: 14 }}>
                         Visit
                       </Link>
                     );
                   }
+
+                  const hasScheme = /^https?:\/\//i.test(raw) || /^mailto:/i.test(raw);
+                  const href = hasScheme ? raw : `https://${raw}`;
+
                   return (
-                    <a key={i} href={l} target="_blank" rel="noreferrer" style={{ color: '#ff9500', textDecoration: 'underline', fontSize: 14 }}>{l}</a>
+                    <a key={i} href={href} target="_blank" rel="noreferrer noopener" style={{ color: '#ff9500', textDecoration: 'underline', fontSize: 14 }}>{raw}</a>
                   );
                 })}
               </div>
