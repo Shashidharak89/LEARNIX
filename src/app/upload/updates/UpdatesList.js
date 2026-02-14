@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import { FiTrash2 } from "react-icons/fi";
+import { FiTrash2, FiEdit2, FiSave, FiX } from "react-icons/fi";
 
 export default function UpdatesList() {
   const [updates, setUpdates] = useState([]);
@@ -10,6 +10,10 @@ export default function UpdatesList() {
   const [currentUserId, setCurrentUserId] = useState(null);
   const [toast, setToast] = useState(null);
   const pendingRef = useRef({});
+  const [editingId, setEditingId] = useState(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [editLinksText, setEditLinksText] = useState("");
 
   const fetchPage = async (p = 1, append = false) => {
     setLoading(true);
@@ -60,6 +64,63 @@ export default function UpdatesList() {
       return d.toLocaleString();
     } catch (e) {
       return iso;
+    }
+  };
+
+  const parseLinks = (text) => {
+    if (!text) return [];
+    return text.split(/[,\n]+/).map(s => s.trim()).filter(Boolean);
+  };
+
+  const openEdit = (u) => {
+    setEditingId(String(u._id));
+    setEditTitle(u.title || "");
+    setEditContent(u.content || "");
+    setEditLinksText((u.links || []).join('\n'));
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditTitle('');
+    setEditContent('');
+    setEditLinksText('');
+  };
+
+  const saveEdit = async (updateId) => {
+    if (!currentUserId) {
+      setToast('You must be signed in to edit');
+      setTimeout(() => setToast(null), 2500);
+      return;
+    }
+
+    const payload = {
+      updateId,
+      userId: currentUserId,
+      title: editTitle,
+      content: editContent,
+      links: parseLinks(editLinksText)
+    };
+
+    try {
+      const res = await fetch('/api/updates/edit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.error || 'Edit failed');
+      }
+
+      // Replace item in list
+      setUpdates(prev => prev.map(it => it._id === updateId ? { ...it, title: data.update.title, content: data.update.content, links: data.update.links || [] } : it));
+      setToast('Update saved');
+      setTimeout(() => setToast(null), 1800);
+      cancelEdit();
+    } catch (err) {
+      console.error('Edit error', err);
+      setToast('Failed to save update');
+      setTimeout(() => setToast(null), 2500);
     }
   };
 
@@ -122,13 +183,22 @@ export default function UpdatesList() {
         {updates.map(u => (
           <article key={u._id} style={{ padding: 12, borderRadius: 8, border: '1px solid #eee', background: '#fff', position: 'relative' }}>
             {currentUserId && u.userId && String(currentUserId) === String(u.userId) && (
-              <button
-                onClick={() => handleDelete(String(u._id))}
-                title="Delete"
-                style={{ position: 'absolute', right: 12, top: 12, border: 'none', background: 'transparent', cursor: 'pointer', color: '#c33' }}
-              >
-                <FiTrash2 />
-              </button>
+              <div style={{ position: 'absolute', right: 12, top: 12, display: 'flex', gap: 8 }}>
+                <button
+                  onClick={() => openEdit(u)}
+                  title="Edit"
+                  style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#2a7', padding: 4 }}
+                >
+                  <FiEdit2 />
+                </button>
+                <button
+                  onClick={() => handleDelete(String(u._id))}
+                  title="Delete"
+                  style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#c33', padding: 4 }}
+                >
+                  <FiTrash2 />
+                </button>
+              </div>
             )}
 
             <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
@@ -141,28 +211,50 @@ export default function UpdatesList() {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
-                  <strong style={{ fontSize: 15 }}>{u.title}</strong>
+                  {editingId === String(u._id) ? (
+                    <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} style={{ fontSize: 15, fontWeight: 700, flex: 1, padding: 6 }} />
+                  ) : (
+                    <strong style={{ fontSize: 15 }}>{u.title}</strong>
+                  )}
                   <div style={{ marginLeft: 'auto', fontSize: 12, color: '#666' }}>{formatDate(u.createdAt)}</div>
                 </div>
-                <div style={{ marginTop: 6, color: '#333' }}>{u.content}</div>
 
-                {u.links && u.links.length > 0 && (
-                  <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    {u.links.map((ln, idx) => {
-                      const internal = String(ln || '').startsWith('/');
-                      if (internal) {
-                        return (
-                          <a key={idx} href={ln} style={{ padding: '6px 10px', background: '#f5f5f5', borderRadius: 6, fontSize: 13, color: '#111', textDecoration: 'none' }}>
-                            Visit
-                          </a>
-                        );
-                      }
-                      return (
-                        <a key={idx} href={ln} target="_blank" rel="noreferrer" style={{ padding: '6px 10px', background: '#f0f7ff', borderRadius: 6, fontSize: 13, color: '#0366d6', textDecoration: 'none' }}>
-                          {ln}
-                        </a>
-                      );
-                    })}
+                {editingId === String(u._id) ? (
+                  <div style={{ marginTop: 8 }}>
+                    <textarea value={editContent} onChange={(e) => setEditContent(e.target.value)} rows={4} style={{ width: '100%', padding: 8 }} />
+                    <div style={{ marginTop: 8 }}>
+                      <label style={{ display: 'block', fontSize: 13, marginBottom: 6 }}>Links (one per line)</label>
+                      <textarea value={editLinksText} onChange={(e) => setEditLinksText(e.target.value)} rows={3} style={{ width: '100%', padding: 8 }} />
+                    </div>
+
+                    <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+                      <button onClick={() => saveEdit(String(u._id))} style={{ padding: '6px 10px' }}><FiSave /> Save</button>
+                      <button onClick={cancelEdit} style={{ padding: '6px 10px' }}><FiX /> Cancel</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <div style={{ marginTop: 6, color: '#333' }}>{u.content}</div>
+
+                    {u.links && u.links.length > 0 && (
+                      <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        {u.links.map((ln, idx) => {
+                          const internal = String(ln || '').startsWith('/');
+                          if (internal) {
+                            return (
+                              <a key={idx} href={ln} style={{ padding: '6px 10px', background: '#f5f5f5', borderRadius: 6, fontSize: 13, color: '#111', textDecoration: 'none' }}>
+                                Visit
+                              </a>
+                            );
+                          }
+                          return (
+                            <a key={idx} href={ln} target="_blank" rel="noreferrer" style={{ padding: '6px 10px', background: '#f0f7ff', borderRadius: 6, fontSize: 13, color: '#0366d6', textDecoration: 'none' }}>
+                              {ln}
+                            </a>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
