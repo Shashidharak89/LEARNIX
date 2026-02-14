@@ -50,3 +50,51 @@ export async function GET(req) {
     return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
   }
 }
+
+export async function POST(req) {
+  try {
+    await connectDB();
+
+    const body = await req.json();
+    const { title, content, links, userId } = body || {};
+
+    if (!title || !content) {
+      return NextResponse.json({ error: 'Title and content are required' }, { status: 400 });
+    }
+
+    let user = null;
+    if (userId) {
+      user = await User.findById(userId).lean();
+      if (!user) {
+        return NextResponse.json({ error: 'Invalid userId' }, { status: 400 });
+      }
+    }
+
+    const updateDoc = new Update({
+      title,
+      content,
+      links: Array.isArray(links) ? links : (links ? [links] : []),
+      userId: userId || null,
+    });
+
+    await updateDoc.save();
+
+    const enriched = {
+      _id: updateDoc._id,
+      title: updateDoc.title,
+      content: updateDoc.content,
+      links: updateDoc.links || [],
+      userId: updateDoc.userId,
+      createdAt: updateDoc.createdAt,
+      updatedAt: updateDoc.updatedAt,
+      usn: user?.usn || null,
+      name: user?.name || null,
+      profileUrl: user?.profileimg || null,
+    };
+
+    return NextResponse.json({ update: enriched }, { status: 201 });
+  } catch (error) {
+    console.error('POST /api/updates error:', error);
+    return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
+  }
+}
