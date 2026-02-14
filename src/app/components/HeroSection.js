@@ -13,6 +13,7 @@ import {
   FiUpload,
   FiShield,
   FiFileText,
+  FiBell,
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import "./styles/HeroSection.css";
@@ -131,6 +132,10 @@ export default function HeroSection() {
             <Link href="/dashboard" className="learnix-nav-card">
               <FiTrendingUp className="learnix-nav-card-icon" />
               <span>Dashboard</span>
+            </Link>
+            <Link href="/updates" className="learnix-nav-card">
+              <FiBell className="learnix-nav-card-icon" />
+              <span>Updates</span>
             </Link>
           </div>
           <WhatIsLearnix/>
