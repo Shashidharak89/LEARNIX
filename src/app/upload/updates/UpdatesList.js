@@ -1,11 +1,15 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { FiTrash2 } from "react-icons/fi";
 
 export default function UpdatesList() {
   const [updates, setUpdates] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [toast, setToast] = useState(null);
+  const pendingRef = useRef({});
 
   const fetchPage = async (p = 1, append = false) => {
     setLoading(true);
@@ -18,6 +22,8 @@ export default function UpdatesList() {
       setUpdates(prev => (append ? [...prev, ...items] : items));
     } catch (err) {
       console.error(err);
+      setToast('Failed to load updates');
+      setTimeout(() => setToast(null), 3000);
     } finally {
       setLoading(false);
     }
@@ -25,6 +31,21 @@ export default function UpdatesList() {
 
   useEffect(() => {
     fetchPage(1, false);
+
+    // resolve current user id from localStorage usn
+    const usn = typeof window !== 'undefined' ? localStorage.getItem('usn') : null;
+    if (!usn) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/user/id?usn=${encodeURIComponent(usn)}`);
+        if (res.ok) {
+          const d = await res.json();
+          if (d?.userId) setCurrentUserId(d.userId);
+        }
+      } catch (e) {
+        console.error('Failed to resolve current user id', e);
+      }
+    })();
   }, []);
 
   const loadMore = () => {
@@ -42,9 +63,56 @@ export default function UpdatesList() {
     }
   };
 
+  const handleDelete = async (updateId) => {
+    if (!currentUserId) {
+      setToast('You must be signed in to delete');
+      setTimeout(() => setToast(null), 2500);
+      return;
+    }
+
+    const ok = confirm('Delete this update? This cannot be undone.');
+    if (!ok) return;
+
+    // optimistic remove
+    const prev = updates;
+    const newList = updates.filter(u => u._id !== updateId);
+    setUpdates(newList);
+    pendingRef.current[updateId] = true;
+
+    try {
+      const url = `/api/updates/delete`;
+      console.log('Deleting update (POST):', url, { updateId, userId: currentUserId });
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ updateId, userId: currentUserId }),
+      });
+      let data;
+      try { data = await res.json(); } catch (e) { data = null; }
+      if (!res.ok) {
+        console.error('Delete response not ok', res.status, data);
+        throw new Error(data?.error || `Delete failed (status ${res.status})`);
+      }
+      setToast('Update deleted');
+      setTimeout(() => setToast(null), 2000);
+    } catch (err) {
+      console.error('Delete error', err);
+      setToast('Failed to delete update');
+      setTimeout(() => setToast(null), 3000);
+      // revert
+      setUpdates(prev);
+    } finally {
+      delete pendingRef.current[updateId];
+    }
+  };
+
   return (
     <section style={{ marginTop: 20 }}>
       <h4 style={{ margin: '6px 0 12px' }}>Recent Updates</h4>
+
+      {toast && (
+        <div style={{ marginBottom: 12, padding: 10, borderRadius: 6, background: '#fff7f0', color: '#333' }}>{toast}</div>
+      )}
 
       {updates.length === 0 && !loading && (
         <div style={{ padding: 12, borderRadius: 6, background: '#fbfbfb' }}>No updates yet.</div>
@@ -52,7 +120,17 @@ export default function UpdatesList() {
 
       <div style={{ display: 'grid', gap: 12 }}>
         {updates.map(u => (
-          <article key={u._id} style={{ padding: 12, borderRadius: 8, border: '1px solid #eee', background: '#fff' }}>
+          <article key={u._id} style={{ padding: 12, borderRadius: 8, border: '1px solid #eee', background: '#fff', position: 'relative' }}>
+            {currentUserId && u.userId && String(currentUserId) === String(u.userId) && (
+              <button
+                onClick={() => handleDelete(String(u._id))}
+                title="Delete"
+                style={{ position: 'absolute', right: 12, top: 12, border: 'none', background: 'transparent', cursor: 'pointer', color: '#c33' }}
+              >
+                <FiTrash2 />
+              </button>
+            )}
+
             <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
               <div style={{ width: 44, height: 44, borderRadius: 44, overflow: 'hidden', background: '#ddd' }}>
                 {u.profileUrl ? (
