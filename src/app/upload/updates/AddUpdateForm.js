@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { FiEdit3, FiSend, FiX, FiUser, FiLink, FiAlertCircle, FiCheckCircle } from "react-icons/fi";
+import './styles/AddUpdateForm.css';
 
 export default function AddUpdateForm() {
   const [title, setTitle] = useState("");
@@ -28,14 +30,13 @@ export default function AddUpdateForm() {
     })();
   }, []);
 
-  const showToast = (msg, timeout = 3500) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), timeout);
+  const showToast = (msg, type = 'info') => {
+    setToast({ message: msg, type });
+    setTimeout(() => setToast(null), 3500);
   };
 
   const parseLinks = (text) => {
     if (!text) return [];
-    // Support newline or comma separated
     return text
       .split(/[,\n]+/)
       .map(s => s.trim())
@@ -45,7 +46,7 @@ export default function AddUpdateForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) {
-      showToast('Please enter title and content');
+      showToast('Please enter title and content', 'error');
       return;
     }
 
@@ -61,74 +62,149 @@ export default function AddUpdateForm() {
 
       const data = await res.json();
       if (res.ok) {
-        showToast('Update created successfully');
+        showToast('Update created successfully', 'success');
         setTitle('');
         setContent('');
         setLinksText('');
         // Optionally navigate to updates list
         // router.push('/updates');
       } else {
-        showToast(data?.error || 'Failed to create update');
+        showToast(data?.error || 'Failed to create update', 'error');
       }
     } catch (err) {
       console.error(err);
-      showToast('Network error');
+      showToast('Network error', 'error');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleClear = () => {
+    setTitle('');
+    setContent('');
+    setLinksText('');
+  };
+
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <label style={{ display: 'block', marginBottom: 8 }}>
-          Title
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Title"
-            style={{ display: 'block', width: '100%', padding: 8, marginTop: 6 }}
-          />
-        </label>
-
-        <label style={{ display: 'block', marginBottom: 8 }}>
-          Content
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Write your update content here"
-            rows={6}
-            style={{ display: 'block', width: '100%', padding: 8, marginTop: 6 }}
-          />
-        </label>
-
-        <label style={{ display: 'block', marginBottom: 8 }}>
-          Links (comma or newline separated)
-          <textarea
-            value={linksText}
-            onChange={(e) => setLinksText(e.target.value)}
-            placeholder="/works/subject/.. or https://example.com"
-            rows={3}
-            style={{ display: 'block', width: '100%', padding: 8, marginTop: 6 }}
-          />
-        </label>
-
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 10 }}>
-          <button type="submit" disabled={loading} style={{ padding: '8px 14px' }}>
-            {loading ? 'Saving...' : 'Create Update'}
-          </button>
-          <button type="button" onClick={() => { setTitle(''); setContent(''); setLinksText(''); }} style={{ padding: '8px 12px' }}>
-            Clear
-          </button>
-          <div style={{ marginLeft: 'auto', fontSize: 13, opacity: 0.9 }}>
-            {userId ? 'Posting as user' : 'Not signed in'}
-          </div>
+    <div className="auf-container">
+      {/* Header */}
+      <div className="auf-header">
+        <div className="auf-header-icon">
+          <FiEdit3 />
         </div>
-      </form>
+        <h3 className="auf-header-title">Create Update</h3>
+      </div>
 
+      {/* Toast Notification */}
       {toast && (
-        <div style={{ marginTop: 12, padding: 10, borderRadius: 6, background: '#f0f4f8' }}>{toast}</div>
+        <div className={`auf-toast auf-toast-${toast.type}`}>
+          {toast.type === 'success' ? (
+            <FiCheckCircle className="auf-toast-icon" />
+          ) : (
+            <FiAlertCircle className="auf-toast-icon" />
+          )}
+          <span>{toast.message}</span>
+        </div>
       )}
+
+      {/* Form Card */}
+      <div className="auf-card">
+        <form onSubmit={handleSubmit} className="auf-form">
+          {/* Title Field */}
+          <div className="auf-field">
+            <label className="auf-label">
+              <FiEdit3 className="auf-label-icon" />
+              <span>Title</span>
+              <span className="auf-required">*</span>
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter update title..."
+              className="auf-input"
+              required
+            />
+          </div>
+
+          {/* Content Field */}
+          <div className="auf-field">
+            <label className="auf-label">
+              <FiEdit3 className="auf-label-icon" />
+              <span>Content</span>
+              <span className="auf-required">*</span>
+            </label>
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Write your update content here..."
+              rows={6}
+              className="auf-textarea"
+              required
+            />
+            <div className="auf-hint">
+              Share information, announcements, or resources with the community
+            </div>
+          </div>
+
+          {/* Links Field */}
+          <div className="auf-field">
+            <label className="auf-label">
+              <FiLink className="auf-label-icon" />
+              <span>Links (optional)</span>
+            </label>
+            <textarea
+              value={linksText}
+              onChange={(e) => setLinksText(e.target.value)}
+              placeholder="/internal/path or https://external-link.com&#10;Separate multiple links with commas or new lines"
+              rows={3}
+              className="auf-textarea auf-textarea-links"
+            />
+            <div className="auf-hint">
+              Add internal paths (starting with /) or external URLs
+            </div>
+          </div>
+
+          {/* Action Bar */}
+          <div className="auf-actions">
+            <div className="auf-user-status">
+              <FiUser className="auf-status-icon" />
+              <span className={userId ? 'auf-status-active' : 'auf-status-inactive'}>
+                {userId ? 'Signed in' : 'Not signed in'}
+              </span>
+            </div>
+
+            <div className="auf-buttons">
+              <button 
+                type="button" 
+                onClick={handleClear}
+                className="auf-btn auf-btn-clear"
+                disabled={loading}
+              >
+                <FiX />
+                <span>Clear</span>
+              </button>
+              <button 
+                type="submit" 
+                className="auf-btn auf-btn-submit"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <span className="auf-spinner"></span>
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <FiSend />
+                    <span>Create Update</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

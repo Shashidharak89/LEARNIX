@@ -1,0 +1,563 @@
+/* styles/AddUpdateForm.css
+   Colors: Sky Blue (#38bdf8) and Yellowish Orange (#fb923c)
+   Full-width responsive form design
+*/
+
+:root {
+  --auf-bg: #ffffff;
+  --auf-text: #0f172a;
+  --auf-text-light: rgba(15, 23, 42, 0.6);
+  --auf-sky-blue: #38bdf8;
+  --auf-sky-blue-dark: #0284c7;
+  --auf-orange: #fb923c;
+  --auf-orange-dark: #f97316;
+  --auf-border: rgba(15, 23, 42, 0.08);
+  --auf-shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
+  --auf-shadow-md: 0 4px 16px rgba(15, 23, 42, 0.06);
+  --auf-shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --auf-radius: 10px;
+  --auf-ease: cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+/* ============================================
+   Container
+   ============================================ */
+
+.auf-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 20px 0;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   Header
+   ============================================ */
+
+.auf-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  animation: auf-fade-in 420ms var(--auf-ease) both;
+}
+
+.auf-header-icon {
+  color: var(--auf-sky-blue);
+  font-size: 28px;
+  animation: auf-icon-pop 420ms var(--auf-ease) both;
+}
+
+.auf-header-title {
+  color: var(--auf-text);
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* ============================================
+   Toast Notification
+   ============================================ */
+
+.auf-toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  animation: auf-slide-down 320ms var(--auf-ease) both;
+}
+
+.auf-toast-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.auf-toast-info {
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--auf-sky-blue-dark);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.auf-toast-info .auf-toast-icon {
+  color: var(--auf-sky-blue);
+}
+
+.auf-toast-success {
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--auf-sky-blue-dark);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.auf-toast-success .auf-toast-icon {
+  color: var(--auf-sky-blue);
+}
+
+.auf-toast-error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.auf-toast-error .auf-toast-icon {
+  color: #ef4444;
+}
+
+/* ============================================
+   Form Card
+   ============================================ */
+
+.auf-card {
+  background: #fff;
+  border: 1px solid var(--auf-border);
+  border-radius: var(--auf-radius);
+  padding: 24px;
+  box-shadow: var(--auf-shadow-sm);
+  animation: auf-card-appear 420ms var(--auf-ease) both;
+  animation-delay: 100ms;
+}
+
+/* ============================================
+   Form
+   ============================================ */
+
+.auf-form {
+  width: 100%;
+}
+
+/* ============================================
+   Form Fields
+   ============================================ */
+
+.auf-field {
+  margin-bottom: 24px;
+}
+
+.auf-field:last-of-type {
+  margin-bottom: 0;
+}
+
+.auf-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--auf-text);
+  margin-bottom: 8px;
+}
+
+.auf-label-icon {
+  font-size: 16px;
+  color: var(--auf-sky-blue);
+}
+
+.auf-required {
+  color: #ef4444;
+  font-size: 14px;
+  margin-left: 2px;
+}
+
+/* Input Styles */
+.auf-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid var(--auf-border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--auf-text);
+  transition: all 220ms var(--auf-ease);
+  box-sizing: border-box;
+  background: #fff;
+}
+
+.auf-input:focus {
+  outline: none;
+  border-color: var(--auf-sky-blue);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+}
+
+.auf-input::placeholder {
+  color: var(--auf-text-light);
+}
+
+/* Textarea Styles */
+.auf-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid var(--auf-border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--auf-text);
+  resize: vertical;
+  transition: all 220ms var(--auf-ease);
+  box-sizing: border-box;
+  background: #fff;
+  min-height: 120px;
+}
+
+.auf-textarea:focus {
+  outline: none;
+  border-color: var(--auf-sky-blue);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+}
+
+.auf-textarea::placeholder {
+  color: var(--auf-text-light);
+}
+
+.auf-textarea-links {
+  min-height: 90px;
+}
+
+/* Field Hint */
+.auf-hint {
+  font-size: 13px;
+  color: var(--auf-text-light);
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ============================================
+   Action Bar
+   ============================================ */
+
+.auf-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 20px;
+  border-top: 1px solid var(--auf-border);
+  margin-top: 24px;
+}
+
+/* User Status */
+.auf-user-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.auf-status-icon {
+  font-size: 16px;
+  color: var(--auf-sky-blue);
+}
+
+.auf-status-active {
+  color: var(--auf-sky-blue-dark);
+  font-weight: 500;
+}
+
+.auf-status-inactive {
+  color: var(--auf-text-light);
+  font-weight: 500;
+}
+
+/* Buttons Container */
+.auf-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+/* Button Base */
+.auf-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 220ms var(--auf-ease);
+  white-space: nowrap;
+}
+
+.auf-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Clear Button */
+.auf-btn-clear {
+  background: rgba(15, 23, 42, 0.06);
+  color: var(--auf-text);
+  border: 1px solid var(--auf-border);
+}
+
+.auf-btn-clear:hover:not(:disabled) {
+  background: rgba(15, 23, 42, 0.12);
+}
+
+.auf-btn-clear:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Submit Button */
+.auf-btn-submit {
+  background: linear-gradient(135deg, var(--auf-orange) 0%, var(--auf-orange-dark) 100%);
+  color: white;
+  box-shadow: var(--auf-shadow-sm);
+}
+
+.auf-btn-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--auf-shadow-md);
+}
+
+.auf-btn-submit:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Loading Spinner */
+.auf-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: auf-spin 600ms linear infinite;
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes auf-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes auf-icon-pop {
+  from {
+    transform: scale(0.95) translateY(6px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes auf-card-appear {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes auf-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes auf-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
+   Responsive Styles
+   ============================================ */
+
+/* Very small screens */
+@media (max-width: 500px) {
+  .auf-header {
+    gap: 10px;
+  }
+
+  .auf-header-icon {
+    font-size: 24px;
+  }
+
+  .auf-header-title {
+    font-size: 18px;
+  }
+
+  .auf-card {
+    padding: 16px;
+    border-radius: 8px;
+  }
+
+  .auf-field {
+    margin-bottom: 18px;
+  }
+
+  .auf-label {
+    font-size: 13px;
+  }
+
+  .auf-label-icon {
+    font-size: 14px;
+  }
+
+  .auf-input {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  .auf-textarea {
+    padding: 10px 12px;
+    font-size: 14px;
+    min-height: 100px;
+  }
+
+  .auf-textarea-links {
+    min-height: 80px;
+  }
+
+  .auf-hint {
+    font-size: 12px;
+  }
+
+  .auf-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-top: 16px;
+    margin-top: 20px;
+  }
+
+  .auf-user-status {
+    order: 2;
+    justify-content: center;
+  }
+
+  .auf-buttons {
+    order: 1;
+    flex-direction: column-reverse;
+  }
+
+  .auf-btn {
+    width: 100%;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+}
+
+/* Small screens */
+@media (min-width: 501px) and (max-width: 768px) {
+  .auf-card {
+    padding: 20px;
+  }
+
+  .auf-actions {
+    flex-wrap: wrap;
+  }
+
+  .auf-user-status {
+    width: 100%;
+    justify-content: center;
+    order: 2;
+  }
+
+  .auf-buttons {
+    width: 100%;
+    justify-content: center;
+    order: 1;
+  }
+}
+
+/* Medium screens */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .auf-card {
+    padding: 22px;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1200px) {
+  .auf-card {
+    padding: 28px 32px;
+  }
+
+  .auf-input,
+  .auf-textarea {
+    font-size: 16px;
+  }
+}
+
+/* ============================================
+   Accessibility & Performance
+   ============================================ */
+
+/* Focus states */
+.auf-input:focus,
+.auf-textarea:focus,
+.auf-btn:focus {
+  outline: 3px solid rgba(56, 189, 248, 0.3);
+  outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .auf-card {
+    border-width: 2px;
+    border-color: #000;
+  }
+
+  .auf-input,
+  .auf-textarea,
+  .auf-btn {
+    border: 2px solid;
+  }
+}
+
+/* Print styles */
+@media print {
+  .auf-container {
+    background: white;
+  }
+
+  .auf-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+
+  .auf-toast,
+  .auf-buttons {
+    display: none;
+  }
+}
