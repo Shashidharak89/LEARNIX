@@ -2,6 +2,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Navbar } from '../components/Navbar';
+import { FiClock, FiUser, FiExternalLink, FiChevronRight } from 'react-icons/fi';
+import './styles/Updates.css';
 
 export default function UpdatesPage() {
   const [updates, setUpdates] = useState([]);
@@ -36,61 +38,146 @@ export default function UpdatesPage() {
     fetchUpdates(next);
   };
 
+  // Skeleton loader component
+  const UpdateSkeleton = () => (
+    <div className="upd-card upd-skeleton">
+      <div className="upd-card-header">
+        <div className="upd-skeleton-avatar"></div>
+        <div className="upd-skeleton-text-group">
+          <div className="upd-skeleton-line upd-skeleton-name"></div>
+          <div className="upd-skeleton-line upd-skeleton-title"></div>
+        </div>
+      </div>
+      <div className="upd-skeleton-content">
+        <div className="upd-skeleton-line upd-skeleton-text"></div>
+        <div className="upd-skeleton-line upd-skeleton-text upd-skeleton-text-short"></div>
+      </div>
+    </div>
+  );
+
   return (
     <>
-      <Navbar />
-      <main style={{ maxWidth: 1000, margin: '28px auto', padding: '0 16px' }}>
-        <h1 style={{ color: '#f2c200', marginBottom: 6 }}>Updates</h1>
-        <p style={{ color: '#6b7280', marginBottom: 20 }}>Recent activity: subjects and public topics created by users.</p>
+      <div className="upd-page-container">
+        <main className="upd-main">
+          {/* Page Title */}
+          <div className="upd-intro-card">
+            <h1 className="upd-title">Updates</h1>
+            <p className="upd-subtitle">Recent activity: subjects and public topics created by users.</p>
+          </div>
 
-        <div>
-          {updates.length === 0 && !loading && (
-            <div style={{ color: '#6b7280' }}>No updates yet.</div>
-          )}
+          {/* Updates List */}
+          <div className="upd-list">
+            {/* Empty State */}
+            {updates.length === 0 && !loading && (
+              <div className="upd-empty-state">
+                <FiClock className="upd-empty-icon" />
+                <p className="upd-empty-text">No updates yet.</p>
+              </div>
+            )}
 
-          {updates.map(u => (
-            <div key={u._id} style={{ border: '1px solid rgba(0,0,0,0.06)', padding: 12, borderRadius: 8, marginBottom: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <img src={u.profileUrl || '/default-profile.png'} alt={u.name || 'user'} style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover' }} />
-                <div>
-                  <div style={{ fontWeight: 700 }}>{u.name} • {u.usn}</div>
-                  <div style={{ color: '#6b7280', marginTop: 4 }}>{u.title}</div>
+            {/* Skeleton Loading */}
+            {loading && pageIndex === 1 && (
+              <>
+                <UpdateSkeleton />
+                <UpdateSkeleton />
+                <UpdateSkeleton />
+              </>
+            )}
+
+            {/* Update Cards */}
+            {updates.map((u, idx) => (
+              <div key={u._id} className="upd-card" style={{ animationDelay: `${idx * 50}ms` }}>
+                <div className="upd-card-header">
+                  <img 
+                    src={u.profileUrl || '/default-profile.png'} 
+                    alt={u.name || 'user'} 
+                    className="upd-avatar"
+                  />
+                  <div className="upd-user-info">
+                    <div className="upd-user-name">
+                      <FiUser className="upd-user-icon" />
+                      <span>{u.name}</span>
+                      <span className="upd-usn">• {u.usn}</span>
+                    </div>
+                    <div className="upd-user-title">{u.title}</div>
+                  </div>
+                  <div className="upd-timestamp">
+                    <FiClock className="upd-time-icon" />
+                    {new Date(u.createdAt).toLocaleDateString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </div>
                 </div>
-                <div style={{ marginLeft: 'auto', color: '#6b7280', fontSize: 12 }}>{new Date(u.createdAt).toLocaleString()}</div>
+
+                {u.content && (
+                  <p className="upd-content">{u.content}</p>
+                )}
+
+                {u.links && u.links.length > 0 && (
+                  <div className="upd-links">
+                    {u.links.map((l, i) => {
+                      const raw = String(l || '').trim();
+                      if (!raw) return null;
+                      
+                      const isInternal = raw.startsWith('/');
+                      
+                      if (isInternal) {
+                        return (
+                          <Link key={i} href={raw} className="upd-link upd-link-internal">
+                            <span>Visit</span>
+                            <FiChevronRight className="upd-link-icon" />
+                          </Link>
+                        );
+                      }
+
+                      const hasScheme = /^https?:\/\//i.test(raw) || /^mailto:/i.test(raw);
+                      const href = hasScheme ? raw : `https://${raw}`;
+
+                      return (
+                        <a 
+                          key={i} 
+                          href={href} 
+                          target="_blank" 
+                          rel="noreferrer noopener" 
+                          className="upd-link upd-link-external"
+                        >
+                          <span>{raw}</span>
+                          <FiExternalLink className="upd-link-icon" />
+                        </a>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-              <p style={{ marginTop: 10 }}>{u.content}</p>
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {u.links && u.links.map((l, i) => {
-                  const raw = String(l || '').trim();
-                  const isInternal = raw.startsWith('/');
-                  if (isInternal) {
-                    return (
-                      <Link key={i} href={raw} className="tst-btn tst-btn-ghost" style={{ fontSize: 14 }}>
-                        Visit
-                      </Link>
-                    );
-                  }
+            ))}
 
-                  const hasScheme = /^https?:\/\//i.test(raw) || /^mailto:/i.test(raw);
-                  const href = hasScheme ? raw : `https://${raw}`;
-
-                  return (
-                    <a key={i} href={href} target="_blank" rel="noreferrer noopener" style={{ color: '#ff9500', textDecoration: 'underline', fontSize: 14 }}>{raw}</a>
-                  );
-                })}
+            {/* Load More Button */}
+            {hasMore && updates.length > 0 && (
+              <div className="upd-load-more-container">
+                <button 
+                  className="upd-load-more-btn" 
+                  onClick={loadMore} 
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <span className="upd-spinner"></span>
+                      <span>Loading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Load More</span>
+                      <FiChevronRight className="upd-btn-icon" />
+                    </>
+                  )}
+                </button>
               </div>
-            </div>
-          ))}
-
-          {hasMore && (
-            <div style={{ textAlign: 'center', marginTop: 12 }}>
-              <button className="tst-btn tst-btn-primary" onClick={loadMore} disabled={loading}>
-                {loading ? 'Loading...' : 'Load More'}
-              </button>
-            </div>
-          )}
-        </div>
-      </main>
+            )}
+          </div>
+        </main>
+      </div>
     </>
   );
 }
