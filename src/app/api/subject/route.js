@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import Subject from "@/models/Subject";
+import Update from "@/models/Update";
 
 export async function POST(req) {
   try {
@@ -23,6 +24,19 @@ export async function POST(req) {
       subject,
       public: isPublic !== undefined ? isPublic : true
     });
+
+    // Create an Update record for this creation
+    try {
+      await Update.create({
+        title: 'Subject creation',
+        content: `Created a subject - ${subject}`,
+        links: [`/works/subject/${newSubject._id}`],
+        userId: user._id
+      });
+    } catch (uErr) {
+      console.error('Failed to create Update record for subject:', uErr);
+      // Don't block subject creation on update logging failure
+    }
 
     // Fetch all subjects for response (to maintain compatibility)
     const subjects = await Subject.find({ userId: user._id }).lean();

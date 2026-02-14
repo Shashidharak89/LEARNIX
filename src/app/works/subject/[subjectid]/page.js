@@ -66,7 +66,6 @@ const WorkSubjectPageWrapper = () => {
     <div className="wsp-page-wrapper">
       <Navbar />
       <WorkSubjectPage data={data} loading={loading} error={error} onShare={handleShare} />
-      <Footer />
       <style jsx>{`
         .wsp-page-wrapper {
           min-height: 100vh;

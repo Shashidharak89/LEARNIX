@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
+import Update from "@/models/Update";
 
 export async function POST(req) {
   try {
@@ -25,7 +26,7 @@ export async function POST(req) {
     }
 
     // Create new topic
-    await Topic.create({
+    const newTopic = await Topic.create({
       userId: user._id,
       subjectId: subj._id,
       topic,
@@ -34,6 +35,21 @@ export async function POST(req) {
       public: typeof isPublic === "boolean" ? isPublic : true,
       timestamp: new Date()
     });
+
+    // If topic is public, create an Update record
+    try {
+      if (newTopic.public) {
+        await Update.create({
+          title: 'Topic creation',
+          content: `Created a topic - ${topic}`,
+          links: [`/works/${newTopic._id}`],
+          userId: user._id
+        });
+      }
+    } catch (uErr) {
+      console.error('Failed to create Update record for topic:', uErr);
+      // don't fail topic creation if update logging fails
+    }
 
     // Fetch all subjects with topics for response (to maintain compatibility)
     const subjects = await Subject.find({ userId: user._id }).lean();
