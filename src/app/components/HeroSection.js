@@ -27,6 +27,7 @@ import SamplePublicContent from "./home/SamplePublicContent";
 import WhyLearnixTrustworthy from "./home/WhyLearnixTrustworthy";
 import QuestionPapersBanner from "./home/QuestionPapersBanner";
 import AutoPlayVideo from "../about/AutoPlayVideo";
+import UpdatesBanner from './UpdatesBanner';
 
 export default function HeroSection() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -147,6 +148,10 @@ export default function HeroSection() {
           <HowLearnixWorks/>
           <SamplePublicContent/>
           <QuestionPapersBanner/>
+
+          {/* Updates banner placed before 'Why Learnix is trustworthy' */}
+          <UpdatesBanner />
+
           <WhyLearnixTrustworthy/>
 
           {/* What's New Component */}

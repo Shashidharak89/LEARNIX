@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Navbar } from '../components/Navbar';
 import Footer from '../components/Footer';
 
@@ -54,16 +55,26 @@ export default function UpdatesPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <img src={u.profileUrl || '/default-profile.png'} alt={u.name || 'user'} style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover' }} />
                 <div>
-                  <div style={{ fontWeight: 700 }}>{u.title}</div>
-                  <div style={{ color: '#6b7280' }}>{u.name} • {u.usn}</div>
+                  <div style={{ fontWeight: 700 }}>{u.name} • {u.usn}</div>
+                  <div style={{ color: '#6b7280', marginTop: 4 }}>{u.title}</div>
                 </div>
                 <div style={{ marginLeft: 'auto', color: '#6b7280', fontSize: 12 }}>{new Date(u.createdAt).toLocaleString()}</div>
               </div>
               <p style={{ marginTop: 10 }}>{u.content}</p>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {u.links && u.links.map((l, i) => (
-                  <a key={i} href={l} target="_blank" rel="noreferrer" style={{ color: '#ff9500', textDecoration: 'underline', fontSize: 14 }}>{l}</a>
-                ))}
+                {u.links && u.links.map((l, i) => {
+                  const isInternal = typeof l === 'string' && l.startsWith('/');
+                  if (isInternal) {
+                    return (
+                      <Link key={i} href={l} className="tst-btn tst-btn-ghost" style={{ fontSize: 14 }}>
+                        Visit
+                      </Link>
+                    );
+                  }
+                  return (
+                    <a key={i} href={l} target="_blank" rel="noreferrer" style={{ color: '#ff9500', textDecoration: 'underline', fontSize: 14 }}>{l}</a>
+                  );
+                })}
               </div>
             </div>
           ))}
@@ -77,7 +88,6 @@ export default function UpdatesPage() {
           )}
         </div>
       </main>
-      <Footer />
     </>
   );
 }
