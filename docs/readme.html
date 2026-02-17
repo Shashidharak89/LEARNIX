@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Learnix — Project Overview</title>
+    <link rel="stylesheet" href="./readme.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="wrap">
+        <h1>Learnix</h1>
+        <p class="lead">A lightweight learning-content sharing platform — Next.js + MongoDB</p>
+        <p class="lead tags-row">
+          <img alt="Next.js" src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white" />
+          <img alt="React" src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black" />
+          <img alt="MongoDB" src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" />
+          <img alt="Cloudinary" src="https://img.shields.io/badge/Cloudinary-4000FF?style=for-the-badge" />
+        </p>
+      </div>
+    </header>
+
+    <main class="wrap content">
+      <section class="card">
+        <h2>Quick Links</h2>
+        <p class="muted">Open these routes locally while the dev server runs:</p>
+        <ul class="nav-list">
+          <li><code>/dashboard</code> — Dashboard</li>
+          <li><code>/login</code> — Login / Register</li>
+          <li><code>/search</code> — Search</li>
+          <li><code>/learn</code> — Learn</li>
+          <li><code>/works</code> — Uploaded Works</li>
+          <li><code>/upload</code> — Upload (includes Updates banner)</li>
+          <li><code>/upload/updates</code> — Manage Updates</li>
+          <li><code>/materials</code> — Study Materials</li>
+          <li><code>/qp</code> — Question Papers</li>
+          <li><code>/tools</code> — Tools (TextShare, converters)</li>
+          <li><code>/feedback</code> — Feedback</li>
+          <li><code>/help</code> — Help</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>Features</h2>
+        <ul>
+          <li>Upload & manage subjects, topics and student works</li>
+          <li>Study materials browsing and question papers</li>
+          <li>TextShare editor with local storage 'My Codes'</li>
+          <li>Chunked file upload (frontend)</li>
+          <li>Updates activity feed (create/edit/delete announcements)</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>Tech Stack</h2>
+        <p class="muted">Core technologies used</p>
+        <div class="tags">
+          <span>Next.js</span>
+          <span>React</span>
+          <span>MongoDB</span>
+          <span>Mongoose</span>
+          <span>Cloudinary</span>
+          <span>CSS</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Quick Start</h2>
+        <pre><code>npm install
+npm run dev
+# open http://localhost:3000</code></pre>
+      </section>
+
+      <section class="card small">
+        <h3>Developer Notes</h3>
+        <ul>
+          <li>Auth currently uses `localStorage.usn` to resolve server user ids. Consider JWT or sessions.</li>
+          <li>Chunked upload backend endpoints are pending (frontend exists).</li>
+          <li>Styles live under <code>src/app/.../styles</code>. AddUpdateForm has a CSS file under the upload updates styles.</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="wrap footer">
+      <small>Learnix — local dev preview. Generated README HTML.</small>
+    </footer>
+  </body>
+</html>
