@@ -13,7 +13,7 @@ Demo: (run locally) — see **Quick Start** below.
 
 <!-- Visual tech badges -->
 
-[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](#) [![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)](#) [![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](#) [![Mongoose](https://img.shields.io/badge/Mongoose-7F56D9?style=for-the-badge)](#) [![Cloudinary](https://img.shields.io/badge/Cloudinary-4000FF?style=for-the-badge)](#)
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](#) [![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](#) [![Mongoose](https://img.shields.io/badge/Mongoose-7F56D9?style=for-the-badge)](#) [![Cloudinary](https://img.shields.io/badge/Cloudinary-4000FF?style=for-the-badge)](#)
 
 
 **Key Concepts & Highlights**
@@ -30,7 +30,6 @@ Demo: (run locally) — see **Quick Start** below.
 **Tech Stack**
 
 - Next.js (App Router)
-- React (Client components)
 - MongoDB (via Mongoose)
 - Cloudinary (media hosting integration)
 - Plain CSS modules under `src/app/.../styles`
@@ -122,7 +121,7 @@ Visit `http://localhost:3000`
 
 <!-- Tag cloud (badge style) -->
 
-[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](#) [![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)](#)
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](#)
 
 [![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](#) [![Mongoose](https://img.shields.io/badge/Mongoose-7F56D9?style=for-the-badge)](#)
 
