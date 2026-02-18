@@ -204,14 +204,7 @@ const materialsData = [
 
                 ],
             },
-            //    {
-            //     subject: "Research Methodology and Publication Ethics",
-            //     files: [
-            //         {url:""},
-            //         {url:""},
-            //         {url:""},
-            //     ],
-            // },
+
         ],
     },
     {
@@ -229,7 +222,7 @@ const materialsData = [
             {
                 subject: "Advanced Web Technologies",
                 files: [
-                    {url:""},
+                    { url: "" },
                 ]
             },
             {
@@ -261,14 +254,29 @@ const materialsData = [
                 subject: "Web Development Using Ruby on Rails & PostgreSQL",
                 files: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Web-Development-Using-Ruby-on-Rails-%26-PostgreSQL/Ruby_Rails_PostgreSQL_Installation_Guide.pptx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Web-Development-Using-Ruby-on-Rails-%26-PostgreSQL/9780136702658_Sample.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Web-Development-Using-Ruby-on-Rails-%26-PostgreSQL/Learning%20PostgreSQL%2011%20A%20beginner's%20guide%20to%20building%20high-performance%20PostgreSQL%20database%20solutions%2C%203rd%20Edition%20-%20%20Packt%20Mapt.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Web-Development-Using-Ruby-on-Rails-%26-PostgreSQL/agile-web-development-with-rails-51-9781680502510-1680502514_compress.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Web-Development-Using-Ruby-on-Rails-%26-PostgreSQL/agile-web-development-with-rails-7-1nbsped-1680509292-9781680509298.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Web-Development-Using-Ruby-on-Rails-%26-PostgreSQL/mvcRail.odp" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Web-Development-Using-Ruby-on-Rails-%26-PostgreSQL/postgresql-up-and-running-a-practical-guide-to-the-advanced-open-source-database-3nbsped-9781491963418.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Web-Development-Using-Ruby-on-Rails-%26-PostgreSQL/unit%201.odp" },
                 ]
             },
             {
-                subject:"Full Stack development using Django",
-                files:[
-                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Full-Stack-development-using-Django/Module-1.pdf"}
+                subject: "Full Stack development using Django",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Full-Stack-development-using-Django/Module-1.pdf" }
                 ]
-            }
+            },
+            {
+                subject: "Software Engineering and Testing",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/Sommerville%20-Software-Engineering%20-10th%20edition.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/Software%20requirements-unit2.ppt" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/agile-unit2.ppt" },
+                ],
+            },
         ],
     },
     {
