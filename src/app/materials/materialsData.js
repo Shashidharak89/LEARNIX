@@ -237,7 +237,7 @@ const materialsData = [
                 subject: "Enterprise Java",
                 files: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/Unit-1%5BJava%5D.pdf" },
-                    // { url: "" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/Enterprise%20Java_Unit%201.pdf" },
                     // { url: "" },
 
                 ]
@@ -246,7 +246,8 @@ const materialsData = [
                 subject: "Enterprise Java Lab",
                 files: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java-Lab/Assignment-1_Java.docx" },
-                    // { url: "" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java-Lab/Assignment1.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java-Lab/Assignment2.docx" },
 
                 ]
             },
