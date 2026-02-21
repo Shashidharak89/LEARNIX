@@ -1,5 +1,6 @@
 import '../globals.css';
 import { Navbar } from '../components/Navbar';
+import ChunkUploader from './ChunkUploader';
 
 export default function TestPage() {
   return (
@@ -11,7 +12,7 @@ export default function TestPage() {
         <div className="tst-plain" style={{ color: '#0b0b0b', fontSize: '16px', maxWidth: '500px', textAlign: 'center' }}>
           You can use this page to try out new components, layouts, or features. There are no navigation links to this page; access it directly via <code>/test</code>.
         </div>
-      
+      <ChunkUploader/>
       </main>
     </>
   );
