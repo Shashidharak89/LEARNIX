@@ -262,6 +262,7 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Web-Development-Using-Ruby-on-Rails-%26-PostgreSQL/mvcRail.odp" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Web-Development-Using-Ruby-on-Rails-%26-PostgreSQL/postgresql-up-and-running-a-practical-guide-to-the-advanced-open-source-database-3nbsped-9781491963418.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Web-Development-Using-Ruby-on-Rails-%26-PostgreSQL/unit%201.odp" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Web-Development-Using-Ruby-on-Rails-%26-PostgreSQL/Task%201_RoR.docx" },
                 ]
             },
             {
