@@ -29,6 +29,7 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
   const [uploadedFiles, setUploadedFiles]   = useState({});
   const [uploadComplete, setUploadComplete] = useState({});
   const [isTogglingPublic, setIsTogglingPublic] = useState(false);
+  const [topicPublic, setTopicPublic] = useState(topic.public !== false);
   const [openMenu, setOpenMenu]   = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [isDeletingTopic, setIsDeletingTopic] = useState(false);
@@ -68,6 +69,11 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
     if (openMenu) document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
   }, [openMenu]);
+
+  // keep local public state in sync when parent updates topic prop
+  useEffect(() => {
+    setTopicPublic(topic.public !== false);
+  }, [topic.public]);
 
   /* ── image compression ── */
   const compressImage = async (file) => {
@@ -192,9 +198,11 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
     if (isLoading || isTogglingPublic) return;
     setIsTogglingPublic(true);
     try {
-      await axios.put("/api/topic/public", { usn, subject, topic: topic.topic, public: !topic.public });
+      await axios.put("/api/topic/public", { usn, subject, topic: topic.topic, public: !topicPublic });
+      // update local UI immediately
+      setTopicPublic((p) => !p);
       onRefreshSubjects();
-      showMessage(`Topic is now ${!topic.public ? "public" : "private"}`, "success");
+      showMessage(`Topic is now ${!topicPublic ? "public" : "private"}`, "success");
     } catch (err) { showMessage(err.response?.data?.error || "Failed to update visibility", "error"); }
     finally { setIsTogglingPublic(false); }
   };
@@ -352,8 +360,8 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
             {new Date(topic.timestamp).toLocaleDateString()}
           </span>
 
-          <span className={`tc-badge ${topic.public ? "tc-badge--public" : "tc-badge--private"}`}>
-            {topic.public ? "Public" : "Private"}
+          <span className={`tc-badge ${topicPublic ? "tc-badge--public" : "tc-badge--private"}`}>
+            {topicPublic ? "Public" : "Private"}
           </span>
 
           <div className="tc-menu-wrap" ref={menuRef}>
@@ -382,8 +390,8 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
                   <FiShare2 className="tc-dropdown-icon" /><span>Share</span>
                 </button>
                 <button className="tc-dropdown-item" onClick={handlePublicToggle} disabled={isLoading || isTogglingPublic}>
-                  {topic.public ? <FiLock className="tc-dropdown-icon" /> : <FiUnlock className="tc-dropdown-icon" />}
-                  <span>{isTogglingPublic ? "Processing…" : topic.public ? "Make Private" : "Make Public"}</span>
+                  {topicPublic ? <FiLock className="tc-dropdown-icon" /> : <FiUnlock className="tc-dropdown-icon" />}
+                  <span>{isTogglingPublic ? "Processing…" : topicPublic ? "Make Private" : "Make Public"}</span>
                 </button>
                 <div className="tc-dropdown-divider" />
                 <button className="tc-dropdown-item tc-dropdown-item--danger" onClick={requestDeleteTopic}>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
+import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
 
@@ -16,7 +17,28 @@ export const GET = async (request) => {
 
     // If subjectId is provided, return paged topics for that subject (server-side pagination)
     if (subjectId) {
-      const query = { subjectId, public: { $ne: false } };
+      // Find subject to check ownership and visibility
+      const subjectObj = await Subject.findById(subjectId).lean();
+      if (!subjectObj) {
+        return NextResponse.json({ error: "Subject not found" }, { status: 404 });
+      }
+
+      // Determine requester (if provided) and whether they're the owner
+      const usn = request.headers.get("x-usn");
+      const currentUser = usn ? await User.findOne({ usn: usn.toUpperCase() }).lean() : null;
+      const isOwner = currentUser && subjectObj.userId.toString() === currentUser._id.toString();
+
+      // If subject is private and requester is not owner, deny access
+      if (!subjectObj.public && !isOwner) {
+        return NextResponse.json({ error: "This subject is private and not accessible" }, { status: 403 });
+      }
+
+      // Build query: include private topics only for owner
+      const query = { subjectId };
+      if (!isOwner) {
+        query.public = { $ne: false };
+      }
+
       const total = await Topic.countDocuments(query);
       let topics = [];
       if (limit > 0) {

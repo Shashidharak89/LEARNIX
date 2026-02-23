@@ -99,7 +99,9 @@ export default function SubjectsGrid({
 
     try {
       const url = `/api/topic/by-subject?subjectId=${encodeURIComponent(subjectId)}&page=${page}&limit=${limit}`;
-      const res = await fetch(url);
+      const headers = {};
+      if (usn) headers['x-usn'] = usn;
+      const res = await fetch(url, { headers });
       const data = await res.json();
       if (!res.ok) {
         console.error('Failed to fetch topics', data);
