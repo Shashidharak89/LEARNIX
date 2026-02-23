@@ -1,20 +1,56 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useTheme } from "@/context/ThemeContext";
-import { 
-  FiPlus, 
-  FiBook, 
-  FiFolder
+import {
+  FiPlus,
+  FiFolder,
+  FiChevronDown,
+  FiChevronUp,
+  FiLoader,
+  FiInbox,
+  FiLayers,
+  FiCheckCircle,
+  FiAlertCircle,
+  FiX,
 } from "react-icons/fi";
 import AddSubjectForm from "./AddSubjectForm";
 import SubjectsGrid from "./SubjectsGrid";
-import MessageDisplay from "./MessageDisplay";
 import "./styles/ManageSubjects.css";
 import LoginRequired from "../components/LoginRequired";
-import ManageSubjectsSkeleton from './ManageSubjectsSkeleton';
+import ManageSubjectsSkeleton from "./ManageSubjectsSkeleton";
 
+/* ─────────────────────────────────────────
+   Toast Popup Component
+───────────────────────────────────────── */
+function Toast({ toasts, onDismiss }) {
+  return (
+    <div className="ms-toast-container" aria-live="polite">
+      {toasts.map((t) => (
+        <div key={t.id} className={`ms-toast ms-toast--${t.type}`} role="alert">
+          <span className="ms-toast-icon">
+            {t.type === "success" ? <FiCheckCircle /> : <FiAlertCircle />}
+          </span>
+          <span className="ms-toast-text">{t.text}</span>
+          <button
+            className="ms-toast-close"
+            onClick={() => onDismiss(t.id)}
+            aria-label="Dismiss notification"
+          >
+            <FiX />
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+let _toastId = 0;
+
+/* ─────────────────────────────────────────
+   Main Component
+───────────────────────────────────────── */
 export default function ManageSubjects() {
   const [usn, setUsn] = useState("");
   const [subjects, setSubjects] = useState([]);
@@ -22,9 +58,11 @@ export default function ManageSubjects() {
   const [limit] = useState(10);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [message, setMessage] = useState("");
+  const [toasts, setToasts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
+  const [addOpen, setAddOpen] = useState(false);
+  const drawerRef = useRef(null);
 
   const { theme } = useTheme();
 
@@ -35,16 +73,38 @@ export default function ManageSubjects() {
     fetchAllUsers();
   }, []);
 
-  const showMessage = (text, type = "", duration = 3000) => {
-    setMessage(text);
-    setTimeout(() => setMessage(""), duration);
+  /* smooth-scroll drawer into view when it opens */
+  useEffect(() => {
+    if (addOpen && drawerRef.current) {
+      setTimeout(
+        () => drawerRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" }),
+        260
+      );
+    }
+  }, [addOpen]);
+
+  /* ── Toast helpers ── */
+  const pushToast = (text, type = "success", duration = 3500) => {
+    const id = ++_toastId;
+    setToasts((prev) => [...prev, { id, text, type }]);
+    setTimeout(() => dismissToast(id), duration);
   };
 
+  const dismissToast = (id) =>
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+
+  /* keep legacy signature for child components */
+  const showMessage = (text, type = "") =>
+    pushToast(text, type === "error" ? "error" : "success");
+
+  /* ── Data fetching ── */
   const fetchSubjects = async (usn, pageNum = 1, append = false) => {
     if (pageNum === 1) setIsLoading(true);
     else setLoadingMore(true);
     try {
-      const res = await axios.get("/api/work/get", { params: { usn, page: pageNum, limit } });
+      const res = await axios.get("/api/work/get", {
+        params: { usn, page: pageNum, limit },
+      });
       const fetched = res.data.subjects || [];
       const total = res.data.paging?.total || 0;
       if (append) setSubjects((prev) => [...prev, ...fetched]);
@@ -53,7 +113,7 @@ export default function ManageSubjects() {
       setHasMore(pageNum * limit < total);
     } catch (err) {
       console.error(err);
-      showMessage("Failed to fetch subjects", "error");
+      pushToast("Failed to fetch subjects", "error");
     } finally {
       setIsLoading(false);
       setLoadingMore(false);
@@ -69,33 +129,27 @@ export default function ManageSubjects() {
     }
   };
 
-  const handleSubjectDelete = (updatedSubjects) => {
-    // Refresh first page after deletion to keep paging consistent
+  /* ── Event handlers ── */
+  const handleSubjectDelete = () => {
     fetchSubjects(usn, 1);
-    showMessage("Subject deleted successfully!", "success");
+    pushToast("Subject deleted successfully!");
   };
 
-  const handleTopicDelete = (updatedSubjects) => {
-    // Refresh first page after topic deletion to keep ordering consistent
+  const handleTopicDelete = () => {
     fetchSubjects(usn, 1);
-    showMessage("Topic deleted successfully!", "success");
+    pushToast("Topic deleted successfully!");
   };
 
-  // Add Subject with public option
   const handleAddSubject = async (subjectName, isPublic) => {
     setIsLoading(true);
     try {
-      const res = await axios.post("/api/subject", { 
-        usn, 
-        subject: subjectName,
-        public: isPublic
-      });
-      // Refresh first page after adding
+      await axios.post("/api/subject", { usn, subject: subjectName, public: isPublic });
       fetchSubjects(usn, 1);
-      showMessage("Subject added successfully!", "success");
+      pushToast("Subject added successfully!");
+      setAddOpen(false);
     } catch (err) {
       console.error(err);
-      showMessage(err.response?.data?.error || "Error adding subject", "error");
+      pushToast(err.response?.data?.error || "Error adding subject", "error");
     } finally {
       setIsLoading(false);
     }
@@ -105,97 +159,142 @@ export default function ManageSubjects() {
     if (!subject || !topicName.trim()) return;
     setIsLoading(true);
     try {
-      const res = await axios.post("/api/topic", {
-        usn,
-        subject,
-        topic: topicName,
-        images: [],
-        public: isPublic
+      await axios.post("/api/topic", {
+        usn, subject, topic: topicName, images: [], public: isPublic,
       });
-      // Refresh first page to include updated topic ordering
       fetchSubjects(usn, 1);
-      showMessage("Topic added successfully!", "success");
+      pushToast("Topic added successfully!");
     } catch (err) {
       console.error(err);
-      showMessage(err.response?.data?.error || "Error adding topic", "error");
+      pushToast(err.response?.data?.error || "Error adding topic", "error");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const refreshSubjects = () => {
-    fetchSubjects(usn, 1);
-  };
+  const refreshSubjects = () => fetchSubjects(usn, 1);
 
+  /* ── Guards ── */
   const usnl = typeof window !== "undefined" ? localStorage.getItem("usn") : null;
-  if (!usnl) {
-    return <LoginRequired />;
-  }
-
-  if (isLoading && subjects.length === 0) {
-    return <ManageSubjectsSkeleton />;
-  }
+  if (!usnl) return <LoginRequired />;
+  if (isLoading && subjects.length === 0) return <ManageSubjectsSkeleton />;
 
   return (
-    <div className={`mse-container ${theme}`}>
-      <MessageDisplay message={message} />
+    <div className={`ms-wrapper ${theme}`}>
 
-      {/* Add Subject Section */}
-      <div className="mse-section">
-        <div className="mse-section-header">
-          <FiPlus className="mse-section-icon" />
-          <h2>Add New Subject</h2>
-        </div>
-        <AddSubjectForm
-          allUsers={allUsers}
-          isLoading={isLoading}
-          onAddSubject={handleAddSubject}
-        />
-      </div>
+      {/* ── Toast notifications ── */}
+      <Toast toasts={toasts} onDismiss={dismissToast} />
 
-      {/* Subjects List */}
-      <div className="mse-section">
-        <div className="mse-section-header">
-          <FiFolder className="mse-section-icon" />
-          <h2>Subjects & Topics</h2>
+      {/* ── Page Header ── */}
+      <header className="ms-page-header">
+        <div className="ms-header-accent" />
+
+        <div className="ms-header-content">
+          <div className="ms-header-label">
+            <FiLayers className="ms-header-label-icon" />
+            <span>Workspace</span>
+          </div>
+          <h1 className="ms-page-title">Manage Subjects</h1>
         </div>
 
-        {isLoading && subjects.length === 0 && (
-          <div className="mse-loading">
-            <div className="mse-spinner"></div>
-            <span>Loading...</span>
+        <div className="ms-header-right">
+          <div className="ms-header-stat">
+            <span className="ms-stat-num">{subjects.length}</span>
+            <span className="ms-stat-label">subjects</span>
           </div>
-        )}
 
-        {subjects.length === 0 && !isLoading && (
-          <div className="mse-empty-state">
-            <p>No subjects added yet. Create your first subject above!</p>
-          </div>
-        )}
+          {/* Collapsible trigger */}
+          <button
+            className={`ms-add-toggle-btn${addOpen ? " ms-add-toggle-btn--open" : ""}`}
+            onClick={() => setAddOpen((v) => !v)}
+            aria-expanded={addOpen}
+            aria-controls="ms-add-drawer"
+          >
+            <FiPlus className="ms-add-toggle-plus" />
+            <span>New Subject</span>
+            {addOpen
+              ? <FiChevronUp className="ms-add-toggle-caret" />
+              : <FiChevronDown className="ms-add-toggle-caret" />}
+          </button>
+        </div>
+      </header>
 
-        <SubjectsGrid
-          subjects={subjects}
-          allUsers={allUsers}
-          usn={usn}
-          isLoading={isLoading}
-          onAddTopic={handleAddTopic}
-          onSubjectDelete={handleSubjectDelete}
-          onTopicDelete={handleTopicDelete}
-          onRefreshSubjects={refreshSubjects}
-          showMessage={showMessage}
-        />
-        {hasMore && (
-          <div style={{ textAlign: 'center', marginTop: 12 }}>
-            <button
-              onClick={() => fetchSubjects(usn, page + 1, true)}
-              disabled={loadingMore}
-              className="mse-view-more-btn"
-            >
-              {loadingMore ? 'Loading...' : 'View more subjects'}
-            </button>
-          </div>
-        )}
+      {/* ── Collapsible Add-Subject Drawer ── */}
+      <div
+        id="ms-add-drawer"
+        className={`ms-add-drawer${addOpen ? " ms-add-drawer--open" : ""}`}
+        aria-hidden={!addOpen}
+        ref={drawerRef}
+      >
+        <div className="ms-add-drawer-inner">
+          <p className="ms-add-drawer-eyebrow">
+            <FiPlus /> Create a new subject
+          </p>
+          <AddSubjectForm
+            allUsers={allUsers}
+            isLoading={isLoading}
+            onAddSubject={handleAddSubject}
+          />
+        </div>
       </div>
+
+      {/* ── Subjects & Topics Panel ── */}
+      <main className="ms-main">
+        <section className="ms-panel ms-panel--list">
+          <div className="ms-panel-header">
+            <div className="ms-panel-title-row">
+              <span className="ms-panel-icon-wrap ms-panel-icon-wrap--blue">
+                <FiFolder />
+              </span>
+              <h2 className="ms-panel-title">Subjects &amp; Topics</h2>
+            </div>
+          </div>
+
+          <div className="ms-panel-body">
+            {isLoading && subjects.length === 0 && (
+              <div className="ms-state ms-state--loading">
+                <FiLoader className="ms-spinner-icon" />
+                <span>Loading subjects…</span>
+              </div>
+            )}
+
+            {subjects.length === 0 && !isLoading && (
+              <div className="ms-state ms-state--empty">
+                <FiInbox className="ms-empty-icon" />
+                <p>No subjects yet. Hit <strong>New Subject</strong> above to get started.</p>
+              </div>
+            )}
+
+            <SubjectsGrid
+              subjects={subjects}
+              allUsers={allUsers}
+              usn={usn}
+              isLoading={isLoading}
+              onAddTopic={handleAddTopic}
+              onSubjectDelete={handleSubjectDelete}
+              onTopicDelete={handleTopicDelete}
+              onRefreshSubjects={refreshSubjects}
+              showMessage={showMessage}
+            />
+
+            {hasMore && (
+              <div className="ms-load-more-wrap">
+                <button
+                  onClick={() => fetchSubjects(usn, page + 1, true)}
+                  disabled={loadingMore}
+                  className="ms-load-more-btn"
+                >
+                  {loadingMore ? (
+                    <><FiLoader className="ms-spinner-icon" /> Loading…</>
+                  ) : (
+                    <><FiChevronDown /> View more subjects</>
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
+        </section>
+      </main>
     </div>
   );
 }

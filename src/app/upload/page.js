@@ -10,7 +10,7 @@ export default function upload() {
   return (
     <div >
       <Navbar />
-      <div style={{ maxWidth: 900, margin: '18px auto', padding: '0 16px' }}>
+      <div style={{  margin: '18px auto', padding: '0 16px' }}>
         <a href="/upload/updates" style={{ textDecoration: 'none' }}>
           <div
             className="learnix-updates-banner"
