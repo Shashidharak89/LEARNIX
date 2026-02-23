@@ -368,6 +368,96 @@ const materialsData = [
         ],
     },
     {
+        semester: "6th Sem-BCA [Mangalore University] 2022-2025",
+        subjects: [
+            {
+                subject: "Syllabus",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Syllabus/J2EE%20QBANK.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Syllabus/VI%20BCA-ADVANCED%20VAVA%20AND%20J2EE%20QBANK.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Syllabus/VI%20SEM%20BCA%20QBANK_WCMS_FDS%20(1).pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Syllabus/VI%20SEM%20BCA%20QBANK_WCMS_FDS.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Syllabus/VISEMBCA-PHPANDMYSQLQBANK.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Syllabus/data%20science.pdf" },
+                ],
+
+            },
+            {
+                subject: "Advanced Java and J2EE",
+                files: [
+                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Syllabus/J2EE%20QBANK.pdf"},
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Advanced-Java-and-J2EE/Advance%20Java%20QB%20unit-1.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Advanced-Java-and-J2EE/Advance%20java%20QB%20Unit-2.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Advanced-Java-and-J2EE/Advance%20Java%20Unit-3.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Advanced-Java-and-J2EE/java%20unit%204.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Advanced-Java-and-J2EE/unit%203%20chatgpt%20methods.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Advanced-Java-and-J2EE/Unit%203%20Deepseek%20Methds.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Advanced-Java-and-J2EE/J2EE%20Unit-4%20Chatgpt%204%20marks.pdf" },
+                ],
+
+            },
+            {
+                subject: "Artificial Intelligence",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Artificial-Intelligence/Unit_1.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Artificial-Intelligence/Unit_2.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Artificial-Intelligence/Unit_3-1.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Artificial-Intelligence/AIUNIT4.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Artificial-Intelligence/All_imp_Ai.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Artificial-Intelligence/AI%20Chatgpt%20UNIT%202.pdf" },
+                ],
+
+            },
+            {
+                subject: "Fundamentals of Data Science",
+                files: [
+                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Syllabus/VI%20SEM%20BCA%20QBANK_WCMS_FDS.pdf"},
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Fundamentals-of-Data-Science/FDS_QB_SOLVED.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Fundamentals-of-Data-Science/FDS_QB_SOLVED.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Fundamentals-of-Data-Science/DocScanner%2014%20Jun%202025%206-05%20am.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Fundamentals-of-Data-Science/DocScanner%2014%20Jun%202025%207-52%20am.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Fundamentals-of-Data-Science/Unit-1%20Chatgpt.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Fundamentals-of-Data-Science/Unit-2%20DS%20%202%20marks%20%5BChatgpt%5D.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Fundamentals-of-Data-Science/Unit%203%20DS%202%20marks%20%5BChatgpt%5D.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Fundamentals-of-Data-Science/Unit-3%20and%204%20QP%20Answ%202024.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Fundamentals-of-Data-Science/Question%20paper%20answer%202024%20unit-1%20and%20unit-2.pdf" },
+                ],
+
+            },
+            {
+                subject: "PHP and MYSQL",
+                files: [
+                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Syllabus/VISEMBCA-PHPANDMYSQLQBANK.pdf"},
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/PHP-and-MYSQL/PHP%20UNIT%201%20SOLVED%5B1%5D.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/PHP-and-MYSQL/PHP%20UNIT-2%20(2%20Marks)%20%5BChatGpt%5D.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/PHP-and-MYSQL/UNIT%203%20PHP%20(2%20marks)%20%5BChatGpt%5D.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/PHP-and-MYSQL/unit%204%20php%20GPT.pdf" },
+                ],
+
+            },
+            {
+                subject: "Web Content Management System",
+                files: [
+                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Syllabus/VI%20SEM%20BCA%20QBANK_WCMS_FDS.pdf"},
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Web-Content-Management-System/WCMS%20UNIT-1.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Web-Content-Management-System/WCMS%20UNIT-2.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Web-Content-Management-System/WCMS%20UNIT-3.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Web-Content-Management-System/WCMS%20UNIT-4.pdf" },
+                ],
+
+            },
+            {
+                subject: "Previous Year Question Papers",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Previous-Year-QP/6th%20Semester%20B.C.A.%20May%202024.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Previous-Year-QP/Document%20from%20Shashi_kulal.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Previous-Year-QP/NEP%20BCA%20VI%20Sem%20Fundamentals%20of%20Data%20Science.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Previous-Year-QP/NEP%20BCA%20VI%20Sem%20Web%20Content%20Management%20System.pdf" },
+                ]
+            },
+        ],
+    },
+    {
         semester: "Other Resources",
         subjects: [
             {
