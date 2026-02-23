@@ -173,7 +173,8 @@ const WorkSearchInterface = () => {
   }, [hasMore, isLoadingMore, searchQuery, isManualReloading]);
 
   const fetchPagedTopics = async (pageToFetch = 1, reset = false) => {
-    setIsLoading(true);
+    // Only show the full-page skeleton when doing an initial/reset load.
+    if (reset) setIsLoading(true);
     try {
       // Use oldest API when sortOrder is 'oldest', otherwise use default (latest first)
       const apiEndpoint = sortOrder === 'oldest' ? '/api/work/oldest/paged' : '/api/work/paged';
@@ -205,7 +206,7 @@ const WorkSearchInterface = () => {
     } catch (error) {
       console.error('Error fetching paged topics:', error);
     } finally {
-      setIsLoading(false);
+      if (reset) setIsLoading(false);
     }
   };
 
@@ -757,8 +758,17 @@ const WorkSearchInterface = () => {
                   className="ws-reload-btn"
                   disabled={isLoadingMore || isManualReloading}
                 >
-                  <FiRefreshCw className="ws-reload-icon" />
-                  <span>Load More Topics</span>
+                  {isLoadingMore ? (
+                    <>
+                      <div className="ws-spinner" style={{ width: 16, height: 16, borderWidth: 2, marginRight: 8 }}></div>
+                      <span>Loading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FiRefreshCw className="ws-reload-icon" />
+                      <span>Load More Topics</span>
+                    </>
+                  )}
                 </button>
               </div>
             )}
