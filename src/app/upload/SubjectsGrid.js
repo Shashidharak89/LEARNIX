@@ -17,13 +17,6 @@ import {
 } from "react-icons/fi";
 import TopicCard from "./TopicCard";
 import axios from "axios";
-
-/*
-  Minimal change: subjects are collapsed by default (show header only).
-  Click subject header toggles expansion to show add-topic inputs + topics list.
-  Uses inline styles only; no external CSS changes required.
-*/
-
 export default function SubjectsGrid({ 
   subjects, 
   allUsers, 
@@ -39,6 +32,7 @@ export default function SubjectsGrid({
   const [topicName, setTopicName] = useState("");
   const [togglingSubject, setTogglingSubject] = useState(null);
   const [expandedSubjects, setExpandedSubjects] = useState(new Set());
+  const [topicsBySubject, setTopicsBySubject] = useState({});
 
   const [openMenuFor, setOpenMenuFor] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState({ open: false, subjectId: null, subjectName: "" });
@@ -84,9 +78,71 @@ export default function SubjectsGrid({
     setTopicName(e.target.value);
   };
 
-  const handleAddTopicWithReset = async (subject) => {
-    await onAddTopic(subject, topicName, true);
+  const handleAddTopicWithReset = async (subjectId, subjectName) => {
+    await onAddTopic(subjectName, topicName, true);
     setTopicName("");
+    if (subjectId) {
+      // reload first page of topics for this subject
+      fetchTopicsForSubject(subjectId, 1);
+    }
+  };
+
+  const fetchTopicsForSubject = async (subjectId, page = 1, limit = 10) => {
+    if (!subjectId) return;
+    setTopicsBySubject((prev) => ({
+      ...prev,
+      [subjectId]: {
+        ...(prev[subjectId] || {}),
+        loading: true
+      }
+    }));
+
+    try {
+      const url = `/api/topic/by-subject?subjectId=${encodeURIComponent(subjectId)}&page=${page}&limit=${limit}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (!res.ok) {
+        console.error('Failed to fetch topics', data);
+        setTopicsBySubject((prev) => ({
+          ...prev,
+          [subjectId]: {
+            ...(prev[subjectId] || {}),
+            loading: false
+          }
+        }));
+        return;
+      }
+
+      const received = data.topics || [];
+      const paging = data.paging || { page: 1, limit, total: received.length, returned: received.length };
+
+      setTopicsBySubject((prev) => {
+        const prevTopics = page === 1 ? [] : (prev[subjectId]?.topics || []);
+        const combined = [...prevTopics, ...received];
+        const hasMore = paging.limit > 0 ? combined.length < (paging.total || 0) : false;
+        return {
+          ...prev,
+          [subjectId]: {
+            topics: combined,
+            page: paging.page,
+            limit: paging.limit,
+            total: paging.total,
+            returned: paging.returned,
+            hasMore,
+            loading: false
+          }
+        };
+      });
+    } catch (err) {
+      console.error(err);
+      setTopicsBySubject((prev) => ({
+        ...prev,
+        [subjectId]: {
+          ...(prev[subjectId] || {}),
+          loading: false
+        }
+      }));
+    }
   };
 
   const toggleSubjectPublic = async (subjectId, currentValue) => {
@@ -115,6 +171,12 @@ export default function SubjectsGrid({
     if (s.has(subjectId)) s.delete(subjectId);
     else s.add(subjectId);
     setExpandedSubjects(s);
+    if (s.has(subjectId)) {
+      const current = topicsBySubject[subjectId];
+      if (!current || !(current.topics && current.topics.length)) {
+        fetchTopicsForSubject(subjectId, 1, 10);
+      }
+    }
   };
 
   const requestDeleteSubject = (subjectId, subjectName) => {
@@ -342,17 +404,19 @@ export default function SubjectsGrid({
       )}
 
       {subjects.map((sub, idx) => {
+        const subjectKey = sub._id ?? `${idx}-${sub.subject}`;
         const topicsForThisSubject = getAllTopicsForSubject(sub.subject);
+        const paged = topicsBySubject[subjectKey] || { topics: [], loading: false, page: 0, hasMore: false };
         const subjectPublic = sub.public !== undefined ? sub.public : true;
         const isToggling = togglingSubject === sub._id;
-        const isExpanded = expandedSubjects.has(sub._id ?? `${idx}-${sub.subject}`);
+        const isExpanded = expandedSubjects.has(subjectKey);
 
         return (
           <div key={idx} style={cardStyle}>
             <div
               style={headerStyle}
               // clicking header toggles expand/collapse
-              onClick={() => toggleExpand(sub._id ?? `${idx}-${sub.subject}`)}
+              onClick={() => toggleExpand(subjectKey)}
               role="button"
               aria-expanded={isExpanded}
             >
@@ -470,7 +534,7 @@ export default function SubjectsGrid({
                   />
 
                   <button 
-                    onClick={() => handleAddTopicWithReset(sub.subject)} 
+                    onClick={() => handleAddTopicWithReset(subjectKey, sub.subject)} 
                     style={{ ...btnStyle, padding: "8px 12px" }}
                     disabled={isLoading || !topicName.trim()}
                     onMouseDown={(e) => e.stopPropagation()}
@@ -482,18 +546,20 @@ export default function SubjectsGrid({
 
                 {/* Topics List */}
                 <div style={topicsContainerStyle}>
-                  {!sub.topics || sub.topics.length === 0 ? (
+                  {paged.loading ? (
+                    <div style={emptyTopicsStyle}>Loading topics...</div>
+                  ) : (!paged.topics || paged.topics.length === 0) ? (
                     <div style={emptyTopicsStyle}>
                       <FiFileText />
                       <span>No topics yet</span>
                     </div>
                   ) : (
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      {sub.topics.map((topic, tIdx) => (
+                      {paged.topics.map((topicObj, tIdx) => (
                         <TopicCard
-                          key={tIdx}
+                          key={topicObj._id || `${tIdx}-${topicObj.topic || topicObj}`}
                           subject={sub.subject}
-                          topic={topic}
+                          topic={topicObj}
                           usn={usn}
                           isLoading={isLoading}
                           onTopicDelete={onTopicDelete}
@@ -501,6 +567,18 @@ export default function SubjectsGrid({
                           showMessage={showMessage}
                         />
                       ))}
+
+                      {paged.hasMore && (
+                        <div style={{ marginTop: 8 }}>
+                          <button
+                            onClick={() => fetchTopicsForSubject(subjectKey, (paged.page || 1) + 1, paged.limit || 10)}
+                            style={{ ...btnStyle, padding: "6px 10px" }}
+                            disabled={paged.loading}
+                          >
+                            View more topics
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

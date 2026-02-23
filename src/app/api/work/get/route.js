@@ -36,36 +36,44 @@ export async function GET(req) {
       subjects = await Subject.find(query).lean();
     }
     
-    // Fetch topics for each subject and sort
-    const subjectsWithTopics = await Promise.all(
-      subjects.map(async (subject) => {
-        const topics = await Topic.find({ subjectId: subject._id }).lean();
-        
-        // Sort topics by timestamp (newest first)
-        topics.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-        
-        return {
-          _id: subject._id,
-          subject: subject.subject,
-          public: subject.public,
-          topics: topics.map(t => ({
-            _id: t._id,
-            topic: t.topic,
-            content: t.content,
-            images: t.images,
-            public: t.public,
-            timestamp: t.timestamp
-          }))
-        };
-      })
-    );
+    let subjectsWithTopics = [];
+    if (limit > 0) {
+      // In paged mode, return only subject metadata (no topics) to keep payload small.
+      subjectsWithTopics = subjects.map((subject) => ({
+        _id: subject._id,
+        subject: subject.subject,
+        public: subject.public
+      }));
+    } else {
+      // Full (legacy) behavior: include topics for each subject
+      subjectsWithTopics = await Promise.all(
+        subjects.map(async (subject) => {
+          const topics = await Topic.find({ subjectId: subject._id }).lean();
+          // Sort topics by timestamp (newest first)
+          topics.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+          return {
+            _id: subject._id,
+            subject: subject.subject,
+            public: subject.public,
+            topics: topics.map(t => ({
+              _id: t._id,
+              topic: t.topic,
+              content: t.content,
+              images: t.images,
+              public: t.public,
+              timestamp: t.timestamp
+            }))
+          };
+        })
+      );
 
-    // Sort subjects by their latest topic timestamp
-    subjectsWithTopics.sort((a, b) => {
-      const latestA = a.topics[0]?.timestamp || 0;
-      const latestB = b.topics[0]?.timestamp || 0;
-      return new Date(latestB) - new Date(latestA);
-    });
+      // Sort subjects by their latest topic timestamp
+      subjectsWithTopics.sort((a, b) => {
+        const latestA = a.topics[0]?.timestamp || 0;
+        const latestB = b.topics[0]?.timestamp || 0;
+        return new Date(latestB) - new Date(latestA);
+      });
+    }
 
     // Return in same format as before, with paging metadata when requested
     const payload = {
