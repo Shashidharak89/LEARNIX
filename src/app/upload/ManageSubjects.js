@@ -195,10 +195,10 @@ export default function ManageSubjects() {
         </div>
 
         <div className="ms-header-right">
-          <div className="ms-header-stat">
+          {/* <div className="ms-header-stat">
             <span className="ms-stat-num">{subjects.length}</span>
             <span className="ms-stat-label">subjects</span>
-          </div>
+          </div> */}
 
           <button
             className={`ms-add-toggle-btn${addOpen ? " ms-add-toggle-btn--open" : ""}`}
