@@ -92,10 +92,19 @@ export default function StudyMaterials() {
 
                             return (
                               <div key={fIndex} className="sm-file-card">
-                                <div className="sm-file-info">
-                                  <div className="sm-file-icon">📄</div>
-                                  <span className="sm-file-name">{fileName}</span>
-                                </div>
+                                <a
+                                  href={viewUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="sm-file-link"
+                                  title="Click to view file"
+                                  aria-label={`View ${fileName}`}
+                                >
+                                  <div className="sm-file-info">
+                                    <div className="sm-file-icon">📄</div>
+                                    <span className="sm-file-name">{fileName}</span>
+                                  </div>
+                                </a>
                                 <div className="sm-file-actions">
                                   <a
                                     href={viewUrl}
@@ -104,6 +113,7 @@ export default function StudyMaterials() {
                                     className="sm-action-btn sm-view-btn"
                                     title="View file"
                                     aria-label={`View ${fileName}`}
+                                    onClick={(e) => e.stopPropagation()}
                                   >
                                     <Eye size={16} />
                                   </a>
@@ -114,6 +124,7 @@ export default function StudyMaterials() {
                                     className="sm-action-btn sm-download-btn"
                                     title="Download file"
                                     aria-label={`Download ${fileName}`}
+                                    onClick={(e) => e.stopPropagation()}
                                   >
                                     <Download size={16} />
                                   </a>

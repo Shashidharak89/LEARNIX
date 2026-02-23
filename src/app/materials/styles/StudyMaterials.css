@@ -233,13 +233,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px;
   background: #ffffff;
   border: 2px solid #e5e7eb;
   border-radius: 10px;
   margin-bottom: 8px;
   transition: all 0.2s ease;
   animation: sm-fade-in 0.3s ease-out;
+  overflow: hidden;
 }
 
 .sm-file-card:last-child {
@@ -249,6 +249,21 @@
 .sm-file-card:hover {
   border-color: #1e40af;
   transform: translateX(4px);
+}
+
+.sm-file-link {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s ease;
+}
+
+.sm-file-link:hover {
+  background: #f9fafb;
 }
 
 .sm-file-info {
@@ -278,6 +293,7 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  padding-right: 14px;
 }
 
 .sm-action-btn {
