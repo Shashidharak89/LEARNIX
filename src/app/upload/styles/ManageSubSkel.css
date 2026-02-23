@@ -1,0 +1,304 @@
+/* ============================================================
+   ManageSubjectsSkeleton.css
+   Matches the blue / yellow / black / white page theme.
+   One shimmer keyframe, everything else is structure.
+   ============================================================ */
+
+/* ── Shimmer keyframe ── */
+@keyframes msk-shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+/* ── Base bone ── */
+.msk-bone {
+  display: inline-block;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    #e8eaef 25%,
+    #f4f5f7 50%,
+    #e8eaef 75%
+  );
+  background-size: 1200px 100%;
+  animation: msk-shimmer 1.6s ease-in-out infinite;
+}
+
+/* ── Wrapper ── */
+.msk-wrapper {
+  width: 95%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 0 64px;
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+}
+
+/* ════════════════════════════════════════
+   PAGE HEADER SKELETON
+════════════════════════════════════════ */
+.msk-page-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid #e8eaef;
+}
+
+/* Mirrors the real yellow accent bar */
+.msk-header-accent {
+  width: 6px;
+  height: 52px;
+  background: #f5c40044;
+  border-radius: 3px;
+  flex-shrink: 0;
+  /* subtle pulse instead of shimmer — it's decorative */
+  animation: msk-pulse 2s ease-in-out infinite;
+}
+
+@keyframes msk-pulse {
+  0%, 100% { opacity: 0.45; }
+  50%       { opacity: 1; }
+}
+
+.msk-header-content { flex: 1; }
+
+.msk-bone--eyebrow {
+  width: 80px;
+  height: 11px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+}
+
+.msk-bone--page-title {
+  width: clamp(160px, 22vw, 240px);
+  height: 30px;
+  border-radius: 6px;
+  display: block;
+}
+
+.msk-header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.msk-header-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+
+.msk-bone--stat-num {
+  width: 44px;
+  height: 32px;
+  border-radius: 6px;
+}
+
+.msk-bone--stat-label {
+  width: 52px;
+  height: 10px;
+  border-radius: 4px;
+}
+
+.msk-bone--toggle-btn {
+  width: 140px;
+  height: 40px;
+  border-radius: 10px;
+  /* Yellow tint to echo real button */
+  background: linear-gradient(
+    90deg,
+    #f5c40033 25%,
+    #f5c40055 50%,
+    #f5c40033 75%
+  );
+  background-size: 600px 100%;
+  animation: msk-shimmer 1.6s ease-in-out infinite;
+}
+
+/* ════════════════════════════════════════
+   MAIN / PANEL SKELETON
+════════════════════════════════════════ */
+.msk-main { margin-top: 24px; }
+
+.msk-panel {
+  background: #ffffff;
+  border: 1.5px solid #e8eaef;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.msk-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 24px 16px;
+  border-bottom: 1.5px solid #e8eaef;
+}
+
+.msk-bone--panel-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  /* Blue tint to echo real icon */
+  background: linear-gradient(
+    90deg,
+    #1a4bff22 25%,
+    #1a4bff44 50%,
+    #1a4bff22 75%
+  );
+  background-size: 600px 100%;
+  animation: msk-shimmer 1.6s ease-in-out infinite;
+}
+
+.msk-bone--panel-title {
+  width: 160px;
+  height: 18px;
+  border-radius: 5px;
+}
+
+.msk-panel-body { padding: 20px 24px 28px; }
+
+/* ════════════════════════════════════════
+   CARDS GRID
+════════════════════════════════════════ */
+.msk-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+/* ── Individual card ── */
+.msk-card {
+  background: #ffffff;
+  border: 1.5px solid #e8eaef;
+  border-radius: 10px;
+  padding: 16px 16px 14px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+  animation: msk-card-in 0.4s ease both;
+}
+
+@keyframes msk-card-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Card header */
+.msk-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.msk-card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.msk-bone--icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  flex-shrink: 0;
+}
+
+.msk-bone--subject-name {
+  width: clamp(80px, 12vw, 130px);
+  height: 16px;
+  border-radius: 5px;
+}
+
+.msk-bone--kebab {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+/* Topic pills row */
+.msk-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+
+.msk-bone--topic {
+  height: 24px;
+  border-radius: 20px;
+  /* vary widths via inline style from JSX */
+}
+
+.msk-bone--add-pill {
+  width: 28px;
+  height: 24px;
+  border-radius: 20px;
+  background: linear-gradient(
+    90deg,
+    #f5c40022 25%,
+    #f5c40044 50%,
+    #f5c40022 75%
+  );
+  background-size: 600px 100%;
+  animation: msk-shimmer 1.6s ease-in-out infinite;
+}
+
+/* Card footer */
+.msk-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid #f4f5f7;
+}
+
+.msk-bone--badge {
+  width: 54px;
+  height: 18px;
+  border-radius: 20px;
+}
+
+.msk-bone--date {
+  width: 72px;
+  height: 12px;
+  border-radius: 4px;
+}
+
+/* ════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════ */
+@media (max-width: 700px) {
+  .msk-wrapper {
+    width: 96%;
+    padding: 20px 0 48px;
+  }
+
+  .msk-page-header {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .msk-header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .msk-panel-header,
+  .msk-panel-body {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .msk-bone--toggle-btn {
+    width: 40px;
+  }
+}
+
+@media (max-width: 400px) {
+  .msk-header-stat { display: none; }
+}
