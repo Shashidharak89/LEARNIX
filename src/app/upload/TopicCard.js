@@ -30,6 +30,7 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
   const [uploadComplete, setUploadComplete] = useState({});
   const [isTogglingPublic, setIsTogglingPublic] = useState(false);
   const [topicPublic, setTopicPublic] = useState(topic.public !== false);
+  const [topicImages, setTopicImages] = useState(Array.isArray(topic.images) ? [...topic.images] : []);
   const [openMenu, setOpenMenu]   = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [isDeletingTopic, setIsDeletingTopic] = useState(false);
@@ -74,6 +75,11 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
   useEffect(() => {
     setTopicPublic(topic.public !== false);
   }, [topic.public]);
+
+  // keep local images in sync when topic prop updates from parent
+  useEffect(() => {
+    setTopicImages(Array.isArray(topic.images) ? [...topic.images] : []);
+  }, [topic.images]);
 
   /* ── image compression ── */
   const compressImage = async (file) => {
@@ -148,8 +154,12 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
     const fd = new FormData();
     fd.append("usn", usn); fd.append("subject", subject); fd.append("topic", topic.topic); fd.append("file", file);
     try {
-      await axios.post("/api/topic/upload", fd, { headers: { "Content-Type": "multipart/form-data" } });
-      onRefreshSubjects();
+      const res = await axios.post("/api/topic/upload", fd, { headers: { "Content-Type": "multipart/form-data" } });
+      const img = res?.data?.imageUrl;
+      if (img) {
+        // update UI locally without full reload
+        setTopicImages((prev) => [...prev, img]);
+      }
       setFilesMap({ ...filesMap, [topicKey]: null });
       if (filePreviewMap[topicKey]) { URL.revokeObjectURL(filePreviewMap[topicKey]); const m = { ...filePreviewMap }; delete m[topicKey]; setFilePreviewMap(m); }
       showMessage("Image uploaded successfully!", "success");
@@ -161,8 +171,9 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
     const fd = new FormData();
     fd.append("usn", usn); fd.append("subject", subject); fd.append("topic", topic.topic); fd.append("file", fileData.file, fileData.name);
     try {
-      await axios.post("/api/topic/upload", fd, { headers: { "Content-Type": "multipart/form-data" } });
-      onRefreshSubjects();
+      const res = await axios.post("/api/topic/upload", fd, { headers: { "Content-Type": "multipart/form-data" } });
+      const img = res?.data?.imageUrl;
+      if (img) setTopicImages((prev) => [...prev, img]);
       setUploadedFiles((p) => ({ ...p, [topicKey]: new Set([...(p[topicKey] || []), idx]) }));
       setUploadProgress((p) => ({ ...p, [topicKey]: Math.round((idx / total) * 100) }));
     } catch { showMessage(`Failed to upload ${fileData.name}`, "error"); }
@@ -189,7 +200,8 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
   const handleDeleteImage = async (imageUrl) => {
     try {
       await axios.put("/api/topic/deleteimage", { usn, subject, topic: topic.topic, imageUrl });
-      onRefreshSubjects();
+      // update local UI immediately
+      setTopicImages((prev) => prev.filter((img) => img !== imageUrl));
       showMessage("Image deleted successfully!", "success");
     } catch (err) { showMessage(err.response?.data?.error || "Failed to delete image", "error"); }
   };
@@ -260,7 +272,7 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
   };
 
   const getValidImages = (images) => images.filter((img) => img && img.trim());
-  const validImages    = getValidImages(topic.images || []);
+  const validImages    = getValidImages(topicImages || []);
   const filesForTopic  = filesMap[topicKey];
   const isMultipleFiles = Array.isArray(filesForTopic);
 
