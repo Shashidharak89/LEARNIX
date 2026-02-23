@@ -1,141 +1,265 @@
-/* Input Groups */
-.mse-input-group {
+/* Add Subject Form - Compact Styles */
+
+.asf-compact-form {
   display: flex;
-  gap: 1rem;
-  align-items: stretch;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  animation: asf-fade-in 0.3s ease-out;
 }
 
-.mse-input {
-  flex: 1;
-  min-width: 200px;
-  padding: 0.875rem 1.125rem;
-  border: 2px solid transparent;
-  border-radius: 0.75rem;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  outline: none;
-  font-weight: 500;
-}
-
-.mse-container.light .mse-input {
-  background-color: #ffffff;
-  color: #1a202c;
-  border-color: #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.mse-container.dark .mse-input {
-  background-color: #2d3748;
-  color: #f7fafc;
-  border-color: #4a5568;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-.mse-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  transform: translateY(-1px);
-}
-
-.mse-input:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.mse-input-sm {
-  padding: 0.625rem 0.875rem;
-  font-size: 0.875rem;
-}
-
-/* Buttons */
-.mse-btn {
-  display: inline-flex;
+/* Form Row */
+.asf-form-row {
+  display: flex;
+  gap: 8px;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.875rem 1.5rem;
-  border: none;
-  border-radius: 0.75rem;
-  font-size: 1rem;
+}
+
+/* System Select Dropdown */
+.asf-select {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  font-size: 14px;
   font-weight: 600;
+  color: #111827;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  white-space: nowrap;
-  position: relative;
-  overflow: hidden;
+  transition: all 0.2s ease;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  padding-right: 36px;
 }
 
-.mse-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
+.asf-select:hover:not(:disabled) {
+  border-color: #1e40af;
+  background-color: #eff6ff;
 }
 
-.mse-btn:hover::before {
-  left: 100%;
+.asf-select:focus {
+  border-color: #1e40af;
+  background-color: #eff6ff;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
 }
 
-.mse-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.mse-btn:active {
-  transform: translateY(0);
-}
-
-.mse-btn:disabled {
+.asf-select:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  background-color: #f9fafb;
+}
+
+.asf-select option {
+  padding: 10px;
+  font-weight: 500;
+  background: #ffffff;
+  color: #111827;
+}
+
+.asf-select option:first-child {
+  font-weight: 700;
+  color: #1e40af;
+}
+
+.asf-select option:disabled {
+  color: #d1d5db;
+  font-size: 12px;
+}
+
+/* Toggle Button */
+.asf-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  font-size: 18px;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.asf-toggle-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.asf-toggle-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.asf-toggle-btn.asf-public {
+  color: #16a34a;
+  background: #dcfce7;
+  border-color: #22c55e;
+}
+
+.asf-toggle-btn.asf-public:hover:not(:disabled) {
+  background: #bbf7d0;
+  border-color: #16a34a;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+}
+
+.asf-toggle-btn.asf-private {
+  color: #6b7280;
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.asf-toggle-btn.asf-private:hover:not(:disabled) {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+  box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
+}
+
+/* Add Button */
+.asf-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  font-size: 18px;
+  color: #ffffff;
+  background: #1e40af;
+  border: 2px solid #1e40af;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.asf-add-btn:hover:not(:disabled) {
+  background: #1e3a8a;
+  border-color: #1e3a8a;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+}
+
+.asf-add-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.asf-add-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
   transform: none;
-  box-shadow: none;
 }
 
-.mse-btn:disabled::before {
-  display: none;
+/* Input Field */
+.asf-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  outline: none;
+  transition: all 0.2s ease;
+  animation: asf-slide-down 0.3s ease-out;
 }
 
-.mse-btn-primary {
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+.asf-input:focus {
+  border-color: #1e40af;
+  background: #eff6ff;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
 }
 
-.mse-btn-secondary {
-  background: linear-gradient(135deg, #6366f1, #4338ca);
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+.asf-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #f9fafb;
 }
 
-.mse-btn-accent {
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  color: #1a202c;
-  box-shadow: 0 4px 14px rgba(251, 191, 36, 0.3);
+.asf-input::placeholder {
+  color: #9ca3af;
+  font-weight: 400;
 }
 
-.mse-btn-danger {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+/* Animations */
+@keyframes asf-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-.mse-btn-sm {
-  padding: 0.625rem 1.125rem;
-  font-size: 0.875rem;
+@keyframes asf-slide-down {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    max-height: 100px;
+    transform: translateY(0);
+  }
 }
 
-.mse-btn-xs {
-  padding: 0.375rem 0.625rem;
-  font-size: 0.75rem;
+/* Focus Visible for Accessibility */
+.asf-select:focus-visible,
+.asf-toggle-btn:focus-visible,
+.asf-add-btn:focus-visible,
+.asf-input:focus-visible {
+  outline: 2px solid #1e40af;
+  outline-offset: 2px;
 }
 
-.mse-btn-icon {
-  font-size: 1rem;
+/* Responsive Design */
+@media (max-width: 440px) {
+  .asf-compact-form {
+    padding: 12px;
+  }
+
+  .asf-form-row {
+    gap: 6px;
+  }
+
+  .asf-select {
+    padding: 9px 10px;
+    padding-right: 32px;
+    font-size: 13px;
+  }
+
+  .asf-toggle-btn,
+  .asf-add-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+  }
+
+  .asf-input {
+    padding: 9px 10px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 400px) {
+  .asf-compact-form {
+    padding: 10px;
+  }
+
+  .asf-form-row {
+    gap: 6px;
+  }
+
+  .asf-select {
+    font-size: 13px;
+  }
 }
