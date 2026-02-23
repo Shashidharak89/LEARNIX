@@ -1,211 +1,336 @@
-/* StudyMaterials.css */
+/* Study Materials Styles */
 
-.study-materials-wrapper {
-  max-width: 1200px;
+.sm-wrapper {
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 20px;
+}
+
+.sm-container {
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 2rem 1rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Header Styles */
-.study-materials-header {
+/* Header Section */
+.sm-header {
+  margin-bottom: 32px;
+  animation: sm-fade-in 0.4s ease-out;
+}
+
+.sm-header-content {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 3rem;
-  padding-bottom: 1rem;
-  border-bottom: 3px solid #3b82f6;
+  align-items: flex-start;
+  gap: 16px;
 }
 
-.header-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  color: #3b82f6;
-}
-
-.study-materials-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0;
-  letter-spacing: -0.025em;
-}
-
-/* Content Container */
-.study-materials-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-/* Semester Card Styles */
-.semester-card {
-  background: white;
-  border: 2px solid #e5e7eb;
-  border-radius: 16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  overflow: hidden;
-}
-
-.semester-card:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-}
-
-/* Semester Toggle Button */
-.semester-toggle {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  background: #f8fafc;
-  border: none;
-  border-bottom: 1px solid #e2e8f0;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
-}
-
-.semester-toggle:hover {
-  background: #f1f5f9;
-}
-
-.semester-toggle.semester-active {
-  background: #eff6ff;
-  border-bottom-color: #3b82f6;
-}
-
-.semester-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
-  text-align: left;
-}
-
-.semester-icon {
+.sm-header-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 50%;
-  background: #3b82f6;
-  color: white;
-  transition: all 0.2s ease;
+  width: 56px;
+  height: 56px;
+  background: #fef3c7;
+  border: 2px solid #fbbf24;
+  border-radius: 14px;
+  color: #d97706;
+  flex-shrink: 0;
+  animation: sm-scale-in 0.5s ease-out;
 }
 
-.semester-toggle:hover .semester-icon {
-  transform: scale(1.1);
-  background: #2563eb;
+.sm-header-text {
+  flex: 1;
+  animation: sm-slide-up 0.5s ease-out;
 }
 
-.semester-toggle.semester-active .semester-icon {
-  background: #fbbf24;
-  color: #1f2937;
+.sm-title {
+  margin: 0 0 6px 0;
+  font-size: 32px;
+  font-weight: 800;
+  color: #000000;
+  letter-spacing: -0.02em;
 }
 
-/* Subjects Container */
-.subjects-container {
-  padding: 1.5rem;
-  background: #fafbfc;
-  animation: slideDown 0.3s ease-out;
+.sm-subtitle {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: #6b7280;
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Materials List */
+.sm-materials-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-/* Subject Card */
-.subject-card {
-  background: white;
-  border: 1px solid #d1d5db;
-  border-radius: 12px;
-  margin-bottom: 1rem;
-  transition: all 0.2s ease;
+/* Semester Block */
+.sm-semester-block {
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 14px;
   overflow: hidden;
+  animation: sm-slide-in 0.4s ease-out;
+  transition: all 0.2s ease;
 }
 
-.subject-card:last-child {
-  margin-bottom: 0;
+.sm-semester-block:hover {
+  border-color: #d1d5db;
 }
 
-.subject-card:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.1);
-  transform: translateY(-1px);
-}
-
-/* Subject Toggle Button */
-.subject-toggle {
-  width: 100%;
+.sm-semester-btn {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 1.25rem;
-  background: transparent;
+  justify-content: space-between;
+  width: 100%;
+  padding: 18px 20px;
+  background: #ffffff;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-family: inherit;
 }
 
-.subject-toggle:hover {
+.sm-semester-btn:hover {
   background: #f9fafb;
 }
 
-.subject-toggle.subject-active {
+.sm-semester-btn.sm-semester-open {
   background: #eff6ff;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 2px solid #e5e7eb;
 }
 
-.subject-icon {
-  color: #3b82f6;
+.sm-semester-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.sm-semester-left svg {
+  color: #1e40af;
   flex-shrink: 0;
 }
 
-.subject-title {
-  flex: 1;
-  font-size: 1.125rem;
-  font-weight: 500;
-  color: #374151;
-  text-align: left;
+.sm-semester-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: #111827;
 }
 
-.subject-chevron {
+.sm-subject-count {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  background: #f3f4f6;
+  border-radius: 6px;
+}
+
+.sm-semester-icon {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
   color: #6b7280;
+  transition: transform 0.2s ease;
+}
+
+.sm-semester-btn.sm-semester-open .sm-semester-icon {
+  color: #1e40af;
+}
+
+/* Subjects Wrapper */
+.sm-subjects-wrapper {
+  padding: 12px;
+  background: #f9fafb;
+  animation: sm-expand 0.3s ease-out;
+}
+
+/* Subject Block */
+.sm-subject-block {
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  overflow: hidden;
   transition: all 0.2s ease;
 }
 
-.subject-toggle.subject-active .subject-chevron {
-  color: #3b82f6;
+.sm-subject-block:last-child {
+  margin-bottom: 0;
 }
 
-/* Files Container */
-.files-container {
-  padding: 1rem 1.25rem;
-  background: #f8fafc;
-  border-top: 1px solid #e5e7eb;
-  animation: fadeIn 0.3s ease-out;
+.sm-subject-block:hover {
+  border-color: #cbd5e1;
 }
 
-@keyframes fadeIn {
+.sm-subject-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 16px;
+  background: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sm-subject-btn:hover {
+  background: #f9fafb;
+}
+
+.sm-subject-btn.sm-subject-open {
+  background: #fef3c7;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.sm-subject-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.sm-subject-left svg {
+  color: #1e40af;
+  flex-shrink: 0;
+}
+
+.sm-subject-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.sm-file-count {
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #92400e;
+  background: #fde68a;
+  border-radius: 5px;
+}
+
+.sm-subject-icon {
+  display: flex;
+  align-items: center;
+  color: #6b7280;
+  transition: transform 0.2s ease;
+}
+
+.sm-subject-btn.sm-subject-open .sm-subject-icon {
+  color: #d97706;
+}
+
+/* Files List */
+.sm-files-list {
+  padding: 12px;
+  background: #fffbeb;
+  animation: sm-expand 0.3s ease-out;
+}
+
+/* File Card */
+.sm-file-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+  animation: sm-fade-in 0.3s ease-out;
+}
+
+.sm-file-card:last-child {
+  margin-bottom: 0;
+}
+
+.sm-file-card:hover {
+  border-color: #1e40af;
+  transform: translateX(4px);
+}
+
+.sm-file-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.sm-file-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.sm-file-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sm-file-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sm-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sm-view-btn {
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+.sm-view-btn:hover {
+  background: #1e40af;
+  color: #ffffff;
+  border-color: #1e40af;
+  transform: scale(1.05);
+}
+
+.sm-download-btn {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.sm-download-btn:hover {
+  background: #fbbf24;
+  color: #000000;
+  border-color: #fbbf24;
+  transform: scale(1.05);
+}
+
+/* Animations */
+@keyframes sm-fade-in {
   from {
     opacity: 0;
-    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sm-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -213,353 +338,85 @@
   }
 }
 
-/* File Link Card */
-.file-link-card {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1rem;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  margin-bottom: 0.75rem;
-  text-decoration: none;
-  color: inherit;
-  transition: all 0.2s ease;
+@keyframes sm-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-.file-link-card:last-child {
-  margin-bottom: 0;
+@keyframes sm-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
-.file-link-card:hover {
-  border-color: #fbbf24;
-  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.15);
-  transform: translateX(4px);
-  text-decoration: none;
-  color: inherit;
-}
-
-.download-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  background: #eff6ff;
-  border-radius: 6px;
-  color: #3b82f6;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
-}
-
-.file-link-card:hover .download-icon {
-  background: #3b82f6;
-  color: white;
-  transform: scale(1.1);
-}
-
-.file-name {
-  font-size: 0.9375rem;
-  color: #374151;
-  font-weight: 500;
-  line-height: 1.4;
-  word-break: break-word;
-}
-
-.file-link-card:hover .file-name {
-  color: #1f2937;
+@keyframes sm-expand {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 1000px;
+  }
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .study-materials-wrapper {
-    padding: 1rem 0.75rem;
+  .sm-wrapper {
+    padding: 16px;
   }
 
-  .study-materials-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
+  .sm-title {
+    font-size: 26px;
   }
 
-  .header-icon {
-    width: 2rem;
-    height: 2rem;
+  .sm-subtitle {
+    font-size: 14px;
   }
 
-  .study-materials-title {
-    font-size: 2rem;
+  .sm-header-icon {
+    width: 48px;
+    height: 48px;
   }
 
-  .semester-toggle {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1.25rem;
+  .sm-semester-btn {
+    padding: 16px;
   }
 
-  .semester-title {
-    font-size: 1.25rem;
+  .sm-semester-name {
+    font-size: 16px;
   }
 
-  .semester-icon {
-    align-self: flex-end;
-    width: 2rem;
-    height: 2rem;
+  .sm-subject-btn {
+    padding: 12px 14px;
   }
 
-  .subject-toggle {
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    padding: 1rem;
+  .sm-subject-name {
+    font-size: 14px;
   }
 
-  .subject-title {
-    font-size: 1rem;
+  .sm-file-card {
+    padding: 10px 12px;
   }
 
-  .subjects-container {
-    padding: 1rem;
+  .sm-file-name {
+    font-size: 13px;
   }
 
-  .files-container {
-    padding: 0.75rem;
-  }
-
-  .file-link-card {
-    padding: 0.75rem;
+  .sm-action-btn {
+    width: 34px;
+    height: 34px;
   }
 }
 
-@media (max-width: 480px) {
-  .study-materials-wrapper {
-    padding: 0.75rem 0.5rem;
-  }
-
-  .study-materials-title {
-    font-size: 1.75rem;
-  }
-
-  .semester-toggle {
-    padding: 1rem;
-  }
-
-  .semester-title {
-    font-size: 1.125rem;
-  }
-
-  .semester-icon {
-    width: 1.75rem;
-    height: 1.75rem;
-  }
-
-  .subject-title {
-    font-size: 0.9375rem;
-  }
-
-  .file-name {
-    font-size: 0.875rem;
-  }
-
-  .download-icon {
-    width: 1.75rem;
-    height: 1.75rem;
-  }
-}
-
-/* Enhanced animations for better UX */
-@keyframes cardEnter {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.semester-card {
-  animation: cardEnter 0.3s ease-out;
-}
-
-.semester-card:nth-child(1) {
-  animation-delay: 0.1s;
-}
-
-.semester-card:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.semester-card:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-/* Focus states for accessibility */
-.semester-toggle:focus,
-.subject-toggle:focus,
-.file-link-card:focus {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
-
-/* Active states */
-.semester-toggle:active {
-  transform: scale(0.98);
-}
-
-.subject-toggle:active {
-  transform: scale(0.99);
-}
-
-.file-link-card:active {
-  transform: translateX(2px) scale(0.99);
-}
-
-/* Loading states (optional) */
-.semester-card.loading {
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-/* Print styles */
-@media print {
-  .study-materials-wrapper {
-    max-width: none;
-    padding: 0;
-  }
-
-  .semester-card {
-    box-shadow: none;
-    border: 1px solid #000;
-    break-inside: avoid;
-    margin-bottom: 1rem;
-  }
-
-  .semester-toggle,
-  .subject-toggle {
-    background: white !important;
-  }
-
-  .subjects-container,
-  .files-container {
-    display: block !important;
-    animation: none !important;
-  }
-
-  .download-icon {
-    display: none;
-  }
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  .semester-card {
-    border-color: #000;
-    border-width: 2px;
-  }
-
-  .subject-card {
-    border-color: #666;
-    border-width: 2px;
-  }
-
-  .file-link-card {
-    border-color: #333;
-    border-width: 2px;
-  }
-}
-
-/* Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* -------------------------
-   File action (download/view) helpers
-   ------------------------- */
-
-/* Ensure inline action anchors behave like buttons and align with .file-link-card */
-.file-link-card .file-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 34px;
-  min-height: 34px;
-  padding: 6px;
-  border-radius: 8px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
-  box-sizing: border-box;
-}
-
-/* Download action: background + color (keeps the blue theme) */
-.file-link-card .download-action {
-  background: #eff6ff;
-  color: #3b82f6; /* lucide icons use stroke=currentColor so this sets icon color */
-  border: 1px solid rgba(59,130,246,0.08);
-}
-
-/* Hover & active states for download */
-.file-link-card .download-action:hover {
-  background: #3b82f6;
-  color: #fff;
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 8px 20px rgba(59,130,246,0.12);
-}
-.file-link-card .download-action:active { transform: translateY(0) scale(0.99); }
-
-/* If the download-action contains an svg, make sure its strokes/fills follow currentColor */
-.file-link-card .download-action svg,
-.file-link-card .file-action svg {
-  display: block;
-  width: 18px;
-  height: 18px;
-  stroke: currentColor;
-  fill: none; /* lucide uses stroke; ensure no accidental fill */
-}
-
-/* View action — keep inline style (as you requested), but ensure svg inherits color
-   and provide a subtle hover pop (won't override inline bg/color) */
-.file-link-card .view-action svg {
-  width: 16px;
-  height: 16px;
-  stroke: currentColor;
-  fill: none;
-}
-.file-link-card .view-action:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.22);
-}
-
-/* Keep spacing consistent: place actions at the end and make file-name take remaining space */
-.file-link-card {
-  align-items: center; /* ensure actions align vertically */
-  gap: 0.75rem; /* keeps existing spacing */
-}
-.file-link-card .file-name {
-  flex: 1 1 auto; /* allow name to expand and push actions to the right */
-  min-width: 0; /* prevents overflow on long names */
-}
-
-/* Mobile: slightly reduce sizing for action buttons */
-@media (max-width: 480px) {
-  .file-link-card .file-action {
-    min-width: 30px;
-    min-height: 30px;
-    padding: 5px;
-    border-radius: 6px;
-  }
-  .file-link-card .download-action svg,
-  .file-link-card .view-action svg {
-    width: 14px;
-    height: 14px;
-  }
-}

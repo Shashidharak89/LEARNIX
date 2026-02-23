@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronRight, BookOpen, FileText, Download, Eye } from "lucide-react";
+import { ChevronDown, ChevronRight, BookOpen, FileText, Download, Eye, FolderOpen } from "lucide-react";
 import materialsData from "./materialsData";
 import "./styles/StudyMaterials.css";
 
@@ -11,7 +11,7 @@ export default function StudyMaterials() {
 
   const toggleSemester = (index) => {
     setOpenSemesterIndex(openSemesterIndex === index ? null : index);
-    setOpenSubjectIndex(null); // Reset subject when semester changes
+    setOpenSubjectIndex(null);
   };
 
   const toggleSubject = (index) => {
@@ -19,105 +19,117 @@ export default function StudyMaterials() {
   };
 
   return (
-    <div className="study-materials-wrapper">
-      <div className="study-materials-header">
-        <BookOpen className="header-icon" />
-        <h2 className="study-materials-title">Study Materials</h2>
-      </div>
-
-      <div className="study-materials-content">
-        {materialsData.map((sem, semIndex) => (
-          <div key={semIndex} className="semester-card">
-            {/* Semester Header */}
-            <button
-              className={`semester-toggle ${openSemesterIndex === semIndex ? "semester-active" : ""}`}
-              onClick={() => toggleSemester(semIndex)}
-            >
-              <span className="semester-title">{sem.semester}</span>
-              <span className="semester-icon">
-                {openSemesterIndex === semIndex ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
-              </span>
-            </button>
-
-            {/* Subjects List */}
-            {openSemesterIndex === semIndex && (
-              <div className="subjects-container">
-                {sem.subjects.map((subj, subjIndex) => (
-                  <div key={subjIndex} className="subject-card">
-                    <button
-                      className={`subject-toggle ${openSubjectIndex === subjIndex ? "subject-active" : ""}`}
-                      onClick={() => toggleSubject(subjIndex)}
-                    >
-                      <FileText size={18} className="subject-icon" />
-                      <span className="subject-title">{subj.subject}</span>
-                      <span className="subject-chevron">
-                        {openSubjectIndex === subjIndex ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-                      </span>
-                    </button>
-
-                    {/* Files List */}
-                    {openSubjectIndex === subjIndex && (
-                      <div className="files-container">
-                        {subj.files.map((file, fIndex) => {
-                          const rawFileName = file.name || file.url.split("/").pop().split("?")[0];
-                          // Decode URL-encoded characters (%20 -> space, etc.) for display
-                          const fileName = decodeURIComponent(rawFileName);
-
-                          // 🔍 Google Docs Viewer URL
-                          const encodedUrl = encodeURIComponent(file.url);
-                          const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodedUrl}`;
-
-                          return (
-                            <div key={fIndex} className="file-link-card">
-                              {/* Download / open original file */}
-                              <a
-                                href={file.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="file-action download-action"
-                                title="Open / Download file"
-                                aria-label={`Download ${fileName}`}
-                              >
-                                <Download size={16} className="download-icon" />
-                              </a>
-
-                              {/* File name */}
-                              <span className="file-name">{fileName}</span>
-
-                              {/* Eye (view) link - opens in Google Docs Viewer */}
-                              <a
-                                href={viewUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                title="View file online"
-                                aria-label={`View ${fileName}`}
-                                className="file-action view-action"
-                                style={{
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  width: 34,
-                                  height: 34,
-                                  marginLeft: 12,
-                                  background: "rgba(255,255,255,0.04)",
-                                  borderRadius: 8,
-                                  border: "1px solid rgba(255,255,255,0.03)",
-                                  textDecoration: "none",
-                                }}
-                              >
-                                <Eye size={16} />
-                              </a>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+    <div className="sm-wrapper">
+      <div className="sm-container">
+        {/* Header */}
+        <div className="sm-header">
+          <div className="sm-header-content">
+            <div className="sm-header-icon">
+              <BookOpen size={28} />
+            </div>
+            <div className="sm-header-text">
+              <h1 className="sm-title">Study Materials</h1>
+              <p className="sm-subtitle">Access your course materials by semester and subject</p>
+            </div>
           </div>
-        ))}
+        </div>
+
+        {/* Materials List */}
+        <div className="sm-materials-list">
+          {materialsData.map((sem, semIndex) => (
+            <div key={semIndex} className="sm-semester-block">
+              {/* Semester Header */}
+              <button
+                className={`sm-semester-btn ${openSemesterIndex === semIndex ? "sm-semester-open" : ""}`}
+                onClick={() => toggleSemester(semIndex)}
+              >
+                <div className="sm-semester-left">
+                  <FolderOpen size={20} />
+                  <span className="sm-semester-name">{sem.semester}</span>
+                  <span className="sm-subject-count">{sem.subjects.length} subjects</span>
+                </div>
+                <div className="sm-semester-icon">
+                  {openSemesterIndex === semIndex ? (
+                    <ChevronDown size={20} />
+                  ) : (
+                    <ChevronRight size={20} />
+                  )}
+                </div>
+              </button>
+
+              {/* Subjects Container */}
+              {openSemesterIndex === semIndex && (
+                <div className="sm-subjects-wrapper">
+                  {sem.subjects.map((subj, subjIndex) => (
+                    <div key={subjIndex} className="sm-subject-block">
+                      {/* Subject Header */}
+                      <button
+                        className={`sm-subject-btn ${openSubjectIndex === subjIndex ? "sm-subject-open" : ""}`}
+                        onClick={() => toggleSubject(subjIndex)}
+                      >
+                        <div className="sm-subject-left">
+                          <FileText size={18} />
+                          <span className="sm-subject-name">{subj.subject}</span>
+                          <span className="sm-file-count">{subj.files.length} files</span>
+                        </div>
+                        <div className="sm-subject-icon">
+                          {openSubjectIndex === subjIndex ? (
+                            <ChevronDown size={18} />
+                          ) : (
+                            <ChevronRight size={18} />
+                          )}
+                        </div>
+                      </button>
+
+                      {/* Files List */}
+                      {openSubjectIndex === subjIndex && (
+                        <div className="sm-files-list">
+                          {subj.files.map((file, fIndex) => {
+                            const rawFileName = file.name || file.url.split("/").pop().split("?")[0];
+                            const fileName = decodeURIComponent(rawFileName);
+                            const encodedUrl = encodeURIComponent(file.url);
+                            const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodedUrl}`;
+
+                            return (
+                              <div key={fIndex} className="sm-file-card">
+                                <div className="sm-file-info">
+                                  <div className="sm-file-icon">📄</div>
+                                  <span className="sm-file-name">{fileName}</span>
+                                </div>
+                                <div className="sm-file-actions">
+                                  <a
+                                    href={viewUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="sm-action-btn sm-view-btn"
+                                    title="View file"
+                                    aria-label={`View ${fileName}`}
+                                  >
+                                    <Eye size={16} />
+                                  </a>
+                                  <a
+                                    href={file.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="sm-action-btn sm-download-btn"
+                                    title="Download file"
+                                    aria-label={`Download ${fileName}`}
+                                  >
+                                    <Download size={16} />
+                                  </a>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
