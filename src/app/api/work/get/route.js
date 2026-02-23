@@ -9,6 +9,8 @@ export async function GET(req) {
     await connectDB();
     const { searchParams } = new URL(req.url);
     const usn = searchParams.get("usn");
+    const page = Number(searchParams.get("page") || 1);
+    const limit = Number(searchParams.get("limit") || 0); // 0 means all
 
     if (!usn) {
       return NextResponse.json(
@@ -23,8 +25,16 @@ export async function GET(req) {
       return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
 
-    // Fetch subjects for this user
-    const subjects = await Subject.find({ userId: user._id }).lean();
+    // Fetch subjects for this user with optional paging
+    const query = { userId: user._id };
+    let subjects = [];
+    let totalSubjects = await Subject.countDocuments(query);
+    if (limit > 0) {
+      const skip = (page - 1) * limit;
+      subjects = await Subject.find(query).sort({ _id: -1 }).skip(skip).limit(limit).lean();
+    } else {
+      subjects = await Subject.find(query).lean();
+    }
     
     // Fetch topics for each subject and sort
     const subjectsWithTopics = await Promise.all(
@@ -57,8 +67,8 @@ export async function GET(req) {
       return new Date(latestB) - new Date(latestA);
     });
 
-    // Return in same format as before
-    return NextResponse.json({
+    // Return in same format as before, with paging metadata when requested
+    const payload = {
       _id: user._id,
       name: user.name,
       usn: user.usn,
@@ -68,7 +78,13 @@ export async function GET(req) {
       // Active deprecated; return dummy value for compatibility
       active: user.active ?? 0,
       createdAt: user.createdAt
-    });
+    };
+
+    if (limit > 0) {
+      payload.paging = { page, limit, total: totalSubjects, returned: subjectsWithTopics.length };
+    }
+
+    return NextResponse.json(payload);
   } catch (error) {
     console.error(error);
     return NextResponse.json(

@@ -635,3 +635,9 @@
     transform: none;
   }
 }
+
+/* View more button */
+.mse-view-more-btn{
+  padding:10px 16px;border-radius:10px;border:none;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;font-weight:700;cursor:pointer;
+}
+.mse-view-more-btn:disabled{opacity:0.6;cursor:not-allowed}

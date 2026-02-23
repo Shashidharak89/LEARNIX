@@ -18,6 +18,10 @@ import ManageSubjectsSkeleton from './ManageSubjectsSkeleton';
 export default function ManageSubjects() {
   const [usn, setUsn] = useState("");
   const [subjects, setSubjects] = useState([]);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
@@ -27,7 +31,7 @@ export default function ManageSubjects() {
   useEffect(() => {
     const storedUsn = localStorage.getItem("usn");
     if (storedUsn) setUsn(storedUsn);
-    fetchSubjects(storedUsn);
+    fetchSubjects(storedUsn, 1);
     fetchAllUsers();
   }, []);
 
@@ -36,16 +40,23 @@ export default function ManageSubjects() {
     setTimeout(() => setMessage(""), duration);
   };
 
-  const fetchSubjects = async (usn) => {
-    setIsLoading(true);
+  const fetchSubjects = async (usn, pageNum = 1, append = false) => {
+    if (pageNum === 1) setIsLoading(true);
+    else setLoadingMore(true);
     try {
-      const res = await axios.get("/api/work/get", { params: { usn } });
-      setSubjects(res.data.subjects || []);
+      const res = await axios.get("/api/work/get", { params: { usn, page: pageNum, limit } });
+      const fetched = res.data.subjects || [];
+      const total = res.data.paging?.total || 0;
+      if (append) setSubjects((prev) => [...prev, ...fetched]);
+      else setSubjects(fetched);
+      setPage(pageNum);
+      setHasMore(pageNum * limit < total);
     } catch (err) {
       console.error(err);
       showMessage("Failed to fetch subjects", "error");
     } finally {
       setIsLoading(false);
+      setLoadingMore(false);
     }
   };
 
@@ -59,12 +70,14 @@ export default function ManageSubjects() {
   };
 
   const handleSubjectDelete = (updatedSubjects) => {
-    setSubjects(updatedSubjects);
+    // Refresh first page after deletion to keep paging consistent
+    fetchSubjects(usn, 1);
     showMessage("Subject deleted successfully!", "success");
   };
 
   const handleTopicDelete = (updatedSubjects) => {
-    setSubjects(updatedSubjects);
+    // Refresh first page after topic deletion to keep ordering consistent
+    fetchSubjects(usn, 1);
     showMessage("Topic deleted successfully!", "success");
   };
 
@@ -77,7 +90,8 @@ export default function ManageSubjects() {
         subject: subjectName,
         public: isPublic
       });
-      setSubjects(res.data.subjects);
+      // Refresh first page after adding
+      fetchSubjects(usn, 1);
       showMessage("Subject added successfully!", "success");
     } catch (err) {
       console.error(err);
@@ -98,7 +112,8 @@ export default function ManageSubjects() {
         images: [],
         public: isPublic
       });
-      setSubjects(res.data.subjects);
+      // Refresh first page to include updated topic ordering
+      fetchSubjects(usn, 1);
       showMessage("Topic added successfully!", "success");
     } catch (err) {
       console.error(err);
@@ -109,7 +124,7 @@ export default function ManageSubjects() {
   };
 
   const refreshSubjects = () => {
-    fetchSubjects(usn);
+    fetchSubjects(usn, 1);
   };
 
   const usnl = typeof window !== "undefined" ? localStorage.getItem("usn") : null;
@@ -169,6 +184,17 @@ export default function ManageSubjects() {
           onRefreshSubjects={refreshSubjects}
           showMessage={showMessage}
         />
+        {hasMore && (
+          <div style={{ textAlign: 'center', marginTop: 12 }}>
+            <button
+              onClick={() => fetchSubjects(usn, page + 1, true)}
+              disabled={loadingMore}
+              className="mse-view-more-btn"
+            >
+              {loadingMore ? 'Loading...' : 'View more subjects'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
