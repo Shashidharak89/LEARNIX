@@ -6,66 +6,41 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import imageCompression from "browser-image-compression";
 import {
-  FiFileText,
-  FiUpload,
-  FiTrash2,
-  FiImage,
-  FiCalendar,
-  FiCheck,
-  FiChevronDown,
-  FiChevronUp,
-  FiX,
-  FiAlertTriangle,
-  FiCamera,
-  FiFile,
-  FiCheckCircle,
-  FiLoader,
-  FiShare2,
-  FiMessageSquare,
-  FiMoreVertical,
-  FiEdit2,
-  FiLock,
-  FiUnlock,
-  FiChevronRight,
+  FiFileText, FiUpload, FiTrash2, FiImage, FiCalendar, FiCheck,
+  FiChevronDown, FiChevronUp, FiX, FiAlertTriangle, FiCamera, FiFile,
+  FiCheckCircle, FiLoader, FiShare2, FiMessageSquare, FiMoreVertical,
+  FiEdit2, FiLock, FiUnlock, FiChevronRight,
 } from "react-icons/fi";
 import PDFProcessor from "./PDFProcessor";
 import "./styles/TopicCard.css";
 
-export default function TopicCard({
-  subject,
-  topic,
-  usn,
-  isLoading,
-  onTopicDelete,
-  onRefreshSubjects,
-  showMessage,
-}) {
+export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelete, onRefreshSubjects, showMessage }) {
   const router = useRouter();
-  const [isCollapsed, setIsCollapsed] = useState(true);
-  const [uploadingStates, setUploadingStates] = useState({});
+  const [isCollapsed, setIsCollapsed]       = useState(true);
+  const [uploadingStates, setUploadingStates]   = useState({});
   const [compressionStates, setCompressionStates] = useState({});
-  const [filesMap, setFilesMap] = useState({});
+  const [filesMap, setFilesMap]             = useState({});
   const [filePreviewMap, setFilePreviewMap] = useState({});
   const [expandedImages, setExpandedImages] = useState({});
-  const [deleteConfirm, setDeleteConfirm] = useState({ show: false, subject: "", topic: "", imageUrl: "" });
+  const [deleteConfirm, setDeleteConfirm]   = useState({ show: false, subject: "", topic: "", imageUrl: "" });
   const [showCaptureOptions, setShowCaptureOptions] = useState({});
-  const [showPDFProcessor, setShowPDFProcessor] = useState({});
+  const [showPDFProcessor, setShowPDFProcessor]     = useState({});
   const [uploadProgress, setUploadProgress] = useState({});
-  const [uploadedFiles, setUploadedFiles] = useState({});
+  const [uploadedFiles, setUploadedFiles]   = useState({});
   const [uploadComplete, setUploadComplete] = useState({});
   const [isTogglingPublic, setIsTogglingPublic] = useState(false);
-  const [openMenu, setOpenMenu] = useState(false);
+  const [openMenu, setOpenMenu]   = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [isDeletingTopic, setIsDeletingTopic] = useState(false);
   const [renameModal, setRenameModal] = useState(false);
   const [renameValue, setRenameValue] = useState("");
   const [isRenamingTopic, setIsRenamingTopic] = useState(false);
 
-  const menuRef = useRef(null);
+  const menuRef        = useRef(null);
   const cameraInputRefs = useRef({});
   const topicKey = `${subject}-${topic.topic}`;
 
-  /* ── collapse toggle ── */
+  /* ── collapse ── */
   const toggleCollapse = (e) => {
     if (e) { e.preventDefault(); e.stopPropagation(); }
     setOpenMenu(false);
@@ -74,11 +49,7 @@ export default function TopicCard({
 
   const shouldIgnore = (target) => {
     if (!target || typeof target.closest !== "function") return false;
-    return Boolean(
-      target.closest(
-        ".tc-menu-wrap, .mse-options-menu, .mse-options-btn, .mse-options-item, a, button, input, select, textarea, label"
-      )
-    );
+    return Boolean(target.closest(".tc-menu-wrap, .tc-dropdown, .tc-menu-btn, .tc-dropdown-item, a, button, input, select, textarea, label"));
   };
 
   /* ── cleanup preview URLs ── */
@@ -93,33 +64,23 @@ export default function TopicCard({
 
   /* ── close menu on outside click ── */
   useEffect(() => {
-    const close = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) setOpenMenu(false);
-    };
+    const close = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setOpenMenu(false); };
     if (openMenu) document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
   }, [openMenu]);
 
   /* ── image compression ── */
   const compressImage = async (file) => {
-    const options = { maxSizeMB: 0.5, maxWidthOrHeight: 1920, useWebWorker: true, quality: 0.8, fileType: "image/jpeg" };
-    return imageCompression(file, options);
+    return imageCompression(file, { maxSizeMB: 0.5, maxWidthOrHeight: 1920, useWebWorker: true, quality: 0.8, fileType: "image/jpeg" });
   };
 
-  const toggleCaptureOptions = () =>
-    setShowCaptureOptions((p) => ({ ...p, [topicKey]: !p[topicKey] }));
-
-  const togglePDFProcessor = () =>
-    setShowPDFProcessor((p) => ({ ...p, [topicKey]: !p[topicKey] }));
-
+  const toggleCaptureOptions = () => setShowCaptureOptions((p) => ({ ...p, [topicKey]: !p[topicKey] }));
+  const togglePDFProcessor   = () => setShowPDFProcessor((p)   => ({ ...p, [topicKey]: !p[topicKey] }));
   const triggerCameraCapture = () => cameraInputRefs.current[topicKey]?.click();
 
   const handleCameraCapture = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      await handleSingleFileChange(file);
-      setShowCaptureOptions((p) => ({ ...p, [topicKey]: false }));
-    }
+    if (file) { await handleSingleFileChange(file); setShowCaptureOptions((p) => ({ ...p, [topicKey]: false })); }
   };
 
   const handleSingleFileChange = async (file) => {
@@ -127,9 +88,7 @@ export default function TopicCard({
       setFilesMap({ ...filesMap, [topicKey]: null });
       if (filePreviewMap[topicKey]) {
         URL.revokeObjectURL(filePreviewMap[topicKey]);
-        const m = { ...filePreviewMap };
-        delete m[topicKey];
-        setFilePreviewMap(m);
+        const m = { ...filePreviewMap }; delete m[topicKey]; setFilePreviewMap(m);
       }
       return;
     }
@@ -142,7 +101,7 @@ export default function TopicCard({
       setFilesMap({ ...filesMap, [topicKey]: final });
       setFilePreviewMap({ ...filePreviewMap, [topicKey]: URL.createObjectURL(final) });
       const ratio = ((file.size - final.size) / file.size * 100).toFixed(1);
-      showMessage(`Compressed by ${ratio}% (${(file.size / 1024 / 1024).toFixed(2)}MB → ${(final.size / 1024 / 1024).toFixed(2)}MB)`, "success");
+      showMessage(`Compressed by ${ratio}% (${(file.size/1024/1024).toFixed(2)}MB → ${(final.size/1024/1024).toFixed(2)}MB)`, "success");
     } catch { showMessage("Image compression failed.", "error"); }
     finally { setCompressionStates((p) => { const n = { ...p }; delete n[topicKey]; return n; }); }
   };
@@ -170,12 +129,9 @@ export default function TopicCard({
     finally { setCompressionStates((p) => { const n = { ...p }; delete n[topicKey]; return n; }); }
   };
 
-  const toggleImageExpansion = () =>
-    setExpandedImages((p) => ({ ...p, [topicKey]: !p[topicKey] }));
+  const toggleImageExpansion = () => setExpandedImages((p) => ({ ...p, [topicKey]: !p[topicKey] }));
 
-  const showDeleteConfirmation = (imageUrl) =>
-    setDeleteConfirm({ show: true, subject, topic: topic.topic, imageUrl });
-
+  const showDeleteConfirmation = (imageUrl) => setDeleteConfirm({ show: true, subject, topic: topic.topic, imageUrl });
   const cancelDelete = () => setDeleteConfirm({ show: false, subject: "", topic: "", imageUrl: "" });
   const confirmDelete = async () => { await handleDeleteImage(deleteConfirm.imageUrl); cancelDelete(); };
 
@@ -257,11 +213,10 @@ export default function TopicCard({
       .catch(() => showMessage("Failed to copy link", "error"));
   };
 
-  const handleOpenTopic = () => { setOpenMenu(false); router.push(`/works/${topic._id}`); };
+  const handleOpenTopic   = () => { setOpenMenu(false); router.push(`/works/${topic._id}`); };
   const handleOpenReviews = () => { setOpenMenu(false); router.push(`/reviews/${topic._id}`); };
-
   const requestRenameTopic = () => { setOpenMenu(false); setRenameValue(topic.topic || ""); setRenameModal(true); };
-  const cancelRenameTopic = () => { if (isRenamingTopic) return; setRenameModal(false); setRenameValue(""); };
+  const cancelRenameTopic  = () => { if (isRenamingTopic) return; setRenameModal(false); setRenameValue(""); };
 
   const confirmRenameTopic = async () => {
     const next = String(renameValue || "").trim();
@@ -280,7 +235,7 @@ export default function TopicCard({
   };
 
   const requestDeleteTopic = () => { setOpenMenu(false); setDeleteModal(true); };
-  const cancelDeleteTopic = () => { if (isDeletingTopic) return; setDeleteModal(false); };
+  const cancelDeleteTopic  = () => { if (isDeletingTopic) return; setDeleteModal(false); };
 
   const confirmDeleteTopic = async () => {
     if (!usn) return;
@@ -297,12 +252,12 @@ export default function TopicCard({
   };
 
   const getValidImages = (images) => images.filter((img) => img && img.trim());
-  const validImages = getValidImages(topic.images || []);
-  const filesForTopic = filesMap[topicKey];
+  const validImages    = getValidImages(topic.images || []);
+  const filesForTopic  = filesMap[topicKey];
   const isMultipleFiles = Array.isArray(filesForTopic);
 
   return (
-    <div className="tc-card" data-collapsed={isCollapsed ? "true" : "false"}>
+    <div className="tc-card">
 
       {/* ── Rename Modal ── */}
       {renameModal && (
@@ -322,7 +277,7 @@ export default function TopicCard({
             />
             <div className="tc-modal-actions">
               <button className="tc-modal-btn tc-modal-btn--cancel" onClick={cancelRenameTopic} disabled={!!isRenamingTopic}>Cancel</button>
-              <button className="tc-modal-btn tc-modal-btn--save" onClick={confirmRenameTopic} disabled={!!isRenamingTopic}>
+              <button className="tc-modal-btn tc-modal-btn--save"   onClick={confirmRenameTopic} disabled={!!isRenamingTopic}>
                 {isRenamingTopic ? <><FiLoader className="tc-spin" /> Saving…</> : "Save"}
               </button>
             </div>
@@ -365,7 +320,7 @@ export default function TopicCard({
       )}
 
       {/* ══════════════════════════════════
-          TOPIC HEADER ROW
+          HEADER
       ══════════════════════════════════ */}
       <div
         className={`tc-header ${isCollapsed ? "tc-header--collapsed" : "tc-header--expanded"}`}
@@ -375,7 +330,6 @@ export default function TopicCard({
         onClick={(e) => { if (shouldIgnore(e.target)) return; toggleCollapse(e); }}
         onKeyDown={(e) => { if (shouldIgnore(e.target)) return; if (e.key === "Enter" || e.key === " ") toggleCollapse(e); }}
       >
-        {/* Left: caret + icon + title */}
         <div className="tc-header-left">
           <span className="tc-caret">
             {isCollapsed ? <FiChevronRight /> : <FiChevronDown />}
@@ -392,7 +346,6 @@ export default function TopicCard({
           </div>
         </div>
 
-        {/* Right: date + visibility + 3-dot */}
         <div className="tc-header-right">
           <span className="tc-date">
             <FiCalendar className="tc-date-icon" />
@@ -403,7 +356,6 @@ export default function TopicCard({
             {topic.public ? "Public" : "Private"}
           </span>
 
-          {/* 3-dot menu — portaled via CSS z-index approach */}
           <div className="tc-menu-wrap" ref={menuRef}>
             <button
               type="button"
@@ -444,15 +396,15 @@ export default function TopicCard({
       </div>
 
       {/* ══════════════════════════════════
-          EXPANDED CONTENT
+          EXPANDED BODY
       ══════════════════════════════════ */}
       {!isCollapsed && (
         <div className="tc-body">
 
-          {/* ── Images section ── */}
+          {/* Images */}
           <div className="tc-section">
             <div className="tc-section-header">
-              <FiImage className="tc-section-icon tc-section-icon--blue" />
+              <FiImage className="tc-section-icon tc-section-icon--sky" />
               <span className="tc-section-title">Images</span>
               <span className="tc-count-badge">{validImages.length}</span>
             </div>
@@ -460,38 +412,40 @@ export default function TopicCard({
             {validImages.length > 0 && (
               <>
                 <div className="tc-images-grid">
-                  {validImages.slice(0, expandedImages[topicKey] ? validImages.length : 3).map((img, i) => (
-                    <div key={i} className="tc-image-tile">
-                      <img src={img} alt={`Image ${i + 1}`} className="tc-image" loading="lazy" />
-                      <div className="tc-image-overlay">
-                        <button className="tc-image-delete-btn" onClick={() => showDeleteConfirmation(img)} disabled={isLoading}>
-                          <FiTrash2 />
-                        </button>
+                  {validImages
+                    .slice(0, expandedImages[topicKey] ? validImages.length : 3)
+                    .map((img, i) => (
+                      <div key={i} className="tc-image-tile">
+                        <img src={img} alt={`Image ${i + 1}`} className="tc-image" loading="lazy" />
+                        <div className="tc-image-overlay">
+                          <button className="tc-image-delete-btn" onClick={() => showDeleteConfirmation(img)} disabled={isLoading}>
+                            <FiTrash2 />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
+
                 {validImages.length > 3 && (
                   <button className="tc-ghost-btn tc-ghost-btn--sm tc-expand-btn" onClick={toggleImageExpansion}>
-                    {expandedImages[topicKey] ? <><FiChevronUp /> Show less</> : <><FiChevronDown /> View {validImages.length - 3} more</>}
+                    {expandedImages[topicKey]
+                      ? <><FiChevronUp /> Show less</>
+                      : <><FiChevronDown /> View {validImages.length - 3} more</>}
                   </button>
                 )}
               </>
             )}
 
-            {validImages.length === 0 && (
-              <p className="tc-empty-hint">No images yet.</p>
-            )}
+            {validImages.length === 0 && <p className="tc-empty-hint">No images yet.</p>}
           </div>
 
-          {/* ── Upload section ── */}
+          {/* Upload */}
           <div className="tc-section">
             <div className="tc-section-header">
               <FiUpload className="tc-section-icon tc-section-icon--yellow" />
               <span className="tc-section-title">Add Content</span>
             </div>
 
-            {/* Capture toggle */}
             <button className="tc-ghost-btn" onClick={toggleCaptureOptions}>
               <FiCamera />
               {showCaptureOptions[topicKey] ? "Hide options" : "Add images / PDF"}
@@ -503,16 +457,13 @@ export default function TopicCard({
                 <button className="tc-pill-btn" onClick={triggerCameraCapture} disabled={isLoading || compressionStates[topicKey]}>
                   <FiCamera /> Capture Photo
                 </button>
-
                 <label className={`tc-pill-btn${(isLoading || compressionStates[topicKey]) ? " tc-pill-btn--disabled" : ""}`}>
                   <FiFile /> Browse Images
                   <input type="file" multiple onChange={handleMultipleFileChange} accept="image/*" className="tc-hidden-input" disabled={isLoading || compressionStates[topicKey]} />
                 </label>
-
                 <button className="tc-pill-btn" onClick={togglePDFProcessor} disabled={isLoading}>
                   <FiFileText /> Upload PDF/DOCX
                 </button>
-
                 <input ref={(el) => (cameraInputRefs.current[topicKey] = el)} type="file" accept="image/*" capture="environment" onChange={handleCameraCapture} className="tc-hidden-input" />
               </div>
             )}
@@ -523,7 +474,6 @@ export default function TopicCard({
               </div>
             )}
 
-            {/* Compression spinner */}
             {compressionStates[topicKey] && (
               <div className="tc-status-row">
                 <FiLoader className="tc-spin tc-status-icon" />
@@ -531,7 +481,6 @@ export default function TopicCard({
               </div>
             )}
 
-            {/* Upload complete */}
             {uploadComplete[topicKey] && (
               <div className="tc-success-banner">
                 <FiCheckCircle className="tc-success-icon" />
@@ -539,7 +488,7 @@ export default function TopicCard({
               </div>
             )}
 
-            {/* Multiple files preview */}
+            {/* Multiple files */}
             {isMultipleFiles && filesForTopic?.length > 0 && !uploadComplete[topicKey] && (
               <div className="tc-multi-wrap">
                 <div className="tc-multi-grid">
@@ -577,7 +526,7 @@ export default function TopicCard({
               </div>
             )}
 
-            {/* Single file preview */}
+            {/* Single file */}
             {!isMultipleFiles && filePreviewMap[topicKey] && !uploadComplete[topicKey] && (
               <div className="tc-single-preview">
                 <div className="tc-single-thumb-wrap">
@@ -594,6 +543,7 @@ export default function TopicCard({
               </div>
             )}
           </div>
+
         </div>
       )}
     </div>
