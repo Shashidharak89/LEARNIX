@@ -17,32 +17,36 @@ import {
 } from "react-icons/fi";
 import AddSubjectForm from "./AddSubjectForm";
 import SubjectsGrid from "./SubjectsGrid";
+import Portal from "./components/Portal";
 import "./styles/ManageSubjects.css";
 import LoginRequired from "../components/LoginRequired";
 import ManageSubjectsSkeleton from "./ManageSubjectsSkeleton";
 
 /* ─────────────────────────────────────────
-   Toast Popup Component
+   Toast — rendered via Portal into body
+   so no parent transform/overflow can trap it
 ───────────────────────────────────────── */
 function Toast({ toasts, onDismiss }) {
   return (
-    <div className="ms-toast-container" aria-live="polite">
-      {toasts.map((t) => (
-        <div key={t.id} className={`ms-toast ms-toast--${t.type}`} role="alert">
-          <span className="ms-toast-icon">
-            {t.type === "success" ? <FiCheckCircle /> : <FiAlertCircle />}
-          </span>
-          <span className="ms-toast-text">{t.text}</span>
-          <button
-            className="ms-toast-close"
-            onClick={() => onDismiss(t.id)}
-            aria-label="Dismiss notification"
-          >
-            <FiX />
-          </button>
-        </div>
-      ))}
-    </div>
+    <Portal>
+      <div className="ms-toast-container" aria-live="polite">
+        {toasts.map((t) => (
+          <div key={t.id} className={`ms-toast ms-toast--${t.type}`} role="alert">
+            <span className="ms-toast-icon">
+              {t.type === "success" ? <FiCheckCircle /> : <FiAlertCircle />}
+            </span>
+            <span className="ms-toast-text">{t.text}</span>
+            <button
+              className="ms-toast-close"
+              onClick={() => onDismiss(t.id)}
+              aria-label="Dismiss"
+            >
+              <FiX />
+            </button>
+          </div>
+        ))}
+      </div>
+    </Portal>
   );
 }
 
@@ -73,7 +77,6 @@ export default function ManageSubjects() {
     fetchAllUsers();
   }, []);
 
-  /* smooth-scroll drawer into view when it opens */
   useEffect(() => {
     if (addOpen && drawerRef.current) {
       setTimeout(
@@ -87,24 +90,22 @@ export default function ManageSubjects() {
   const pushToast = (text, type = "success", duration = 3500) => {
     const id = ++_toastId;
     setToasts((prev) => [...prev, { id, text, type }]);
-    setTimeout(() => dismissToast(id), duration);
+    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), duration);
   };
 
   const dismissToast = (id) =>
     setToasts((prev) => prev.filter((t) => t.id !== id));
 
-  /* keep legacy signature for child components */
+  /* legacy signature for child components */
   const showMessage = (text, type = "") =>
     pushToast(text, type === "error" ? "error" : "success");
 
-  /* ── Data fetching ── */
+  /* ── API ── */
   const fetchSubjects = async (usn, pageNum = 1, append = false) => {
     if (pageNum === 1) setIsLoading(true);
     else setLoadingMore(true);
     try {
-      const res = await axios.get("/api/work/get", {
-        params: { usn, page: pageNum, limit },
-      });
+      const res = await axios.get("/api/work/get", { params: { usn, page: pageNum, limit } });
       const fetched = res.data.subjects || [];
       const total = res.data.paging?.total || 0;
       if (append) setSubjects((prev) => [...prev, ...fetched]);
@@ -125,11 +126,10 @@ export default function ManageSubjects() {
       const res = await axios.get("/api/work/getall");
       setAllUsers(res.data.users || []);
     } catch (err) {
-      console.error("Failed to fetch all users data:", err);
+      console.error("Failed to fetch all users:", err);
     }
   };
 
-  /* ── Event handlers ── */
   const handleSubjectDelete = () => {
     fetchSubjects(usn, 1);
     pushToast("Subject deleted successfully!");
@@ -159,9 +159,7 @@ export default function ManageSubjects() {
     if (!subject || !topicName.trim()) return;
     setIsLoading(true);
     try {
-      await axios.post("/api/topic", {
-        usn, subject, topic: topicName, images: [], public: isPublic,
-      });
+      await axios.post("/api/topic", { usn, subject, topic: topicName, images: [], public: isPublic });
       fetchSubjects(usn, 1);
       pushToast("Topic added successfully!");
     } catch (err) {
@@ -174,7 +172,6 @@ export default function ManageSubjects() {
 
   const refreshSubjects = () => fetchSubjects(usn, 1);
 
-  /* ── Guards ── */
   const usnl = typeof window !== "undefined" ? localStorage.getItem("usn") : null;
   if (!usnl) return <LoginRequired />;
   if (isLoading && subjects.length === 0) return <ManageSubjectsSkeleton />;
@@ -182,10 +179,10 @@ export default function ManageSubjects() {
   return (
     <div className={`ms-wrapper ${theme}`}>
 
-      {/* ── Toast notifications ── */}
+      {/* Toast — portaled to body, always above everything */}
       <Toast toasts={toasts} onDismiss={dismissToast} />
 
-      {/* ── Page Header ── */}
+      {/* Page Header */}
       <header className="ms-page-header">
         <div className="ms-header-accent" />
 
@@ -203,7 +200,6 @@ export default function ManageSubjects() {
             <span className="ms-stat-label">subjects</span>
           </div>
 
-          {/* Collapsible trigger */}
           <button
             className={`ms-add-toggle-btn${addOpen ? " ms-add-toggle-btn--open" : ""}`}
             onClick={() => setAddOpen((v) => !v)}
@@ -219,7 +215,7 @@ export default function ManageSubjects() {
         </div>
       </header>
 
-      {/* ── Collapsible Add-Subject Drawer ── */}
+      {/* Collapsible Add Drawer */}
       <div
         id="ms-add-drawer"
         className={`ms-add-drawer${addOpen ? " ms-add-drawer--open" : ""}`}
@@ -238,7 +234,7 @@ export default function ManageSubjects() {
         </div>
       </div>
 
-      {/* ── Subjects & Topics Panel ── */}
+      {/* Subjects & Topics */}
       <main className="ms-main">
         <section className="ms-panel ms-panel--list">
           <div className="ms-panel-header">
@@ -284,11 +280,9 @@ export default function ManageSubjects() {
                   disabled={loadingMore}
                   className="ms-load-more-btn"
                 >
-                  {loadingMore ? (
-                    <><FiLoader className="ms-spinner-icon" /> Loading…</>
-                  ) : (
-                    <><FiChevronDown /> View more subjects</>
-                  )}
+                  {loadingMore
+                    ? <><FiLoader className="ms-spinner-icon" /> Loading…</>
+                    : <><FiChevronDown /> View more subjects</>}
                 </button>
               </div>
             )}
