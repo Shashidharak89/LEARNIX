@@ -162,9 +162,9 @@ export default function Quiz({ plainBg = false }) {
           <h1 className={styles.setupTitle}>QuizDeck</h1>
         </div>
 
-        <p className={styles.setupSubtitle}>
+        {/* <p className={styles.setupSubtitle}>
           5 questions per round · Instant feedback · Track your score
-        </p>
+        </p> */}
 
         {error && (
           <div style={{ color: '#dc2626', background: '#fee2e2', border: '1.5px solid #dc2626', borderRadius: 10, padding: '10px 14px', marginBottom: 18, fontSize: 13, fontWeight: 600 }}>

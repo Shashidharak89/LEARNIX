@@ -1,6 +1,6 @@
 import { Navbar } from "@/app/components/Navbar";
-import Quiz from "../Quiz";
-import '../styles/Quiz.module.css';
+import Quiz from "./Quiz";
+import './styles/Quiz.module.css';
 
 export const metadata = {
     title: 'QuizDeck | LEARNIX',
