@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FiZap } from 'react-icons/fi';
 import { Navbar } from "../../components/Navbar";
 import quizData from "./data/quizdata.json";
 import "./QuizList.css";
@@ -27,6 +28,20 @@ export default function QuizListPage() {
             Answer all questions in a step, then submit to see your score.
           </p>
         </header>
+
+        {/* QuizDeck banner — special promo area */}
+        <section className="quizdeck-banner-wrap">
+          <Link href="/learn/quiz/quizdeck" className="quizdeck-banner">
+            <div className="quizdeck-banner-left">
+              <div className="quizdeck-icon"><FiZap /></div>
+              <div>
+                <div className="quizdeck-title">QuizDeck — Special Mode</div>
+                <div className="quizdeck-sub">Play focused rounds with instant scoring and streak tracking.</div>
+              </div>
+            </div>
+            <div className="quizdeck-cta">Play Now →</div>
+          </Link>
+        </section>
 
         <section className="quiz-concepts-grid">
           {concepts.map((concept) => {
