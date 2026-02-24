@@ -28,11 +28,12 @@ const CATEGORIES = [
 
 const DIFFICULTIES = ['any', 'easy', 'medium', 'hard'];
 const TYPES = ['any', 'multiple', 'boolean'];
+const AMOUNTS = [5, 10, 15, 20];
 
 /* ────────────────────────────────────── */
 export default function Quiz({ plainBg = false }) {
   const [phase, setPhase]         = useState('setup');    // setup | loading | quiz | report
-  const [config, setConfig]       = useState({ category: 18, difficulty: 'any', type: 'any' });
+  const [config, setConfig]       = useState({ category: 18, difficulty: 'any', type: 'any', amount: 5 });
   const [questions, setQuestions] = useState([]);
   const [qIndex, setQIndex]       = useState(0);
   const [answers, setAnswers]     = useState([]);          // { question, correct, yours, isCorrect }
@@ -47,7 +48,7 @@ export default function Quiz({ plainBg = false }) {
     setPhase('loading');
     setError('');
     try {
-      let url = `https://opentdb.com/api.php?amount=5&category=${config.category}`;
+      let url = `https://opentdb.com/api.php?amount=${config.amount || 5}&category=${config.category}`;
       if (config.difficulty !== 'any') url += `&difficulty=${config.difficulty}`;
       if (config.type !== 'any') url += `&type=${config.type}`;
 
@@ -180,6 +181,19 @@ export default function Quiz({ plainBg = false }) {
           >
             {CATEGORIES.map(cat => (
               <option key={cat.id} value={cat.id}>{cat.label}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className={styles.setupGroup}>
+          <label className={styles.setupLabel}>Round size</label>
+          <select
+            className={styles.setupSelect}
+            value={config.amount}
+            onChange={e => setConfig(c => ({ ...c, amount: Number(e.target.value) }))}
+          >
+            {AMOUNTS.map(a => (
+              <option key={a} value={a}>{a} questions</option>
             ))}
           </select>
         </div>
