@@ -1,7 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { FiPlay, FiArrowRight, FiRefreshCw, FiHome, FiCheckCircle, FiXCircle, FiZap } from 'react-icons/fi';
+import { useState, useCallback } from 'react';
+import {
+  FiPlay, FiArrowRight, FiRefreshCw, FiHome,
+  FiCheckCircle, FiXCircle, FiZap,
+} from 'react-icons/fi';
 import styles from './styles/Quiz.module.css';
 
 /* ── helpers ── */
@@ -17,6 +20,7 @@ function shuffleArray(arr) {
 }
 
 const LETTERS = ['A', 'B', 'C', 'D'];
+
 const CATEGORIES = [
   { id: 18, label: 'Computers' },
   { id: 9,  label: 'General Knowledge' },
@@ -27,30 +31,31 @@ const CATEGORIES = [
 ];
 
 const DIFFICULTIES = ['any', 'easy', 'medium', 'hard'];
-const TYPES = ['any', 'multiple', 'boolean'];
-const AMOUNTS = [5, 10, 15, 20];
+const TYPES        = ['any', 'multiple', 'boolean'];
+const AMOUNTS      = [5, 10, 15, 20];
 
-/* ────────────────────────────────────── */
+/* ─────────────────────────────────────── */
 export default function Quiz({ plainBg = false }) {
-  const [phase, setPhase]         = useState('setup');    // setup | loading | quiz | report
+  const [phase, setPhase]         = useState('setup');
   const [config, setConfig]       = useState({ category: 18, difficulty: 'any', type: 'any', amount: 5 });
   const [questions, setQuestions] = useState([]);
   const [qIndex, setQIndex]       = useState(0);
-  const [answers, setAnswers]     = useState([]);          // { question, correct, yours, isCorrect }
+  const [answers, setAnswers]     = useState([]);
   const [shuffled, setShuffled]   = useState([]);
   const [selected, setSelected]   = useState(null);
   const [revealed, setRevealed]   = useState(false);
-  const [exiting, setExiting]     = useState(false);
+  // animation states
+  const [cardAnim, setCardAnim]   = useState('entering'); // 'entering' | 'idle' | 'exiting'
   const [error, setError]         = useState('');
 
-  /* ── fetch questions ── */
+  /* ── fetch ── */
   const fetchQuestions = useCallback(async () => {
     setPhase('loading');
     setError('');
     try {
       let url = `https://opentdb.com/api.php?amount=${config.amount || 5}&category=${config.category}`;
       if (config.difficulty !== 'any') url += `&difficulty=${config.difficulty}`;
-      if (config.type !== 'any') url += `&type=${config.type}`;
+      if (config.type !== 'any')       url += `&type=${config.type}`;
 
       const res  = await fetch(url);
       const data = await res.json();
@@ -63,9 +68,9 @@ export default function Quiz({ plainBg = false }) {
 
       const qs = data.results.map(q => ({
         ...q,
-        question:           decodeHtml(q.question),
-        correct_answer:     decodeHtml(q.correct_answer),
-        incorrect_answers:  q.incorrect_answers.map(decodeHtml),
+        question:          decodeHtml(q.question),
+        correct_answer:    decodeHtml(q.correct_answer),
+        incorrect_answers: q.incorrect_answers.map(decodeHtml),
       }));
 
       setQuestions(qs);
@@ -74,6 +79,7 @@ export default function Quiz({ plainBg = false }) {
       setSelected(null);
       setRevealed(false);
       setShuffled(shuffleArray([qs[0].correct_answer, ...qs[0].incorrect_answers]));
+      setCardAnim('entering');
       setPhase('quiz');
     } catch {
       setError('Failed to load questions. Check your connection.');
@@ -81,58 +87,47 @@ export default function Quiz({ plainBg = false }) {
     }
   }, [config]);
 
-  /* ── prep next question ── */
-  const prepQuestion = useCallback((idx, qs) => {
-    const q = qs[idx];
-    setShuffled(shuffleArray([q.correct_answer, ...q.incorrect_answers]));
-    setSelected(null);
-    setRevealed(false);
-  }, []);
-
-  /* ── answer select ── */
+  /* ── answer ── */
   function handleSelect(answer) {
-    if (revealed) return;
+    if (revealed || cardAnim === 'exiting') return;
     setSelected(answer);
     setRevealed(true);
+    setCardAnim('idle');
 
     const correct = questions[qIndex].correct_answer;
     setAnswers(prev => [...prev, {
-      question: questions[qIndex].question,
-      correct:  correct,
-      yours:    answer,
+      question:  questions[qIndex].question,
+      correct,
+      yours:     answer,
       isCorrect: answer === correct,
     }]);
   }
 
-  /* ── next question ── */
+  /* ── next ── */
   function handleNext() {
     const nextIdx = qIndex + 1;
-    if (nextIdx >= questions.length) {
-      // show report after 5 questions
-      setPhase('report');
-      return;
-    }
-    setExiting(true);
+
+    // trigger exit animation
+    setCardAnim('exiting');
+
     setTimeout(() => {
-      setExiting(false);
+      if (nextIdx >= questions.length) {
+        setPhase('report');
+        return;
+      }
       setQIndex(nextIdx);
-      prepQuestion(nextIdx, questions);
-    }, 280);
+      const q = questions[nextIdx];
+      setShuffled(shuffleArray([q.correct_answer, ...q.incorrect_answers]));
+      setSelected(null);
+      setRevealed(false);
+      setCardAnim('entering');
+    }, 380); // matches cardOut duration
   }
 
-  /* ── play again (same config) ── */
-  function playAgain() {
-    fetchQuestions();
-  }
+  /* ── helpers ── */
+  function playAgain() { fetchQuestions(); }
+  function goSetup()   { setPhase('setup'); setQuestions([]); setAnswers([]); }
 
-  /* ── go to setup ── */
-  function goSetup() {
-    setPhase('setup');
-    setQuestions([]);
-    setAnswers([]);
-  }
-
-  /* ── current question helpers ── */
   const currentQ = questions[qIndex];
   const score    = answers.filter(a => a.isCorrect).length;
 
@@ -143,31 +138,31 @@ export default function Quiz({ plainBg = false }) {
   };
 
   function getScoreEmoji(s, total) {
-    const pct = s / total;
-    if (pct === 1)    return '🏆';
-    if (pct >= 0.8)   return '🎉';
-    if (pct >= 0.6)   return '👍';
-    if (pct >= 0.4)   return '🤔';
+    const p = s / total;
+    if (p === 1)   return '🏆';
+    if (p >= 0.8)  return '🎉';
+    if (p >= 0.6)  return '👍';
+    if (p >= 0.4)  return '🤔';
     return '💪';
   }
 
-  /* ══════════════ RENDER ══════════════ */
+  const rootCls = `${styles.quizRoot} ${plainBg ? styles.plainRoot : ''}`;
 
-  /* Setup */
+  /* ══════════ SETUP ══════════ */
   if (phase === 'setup') return (
-    <div className={`${styles.quizRoot} ${plainBg ? styles.plainRoot : ''}`}>
+    <div className={rootCls}>
       <div className={styles.setupScreen}>
         <div className={styles.setupLogo}>
           <div className={styles.setupLogoIcon}><FiZap /></div>
           <h1 className={styles.setupTitle}>QuizDeck</h1>
         </div>
 
-        {/* <p className={styles.setupSubtitle}>
-          5 questions per round · Instant feedback · Track your score
-        </p> */}
-
         {error && (
-          <div style={{ color: '#dc2626', background: '#fee2e2', border: '1.5px solid #dc2626', borderRadius: 10, padding: '10px 14px', marginBottom: 18, fontSize: 13, fontWeight: 600 }}>
+          <div style={{
+            color: '#dc2626', background: '#fee2e2',
+            border: '1.5px solid #dc2626', borderRadius: 10,
+            padding: '10px 14px', marginBottom: 18, fontSize: 13, fontWeight: 600,
+          }}>
             {error}
           </div>
         )}
@@ -186,7 +181,7 @@ export default function Quiz({ plainBg = false }) {
         </div>
 
         <div className={styles.setupGroup}>
-          <label className={styles.setupLabel}>Round size</label>
+          <label className={styles.setupLabel}>Round Size</label>
           <select
             className={styles.setupSelect}
             value={config.amount}
@@ -215,14 +210,14 @@ export default function Quiz({ plainBg = false }) {
 
         <div className={styles.setupGroup}>
           <label className={styles.setupLabel}>Question Type</label>
-          <div className={styles.typeButtons}>
+          <div className={styles.typeButtons3}>
             {TYPES.map(t => (
               <button
                 key={t}
                 className={`${styles.typeBtn} ${config.type === t ? styles.typeBtnActive : ''}`}
                 onClick={() => setConfig(c => ({ ...c, type: t }))}
               >
-                {t === 'any' ? 'Any' : t === 'multiple' ? 'Multi' : 'T / F'}
+                {t === 'any' ? 'Any' : t === 'multiple' ? 'Multiple' : 'True / False'}
               </button>
             ))}
           </div>
@@ -235,9 +230,9 @@ export default function Quiz({ plainBg = false }) {
     </div>
   );
 
-  /* Loading */
+  /* ══════════ LOADING ══════════ */
   if (phase === 'loading') return (
-    <div className={`${styles.quizRoot} ${plainBg ? styles.plainRoot : ''}`}>
+    <div className={rootCls}>
       <div className={styles.loadingState}>
         <div className={styles.loadingSpinner} />
         <p className={styles.loadingText}>Loading questions…</p>
@@ -245,14 +240,14 @@ export default function Quiz({ plainBg = false }) {
     </div>
   );
 
-  /* Report */
+  /* ══════════ REPORT ══════════ */
   if (phase === 'report') {
     const total = answers.length;
     return (
-      <div className={`${styles.quizRoot} ${plainBg ? styles.plainRoot : ''}`}>
+      <div className={rootCls}>
         <div className={styles.reportScreen}>
           <div className={styles.reportHeader}>
-            <div className={styles.reportEmoji}>{getScoreEmoji(score, total)}</div>
+            <span className={styles.reportEmoji}>{getScoreEmoji(score, total)}</span>
             <h2 className={styles.reportTitle}>Round Complete!</h2>
             <p className={styles.reportSub}>Here&apos;s how you did</p>
           </div>
@@ -276,7 +271,7 @@ export default function Quiz({ plainBg = false }) {
           <div className={styles.reportReview}>
             <p className={styles.reviewTitle}>Review</p>
             {answers.map((a, i) => (
-              <div key={i} className={styles.reviewItem}>
+              <div key={i} className={styles.reviewItem} style={{ animationDelay: `${i * 0.05}s` }}>
                 <div className={styles.reviewQ}>{i + 1}. {a.question}</div>
                 <div className={styles.reviewAns}>
                   <span className={styles.reviewCorrect}>✓ {a.correct}</span>
@@ -301,18 +296,24 @@ export default function Quiz({ plainBg = false }) {
     );
   }
 
-  /* Quiz */
+  /* ══════════ QUIZ ══════════ */
+  const cardAnimCls =
+    cardAnim === 'entering' ? styles.cardEntering :
+    cardAnim === 'exiting'  ? styles.cardExiting  : '';
+
+  const remainingAfterThis = questions.length - qIndex - 1;
+
   return (
-    <div className={`${styles.quizRoot} ${plainBg ? styles.plainRoot : ''}`}>
+    <div className={rootCls}>
       <div className={styles.quizScreen}>
 
-        {/* Header */}
+        {/* Progress header */}
         <div className={styles.quizHeader}>
           <div className={styles.quizProgress}>
             <div className={styles.progressBarWrap}>
               <div
                 className={styles.progressBar}
-                style={{ width: `${((qIndex) / questions.length) * 100}%` }}
+                style={{ width: `${(qIndex / questions.length) * 100}%` }}
               />
             </div>
             <span className={styles.progressText}>{qIndex + 1} / {questions.length}</span>
@@ -322,54 +323,68 @@ export default function Quiz({ plainBg = false }) {
           </span>
         </div>
 
-        {/* Card */}
-        <div className={styles.cardScene}>
-          <div className={`${styles.card} ${exiting ? styles.cardExiting : ''}`}>
+        {/* Card stack */}
+        <div className={`${styles.cardStack} ${cardAnim === 'exiting' ? styles.isExiting : ''}`}>
 
-            <div className={styles.qCategory}>
-              <FiZap size={12} /> {currentQ.category}
-            </div>
+          {/* Ghost cards (peeking stack behind) */}
+          {remainingAfterThis >= 2 && <div className={styles.cardGhost2} />}
+          {remainingAfterThis >= 1 && <div className={styles.cardGhost1} />}
 
-            <p className={styles.questionText}>{currentQ.question}</p>
+          {/* Active card */}
+          <div className={styles.cardWrap}>
+            <div className={`${styles.card} ${cardAnimCls}`}>
 
-            {/* Answers */}
-            <div className={styles.answersGrid}>
-              {shuffled.map((ans, i) => {
-                const isCorrect  = ans === currentQ.correct_answer;
-                const isSelected = ans === selected;
-                let cls = styles.answerBtn;
-                if (revealed) {
-                  cls += ` ${styles.answerDisabled}`;
-                  if (isCorrect)                       cls += ` ${styles.answerCorrect}`;
-                  else if (isSelected && !isCorrect)   cls += ` ${styles.answerWrong}`;
-                }
-                return (
-                  <button key={ans} className={cls} onClick={() => handleSelect(ans)}>
-                    <span className={styles.answerLetter}>{LETTERS[i]}</span>
-                    {ans}
-                    {revealed && isCorrect && <FiCheckCircle style={{ marginLeft: 'auto', color: '#16a34a' }} />}
-                    {revealed && isSelected && !isCorrect && <FiXCircle style={{ marginLeft: 'auto', color: '#dc2626' }} />}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Feedback */}
-            {revealed && (
-              <div className={`${styles.feedbackBanner} ${selected === currentQ.correct_answer ? styles.feedbackCorrect : styles.feedbackWrong}`}>
-                {selected === currentQ.correct_answer
-                  ? <><FiCheckCircle /> Correct! Well done.</>
-                  : <><FiXCircle /> Correct answer: <strong>{currentQ.correct_answer}</strong></>
-                }
+              <div className={styles.qCategory}>
+                <FiZap size={12} /> {currentQ.category}
               </div>
-            )}
 
-            {/* Next */}
-            {revealed && (
-              <button className={styles.nextBtn} onClick={handleNext}>
-                {qIndex + 1 === questions.length ? 'See Results' : 'Next Question'} <FiArrowRight />
-              </button>
-            )}
+              <p className={styles.questionText}>{currentQ.question}</p>
+
+              <div className={styles.answersGrid}>
+                {shuffled.map((ans, i) => {
+                  const isCorrect  = ans === currentQ.correct_answer;
+                  const isSelected = ans === selected;
+                  let cls = styles.answerBtn;
+                  if (revealed) {
+                    cls += ` ${styles.answerDisabled}`;
+                    if (isCorrect)                     cls += ` ${styles.answerCorrect}`;
+                    else if (isSelected && !isCorrect) cls += ` ${styles.answerWrong}`;
+                  }
+                  return (
+                    <button key={ans} className={cls} onClick={() => handleSelect(ans)}>
+                      <span className={styles.answerLetter}>{LETTERS[i]}</span>
+                      {ans}
+                      {revealed && isCorrect && (
+                        <FiCheckCircle style={{ marginLeft: 'auto', color: '#16a34a' }} />
+                      )}
+                      {revealed && isSelected && !isCorrect && (
+                        <FiXCircle style={{ marginLeft: 'auto', color: '#dc2626' }} />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {revealed && (
+                <div className={`${styles.feedbackBanner} ${
+                  selected === currentQ.correct_answer
+                    ? styles.feedbackCorrect
+                    : styles.feedbackWrong
+                }`}>
+                  {selected === currentQ.correct_answer
+                    ? <><FiCheckCircle /> Correct! Well done.</>
+                    : <><FiXCircle /> Correct answer: <strong>{currentQ.correct_answer}</strong></>
+                  }
+                </div>
+              )}
+
+              {revealed && (
+                <button className={styles.nextBtn} onClick={handleNext}>
+                  {qIndex + 1 === questions.length ? 'See Results' : 'Next Question'} <FiArrowRight />
+                </button>
+              )}
+
+            </div>
           </div>
         </div>
 
