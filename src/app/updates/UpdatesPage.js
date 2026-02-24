@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Navbar } from '../components/Navbar';
 import { FiClock, FiUser, FiExternalLink, FiChevronRight } from 'react-icons/fi';
 import './styles/Updates.css';
 
@@ -176,15 +175,16 @@ export default function UpdatesPage() {
                       const url = f.url || f;
                       const name = f.name || url.split('/').pop();
                       const isImage = (f.resourceType === 'image') || /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+                      const downloadHref = `/api/updates/download?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}`;
                       if (isImage) {
                         return (
-                          <a key={i} href={url} target="_blank" rel="noreferrer noopener" className="upd-file-thumb">
+                          <a key={i} href={downloadHref} className="upd-file-thumb" title={name}>
                             <img src={url} alt={name} loading="lazy" />
                           </a>
                         );
                       }
                       return (
-                        <a key={i} href={url} target="_blank" rel="noreferrer noopener" className="upd-file-link">
+                        <a key={i} href={downloadHref} className="upd-file-link" title={name}>
                           {name}
                         </a>
                       );

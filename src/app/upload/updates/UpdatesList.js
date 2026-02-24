@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import Link from 'next/link';
-import { FiTrash2, FiEdit2, FiSave, FiX, FiUser, FiClock, FiExternalLink, FiChevronRight, FiAlertCircle, FiAlertTriangle } from "react-icons/fi";
+import { FiTrash2, FiEdit2, FiSave, FiX, FiUser, FiClock, FiExternalLink, FiChevronRight, FiAlertCircle, FiAlertTriangle, FiUpload } from "react-icons/fi";
 import './styles/UpdatesList.css';
 
 export default function UpdatesList() {
@@ -16,6 +16,8 @@ export default function UpdatesList() {
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
   const [editLinksText, setEditLinksText] = useState("");
+  const [editFiles, setEditFiles] = useState([]);
+  const [editIsUploading, setEditIsUploading] = useState(false);
   
   // Modal states
   const [deleteModal, setDeleteModal] = useState(null);
@@ -112,6 +114,7 @@ export default function UpdatesList() {
     setEditTitle(u.title || "");
     setEditContent(u.content || "");
     setEditLinksText((u.links || []).join('\n'));
+    setEditFiles(Array.isArray(u.files) ? [...u.files] : []);
     setEditModalOpen(true);
   };
 
@@ -134,7 +137,8 @@ export default function UpdatesList() {
       userId: currentUserId,
       title: editTitle,
       content: editContent,
-      links: parseLinks(editLinksText)
+      links: parseLinks(editLinksText),
+      files: editFiles
     };
 
     try {
@@ -152,7 +156,8 @@ export default function UpdatesList() {
         ...it, 
         title: data.update.title, 
         content: data.update.content, 
-        links: data.update.links || [] 
+        links: data.update.links || [],
+        files: data.update.files || []
       } : it));
       showToast('Update saved successfully', 'success');
       closeEditWindow();
@@ -160,6 +165,37 @@ export default function UpdatesList() {
       console.error('Edit error', err);
       showToast('Failed to save update', 'error');
     }
+  };
+
+  const handleEditFilesSelected = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setEditIsUploading(true);
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        const fd = new FormData();
+        fd.append('file', f);
+        if (currentUserId) fd.append('userId', currentUserId);
+        const res = await fetch('/api/updates/upload', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (res.ok && data?.file) {
+          setEditFiles((p) => [...p, data.file]);
+        } else {
+          showToast(data?.error || `Failed to upload ${f.name}`,'error');
+        }
+      }
+    } catch (err) {
+      console.error('Edit file upload error', err);
+      showToast('File upload failed', 'error');
+    } finally {
+      setEditIsUploading(false);
+      e.target.value = null;
+    }
+  };
+
+  const removeEditFile = (idx) => {
+    setEditFiles((p) => p.filter((_, i) => i !== idx));
   };
 
   const openDeleteModal = (updateId, title) => {
@@ -309,6 +345,29 @@ export default function UpdatesList() {
                   placeholder="/internal-link or https://external-link.com"
                 />
               </div>
+
+              <div className="upl-edit-field">
+                <label className="upl-edit-label">Files (optional)</label>
+                <div className="upl-edit-files-row">
+                  <label className="upl-file-btn">
+                    <FiUpload />
+                    <span>Add files</span>
+                    <input type="file" multiple onChange={handleEditFilesSelected} className="upl-hidden-input" />
+                  </label>
+                  {editIsUploading && <span className="upl-file-uploading">Uploading…</span>}
+                </div>
+
+                {editFiles && editFiles.length > 0 && (
+                  <div className="upl-edit-files-list">
+                    {editFiles.map((f, i) => (
+                      <div key={i} className="upl-edit-file-item">
+                        <a href={`/api/updates/download?url=${encodeURIComponent(f.url)}&name=${encodeURIComponent(f.name || '')}`} className="upl-edit-file-link" target="_blank" rel="noreferrer noopener">{f.name || f.url.split('/').pop()}</a>
+                        <button type="button" className="upl-edit-file-remove" onClick={() => removeEditFile(i)} title="Remove file"><FiTrash2 /></button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
             <div className="upl-modal-actions">
               <button onClick={closeEditWindow} className="upl-modal-btn upl-modal-btn-cancel">
@@ -453,15 +512,16 @@ export default function UpdatesList() {
                     const url = f.url || f;
                     const name = f.name || url.split('/').pop();
                     const isImage = (f.resourceType === 'image') || /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+                    const downloadHref = `/api/updates/download?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}`;
                     if (isImage) {
                       return (
-                        <a key={idx} href={url} target="_blank" rel="noreferrer noopener" className="upl-file-thumb">
+                        <a key={idx} href={downloadHref} className="upl-file-thumb" title={name}>
                           <img src={url} alt={name} />
                         </a>
                       );
                     }
                     return (
-                      <a key={idx} href={url} target="_blank" rel="noreferrer noopener" className="upl-file-link">
+                      <a key={idx} href={downloadHref} className="upl-file-link" title={name}>
                         {name}
                       </a>
                     );
