@@ -180,7 +180,33 @@ export default function UpdatesList() {
         const res = await fetch('/api/updates/upload', { method: 'POST', body: fd });
         const data = await res.json();
         if (res.ok && data?.file) {
-          setEditFiles((p) => [...p, data.file]);
+          // If we're editing an existing update, immediately persist the file to the Update doc
+          if (editingId && currentUserId) {
+            try {
+              const addRes = await fetch('/api/updates/files/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ updateId: editingId, userId: currentUserId, file: data.file }),
+              });
+              const addData = await addRes.json();
+              if (addRes.ok && addData?.update) {
+                setEditFiles(Array.isArray(addData.update.files) ? addData.update.files : (editFiles) => [...editFiles, data.file]);
+                // also update list in parent updates array so UI stays in sync
+                setUpdates((prev) => prev.map(u => u._id === addData.update._id ? ({ ...u, files: addData.update.files || [] }) : u));
+              } else {
+                // fallback to local append if server call failed
+                setEditFiles((p) => [...p, data.file]);
+                showToast(addData?.error || `Failed to attach ${f.name} to update`, 'error');
+              }
+            } catch (err) {
+              console.error('Failed to add file to update', err);
+              setEditFiles((p) => [...p, data.file]);
+              showToast('Failed to persist file to update', 'error');
+            }
+          } else {
+            // Not editing an existing update (shouldn't normally happen) — keep locally
+            setEditFiles((p) => [...p, data.file]);
+          }
         } else {
           showToast(data?.error || `Failed to upload ${f.name}`,'error');
         }
