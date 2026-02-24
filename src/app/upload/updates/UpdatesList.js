@@ -445,6 +445,29 @@ export default function UpdatesList() {
                   })}
                 </div>
               )}
+
+              {/* Files */}
+              {u.files && u.files.length > 0 && (
+                <div className="upl-files">
+                  {u.files.map((f, idx) => {
+                    const url = f.url || f;
+                    const name = f.name || url.split('/').pop();
+                    const isImage = (f.resourceType === 'image') || /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+                    if (isImage) {
+                      return (
+                        <a key={idx} href={url} target="_blank" rel="noreferrer noopener" className="upl-file-thumb">
+                          <img src={url} alt={name} />
+                        </a>
+                      );
+                    }
+                    return (
+                      <a key={idx} href={url} target="_blank" rel="noreferrer noopener" className="upl-file-link">
+                        {name}
+                      </a>
+                    );
+                  })}
+                </div>
+              )}
             </article>
           );
         })}

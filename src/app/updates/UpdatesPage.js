@@ -169,6 +169,28 @@ export default function UpdatesPage() {
                     })}
                   </div>
                 )}
+
+                {u.files && u.files.length > 0 && (
+                  <div className="upd-files">
+                    {u.files.map((f, i) => {
+                      const url = f.url || f;
+                      const name = f.name || url.split('/').pop();
+                      const isImage = (f.resourceType === 'image') || /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
+                      if (isImage) {
+                        return (
+                          <a key={i} href={url} target="_blank" rel="noreferrer noopener" className="upd-file-thumb">
+                            <img src={url} alt={name} loading="lazy" />
+                          </a>
+                        );
+                      }
+                      return (
+                        <a key={i} href={url} target="_blank" rel="noreferrer noopener" className="upd-file-link">
+                          {name}
+                        </a>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             ))}
 

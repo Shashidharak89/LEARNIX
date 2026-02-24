@@ -35,6 +35,7 @@ export async function GET(req) {
         title: u.title,
         content: u.content,
         links: u.links || [],
+        files: u.files || [],
         userId: u.userId,
         createdAt: u.createdAt,
         updatedAt: u.updatedAt,
@@ -56,7 +57,7 @@ export async function POST(req) {
     await connectDB();
 
     const body = await req.json();
-    const { title, content, links, userId } = body || {};
+    const { title, content, links, userId, files } = body || {};
 
     if (!title || !content) {
       return NextResponse.json({ error: 'Title and content are required' }, { status: 400 });
@@ -74,6 +75,7 @@ export async function POST(req) {
       title,
       content,
       links: Array.isArray(links) ? links : (links ? [links] : []),
+      files: Array.isArray(files) ? files : (files ? [files] : []),
       userId: userId || null,
     });
 
@@ -84,6 +86,7 @@ export async function POST(req) {
       title: updateDoc.title,
       content: updateDoc.content,
       links: updateDoc.links || [],
+      files: updateDoc.files || [],
       userId: updateDoc.userId,
       createdAt: updateDoc.createdAt,
       updatedAt: updateDoc.updatedAt,

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FiEdit3, FiSend, FiX, FiUser, FiLink, FiAlertCircle, FiCheckCircle } from "react-icons/fi";
+import { FiEdit3, FiSend, FiX, FiUser, FiLink, FiAlertCircle, FiCheckCircle, FiImage, FiTrash2, FiUpload } from "react-icons/fi";
 import './styles/AddUpdateForm.css';
 
 export default function AddUpdateForm() {
@@ -9,6 +9,8 @@ export default function AddUpdateForm() {
   const [content, setContent] = useState("");
   const [linksText, setLinksText] = useState("");
   const [userId, setUserId] = useState(null);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [isUploadingFiles, setIsUploadingFiles] = useState(false);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
   const router = useRouter();
@@ -57,7 +59,7 @@ export default function AddUpdateForm() {
       const res = await fetch('/api/updates', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: title.trim(), content: content.trim(), links, userId }),
+        body: JSON.stringify({ title: title.trim(), content: content.trim(), links, userId, files: uploadedFiles }),
       });
 
       const data = await res.json();
@@ -66,6 +68,7 @@ export default function AddUpdateForm() {
         setTitle('');
         setContent('');
         setLinksText('');
+        setUploadedFiles([]);
         // Optionally navigate to updates list
         // router.push('/updates');
       } else {
@@ -77,6 +80,38 @@ export default function AddUpdateForm() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFilesSelected = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setIsUploadingFiles(true);
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        const fd = new FormData();
+        fd.append('file', f);
+        if (userId) fd.append('userId', userId);
+        const res = await fetch('/api/updates/upload', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (res.ok && data?.file) {
+          setUploadedFiles((p) => [...p, data.file]);
+        } else {
+          showToast(data?.error || `Failed to upload ${f.name}`, 'error');
+        }
+      }
+    } catch (err) {
+      console.error('File upload error', err);
+      showToast('File upload failed', 'error');
+    } finally {
+      setIsUploadingFiles(false);
+      // clear file input
+      e.target.value = null;
+    }
+  };
+
+  const removeUploadedFile = (idx) => {
+    setUploadedFiles((p) => p.filter((_, i) => i !== idx));
   };
 
   const handleClear = () => {
@@ -126,6 +161,36 @@ export default function AddUpdateForm() {
               required
             />
           </div>
+
+          {/* Files / Raw Upload Field */}
+            <label className="auf-label">
+              <FiImage className="auf-label-icon" />
+              <span>Files (optional)</span>
+            </label>
+            <div className="auf-file-row">
+              <label className="auf-file-btn">
+                <FiUpload />
+                <span>Upload files</span>
+                <input type="file" multiple onChange={handleFilesSelected} className="auf-hidden-input" />
+              </label>
+              {isUploadingFiles && <span className="auf-file-uploading">Uploading…</span>}
+            </div>
+
+            {uploadedFiles.length > 0 && (
+              <div className="auf-uploaded-files">
+                {uploadedFiles.map((f, i) => (
+                  <div key={i} className="auf-uploaded-file">
+                    <a href={f.url} target="_blank" rel="noreferrer noopener" className="auf-uploaded-link">
+                      <span className="auf-file-name">{f.name || f.url}</span>
+                    </a>
+                    <button type="button" className="auf-file-remove" onClick={() => removeUploadedFile(i)}>
+                      <FiTrash2 />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              )}
+
 
           {/* Content Field */}
           <div className="auf-field">

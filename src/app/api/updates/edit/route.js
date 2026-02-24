@@ -7,14 +7,14 @@ export async function POST(req) {
     await connectDB();
 
     const body = await req.json();
-    const { updateId, userId, title, content, links } = body || {};
+    const { updateId, userId, title, content, links, files } = body || {};
 
     if (!updateId || !userId) {
       return NextResponse.json({ error: 'updateId and userId are required' }, { status: 400 });
     }
 
-    if (!title && !content && !links) {
-      return NextResponse.json({ error: 'At least one of title, content or links must be provided' }, { status: 400 });
+    if (!title && !content && !links && !files) {
+      return NextResponse.json({ error: 'At least one of title, content, links or files must be provided' }, { status: 400 });
     }
 
     const update = await Update.findById(updateId);
@@ -34,6 +34,7 @@ export async function POST(req) {
     if (title !== undefined) updatedFields.title = String(title).trim();
     if (content !== undefined) updatedFields.content = String(content).trim();
     if (links !== undefined) updatedFields.links = Array.isArray(links) ? links : (links ? [links] : []);
+    if (files !== undefined) updatedFields.files = Array.isArray(files) ? files : (files ? [files] : []);
 
     const updated = await Update.findByIdAndUpdate(updateId, { $set: updatedFields }, { new: true }).lean();
 

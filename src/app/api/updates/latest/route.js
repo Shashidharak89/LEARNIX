@@ -32,6 +32,7 @@ export async function GET(req) {
         title: u.title,
         content: u.content,
         links: u.links || [],
+        files: u.files || [],
         userId: u.userId,
         createdAt: u.createdAt,
         updatedAt: u.updatedAt,
