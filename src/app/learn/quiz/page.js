@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Navbar } from "../../components/Navbar";
 import quizData from "./data/quizdata.json";
 import "./QuizList.css";
+import Quiz from "./Quiz";
 
 export const metadata = {
   title: "Quiz | LEARNIX",
@@ -41,6 +42,7 @@ export default function QuizListPage() {
             );
           })}
         </section>
+         <Quiz/>
       </main>
     </div>
   );
