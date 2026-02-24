@@ -26,6 +26,11 @@
   padding: 24px 16px;
 }
 
+/* Plain white background variant (for standalone /quizdeck page) */
+.plainRoot {
+  background: var(--white) !important;
+}
+
 /* ── Setup Screen ── */
 .setupScreen {
   background: var(--white);

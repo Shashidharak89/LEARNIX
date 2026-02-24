@@ -30,7 +30,7 @@ const DIFFICULTIES = ['any', 'easy', 'medium', 'hard'];
 const TYPES = ['any', 'multiple', 'boolean'];
 
 /* ────────────────────────────────────── */
-export default function Quiz() {
+export default function Quiz({ plainBg = false }) {
   const [phase, setPhase]         = useState('setup');    // setup | loading | quiz | report
   const [config, setConfig]       = useState({ category: 18, difficulty: 'any', type: 'any' });
   const [questions, setQuestions] = useState([]);
@@ -154,7 +154,7 @@ export default function Quiz() {
 
   /* Setup */
   if (phase === 'setup') return (
-    <div className={styles.quizRoot}>
+    <div className={`${styles.quizRoot} ${plainBg ? styles.plainRoot : ''}`}>
       <div className={styles.setupScreen}>
         <div className={styles.setupLogo}>
           <div className={styles.setupLogoIcon}><FiZap /></div>
@@ -223,7 +223,7 @@ export default function Quiz() {
 
   /* Loading */
   if (phase === 'loading') return (
-    <div className={styles.quizRoot}>
+    <div className={`${styles.quizRoot} ${plainBg ? styles.plainRoot : ''}`}>
       <div className={styles.loadingState}>
         <div className={styles.loadingSpinner} />
         <p className={styles.loadingText}>Loading questions…</p>
@@ -235,7 +235,7 @@ export default function Quiz() {
   if (phase === 'report') {
     const total = answers.length;
     return (
-      <div className={styles.quizRoot}>
+      <div className={`${styles.quizRoot} ${plainBg ? styles.plainRoot : ''}`}>
         <div className={styles.reportScreen}>
           <div className={styles.reportHeader}>
             <div className={styles.reportEmoji}>{getScoreEmoji(score, total)}</div>
@@ -289,7 +289,7 @@ export default function Quiz() {
 
   /* Quiz */
   return (
-    <div className={styles.quizRoot}>
+    <div className={`${styles.quizRoot} ${plainBg ? styles.plainRoot : ''}`}>
       <div className={styles.quizScreen}>
 
         {/* Header */}

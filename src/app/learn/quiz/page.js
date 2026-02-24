@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Navbar } from "../../components/Navbar";
 import quizData from "./data/quizdata.json";
 import "./QuizList.css";
-import Quiz from "./Quiz";
 
 export const metadata = {
   title: "Quiz | LEARNIX",
@@ -17,7 +16,12 @@ export default function QuizListPage() {
       <Navbar />
       <main className="quiz-container">
         <header className="quiz-header">
-          <h1 className="quiz-main-title">Solve Quizzes</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <h1 className="quiz-main-title">Solve Quizzes</h1>
+            <Link href="/learn/quiz/quizdeck" className="quizdeck-link" style={{ marginLeft: 8 }}>
+              QuizDeck
+            </Link>
+          </div>
           <p className="quiz-main-subtitle">
             Pick a concept below. Each quiz has multiple steps with 10 questions each.
             Answer all questions in a step, then submit to see your score.
@@ -42,7 +46,7 @@ export default function QuizListPage() {
             );
           })}
         </section>
-         <Quiz/>
+         
       </main>
     </div>
   );
