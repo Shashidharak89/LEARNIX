@@ -638,3 +638,178 @@
     display: none;
   }
 }
+
+/* ============================================
+   Files Section — append to Updates.css
+   ============================================ */
+
+.upd-files {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--upd-border);
+}
+
+/* Base file card */
+.upd-file-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(11, 116, 255, 0.02);
+  border: 1px solid var(--upd-border);
+  border-radius: 8px;
+  transition: all 220ms var(--upd-ease);
+}
+
+.upd-file-card:hover {
+  background: rgba(11, 116, 255, 0.05);
+  border-color: rgba(11, 116, 255, 0.25);
+  transform: translateX(3px);
+}
+
+/* File name area → opens Drive viewer on click */
+.upd-file-card-name {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-decoration: none;
+  flex: 1;
+  min-width: 0;
+}
+
+.upd-file-card-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.upd-file-card-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--upd-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 180ms var(--upd-ease);
+}
+
+.upd-file-card-name:hover .upd-file-card-label {
+  color: var(--upd-blue);
+}
+
+/* Image variant */
+.upd-file-card-image {
+  padding: 8px 14px 8px 8px;
+}
+
+.upd-file-thumb-link {
+  display: block;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid var(--upd-border);
+  transition: border-color 220ms var(--upd-ease);
+}
+
+.upd-file-card-image:hover .upd-file-thumb-link {
+  border-color: var(--upd-blue);
+}
+
+.upd-file-thumb-img {
+  display: block;
+  width: 52px;
+  height: 52px;
+  object-fit: cover;
+  transition: transform 300ms var(--upd-ease);
+}
+
+.upd-file-card-image:hover .upd-file-thumb-img {
+  transform: scale(1.06);
+}
+
+/* Action buttons */
+.upd-file-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.upd-file-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  text-decoration: none;
+  font-size: 15px;
+  transition: all 200ms var(--upd-ease);
+}
+
+/* View → blue */
+.upd-file-action-view {
+  background: rgba(11, 116, 255, 0.08);
+  color: var(--upd-blue);
+  border-color: rgba(11, 116, 255, 0.2);
+}
+
+.upd-file-action-view:hover {
+  background: var(--upd-blue);
+  color: white;
+  border-color: var(--upd-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(11, 116, 255, 0.3);
+}
+
+/* Download → yellow */
+.upd-file-action-download {
+  background: rgba(242, 194, 0, 0.1);
+  color: #b38f00;
+  border-color: rgba(242, 194, 0, 0.25);
+}
+
+.upd-file-action-download:hover {
+  background: var(--upd-yellow);
+  color: var(--upd-text);
+  border-color: var(--upd-yellow);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(242, 194, 0, 0.3);
+}
+
+.upd-file-action-btn:active {
+  transform: scale(0.94);
+}
+
+/* Focus */
+.upd-file-action-btn:focus {
+  outline: 3px solid rgba(11, 116, 255, 0.3);
+  outline-offset: 2px;
+}
+
+/* Responsive */
+@media (max-width: 500px) {
+  .upd-file-card {
+    padding: 9px 11px;
+  }
+
+  .upd-file-card-label {
+    font-size: 12px;
+  }
+
+  .upd-file-thumb-img {
+    width: 42px;
+    height: 42px;
+  }
+
+  .upd-file-action-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+}

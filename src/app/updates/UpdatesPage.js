@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { FiClock, FiUser, FiExternalLink, FiChevronRight } from 'react-icons/fi';
+import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload } from 'react-icons/fi';
 import './styles/Updates.css';
 
 export default function UpdatesPage() {
@@ -36,18 +36,11 @@ export default function UpdatesPage() {
       const then = new Date(iso);
       const now = new Date();
       const diffSec = Math.floor((now - then) / 1000);
-      if (diffSec < 60) {
-        return `${diffSec} second${diffSec === 1 ? '' : 's'} ago`;
-      }
+      if (diffSec < 60) return `${diffSec} second${diffSec === 1 ? '' : 's'} ago`;
       const diffMin = Math.floor(diffSec / 60);
-      if (diffMin < 60) {
-        return `${diffMin} minute${diffMin === 1 ? '' : 's'} ago`;
-      }
+      if (diffMin < 60) return `${diffMin} minute${diffMin === 1 ? '' : 's'} ago`;
       const diffHour = Math.floor(diffMin / 60);
-      if (diffHour < 24) {
-        return `${diffHour} hour${diffHour === 1 ? '' : 's'} ago`;
-      }
-      // older than 24 hours -> show locale string
+      if (diffHour < 24) return `${diffHour} hour${diffHour === 1 ? '' : 's'} ago`;
       return then.toLocaleString();
     } catch (e) {
       return iso;
@@ -60,7 +53,6 @@ export default function UpdatesPage() {
     fetchUpdates(next);
   };
 
-  // Skeleton loader component
   const UpdateSkeleton = () => (
     <div className="upd-card upd-skeleton">
       <div className="upd-card-header">
@@ -110,9 +102,9 @@ export default function UpdatesPage() {
             {updates.map((u, idx) => (
               <div key={u._id} className="upd-card" style={{ animationDelay: `${idx * 50}ms` }}>
                 <div className="upd-card-header">
-                  <img 
-                    src={u.profileUrl || '/default-profile.png'} 
-                    alt={u.name || 'user'} 
+                  <img
+                    src={u.profileUrl || '/default-profile.png'}
+                    alt={u.name || 'user'}
                     className="upd-avatar"
                   />
                   <div className="upd-user-info">
@@ -138,9 +130,7 @@ export default function UpdatesPage() {
                     {u.links.map((l, i) => {
                       const raw = String(l || '').trim();
                       if (!raw) return null;
-                      
                       const isInternal = raw.startsWith('/');
-                      
                       if (isInternal) {
                         return (
                           <Link key={i} href={raw} className="upd-link upd-link-internal">
@@ -149,18 +139,10 @@ export default function UpdatesPage() {
                           </Link>
                         );
                       }
-
                       const hasScheme = /^https?:\/\//i.test(raw) || /^mailto:/i.test(raw);
                       const href = hasScheme ? raw : `https://${raw}`;
-
                       return (
-                        <a 
-                          key={i} 
-                          href={href} 
-                          target="_blank" 
-                          rel="noreferrer noopener" 
-                          className="upd-link upd-link-external"
-                        >
+                        <a key={i} href={href} target="_blank" rel="noreferrer noopener" className="upd-link upd-link-external">
                           <span>{raw}</span>
                           <FiExternalLink className="upd-link-icon" />
                         </a>
@@ -169,24 +151,48 @@ export default function UpdatesPage() {
                   </div>
                 )}
 
+                {/* Files — View + Download */}
                 {u.files && u.files.length > 0 && (
                   <div className="upd-files">
                     {u.files.map((f, i) => {
                       const url = f.url || f;
                       const name = f.name || url.split('/').pop();
                       const isImage = (f.resourceType === 'image') || /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
-                      const downloadHref = `/api/updates/download?url=${encodeURIComponent(url)}&name=${encodeURIComponent(name)}`;
+                      const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
+
                       if (isImage) {
                         return (
-                          <a key={i} href={downloadHref} className="upd-file-thumb" title={name}>
-                            <img src={url} alt={name} loading="lazy" />
-                          </a>
+                          <div key={i} className="upd-file-card upd-file-card-image">
+                            <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-thumb-link" title={name}>
+                              <img src={url} alt={name} loading="lazy" className="upd-file-thumb-img" />
+                            </a>
+                            <div className="upd-file-card-actions">
+                              <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-view" title="View">
+                                <FiEye />
+                              </a>
+                              <a href={url} download={name} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-download" title="Download">
+                                <FiDownload />
+                              </a>
+                            </div>
+                          </div>
                         );
                       }
+
                       return (
-                        <a key={i} href={downloadHref} className="upd-file-link" title={name}>
-                          {name}
-                        </a>
+                        <div key={i} className="upd-file-card">
+                          <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-card-name" title={`View ${name}`}>
+                            <span className="upd-file-card-icon">📎</span>
+                            <span className="upd-file-card-label">{name}</span>
+                          </a>
+                          <div className="upd-file-card-actions">
+                            <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-view" title="View">
+                              <FiEye />
+                            </a>
+                            <a href={url} download={name} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-download" title="Download">
+                              <FiDownload />
+                            </a>
+                          </div>
+                        </div>
                       );
                     })}
                   </div>
@@ -197,21 +203,11 @@ export default function UpdatesPage() {
             {/* Load More Button */}
             {hasMore && updates.length > 0 && (
               <div className="upd-load-more-container">
-                <button 
-                  className="upd-load-more-btn" 
-                  onClick={loadMore} 
-                  disabled={loading}
-                >
+                <button className="upd-load-more-btn" onClick={loadMore} disabled={loading}>
                   {loading ? (
-                    <>
-                      <span className="upd-spinner"></span>
-                      <span>Loading...</span>
-                    </>
+                    <><span className="upd-spinner"></span><span>Loading...</span></>
                   ) : (
-                    <>
-                      <span>Load More</span>
-                      <FiChevronRight className="upd-btn-icon" />
-                    </>
+                    <><span>Load More</span><FiChevronRight className="upd-btn-icon" /></>
                   )}
                 </button>
               </div>
