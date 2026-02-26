@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Update from "@/models/Update";
+import cloudinary from "@/lib/cloudinary";
 
 export async function POST(req) {
   try {
@@ -28,6 +29,26 @@ export async function POST(req) {
 
     if (update.userId.toString() !== String(userId)) {
       return NextResponse.json({ error: 'You are not authorized to edit this update' }, { status: 403 });
+    }
+
+    // Find files that were removed (exist in DB but not in the incoming files array)
+    if (files !== undefined) {
+      const incomingPublicIds = new Set(
+        (Array.isArray(files) ? files : []).map(f => f.publicId).filter(Boolean)
+      );
+
+      const removedFiles = (update.files || []).filter(
+        f => f.publicId && !incomingPublicIds.has(f.publicId)
+      );
+
+      if (removedFiles.length > 0) {
+        await Promise.all(
+          removedFiles.map(f =>
+            cloudinary.uploader.destroy(f.publicId, { resource_type: f.resourceType || 'raw' })
+              .catch(err => console.error(`Failed to delete ${f.publicId} from Cloudinary:`, err))
+          )
+        );
+      }
     }
 
     const updatedFields = {};
