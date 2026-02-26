@@ -4,7 +4,7 @@ import cloudinary from "@/lib/cloudinary";
 
 export const POST = async (req) => {
   try {
-    await connectDB(); // keep pattern consistent, though we may not use DB here
+    await connectDB();
 
     const formData = await req.formData();
     const file = formData.get("file");
@@ -13,10 +13,7 @@ export const POST = async (req) => {
     if (!file) return NextResponse.json({ error: "File is required" }, { status: 400 });
 
     const filename = file.name || `upload-${Date.now()}`;
-    const mime = file.type || "application/octet-stream";
-    let resource_type = "raw";
-    if (mime.startsWith("image/")) resource_type = "image";
-    else if (mime.startsWith("video/")) resource_type = "video";
+    const sanitizedName = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -25,7 +22,11 @@ export const POST = async (req) => {
 
     const uploadResult = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
-        { folder, resource_type },
+        {
+          folder,
+          resource_type: "auto",  // handles images, videos, PDFs, raw files — everything
+          public_id: `${Date.now()}_${sanitizedName}`,
+        },
         (error, result) => {
           if (error) reject(error);
           else resolve(result);
@@ -34,7 +35,15 @@ export const POST = async (req) => {
       stream.end(buffer);
     });
 
-    return NextResponse.json({ file: { url: uploadResult.secure_url, name: uploadResult.original_filename || filename, resourceType: resource_type } }, { status: 201 });
+    return NextResponse.json({
+      file: {
+        url: uploadResult.secure_url,
+        publicId: uploadResult.public_id,
+        name: file.name || sanitizedName,
+        resourceType: uploadResult.resource_type,
+      }
+    }, { status: 201 });
+
   } catch (err) {
     console.error('POST /api/updates/upload error:', err);
     return NextResponse.json({ error: 'Upload failed: ' + (err.message || err) }, { status: 500 });
