@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Update from "@/models/Update";
+import cloudinary from "@/lib/cloudinary";
 
 export async function POST(req) {
   try {
@@ -24,6 +25,15 @@ export async function POST(req) {
 
     if (update.userId.toString() !== String(userId)) {
       return NextResponse.json({ error: 'You are not authorized to delete this update' }, { status: 403 });
+    }
+
+    // Delete all associated files from Cloudinary
+    if (update.files && update.files.length > 0) {
+      const deletePromises = update.files.map((file) =>
+        cloudinary.uploader.destroy(file.publicId, { resource_type: file.resourceType || 'raw' })
+          .catch((err) => console.error(`Failed to delete file ${file.publicId} from Cloudinary:`, err))
+      );
+      await Promise.all(deletePromises);
     }
 
     await Update.findByIdAndDelete(updateId);
