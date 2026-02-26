@@ -561,3 +561,183 @@
     display: none;
   }
 }
+
+/* ============================================
+   File Upload Section
+   ============================================ */
+
+.auf-file-section {
+  margin-bottom: 24px;
+}
+
+.auf-file-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* Upload Button (label acting as button) */
+.auf-file-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(56, 189, 248, 0.08);
+  border: 2px dashed rgba(56, 189, 248, 0.4);
+  border-radius: 8px;
+  color: var(--auf-sky-blue-dark);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 220ms var(--auf-ease);
+  user-select: none;
+}
+
+.auf-file-btn:hover {
+  background: rgba(56, 189, 248, 0.14);
+  border-color: var(--auf-sky-blue);
+  transform: translateY(-1px);
+}
+
+.auf-file-btn:active {
+  transform: scale(0.98);
+}
+
+.auf-file-btn svg {
+  font-size: 16px;
+  color: var(--auf-sky-blue);
+  flex-shrink: 0;
+}
+
+/* Hidden native file input */
+.auf-hidden-input {
+  display: none;
+}
+
+/* Uploading indicator */
+.auf-file-uploading {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--auf-sky-blue-dark);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: auf-fade-in 200ms var(--auf-ease) both;
+}
+
+.auf-file-uploading::before {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(56, 189, 248, 0.3);
+  border-top-color: var(--auf-sky-blue);
+  border-radius: 50%;
+  animation: auf-spin 600ms linear infinite;
+  flex-shrink: 0;
+}
+
+/* Uploaded Files List */
+.auf-uploaded-files {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: auf-fade-in 300ms var(--auf-ease) both;
+}
+
+.auf-uploaded-file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(56, 189, 248, 0.05);
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  border-radius: 8px;
+  transition: background 200ms var(--auf-ease);
+}
+
+.auf-uploaded-file:hover {
+  background: rgba(56, 189, 248, 0.09);
+}
+
+.auf-uploaded-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  min-width: 0;
+  flex: 1;
+}
+
+.auf-uploaded-link::before {
+  content: '📎';
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.auf-file-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--auf-sky-blue-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.auf-uploaded-link:hover .auf-file-name {
+  text-decoration: underline;
+}
+
+/* Remove File Button */
+.auf-file-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--auf-text-light);
+  cursor: pointer;
+  transition: all 200ms var(--auf-ease);
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.auf-file-remove:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.auf-file-remove:active {
+  transform: scale(0.92);
+}
+
+.auf-file-remove svg {
+  font-size: 14px;
+}
+
+/* ============================================
+   File Upload Responsive
+   ============================================ */
+
+@media (max-width: 500px) {
+  .auf-file-btn {
+    padding: 9px 14px;
+    font-size: 13px;
+  }
+
+  .auf-uploaded-file {
+    padding: 9px 12px;
+  }
+
+  .auf-file-name {
+    font-size: 12px;
+  }
+}
