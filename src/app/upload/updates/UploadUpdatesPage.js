@@ -9,7 +9,6 @@ export default function UploadUpdatesPage() {
     <>
       <div style={{ maxWidth: 900, margin: '28px auto', padding: '0 16px' }}>
         <main style={{ background: '#fff', padding: 18, borderRadius: 8 }}>
-          <h3 style={{ marginTop: 0 }}>Create a new Update</h3>
           <AddUpdateForm />
 
           <UpdatesList />

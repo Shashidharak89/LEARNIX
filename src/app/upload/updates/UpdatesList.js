@@ -445,39 +445,18 @@ export default function UpdatesList() {
                 </div>
               )}
 
-              {/* Files — with View + Download actions */}
+              {/* Files — clicking anywhere opens Drive viewer */}
               {u.files && u.files.length > 0 && (
                 <div className="upl-files">
                   {u.files.map((f, idx) => {
                     const url = f.url || f;
                     const name = f.name || url.split('/').pop();
-                    const isImage = (f.resourceType === 'image') || /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
                     const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
-
-                    if (isImage) {
-                      return (
-                        <div key={idx} className="upl-file-card upl-file-card-image">
-                          {/* clicking the image itself → view */}
-                          <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upl-file-thumb-link" title={name}>
-                            <img src={url} alt={name} className="upl-file-thumb-img" />
-                          </a>
-                          <div className="upl-file-card-actions">
-                            <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upl-file-action-btn upl-file-action-view" title="View">
-                              <FiEye />
-                            </a>
-                            <a href={url} download={name} target="_blank" rel="noreferrer noopener" className="upl-file-action-btn upl-file-action-download" title="Download">
-                              <FiDownload />
-                            </a>
-                          </div>
-                        </div>
-                      );
-                    }
 
                     return (
                       <div key={idx} className="upl-file-card">
-                        {/* clicking the file name → view in Drive */}
                         <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upl-file-card-name" title={`View ${name}`}>
-                          <span className="upl-file-card-icon">📎</span>
+                          <span className="upl-file-card-icon">📄</span>
                           <span className="upl-file-card-label">{name}</span>
                         </a>
                         <div className="upl-file-card-actions">

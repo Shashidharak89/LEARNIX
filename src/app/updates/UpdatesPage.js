@@ -73,15 +73,12 @@ export default function UpdatesPage() {
     <>
       <div className="upd-page-container">
         <main className="upd-main">
-          {/* Page Title */}
           <div className="upd-intro-card">
             <h1 className="upd-title">Updates</h1>
             <p className="upd-subtitle">Recent activity: subjects and public topics created by users.</p>
           </div>
 
-          {/* Updates List */}
           <div className="upd-list">
-            {/* Empty State */}
             {updates.length === 0 && !loading && (
               <div className="upd-empty-state">
                 <FiClock className="upd-empty-icon" />
@@ -89,7 +86,6 @@ export default function UpdatesPage() {
               </div>
             )}
 
-            {/* Skeleton Loading */}
             {loading && pageIndex === 1 && (
               <>
                 <UpdateSkeleton />
@@ -98,7 +94,6 @@ export default function UpdatesPage() {
               </>
             )}
 
-            {/* Update Cards */}
             {updates.map((u, idx) => (
               <div key={u._id} className="upd-card" style={{ animationDelay: `${idx * 50}ms` }}>
                 <div className="upd-card-header">
@@ -121,9 +116,7 @@ export default function UpdatesPage() {
                   </div>
                 </div>
 
-                {u.content && (
-                  <p className="upd-content">{u.content}</p>
-                )}
+                {u.content && <p className="upd-content">{u.content}</p>}
 
                 {u.links && u.links.length > 0 && (
                   <div className="upd-links">
@@ -151,37 +144,18 @@ export default function UpdatesPage() {
                   </div>
                 )}
 
-                {/* Files — View + Download */}
+                {/* Files — clicking anywhere opens Drive viewer */}
                 {u.files && u.files.length > 0 && (
                   <div className="upd-files">
                     {u.files.map((f, i) => {
                       const url = f.url || f;
                       const name = f.name || url.split('/').pop();
-                      const isImage = (f.resourceType === 'image') || /\.(jpg|jpeg|png|gif|webp)$/i.test(url);
                       const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
-
-                      if (isImage) {
-                        return (
-                          <div key={i} className="upd-file-card upd-file-card-image">
-                            <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-thumb-link" title={name}>
-                              <img src={url} alt={name} loading="lazy" className="upd-file-thumb-img" />
-                            </a>
-                            <div className="upd-file-card-actions">
-                              <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-view" title="View">
-                                <FiEye />
-                              </a>
-                              <a href={url} download={name} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-download" title="Download">
-                                <FiDownload />
-                              </a>
-                            </div>
-                          </div>
-                        );
-                      }
 
                       return (
                         <div key={i} className="upd-file-card">
                           <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-card-name" title={`View ${name}`}>
-                            <span className="upd-file-card-icon">📎</span>
+                            <span className="upd-file-card-icon">📄</span>
                             <span className="upd-file-card-label">{name}</span>
                           </a>
                           <div className="upd-file-card-actions">
@@ -200,7 +174,6 @@ export default function UpdatesPage() {
               </div>
             ))}
 
-            {/* Load More Button */}
             {hasMore && updates.length > 0 && (
               <div className="upd-load-more-container">
                 <button className="upd-load-more-btn" onClick={loadMore} disabled={loading}>
