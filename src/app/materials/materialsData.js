@@ -250,10 +250,15 @@ const materialsData = [
             {
                 subject: "Enterprise Java",
                 files: [
+                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection//main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/Format-report%5BJava%5D.pdf"},
+                    
+                    // Unit 1
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/Unit-1%5BJava%5D.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/Enterprise%20Java_Unit%201.pdf" },
-                    // { url: "" },
 
+                    // Unit 2
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection//main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/Unit-2.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection//main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/Enterprise%20Java_Unit%202.pdf" },
                 ]
             },
             {
