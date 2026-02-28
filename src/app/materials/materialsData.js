@@ -229,8 +229,22 @@ const materialsData = [
                 subject: "Data Warehousing and Data Mining",
                 files: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/25MCA204_DWDM_Syllabus.pdf" },
+
+                    // Unit 1 Files
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/Task%201.docx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/Unit1_01_DataWarehousing-Introduction.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/Unit1_Datawarehouse_Modelling.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/DMDW_MODULE_1_NOTES.pdf" },
+
+                    // Unit 2 files
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/Unit2_DW_Implementation.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/Unit2_chapter2_DM_Introduction.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/Unit2_chapter3_Data.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/Unit2_chapter4_Dataquality.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/Unit2_Chapter5_DataPreprocessing.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/Unit2_Chapter6_Similarity_Dissimilarity_Measures.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/DMDW_MODULE_2_NOTES.pdf" },
+
                 ],
             },
             {
@@ -385,7 +399,7 @@ const materialsData = [
             {
                 subject: "Advanced Java and J2EE",
                 files: [
-                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Syllabus/J2EE%20QBANK.pdf"},
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Syllabus/J2EE%20QBANK.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Advanced-Java-and-J2EE/Advance%20Java%20QB%20unit-1.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Advanced-Java-and-J2EE/Advance%20java%20QB%20Unit-2.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Advanced-Java-and-J2EE/Advance%20Java%20Unit-3.pdf" },
@@ -411,7 +425,7 @@ const materialsData = [
             {
                 subject: "Fundamentals of Data Science",
                 files: [
-                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Syllabus/VI%20SEM%20BCA%20QBANK_WCMS_FDS.pdf"},
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Syllabus/VI%20SEM%20BCA%20QBANK_WCMS_FDS.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Fundamentals-of-Data-Science/FDS_QB_SOLVED.docx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Fundamentals-of-Data-Science/FDS_QB_SOLVED.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Fundamentals-of-Data-Science/DocScanner%2014%20Jun%202025%206-05%20am.pdf" },
@@ -427,7 +441,7 @@ const materialsData = [
             {
                 subject: "PHP and MYSQL",
                 files: [
-                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Syllabus/VISEMBCA-PHPANDMYSQLQBANK.pdf"},
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Syllabus/VISEMBCA-PHPANDMYSQLQBANK.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/PHP-and-MYSQL/PHP%20UNIT%201%20SOLVED%5B1%5D.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/PHP-and-MYSQL/PHP%20UNIT-2%20(2%20Marks)%20%5BChatGpt%5D.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/PHP-and-MYSQL/UNIT%203%20PHP%20(2%20marks)%20%5BChatGpt%5D.pdf" },
@@ -438,7 +452,7 @@ const materialsData = [
             {
                 subject: "Web Content Management System",
                 files: [
-                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Syllabus/VI%20SEM%20BCA%20QBANK_WCMS_FDS.pdf"},
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Syllabus/VI%20SEM%20BCA%20QBANK_WCMS_FDS.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Web-Content-Management-System/WCMS%20UNIT-1.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Web-Content-Management-System/WCMS%20UNIT-2.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-NEP/6th-Semester/Web-Content-Management-System/WCMS%20UNIT-3.pdf" },
