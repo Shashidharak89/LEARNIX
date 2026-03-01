@@ -295,6 +295,9 @@ const materialsData = [
                 subject: "Software Engineering and Testing",
                 files: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/Sommerville%20-Software-Engineering%20-10th%20edition.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/Software%20Engineering%20Unit%201%20Chapter%201_compressed.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/Unit%201%20Chapter%202-compressed.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/System%20Models_compressed.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/Software%20requirements-unit2.ppt" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/agile-unit2.ppt" },
                 ],
