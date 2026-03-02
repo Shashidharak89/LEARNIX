@@ -387,6 +387,106 @@
   }
 }
 
+/* ── Unofficial Resources Block (inside subject) ── */
+.sm-subject-content {
+  background: #fffbeb;
+  animation: sm-expand 0.3s ease-out;
+}
+
+.sm-unofficial-block {
+  border-bottom: 2px dashed #e5e7eb;
+  overflow: hidden;
+}
+
+.sm-unofficial-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 11px 16px;
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sm-unofficial-btn:hover {
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+}
+
+.sm-unofficial-btn.sm-unofficial-open {
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+  border-bottom: 1px solid #c4b5fd;
+}
+
+.sm-unofficial-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.sm-unofficial-left svg {
+  color: #7c3aed;
+  flex-shrink: 0;
+}
+
+.sm-unofficial-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #5b21b6;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.sm-unofficial-badge {
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #5b21b6;
+  background: #c4b5fd;
+  border-radius: 5px;
+}
+
+.sm-unofficial-chevron {
+  display: flex;
+  align-items: center;
+  color: #7c3aed;
+}
+
+/* Unofficial files list */
+.sm-unofficial-files-list {
+  padding: 10px 12px;
+  background: #faf5ff;
+  animation: sm-expand 0.3s ease-out;
+}
+
+.sm-unofficial-files-list .sm-file-card:hover {
+  border-color: #7c3aed;
+}
+
+.sm-unofficial-files-list .sm-view-btn {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.sm-unofficial-files-list .sm-view-btn:hover {
+  background: #7c3aed;
+  color: #ffffff;
+  border-color: #7c3aed;
+}
+
+.sm-unofficial-files-list .sm-download-btn {
+  background: #ede9fe;
+  color: #7c3aed;
+}
+
+.sm-unofficial-files-list .sm-download-btn:hover {
+  background: #a78bfa;
+  color: #ffffff;
+  border-color: #a78bfa;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .sm-wrapper {

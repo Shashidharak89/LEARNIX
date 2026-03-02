@@ -83,10 +83,12 @@ const materialsData = [
                     { name: "ADBS Unit-3", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/ADBS_Unit%203_MySQL.pdf" },
                     { name: "ADBS Unit-4", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/ADBS_Unit%204_Database%20Design.pdf" },
                     { name: "ADBS Unit-5", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/ADBS_Unit%205_MongoDB.pdf" },
-                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/adbs-unit3-custom-notes-shashidharak.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/MongoDB-Student-Projects(A-and-B-Sections).docx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/ADBS%20Assignment(Task).docx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/View%20constraint%20details.docx" },
+                ],
+                customfiles: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/adbs-unit3-custom-notes-shashidharak.pdf" },
                 ],
             },
             {
@@ -301,6 +303,7 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/Software%20requirements-unit2.ppt" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/agile-unit2.ppt" },
                 ],
+                
             },
         ],
     },

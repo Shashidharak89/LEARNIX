@@ -1,21 +1,84 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronRight, BookOpen, FileText, Download, Eye, FolderOpen } from "lucide-react";
+import { ChevronDown, ChevronRight, BookOpen, FileText, Download, Eye, FolderOpen, BookMarked } from "lucide-react";
 import materialsData from "./materialsData";
 import "./styles/StudyMaterials.css";
+
+function FilesList({ files, cssClass = "sm-files-list" }) {
+  return (
+    <div className={cssClass}>
+      {files.map((file, fIndex) => {
+        const rawFileName = file.name || file.url.split("/").pop().split("?")[0];
+        const fileName = decodeURIComponent(rawFileName);
+        const encodedUrl = encodeURIComponent(file.url);
+        const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodedUrl}`;
+
+        return (
+          <div key={fIndex} className="sm-file-card">
+            <a
+              href={viewUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="sm-file-link"
+              title="Click to view file"
+              aria-label={`View ${fileName}`}
+            >
+              <div className="sm-file-info">
+                <div className="sm-file-icon">📄</div>
+                <span className="sm-file-name">{fileName}</span>
+              </div>
+            </a>
+            <div className="sm-file-actions">
+              <a
+                href={viewUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="sm-action-btn sm-view-btn"
+                title="View file"
+                aria-label={`View ${fileName}`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Eye size={16} />
+              </a>
+              <a
+                href={file.url}
+                target="_blank"
+                rel="noreferrer"
+                className="sm-action-btn sm-download-btn"
+                title="Download file"
+                aria-label={`Download ${fileName}`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Download size={16} />
+              </a>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function StudyMaterials() {
   const [openSemesterIndex, setOpenSemesterIndex] = useState(null);
   const [openSubjectIndex, setOpenSubjectIndex] = useState(null);
+  // tracks which subject's "Unofficial Resources" section is open — key: "semIndex-subjIndex"
+  const [openUnofficialKey, setOpenUnofficialKey] = useState(null);
 
   const toggleSemester = (index) => {
     setOpenSemesterIndex(openSemesterIndex === index ? null : index);
     setOpenSubjectIndex(null);
+    setOpenUnofficialKey(null);
   };
 
   const toggleSubject = (index) => {
     setOpenSubjectIndex(openSubjectIndex === index ? null : index);
+    setOpenUnofficialKey(null);
+  };
+
+  const toggleUnofficial = (key) => {
+    setOpenUnofficialKey(openUnofficialKey === key ? null : key);
   };
 
   return (
@@ -60,82 +123,63 @@ export default function StudyMaterials() {
               {/* Subjects Container */}
               {openSemesterIndex === semIndex && (
                 <div className="sm-subjects-wrapper">
-                  {sem.subjects.map((subj, subjIndex) => (
-                    <div key={subjIndex} className="sm-subject-block">
-                      {/* Subject Header */}
-                      <button
-                        className={`sm-subject-btn ${openSubjectIndex === subjIndex ? "sm-subject-open" : ""}`}
-                        onClick={() => toggleSubject(subjIndex)}
-                      >
-                        <div className="sm-subject-left">
-                          <FileText size={18} />
-                          <span className="sm-subject-name">{subj.subject}</span>
-                          <span className="sm-file-count">{subj.files.length} files</span>
-                        </div>
-                        <div className="sm-subject-icon">
-                          {openSubjectIndex === subjIndex ? (
-                            <ChevronDown size={18} />
-                          ) : (
-                            <ChevronRight size={18} />
-                          )}
-                        </div>
-                      </button>
+                  {sem.subjects.map((subj, subjIndex) => {
+                    const unofficialKey = `${semIndex}-${subjIndex}`;
+                    const hasCustomFiles = subj.customfiles && subj.customfiles.length > 0;
+                    const isSubjOpen = openSubjectIndex === subjIndex;
+                    const isUnofficialOpen = openUnofficialKey === unofficialKey;
 
-                      {/* Files List */}
-                      {openSubjectIndex === subjIndex && (
-                        <div className="sm-files-list">
-                          {subj.files.map((file, fIndex) => {
-                            const rawFileName = file.name || file.url.split("/").pop().split("?")[0];
-                            const fileName = decodeURIComponent(rawFileName);
-                            const encodedUrl = encodeURIComponent(file.url);
-                            const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodedUrl}`;
+                    return (
+                      <div key={subjIndex} className="sm-subject-block">
+                        {/* Subject Header */}
+                        <button
+                          className={`sm-subject-btn ${isSubjOpen ? "sm-subject-open" : ""}`}
+                          onClick={() => toggleSubject(subjIndex)}
+                        >
+                          <div className="sm-subject-left">
+                            <FileText size={18} />
+                            <span className="sm-subject-name">{subj.subject}</span>
+                            <span className="sm-file-count">{subj.files.length} files</span>
+                          </div>
+                          <div className="sm-subject-icon">
+                            {isSubjOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                          </div>
+                        </button>
 
-                            return (
-                              <div key={fIndex} className="sm-file-card">
-                                <a
-                                  href={viewUrl}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="sm-file-link"
-                                  title="Click to view file"
-                                  aria-label={`View ${fileName}`}
+                        {/* Expanded subject content */}
+                        {isSubjOpen && (
+                          <div className="sm-subject-content">
+
+                            {/* ── Unofficial Resources (only if customfiles exist) ── */}
+                            {hasCustomFiles && (
+                              <div className="sm-unofficial-block">
+                                <button
+                                  className={`sm-unofficial-btn ${isUnofficialOpen ? "sm-unofficial-open" : ""}`}
+                                  onClick={() => toggleUnofficial(unofficialKey)}
                                 >
-                                  <div className="sm-file-info">
-                                    <div className="sm-file-icon">📄</div>
-                                    <span className="sm-file-name">{fileName}</span>
+                                  <div className="sm-unofficial-left">
+                                    <BookMarked size={16} />
+                                    <span className="sm-unofficial-label">Unofficial Resources</span>
+                                    <span className="sm-unofficial-badge">{subj.customfiles.length} files</span>
                                   </div>
-                                </a>
-                                <div className="sm-file-actions">
-                                  <a
-                                    href={viewUrl}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="sm-action-btn sm-view-btn"
-                                    title="View file"
-                                    aria-label={`View ${fileName}`}
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    <Eye size={16} />
-                                  </a>
-                                  <a
-                                    href={file.url}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="sm-action-btn sm-download-btn"
-                                    title="Download file"
-                                    aria-label={`Download ${fileName}`}
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    <Download size={16} />
-                                  </a>
-                                </div>
+                                  <div className="sm-unofficial-chevron">
+                                    {isUnofficialOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                                  </div>
+                                </button>
+
+                                {isUnofficialOpen && (
+                                  <FilesList files={subj.customfiles} cssClass="sm-unofficial-files-list" />
+                                )}
                               </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                            )}
+
+                            {/* ── Official Files ── */}
+                            <FilesList files={subj.files} />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
