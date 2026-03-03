@@ -323,8 +323,18 @@ const WorkSearchInterface = () => {
   };
 
   const handleFilterChange = (filters) => {
-    setSelectedSubjects(filters.subjects || []);
-    setSelectedTopics(filters.topics || []);
+    const newSubjects = filters.subjects || [];
+    const newTopics = filters.topics || [];
+    setSelectedSubjects(newSubjects);
+    setSelectedTopics(newTopics);
+
+    // Immediately sync the URL so deselecting a chip removes it from the address bar
+    const urlParams = new globalThis.URLSearchParams();
+    if (searchQuery.trim()) urlParams.set('q', searchQuery);
+    if (newSubjects.length > 0) urlParams.set('subjects', newSubjects.join(','));
+    if (newTopics.length > 0) urlParams.set('topics', newTopics.join(','));
+    const newUrl = urlParams.toString() ? `${pathname}?${urlParams.toString()}` : pathname;
+    window.history.replaceState({}, '', newUrl);
   };
 
   // Apply filters when they change (subject/topic filters trigger search immediately)

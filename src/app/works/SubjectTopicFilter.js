@@ -71,37 +71,45 @@ const SubjectTopicFilter = ({ onFilterChange, initialSubjects = [], initialTopic
   }, [selectedSubjects]);
 
   // Notify parent of filter changes
-  useEffect(() => {
-    onFilterChange({
-      subjects: selectedSubjects,
-      topics: selectedTopics
-    });
-  }, [selectedSubjects, selectedTopics, onFilterChange]);
+  // Called inline in each handler (not via useEffect) so the URL updates immediately on click
+  const notifyParent = (nextSubjects, nextTopics) => {
+    onFilterChange({ subjects: nextSubjects, topics: nextTopics });
+  };
 
   const handleSubjectClick = (subject) => {
-    setSelectedSubjects(prev => 
-      prev.includes(subject) 
-        ? prev.filter(s => s !== subject)
-        : [...prev, subject]
-    );
+    const next = selectedSubjects.includes(subject)
+      ? selectedSubjects.filter(s => s !== subject)
+      : [...selectedSubjects, subject];
+    setSelectedSubjects(next);
+    // When a subject is removed, topics that were selected may no longer be relevant —
+    // clear selectedTopics to stay consistent, then notify parent immediately
+    const nextTopics = next.length === 0 ? [] : selectedTopics;
+    if (next.length === 0) setSelectedTopics([]);
+    notifyParent(next, nextTopics);
   };
 
   const handleTopicClick = (topic) => {
-    setSelectedTopics(prev =>
-      prev.includes(topic)
-        ? prev.filter(t => t !== topic)
-        : [...prev, topic]
-    );
+    const next = selectedTopics.includes(topic)
+      ? selectedTopics.filter(t => t !== topic)
+      : [...selectedTopics, topic];
+    setSelectedTopics(next);
+    notifyParent(selectedSubjects, next);
   };
 
   const handleClearSubject = (e, subject) => {
     e.stopPropagation();
-    setSelectedSubjects(prev => prev.filter(s => s !== subject));
+    const next = selectedSubjects.filter(s => s !== subject);
+    setSelectedSubjects(next);
+    const nextTopics = next.length === 0 ? [] : selectedTopics;
+    if (next.length === 0) setSelectedTopics([]);
+    notifyParent(next, nextTopics);
   };
 
   const handleClearTopic = (e, topic) => {
     e.stopPropagation();
-    setSelectedTopics(prev => prev.filter(t => t !== topic));
+    const next = selectedTopics.filter(t => t !== topic);
+    setSelectedTopics(next);
+    notifyParent(selectedSubjects, next);
   };
 
   // Skeleton loader for chips - fills full width
