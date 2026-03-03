@@ -615,6 +615,22 @@ body {
   background-color: #ef4444;
 }
 
+/* Admin Dashboard sidebar link */
+.learnix-nav-admin {
+  color: #7c3aed !important;
+  font-weight: 600;
+  background-color: #f5f3ff;
+}
+
+.learnix-nav-admin:hover {
+  background-color: #ede9fe !important;
+  color: #5b21b6 !important;
+}
+
+.learnix-nav-admin .learnix-nav-icon {
+  color: #7c3aed;
+}
+
 /* Responsive Design */
 
 /* Large Tablets and Small Desktops */

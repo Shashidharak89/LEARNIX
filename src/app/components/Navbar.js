@@ -438,6 +438,20 @@ export const Navbar = () => {
             <span className="learnix-nav-text">Dashboard</span>
           </Link>
 
+          {hasUSN && (userRole === "admin" || userRole === "superadmin") && (
+            <Link
+              href="/admin"
+              className="learnix-nav-item learnix-nav-admin"
+              onClick={closeSidebar}
+              tabIndex={isOpen ? 0 : -1}
+            >
+              <span className="learnix-nav-icon">
+                <FiShield size={18} />
+              </span>
+              <span className="learnix-nav-text">Admin Dashboard</span>
+            </Link>
+          )}
+
           {!hasUSN && (
             <Link
               href="/login"
@@ -583,20 +597,6 @@ export const Navbar = () => {
             </span>
             <span className="learnix-nav-text">Profile</span>
           </Link>
-
-          {hasUSN && (userRole === "admin" || userRole === "superadmin") && (
-            <Link
-              href="/admin"
-              className="learnix-nav-item learnix-nav-admin"
-              onClick={closeSidebar}
-              tabIndex={isOpen ? 0 : -1}
-            >
-              <span className="learnix-nav-icon">
-                <FiShield size={18} />
-              </span>
-              <span className="learnix-nav-text">Admin Dashboard</span>
-            </Link>
-          )}
 
           {hasUSN && (
             <button
