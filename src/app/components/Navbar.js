@@ -19,7 +19,8 @@ import {
   FiTool,
   FiBell,
   FiCheck,
-  FiClipboard
+  FiClipboard,
+  FiShield
 } from "react-icons/fi";
 import "./styles/Navbar.css";
 import { Fill } from "./Fill";
@@ -27,6 +28,7 @@ import { Fill } from "./Fill";
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [hasUSN, setHasUSN] = useState(false);
+  const [userRole, setUserRole] = useState("");
   
   // Notification state
   const [showNotifications, setShowNotifications] = useState(false);
@@ -43,11 +45,15 @@ export const Navbar = () => {
     // initialize hasUSN from localStorage
     const storedUsn = localStorage.getItem("usn");
     setHasUSN(!!storedUsn);
+    setUserRole(localStorage.getItem("role") || "");
 
     // keep hasUSN in sync if localStorage changes in other tabs
     const onStorage = (e) => {
       if (e.key === "usn") {
         setHasUSN(!!e.newValue);
+      }
+      if (e.key === "role") {
+        setUserRole(e.newValue || "");
       }
     };
     window.addEventListener("storage", onStorage);
@@ -577,6 +583,20 @@ export const Navbar = () => {
             </span>
             <span className="learnix-nav-text">Profile</span>
           </Link>
+
+          {hasUSN && (userRole === "admin" || userRole === "superadmin") && (
+            <Link
+              href="/admin"
+              className="learnix-nav-item learnix-nav-admin"
+              onClick={closeSidebar}
+              tabIndex={isOpen ? 0 : -1}
+            >
+              <span className="learnix-nav-icon">
+                <FiShield size={18} />
+              </span>
+              <span className="learnix-nav-text">Admin Dashboard</span>
+            </Link>
+          )}
 
           {hasUSN && (
             <button

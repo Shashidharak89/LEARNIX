@@ -42,6 +42,7 @@ export async function POST(req) {
         if (!user.profileimg) {
           user.profileimg = DEFAULT_PROFILE_IMG; // ensure it exists
         }
+        if (!user.role) user.role = "user";
         
         const token = generateToken(user._id.toString(), user.usn);
         user.token = token;
@@ -50,7 +51,7 @@ export async function POST(req) {
 
         return NextResponse.json({
           message: "Password set successfully. You are now logged in.",
-          user: { name: user.name, usn: user.usn, profileimg: user.profileimg },
+          user: { name: user.name, usn: user.usn, profileimg: user.profileimg, role: user.role },
           token
         });
       } else {
@@ -60,6 +61,9 @@ export async function POST(req) {
           return NextResponse.json({ error: "Invalid password" }, { status: 401 });
         }
 
+        // Backfill role for old accounts that have none
+        if (!user.role) user.role = "user";
+
         const token = generateToken(user._id.toString(), user.usn);
         user.token = token;
         user.tokenCreatedAt = new Date();
@@ -67,7 +71,7 @@ export async function POST(req) {
 
         return NextResponse.json({
           message: "Logged in successfully",
-          user: { name: user.name, usn: user.usn, profileimg: user.profileimg },
+          user: { name: user.name, usn: user.usn, profileimg: user.profileimg, role: user.role },
           token
         });
       }
@@ -79,6 +83,7 @@ export async function POST(req) {
         usn: usnUpper,
         password: hashedPassword,
         profileimg: DEFAULT_PROFILE_IMG, // explicitly set
+        role: "user",
       });
       
       const token = generateToken(newUser._id.toString(), newUser.usn);
@@ -88,7 +93,7 @@ export async function POST(req) {
 
       return NextResponse.json({
         message: "Account created",
-        user: { name: newUser.name, usn: newUser.usn, profileimg: newUser.profileimg },
+        user: { name: newUser.name, usn: newUser.usn, profileimg: newUser.profileimg, role: newUser.role },
         token
       });
     }
