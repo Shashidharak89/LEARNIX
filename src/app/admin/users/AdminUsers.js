@@ -20,7 +20,7 @@ import { MdAdminPanelSettings } from "react-icons/md";
 import "../styles/AdminDashboard.css";
 import "./AdminUsers.css";
 
-const PAGE_LIMIT = 10;
+const PAGE_LIMIT = 12;
 
 function RoleBadge({ role }) {
   if (role === "superadmin")
