@@ -84,7 +84,17 @@ const WorkSearchInterface = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const [searchQuery, setSearchQuery] = useState('');
+
+  // Restore state from URL params so refresh keeps the search/filter state
+  const initialQuery = searchParams.get('q') || '';
+  const initialSubjects = searchParams.get('subjects')
+    ? searchParams.get('subjects').split(',').filter(Boolean)
+    : [];
+  const initialTopics = searchParams.get('topics')
+    ? searchParams.get('topics').split(',').filter(Boolean)
+    : [];
+
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [searchResults, setSearchResults] = useState([]);
   const [displayedTopics, setDisplayedTopics] = useState([]);
   const [allTopics, setAllTopics] = useState([]);
@@ -94,8 +104,8 @@ const WorkSearchInterface = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isManualReloading, setIsManualReloading] = useState(false);
-  const [selectedSubjects, setSelectedSubjects] = useState([]);
-  const [selectedTopics, setSelectedTopics] = useState([]);
+  const [selectedSubjects, setSelectedSubjects] = useState(initialSubjects);
+  const [selectedTopics, setSelectedTopics] = useState(initialTopics);
   const [savedTopicIds, setSavedTopicIds] = useState([]);
   const [cachedSavedTopics, setCachedSavedTopics] = useState([]);
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -151,7 +161,13 @@ const WorkSearchInterface = () => {
   }, []);
 
   useEffect(() => {
-    fetchPagedTopics(1, true);
+    if (initialQuery || initialSubjects.length > 0 || initialTopics.length > 0) {
+      // Restore search from URL params
+      handleSearch(initialQuery, 1, initialSubjects, initialTopics);
+    } else {
+      fetchPagedTopics(1, true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -210,14 +226,18 @@ const WorkSearchInterface = () => {
     }
   };
 
-  const handleSearch = async (query, pageNum = 1) => {
-    if (!query.trim() && selectedSubjects.length === 0 && selectedTopics.length === 0) {
+  const handleSearch = async (query, pageNum = 1, subjectsOverride, topicsOverride) => {
+    // Use overrides (from URL restore on mount) or current state
+    const activeSubjects = subjectsOverride !== undefined ? subjectsOverride : selectedSubjects;
+    const activeTopics   = topicsOverride   !== undefined ? topicsOverride   : selectedTopics;
+
+    if (!query.trim() && activeSubjects.length === 0 && activeTopics.length === 0) {
       setSearchResults([]);
       setSearchPage(1);
       setSearchTotalPages(1);
       const filteredTopics = getFilteredTopics(allTopics);
-      const initialTopics = filteredTopics.slice(0, ITEMS_PER_LOAD);
-      setDisplayedTopics(initialTopics);
+      const firstBatch = filteredTopics.slice(0, ITEMS_PER_LOAD);
+      setDisplayedTopics(firstBatch);
       setCurrentIndex(ITEMS_PER_LOAD);
       setHasMore(filteredTopics.length > ITEMS_PER_LOAD);
       window.history.replaceState({}, '', pathname);
@@ -228,14 +248,14 @@ const WorkSearchInterface = () => {
       // Build URL with query, subjects, and topics params
       const urlParams = new globalThis.URLSearchParams();
       if (query.trim()) urlParams.set('q', query);
-      if (selectedSubjects.length > 0) urlParams.set('subjects', selectedSubjects.join(','));
-      if (selectedTopics.length > 0) urlParams.set('topics', selectedTopics.join(','));
+      if (activeSubjects.length > 0) urlParams.set('subjects', activeSubjects.join(','));
+      if (activeTopics.length > 0) urlParams.set('topics', activeTopics.join(','));
       urlParams.set('page', pageNum.toString());
       urlParams.set('pageSize', ITEMS_PER_LOAD.toString());
-      
+
       const browserUrl = `${pathname}?${urlParams.toString()}`;
       window.history.replaceState({}, '', browserUrl);
-      
+
       // Use oldest API when sortOrder is 'oldest', otherwise use default (latest first)
       const apiEndpoint = sortOrder === 'oldest' ? '/api/work/search-oldest' : '/api/work/search';
       const response = await fetch(`${apiEndpoint}?${urlParams.toString()}`);
@@ -250,8 +270,14 @@ const WorkSearchInterface = () => {
           profileimg: topic.profileimg,
           userId: topic.userId,
         }));
-        setSearchResults(newTopics);
-        setDisplayedTopics(newTopics);
+        if (pageNum === 1) {
+          setSearchResults(newTopics);
+          setDisplayedTopics(newTopics);
+        } else {
+          // Append for subsequent pages (View More)
+          setSearchResults(prev => [...prev, ...newTopics]);
+          setDisplayedTopics(prev => [...prev, ...newTopics]);
+        }
         setSearchPage(data.page);
         setSearchTotalPages(data.totalPages);
         setHasMore(data.page < data.totalPages);
@@ -266,15 +292,13 @@ const WorkSearchInterface = () => {
   const loadMoreTopics = useCallback(() => {
     if (isLoadingMore || !hasMore || isManualReloading) return;
     setIsLoadingMore(true);
-    setTimeout(() => {
-      if (searchQuery) {
-        handleSearch(searchQuery, searchPage + 1);
-      } else {
-        fetchPagedTopics(page + 1);
-      }
-      setIsLoadingMore(false);
-    }, 500);
-  }, [hasMore, isLoadingMore, isManualReloading, searchQuery, searchPage, page]);
+    const isSearchActive = searchQuery || selectedSubjects.length > 0 || selectedTopics.length > 0;
+    if (isSearchActive) {
+      handleSearch(searchQuery, searchPage + 1).finally(() => setIsLoadingMore(false));
+    } else {
+      fetchPagedTopics(page + 1).finally(() => setIsLoadingMore(false));
+    }
+  }, [hasMore, isLoadingMore, isManualReloading, searchQuery, selectedSubjects, selectedTopics, searchPage, page]);
 
   const handleManualReload = () => {
     if (!hasMore || isLoadingMore || searchQuery || isManualReloading) return;
@@ -670,7 +694,11 @@ const WorkSearchInterface = () => {
             </button>
           </div>
         </div>
-        <SubjectTopicFilter onFilterChange={handleFilterChange} />
+        <SubjectTopicFilter
+          onFilterChange={handleFilterChange}
+          initialSubjects={initialSubjects}
+          initialTopics={initialTopics}
+        />
       </div>
 
       <div className="ws-content">
@@ -690,7 +718,7 @@ const WorkSearchInterface = () => {
         {/* Show skeleton loader below cached topics or alone if no cached */}
         {isLoading && <SkeletonLoader />}
 
-        {!searchQuery && !isLoading && (
+        {!searchQuery && selectedSubjects.length === 0 && selectedTopics.length === 0 && !isLoading && (
           <div className="ws-latest-section">
             <div className="ws-section-header">
               <h2 className="ws-section-title">
@@ -799,11 +827,39 @@ const WorkSearchInterface = () => {
           </div>
         )}
 
-        {searchQuery && !isLoading && (
+        {(searchQuery || selectedSubjects.length > 0 || selectedTopics.length > 0) && !isLoading && (
           <div className="ws-results-section">
             <h2 className="ws-section-title">Search Results ({searchResults.length} found)</h2>
             {searchResults.length > 0 ? (
-              <div className="ws-topics-grid">{renderTopicsWithAds(searchResults)}</div>
+              <>
+                <div className="ws-topics-grid">{renderTopicsWithAds(searchResults)}</div>
+                {hasMore && (
+                  <div className="ws-reload-section">
+                    <button
+                      onClick={() => handleSearch(searchQuery, searchPage + 1)}
+                      className="ws-reload-btn"
+                      disabled={isLoadingMore}
+                    >
+                      {isLoadingMore ? (
+                        <>
+                          <div className="ws-spinner" style={{ width: 16, height: 16, borderWidth: 2, marginRight: 8 }}></div>
+                          <span>Loading...</span>
+                        </>
+                      ) : (
+                        <>
+                          <FiRefreshCw className="ws-reload-icon" />
+                          <span>View More Results</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+                {!hasMore && searchResults.length > 0 && (
+                  <div className="ws-end-message" style={{ textAlign: 'center', marginTop: 16 }}>
+                    ✅ All matching results loaded.
+                  </div>
+                )}
+              </>
             ) : (
               <div className="ws-no-results">
                 <FiSearch className="ws-no-results-icon" />

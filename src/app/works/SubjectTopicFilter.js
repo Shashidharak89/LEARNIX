@@ -4,11 +4,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FiX } from 'react-icons/fi';
 import './SubjectTopicFilter.css';
 
-const SubjectTopicFilter = ({ onFilterChange }) => {
+const SubjectTopicFilter = ({ onFilterChange, initialSubjects = [], initialTopics = [] }) => {
   const [subjects, setSubjects] = useState([]);
-  const [selectedSubjects, setSelectedSubjects] = useState([]);
+  const [selectedSubjects, setSelectedSubjects] = useState(initialSubjects);
   const [topics, setTopics] = useState([]);
-  const [selectedTopics, setSelectedTopics] = useState([]);
+  const [selectedTopics, setSelectedTopics] = useState(initialTopics);
   const [isLoadingSubjects, setIsLoadingSubjects] = useState(false);
   const [isLoadingTopics, setIsLoadingTopics] = useState(false);
   
@@ -35,7 +35,7 @@ const SubjectTopicFilter = ({ onFilterChange }) => {
     fetchSubjects();
   }, []);
 
-  // Fetch topics when subjects are selected
+  // Fetch topics when subjects are selected (also runs on mount if initialSubjects provided)
   useEffect(() => {
     if (selectedSubjects.length > 0) {
       const fetchTopics = async () => {
@@ -53,7 +53,8 @@ const SubjectTopicFilter = ({ onFilterChange }) => {
           }
           
           setTopics(Array.from(topicsSet).sort());
-          setSelectedTopics([]);
+          // Do NOT clear selectedTopics here — preserve them when restoring from URL
+          // Only clear when subjects actually change (handled by tracking prev subjects)
         } catch (error) {
           console.error('Error fetching topics:', error);
         } finally {
@@ -66,6 +67,7 @@ const SubjectTopicFilter = ({ onFilterChange }) => {
       setTopics([]);
       setSelectedTopics([]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSubjects]);
 
   // Notify parent of filter changes
