@@ -366,6 +366,18 @@ export default function AdminDashboard() {
         </p>
       </div>
 
+      {/* ── Quick action buttons ── */}
+      <div className="adm-quick-actions">
+        <Link href="/admin/users" className="adm-quick-btn adm-quick-btn-blue">
+          <span className="adm-quick-btn-icon"><FiUsers size={20} /></span>
+          <div className="adm-quick-btn-text">
+            <span className="adm-quick-btn-label">User Management</span>
+            <span className="adm-quick-btn-sub">View &amp; manage all registered users</span>
+          </div>
+          <FiArrowRight size={18} className="adm-quick-btn-arrow" />
+        </Link>
+      </div>
+
       {/* ── Feature cards ── */}
       <section className="adm-features-section">
         <h2 className="adm-section-title">Feature Areas & Your Privileges</h2>

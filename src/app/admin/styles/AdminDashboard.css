@@ -200,6 +200,106 @@
   font-weight: 500;
 }
 
+/* ── Quick action buttons ── */
+.adm-quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  animation: adm-fade-in 0.5s ease 0.22s both;
+}
+
+.adm-quick-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  border: 1.5px solid transparent;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  min-width: 280px;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.adm-quick-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 3px;
+  transition: left 0.3s ease;
+}
+
+.adm-quick-btn:hover::before { left: 0; }
+
+.adm-quick-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.adm-quick-btn-blue {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+
+.adm-quick-btn-blue::before { background: #3b82f6; }
+
+.adm-quick-btn-blue:hover {
+  background: #dbeafe;
+  border-color: #3b82f6;
+}
+
+.adm-quick-btn-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #dbeafe;
+  color: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.adm-quick-btn:hover .adm-quick-btn-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.adm-quick-btn-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.adm-quick-btn-label {
+  font-size: 0.975rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.adm-quick-btn-sub {
+  font-size: 0.78rem;
+  opacity: 0.7;
+  margin-top: 0.2rem;
+}
+
+.adm-quick-btn-arrow {
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: all 0.2s ease;
+}
+
+.adm-quick-btn:hover .adm-quick-btn-arrow {
+  opacity: 1;
+  transform: translateX(4px);
+}
+
 /* ── Features section ── */
 .adm-features-section {
   margin-bottom: 2rem;
