@@ -1,20 +1,12 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  FiUsers,
-  FiArrowLeft,
-  FiShield,
-  FiUser,
-  FiLock,
-  FiLoader,
-  FiChevronDown,
-  FiCalendar,
-  FiHash,
-  FiUserCheck,
-  FiUserX,
+  FiUsers, FiArrowLeft, FiShield, FiUser, FiLock, FiLoader,
+  FiChevronDown, FiCalendar, FiHash, FiUserCheck, FiUserX,
 } from "react-icons/fi";
 import { MdAdminPanelSettings } from "react-icons/md";
 import "../styles/AdminDashboard.css";
@@ -38,129 +30,122 @@ function formatDate(dateStr) {
 }
 
 export default function AdminUsers() {
-  const [myRole, setMyRole]         = useState(null);
-  const [token, setToken]           = useState("");
-  const [myUsn, setMyUsn]           = useState("");
-  const [isLoaded, setIsLoaded]     = useState(false);
+  const [myRole, setMyRole]           = useState(null);
+  const [token, setToken]             = useState("");
+  const [myUsn, setMyUsn]             = useState("");
+  const [isLoaded, setIsLoaded]       = useState(false);
 
-  const [users, setUsers]           = useState([]);
-  const [total, setTotal]           = useState(0);
-  const [page, setPage]             = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading]       = useState(false);
+  const [users, setUsers]             = useState([]);
+  const [total, setTotal]             = useState(0);
+  const [page, setPage]               = useState(1);
+  const [totalPages, setTotalPages]   = useState(1);
+  const [loading, setLoading]         = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError]           = useState("");
+  const [error, setError]             = useState("");
 
-  // per-user role-change state
-  const [changingRole, setChangingRole] = useState({}); // { usn: true/false }
-  const [roleMsg, setRoleMsg]           = useState({});  // { usn: "message" }
+  const [changingRole, setChangingRole] = useState({});
+  const [roleMsg, setRoleMsg]           = useState({});
 
-  // confirmation popup
-  const [confirm, setConfirm] = useState(null); // { user, newRole } | null
+  const [openConfirmUsn, setOpenConfirmUsn] = useState(null);
+  const [confirmAction, setConfirmAction]   = useState(null);
+  const [dropdownPos, setDropdownPos]       = useState({ top: 0, left: 0 });
+
+  const confirmRef = useRef(null);
+  const btnRefs    = useRef({});
 
   // ── bootstrap ──
   useEffect(() => {
-    const r = localStorage.getItem("role") || "";
+    const r = localStorage.getItem("role")  || "";
     const t = localStorage.getItem("token") || "";
     const u = localStorage.getItem("usn")   || "";
-    setMyRole(r);
-    setToken(t);
-    setMyUsn(u);
+    setMyRole(r); setToken(t); setMyUsn(u);
     setTimeout(() => setIsLoaded(true), 100);
   }, []);
 
   // ── fetch users ──
   const fetchUsers = useCallback(async (pageNum, append = false) => {
     if (!token) return;
-    if (append) setLoadingMore(true);
-    else setLoading(true);
+    append ? setLoadingMore(true) : setLoading(true);
     setError("");
-
     try {
-      const res = await fetch(`/api/admin/users?page=${pageNum}&limit=${PAGE_LIMIT}`, {
+      const res  = await fetch(`/api/admin/users?page=${pageNum}&limit=${PAGE_LIMIT}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || "Failed to fetch users");
-        return;
-      }
-
-      if (append) {
-        setUsers(prev => [...prev, ...data.users]);
-      } else {
-        setUsers(data.users);
-      }
+      if (!res.ok) { setError(data.error || "Failed to fetch users"); return; }
+      append ? setUsers(prev => [...prev, ...data.users]) : setUsers(data.users);
       setTotal(data.total);
       setPage(data.page);
       setTotalPages(data.totalPages);
     } catch {
       setError("Network error. Please try again.");
     } finally {
-      setLoading(false);
-      setLoadingMore(false);
+      setLoading(false); setLoadingMore(false);
     }
   }, [token]);
 
-  // ── initial load once token ready ──
   useEffect(() => {
-    if (token && (myRole === "admin" || myRole === "superadmin")) {
-      fetchUsers(1, false);
-    }
+    if (token && (myRole === "admin" || myRole === "superadmin")) fetchUsers(1, false);
   }, [token, myRole, fetchUsers]);
 
-  // ── view more ──
-  const handleViewMore = () => {
-    const next = page + 1;
-    fetchUsers(next, true);
+  const handleViewMore = () => fetchUsers(page + 1, true);
+
+  // ── inline confirm helpers ──
+  const openConfirm = (user, newRole, usn) => {
+    const btn = btnRefs.current[usn];
+    if (btn) {
+      const rect       = btn.getBoundingClientRect();
+      const dropH      = 190;
+      const dropW      = 230;
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const top  = spaceBelow > dropH ? rect.bottom + 8 : rect.top - dropH - 8;
+      const spaceRight = window.innerWidth - rect.left;
+      const left = spaceRight > dropW  ? rect.left : rect.right - dropW;
+      setDropdownPos({ top, left });
+    }
+    setOpenConfirmUsn(user.usn);
+    setConfirmAction({ user, newRole });
   };
 
-  // ── open confirmation popup ──
-  const openConfirm = (user, newRole) => setConfirm({ user, newRole });
-  const closeConfirm = () => setConfirm(null);
+  const closeConfirm    = () => { setOpenConfirmUsn(null); setConfirmAction(null); };
   const handleConfirmed = () => {
-    if (!confirm) return;
-    handleRoleChange(confirm.user, confirm.newRole);
-    setConfirm(null);
+    if (!confirmAction) return;
+    handleRoleChange(confirmAction.user, confirmAction.newRole);
+    closeConfirm();
   };
+
+  // close on outside click
+  useEffect(() => {
+    if (!openConfirmUsn) return;
+    const handler = (e) => {
+      if (confirmRef.current && !confirmRef.current.contains(e.target)) {
+        const btns = Object.values(btnRefs.current);
+        if (btns.some(b => b && b.contains(e.target))) return;
+        closeConfirm();
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [openConfirmUsn]);
 
   // ── change role ──
   const handleRoleChange = async (user, newRole) => {
     setChangingRole(prev => ({ ...prev, [user.usn]: true }));
     setRoleMsg(prev => ({ ...prev, [user.usn]: "" }));
-
     try {
-      const res = await fetch("/api/admin/users/role", {
+      const res  = await fetch("/api/admin/users/role", {
         method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ targetUsn: user.usn, newRole }),
       });
       const data = await res.json();
-
-      if (!res.ok) {
-        setRoleMsg(prev => ({ ...prev, [user.usn]: data.error || "Failed" }));
-        return;
-      }
-
-      // Update user in local list
-      setUsers(prev =>
-        prev.map(u =>
-          u.usn === user.usn ? { ...u, role: data.user.role } : u
-        )
-      );
+      if (!res.ok) { setRoleMsg(prev => ({ ...prev, [user.usn]: data.error || "Failed" })); return; }
+      setUsers(prev => prev.map(u => u.usn === user.usn ? { ...u, role: data.user.role } : u));
       setRoleMsg(prev => ({
         ...prev,
         [user.usn]: newRole === "admin" ? "Made admin ✓" : "Removed admin ✓",
       }));
-
-      // Clear message after 2.5s
-      setTimeout(() => {
-        setRoleMsg(prev => ({ ...prev, [user.usn]: "" }));
-      }, 2500);
+      setTimeout(() => setRoleMsg(prev => ({ ...prev, [user.usn]: "" })), 2500);
     } catch {
       setRoleMsg(prev => ({ ...prev, [user.usn]: "Network error" }));
     } finally {
@@ -171,7 +156,7 @@ export default function AdminUsers() {
   // ── guards ──
   if (myRole === null) return null;
 
-  const hasAccess = myRole === "admin" || myRole === "superadmin";
+  const hasAccess    = myRole === "admin" || myRole === "superadmin";
   const isSuperAdmin = myRole === "superadmin";
 
   if (!hasAccess) {
@@ -180,9 +165,7 @@ export default function AdminUsers() {
         <div className="adm-no-access">
           <div className="adm-no-access-icon"><FiLock size={40} /></div>
           <h2 className="adm-no-access-title">Access Denied</h2>
-          <p className="adm-no-access-text">
-            You don&apos;t have permission to view this page.
-          </p>
+          <p className="adm-no-access-text">You don&apos;t have permission to view this page.</p>
           <Link href="/admin" className="adm-back-btn">
             <FiArrowLeft size={16} /> Back to Admin Dashboard
           </Link>
@@ -193,36 +176,6 @@ export default function AdminUsers() {
 
   return (
     <div className={`adm-wrapper ${isLoaded ? "adm-loaded" : ""}`}>
-
-      {/* ── Confirmation popup ── */}
-      {confirm && (
-        <div className="au-confirm-overlay" onClick={closeConfirm}>
-          <div className="au-confirm-box" onClick={e => e.stopPropagation()}>
-            <div className={`au-confirm-icon ${confirm.newRole === "admin" ? "au-confirm-icon-blue" : "au-confirm-icon-red"}`}>
-              {confirm.newRole === "admin" ? <FiUserCheck size={28} /> : <FiUserX size={28} />}
-            </div>
-            <h3 className="au-confirm-title">
-              {confirm.newRole === "admin" ? "Make Admin?" : "Remove Admin?"}
-            </h3>
-            <p className="au-confirm-text">
-              {confirm.newRole === "admin"
-                ? <>Grant admin privileges to <strong>{confirm.user.name}</strong> ({confirm.user.usn})?</>
-                : <>Remove admin privileges from <strong>{confirm.user.name}</strong> ({confirm.user.usn})?</>}
-            </p>
-            <div className="au-confirm-actions">
-              <button className="au-confirm-btn au-confirm-cancel" onClick={closeConfirm}>
-                Cancel
-              </button>
-              <button
-                className={`au-confirm-btn ${confirm.newRole === "admin" ? "au-confirm-ok-blue" : "au-confirm-ok-red"}`}
-                onClick={handleConfirmed}
-              >
-                {confirm.newRole === "admin" ? "Yes, Make Admin" : "Yes, Remove Admin"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── Header ── */}
       <header className="adm-header">
@@ -283,11 +236,7 @@ export default function AdminUsers() {
       </section>
 
       {/* ── Error ── */}
-      {error && (
-        <div className="au-error-banner">
-          {error}
-        </div>
-      )}
+      {error && <div className="au-error-banner">{error}</div>}
 
       {/* ── User list ── */}
       {loading ? (
@@ -299,10 +248,11 @@ export default function AdminUsers() {
         <>
           <section className="au-users-grid">
             {users.map((user, idx) => {
-              const userRole = user.role || "user";
-              const isChanging = changingRole[user.usn];
-              const msg = roleMsg[user.usn];
+              const userRole     = user.role || "user";
+              const isChanging   = changingRole[user.usn];
+              const msg          = roleMsg[user.usn];
               const isOwnAccount = user.usn === myUsn;
+              const isOpen       = openConfirmUsn === user.usn;
 
               return (
                 <div
@@ -316,8 +266,7 @@ export default function AdminUsers() {
                       <Image
                         src={user.profileimg || "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp"}
                         alt={user.name}
-                        width={48}
-                        height={48}
+                        width={48} height={48}
                         className="au-avatar"
                       />
                     </div>
@@ -331,41 +280,42 @@ export default function AdminUsers() {
                   {/* Meta row */}
                   <div className="au-meta-row">
                     <span className="au-meta-item">
-                      <FiCalendar size={12} />
-                      Joined {formatDate(user.createdAt)}
+                      <FiCalendar size={12} /> Joined {formatDate(user.createdAt)}
                     </span>
                   </div>
 
                   {/* Role action — superadmin only, not own account */}
                   {isSuperAdmin && !isOwnAccount && (
                     <div className="au-role-action">
-                      {userRole === "admin" ? (
-                        <button
-                          className="au-role-btn au-role-btn-remove"
-                          onClick={() => openConfirm(user, "user")}
-                          disabled={isChanging}
-                        >
-                          <FiUserX size={14} />
-                          {isChanging ? "Updating…" : "Remove Admin"}
-                        </button>
-                      ) : (
-                        <button
-                          className="au-role-btn au-role-btn-make"
-                          onClick={() => openConfirm(user, "admin")}
-                          disabled={isChanging}
-                        >
-                          <FiUserCheck size={14} />
-                          {isChanging ? "Updating…" : "Make Admin"}
-                        </button>
-                      )}
+                      <div className="au-confirm-wrap">
+                        {userRole === "admin" ? (
+                          <button
+                            ref={el => { btnRefs.current[user.usn] = el; }}
+                            className="au-role-btn au-role-btn-remove"
+                            onClick={() => isOpen ? closeConfirm() : openConfirm(user, "user", user.usn)}
+                            disabled={isChanging}
+                          >
+                            <FiUserX size={14} />
+                            {isChanging ? "Updating…" : "Remove Admin"}
+                          </button>
+                        ) : (
+                          <button
+                            ref={el => { btnRefs.current[user.usn] = el; }}
+                            className="au-role-btn au-role-btn-make"
+                            onClick={() => isOpen ? closeConfirm() : openConfirm(user, "admin", user.usn)}
+                            disabled={isChanging}
+                          >
+                            <FiUserCheck size={14} />
+                            {isChanging ? "Updating…" : "Make Admin"}
+                          </button>
+                        )}
+                      </div>
                       {msg && <span className="au-role-msg">{msg}</span>}
                     </div>
                   )}
 
                   {/* Own account label */}
-                  {isOwnAccount && (
-                    <div className="au-own-tag">You</div>
-                  )}
+                  {isOwnAccount && <div className="au-own-tag">You</div>}
                 </div>
               );
             })}
@@ -374,42 +324,65 @@ export default function AdminUsers() {
           {/* ── View more ── */}
           {page < totalPages && (
             <div className="au-view-more-wrap">
-              <button
-                className="au-view-more-btn"
-                onClick={handleViewMore}
-                disabled={loadingMore}
-              >
+              <button className="au-view-more-btn" onClick={handleViewMore} disabled={loadingMore}>
                 {loadingMore ? (
-                  <>
-                    <span className="au-dots">
-                      <span /><span /><span />
-                    </span>
-                    Loading…
-                  </>
+                  <><span className="au-dots"><span /><span /><span /></span> Loading…</>
                 ) : (
-                  <>
-                    <FiChevronDown size={16} />
-                    View More ({total - users.length} remaining)
-                  </>
+                  <><FiChevronDown size={16} /> View More ({total - users.length} remaining)</>
                 )}
               </button>
             </div>
           )}
 
-          {/* ── All loaded ── */}
           {users.length > 0 && page >= totalPages && (
             <p className="au-all-loaded">All {total} users loaded</p>
           )}
 
-          {/* ── Empty ── */}
           {users.length === 0 && !loading && (
-            <div className="au-empty">
-              <FiUsers size={36} />
-              <p>No users found</p>
-            </div>
+            <div className="au-empty"><FiUsers size={36} /><p>No users found</p></div>
           )}
         </>
       )}
+
+      {/* ── Portal confirm dropdown ── renders on document.body, floats above everything ── */}
+      {openConfirmUsn && confirmAction && typeof document !== "undefined" &&
+        createPortal(
+          <div
+            ref={confirmRef}
+            className="au-confirm-dropdown"
+            style={{ top: dropdownPos.top, left: dropdownPos.left }}
+          >
+            <div className={`au-confirm-dropdown-icon ${
+              confirmAction.newRole === "admin" ? "au-confirm-icon-blue" : "au-confirm-icon-red"
+            }`}>
+              {confirmAction.newRole === "admin" ? <FiUserCheck size={18} /> : <FiUserX size={18} />}
+            </div>
+            <p className="au-confirm-dropdown-title">
+              {confirmAction.newRole === "admin" ? "Make Admin?" : "Remove Admin?"}
+            </p>
+            <p className="au-confirm-dropdown-text">
+              {confirmAction.newRole === "admin"
+                ? <><strong>{confirmAction.user.name}</strong> will gain admin access.</>
+                : <><strong>{confirmAction.user.name}</strong> will lose admin access.</>}
+            </p>
+            <div className="au-confirm-dropdown-actions">
+              <button className="au-confirm-dropdown-btn au-confirm-cancel" onClick={closeConfirm}>
+                Cancel
+              </button>
+              <button
+                className={`au-confirm-dropdown-btn ${
+                  confirmAction.newRole === "admin" ? "au-confirm-ok-blue" : "au-confirm-ok-red"
+                }`}
+                onClick={handleConfirmed}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>,
+          document.body
+        )
+      }
+
     </div>
   );
 }
