@@ -55,6 +55,9 @@ export default function AdminUsers() {
   const [changingRole, setChangingRole] = useState({}); // { usn: true/false }
   const [roleMsg, setRoleMsg]           = useState({});  // { usn: "message" }
 
+  // confirmation popup
+  const [confirm, setConfirm] = useState(null); // { user, newRole } | null
+
   // ── bootstrap ──
   useEffect(() => {
     const r = localStorage.getItem("role") || "";
@@ -111,6 +114,15 @@ export default function AdminUsers() {
   const handleViewMore = () => {
     const next = page + 1;
     fetchUsers(next, true);
+  };
+
+  // ── open confirmation popup ──
+  const openConfirm = (user, newRole) => setConfirm({ user, newRole });
+  const closeConfirm = () => setConfirm(null);
+  const handleConfirmed = () => {
+    if (!confirm) return;
+    handleRoleChange(confirm.user, confirm.newRole);
+    setConfirm(null);
   };
 
   // ── change role ──
@@ -181,6 +193,36 @@ export default function AdminUsers() {
 
   return (
     <div className={`adm-wrapper ${isLoaded ? "adm-loaded" : ""}`}>
+
+      {/* ── Confirmation popup ── */}
+      {confirm && (
+        <div className="au-confirm-overlay" onClick={closeConfirm}>
+          <div className="au-confirm-box" onClick={e => e.stopPropagation()}>
+            <div className={`au-confirm-icon ${confirm.newRole === "admin" ? "au-confirm-icon-blue" : "au-confirm-icon-red"}`}>
+              {confirm.newRole === "admin" ? <FiUserCheck size={28} /> : <FiUserX size={28} />}
+            </div>
+            <h3 className="au-confirm-title">
+              {confirm.newRole === "admin" ? "Make Admin?" : "Remove Admin?"}
+            </h3>
+            <p className="au-confirm-text">
+              {confirm.newRole === "admin"
+                ? <>Grant admin privileges to <strong>{confirm.user.name}</strong> ({confirm.user.usn})?</>
+                : <>Remove admin privileges from <strong>{confirm.user.name}</strong> ({confirm.user.usn})?</>}
+            </p>
+            <div className="au-confirm-actions">
+              <button className="au-confirm-btn au-confirm-cancel" onClick={closeConfirm}>
+                Cancel
+              </button>
+              <button
+                className={`au-confirm-btn ${confirm.newRole === "admin" ? "au-confirm-ok-blue" : "au-confirm-ok-red"}`}
+                onClick={handleConfirmed}
+              >
+                {confirm.newRole === "admin" ? "Yes, Make Admin" : "Yes, Remove Admin"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Header ── */}
       <header className="adm-header">
@@ -300,7 +342,7 @@ export default function AdminUsers() {
                       {userRole === "admin" ? (
                         <button
                           className="au-role-btn au-role-btn-remove"
-                          onClick={() => handleRoleChange(user, "user")}
+                          onClick={() => openConfirm(user, "user")}
                           disabled={isChanging}
                         >
                           <FiUserX size={14} />
@@ -309,7 +351,7 @@ export default function AdminUsers() {
                       ) : (
                         <button
                           className="au-role-btn au-role-btn-make"
-                          onClick={() => handleRoleChange(user, "admin")}
+                          onClick={() => openConfirm(user, "admin")}
                           disabled={isChanging}
                         >
                           <FiUserCheck size={14} />
