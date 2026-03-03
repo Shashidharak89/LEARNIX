@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
+import { buildKeywordConditions } from "@/lib/searchHelper";
 
 // GET /api/work/search-oldest?q=keyword&page=1&pageSize=8&subjects=sub1,sub2&topics=topic1,topic2
 // Returns topics sorted by oldest first (ascending timestamp)
@@ -28,17 +29,12 @@ export const GET = async (req) => {
     // Build query conditions
     let queryConditions = [{ public: { $ne: false } }];
 
-    // Keyword search condition
+    // Keyword search — topic name, content, subject, username, USN, _id, date
     if (q) {
-      const subjects = await Subject.find({ subject: { $regex: q, $options: "i" } }).lean();
-      const subjectIds = subjects.map(s => s._id);
-      queryConditions.push({
-        $or: [
-          { topic: { $regex: q, $options: "i" } },
-          { content: { $regex: q, $options: "i" } },
-          { subjectId: { $in: subjectIds } }
-        ]
-      });
+      const orConditions = await buildKeywordConditions(q);
+      if (orConditions.length > 0) {
+        queryConditions.push({ $or: orConditions });
+      }
     }
 
     // Subject filter — exact case-insensitive match against trimmed names
