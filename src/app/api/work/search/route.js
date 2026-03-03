@@ -13,10 +13,16 @@ export const GET = async (req) => {
     const page = parseInt(searchParams.get("page")) || 1;
     const pageSize = parseInt(searchParams.get("pageSize")) || 8;
     const skip = (page - 1) * pageSize;
-    
-    // Get subjects and topics filters (comma-separated)
-    const subjectsFilter = searchParams.get("subjects")?.split(",").filter(s => s.trim()) || [];
-    const topicsFilter = searchParams.get("topics")?.split(",").filter(t => t.trim()) || [];
+
+    // Trim every value to avoid whitespace / URL-encoding artifacts
+    const subjectsFilter = (searchParams.get("subjects") || "")
+      .split(",")
+      .map(s => s.trim())
+      .filter(Boolean);
+    const topicsFilter = (searchParams.get("topics") || "")
+      .split(",")
+      .map(t => t.trim())
+      .filter(Boolean);
 
     // Build query conditions
     let queryConditions = [{ public: { $ne: false } }];
@@ -34,24 +40,22 @@ export const GET = async (req) => {
       });
     }
 
-    // Subject filter condition - match any of the selected subjects
+    // Subject filter — exact case-insensitive match against trimmed names
     if (subjectsFilter.length > 0) {
-      const matchedSubjects = await Subject.find({ 
-        subject: { $in: subjectsFilter.map(s => new RegExp(`^${s}$`, 'i')) }
+      const matchedSubjects = await Subject.find({
+        subject: { $in: subjectsFilter.map(s => new RegExp(`^\\s*${s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`, "i")) }
       }).lean();
       const matchedSubjectIds = matchedSubjects.map(s => s._id);
-      if (matchedSubjectIds.length > 0) {
-        queryConditions.push({ subjectId: { $in: matchedSubjectIds } });
-      } else {
-        // No matching subjects found, return empty
-        return NextResponse.json({ topics: [], total: 0, page, pageSize, totalPages: 0 });
+      if (matchedSubjectIds.length === 0) {
+        return NextResponse.json({ topics: [], total: 0, totalResults: 0, page, pageSize, totalPages: 0 });
       }
+      queryConditions.push({ subjectId: { $in: matchedSubjectIds } });
     }
 
-    // Topic filter condition - match any of the selected topics
+    // Topic filter — exact case-insensitive match against trimmed names
     if (topicsFilter.length > 0) {
-      queryConditions.push({ 
-        topic: { $in: topicsFilter.map(t => new RegExp(`^${t}$`, 'i')) }
+      queryConditions.push({
+        topic: { $in: topicsFilter.map(t => new RegExp(`^\\s*${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`, "i")) }
       });
     }
 
@@ -83,6 +87,7 @@ export const GET = async (req) => {
     return NextResponse.json({
       topics: topicsWithDetails,
       total,
+      totalResults: total,   // explicit alias used by the frontend for the count display
       page,
       pageSize,
       totalPages: Math.ceil(total / pageSize),

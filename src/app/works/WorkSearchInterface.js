@@ -119,6 +119,7 @@ const WorkSearchInterface = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [searchPage, setSearchPage] = useState(1);
   const [searchTotalPages, setSearchTotalPages] = useState(1);
+  const [searchTotal, setSearchTotal] = useState(0); // real total count from API
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -218,6 +219,7 @@ const WorkSearchInterface = () => {
       setSearchResults([]);
       setSearchPage(1);
       setSearchTotalPages(1);
+      setSearchTotal(0);
       const filteredTopics = getFilteredTopics(allTopics);
       const firstBatch = filteredTopics.slice(0, ITEMS_PER_LOAD);
       setDisplayedTopics(firstBatch);
@@ -258,10 +260,12 @@ const WorkSearchInterface = () => {
         if (pageNum === 1) {
           setSearchResults(newTopics);
           setDisplayedTopics(newTopics);
+          setSearchTotal(data.totalResults ?? data.total ?? newTopics.length);
         } else {
           // Append for subsequent pages (View More)
           setSearchResults(prev => [...prev, ...newTopics]);
           setDisplayedTopics(prev => [...prev, ...newTopics]);
+          // keep searchTotal unchanged — it was set on page 1
         }
         setSearchPage(data.page);
         setSearchTotalPages(data.totalPages);
@@ -757,7 +761,7 @@ const WorkSearchInterface = () => {
 
         {(searchQuery || selectedSubjects.length > 0 || selectedTopics.length > 0) && !isLoading && (
           <div className="ws-results-section">
-            <h2 className="ws-section-title">Search Results ({searchResults.length} found)</h2>
+            <h2 className="ws-section-title">Search Results ({searchTotal} found)</h2>
             {searchResults.length > 0 ? (
               <>
                 <div className="ws-topics-grid">{renderTopicsWithAds(searchResults)}</div>
