@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiUser, FiBook, FiRefreshCw, FiRotateCcw, FiShare2, FiBookmark, FiMoreVertical, FiExternalLink, FiFilter, FiCheck } from 'react-icons/fi';
+import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiBook, FiShare2, FiMoreVertical, FiExternalLink, FiFilter, FiCheck } from 'react-icons/fi';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import SubjectTopicFilter from './SubjectTopicFilter';
 import Ads from '../components/ads/Ads';
@@ -103,7 +103,6 @@ const WorkSearchInterface = () => {
   const [expandedImages, setExpandedImages] = useState({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hasMore, setHasMore] = useState(true);
-  const [isManualReloading, setIsManualReloading] = useState(false);
   const [selectedSubjects, setSelectedSubjects] = useState(initialSubjects);
   const [selectedTopics, setSelectedTopics] = useState(initialTopics);
   const [savedTopicIds, setSavedTopicIds] = useState([]);
@@ -170,23 +169,7 @@ const WorkSearchInterface = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoadingMore && !searchQuery && !isManualReloading) {
-          loadMoreTopics();
-        }
-      },
-      { threshold: 0.1 }
-    );
 
-    const sentinel = document.getElementById('ws-scroll-sentinel');
-    if (sentinel) {
-      observer.observe(sentinel);
-    }
-
-    return () => observer.disconnect();
-  }, [hasMore, isLoadingMore, searchQuery, isManualReloading]);
 
   const fetchPagedTopics = async (pageToFetch = 1, reset = false) => {
     // Only show the full-page skeleton when doing an initial/reset load.
@@ -243,7 +226,9 @@ const WorkSearchInterface = () => {
       window.history.replaceState({}, '', pathname);
       return;
     }
-    setIsLoading(true);
+    // Page 1 = full skeleton; page > 1 = only button loading state (no skeleton)
+    if (pageNum === 1) setIsLoading(true);
+    else setIsLoadingMore(true);
     try {
       // Build URL with query, subjects, and topics params
       const urlParams = new globalThis.URLSearchParams();
@@ -285,48 +270,16 @@ const WorkSearchInterface = () => {
     } catch (error) {
       console.error('Error searching:', error);
     } finally {
-      setIsLoading(false);
+      if (pageNum === 1) setIsLoading(false);
+      else setIsLoadingMore(false);
     }
   };
 
   const loadMoreTopics = useCallback(() => {
-    if (isLoadingMore || !hasMore || isManualReloading) return;
-    setIsLoadingMore(true);
-    const isSearchActive = searchQuery || selectedSubjects.length > 0 || selectedTopics.length > 0;
-    if (isSearchActive) {
-      handleSearch(searchQuery, searchPage + 1).finally(() => setIsLoadingMore(false));
-    } else {
-      fetchPagedTopics(page + 1).finally(() => setIsLoadingMore(false));
-    }
-  }, [hasMore, isLoadingMore, isManualReloading, searchQuery, selectedSubjects, selectedTopics, searchPage, page]);
+    if (isLoadingMore || !hasMore) return;
+    fetchPagedTopics(page + 1);
+  }, [hasMore, isLoadingMore, page]);
 
-  const handleManualReload = () => {
-    if (!hasMore || isLoadingMore || searchQuery || isManualReloading) return;
-    setIsManualReloading(true);
-    setTimeout(() => {
-      loadMoreTopics();
-      setIsManualReloading(false);
-    }, 100);
-  };
-
-  const handleEndReload = () => {
-    if (isLoadingMore || isManualReloading) return;
-    setIsManualReloading(true);
-    const remainingTopics = allTopics.length - currentIndex;
-    if (remainingTopics > 0) {
-      setTimeout(() => {
-        const nextBatch = allTopics.slice(currentIndex, currentIndex + ITEMS_PER_LOAD);
-        if (nextBatch.length > 0) {
-          setDisplayedTopics(prev => [...prev, ...nextBatch]);
-          setCurrentIndex(prev => prev + ITEMS_PER_LOAD);
-          setHasMore(currentIndex + ITEMS_PER_LOAD < allTopics.length);
-        } else setHasMore(false);
-        setIsManualReloading(false);
-      }, 500);
-    } else {
-      fetchPagedTopics(1, true).then(() => setIsManualReloading(false));
-    }
-  };
 
   const getFilteredTopics = (topics) => {
     let filtered = topics.filter(topic => {
@@ -769,60 +722,25 @@ const WorkSearchInterface = () => {
             <div className="ws-topics-grid">{renderTopicsWithAds(displayedTopics)}</div>
 
             {hasMore && (
-              <div id="ws-scroll-sentinel" className="ws-scroll-sentinel">
-                {isLoadingMore && (
-                  <div className="ws-loading-more">
-                    <div className="ws-spinner"></div>
-                    <p>Loading more topics...</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {hasMore && !isLoadingMore && !isManualReloading && (
-              <div className="ws-reload-section">
+              <div className="ws-load-more-section">
                 <button
-                  onClick={handleManualReload}
-                  className="ws-reload-btn"
-                  disabled={isLoadingMore || isManualReloading}
+                  onClick={loadMoreTopics}
+                  className="ws-load-more-btn"
+                  disabled={isLoadingMore}
                 >
                   {isLoadingMore ? (
-                    <>
-                      <div className="ws-spinner" style={{ width: 16, height: 16, borderWidth: 2, marginRight: 8 }}></div>
-                      <span>Loading...</span>
-                    </>
+                    <span className="ws-load-more-dots">
+                      <span /><span /><span />
+                    </span>
                   ) : (
-                    <>
-                      <FiRefreshCw className="ws-reload-icon" />
-                      <span>Load More Topics</span>
-                    </>
+                    'View More'
                   )}
                 </button>
               </div>
             )}
 
-            {(!hasMore || displayedTopics.length === 0) && (
-              <div className="ws-end-reload-section">
-                {displayedTopics.length > 0 && (
-                  <div className="ws-end-message">
-                    🎉 You have reached the end! All topics have been loaded.
-                  </div>
-                )}
-                <button
-                  onClick={handleEndReload}
-                  className="ws-end-reload-btn"
-                  disabled={isLoadingMore || isManualReloading}
-                >
-                  <FiRotateCcw className="ws-end-reload-icon" />
-                  <span>{displayedTopics.length > 0 ? 'Refresh Topics' : 'Load Topics'}</span>
-                </button>
-                {isManualReloading && (
-                  <div className="ws-loading-more">
-                    <div className="ws-spinner"></div>
-                    <p>Refreshing...</p>
-                  </div>
-                )}
-              </div>
+            {!hasMore && displayedTopics.length > 0 && (
+              <div className="ws-end-message">🎉 All topics loaded.</div>
             )}
           </div>
         )}
@@ -834,30 +752,24 @@ const WorkSearchInterface = () => {
               <>
                 <div className="ws-topics-grid">{renderTopicsWithAds(searchResults)}</div>
                 {hasMore && (
-                  <div className="ws-reload-section">
+                  <div className="ws-load-more-section">
                     <button
                       onClick={() => handleSearch(searchQuery, searchPage + 1)}
-                      className="ws-reload-btn"
+                      className="ws-load-more-btn"
                       disabled={isLoadingMore}
                     >
                       {isLoadingMore ? (
-                        <>
-                          <div className="ws-spinner" style={{ width: 16, height: 16, borderWidth: 2, marginRight: 8 }}></div>
-                          <span>Loading...</span>
-                        </>
+                        <span className="ws-load-more-dots">
+                          <span /><span /><span />
+                        </span>
                       ) : (
-                        <>
-                          <FiRefreshCw className="ws-reload-icon" />
-                          <span>View More Results</span>
-                        </>
+                        'View More'
                       )}
                     </button>
                   </div>
                 )}
                 {!hasMore && searchResults.length > 0 && (
-                  <div className="ws-end-message" style={{ textAlign: 'center', marginTop: 16 }}>
-                    ✅ All matching results loaded.
-                  </div>
+                  <div className="ws-end-message">✅ All matching results loaded.</div>
                 )}
               </>
             ) : (
