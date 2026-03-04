@@ -20,7 +20,8 @@ import {
   FiBell,
   FiCheck,
   FiClipboard,
-  FiShield
+  FiShield,
+  FiMessageSquare,
 } from "react-icons/fi";
 import "./styles/Navbar.css";
 import { Fill } from "./Fill";
@@ -584,6 +585,18 @@ export const Navbar = () => {
               <FiBookOpen size={18} />
             </span>
             <span className="learnix-nav-text">About</span>
+          </Link>
+
+          <Link
+            href="/support"
+            className="learnix-nav-item"
+            onClick={closeSidebar}
+            tabIndex={isOpen ? 0 : -1}
+          >
+            <span className="learnix-nav-icon">
+              <FiMessageSquare size={18} />
+            </span>
+            <span className="learnix-nav-text">Support</span>
           </Link>
 
           <Link

@@ -1,0 +1,378 @@
+/* ============================================
+   Learnix Support Chat — SupportChat.css
+   Theme: Blue · Yellow · Black · White
+   Light, clean, no gradients
+   ============================================ */
+
+/* ---------- Tokens ---------- */
+:root {
+  --lx-blue:        #1a6bff;
+  --lx-blue-light:  #e8f0fe;
+  --lx-yellow:      #f5c400;
+  --lx-yellow-soft: #fffbe6;
+  --lx-black:       #111111;
+  --lx-gray-1:      #f4f5f7;
+  --lx-gray-2:      #e4e6ea;
+  --lx-gray-3:      #9aa0ab;
+  --lx-white:       #ffffff;
+  --lx-radius:      14px;
+  --lx-radius-sm:   8px;
+  --lx-font:        'DM Sans', 'Segoe UI', sans-serif;
+}
+
+/* ---------- Page ---------- */
+.lx-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--lx-gray-1);
+  padding: 24px 16px;
+  font-family: var(--lx-font);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.lx-page--loaded {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------- Card ---------- */
+.lx-card {
+  width: 100%;
+  max-width: 680px;
+  background: var(--lx-white);
+  border: 1.5px solid var(--lx-gray-2);
+  border-radius: var(--lx-radius);
+  display: flex;
+  flex-direction: column;
+  /* Fixed height so only messages area scrolls */
+  height: 620px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+}
+
+/* ---------- Header ---------- */
+.lx-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  flex-shrink: 0;
+}
+
+.lx-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lx-header-icon {
+  width: 42px;
+  height: 42px;
+  background: var(--lx-blue);
+  color: var(--lx-white);
+  border-radius: var(--lx-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.lx-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--lx-black);
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.lx-title-accent {
+  color: var(--lx-blue);
+}
+
+.lx-subtitle {
+  font-size: 12px;
+  color: var(--lx-gray-3);
+  margin: 2px 0 0;
+}
+
+/* Status pill */
+.lx-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--lx-gray-1);
+  border: 1px solid var(--lx-gray-2);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--lx-black);
+}
+
+.lx-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: lx-pulse 2s infinite;
+}
+
+@keyframes lx-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ---------- Divider ---------- */
+.lx-divider {
+  height: 1px;
+  background: var(--lx-gray-2);
+  flex-shrink: 0;
+}
+
+/* ---------- Messages ---------- */
+.lx-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  /* Prevent page scroll */
+  overscroll-behavior: contain;
+}
+
+.lx-messages::-webkit-scrollbar {
+  width: 4px;
+}
+.lx-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+.lx-messages::-webkit-scrollbar-thumb {
+  background: var(--lx-gray-2);
+  border-radius: 4px;
+}
+
+/* Message row */
+.lx-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 9px;
+  animation: lx-msg-in 0.22s ease both;
+}
+
+.lx-row--user {
+  flex-direction: row-reverse;
+}
+
+@keyframes lx-msg-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Avatar */
+.lx-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--lx-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.lx-avatar--bot {
+  background: var(--lx-blue);
+  color: var(--lx-white);
+}
+
+.lx-avatar--user {
+  background: var(--lx-yellow);
+  color: var(--lx-black);
+}
+
+/* Bubble */
+.lx-bubble {
+  max-width: 72%;
+  padding: 11px 15px;
+  border-radius: var(--lx-radius);
+  font-size: 14px;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.lx-bubble--bot {
+  background: var(--lx-blue-light);
+  color: var(--lx-black);
+  border-bottom-left-radius: 4px;
+}
+
+.lx-bubble--user {
+  background: var(--lx-blue);
+  color: var(--lx-white);
+  border-bottom-right-radius: 4px;
+}
+
+/* ---------- Typing indicator ---------- */
+.lx-typing {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 13px 18px;
+}
+
+.lx-typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--lx-blue);
+  animation: lx-dot 1.2s infinite;
+}
+
+.lx-typing span:nth-child(2) { animation-delay: 0.2s; }
+.lx-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes lx-dot {
+  0%, 80%, 100% { opacity: 0.25; transform: scale(0.85); }
+  40%           { opacity: 1;    transform: scale(1); }
+}
+
+/* ---------- Footer / Input ---------- */
+.lx-footer {
+  padding: 14px 22px 16px;
+  flex-shrink: 0;
+}
+
+.lx-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--lx-gray-1);
+  border: 1.5px solid var(--lx-gray-2);
+  border-radius: var(--lx-radius-sm);
+  padding: 10px 14px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.lx-input-wrap:focus-within {
+  border-color: var(--lx-blue);
+  box-shadow: 0 0 0 3px rgba(26, 107, 255, 0.1);
+}
+
+.lx-input-wrap--disabled {
+  opacity: 0.6;
+}
+
+.lx-input-icon {
+  color: var(--lx-gray-3);
+  flex-shrink: 0;
+}
+
+.lx-textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: var(--lx-font);
+  font-size: 14px;
+  color: var(--lx-black);
+  line-height: 1.5;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.lx-textarea::placeholder {
+  color: var(--lx-gray-3);
+}
+
+/* Send button */
+.lx-send-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--lx-radius-sm);
+  background: var(--lx-blue);
+  color: var(--lx-white);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+
+.lx-send-btn:hover:not(:disabled) {
+  background: #1257d4;
+  transform: scale(1.05);
+}
+
+.lx-send-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.lx-send-btn:disabled {
+  background: var(--lx-gray-2);
+  color: var(--lx-gray-3);
+  cursor: not-allowed;
+}
+
+/* Hint */
+.lx-hint {
+  font-size: 11px;
+  color: var(--lx-gray-3);
+  margin: 8px 0 0;
+  text-align: center;
+}
+
+.lx-hint kbd {
+  background: var(--lx-gray-1);
+  border: 1px solid var(--lx-gray-2);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 11px;
+  font-family: inherit;
+  color: var(--lx-black);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 720px) {
+  .lx-card {
+    height: 100dvh;
+    border-radius: 0;
+    border: none;
+    max-width: 100%;
+  }
+
+  .lx-page {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .lx-header {
+    padding: 14px 16px;
+  }
+
+  .lx-messages {
+    padding: 16px;
+  }
+
+  .lx-footer {
+    padding: 12px 16px 14px;
+  }
+
+  .lx-bubble {
+    max-width: 82%;
+  }
+
+  .lx-status-label {
+    display: none;
+  }
+
+  .lx-status {
+    padding: 5px 8px;
+  }
+}

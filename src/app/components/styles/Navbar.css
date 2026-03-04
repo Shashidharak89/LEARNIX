@@ -837,3 +837,206 @@ body {
   font-weight: 700;
   color: #3b82f6;
 }
+
+/* ── Support Chat (sidebar bottom) ────────────────────────────── */
+.learnix-support-chat {
+  border-top: 1px solid #e5f3ff;
+  margin-top: auto;
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  z-index: 10;
+}
+
+/* Toggle header button */
+.learnix-support-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  background: #f0f9ff;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1e40af;
+  transition: background 0.2s ease;
+  gap: 0.5rem;
+}
+
+.learnix-support-toggle:hover {
+  background: #dbeafe;
+}
+
+.learnix-support-toggle--open {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.learnix-support-toggle--open:hover {
+  background: #2563eb;
+}
+
+.learnix-support-toggle-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.learnix-support-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fbbf24;
+  color: #1f2937;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+/* Expandable body */
+.learnix-support-body {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid #e5f3ff;
+  background: #fff;
+  animation: learnix-support-expand 0.22s ease both;
+}
+
+@keyframes learnix-support-expand {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Message list */
+.learnix-support-messages {
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 0.875rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  scroll-behavior: smooth;
+}
+
+.learnix-support-messages::-webkit-scrollbar { width: 4px; }
+.learnix-support-messages::-webkit-scrollbar-track { background: transparent; }
+.learnix-support-messages::-webkit-scrollbar-thumb { background: #bfdbfe; border-radius: 4px; }
+
+.learnix-support-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  color: #93c5fd;
+  font-size: 0.82rem;
+  padding: 1.25rem 0;
+  text-align: center;
+}
+
+/* Individual message bubbles */
+.learnix-support-msg {
+  max-width: 88%;
+  padding: 0.55rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.learnix-support-msg--user {
+  background: #3b82f6;
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+}
+
+.learnix-support-msg--bot {
+  background: #f1f5f9;
+  color: #1f2937;
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+/* Typing indicator */
+.learnix-support-typing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.6rem 0.9rem;
+}
+
+.learnix-support-typing span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #93c5fd;
+  animation: learnix-support-dot 1.2s infinite;
+  display: inline-block;
+}
+
+.learnix-support-typing span:nth-child(2) { animation-delay: 0.2s; }
+.learnix-support-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes learnix-support-dot {
+  0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+  40%           { transform: scale(1.2); opacity: 1; }
+}
+
+/* Input row */
+.learnix-support-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.875rem 0.875rem;
+  border-top: 1px solid #e5f3ff;
+}
+
+.learnix-support-input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: #1f2937;
+  outline: none;
+  transition: border-color 0.18s ease;
+  background: #f8fafc;
+}
+
+.learnix-support-input:focus {
+  border-color: #3b82f6;
+  background: #fff;
+}
+
+.learnix-support-input:disabled {
+  opacity: 0.6;
+}
+
+.learnix-support-send {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: none;
+  background: #3b82f6;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s ease, transform 0.1s ease;
+}
+
+.learnix-support-send:hover:not(:disabled) {
+  background: #2563eb;
+  transform: scale(1.06);
+}
+
+.learnix-support-send:disabled {
+  background: #bfdbfe;
+  cursor: not-allowed;
+}
