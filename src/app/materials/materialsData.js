@@ -253,6 +253,9 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/DMDW_MODULE_2_NOTES.pdf" },
 
                 ],
+                customfiles:[
+                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/Unofficial/DWMD-MSE1-IMP.pdf"},
+                ],
             },
             {
                 subject: "Enterprise Java",
@@ -297,7 +300,9 @@ const materialsData = [
             {
                 subject: "Full Stack development using Django",
                 files: [
-                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Full-Stack-development-using-Django/Module-1.pdf" }
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Full-Stack-development-using-Django/Module-1.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Full-Stack-development-using-Django/module1django.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Full-Stack-development-using-Django/module2django.pdf" },
                 ]
             },
             {
@@ -310,7 +315,18 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/Software%20requirements-unit2.ppt" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/agile-unit2.ppt" },
                 ],
+                customfiles: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/Unofficial/SET-IMP-MSE1-U1U2.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/Unofficial/SET-short%20Notes%20MSE1.pdf" },
+                ],
 
+            },
+            {
+                subject:"Professional Communication Skills",
+                files:[],
+                customfiles:[
+                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Professional-Communication-Skills/Unofficial/PCS-MSE1-PTC.pdf"},
+                ],
             },
         ],
     },
