@@ -6,9 +6,14 @@ import { MdNewReleases } from "react-icons/md";
 import "./styles/WhatsNew.css";
 
 export default function WhatsNew() {
-  const [expandedUpdate, setExpandedUpdate] = useState(-1);
+  const [expandedUpdate, setExpandedUpdate] = useState(0);
 
   const latestUpdates = [
+    {
+      title: "Chat Support Added",
+      description:
+        "You can now chat with Learnix support for instant help. Visit /support to open the chat and get assistance.",
+    },
     {
       title: "Previous Year Question Papers Added",
       description:

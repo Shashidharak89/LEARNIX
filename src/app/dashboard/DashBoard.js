@@ -22,6 +22,7 @@ import { MdDashboard, MdOutlineSchool } from "react-icons/md";
 import { IoRocketOutline, IoLibraryOutline } from "react-icons/io5";
 import { RiGraduationCapLine } from "react-icons/ri";
 import "./styles/DashBoard.css";
+import WhatsNew from "../components/WhatsNew";
 
 export default function DashBoard() {
   const [usn, setUsn] = useState(null);
@@ -97,6 +98,9 @@ export default function DashBoard() {
           )}
         </div>
       </header>
+
+      {/* What's New banner */}
+      <WhatsNew />
 
       {/* Quick Stats */}
       <section className="learnix-quick-stats">
