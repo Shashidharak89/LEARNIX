@@ -246,33 +246,11 @@ export default function AdminDashboard() {
     setTimeout(() => setIsLoaded(true), 100);
   }, []);
 
-  // Guard: not logged in or not an admin
-  if (role === null) return null; // still loading
+  // Guard: still loading localStorage
+  if (role === null) return null;
 
   const isAdmin      = role === "admin";
   const isSuperAdmin = role === "superadmin";
-  const hasAccess    = isAdmin || isSuperAdmin;
-
-  if (!hasAccess) {
-    return (
-      <div className={`adm-wrapper ${isLoaded ? "adm-loaded" : ""}`}>
-        <div className="adm-no-access">
-          <div className="adm-no-access-icon">
-            <FiLock size={40} />
-          </div>
-          <h2 className="adm-no-access-title">Access Denied</h2>
-          <p className="adm-no-access-text">
-            You don&apos;t have permission to view this page.
-            This area is restricted to admins only.
-          </p>
-          <Link href="/dashboard" className="adm-back-btn">
-            <FiArrowRight size={16} style={{ transform: "rotate(180deg)" }} />
-            Back to Dashboard
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   const cfg = ROLE_CONFIG[role] || ROLE_CONFIG.admin;
   const totalFeatures = FEATURES.length;

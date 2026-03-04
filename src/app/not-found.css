@@ -1,0 +1,267 @@
+/* not-found.css — 404 page styles, Learnix design system */
+
+/* ── Wrapper ── */
+.nf-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  padding: 2rem 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Floating background blobs ── */
+.nf-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(72px);
+  opacity: 0.18;
+  pointer-events: none;
+  animation: nf-float 7s ease-in-out infinite;
+}
+
+.nf-blob-1 {
+  width: 380px;
+  height: 380px;
+  background: #3b82f6;
+  top: -80px;
+  left: -100px;
+  animation-delay: 0s;
+}
+
+.nf-blob-2 {
+  width: 300px;
+  height: 300px;
+  background: #7c3aed;
+  bottom: -60px;
+  right: -80px;
+  animation-delay: 2.5s;
+}
+
+.nf-blob-3 {
+  width: 220px;
+  height: 220px;
+  background: #3b82f6;
+  bottom: 30px;
+  left: 20%;
+  animation-delay: 4.5s;
+  opacity: 0.1;
+}
+
+@keyframes nf-float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%       { transform: translateY(-18px) scale(1.04); }
+}
+
+/* ── Card ── */
+.nf-card {
+  position: relative;
+  z-index: 1;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 3rem 2.5rem 2.5rem;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.07);
+  animation: nf-card-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes nf-card-in {
+  from { opacity: 0; transform: translateY(32px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+/* ── 404 Number ── */
+.nf-code-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+  user-select: none;
+}
+
+.nf-digit {
+  font-size: 6rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.nf-digit-4a {
+  color: #3b82f6;
+  animation: nf-digit-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+}
+
+.nf-digit-4b {
+  color: #3b82f6;
+  animation: nf-digit-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+}
+
+@keyframes nf-digit-in {
+  from { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+  to   { opacity: 1; transform: scale(1)   rotate(0deg); }
+}
+
+.nf-zero-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: nf-digit-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+}
+
+.nf-zero-ring {
+  position: absolute;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 3px solid #bfdbfe;
+  background: #eff6ff;
+  animation: nf-ring-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes nf-ring-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.2); }
+  50%       { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+}
+
+.nf-digit-0 {
+  color: #1f2937;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Search icon ── */
+.nf-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border: 2px solid #bfdbfe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  animation: nf-card-in 0.5s ease 0.25s both;
+}
+
+.nf-icon {
+  width: 26px;
+  height: 26px;
+  color: #3b82f6;
+}
+
+/* ── Text ── */
+.nf-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #1f2937;
+  margin: 0 0 0.75rem;
+  letter-spacing: -0.02em;
+}
+
+.nf-desc {
+  font-size: 0.93rem;
+  color: #6b7280;
+  line-height: 1.65;
+  margin: 0 0 2rem;
+}
+
+/* ── Action buttons ── */
+.nf-actions {
+  display: flex;
+  gap: 0.875rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.nf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.65rem 1.4rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.nf-btn:active {
+  transform: scale(0.97);
+}
+
+.nf-btn-primary {
+  background: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+}
+
+.nf-btn-primary:hover {
+  background: #2563eb;
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
+  transform: translateY(-1px);
+}
+
+.nf-btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+}
+
+.nf-btn-secondary:hover {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+/* ── Hint ── */
+.nf-hint {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin: 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.nf-hint-code {
+  font-family: monospace;
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .nf-card {
+    padding: 2.25rem 1.5rem 2rem;
+  }
+
+  .nf-digit {
+    font-size: 4.5rem;
+  }
+
+  .nf-zero-ring {
+    width: 64px;
+    height: 64px;
+  }
+
+  .nf-title {
+    font-size: 1.35rem;
+  }
+
+  .nf-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nf-btn {
+    justify-content: center;
+  }
+}

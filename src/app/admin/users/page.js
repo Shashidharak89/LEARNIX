@@ -1,5 +1,6 @@
 import { Navbar } from "../../components/Navbar";
 import AdminUsers from "./AdminUsers";
+import AdminGuard from "../AdminGuard";
 
 export const metadata = {
   title: "User Management | Learnix Admin",
@@ -8,9 +9,11 @@ export const metadata = {
 
 export default function AdminUsersPage() {
   return (
-    <div>
-      <Navbar />
-      <AdminUsers />
-    </div>
+    <AdminGuard>
+      <div>
+        <Navbar />
+        <AdminUsers />
+      </div>
+    </AdminGuard>
   );
 }

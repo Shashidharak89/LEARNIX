@@ -1,5 +1,6 @@
 import { Navbar } from "../components/Navbar";
 import AdminDashboard from "./AdminDashboard";
+import AdminGuard from "./AdminGuard";
 
 export const metadata = {
     title: "Admin Dashboard | Learnix",
@@ -8,9 +9,11 @@ export const metadata = {
 
 export default function AdminPage() {
     return (
-        <div>
-            <Navbar />
-            <AdminDashboard />
-        </div>
+        <AdminGuard>
+            <div>
+                <Navbar />
+                <AdminDashboard />
+            </div>
+        </AdminGuard>
     );
 }

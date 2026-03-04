@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  FiUsers, FiArrowLeft, FiShield, FiUser, FiLock, FiLoader,
+  FiUsers, FiArrowLeft, FiShield, FiUser, FiLoader,
   FiChevronDown, FiCalendar, FiHash, FiUserCheck, FiUserX,
 } from "react-icons/fi";
 import { MdAdminPanelSettings } from "react-icons/md";
@@ -156,23 +156,7 @@ export default function AdminUsers() {
   // ── guards ──
   if (myRole === null) return null;
 
-  const hasAccess    = myRole === "admin" || myRole === "superadmin";
   const isSuperAdmin = myRole === "superadmin";
-
-  if (!hasAccess) {
-    return (
-      <div className={`adm-wrapper ${isLoaded ? "adm-loaded" : ""}`}>
-        <div className="adm-no-access">
-          <div className="adm-no-access-icon"><FiLock size={40} /></div>
-          <h2 className="adm-no-access-title">Access Denied</h2>
-          <p className="adm-no-access-text">You don&apos;t have permission to view this page.</p>
-          <Link href="/admin" className="adm-back-btn">
-            <FiArrowLeft size={16} /> Back to Admin Dashboard
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className={`adm-wrapper ${isLoaded ? "adm-loaded" : ""}`}>
