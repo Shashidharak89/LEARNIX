@@ -633,6 +633,116 @@
 }
 
 /* ============================================
+   Download by Subject Section
+   ============================================ */
+
+.qp-subject-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.qp-subject-select-wrap {
+  flex: 1;
+  min-width: 220px;
+  max-width: 480px;
+  position: relative;
+}
+
+.qp-subject-select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid rgba(4, 81, 138, 0.18);
+  border-radius: 8px;
+  background: #f8faff;
+  color: var(--qp-text);
+  font-size: 14px;
+  font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2304518a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 38px;
+}
+
+.qp-subject-select:focus {
+  outline: none;
+  border-color: var(--qp-blue);
+  box-shadow: 0 0 0 3px rgba(11, 116, 255, 0.1);
+}
+
+.qp-subject-select:hover {
+  border-color: var(--qp-blue);
+}
+
+.qp-subject-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.qp-subject-count {
+  font-size: 13px;
+  color: rgba(11, 11, 11, 0.55);
+  background: rgba(11, 116, 255, 0.07);
+  padding: 5px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.qp-subject-dl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: none;
+  background: var(--qp-blue);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 3px 10px rgba(11, 116, 255, 0.22);
+  white-space: nowrap;
+}
+
+.qp-subject-dl-btn:hover:not(:disabled) {
+  background: var(--qp-blue-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 16px rgba(11, 116, 255, 0.3);
+}
+
+.qp-subject-dl-btn:disabled,
+.qp-subject-dl-btn.qp-downloading {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 600px) {
+  .qp-subject-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .qp-subject-select-wrap {
+    max-width: 100%;
+  }
+
+  .qp-subject-info {
+    justify-content: space-between;
+  }
+}
+
+/* ============================================
    Inline Exam Viewer (new design)
    ============================================ */
 

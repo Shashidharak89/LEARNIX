@@ -14,6 +14,7 @@ import {
   FiHelpCircle,
   FiEye,
   FiShare2,
+  FiBook,
 } from "react-icons/fi";
 import questionPapersData from "./questionPapersData";
 import "./styles/QuestionPapers.css";
@@ -29,12 +30,51 @@ const getImages = (examData) => {
   return [];
 };
 
+// Collect all unique named subject keys (exclude 'unknown') across all data, alphabetically sorted
+const getAllSubjects = () => {
+  const subjectSet = new Set();
+  for (const sem of questionPapersData) {
+    for (const batch of sem.batches) {
+      for (const examKey of ["mse1", "mse2", "final"]) {
+        const exam = batch[examKey];
+        if (!exam?.imageurls || typeof exam.imageurls !== "object") continue;
+        for (const key of Object.keys(exam.imageurls)) {
+          if (key !== "unknown") subjectSet.add(key);
+        }
+      }
+    }
+  }
+  return Array.from(subjectSet).sort((a, b) => a.localeCompare(b));
+};
+
+// Collect all images for a given subject across the full dataset in data order
+// Order: semester index → batch index → exam order (mse1 → mse2 → final)
+const getImagesBySubject = (subject) => {
+  const images = [];
+  for (const sem of questionPapersData) {
+    for (const batch of sem.batches) {
+      for (const examKey of ["mse1", "mse2", "final"]) {
+        const exam = batch[examKey];
+        const urls = exam?.imageurls?.[subject];
+        if (Array.isArray(urls)) {
+          images.push(...urls.filter(Boolean));
+        }
+      }
+    }
+  }
+  return images;
+};
+
+const ALL_SUBJECTS = getAllSubjects();
+
 export default function QuestionPapers() {
   const [openSemesterIndex, setOpenSemesterIndex] = useState(null);
   const [openBatchIndex, setOpenBatchIndex] = useState(null);
   const [downloadingId, setDownloadingId] = useState(null);
   const [feedback, setFeedback] = useState("");
   const [sending, setSending] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const [subjectDownloading, setSubjectDownloading] = useState(false);
 
   const toggleSemester = (index) => {
     setOpenSemesterIndex(openSemesterIndex === index ? null : index);
@@ -95,6 +135,39 @@ export default function QuestionPapers() {
       alert("Failed to generate PDF. Please try again.");
     } finally {
       setDownloadingId(null);
+    }
+  };
+
+  const handleSubjectDownload = async () => {
+    if (!selectedSubject) return;
+    const images = getImagesBySubject(selectedSubject);
+    if (!images.length) {
+      alert("No images found for this subject.");
+      return;
+    }
+    try {
+      setSubjectDownloading(true);
+      const { jsPDF } = await import("jspdf");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      for (let i = 0; i < images.length; i++) {
+        const response = await fetch(images[i]);
+        const blob = await response.blob();
+        const base64 = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+        if (i > 0) pdf.addPage();
+        pdf.addImage(base64, "JPEG", 0, 0, pageWidth, pageHeight);
+      }
+      const fileName = `${selectedSubject}_All_QP_LEARNIX.pdf`.replace(/\s+/g, "_");
+      pdf.save(fileName);
+    } catch (err) {
+      alert("Failed to generate PDF. Please try again.");
+    } finally {
+      setSubjectDownloading(false);
     }
   };
 
@@ -215,6 +288,53 @@ export default function QuestionPapers() {
             ))}
           </div>
         </section>
+
+        {/* Download by Subject Section */}
+        {ALL_SUBJECTS.length > 0 && (
+          <section className="qp-card" aria-labelledby="qp-subject-section">
+            <div className="qp-section-header">
+              <FiBook className="qp-section-icon" />
+              <h2 id="qp-subject-section" className="qp-subtitle">Download by Subject</h2>
+            </div>
+            <p className="qp-plain">
+              Select a subject to download all its available question papers across all semesters, batches, and exam types — compiled into a single PDF in order.
+            </p>
+            <div className="qp-subject-row">
+              <div className="qp-subject-select-wrap">
+                <select
+                  className="qp-subject-select"
+                  value={selectedSubject}
+                  onChange={(e) => setSelectedSubject(e.target.value)}
+                >
+                  <option value="">— Choose a subject —</option>
+                  {ALL_SUBJECTS.map((subj) => (
+                    <option key={subj} value={subj}>{subj}</option>
+                  ))}
+                </select>
+              </div>
+
+              {selectedSubject && (() => {
+                const imgs = getImagesBySubject(selectedSubject);
+                return (
+                  <div className="qp-subject-info">
+                    <span className="qp-subject-count">
+                      {imgs.length} image{imgs.length !== 1 ? "s" : ""} found
+                    </span>
+                    <button
+                      className={`qp-subject-dl-btn ${subjectDownloading ? "qp-downloading" : ""}`}
+                      onClick={handleSubjectDownload}
+                      disabled={subjectDownloading || imgs.length === 0}
+                      title={`Download all ${selectedSubject} question papers as PDF`}
+                    >
+                      <FiDownload size={16} />
+                      <span>{subjectDownloading ? "Generating PDF..." : "Download PDF"}</span>
+                    </button>
+                  </div>
+                );
+              })()}
+            </div>
+          </section>
+        )}
 
         {/* How It Works Section */}
         <section className="qp-card" aria-labelledby="qp-how-section">
