@@ -22,8 +22,7 @@
 /* Subject Cards */
 .mse-subjects-grid {
   display: grid;
-  gap: 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  grid-template-columns: 1fr;
 }
 
 .mse-subject-card {
@@ -119,6 +118,76 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+}
+
+/* ── Add Topic Toggle Button ── */
+.sg-add-topic-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px 4px 5px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(14, 165, 233, 0.3);
+  background: rgba(14, 165, 233, 0.06);
+  color: #0ea5e9;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
+  margin-bottom: 4px;
+}
+
+.sg-add-topic-toggle:hover:not(:disabled) {
+  background: rgba(14, 165, 233, 0.14);
+  border-color: #0ea5e9;
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15);
+}
+
+.sg-add-topic-toggle--open {
+  background: rgba(14, 165, 233, 0.12);
+  border-color: #0ea5e9;
+}
+
+.sg-add-topic-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sg-add-topic-toggle-plus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #0ea5e9;
+  color: #fff;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.sg-add-topic-toggle-caret {
+  font-size: 11px;
+  margin-left: 1px;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+/* ── Add Topic Collapsible Drawer ── */
+.sg-add-topic-drawer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.28s ease;
+  overflow: hidden;
+}
+
+.sg-add-topic-drawer--open {
+  grid-template-rows: 1fr;
+}
+
+.sg-add-topic-drawer-inner {
+  min-height: 0;
+  padding-top: 2px;
 }
 
 /* ── Add Topic Section ── */
@@ -243,4 +312,5 @@
     font-size: 13px;
     padding: 9px 12px;
   }
+
 }

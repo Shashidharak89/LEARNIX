@@ -41,7 +41,12 @@ export default function SubjectsGrid({
   const [renameModal, setRenameModal] = useState({ open: false, subjectId: null, currentName: "" });
   const [renameValue, setRenameValue] = useState("");
   const [renamingSubjectId, setRenamingSubjectId] = useState(null);
+  const [addTopicOpen, setAddTopicOpen] = useState({});
   const menuRef = useRef(null);
+
+  const toggleAddTopic = (subjectKey) => {
+    setAddTopicOpen((prev) => ({ ...prev, [subjectKey]: !prev[subjectKey] }));
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -513,38 +518,56 @@ export default function SubjectsGrid({
             {/* Expanded area: add-topic + topics list (only rendered when expanded) */}
             {isExpanded && (
               <div style={{ marginTop: 10 }}>
-                {/* Add Topic Input */}
-                <div className="sg-add-topic-section">
-                  <select
-                    value=""
-                    onChange={handleTopicSelectForSubject}
-                    className="sg-add-topic-select"
-                    disabled={isLoading}
-                  >
-                    <option value="">Select existing topic for {sub.subject}</option>
-                    {topicsForThisSubject.map(topic => (
-                      <option key={topic} value={topic}>{topic}</option>
-                    ))}
-                  </select>
-
-                  <input
-                    type="text"
-                    placeholder={`Or enter new topic name...`}
-                    value={topicName}
-                    onChange={(e) => setTopicName(e.target.value)}
-                    className="sg-add-topic-input"
-                    disabled={isLoading}
-                  />
-
-                  <button 
-                    onClick={() => handleAddTopicWithReset(subjectKey, sub.subject)} 
-                    className="sg-add-topic-btn"
-                    disabled={isLoading || !topicName.trim()}
-                    onMouseDown={(e) => e.stopPropagation()}
-                  >
+                {/* Add Topic Toggle Button */}
+                <button
+                  className={`sg-add-topic-toggle${addTopicOpen[subjectKey] ? " sg-add-topic-toggle--open" : ""}`}
+                  onClick={(e) => { e.stopPropagation(); toggleAddTopic(subjectKey); }}
+                  disabled={isLoading}
+                  aria-expanded={!!addTopicOpen[subjectKey]}
+                >
+                  <span className="sg-add-topic-toggle-plus">
                     <FiPlus />
-                    <span>Add Topic</span>
-                  </button>
+                  </span>
+                  <span>Add Topics</span>
+                  {addTopicOpen[subjectKey] ? <FiChevronDown className="sg-add-topic-toggle-caret" /> : <FiChevronRight className="sg-add-topic-toggle-caret" />}
+                </button>
+
+                {/* Collapsible Add Topic Form */}
+                <div className={`sg-add-topic-drawer${addTopicOpen[subjectKey] ? " sg-add-topic-drawer--open" : ""}`}>
+                  <div className="sg-add-topic-drawer-inner">
+                    <div className="sg-add-topic-section">
+                      <select
+                        value=""
+                        onChange={handleTopicSelectForSubject}
+                        className="sg-add-topic-select"
+                        disabled={isLoading}
+                      >
+                        <option value="">Select existing topic…</option>
+                        {topicsForThisSubject.map(topic => (
+                          <option key={topic} value={topic}>{topic}</option>
+                        ))}
+                      </select>
+
+                      <input
+                        type="text"
+                        placeholder="Or enter new topic name…"
+                        value={topicName}
+                        onChange={(e) => setTopicName(e.target.value)}
+                        className="sg-add-topic-input"
+                        disabled={isLoading}
+                      />
+
+                      <button
+                        onClick={() => { handleAddTopicWithReset(subjectKey, sub.subject); toggleAddTopic(subjectKey); }}
+                        className="sg-add-topic-btn"
+                        disabled={isLoading || !topicName.trim()}
+                        onMouseDown={(e) => e.stopPropagation()}
+                      >
+                        <FiPlus />
+                        <span>Add Topic</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Topics List */}
