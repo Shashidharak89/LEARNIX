@@ -8,7 +8,9 @@ import Update from "@/models/Update";
 export async function POST(req) {
   try {
     await connectDB();
-    const { usn, subject, topic, content, images, public: isPublic } = await req.json();
+    const { usn, subject: rawSubject, topic: rawTopic, content, images, public: isPublic } = await req.json();
+    const subject = rawSubject?.trim();
+    const topic = rawTopic?.trim();
 
     if (!usn || !subject || !topic) {
       return NextResponse.json({ error: "USN, subject, and topic are required" }, { status: 400 });

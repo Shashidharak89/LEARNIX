@@ -11,8 +11,8 @@ export const POST = async (req) => {
 
     const formData = await req.formData();
     const usn = formData.get("usn")?.toUpperCase();
-    const subject = formData.get("subject");
-    const topic = formData.get("topic");
+    const subject = formData.get("subject")?.trim();
+    const topic = formData.get("topic")?.trim();
     const file = formData.get("file");
 
     if (!usn || !subject || !topic || !file) {
