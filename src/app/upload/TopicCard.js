@@ -83,7 +83,7 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
 
   /* ── image compression ── */
   const compressImage = async (file) => {
-    return imageCompression(file, { maxSizeMB: 0.19, maxWidthOrHeight: 1280, useWebWorker: true, initialQuality: 0.7, fileType: "image/jpeg" });
+    return imageCompression(file, { maxSizeMB: 0.29, maxWidthOrHeight: 1600, useWebWorker: true, initialQuality: 0.82, fileType: "image/jpeg" });
   };
 
   const toggleCaptureOptions = () => setShowCaptureOptions((p) => ({ ...p, [topicKey]: !p[topicKey] }));
