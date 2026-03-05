@@ -15,11 +15,17 @@ const questionPapersData = [
                 final: {
                     id: "QP0103",
                     imageurls: {
-                        unknown: [
+                        "Research Methodology and Publication Ethics": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766394145/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2022-24%5D/cevfvymouzafh76aedqh.jpg",
+                        ],
+                        "Advanced Database Systems": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766394206/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2022-24%5D/o6ohsihocrfttggtxkjc.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766394388/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2022-24%5D/gocrxbknhcvomxxacfhm.jpg",
+                        ],
+                        "Data Structures with Algorithms": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766394687/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2022-24%5D/ekbs7gfdwopcbulnmkma.jpg",
+                        ],
+                        "Mathematical Foundation for Computer Applications": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766394790/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2022-24%5D/ovrvswrot6t8v8chjpde.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766394804/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2022-24%5D/ju47soq5aryotgnuk4kc.jpg",
                         ],
@@ -34,17 +40,25 @@ const questionPapersData = [
                 final: {
                     id: "QP0104",
                     imageurls: {
-                        unknown: [
+                        "Mathematical Foundation for Computer Applications": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766291158/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2023-25%5D/nnjc9tmp9wjq0lo6uxjk.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766291166/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2023-25%5D/qicsjsoufhlvynrggc7x.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766291171/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2023-25%5D/wvqi35n7wf0o7g0r9yor.jpg",
+
+                        ],
+                        "Data Structures with Algorithms": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766291179/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2023-25%5D/vzff9sa5ikuq9ezcedga.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1766291187/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2023-25%5D/d6jaxqgnjemsnlddzwc9.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1766291194/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2023-25%5D/d6clmyogjjkfnfsnlmzp.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1766291202/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2023-25%5D/obu2htvdt9r8c7xaocqw.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1766291209/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2023-25%5D/trrrv4zxaz1bl9wybskq.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766393774/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2023-25%5D/m3bd0ympeiuoukcwrfvt.jpg",
                         ],
+                        "Computer Organization and Architecture": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1766291187/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2023-25%5D/d6jaxqgnjemsnlddzwc9.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1766291194/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2023-25%5D/d6clmyogjjkfnfsnlmzp.jpg",
+                        ],
+                        "Advanced Database Systems": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1766291202/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2023-25%5D/obu2htvdt9r8c7xaocqw.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1766291209/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2023-25%5D/trrrv4zxaz1bl9wybskq.jpg",
+                        ],
+
                     },
                     visitlink: ["694776ab371dbda0029ad448"],
                 },
