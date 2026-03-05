@@ -17,6 +17,7 @@ import {
 } from "react-icons/fi";
 import TopicCard from "./TopicCard";
 import axios from "axios";
+import "./styles/SubjectsGrid.css";
 export default function SubjectsGrid({ 
   subjects, 
   allUsers, 
@@ -513,11 +514,11 @@ export default function SubjectsGrid({
             {isExpanded && (
               <div style={{ marginTop: 10 }}>
                 {/* Add Topic Input */}
-                <div style={addTopicSectionStyle}>
+                <div className="sg-add-topic-section">
                   <select
                     value=""
                     onChange={handleTopicSelectForSubject}
-                    style={inputSmallStyle}
+                    className="sg-add-topic-select"
                     disabled={isLoading}
                   >
                     <option value="">Select existing topic for {sub.subject}</option>
@@ -531,18 +532,18 @@ export default function SubjectsGrid({
                     placeholder={`Or enter new topic name...`}
                     value={topicName}
                     onChange={(e) => setTopicName(e.target.value)}
-                    style={inputSmallStyle}
+                    className="sg-add-topic-input"
                     disabled={isLoading}
                   />
 
                   <button 
                     onClick={() => handleAddTopicWithReset(subjectKey, sub.subject)} 
-                    style={{ ...btnStyle, padding: "8px 12px" }}
+                    className="sg-add-topic-btn"
                     disabled={isLoading || !topicName.trim()}
                     onMouseDown={(e) => e.stopPropagation()}
                   >
                     <FiPlus />
-                    <span style={{ fontSize: 13 }}>Add Topic</span>
+                    <span>Add Topic</span>
                   </button>
                 </div>
 
