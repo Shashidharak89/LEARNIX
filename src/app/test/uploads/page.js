@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { connectDB } from '@/lib/db';
 import ChunkUpload from '@/models/ChunkUpload';
 import File from '@/models/File';
