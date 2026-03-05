@@ -18,6 +18,17 @@ import {
 import questionPapersData from "./questionPapersData";
 import "./styles/QuestionPapers.css";
 
+// Union all image arrays from imageurls object (keys like 'unknown', subject names, etc.)
+const getImages = (examData) => {
+  const urls = examData?.imageurls;
+  if (!urls) return [];
+  if (Array.isArray(urls)) return urls.filter(Boolean);
+  if (typeof urls === "object") {
+    return Object.values(urls).flat().filter(Boolean);
+  }
+  return [];
+};
+
 export default function QuestionPapers() {
   const [openSemesterIndex, setOpenSemesterIndex] = useState(null);
   const [openBatchIndex, setOpenBatchIndex] = useState(null);
@@ -46,8 +57,7 @@ export default function QuestionPapers() {
     e.preventDefault();
     e.stopPropagation();
 
-    const validImages =
-      exam.data.imageurls?.filter((img) => img && img.trim() !== "") || [];
+    const validImages = getImages(exam.data);
 
     if (!validImages.length) {
       alert("No images available for download");

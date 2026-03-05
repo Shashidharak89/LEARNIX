@@ -631,3 +631,265 @@
     border-width: 2px;
   }
 }
+
+/* ============================================
+   Inline Exam Viewer (new design)
+   ============================================ */
+
+/* Exam type pill row */
+.qp-exam-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 0 10px;
+}
+
+.qp-exam-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(4,81,138,0.15);
+  background: #f4f7fb;
+  color: var(--qp-blue-dark);
+  font-size: 13.5px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s var(--qp-ease);
+}
+
+.qp-exam-pill:hover {
+  border-color: var(--qp-blue);
+  background: rgba(11,116,255,0.07);
+  color: var(--qp-blue);
+}
+
+.qp-exam-pill-active {
+  background: var(--qp-blue);
+  border-color: var(--qp-blue);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(11,116,255,0.25);
+}
+
+.qp-exam-pill-active:hover {
+  background: var(--qp-blue-dark);
+  border-color: var(--qp-blue-dark);
+  color: #fff;
+}
+
+.qp-pill-count {
+  font-size: 11px;
+  opacity: 0.75;
+  font-weight: 400;
+  background: rgba(255,255,255,0.25);
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+.qp-exam-pill-active .qp-pill-count {
+  background: rgba(255,255,255,0.22);
+  opacity: 1;
+}
+
+/* Inline viewer panel */
+.qp-inline-viewer {
+  margin-top: 12px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(11,116,255,0.14);
+  background: #f8faff;
+  overflow: hidden;
+  animation: qp-fadeIn 0.28s var(--qp-ease);
+}
+
+/* Viewer header bar */
+.qp-viewer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgba(11,116,255,0.06);
+  border-bottom: 1px solid rgba(11,116,255,0.1);
+}
+
+.qp-viewer-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--qp-blue-dark);
+  font-size: 14px;
+}
+
+.qp-viewer-count {
+  font-size: 12px;
+  color: rgba(11,11,11,0.5);
+  background: rgba(11,116,255,0.08);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.qp-viewer-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.qp-viewer-dl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  border: none;
+  background: var(--qp-blue);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.qp-viewer-dl-btn:hover:not(:disabled) {
+  background: var(--qp-blue-dark);
+}
+
+.qp-viewer-dl-btn:disabled,
+.qp-viewer-dl-btn.qp-downloading {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.qp-viewer-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid rgba(4,81,138,0.14);
+  background: #fff;
+  color: rgba(11,11,11,0.5);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.qp-viewer-close:hover {
+  background: #fee;
+  border-color: #e44;
+  color: #e44;
+}
+
+/* Image grid inside viewer */
+.qp-viewer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  padding: 14px 16px;
+}
+
+.qp-viewer-img-wrap {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #e8edf5;
+  cursor: zoom-in;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  aspect-ratio: 3 / 4;
+}
+
+.qp-viewer-img-wrap:hover {
+  border-color: var(--qp-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(11,116,255,0.18);
+}
+
+.qp-img-expanded {
+  grid-column: 1 / -1;
+  aspect-ratio: unset;
+  cursor: zoom-out;
+  border-color: var(--qp-yellow) !important;
+  box-shadow: 0 8px 28px rgba(242,194,0,0.22) !important;
+}
+
+.qp-viewer-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.qp-img-expanded .qp-viewer-img {
+  object-fit: contain;
+  max-height: 80vh;
+  height: auto;
+}
+
+.qp-img-page-badge {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  z-index: 2;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+}
+
+.qp-img-zoom-icon {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  z-index: 2;
+  background: rgba(11,116,255,0.75);
+  color: #fff;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.qp-viewer-img-wrap:hover .qp-img-zoom-icon {
+  opacity: 1;
+}
+
+/* Mobile tweaks */
+@media (max-width: 600px) {
+  .qp-viewer-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+    padding: 10px 10px;
+  }
+
+  .qp-viewer-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .qp-viewer-dl-btn span {
+    display: none;
+  }
+
+  .qp-exam-pills {
+    gap: 6px;
+  }
+
+  .qp-exam-pill {
+    font-size: 12.5px;
+    padding: 7px 11px;
+  }
+}

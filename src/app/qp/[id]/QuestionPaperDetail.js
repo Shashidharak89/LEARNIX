@@ -109,7 +109,16 @@ const QuestionPaperDetail = ({ id, paperInfo }) => {
   }
 
   const { examType, semester, batch, data } = paperInfo;
-  const rawImages = Array.isArray(data?.imageurls) ? data.imageurls : [];
+  // Union all image arrays from imageurls object (keys like 'unknown', subject names, etc.)
+  const rawImages = (() => {
+    const urls = data?.imageurls;
+    if (!urls) return [];
+    if (Array.isArray(urls)) return urls;
+    if (typeof urls === 'object') {
+      return Object.values(urls).flat();
+    }
+    return [];
+  })();
   const validImages = rawImages.filter((img) => img && img.trim() !== "");
   const hasImages = validImages.length > 0;
   const visitLinks = Array.isArray(data?.visitlink) ? data.visitlink : [];
