@@ -7,10 +7,12 @@ import Image from "next/image";
 import {
   FiUsers, FiArrowLeft, FiShield, FiUser, FiLoader,
   FiChevronDown, FiCalendar, FiHash, FiUserCheck, FiUserX, FiExternalLink,
+  FiTrash2,
 } from "react-icons/fi";
 import { MdAdminPanelSettings } from "react-icons/md";
 import "../styles/AdminDashboard.css";
 import "./AdminUsers.css";
+import "./deleted/styles/DeletedUsers.css";
 
 const PAGE_LIMIT = 12;
 
@@ -178,6 +180,9 @@ export default function AdminUsers() {
             <p className="adm-subtitle">
               Latest registered users — {total > 0 ? `${total} total` : "loading…"}
             </p>
+            <Link href="/admin/users/deleted" className="au-deleted-users-link">
+              <FiTrash2 size={13} /> View Deleted Users
+            </Link>
           </div>
           <div className="adm-header-deco">
             <div className="adm-deco-circle" style={{ background: "#dbeafe", border: "2px solid #bfdbfe" }}>

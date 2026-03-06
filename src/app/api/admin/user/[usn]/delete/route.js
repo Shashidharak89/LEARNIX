@@ -1,11 +1,10 @@
 // DELETE /api/admin/user/[usn]/delete
-// Superadmin only — backs up user to BackupUser, then deletes from User
+// Superadmin only — backs up user to BackupUser, then deletes from User.
+// Subjects/Topics created by the user are intentionally NOT deleted.
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import BackupUser from "@/models/BackupUser";
-import Subject from "@/models/Subject";
-import Topic from "@/models/Topic";
 import jwt from "jsonwebtoken";
 
 const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey";
@@ -48,10 +47,8 @@ export const DELETE = async (req, { params }) => {
       deletedBy: caller.usn,
     });
 
-    // Delete user and their data
+    // Delete user only — subjects/topics stay untouched
     await User.deleteOne({ _id: target._id });
-    await Subject.deleteMany({ userId: target._id });
-    await Topic.deleteMany({ userId: target._id });
 
     return NextResponse.json({ message: "User deleted and backed up successfully" });
   } catch (err) {
