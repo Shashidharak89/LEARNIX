@@ -2,13 +2,25 @@
 
 /* ── Wrapper ── */
 .nf-wrapper {
-  min-height: 100vh;
+  /* ensure wrapper exactly fills the viewport and padding doesn't cause overflow */
+  box-sizing: border-box;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #f8fafc;
   padding: 2rem 1rem;
   position: relative;
+  overflow: hidden;
+}
+
+/* When this stylesheet is loaded for the 404 page we also force the
+   root html/body to match viewport height and hide overflow so no
+   scrollbar appears while the 404 is visible. These rules are minimal
+   and applied only when the 404 component imports this CSS. */
+html, body {
+  height: 100vh;
+  margin: 0;
   overflow: hidden;
 }
 

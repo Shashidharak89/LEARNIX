@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Navbar } from "./components/Navbar";
 import "./not-found.css";
 
 export const metadata = {
@@ -10,7 +9,8 @@ export const metadata = {
 export default function NotFound() {
   return (
     <>
-      <Navbar />
+      {/* Hide the global layout footer on this page only */}
+      <style>{`footer { display: none !important; }`}</style>
       <div className="nf-wrapper">
         {/* Floating blobs */}
         <div className="nf-blob nf-blob-1" />
@@ -55,7 +55,7 @@ export default function NotFound() {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="17" height="17">
                 <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
               </svg>
-              Browse Learn
+              Learn
             </Link>
           </div>
 
