@@ -24,11 +24,17 @@ body {
   background-color: #ffffff;
   border-bottom: 2px solid #e5f3ff;
   height: 70px;
-  transition: all 0.3s ease;
+  transform: translateY(0);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .learnix-navbar-container:hover {
   box-shadow: 0 2px 12px rgba(59, 130, 246, 0.08);
+}
+
+/* Hide navbar by sliding it fully off-screen upward */
+.learnix-navbar-container.navbar--hidden {
+  transform: translateY(-100%);
 }
 
 /* Logo Brand Section */

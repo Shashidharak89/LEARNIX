@@ -30,6 +30,8 @@ export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [hasUSN, setHasUSN] = useState(false);
   const [userRole, setUserRole] = useState("");
+  const [navHidden, setNavHidden] = useState(false);
+  const lastScrollY = useRef(0);
   
   // Notification state
   const [showNotifications, setShowNotifications] = useState(false);
@@ -118,6 +120,26 @@ export const Navbar = () => {
       document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const currentY = window.scrollY;
+      if (currentY <= 0) {
+        // at the very top — always show
+        setNavHidden(false);
+      } else if (currentY > lastScrollY.current + 4) {
+        // scrolling down by more than 4px — hide
+        setNavHidden(true);
+        if (isOpen) setIsOpen(false);
+      } else if (currentY < lastScrollY.current - 4) {
+        // scrolling up by more than 4px — show
+        setNavHidden(false);
+      }
+      lastScrollY.current = currentY;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [isOpen]);
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -272,7 +294,7 @@ export const Navbar = () => {
   return (
     <>
       {/* Main Navbar */}
-      <nav className="learnix-navbar-container">
+      <nav className={`learnix-navbar-container${navHidden ? " navbar--hidden" : ""}`}>
         {/* Logo */}
         <div className="learnix-navbar-brand">
           <Link href="/" className="learnix-logo-link">
