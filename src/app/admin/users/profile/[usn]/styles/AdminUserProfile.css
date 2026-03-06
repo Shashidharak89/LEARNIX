@@ -1,0 +1,239 @@
+/* AdminUserProfile.css — styles for /admin/users/profile/[usn] */
+
+.aup-usn-sub {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: monospace;
+  letter-spacing: 0.05em;
+}
+
+.aup-error {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Layout ── */
+.aup-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ── Profile card ── */
+.aup-profile-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.aup-avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.aup-avatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.aup-avatar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.aup-name {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #1f2937;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.aup-usn {
+  font-size: 0.85rem;
+  font-family: monospace;
+  color: #6b7280;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.aup-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 1.25rem 0;
+}
+
+/* ── Info rows ── */
+.aup-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.aup-info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.88rem;
+}
+
+.aup-info-icon {
+  color: #7c3aed;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.aup-info-label {
+  color: #6b7280;
+  font-weight: 500;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.aup-info-value {
+  color: #1f2937;
+  font-weight: 600;
+}
+
+/* ── Stats strip ── */
+.aup-stats {
+  margin-top: 0;
+}
+
+/* ── Subjects section ── */
+.aup-subjects-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.aup-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.aup-subjects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.875rem;
+}
+
+.aup-subject-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.aup-subject-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  border-color: #7c3aed;
+}
+
+.aup-subject-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.aup-subject-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1f2937;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.aup-subject-vis {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.18rem 0.55rem;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.aup-vis-pub  { background: #dcfce7; color: #15803d; }
+.aup-vis-priv { background: #f3f4f6; color: #4b5563; }
+
+.aup-subject-date {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.aup-subject-link {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #7c3aed;
+  text-decoration: none;
+  margin-top: 0.15rem;
+  transition: color 0.15s;
+}
+.aup-subject-link:hover { color: #5b21b6; text-decoration: underline; }
+
+/* ── Empty subjects ── */
+.aup-empty-subjects {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
+  color: #9ca3af;
+  background: #fafafa;
+  border-radius: 12px;
+  border: 1px dashed #e2e8f0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .aup-avatar-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .aup-subjects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .aup-profile-card {
+    padding: 1.25rem;
+  }
+}

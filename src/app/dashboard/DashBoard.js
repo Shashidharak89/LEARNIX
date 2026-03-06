@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { 
-  FiSearch, 
-  FiUpload, 
-  FiUser, 
-  FiLogIn, 
-  FiBookOpen, 
-  FiTrendingUp, 
+import {
+  FiSearch,
+  FiUpload,
+  FiUser,
+  FiLogIn,
+  FiBookOpen,
+  FiTrendingUp,
   FiStar,
   FiFolder,
   FiMessageCircle,
@@ -33,12 +33,12 @@ export default function DashBoard() {
     // Check for stored USN - this will be null if user not logged in
     const storedUsn = localStorage.getItem("usn");
     setUsn(storedUsn);
-    
+
     // Update time every minute
     const timeInterval = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000);
-    
+
     // Add loading animation delay
     setTimeout(() => {
       setIsLoaded(true);
@@ -78,7 +78,7 @@ export default function DashBoard() {
                 Welcome to <span className="learnix-title-highlight">Learnix</span>
               </h1>
               <p className="learnix-dashboard-subtitle">
-                {usn 
+                {usn
                   ? "Discover, share, and collaborate on academic resources with ease"
                   : "Join our learning community to discover and share academic resources"
                 }
@@ -99,8 +99,7 @@ export default function DashBoard() {
         </div>
       </header>
 
-      {/* What's New banner */}
-      <WhatsNew />
+
 
       {/* Quick Stats */}
       <section className="learnix-quick-stats">
@@ -266,6 +265,8 @@ export default function DashBoard() {
           )}
         </div>
       </main>
+      {/* What's New banner */}
+      <WhatsNew />
 
       {/* Secondary Actions */}
       <section className="learnix-secondary-actions">
@@ -276,7 +277,7 @@ export default function DashBoard() {
             <span>Feedback</span>
             <FiArrowRight size={16} />
           </Link>
-          
+
           {usn ? (
             <Link href="/profile" className="learnix-secondary-item">
               <FiUser size={20} />
@@ -315,6 +316,7 @@ export default function DashBoard() {
           </div>
         </section>
       )}
+
     </div>
   );
 }

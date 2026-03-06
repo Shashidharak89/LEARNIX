@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   FiUsers, FiArrowLeft, FiShield, FiUser, FiLoader,
-  FiChevronDown, FiCalendar, FiHash, FiUserCheck, FiUserX,
+  FiChevronDown, FiCalendar, FiHash, FiUserCheck, FiUserX, FiExternalLink,
 } from "react-icons/fi";
 import { MdAdminPanelSettings } from "react-icons/md";
 import "../styles/AdminDashboard.css";
@@ -266,6 +266,17 @@ export default function AdminUsers() {
                     <span className="au-meta-item">
                       <FiCalendar size={12} /> Joined {formatDate(user.createdAt)}
                     </span>
+                  </div>
+
+                  {/* View Profile */}
+                  <div className="au-view-profile-row">
+                    <Link
+                      href={`/admin/users/profile/${user.usn}`}
+                      className="au-view-profile-btn"
+                    >
+                      <FiExternalLink size={13} />
+                      View Profile
+                    </Link>
                   </div>
 
                   {/* Role action — superadmin only, not own account */}

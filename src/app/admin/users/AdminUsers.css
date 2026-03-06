@@ -110,8 +110,33 @@
 
 .au-role-msg { font-size: 0.78rem; font-weight: 600; color: #10b981; }
 
-.au-own-tag {
+.au-view-profile-row {
+  padding-top: 0.65rem;
+  border-top: 1px solid #f1f5f9;
+  margin-bottom: 0.1rem;
+}
+.au-view-profile-btn {
   display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #3b82f6;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 7px;
+  padding: 0.38rem 0.85rem;
+  text-decoration: none;
+  transition: background 0.18s, color 0.18s, border-color 0.18s, transform 0.15s;
+}
+.au-view-profile-btn:hover {
+  background: #3b82f6;
+  color: #fff;
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+}
+
+.au-own-tag {
   align-items: center;
   padding: 0.25rem 0.7rem;
   background: #fef3c7;
