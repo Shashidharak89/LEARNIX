@@ -28,6 +28,7 @@ import WhyLearnixTrustworthy from "./home/WhyLearnixTrustworthy";
 import QuestionPapersBanner from "./home/QuestionPapersBanner";
 import AutoPlayVideo from "../about/AutoPlayVideo";
 import UpdatesBanner from './UpdatesBanner';
+import RandomQuote from "../test/RandomQuote";
 
 export default function HeroSection() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -139,6 +140,7 @@ export default function HeroSection() {
               <span>Updates</span>
             </Link>
           </div>
+          <RandomQuote/>
           <WhatIsLearnix/>
           <AutoPlayVideo videoUrl="https://res.cloudinary.com/dsojdpkgh/video/upload/v1766751517/zglomku8o9iuxxv99qwx.mp4" />
           <WhoIsLearnixFor/>

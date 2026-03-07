@@ -1,6 +1,7 @@
 import '../globals.css';
 import { Navbar } from '../components/Navbar';
 import ChunkUploader from './ChunkUploader';
+import RandomQuote from './RandomQuote';
 
 export default function TestPage() {
   return (
@@ -13,6 +14,7 @@ export default function TestPage() {
           You can use this page to try out new components, layouts, or features. There are no navigation links to this page; access it directly via <code>/test</code>.
         </div>
       <ChunkUploader/>
+      <RandomQuote/>
       </main>
     </>
   );
