@@ -102,6 +102,10 @@ export default function TopicEditPage({ params }) {
   const [insertAfter, setInsertAfter]   = useState(null); // index to insert after (-1 = beginning)
   const [selectionMode, setSelectionMode] = useState(false); // are we in select mode?
 
+  /* custom page-number inputs for insert position */
+  const [afterPageInput, setAfterPageInput] = useState("");
+  const [beforePageInput, setBeforePageInput] = useState("");
+
   /* lightbox */
   const [lightbox, setLightbox] = useState(null); // index
 
@@ -184,6 +188,8 @@ export default function TopicEditPage({ params }) {
       setIsDirty(false);
       setSelectedIdxs(new Set());
       setInsertAfter(null);
+      setAfterPageInput("");
+      setBeforePageInput("");
       setSelectionMode(false);
       showToast("Order saved!");
     } catch { showToast("Network error", "error"); }
@@ -195,6 +201,8 @@ export default function TopicEditPage({ params }) {
     setImages(topic?.images || []);
     setSelectedIdxs(new Set());
     setInsertAfter(null);
+    setAfterPageInput("");
+    setBeforePageInput("");
     setSelectionMode(false);
   };
 
@@ -230,6 +238,8 @@ export default function TopicEditPage({ params }) {
     setImages(next);
     setSelectedIdxs(new Set());
     setInsertAfter(null);
+    setAfterPageInput("");
+    setBeforePageInput("");
   };
 
   /* ── drag & drop (mouse only, desktop) ── */
@@ -361,14 +371,64 @@ export default function TopicEditPage({ params }) {
           {/* Reorder instruction */}
           {selectionMode && (
             <div className="tep-reorder-help">
-              <strong>Step 1:</strong> Click pages to select them (highlighted in blue).&nbsp;
-              <strong>Step 2:</strong> Click <em>"Insert after page N"</em> on any page.&nbsp;
-              <strong>Step 3:</strong> Hit <strong>Apply Move</strong>.
-              You can also <strong>drag & drop</strong> pages individually.
-              {selectedIdxs.size > 0 && insertAfter !== null && (
-                <button className="tep-apply-btn" onClick={applyMove}>
-                  <FiCheck size={13} /> Apply Move ({selectedIdxs.size} page{selectedIdxs.size > 1 ? "s" : ""} → after page {insertAfter + 1})
-                </button>
+              <span>
+                <strong>Step 1:</strong> Click pages to select them.&nbsp;
+                <strong>Step 2:</strong> Set insert position (click card buttons or type below).&nbsp;
+                <strong>Step 3:</strong> Hit <strong>Apply Move</strong>. You can also <strong>drag & drop</strong> individually.
+              </span>
+              {selectedIdxs.size > 0 && (
+                <div className="tep-insert-inputs">
+                  <label className="tep-insert-label">
+                    Insert after page:
+                    <input
+                      type="number"
+                      min="0"
+                      max={validImages.length}
+                      value={afterPageInput}
+                      placeholder="0 = beginning"
+                      className="tep-insert-input"
+                      onChange={e => {
+                        const raw = e.target.value;
+                        setAfterPageInput(raw);
+                        setBeforePageInput("");
+                        const n = parseInt(raw, 10);
+                        if (!isNaN(n) && n >= 0 && n <= validImages.length) {
+                          setInsertAfter(n - 1); // 0 → -1 (before first), 1 → index 0, etc.
+                        } else {
+                          setInsertAfter(null);
+                        }
+                      }}
+                    />
+                  </label>
+                  <span className="tep-insert-or">or</span>
+                  <label className="tep-insert-label">
+                    Insert before page:
+                    <input
+                      type="number"
+                      min="1"
+                      max={validImages.length}
+                      value={beforePageInput}
+                      placeholder={`1–${validImages.length}`}
+                      className="tep-insert-input"
+                      onChange={e => {
+                        const raw = e.target.value;
+                        setBeforePageInput(raw);
+                        setAfterPageInput("");
+                        const n = parseInt(raw, 10);
+                        if (!isNaN(n) && n >= 1 && n <= validImages.length) {
+                          setInsertAfter(n - 2); // before page n = after page n-1; n=1 → -1
+                        } else {
+                          setInsertAfter(null);
+                        }
+                      }}
+                    />
+                  </label>
+                  {insertAfter !== null && (
+                    <button className="tep-apply-btn" onClick={applyMove}>
+                      <FiCheck size={13} /> Apply Move ({selectedIdxs.size} page{selectedIdxs.size > 1 ? "s" : ""} → after page {insertAfter + 1})
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           )}
@@ -392,7 +452,7 @@ export default function TopicEditPage({ params }) {
                   onDragStart={e => onDragStart(e, idx)}
                   onDragOver={e => onDragOver(e, idx)}
                   onDrop={e => onDrop(e, idx)}
-                  onClick={() => selectionMode && toggleSelect(idx)}
+                  onClick={() => selectionMode ? toggleSelect(idx) : setLightbox(idx)}
                 >
                   {/* Page number badge */}
                   <div className={`tep-page-num ${isSelected ? "tep-page-num--sel" : ""}`}>
@@ -408,14 +468,11 @@ export default function TopicEditPage({ params }) {
                       className="tep-img"
                       loading="lazy"
                     />
-                    {/* View button — not in select mode */}
+                    {/* View hint overlay in normal mode */}
                     {!selectionMode && (
-                      <button
-                        className="tep-img-view-btn"
-                        onClick={e => { e.stopPropagation(); setLightbox(idx); }}
-                      >
+                      <div className="tep-img-view-hint">
                         <FiEye size={13} /> View
-                      </button>
+                      </div>
                     )}
                   </div>
 
@@ -468,7 +525,7 @@ export default function TopicEditPage({ params }) {
               <button className="tep-apply-btn tep-apply-btn--lg" onClick={applyMove}>
                 <FiCheck size={14} /> Apply Move
               </button>
-              <button className="tep-float-cancel" onClick={() => { setSelectedIdxs(new Set()); setInsertAfter(null); }}>
+              <button className="tep-float-cancel" onClick={() => { setSelectedIdxs(new Set()); setInsertAfter(null); setAfterPageInput(""); setBeforePageInput(""); }}>
                 <FiX size={14} />
               </button>
             </div>

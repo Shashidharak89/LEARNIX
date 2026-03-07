@@ -17,6 +17,7 @@ import {
   FaRegBookmark
 } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
+import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
 import TopicReviews from "./TopicReviews";
 import Ads from "../../components/ads/Ads";
 import "./styles/WorkTopicPage.css";
@@ -115,10 +116,44 @@ const FullPageSkeleton = () => (
   </div>
 );
 
+const WtpcLightbox = ({ images, startIndex, onClose }) => {
+  const [idx, setIdx] = useState(startIndex);
+  const prev = () => setIdx(i => (i - 1 + images.length) % images.length);
+  const next = () => setIdx(i => (i + 1) % images.length);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft") setIdx(i => (i - 1 + images.length) % images.length);
+      if (e.key === "ArrowRight") setIdx(i => (i + 1) % images.length);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [images.length, onClose]);
+
+  return (
+    <div className="wtpc-lb-overlay" onClick={onClose}>
+      <button className="wtpc-lb-close" onClick={onClose} aria-label="Close"><FiX size={22} /></button>
+      <button className="wtpc-lb-nav wtpc-lb-prev" onClick={e => { e.stopPropagation(); prev(); }} aria-label="Previous">
+        <FiChevronLeft size={26} />
+      </button>
+      <div className="wtpc-lb-img-wrap" onClick={e => e.stopPropagation()}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={images[idx]} alt={`Page ${idx + 1}`} className="wtpc-lb-img" />
+        <div className="wtpc-lb-counter">Page {idx + 1} / {images.length}</div>
+      </div>
+      <button className="wtpc-lb-nav wtpc-lb-next" onClick={e => { e.stopPropagation(); next(); }} aria-label="Next">
+        <FiChevronRight size={26} />
+      </button>
+    </div>
+  );
+};
+
 const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isSaved, onSaveToggle, usingCachedData }) => {
   const [expandedImages, setExpandedImages] = useState({});
   const [imageLoading, setImageLoading] = useState({});
   const [showPageNumbers, setShowPageNumbers] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(null); // lightbox
   const [rangeModalOpen, setRangeModalOpen] = useState(false);
   const [allPages, setAllPages] = useState(true);
   const [customMode, setCustomMode] = useState(false);
@@ -424,8 +459,8 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
                         <img 
                           src={imageUrl} 
                           alt={`${topic.topic} - Image ${index + 1}`}
-                          className={`wtpc-topic-image ${expandedImages[index] ? 'wtpc-expanded' : ''} ${imageLoading[index] ? 'wtpc-loading' : ''}`}
-                          onClick={() => toggleImageExpansion(index)}
+                          className={`wtpc-topic-image ${imageLoading[index] ? 'wtpc-loading' : ''}`}
+                          onClick={() => setLightboxIndex(index)}
                           loading="lazy"
                           onLoadStart={() => handleImageStart(index)}
                           onLoad={() => handleImageLoad(index)}
@@ -471,6 +506,15 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
       <div className="wtpc-footer">
         <p>&copy; 2025 Work Topic Page. All rights reserved.</p>
       </div>
+
+      {/* Lightbox */}
+      {lightboxIndex !== null && (
+        <WtpcLightbox
+          images={validImages}
+          startIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
+      )}
 
       {rangeModalOpen && (
         <div className="wtpc-modal-overlay" role="dialog" aria-modal="true">
