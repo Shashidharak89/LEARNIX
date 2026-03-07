@@ -9,7 +9,7 @@ import {
   FiFileText, FiUpload, FiTrash2, FiImage, FiCalendar, FiCheck,
   FiChevronDown, FiChevronUp, FiX, FiAlertTriangle, FiCamera, FiFile,
   FiCheckCircle, FiLoader, FiShare2, FiMessageSquare, FiMoreVertical,
-  FiEdit2, FiLock, FiUnlock, FiChevronRight,
+  FiEdit2, FiLock, FiUnlock, FiChevronRight, FiEdit3,
 } from "react-icons/fi";
 import PDFProcessor from "./PDFProcessor";
 import "./styles/TopicCard.css";
@@ -391,6 +391,9 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
               <div className="tc-dropdown" onClick={(e) => e.stopPropagation()}>
                 <button className="tc-dropdown-item" onClick={handleOpenTopic}>
                   <FiFileText className="tc-dropdown-icon" /><span>Open</span>
+                </button>
+                <button className="tc-dropdown-item" onClick={() => { setOpenMenu(false); router.push(`/upload/topic/edit/${topic._id}`); }}>
+                  <FiEdit3 className="tc-dropdown-icon" /><span>Open in Edit Mode</span>
                 </button>
                 <button className="tc-dropdown-item" onClick={handleOpenReviews}>
                   <FiMessageSquare className="tc-dropdown-icon" /><span>Reviews</span>
