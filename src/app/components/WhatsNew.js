@@ -10,6 +10,11 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "View Question Papers by Subject (New!)",
+      description:
+        "You can now view all question papers for a specific subject in one place! Go to the Question Papers page (/qp), pick any subject in the 'Download by Subject' section, and click the new teal View button. A dedicated viewer opens at /qp/query/{subject} — showing every paper for that subject compiled on one page, with inline expand on click, page number toggle, slideshow mode with keyboard navigation, range download as PDF (full or selected pages), and a share button. Opens in a new tab!",
+    },
+    {
       title: "Chat Support Added",
       description:
         "You can now chat with Learnix support for instant help. Visit /support to open the chat and get assistance.",

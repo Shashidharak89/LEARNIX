@@ -21,6 +21,7 @@ import { FaChevronDown } from "react-icons/fa6";
 import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
 import TopicReviews from "./TopicReviews";
 import Ads from "../../components/ads/Ads";
+import ImageLoader from "../../components/ImageLoader";
 import "./styles/WorkTopicPage.css";
 
 // Skeleton Components
@@ -152,7 +153,6 @@ const WtpcLightbox = ({ images, startIndex, onClose }) => {
 
 const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isSaved, onSaveToggle, usingCachedData }) => {
   const [expandedImages, setExpandedImages] = useState({});
-  const [imageLoading, setImageLoading] = useState({});
   const [showPageNumbers, setShowPageNumbers] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(null); // lightbox
   const [rangeModalOpen, setRangeModalOpen] = useState(false);
@@ -171,16 +171,6 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
     if (onSaveToggle) {
       onSaveToggle();
     }
-  };
-
-  const handleImageLoad = (index) => {
-    setTimeout(() => {
-      setImageLoading(prev => ({ ...prev, [index]: false }));
-    }, 500);
-  };
-
-  const handleImageStart = (index) => {
-    setImageLoading(prev => ({ ...prev, [index]: true }));
   };
 
   const toggleImageExpansion = (imageIndex) => {
@@ -462,23 +452,12 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
                         <span className="wtpc-page-badge">{index + 1}</span>
                       )}
                       <div className="wtpc-image-wrapper">
-                        {imageLoading[index] && (
-                          <div className="wtpc-image-loader">
-                            <div className="wtpc-loader-spinner"></div>
-                            <span>Loading image...</span>
-                          </div>
-                        )}
-                        <img 
-                          src={imageUrl} 
+                        <ImageLoader
+                          src={imageUrl}
                           alt={`${topic.topic} - Image ${index + 1}`}
-                          className={`wtpc-topic-image ${expandedImages[index] ? 'wtpc-expanded' : ''} ${imageLoading[index] ? 'wtpc-loading' : ''}`}
+                          className={`wtpc-topic-image ${expandedImages[index] ? 'wtpc-expanded' : ''}`}
                           onClick={() => toggleImageExpansion(index)}
                           loading="lazy"
-                          onLoadStart={() => handleImageStart(index)}
-                          onLoad={() => handleImageLoad(index)}
-                          onError={(e) => {
-                            e.target.style.display = 'none'; // Hide broken images
-                          }}
                         />
                       </div>
                     </div>

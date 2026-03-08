@@ -13,6 +13,7 @@ import {
   FaClipboardList
 } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
+import ImageLoader from "../../components/ImageLoader";
 import "./styles/QuestionPaperDetail.css";
 
 // Skeleton Components
@@ -83,7 +84,6 @@ const FullPageSkeleton = () => (
 
 const QuestionPaperDetail = ({ id, paperInfo }) => {
   const [expandedImages, setExpandedImages] = useState({});
-  const [imageLoading, setImageLoading] = useState({});
   const [showPageNumbers, setShowPageNumbers] = useState(false);
   const [rangeModalOpen, setRangeModalOpen] = useState(false);
   const [allPages, setAllPages] = useState(true);
@@ -122,16 +122,6 @@ const QuestionPaperDetail = ({ id, paperInfo }) => {
   const validImages = rawImages.filter((img) => img && img.trim() !== "");
   const hasImages = validImages.length > 0;
   const visitLinks = Array.isArray(data?.visitlink) ? data.visitlink : [];
-
-  const handleImageLoad = (index) => {
-    setTimeout(() => {
-      setImageLoading(prev => ({ ...prev, [index]: false }));
-    }, 500);
-  };
-
-  const handleImageStart = (index) => {
-    setImageLoading(prev => ({ ...prev, [index]: true }));
-  };
 
   const toggleImageExpansion = (imageIndex) => {
     setExpandedImages(prev => ({
@@ -396,23 +386,12 @@ const QuestionPaperDetail = ({ id, paperInfo }) => {
                       <span className="qpd-page-badge">{index + 1}</span>
                     )}
                     <div className="qpd-image-wrapper">
-                      {imageLoading[index] && (
-                        <div className="qpd-image-loader">
-                          <div className="qpd-loader-spinner"></div>
-                          <span>Loading image...</span>
-                        </div>
-                      )}
-                      <img 
-                        src={imageUrl} 
+                      <ImageLoader
+                        src={imageUrl}
                         alt={`${examType} - Page ${index + 1}`}
-                        className={`qpd-topic-image ${expandedImages[index] ? 'qpd-expanded' : ''} ${imageLoading[index] ? 'qpd-loading' : ''}`}
+                        className={`qpd-topic-image ${expandedImages[index] ? 'qpd-expanded' : ''}`}
                         onClick={() => toggleImageExpansion(index)}
                         loading="lazy"
-                        onLoadStart={() => handleImageStart(index)}
-                        onLoad={() => handleImageLoad(index)}
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                        }}
                       />
                     </div>
                   </div>

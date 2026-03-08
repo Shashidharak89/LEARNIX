@@ -13,6 +13,7 @@ import {
 import { FaChevronDown } from "react-icons/fa6";
 import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
 import questionPapersData from "../../questionPapersData";
+import ImageLoader from "../../../components/ImageLoader";
 import "./SubjectViewer.css";
 
 /* ── helpers ── */
@@ -91,7 +92,6 @@ export default function SubjectViewer({ params }) {
   const images = getImagesBySubject(subject);
 
   const [expandedImages, setExpandedImages] = useState({});
-  const [imageLoading, setImageLoading] = useState({});
   const [showPageNumbers, setShowPageNumbers] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(null);
 
@@ -108,14 +108,6 @@ export default function SubjectViewer({ params }) {
 
   const toggleImageExpansion = (index) => {
     setExpandedImages((prev) => ({ ...prev, [index]: !prev[index] }));
-  };
-
-  const handleImageLoad = (index) => {
-    setTimeout(() => setImageLoading((prev) => ({ ...prev, [index]: false })), 400);
-  };
-
-  const handleImageStart = (index) => {
-    setImageLoading((prev) => ({ ...prev, [index]: true }));
   };
 
   /* ── download PDF ── */
@@ -306,21 +298,12 @@ export default function SubjectViewer({ params }) {
                         <span className="sv-page-badge">{index + 1}</span>
                       )}
                       <div className="sv-image-wrapper">
-                        {imageLoading[index] && (
-                          <div className="sv-image-loader">
-                            <div className="sv-loader-spinner" />
-                            <span>Loading…</span>
-                          </div>
-                        )}
-                        <img
+                        <ImageLoader
                           src={imageUrl}
                           alt={`${subject} - Page ${index + 1}`}
-                          className={`sv-topic-image ${expandedImages[index] ? "sv-expanded" : ""} ${imageLoading[index] ? "sv-loading" : ""}`}
+                          className={`sv-topic-image ${expandedImages[index] ? "sv-expanded" : ""}`}
                           onClick={() => toggleImageExpansion(index)}
                           loading="lazy"
-                          onLoadStart={() => handleImageStart(index)}
-                          onLoad={() => handleImageLoad(index)}
-                          onError={(e) => { e.target.style.display = "none"; }}
                         />
                       </div>
                     </div>

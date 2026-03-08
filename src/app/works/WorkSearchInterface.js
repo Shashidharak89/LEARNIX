@@ -7,6 +7,7 @@ import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiBook, FiShare
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import SubjectTopicFilter from './SubjectTopicFilter';
 import Ads from '../components/ads/Ads';
+import ImageLoader from '../components/ImageLoader';
 import './styles/WorkSearchInterface.css';
 
 // LocalStorage key for saved topics (same as in /works/[id])
@@ -612,7 +613,7 @@ const WorkSearchInterface = () => {
                 <Link key={imgIndex} href={`/works/${topic.topicId}`} className="ws-image-link" target="_blank" rel="noopener noreferrer">
                   <div className="ws-image-container">
                     <div className="ws-image-wrapper">
-                      <img
+                      <ImageLoader
                         src={imageUrl}
                         alt={`${topic.topic} - Image ${imgIndex + 1}`}
                         className="ws-topic-image"
