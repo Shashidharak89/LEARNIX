@@ -1,13 +1,19 @@
 /* ImageLoader.css — shared shimmer preloader for all image cards */
 
+/*
+ * The wrapper is display:contents so it is completely invisible to layout —
+ * it adds no box, no width, no height. All existing image CSS on the <img>
+ * itself continues to work exactly as before.
+ */
 .img-loader-wrap {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: inherit;
+  display: contents;
 }
 
-/* Shimmer placeholder shown while image loads */
+/*
+ * The shimmer is positioned relative to the nearest positioned ancestor
+ * (the existing image-wrapper div that was already there in each component).
+ * It covers that ancestor completely while the image loads.
+ */
 .img-loader-shimmer {
   position: absolute;
   inset: 0;
@@ -20,7 +26,7 @@
   background-size: 400% 100%;
   animation: img-shimmer 1.3s ease-in-out infinite;
   border-radius: inherit;
-  z-index: 1;
+  z-index: 3;
 }
 
 @keyframes img-shimmer {
@@ -28,7 +34,7 @@
   100% { background-position: -100% 0; }
 }
 
-/* Tiny pulsing dot in the center so it doesn't look blank */
+/* Tiny spinning ring centred on the shimmer */
 .img-loader-shimmer::after {
   content: "";
   position: absolute;
@@ -47,13 +53,11 @@
   to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-/* Actual image — hidden until loaded */
+/*
+ * No layout rules on the <img> — only the opacity transition.
+ * All sizing / object-fit / cursor rules come from the existing per-page CSS.
+ */
 .img-loader-img {
-  position: relative;
-  z-index: 2;
-  display: block;
-  width: 100%;
-  height: auto;
   transition: opacity 0.25s ease;
 }
 
