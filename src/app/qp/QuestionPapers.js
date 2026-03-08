@@ -15,6 +15,7 @@ import {
   FiEye,
   FiShare2,
   FiBook,
+  FiExternalLink,
 } from "react-icons/fi";
 import questionPapersData from "./questionPapersData";
 import "./styles/QuestionPapers.css";
@@ -320,6 +321,16 @@ export default function QuestionPapers() {
                     <span className="qp-subject-count">
                       {imgs.length} image{imgs.length !== 1 ? "s" : ""} found
                     </span>
+                    <Link
+                      href={`/qp/query/${encodeURIComponent(selectedSubject)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="qp-subject-view-btn"
+                      title={`View all ${selectedSubject} question papers`}
+                    >
+                      <FiEye size={15} />
+                      <span>View</span>
+                    </Link>
                     <button
                       className={`qp-subject-dl-btn ${subjectDownloading ? "qp-downloading" : ""}`}
                       onClick={handleSubjectDownload}

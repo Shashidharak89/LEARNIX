@@ -532,7 +532,7 @@ const WorkSearchInterface = () => {
 
     const handleOpenClick = () => {
       setOpenMenuId(null);
-      router.push(`/works/${topic.topicId}`);
+      window.open(`/works/${topic.topicId}`, "_blank", "noopener,noreferrer");
     };
 
     const handleShareClick = () => {
@@ -549,7 +549,7 @@ const WorkSearchInterface = () => {
       <div key={`${topicKey}-${index}`} className={`ws-topic-card ${isSaved ? 'ws-saved-card' : ''}`} data-topic-index={index}>
         <div className="ws-card-header">
           <div className="ws-topic-info">
-            <Link href={`/works/${topic.topicId}`} className="ws-topic-link">
+            <Link href={`/works/${topic.topicId}`} className="ws-topic-link" target="_blank" rel="noopener noreferrer">
               <h3 className="ws-topic-title">{topic.topic}</h3>
             </Link>
             <Link href={`/search/${topic.usn.toLowerCase()}`} className="ws-user-link">
@@ -609,7 +609,7 @@ const WorkSearchInterface = () => {
           <div className="ws-images-section">
             <div className="ws-images-grid">
               {displayImages.map((imageUrl, imgIndex) => (
-                <Link key={imgIndex} href={`/works/${topic.topicId}`} className="ws-image-link">
+                <Link key={imgIndex} href={`/works/${topic.topicId}`} className="ws-image-link" target="_blank" rel="noopener noreferrer">
                   <div className="ws-image-container">
                     <div className="ws-image-wrapper">
                       <img
