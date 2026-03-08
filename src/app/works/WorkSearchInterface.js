@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiBook, FiShare2, FiMoreVertical, FiExternalLink, FiFilter, FiCheck } from 'react-icons/fi';
+import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiBook, FiShare2, FiMoreVertical, FiExternalLink, FiFilter, FiCheck, FiZap } from 'react-icons/fi';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import SubjectTopicFilter from './SubjectTopicFilter';
 import Ads from '../components/ads/Ads';
@@ -122,6 +122,16 @@ const WorkSearchInterface = () => {
   const [searchTotalPages, setSearchTotalPages] = useState(1);
   const [searchTotal, setSearchTotal] = useState(0); // real total count from API
 
+  // Relevant (AI) results state
+  const [relevantResults, setRelevantResults] = useState([]);
+  const [relevantPage, setRelevantPage] = useState(1);
+  const [relevantTotalPages, setRelevantTotalPages] = useState(1);
+  const [relevantTotal, setRelevantTotal] = useState(0);
+  const [relevantKeywords, setRelevantKeywords] = useState([]);
+  const [isLoadingRelevant, setIsLoadingRelevant] = useState(false);
+  const [isLoadingMoreRelevant, setIsLoadingMoreRelevant] = useState(false);
+  const [showRelevant, setShowRelevant] = useState(false);
+
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -230,8 +240,16 @@ const WorkSearchInterface = () => {
       return;
     }
     // Page 1 = full skeleton; page > 1 = only button loading state (no skeleton)
-    if (pageNum === 1) setIsLoading(true);
-    else setIsLoadingMore(true);
+    if (pageNum === 1) {
+      setIsLoading(true);
+      // Reset relevant section whenever the user triggers a fresh search
+      setShowRelevant(false);
+      setRelevantResults([]);
+      setRelevantPage(1);
+      setRelevantTotalPages(1);
+      setRelevantTotal(0);
+      setRelevantKeywords([]);
+    } else setIsLoadingMore(true);
     try {
       // Build URL with query, subjects, and topics params
       const urlParams = new globalThis.URLSearchParams();
@@ -284,6 +302,43 @@ const WorkSearchInterface = () => {
     if (isLoadingMore || !hasMore) return;
     fetchPagedTopics(page + 1);
   }, [hasMore, isLoadingMore, page]);
+
+  const fetchRelevant = async (pageNum = 1) => {
+    const query = searchParams.get('q') || searchQuery;
+    if (!query.trim()) return;
+    if (pageNum === 1) setIsLoadingRelevant(true);
+    else setIsLoadingMoreRelevant(true);
+    try {
+      const res = await fetch(`/api/work/relevant?q=${encodeURIComponent(query)}&page=${pageNum}`);
+      const data = await res.json();
+      if (data && Array.isArray(data.topics)) {
+        const mapped = data.topics.map(topic => ({
+          ...topic,
+          topicId: topic._id,
+          subjectName: topic.subject,
+          userName: topic.userName,
+          usn: topic.usn,
+          profileimg: topic.profileimg,
+          userId: topic.userId,
+        }));
+        if (pageNum === 1) {
+          setRelevantResults(mapped);
+          setRelevantTotal(data.totalResults ?? data.total ?? mapped.length);
+          setRelevantKeywords(data.keywords || []);
+        } else {
+          setRelevantResults(prev => [...prev, ...mapped]);
+        }
+        setRelevantPage(data.page);
+        setRelevantTotalPages(data.totalPages);
+        setShowRelevant(true);
+      }
+    } catch (err) {
+      console.error('Relevant fetch error:', err);
+    } finally {
+      if (pageNum === 1) setIsLoadingRelevant(false);
+      else setIsLoadingMoreRelevant(false);
+    }
+  };
 
 
   const getFilteredTopics = (topics) => {
@@ -792,6 +847,73 @@ const WorkSearchInterface = () => {
                 <FiSearch className="ws-no-results-icon" />
                 <h3>No results found</h3>
                 <p>Try searching with different keywords</p>
+              </div>
+            )}
+
+            {/* Show Relevant button — appears after exact results are exhausted */}
+            {!hasMore && !showRelevant && (
+              <div className="ws-relevant-trigger">
+                <button
+                  className="ws-relevant-btn"
+                  onClick={() => fetchRelevant(1)}
+                  disabled={isLoadingRelevant}
+                >
+                  {isLoadingRelevant ? (
+                    <span className="ws-load-more-dots"><span /><span /><span /></span>
+                  ) : (
+                    <><FiZap className="ws-relevant-btn-icon" /> Show Relevant</>)
+                  }
+                </button>
+                <p className="ws-relevant-hint">Find related topics using AI</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── Relevant (AI) results section ── */}
+        {showRelevant && (
+          <div className="ws-relevant-section">
+            <div className="ws-relevant-header">
+              <h2 className="ws-section-title">
+                <FiZap className="ws-relevant-title-icon" />
+                Relevant Results
+                <span className="ws-relevant-count">({relevantTotal} found)</span>
+              </h2>
+              {relevantKeywords.length > 0 && (
+                <div className="ws-relevant-keywords">
+                  <span className="ws-relevant-keywords-label">Related to:</span>
+                  {relevantKeywords.map((kw, i) => (
+                    <span key={i} className="ws-relevant-keyword-chip">{kw}</span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {relevantResults.length > 0 ? (
+              <>
+                <div className="ws-topics-grid">{renderTopicsWithAds(relevantResults)}</div>
+                {relevantPage < relevantTotalPages && (
+                  <div className="ws-load-more-section">
+                    <button
+                      className="ws-load-more-btn ws-relevant-more-btn"
+                      onClick={() => fetchRelevant(relevantPage + 1)}
+                      disabled={isLoadingMoreRelevant}
+                    >
+                      {isLoadingMoreRelevant ? (
+                        <span className="ws-load-more-dots"><span /><span /><span /></span>
+                      ) : 'View More Relevant'}
+                    </button>
+                  </div>
+                )}
+                {relevantPage >= relevantTotalPages && (
+                  <div className="ws-end-message">✅ All relevant results loaded.</div>
+                )}
+              </>
+            ) : (
+              <div className="ws-no-results">
+                <FiZap className="ws-no-results-icon" />
+                <h3>No relevant results found</h3>
+                <p>The AI could not find related topics for this query</p>
               </div>
             )}
           </div>
