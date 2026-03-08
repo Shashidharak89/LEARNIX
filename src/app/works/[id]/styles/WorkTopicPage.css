@@ -580,6 +580,42 @@
   color: #1e40af;
 }
 
+/* Controls group — holds slideshow btn + page# toggle */
+.wtpc-images-header-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Slideshow / eye button */
+.wtpc-slideshow-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #f0f9ff;
+  border: 1px solid #7dd3fc;
+  border-radius: 999px;
+  color: #0369a1;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(14,165,233,0.10);
+}
+.wtpc-slideshow-btn:hover {
+  background: #0ea5e9;
+  border-color: #0284c7;
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(14,165,233,0.22);
+  transform: translateY(-1px);
+}
+.wtpc-slideshow-btn:focus {
+  outline: 3px solid #0ea5e9;
+  outline-offset: 2px;
+}
+
 .wtpc-page-toggle {
   display: inline-flex;
   align-items: center;
@@ -1538,8 +1574,7 @@
 .wtpc-lb-prev { left: 1rem; }
 .wtpc-lb-next { right: 1rem; }
 
-/* Make image wrapper show zoom cursor */
-.wtpc-image-wrapper { cursor: zoom-in; }
+/* .wtpc-image-wrapper cursor handled by .wtpc-topic-image (pointer) */
 
 @media (max-width: 640px) {
   .wtpc-lb-prev { left: 0.25rem; }

@@ -14,7 +14,8 @@ import {
   FaIdCard,
   FaListOl,
   FaBookmark,
-  FaRegBookmark
+  FaRegBookmark,
+  FaEye
 } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
 import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
@@ -428,19 +429,30 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
                   <FaImage className="wtpc-section-icon" />
                   Images ({validImages.length})
                 </h3>
-                <button
-                  type="button"
-                  onClick={togglePageNumbers}
-                  className={`wtpc-page-toggle ${showPageNumbers ? "wtpc-page-toggle-active" : ""}`}
-                  aria-pressed={showPageNumbers}
-                  title={showPageNumbers ? "Hide page numbers" : "Show page numbers"}
-                >
-                  <span className="wtpc-toggle-switch" aria-hidden="true">
-                    <span className="wtpc-toggle-knob" />
-                  </span>
-                  <FaListOl className="wtpc-toggle-icon" aria-hidden="true" />
-                  <span className="wtpc-toggle-label">Page #</span>
-                </button>
+                <div className="wtpc-images-header-controls">
+                  <button
+                    type="button"
+                    onClick={() => setLightboxIndex(0)}
+                    className="wtpc-slideshow-btn"
+                    title="View slideshow"
+                  >
+                    <FaEye className="wtpc-toggle-icon" aria-hidden="true" />
+                    <span className="wtpc-toggle-label">Slideshow</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={togglePageNumbers}
+                    className={`wtpc-page-toggle ${showPageNumbers ? "wtpc-page-toggle-active" : ""}`}
+                    aria-pressed={showPageNumbers}
+                    title={showPageNumbers ? "Hide page numbers" : "Show page numbers"}
+                  >
+                    <span className="wtpc-toggle-switch" aria-hidden="true">
+                      <span className="wtpc-toggle-knob" />
+                    </span>
+                    <FaListOl className="wtpc-toggle-icon" aria-hidden="true" />
+                    <span className="wtpc-toggle-label">Page #</span>
+                  </button>
+                </div>
               </div>
               <div className="wtpc-images-grid">
                 {validImages.map((imageUrl, index) => (
@@ -459,8 +471,8 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
                         <img 
                           src={imageUrl} 
                           alt={`${topic.topic} - Image ${index + 1}`}
-                          className={`wtpc-topic-image ${imageLoading[index] ? 'wtpc-loading' : ''}`}
-                          onClick={() => setLightboxIndex(index)}
+                          className={`wtpc-topic-image ${expandedImages[index] ? 'wtpc-expanded' : ''} ${imageLoading[index] ? 'wtpc-loading' : ''}`}
+                          onClick={() => toggleImageExpansion(index)}
                           loading="lazy"
                           onLoadStart={() => handleImageStart(index)}
                           onLoad={() => handleImageLoad(index)}
