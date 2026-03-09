@@ -94,20 +94,25 @@ const questionPapersData = [
                 mse2: {
                     id: "QP0105",
                     imageurls: {
-                        unknown: [
+                        "Data Structures with Algorithms": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763211862/users/NU25MCA117/Previous%20year%20Question%20papers/MSE-2%202024/uqsmdzdtpiirxhdkavtx.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763211869/users/NU25MCA117/Previous%20year%20Question%20papers/MSE-2%202024/qmsc5gjvuji1dqhyze5s.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763211877/users/NU25MCA117/Previous%20year%20Question%20papers/MSE-2%202024/hr0douieu0b51v6fdtut.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763211883/users/NU25MCA117/Previous%20year%20Question%20papers/MSE-2%202024/zgvcfizfhde84i9gacvp.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763211889/users/NU25MCA117/Previous%20year%20Question%20papers/MSE-2%202024/lwsyqdqozzmov5kvkqua.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763211894/users/NU25MCA117/Previous%20year%20Question%20papers/MSE-2%202024/rrbejkdy4cc7gyvs3d7l.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585370/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/1-sem%20MSE%202024/kyj5hxbrqqfodbqzktfj.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585380/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/1-sem%20MSE%202024/dolkqzr4pntnbom6ne7t.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585394/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/1-sem%20MSE%202024/jvtatg2unebthkiyuldr.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585402/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/1-sem%20MSE%202024/gscz3kf0zqffhyqebynz.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585411/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/1-sem%20MSE%202024/dyfwdaiaubek1vkkc58n.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585421/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/1-sem%20MSE%202024/uj6q3xkptfftrfkp0grz.jpg",
                         ],
+                        "Advanced Database Systems": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763211869/users/NU25MCA117/Previous%20year%20Question%20papers/MSE-2%202024/qmsc5gjvuji1dqhyze5s.jpg",
+                        ],
+                        "Computer Organization and Architecture": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763211877/users/NU25MCA117/Previous%20year%20Question%20papers/MSE-2%202024/hr0douieu0b51v6fdtut.jpg",
+                        ],
+                        "Mathematical Foundation for Computer Applications": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763211883/users/NU25MCA117/Previous%20year%20Question%20papers/MSE-2%202024/zgvcfizfhde84i9gacvp.jpg",
+                        ],
+                        "Software Engineering and Testing": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763211889/users/NU25MCA117/Previous%20year%20Question%20papers/MSE-2%202024/lwsyqdqozzmov5kvkqua.jpg",
+                        ],
+                        "Resarch Methodology and Publication Ethics": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1763211894/users/NU25MCA117/Previous%20year%20Question%20papers/MSE-2%202024/rrbejkdy4cc7gyvs3d7l.jpg",
+                        ],
+
                     },
                     visitlink: [
                         "6939bedaaae0ac272bda7cc3",
