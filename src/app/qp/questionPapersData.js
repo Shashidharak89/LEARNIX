@@ -122,16 +122,25 @@ const questionPapersData = [
                 final: {
                     id: "QP0107",
                     imageurls: {
-                        unknown: [
+                        "Data Structures with Algorithms": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763275871/users/NU25MCA117/Previous%20year%20Question%20papers/1%20Sem%20%5Bsem%20exam%202024%5D/augu0xfj6nzckfb4lhat.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763275875/users/NU25MCA117/Previous%20year%20Question%20papers/1%20Sem%20%5Bsem%20exam%202024%5D/uoglb8kvkgq5isxztbrx.jpg",
+                        ],
+                        "Advanced Database Systems": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763275883/users/NU25MCA117/Previous%20year%20Question%20papers/1%20Sem%20%5Bsem%20exam%202024%5D/leukodkxjmpighjsg2d5.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763275889/users/NU25MCA117/Previous%20year%20Question%20papers/1%20Sem%20%5Bsem%20exam%202024%5D/wssb3llr7gxctnnxcehd.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763275894/users/NU25MCA117/Previous%20year%20Question%20papers/1%20Sem%20%5Bsem%20exam%202024%5D/aepkjuhcztwnnb1ld2ic.jpg",
+                        ],
+                        "Computer Organization and Architecture": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763275904/users/NU25MCA117/Previous%20year%20Question%20papers/1%20Sem%20%5Bsem%20exam%202024%5D/xwfkxnplr4fs0sabhe1s.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763275914/users/NU25MCA117/Previous%20year%20Question%20papers/1%20Sem%20%5Bsem%20exam%202024%5D/fgvm8n8wi2fojy4ffjkg.jpg",
+
+                        ],
+                        "Mathematical Foundation for Computer Applications": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763275924/users/NU25MCA117/Previous%20year%20Question%20papers/1%20Sem%20%5Bsem%20exam%202024%5D/suma1jchbdyavnc9v6yh.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763275936/users/NU25MCA117/Previous%20year%20Question%20papers/1%20Sem%20%5Bsem%20exam%202024%5D/w1q3s1g5xjva3mkpaly1.jpg",
+                        ],
+                        "Resarch Methodology and Publication Ethics": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763275953/users/NU25MCA117/Previous%20year%20Question%20papers/1%20Sem%20%5Bsem%20exam%202024%5D/tv4otvntyuef3pglhksq.jpg",
                         ],
                     },
