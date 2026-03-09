@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./styles/ImageLoader.css";
 
 /**
  * ImageLoader — drop-in replacement for <img> that shows a shimmer
- * placeholder until the image has fully loaded.
+ * placeholder until the image has fully loaded, with a 3-second hard cap.
  *
  * Props: same as <img> (src, alt, className, onClick, loading, style, …)
  * The `className` is forwarded to the <img> element itself.
@@ -24,18 +24,29 @@ export default function ImageLoader({
 }) {
   const [loaded, setLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
+  const timerRef = useRef(null);
 
-  const handleLoad = () => setLoaded(true);
+  // Hard cap: force-hide the shimmer after 3 seconds no matter what
+  useEffect(() => {
+    timerRef.current = setTimeout(() => setLoaded(true), 3000);
+    return () => clearTimeout(timerRef.current);
+  }, [src]);
+
+  const handleLoad = () => {
+    clearTimeout(timerRef.current);
+    setLoaded(true);
+  };
 
   const handleError = (e) => {
-    setLoaded(true);   // hide shimmer even on error
+    clearTimeout(timerRef.current);
+    setLoaded(true);
     setErrored(true);
     if (onError) onError(e);
   };
 
   return (
     <div className={`img-loader-wrap ${wrapperClassName}`}>
-      {/* Shimmer — visible until image loads */}
+      {/* Shimmer — visible until image loads or 3s timeout hits */}
       {!loaded && <div className="img-loader-shimmer" aria-hidden="true" />}
 
       {/* Actual image */}
