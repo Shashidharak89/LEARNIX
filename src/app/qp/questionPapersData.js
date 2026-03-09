@@ -324,13 +324,23 @@ const questionPapersData = [
                 mse2: {
                     id: "QP0205",
                     imageurls: {
-                        unknown: [
+                        "Data Warehousing and Data Mining": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765461812/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-2%20QP%20%5B2023-2025%5D/tp3omrgqo1jeqzyknjhh.jpg",
+                        ],
+                        "Health Care Analysis": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765461829/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-2%20QP%20%5B2023-2025%5D/kqhja7psjifjtvi9upzz.jpg",
+                        ],
+                        "Digital Image Processing and Pattern Recognition": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765461847/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-2%20QP%20%5B2023-2025%5D/rsuqby93byg39yedttxp.jpg",
+                        ],
+                        "Operating Systems with UNIX": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765461871/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-2%20QP%20%5B2023-2025%5D/lcykc3om4eukvlxonvf0.jpg",
+                        ],
+                        "Professional Communication Skills": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765462030/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-2%20QP%20%5B2023-2025%5D/s4tyj3hausps6ywnk2mr.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765462099/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-2%20QP%20%5B2023-2025%5D/xkb0knz03rj977fizb0q.jpg",
+                        ],
+                        "Enterprise Java": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765463183/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-2%20QP%20%5B2023-2025%5D/vz1b1jrmjlnclxoftjup.jpg",
                         ],
                     },
