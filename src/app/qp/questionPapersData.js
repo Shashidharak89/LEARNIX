@@ -70,12 +70,22 @@ const questionPapersData = [
                 mse1: {
                     id: "QP0110",
                     imageurls: {
-                        unknown: [
+                        "Data Structures with Algorithms": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772213165/users/NU25MCA92/2nd%20sem%20question%20papers/2nd%20sem/djxn8utdbdcwrarju7ku.jpg",
+                        ],
+                        "Advanced Database Systems": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772213168/users/NU25MCA92/2nd%20sem%20question%20papers/2nd%20sem/vun58ww61ezl1ityoorn.jpg",
+                        ],
+                        "Computer Organization and Architecture": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772213172/users/NU25MCA92/2nd%20sem%20question%20papers/2nd%20sem/zqghla6ypfhyibr7h8fv.jpg",
+                        ],
+                        "Mathematical Foundation for Computer Applications": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772213176/users/NU25MCA92/2nd%20sem%20question%20papers/2nd%20sem/qt1rurdhozqtritpriax.jpg",
+                        ],
+                        "Software Engineering and Testing": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772213179/users/NU25MCA92/2nd%20sem%20question%20papers/2nd%20sem/rdq1cmf45l9ao0ibe11h.jpg",
+                        ],
+                        "Resarch Methodology and Publication Ethics": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772213182/users/NU25MCA92/2nd%20sem%20question%20papers/2nd%20sem/vyshbvxvkxkq2g8pnz6w.jpg",
                         ],
                     },
