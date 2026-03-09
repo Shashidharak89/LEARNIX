@@ -154,14 +154,25 @@ const questionPapersData = [
                 mse1: {
                     id: "QP0109",
                     imageurls: {
-                        unknown: [
+                        "Data Structures with Algorithms": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759493478/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-1%20Oct/mi2dclhgiubjssi9sxbj.jpg",
+                        ],
+                        "Advanced Database Systems": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759493641/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-1%20Oct/l5v1occrh5jgc4yxxfju.jpg",
+                        ],
+                        "Data Communication and Computer Networks": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759749586/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-1%20Oct/ponulb9ixnhzcrm7y8ef.jpg",
+                        ],
+                        "Mathematical Foundation for Computer Applications": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759749588/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-1%20Oct/sj6m47qf3kiit87em0rd.jpg",
+                        ],
+                        "Research Methodology and Publication Ethics": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759749683/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-1%20Oct/xcqxa5ey4f4kaamnk04i.jpg",
+                        ],
+                        "Advanced Operating Systems with UNIX": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759749701/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/MSE-1%20Oct/ykubyze3qdl8lj3kgpqs.jpg",
                         ],
+
                     },
                     visitlink: ["6939bed8aae0ac272bda7cad"],
                 },
