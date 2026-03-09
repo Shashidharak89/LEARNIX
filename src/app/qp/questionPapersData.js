@@ -252,7 +252,7 @@ const questionPapersData = [
                 final: {
                     id: "QP0206",
                     imageurls: {
-                        unknown: [
+                        "Health Care Analysis": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765461474/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2022-2024%5D/dm8t5pkafbvdohxght0t.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765461495/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2022-2024%5D/l5swmvvsbfrrtwukp57i.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765461519/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2022-2024%5D/maflezmxcseuw7vuaf5g.jpg",
@@ -268,6 +268,9 @@ const questionPapersData = [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765463822/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/b9zsp3avs4gdn7numwl0.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770300307/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/bugxi4r7sfeaqukzszv9.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770300323/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/r9xm6cvhoplbkhezd1wv.jpg",
+                        ],
+                        "Digital Image Processing and Pattern Recognition": [
+                            
                         ],
                     },
                     visitlink: [
