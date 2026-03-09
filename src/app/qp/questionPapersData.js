@@ -206,18 +206,28 @@ const questionPapersData = [
                 final: {
                     id: "QP0106",
                     imageurls: {
-                        unknown: [
+                        "Data Structures with Algorithms": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1767407294/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2025-27%5D/vbyhqmojlqp7i2xt0tof.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1767407303/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2025-27%5D/n7lfq89odbim2i44v95o.jpg",
+                        ],
+                        "Advanced Database Systems": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1767407327/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2025-27%5D/rmyxrlnvvmeby77sdwud.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1767407336/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2025-27%5D/msavrfc6rmivhfgnqynm.jpg",
+                        ],
+                        "Data Communication and Computer Networks": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1767407345/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2025-27%5D/vc2sdmvdoyfyxs58ozys.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1767407352/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2025-27%5D/mdxsikpcmd7u5lqyz1tn.jpg",
+                        ],
+                        "Mathematical Foundation for Computer Applications": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1767407360/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2025-27%5D/nxj5l0mxfq9msba9ylwr.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1767407367/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2025-27%5D/g13rnpl1t7jcufig47jx.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1767407375/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2025-27%5D/c68iry7cn2eikswv7qz6.jpg",
+                        ],
+                        "Research Methodology and Publication Ethics": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1767407393/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2025-27%5D/ouwp8j1tgxv8p8dflxui.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1767407407/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2025-27%5D/secp2knsmidaupoyownc.jpg",
+                        ],
+                        "Advanced Operating Systems with UNIX": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1767407422/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2025-27%5D/quagkzsvcibeunkmhj7i.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1767407433/users/NN25MCA119/Previous%20year%20Question%20papers/1-Sem%20Exam%20QP%20%5B2025-27%5D/x9dkxijqad5xrfa3wmzs.jpg",
                         ],
