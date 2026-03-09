@@ -287,17 +287,36 @@ const questionPapersData = [
                 mse1: {
                     id: "QP0204",
                     imageurls: {
-                        unknown: [
+                        "Operating Systems with UNIX": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765461972/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2023-25%5D/ewzfxv1j3p2krs8fipuv.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1772447704/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2023-25%5D/eplsv4gfbwwpl3dso2r7.jpg",
+
+                        ],
+                        "Enterprise Java": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765463712/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2023-25%5D/iin8sd0czhpyx1khirbe.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1772447714/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2023-25%5D/c3g3mvk9tfetavbu02jt.jpg",
+
+                        ],
+                        "Data Warehousing and Data Mining": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770298812/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2023-25%5D/fi09ozfsscsuro5alc4v.jpg",
+
+                        ],
+                        "Professional Communication Skills": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772447650/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2023-25%5D/fk017vm06gqsdgpnlgxi.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772447656/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2023-25%5D/jua4viiggzmomjyubkqk.jpg",
+
+                        ],
+                        "Soft Computing": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772447667/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2023-25%5D/aanaqzgdetujbnmitqsd.jpg",
+
+                        ],
+                        "Data Communication and Networks": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772447677/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2023-25%5D/bfv9sdkhkx95luywr1wg.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1772447704/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2023-25%5D/eplsv4gfbwwpl3dso2r7.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1772447714/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2023-25%5D/c3g3mvk9tfetavbu02jt.jpg",
+
+                        ],
+                        ".NET Framework and C#": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772447719/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2023-25%5D/ws4fwrlae6dcqfptgabo.jpg",
+
                         ],
                     },
                     visitlink: ["693acf9be426cab917a61273"],
