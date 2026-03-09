@@ -1242,3 +1242,45 @@
     font-size: 0.88rem;
   }
 }
+
+/* Auto-relevant loading hint inside no-results box */
+.ws-relevant-auto-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #7c3aed;
+  font-size: 0.88rem;
+  font-weight: 500;
+  margin: 0;
+  animation: ws-pulse 1.4s ease-in-out infinite;
+}
+
+.ws-relevant-auto-hint-icon {
+  flex-shrink: 0;
+}
+
+@keyframes ws-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+/* Inline relevant container (replaces the no-results box) */
+.ws-relevant-inline {
+  min-height: 80px;
+}
+
+.ws-relevant-inline-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px 0;
+}
+
+.ws-relevant-inline-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 4px;
+}

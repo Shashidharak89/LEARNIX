@@ -4,17 +4,18 @@ import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
 
-const HF_SEARCH_URL = "https://shashidharak99-learnix-search-train.hf.space/search";
-const PAGE_SIZE = 10;
+const HF_SEARCH_URL = "https://shashidharak99-keyword-search-lernix.hf.space/search";
+const PAGE_SIZE = 8;
 
 /**
  * GET /api/work/relevant?q=QUERY&page=1
  *
- * 1. Calls HF API to get relevant keywords for the query.
- * 2. Filters out keywords that are an exact or prefix match of the original query
+ * 1. Calls HF API: GET /search?keyword=QUERY
+ *    Response: { relevant: ["DSA Lab", "DSA", "DSA COMPLETE"] }
+ * 2. Filters out any keyword where the search query is a substring of that keyword
  *    (those are already covered by the normal search).
  * 3. Searches DB for topics matching the remaining keywords (OR across topic/subject/content).
- * 4. Returns paginated results in the same format as /api/work/search.
+ * 4. Returns paginated results in the same format as /api/work/search (8 per page).
  */
 export const GET = async (req) => {
   try {
@@ -30,14 +31,14 @@ export const GET = async (req) => {
     // ── 1. Ask the HF model for relevant keywords ──────────────────────────
     let relevantKeywords = [];
     try {
-      const hfRes = await fetch(`${HF_SEARCH_URL}?query=${encodeURIComponent(q)}`, {
+      const hfRes = await fetch(`${HF_SEARCH_URL}?keyword=${encodeURIComponent(q)}`, {
         headers: { Accept: "application/json" },
         next: { revalidate: 0 },
       });
       if (hfRes.ok) {
         const hfData = await hfRes.json();
-        // Response: { results: [{ keyword, confidence }] }
-        relevantKeywords = (hfData.results || []).map((r) => r.keyword?.trim()).filter(Boolean);
+        // Response: { relevant: ["DSA Lab", "DSA", ...] }
+        relevantKeywords = (hfData.relevant || []).map((kw) => kw?.trim()).filter(Boolean);
       }
     } catch (hfErr) {
       console.error("HF API error:", hfErr);
@@ -47,14 +48,13 @@ export const GET = async (req) => {
       return NextResponse.json({ topics: [], total: 0, totalResults: 0, page, pageSize: PAGE_SIZE, totalPages: 0 });
     }
 
-    // ── 2. Remove keywords that are exact or prefix match of the original query ──
+    // ── 2. Filter: drop any keyword that contains the search query as a substring ──
+    // e.g. query="dsa" → "DSA Lab" contains "dsa" → skip (already in normal results)
     const qLower = q.toLowerCase();
     const filteredKeywords = relevantKeywords.filter((kw) => {
       const kwLower = kw.toLowerCase();
-      // Exact match → already covered by normal search
-      if (kwLower === qLower) return false;
-      // Prefix match either way → already covered
-      if (kwLower.startsWith(qLower) || qLower.startsWith(kwLower)) return false;
+      // If the search keyword is a substring of the relevant keyword → skip
+      if (kwLower.includes(qLower)) return false;
       return true;
     });
 

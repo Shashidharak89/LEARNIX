@@ -280,6 +280,10 @@ const WorkSearchInterface = () => {
           setSearchResults(newTopics);
           setDisplayedTopics(newTopics);
           setSearchTotal(data.totalResults ?? data.total ?? newTopics.length);
+          // Auto-load relevant if normal search returned nothing
+          if (newTopics.length === 0 && query.trim()) {
+            fetchRelevant(1, query);
+          }
         } else {
           // Append for subsequent pages (View More)
           setSearchResults(prev => [...prev, ...newTopics]);
@@ -303,8 +307,8 @@ const WorkSearchInterface = () => {
     fetchPagedTopics(page + 1);
   }, [hasMore, isLoadingMore, page]);
 
-  const fetchRelevant = async (pageNum = 1) => {
-    const query = searchParams.get('q') || searchQuery;
+  const fetchRelevant = async (pageNum = 1, queryOverride) => {
+    const query = queryOverride || searchParams.get('q') || searchQuery;
     if (!query.trim()) return;
     if (pageNum === 1) setIsLoadingRelevant(true);
     else setIsLoadingMoreRelevant(true);
@@ -841,37 +845,84 @@ const WorkSearchInterface = () => {
                 {!hasMore && searchResults.length > 0 && (
                   <div className="ws-end-message">✅ All matching results loaded.</div>
                 )}
+
+                {/* Show Relevant button — only after all exact results are exhausted */}
+                {!hasMore && !showRelevant && (
+                  <div className="ws-relevant-trigger">
+                    <button
+                      className="ws-relevant-btn"
+                      onClick={() => fetchRelevant(1)}
+                      disabled={isLoadingRelevant}
+                    >
+                      {isLoadingRelevant ? (
+                        <span className="ws-load-more-dots"><span /><span /><span /></span>
+                      ) : (
+                        <><FiZap className="ws-relevant-btn-icon" /> Show Relevant</>)
+                      }
+                    </button>
+                    <p className="ws-relevant-hint">Find related topics using AI</p>
+                  </div>
+                )}
               </>
             ) : (
-              <div className="ws-no-results">
-                <FiSearch className="ws-no-results-icon" />
-                <h3>No results found</h3>
-                <p>Try searching with different keywords</p>
-              </div>
-            )}
-
-            {/* Show Relevant button — appears after exact results are exhausted */}
-            {!hasMore && !showRelevant && (
-              <div className="ws-relevant-trigger">
-                <button
-                  className="ws-relevant-btn"
-                  onClick={() => fetchRelevant(1)}
-                  disabled={isLoadingRelevant}
-                >
-                  {isLoadingRelevant ? (
+              /* No exact results — show relevant inline (auto-loaded) */
+              <div className="ws-relevant-inline">
+                {isLoadingRelevant ? (
+                  <div className="ws-relevant-inline-loading">
                     <span className="ws-load-more-dots"><span /><span /><span /></span>
-                  ) : (
-                    <><FiZap className="ws-relevant-btn-icon" /> Show Relevant</>)
-                  }
-                </button>
-                <p className="ws-relevant-hint">Find related topics using AI</p>
+                    <p className="ws-relevant-auto-hint">
+                      <FiZap className="ws-relevant-auto-hint-icon" /> Finding relevant topics…
+                    </p>
+                  </div>
+                ) : relevantResults.length > 0 ? (
+                  <>
+                    <div className="ws-relevant-header">
+                      <h3 className="ws-relevant-inline-title">
+                        <FiZap className="ws-relevant-title-icon" /> Relevant Results
+                        <span className="ws-relevant-count">({relevantTotal} found)</span>
+                      </h3>
+                      {relevantKeywords.length > 0 && (
+                        <div className="ws-relevant-keywords">
+                          <span className="ws-relevant-keywords-label">Related to:</span>
+                          {relevantKeywords.map((kw, i) => (
+                            <span key={i} className="ws-relevant-keyword-chip">{kw}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="ws-topics-grid">{renderTopicsWithAds(relevantResults)}</div>
+                    {relevantPage < relevantTotalPages && (
+                      <div className="ws-load-more-section">
+                        <button
+                          className="ws-load-more-btn ws-relevant-more-btn"
+                          onClick={() => fetchRelevant(relevantPage + 1)}
+                          disabled={isLoadingMoreRelevant}
+                        >
+                          {isLoadingMoreRelevant ? (
+                            <span className="ws-load-more-dots"><span /><span /><span /></span>
+                          ) : 'View More Relevant'}
+                        </button>
+                      </div>
+                    )}
+                    {relevantPage >= relevantTotalPages && (
+                      <div className="ws-end-message">✅ All relevant results loaded.</div>
+                    )}
+                  </>
+                ) : showRelevant ? (
+                  /* AI ran but found nothing */
+                  <div className="ws-no-results">
+                    <FiZap className="ws-no-results-icon" />
+                    <h3>No relevant results found</h3>
+                    <p>The AI could not find related topics for this query</p>
+                  </div>
+                ) : null}
               </div>
             )}
           </div>
         )}
 
-        {/* ── Relevant (AI) results section ── */}
-        {showRelevant && (
+        {/* ── Relevant section below normal results (only when normal results existed) ── */}
+        {showRelevant && searchResults.length > 0 && (
           <div className="ws-relevant-section">
             <div className="ws-relevant-header">
               <h2 className="ws-section-title">
@@ -888,7 +939,6 @@ const WorkSearchInterface = () => {
                 </div>
               )}
             </div>
-
             {relevantResults.length > 0 ? (
               <>
                 <div className="ws-topics-grid">{renderTopicsWithAds(relevantResults)}</div>
