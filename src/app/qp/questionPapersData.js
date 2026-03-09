@@ -253,28 +253,29 @@ const questionPapersData = [
                     id: "QP0206",
                     imageurls: {
                         "Health Care Analysis": [
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1765461474/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2022-2024%5D/dm8t5pkafbvdohxght0t.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1765461495/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2022-2024%5D/l5swmvvsbfrrtwukp57i.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1765461519/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2022-2024%5D/maflezmxcseuw7vuaf5g.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1765461562/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2022-2024%5D/p3s35apedljwfaq3qpym.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1765461596/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2022-2024%5D/ifl3eoprmzm7urgpojte.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1765460816/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/wmwib34ppvop529tm5jf.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1765460833/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/dbzifkevxdiybrxfsvm5.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1765460847/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/y5pgv6nits4wc1xaqitz.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765462417/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/yluaf13k75cfu2lwtzy6.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1765462445/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/zx8srsk0voaksbhyrvko.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1765462458/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/c83irp9mwh60wl1dc4yk.jpg",
+                        ],
+                        "Proffessional Communication Skills": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765463817/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/peytzkuewwo7pvnyurvu.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765463822/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/b9zsp3avs4gdn7numwl0.jpg",
+                        ],
+                        ".NET Framework and C#": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1765460816/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/wmwib34ppvop529tm5jf.jpg",
+                        ],
+                        "Data Warehousing and Data Mining": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1765460833/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/dbzifkevxdiybrxfsvm5.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1765460847/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/y5pgv6nits4wc1xaqitz.jpg",
+                        ],
+                        "Data Communication and Networks": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1765462445/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/zx8srsk0voaksbhyrvko.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1765462458/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/c83irp9mwh60wl1dc4yk.jpg",
+                        ],
+                        "Operating Systems with UNIX": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770300307/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/bugxi4r7sfeaqukzszv9.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770300323/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/r9xm6cvhoplbkhezd1wv.jpg",
                         ],
-                        "Digital Image Processing and Pattern Recognition": [
-                            
-                        ],
                     },
                     visitlink: [
-                        "693acd2050b0406d6f2f1352",
                         "693acb1b7ef24d5f6d19bb95",
                     ],
                 },
