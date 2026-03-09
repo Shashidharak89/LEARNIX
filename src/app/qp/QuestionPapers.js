@@ -249,6 +249,8 @@ export default function QuestionPapers() {
                                   >
                                     <Link
                                       href={`/qp/${exam.data.id}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
                                       className="qp-exam-card"
                                     >
                                       <FiFileText size={18} />
