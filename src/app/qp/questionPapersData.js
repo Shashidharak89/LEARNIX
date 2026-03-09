@@ -387,17 +387,26 @@ const questionPapersData = [
                 mse1: {
                     id: "QP0201",
                     imageurls: {
-                        unknown: [
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1770307378/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2024-26%5D/tp8glu9rmddhrhx70k1d.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1770307408/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2024-26%5D/p2lvouziiblfsnyqfef8.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1770307446/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2024-26%5D/wa6z3de3lohlvybiksqv.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585514/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/2-sem%20MSE-1%202024/ehbfy9mqgihaxgxecubp.jpg",
+                        "Enterprise Java": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759585528/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/2-sem%20MSE-1%202024/xutb8mi3iuw4pvym017l.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585538/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/2-sem%20MSE-1%202024/mnfrasxsnqnfbwb9l9mn.jpg",
+                        ],
+                        "Operating Systems with UNIX": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1770307446/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2024-26%5D/wa6z3de3lohlvybiksqv.jpg",
+                        ],
+                        "Data Communication and Computer Networks": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1759585514/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/2-sem%20MSE-1%202024/ehbfy9mqgihaxgxecubp.jpg",
+                        ],
+                        "Data Warehousing and Data Mining": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759585542/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/2-sem%20MSE-1%202024/s7pqavq9qvw1jxtw9ctb.jpg",
+                        ],
+                        "Professional Communication Skills": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759585547/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/2-sem%20MSE-1%202024/dxx5wczsa4pqqostaztw.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759585556/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/2-sem%20MSE-1%202024/obrwb6nlhrwjf9rai7ez.jpg",
+                        ],
+                        "Digital Image Processing and Pattern Recognition": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759585561/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/2-sem%20MSE-1%202024/pqdsrffzcjszkasnyipq.jpg",
+                        ],
+                        "Health Care Analysis": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759585566/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/2-sem%20MSE-1%202024/yndbjuymezev9bjd58tf.jpg",
                         ],
                     },
@@ -409,10 +418,16 @@ const questionPapersData = [
                 mse2: {
                     id: "QP0202",
                     imageurls: {
-                        unknown: [
+                        "Digital Image Processing and Pattern Recognition": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770296472/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-2%20QP%20%5B2024-26%5D/kxtw1zhk7jpgaq628pfv.jpg",
+                        ],
+                        "Professional Communication Skills": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770301055/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-2%20QP%20%5B2024-26%5D/y31dvliwi060oipmztih.jpg",
+                        ],
+                        "Data Warehousing and Data Mining": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770301066/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-2%20QP%20%5B2024-26%5D/phva7qygcjj7lt13j9sk.jpg",
+                        ],
+                        "Soft Computing": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770301076/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-2%20QP%20%5B2024-26%5D/owgzoi18rxelmx3skpei.jpg",
                         ],
                     },
@@ -421,16 +436,28 @@ const questionPapersData = [
                 final: {
                     id: "QP0207",
                     imageurls: {
-                        unknown: [
+                        "Operating Systems with UNIX": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765374967/users/NNM24MC101/Previous%20year%20Question%20papers/2-Sem%20Final%20Exam%20QP/tbycuql5bm82rt3yy9sm.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765374979/users/NNM24MC101/Previous%20year%20Question%20papers/2-Sem%20Final%20Exam%20QP/as4fjrjkrr3m0b54qsq3.jpg",
+                        ],
+                        "Data Communication and Networks": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765374990/users/NNM24MC101/Previous%20year%20Question%20papers/2-Sem%20Final%20Exam%20QP/nullasdhkvtduxxia9xx.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765375001/users/NNM24MC101/Previous%20year%20Question%20papers/2-Sem%20Final%20Exam%20QP/dkmkc91kzoagqmytv2eg.jpg",
+                        ],
+                        "Enterprise Java": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765375016/users/NNM24MC101/Previous%20year%20Question%20papers/2-Sem%20Final%20Exam%20QP/iw9p4aw5xtsr4x1zaihj.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765375025/users/NNM24MC101/Previous%20year%20Question%20papers/2-Sem%20Final%20Exam%20QP/i3gufdzgau3wks2w1vmr.jpg",
+                        ],
+                        "Data Warehousing and Data Mining": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772213385/users/NU25MCA92/2nd%20sem%20question%20papers/2nd%20sem/yrua3zzkqhyh7vftw1lj.jpg",
+                        ],
+                        "Professional Communication Skills": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772213388/users/NU25MCA92/2nd%20sem%20question%20papers/2nd%20sem/n29n2grvhaoxuz5t52fh.jpg",
+                        ],
+                        "Digital Image Processing and Pattern Recognition": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772213392/users/NU25MCA92/2nd%20sem%20question%20papers/2nd%20sem/fzopzkufsnxhj87vfcks.jpg",
+                        ],
+                        "Health Care Analysis": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772213395/users/NU25MCA92/2nd%20sem%20question%20papers/2nd%20sem/ribtxusjeggs1cowr3ql.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772213398/users/NU25MCA92/2nd%20sem%20question%20papers/2nd%20sem/jtjtshe8wuc4awpdcknk.jpg",
                         ],
