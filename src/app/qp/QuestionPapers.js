@@ -76,6 +76,8 @@ export default function QuestionPapers() {
   const [sending, setSending] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState("");
   const [subjectDownloading, setSubjectDownloading] = useState(false);
+  const [searchSubject, setSearchSubject] = useState("");
+  const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
 
   const toggleSemester = (index) => {
     setOpenSemesterIndex(openSemesterIndex === index ? null : index);
@@ -304,16 +306,44 @@ export default function QuestionPapers() {
             </p>
             <div className="qp-subject-row">
               <div className="qp-subject-select-wrap">
-                <select
-                  className="qp-subject-select"
-                  value={selectedSubject}
-                  onChange={(e) => setSelectedSubject(e.target.value)}
-                >
-                  <option value="">— Choose a subject —</option>
-                  {ALL_SUBJECTS.map((subj) => (
-                    <option key={subj} value={subj}>{subj}</option>
-                  ))}
-                </select>
+                <div className="qp-subject-search">
+                  <input
+                    type="text"
+                    className="qp-subject-search-input"
+                    placeholder="Search subjects..."
+                    value={searchSubject}
+                    onChange={(e) => { setSearchSubject(e.target.value); setShowSubjectDropdown(true); setSelectedSubject(''); }}
+                    onFocus={() => setShowSubjectDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowSubjectDropdown(false), 120)}
+                    aria-label="Search subjects"
+                  />
+                  <button
+                    type="button"
+                    className="qp-subject-clear"
+                    onClick={() => { setSearchSubject(''); setSelectedSubject(''); setShowSubjectDropdown(false); }}
+                    title="Clear"
+                  >
+                    ×
+                  </button>
+
+                  <ul className={`qp-subject-dropdown ${showSubjectDropdown ? 'open' : ''}`} role="listbox">
+                    {ALL_SUBJECTS.filter(s => s.toLowerCase().includes(searchSubject.toLowerCase())).map((subj) => (
+                      <li
+                        key={subj}
+                        role="option"
+                        tabIndex={0}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => { setSelectedSubject(subj); setSearchSubject(subj); setShowSubjectDropdown(false); }}
+                        className="qp-subject-dropdown-item"
+                      >
+                        {subj}
+                      </li>
+                    ))}
+                    {ALL_SUBJECTS.filter(s => s.toLowerCase().includes(searchSubject.toLowerCase())).length === 0 && (
+                      <li className="qp-subject-dropdown-empty">No subjects found</li>
+                    )}
+                  </ul>
+                </div>
               </div>
 
               {selectedSubject && (() => {

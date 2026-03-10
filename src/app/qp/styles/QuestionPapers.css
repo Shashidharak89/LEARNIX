@@ -680,6 +680,68 @@
   border-color: var(--qp-blue);
 }
 
+/* Searchable subject dropdown styles */
+.qp-subject-search {
+  position: relative;
+}
+
+.qp-subject-search-input {
+  width: 100%;
+  padding: 10px 40px 10px 14px;
+  border: 1.5px solid rgba(4, 81, 138, 0.18);
+  border-radius: 8px;
+  background: #f8faff;
+  color: var(--qp-text);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.qp-subject-clear {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: rgba(11,11,11,0.45);
+  cursor: pointer;
+}
+
+.qp-subject-dropdown {
+  position: absolute;
+  z-index: 30;
+  left: 0;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  border: 1px solid rgba(4,81,138,0.08);
+  border-radius: 8px;
+  max-height: 220px;
+  overflow: auto;
+  box-shadow: 0 8px 24px rgba(4,81,138,0.08);
+  display: none;
+}
+
+.qp-subject-dropdown.open {
+  display: block;
+}
+
+.qp-subject-dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.qp-subject-dropdown-item:hover,
+.qp-subject-dropdown-item:focus {
+  background: rgba(11,116,255,0.06);
+}
+
+.qp-subject-dropdown-empty {
+  padding: 10px 12px;
+  color: rgba(11,11,11,0.5);
+}
+
 .qp-subject-info {
   display: flex;
   align-items: center;

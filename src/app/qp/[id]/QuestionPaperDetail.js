@@ -13,7 +13,6 @@ import {
   FaClipboardList
 } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
-import ImageLoader from "../../components/ImageLoader";
 import "./styles/QuestionPaperDetail.css";
 
 // Skeleton Components
@@ -386,12 +385,13 @@ const QuestionPaperDetail = ({ id, paperInfo }) => {
                       <span className="qpd-page-badge">{index + 1}</span>
                     )}
                     <div className="qpd-image-wrapper">
-                      <ImageLoader
+                      <img
                         src={imageUrl}
                         alt={`${examType} - Page ${index + 1}`}
                         className={`qpd-topic-image ${expandedImages[index] ? 'qpd-expanded' : ''}`}
                         onClick={() => toggleImageExpansion(index)}
                         loading="lazy"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
                       />
                     </div>
                   </div>

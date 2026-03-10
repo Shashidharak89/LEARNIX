@@ -13,7 +13,6 @@ import {
 import { FaChevronDown } from "react-icons/fa6";
 import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
 import questionPapersData from "../../questionPapersData";
-import ImageLoader from "../../../components/ImageLoader";
 import "./SubjectViewer.css";
 
 /* ── helpers ── */
@@ -298,12 +297,13 @@ export default function SubjectViewer({ params }) {
                         <span className="sv-page-badge">{index + 1}</span>
                       )}
                       <div className="sv-image-wrapper">
-                        <ImageLoader
+                        <img
                           src={imageUrl}
                           alt={`${subject} - Page ${index + 1}`}
                           className={`sv-topic-image ${expandedImages[index] ? "sv-expanded" : ""}`}
                           onClick={() => toggleImageExpansion(index)}
                           loading="lazy"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
                         />
                       </div>
                     </div>
