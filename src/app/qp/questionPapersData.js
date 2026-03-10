@@ -564,7 +564,7 @@ const questionPapersData = [
                 mse1: {
                     id: "QP0301",
                     imageurls: {
-                        unknown: [
+                        "Block Chain Technology": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770300717/users/NN25MCA119/Previous%20year%20Question%20papers/3-Sem%20MSE-1%20QP%20%5B2024-26%5D/y3ahggx0rgqfmdjpxynt.jpg",
                         ],
                     },
@@ -573,19 +573,31 @@ const questionPapersData = [
                 final: {
                     id: "QP0306",
                     imageurls: {
-                        unknown: [
+                        "Digital and Social Media Marketing": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770296338/users/NN25MCA119/Previous%20year%20Question%20papers/3-Sem%20Exam%20QP%20%5B2024-26%5D/c0n9pw9jmu9jhzhjmpyk.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770296351/users/NN25MCA119/Previous%20year%20Question%20papers/3-Sem%20Exam%20QP%20%5B2024-26%5D/dfgszruqm6xw9juuztyh.jpg",
+                        ],
+                        "Natural Language Processing": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765374076/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20exam/mtrt5p4nopdtz3wwlwi9.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765374087/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20exam/c0r4vjfv8dawlkgabjcn.jpg",
+                        ],
+                        "Block Chain Technology": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765374097/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20exam/kj3kvqu0ldlkl3i2qiwp.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765374103/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20exam/bheuc5cedrunw3cr6srw.jpg",
+                        ],
+                        "Artificial Intelligence and Machine Learning": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765374118/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20exam/aeno13j4ruydm5gdueui.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765374127/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20exam/kejah04vli8txtyx6akw.jpg",
+                        ],
+                        "Advanced Web Technologies": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765374143/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20exam/jfq8vxei5aky0mlyjmtf.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765374153/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20exam/plgdzcb6ftgdvoyrhiyi.jpg",
+                        ],
+                        "Mobile Computing and Application Development": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765374164/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20exam/ynzjf8mcilkcynmaqlb3.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765374169/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20exam/bjndsj71lghd476hwh5x.jpg",
+                        ],
+                        "Cloud Computing and Big Data Analytics": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765374508/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20exam/uxhs3qz5rvba3irizjvj.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765374519/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20exam/rqkvi0f6dvcvb1bo1aem.jpg",
                         ],
