@@ -496,7 +496,7 @@ const questionPapersData = [
                     imageurls: {
                         "Cloud Computing and Big Data Analytics": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770299850/users/NN25MCA119/Previous%20year%20Question%20papers/3-Sem%20Exam%20QP%20%5B2022-24%5D/mtx5pkxg1erqynr9eate.jpg",
-                            
+
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770299977/users/NN25MCA119/Previous%20year%20Question%20papers/3-Sem%20Exam%20QP%20%5B2022-24%5D/ytcv7envlv01focanydy.jpg",
                         ],
                         "Mobile Computing and Application Development": [
@@ -517,7 +517,7 @@ const questionPapersData = [
                 mse1: {
                     id: "QP0304",
                     imageurls: {
-                        unknown: [
+                        "Advanced Web Technologies": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770299482/users/NN25MCA119/Previous%20year%20Question%20papers/3-Sem%20MSE-1%20QP%20%5B2023-25%5D/qladoojbzoyvyb7yg0xm.jpg",
                         ],
                     },
@@ -526,8 +526,10 @@ const questionPapersData = [
                 mse2: {
                     id: "QP0305",
                     imageurls: {
-                        unknown: [
+                        "Artificial Intelligence and Machine Learning": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770297976/users/NN25MCA119/Previous%20year%20Question%20papers/3-Sem%20MSE-2%20QP%20%5B2023-25%5D/cx2rbjhax9u8fmvwlnka.jpg",
+                        ],
+                        "Advanced Web Technologies": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770297994/users/NN25MCA119/Previous%20year%20Question%20papers/3-Sem%20MSE-2%20QP%20%5B2023-25%5D/odfmisueinvwzpqx4rrm.jpg",
                         ],
                     },
@@ -536,12 +538,18 @@ const questionPapersData = [
                 final: {
                     id: "QP0307",
                     imageurls: {
-                        unknown: [
+                        "Mobile Computing and Application Development": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765375377/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20Exam%20QP%20%5B2023-25%5D/ip5uvo4i4wbpyqzhxtzc.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765375390/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20Exam%20QP%20%5B2023-25%5D/ejvijyrmu0fqhseca2ni.jpg",
+                        ],
+                        "Advanced Web Technologies": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765375423/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20Exam%20QP%20%5B2023-25%5D/x27dwjywsfkoj5rktgwa.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765375441/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20Exam%20QP%20%5B2023-25%5D/xskqhsacwvg3b5k3872y.jpg",
+                        ],
+                        "Blockchain Technology": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765375499/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20Exam%20QP%20%5B2023-25%5D/nf3aboqrfvofxbvs8pqw.jpg",
+                        ],
+                        "Cloud Computing and Big Data Analytics": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765375830/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20Exam%20QP%20%5B2023-25%5D/vafjvdl8w0uxxi7t7amg.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765375843/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20Exam%20QP%20%5B2023-25%5D/bjybudmrxpfz02g7z1jd.jpg",
                         ],
