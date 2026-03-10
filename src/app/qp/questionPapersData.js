@@ -485,7 +485,7 @@ const questionPapersData = [
                 mse2: {
                     id: "QP0302",
                     imageurls: {
-                        unknown: [
+                        "Artificial Intelligence and Machine Learning": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770300544/users/NN25MCA119/Previous%20year%20Question%20papers/3-Sem%20MSE-1%20QP%20%5B2022-24%5D/ak0c303vqnhvn8ps2a5e.jpg",
                         ],
                     },
@@ -494,14 +494,17 @@ const questionPapersData = [
                 final: {
                     id: "QP0303",
                     imageurls: {
-                        unknown: [
+                        "Cloud Computing and Big Data Analytics": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770299850/users/NN25MCA119/Previous%20year%20Question%20papers/3-Sem%20Exam%20QP%20%5B2022-24%5D/mtx5pkxg1erqynr9eate.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1770299879/users/NN25MCA119/Previous%20year%20Question%20papers/3-Sem%20Exam%20QP%20%5B2022-24%5D/l2tcprzjjzg4vubumerm.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1770299890/users/NN25MCA119/Previous%20year%20Question%20papers/3-Sem%20Exam%20QP%20%5B2022-24%5D/o0vu5faxyxwzqxt8ga7j.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1770299908/users/NN25MCA119/Previous%20year%20Question%20papers/3-Sem%20Exam%20QP%20%5B2022-24%5D/v0ye6svtvhsrpfgw72d7.jpg",
+                            
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1770299977/users/NN25MCA119/Previous%20year%20Question%20papers/3-Sem%20Exam%20QP%20%5B2022-24%5D/ytcv7envlv01focanydy.jpg",
+                        ],
+                        "Mobile Computing and Application Development": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770299927/users/NN25MCA119/Previous%20year%20Question%20papers/3-Sem%20Exam%20QP%20%5B2022-24%5D/k8eorbkkpnwl4m8kadgi.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770299941/users/NN25MCA119/Previous%20year%20Question%20papers/3-Sem%20Exam%20QP%20%5B2022-24%5D/mxzjx4d39h97fhjoxmlo.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1770299977/users/NN25MCA119/Previous%20year%20Question%20papers/3-Sem%20Exam%20QP%20%5B2022-24%5D/ytcv7envlv01focanydy.jpg",
+                        ],
+                        "Artificial Intelligence and Machine Learning": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1770299908/users/NN25MCA119/Previous%20year%20Question%20papers/3-Sem%20Exam%20QP%20%5B2022-24%5D/v0ye6svtvhsrpfgw72d7.jpg",
                         ],
                     },
                     visitlink: ["6984a0ca838d91b67e95a1c7"],
