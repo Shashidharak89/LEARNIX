@@ -77,7 +77,7 @@ export default function QuestionPapers() {
   const [selectedSubject, setSelectedSubject] = useState("");
   const [subjectDownloading, setSubjectDownloading] = useState(false);
   const [searchSubject, setSearchSubject] = useState("");
-  const [showSubjectDropdown, setShowSubjectDropdown] = useState(false);
+  
 
   const toggleSemester = (index) => {
     setOpenSemesterIndex(openSemesterIndex === index ? null : index);
@@ -312,37 +312,32 @@ export default function QuestionPapers() {
                     className="qp-subject-search-input"
                     placeholder="Search subjects..."
                     value={searchSubject}
-                    onChange={(e) => { setSearchSubject(e.target.value); setShowSubjectDropdown(true); setSelectedSubject(''); }}
-                    onFocus={() => setShowSubjectDropdown(true)}
-                    onBlur={() => setTimeout(() => setShowSubjectDropdown(false), 120)}
+                    onChange={(e) => { setSearchSubject(e.target.value); setSelectedSubject(''); }}
                     aria-label="Search subjects"
                   />
                   <button
                     type="button"
                     className="qp-subject-clear"
-                    onClick={() => { setSearchSubject(''); setSelectedSubject(''); setShowSubjectDropdown(false); }}
+                    onClick={() => { setSearchSubject(''); setSelectedSubject(''); }}
                     title="Clear"
                   >
                     ×
                   </button>
 
-                  <ul className={`qp-subject-dropdown ${showSubjectDropdown ? 'open' : ''}`} role="listbox">
-                    {ALL_SUBJECTS.filter(s => s.toLowerCase().includes(searchSubject.toLowerCase())).map((subj) => (
-                      <li
-                        key={subj}
-                        role="option"
-                        tabIndex={0}
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => { setSelectedSubject(subj); setSearchSubject(subj); setShowSubjectDropdown(false); }}
-                        className="qp-subject-dropdown-item"
-                      >
-                        {subj}
-                      </li>
-                    ))}
-                    {ALL_SUBJECTS.filter(s => s.toLowerCase().includes(searchSubject.toLowerCase())).length === 0 && (
-                      <li className="qp-subject-dropdown-empty">No subjects found</li>
-                    )}
-                  </ul>
+                  {/* Native select preserved — filtered by the search input */}
+                  <select
+                    className="qp-subject-select"
+                    value={selectedSubject}
+                    onChange={(e) => { setSelectedSubject(e.target.value); }}
+                    aria-label="Select subject"
+                  >
+                    <option value="">-- Select subject --</option>
+                    {ALL_SUBJECTS
+                      .filter(s => s.toLowerCase().includes(searchSubject.toLowerCase()))
+                      .map((subj) => (
+                        <option key={subj} value={subj}>{subj}</option>
+                      ))}
+                  </select>
                 </div>
               </div>
 

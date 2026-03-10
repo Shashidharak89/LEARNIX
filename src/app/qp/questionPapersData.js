@@ -468,7 +468,7 @@ const questionPapersData = [
                     ],
                 },
             },
-            // --─ Batch 2025-2027 ──────────────────────────────────
+            // ── Batch 2025-2027 ──────────────────────────────────
             {
                 batchname: "2025-2027",
                 mse1: {
@@ -481,23 +481,23 @@ const questionPapersData = [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772712878/users/NN25MCA119/2nd%20sem%20question%20papers/MSE%201/zfg1xczv9hfdx0acruun.jpg",
 
                         ],
-                        "Software Engineering and Testing":[
+                        "Software Engineering and Testing": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772712883/users/NN25MCA119/2nd%20sem%20question%20papers/MSE%201/w35vvpd7jy5j5a81uaw8.jpg",
 
                         ],
-                        "Data Warehousing and Data Mining":[
+                        "Data Warehousing and Data Mining": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772712888/users/NN25MCA119/2nd%20sem%20question%20papers/MSE%201/dzzolvglbbrfmek9ksv4.jpg",
 
                         ],
-                        "Professional Communication Skills":[
+                        "Professional Communication Skills": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772712893/users/NN25MCA119/2nd%20sem%20question%20papers/MSE%201/orglmtrglh4fsu8egrf0.jpg",
 
                         ],
-                        "Full Stack Development using Django":[
+                        "Full Stack Development using Django": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772712898/users/NN25MCA119/2nd%20sem%20question%20papers/MSE%201/f84llytoxbw9oahdhpbs.jpg",
 
                         ],
-                        "Web Development using Ruby on Rails & PostgreSQL":[
+                        "Web Development using Ruby on Rails & PostgreSQL": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772712903/users/NN25MCA119/2nd%20sem%20question%20papers/MSE%201/rcbhm4jqcnwnisgxab6s.jpg"
                         ],
                     },
