@@ -85,7 +85,7 @@ const questionPapersData = [
                         "Software Engineering and Testing": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772213179/users/NU25MCA92/2nd%20sem%20question%20papers/2nd%20sem/rdq1cmf45l9ao0ibe11h.jpg",
                         ],
-                        "Resarch Methodology and Publication Ethics": [
+                        "Research Methodology and Publication Ethics": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772213182/users/NU25MCA92/2nd%20sem%20question%20papers/2nd%20sem/vyshbvxvkxkq2g8pnz6w.jpg",
                         ],
                     },
@@ -109,7 +109,7 @@ const questionPapersData = [
                         "Software Engineering and Testing": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763211889/users/NU25MCA117/Previous%20year%20Question%20papers/MSE-2%202024/lwsyqdqozzmov5kvkqua.jpg",
                         ],
-                        "Resarch Methodology and Publication Ethics": [
+                        "Research Methodology and Publication Ethics": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763211894/users/NU25MCA117/Previous%20year%20Question%20papers/MSE-2%202024/rrbejkdy4cc7gyvs3d7l.jpg",
                         ],
 
@@ -140,7 +140,7 @@ const questionPapersData = [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763275924/users/NU25MCA117/Previous%20year%20Question%20papers/1%20Sem%20%5Bsem%20exam%202024%5D/suma1jchbdyavnc9v6yh.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763275936/users/NU25MCA117/Previous%20year%20Question%20papers/1%20Sem%20%5Bsem%20exam%202024%5D/w1q3s1g5xjva3mkpaly1.jpg",
                         ],
-                        "Resarch Methodology and Publication Ethics": [
+                        "Research Methodology and Publication Ethics": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1763275953/users/NU25MCA117/Previous%20year%20Question%20papers/1%20Sem%20%5Bsem%20exam%202024%5D/tv4otvntyuef3pglhksq.jpg",
                         ],
                     },
@@ -255,7 +255,7 @@ const questionPapersData = [
                         "Health Care Analysis": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765462417/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/yluaf13k75cfu2lwtzy6.jpg",
                         ],
-                        "Proffessional Communication Skills": [
+                        "Professional Communication Skills": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765463817/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/peytzkuewwo7pvnyurvu.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765463822/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/b9zsp3avs4gdn7numwl0.jpg",
                         ],
@@ -266,11 +266,11 @@ const questionPapersData = [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765460833/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/dbzifkevxdiybrxfsvm5.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765460847/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/y5pgv6nits4wc1xaqitz.jpg",
                         ],
-                        "Data Communication and Networks": [
+                        "Data Communication and Computer Networks": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765462445/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/zx8srsk0voaksbhyrvko.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765462458/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/c83irp9mwh60wl1dc4yk.jpg",
                         ],
-                        "Operating Systems with UNIX": [
+                        "Advanced Operating Systems with UNIX": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770300307/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/bugxi4r7sfeaqukzszv9.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770300323/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Sem%20Exam%20QP%20%5B2022-24%5D/r9xm6cvhoplbkhezd1wv.jpg",
                         ],
@@ -287,7 +287,7 @@ const questionPapersData = [
                 mse1: {
                     id: "QP0204",
                     imageurls: {
-                        "Operating Systems with UNIX": [
+                        "Advanced Operating Systems with UNIX": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765461972/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2023-25%5D/ewzfxv1j3p2krs8fipuv.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772447704/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2023-25%5D/eplsv4gfbwwpl3dso2r7.jpg",
 
@@ -310,7 +310,7 @@ const questionPapersData = [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772447667/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2023-25%5D/aanaqzgdetujbnmitqsd.jpg",
 
                         ],
-                        "Data Communication and Networks": [
+                        "Data Communication and Computer Networks": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1772447677/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2023-25%5D/bfv9sdkhkx95luywr1wg.jpg",
 
                         ],
@@ -333,7 +333,7 @@ const questionPapersData = [
                         "Digital Image Processing and Pattern Recognition": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765461847/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-2%20QP%20%5B2023-2025%5D/rsuqby93byg39yedttxp.jpg",
                         ],
-                        "Operating Systems with UNIX": [
+                        "Advanced Operating Systems with UNIX": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765461871/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-2%20QP%20%5B2023-2025%5D/lcykc3om4eukvlxonvf0.jpg",
                         ],
                         "Professional Communication Skills": [
@@ -359,11 +359,11 @@ const questionPapersData = [
                         "Digital Image Processing and Pattern Recognition": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766290767/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2023-25%5D/nmhgmbc3sdf98inp4asx.jpg",
                         ],
-                        "Data Communication and Networks": [
+                        "Data Communication and Computer Networks": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766290775/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2023-25%5D/rykj1lqg6kgm4miyh7m6.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766290784/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2023-25%5D/rushhdm3mue98nxxjbcj.jpg",
                         ],
-                        "Operating Systems with UNIX": [
+                        "Advanced Operating Systems with UNIX": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766290793/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2023-25%5D/vt8bnotjzmk0fqpnn4ka.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766290802/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2023-25%5D/ihb5nx7xaftfjucv2opr.jpg",
                         ],
@@ -390,7 +390,7 @@ const questionPapersData = [
                         "Enterprise Java": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1759585528/users/NU25MCA117/Question%20Papers%201st%20Sem%202025/2-sem%20MSE-1%202024/xutb8mi3iuw4pvym017l.jpg",
                         ],
-                        "Operating Systems with UNIX": [
+                        "Advanced Operating Systems with UNIX": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770307446/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20MSE-1%20QP%20%5B2024-26%5D/wa6z3de3lohlvybiksqv.jpg",
                         ],
                         "Data Communication and Computer Networks": [
@@ -436,11 +436,11 @@ const questionPapersData = [
                 final: {
                     id: "QP0207",
                     imageurls: {
-                        "Operating Systems with UNIX": [
+                        "Advanced Operating Systems with UNIX": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765374967/users/NNM24MC101/Previous%20year%20Question%20papers/2-Sem%20Final%20Exam%20QP/tbycuql5bm82rt3yy9sm.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765374979/users/NNM24MC101/Previous%20year%20Question%20papers/2-Sem%20Final%20Exam%20QP/as4fjrjkrr3m0b54qsq3.jpg",
                         ],
-                        "Data Communication and Networks": [
+                        "Data Communication and Computer Networks": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765374990/users/NNM24MC101/Previous%20year%20Question%20papers/2-Sem%20Final%20Exam%20QP/nullasdhkvtduxxia9xx.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765375001/users/NNM24MC101/Previous%20year%20Question%20papers/2-Sem%20Final%20Exam%20QP/dkmkc91kzoagqmytv2eg.jpg",
                         ],
@@ -546,7 +546,7 @@ const questionPapersData = [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765375423/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20Exam%20QP%20%5B2023-25%5D/x27dwjywsfkoj5rktgwa.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765375441/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20Exam%20QP%20%5B2023-25%5D/xskqhsacwvg3b5k3872y.jpg",
                         ],
-                        "Blockchain Technology": [
+                        "Block Chain Technology": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1765375499/users/NNM24MC101/Previous%20year%20Question%20papers/3-Sem%20Final%20Exam%20QP%20%5B2023-25%5D/nf3aboqrfvofxbvs8pqw.jpg",
                         ],
                         "Cloud Computing and Big Data Analytics": [
