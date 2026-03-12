@@ -159,7 +159,7 @@ export default function StudyMaterials() {
                                 >
                                   <div className="sm-unofficial-left">
                                     <BookMarked size={16} />
-                                    <span className="sm-unofficial-label">Unofficial Resources</span>
+                                    <span className="sm-unofficial-label">External Resources</span>
                                     <span className="sm-unofficial-badge">{subj.customfiles.length} files</span>
                                   </div>
                                   <div className="sm-unofficial-chevron">
