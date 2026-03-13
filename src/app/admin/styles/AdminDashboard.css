@@ -541,6 +541,119 @@
   margin: 0;
 }
 
+/* ── Request metrics section ── */
+.adm-req-section {
+  margin-bottom: 2rem;
+  animation: adm-fade-in 0.5s ease 0.35s both;
+}
+
+.adm-req-head {
+  margin-bottom: 1rem;
+}
+
+.adm-req-head .adm-section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.adm-req-filter-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+}
+
+.adm-req-filter-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+}
+
+.adm-req-date-input {
+  border: 1.5px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 0.36rem 0.62rem;
+  font-size: 0.82rem;
+  background: #eff6ff;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+.adm-req-date-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.adm-req-grid-two {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.adm-req-panel {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 0.9rem 1rem;
+}
+
+.adm-req-panel-title {
+  font-size: 0.9rem;
+  margin: 0 0 0.4rem;
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.adm-req-lines p {
+  margin: 0.2rem 0;
+  font-size: 0.84rem;
+  color: #4b5563;
+}
+
+.adm-req-history-wrap {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 1rem;
+}
+
+.adm-req-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.adm-req-history-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 9px;
+  padding: 0.58rem 0.72rem;
+}
+
+.adm-req-history-date {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.adm-req-history-counts {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 0.79rem;
+  color: #4b5563;
+  flex-wrap: wrap;
+}
+
 /* ── No-access screen ── */
 .adm-no-access {
   min-height: 60vh;

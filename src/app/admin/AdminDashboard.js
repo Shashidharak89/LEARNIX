@@ -28,6 +28,7 @@ import {
 } from "react-icons/fi";
 import { MdAdminPanelSettings, MdOutlineSupervisorAccount } from "react-icons/md";
 import "./styles/AdminDashboard.css";
+import AdminRequestMetrics from "./AdminRequestMetrics";
 
 // ─── Privilege config per role ────────────────────────────────────────────────
 const ROLE_CONFIG = {
@@ -425,17 +426,7 @@ export default function AdminDashboard() {
         </div>
       </section>
 
-      {/* ── Coming soon banner ── */}
-      <div className="adm-coming-soon">
-        <div className="adm-coming-icon"><FiSettings size={28} /></div>
-        <div>
-          <h3 className="adm-coming-title">Live Admin Controls Coming Soon</h3>
-          <p className="adm-coming-text">
-            The interactive admin controls (user management, content actions, analytics charts) are currently under development.
-            This page shows your role and the full privilege map for your access level.
-          </p>
-        </div>
-      </div>
+      <AdminRequestMetrics role={role} />
 
     </div>
   );
