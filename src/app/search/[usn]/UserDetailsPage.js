@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Calendar, BookOpen, ImageIcon, Eye, EyeOff, User, GraduationCap, Clock, ChevronDown, Search } from "lucide-react";
-import { formatActiveTime } from '@/lib/utils';
 import './styles/UserDetailsPage.css';
 import UserDetailsPageSkeleton from "./UserDetailsPageSkeleton";
 
@@ -28,6 +27,11 @@ export default function UserDetailsPage({ usn }) {
   const TOPICS_PER_LOAD = 3; // Load 3 topics at a time per subject
   const SUBJECTS_PER_LOAD = 3;
   const DEFAULT_PROFILE_IMAGE = "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp";
+
+  const getSafeStreak = (value) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+  };
 
   const filterSubjects = useCallback((subjects, searchTerm = '') => {
     return subjects
@@ -245,9 +249,12 @@ export default function UserDetailsPage({ usn }) {
                     <span className="user-details-stat-label">Images</span>
                   </div>
                   <div className="user-details-stat-item">
-                    <span className="user-details-stat-number">{formatActiveTime(user.active || 0)}</span>
-                    <span className="user-details-stat-label">Active</span>
+                    <span className="user-details-stat-number">{getSafeStreak(user.streaks)}</span>
+                    <span className="user-details-stat-label">Streak</span>
                   </div>
+                </div>
+                <div className="user-details-highest-streak">
+                  Highest streak: {getSafeStreak(user.highestStreak)}
                 </div>
               </div>
             </div>

@@ -188,6 +188,12 @@
   letter-spacing: 0.5px;
 }
 
+.user-details-highest-streak {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  opacity: 0.92;
+}
+
 /* Profile Meta */
 .user-details-profile-meta {
   background: #f8faff;
