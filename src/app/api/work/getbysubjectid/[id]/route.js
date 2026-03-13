@@ -4,6 +4,7 @@ import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
 import { getVisibility } from "@/lib/visibility";
+import { resolveAuthenticatedUser } from "@/lib/authUser";
 
 // GET /api/work/getbysubjectid/:id
 // Fetches subject with all its topics based on visibility + ownership
@@ -12,7 +13,6 @@ export const GET = async (req, { params }) => {
     await connectDB();
 
     const { id } = await params; // subject _id
-    const usn = req.headers.get("x-usn"); // Optional: current user's USN for permission check
 
     // Find the subject
     const subject = await Subject.findById(id).lean();
@@ -24,15 +24,15 @@ export const GET = async (req, { params }) => {
     }
 
     // Determine if current user is the owner
-    const currentUser = usn ? await User.findOne({ usn: usn.toUpperCase() }).lean() : null;
+    const currentUser = await resolveAuthenticatedUser(req);
     const isOwner = currentUser && subject.userId.toString() === currentUser._id.toString();
 
     const subjectVisibility = getVisibility(subject);
 
-    // If subject is private and user is not the owner, deny access
-    if (subjectVisibility === "private" && !isOwner) {
+    // In /works, only public content is visible for non-owners
+    if ((subjectVisibility === "private" || subjectVisibility === "unlisted") && !isOwner) {
       return NextResponse.json(
-        { error: "This subject is private and not accessible" },
+        { error: "This subject is not publicly accessible" },
         { status: 403 }
       );
     }
@@ -49,9 +49,9 @@ export const GET = async (req, { params }) => {
     // Fetch all topics for this subject
     let topicsQuery = { subjectId: id };
     
-    // If requester is not owner, hide private topics (allow public + unlisted)
+    // If requester is not owner, expose only public topics
     if (!isOwner) {
-      topicsQuery.$or = [{ visibility: "public" }, { visibility: "unlisted" }, { visibility: { $exists: false } }];
+      topicsQuery.$or = [{ visibility: "public" }, { visibility: { $exists: false } }];
     }
 
     const topics = await Topic.find(topicsQuery)

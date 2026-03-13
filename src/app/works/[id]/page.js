@@ -108,10 +108,13 @@ const WorkTopicPageWrapper = () => {
 
     const fetchData = async () => {
       try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+
         // Add a minimum loading time for better UX (only if no cached data)
         const minDelay = cachedData ? 0 : 800;
         const [res] = await Promise.all([
-          fetch(`/api/work/getbytopicid/${id}`),
+          fetch(`/api/work/getbytopicid/${id}`, headers ? { headers } : undefined),
           new Promise(resolve => setTimeout(resolve, minDelay))
         ]);
         

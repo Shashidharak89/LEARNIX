@@ -378,7 +378,11 @@ const ManageReviewsPage = () => {
         setCurrentUserId(userId);
 
         // Fetch topic data to verify ownership
-        const topicRes = await fetch(`/api/work/getbytopicid/${topicId}`);
+        const token = localStorage.getItem("token");
+        const topicRes = await fetch(
+          `/api/work/getbytopicid/${topicId}`,
+          token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
+        );
         if (!topicRes.ok) {
           setError("Topic not found.");
           setLoading(false);

@@ -3,6 +3,8 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
+import { getVisibility } from "@/lib/visibility";
+import { resolveAuthenticatedUser } from "@/lib/authUser";
 
 // GET /api/work/getbytopicid/:id
 export const GET = async (req, { params }) => {
@@ -12,12 +14,23 @@ export const GET = async (req, { params }) => {
     const { id } = await params; // topic _id
 
     // Find the topic
-    const topic = await Topic.findById(id);
+    const topic = await Topic.findById(id).lean();
 
     if (!topic) {
       return NextResponse.json(
         { error: "Topic not found" },
         { status: 404 }
+      );
+    }
+
+    const caller = await resolveAuthenticatedUser(req);
+    const isOwner = caller && topic.userId.toString() === caller._id.toString();
+
+    const topicVisibility = getVisibility(topic);
+    if ((topicVisibility === "private" || topicVisibility === "unlisted") && !isOwner) {
+      return NextResponse.json(
+        { error: "This topic is not publicly accessible" },
+        { status: 403 }
       );
     }
 
@@ -39,6 +52,14 @@ export const GET = async (req, { params }) => {
       );
     }
 
+    const subjectVisibility = getVisibility(subject);
+    if ((subjectVisibility === "private" || subjectVisibility === "unlisted") && !isOwner) {
+      return NextResponse.json(
+        { error: "This subject is not publicly accessible" },
+        { status: 403 }
+      );
+    }
+
     return NextResponse.json({
       user: {
         _id: user._id,
@@ -47,14 +68,16 @@ export const GET = async (req, { params }) => {
         profileimg: user.profileimg,
       },
       subject: {
+        _id: subject._id,
         subject: subject.subject,
+        visibility: subjectVisibility,
       },
       topic: {
         _id: topic._id,
         topic: topic.topic,
         content: topic.content,
         images: topic.images,
-        visibility: topic.visibility || "public",
+        visibility: topicVisibility,
         timestamp: topic.timestamp
       },
     });

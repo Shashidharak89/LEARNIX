@@ -18,8 +18,8 @@ const WorkSubjectPageWrapper = () => {
 
     const fetchData = async () => {
       try {
-        const usn = typeof window !== "undefined" ? localStorage.getItem("usn") : null;
-        const headers = usn ? { "x-usn": usn } : undefined;
+        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
         const [res] = await Promise.all([
           fetch(`/api/work/getbysubjectid/${subjectId}`, headers ? { headers } : undefined),
