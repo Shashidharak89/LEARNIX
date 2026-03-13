@@ -94,6 +94,19 @@
   transition: color 0.2s ease;
 }
 
+.wn__title_block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+}
+
+.wn__update_date {
+  font-size: 0.78rem;
+  color: #5f6b7a;
+  font-weight: 500;
+}
+
 .wn__card_expanded .wn__card_title {
   color: #1E40AF;
 }
