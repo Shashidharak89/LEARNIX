@@ -7,6 +7,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import { Navbar } from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import WorkTopicPage from "./WorkTopicPage";
+import { authFetch } from "@/lib/clientAuth";
 
 // LocalStorage key for saved topics
 const SAVED_TOPICS_KEY = 'learnix_saved_topics';
@@ -108,13 +109,10 @@ const WorkTopicPageWrapper = () => {
 
     const fetchData = async () => {
       try {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-        const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-
         // Add a minimum loading time for better UX (only if no cached data)
         const minDelay = cachedData ? 0 : 800;
         const [res] = await Promise.all([
-          fetch(`/api/work/getbytopicid/${id}`, headers ? { headers } : undefined),
+          authFetch(`/api/work/getbytopicid/${id}`),
           new Promise(resolve => setTimeout(resolve, minDelay))
         ]);
         
@@ -172,7 +170,7 @@ const WorkTopicPageWrapper = () => {
       }
 
       // Call the API to generate PDF with template
-      const response = await fetch('/api/work/download-pdf', {
+      const response = await authFetch('/api/work/download-pdf', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

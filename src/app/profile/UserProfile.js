@@ -21,12 +21,12 @@ import {
   FiAlertCircle
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
-import { formatActiveTime } from '@/lib/utils';
 import ChangeName from './ChangeName';
 import ChangePassword from './ChangePassword';
 import ProfileImageEditor from './ProfileImageEditor';
 import UserProfileSkeleton from './UserProfileSkeleton'; // Import the skeleton
 import './styles/UserProfile.css';
+import { authFetch, signOutFromBrowser } from '@/lib/clientAuth';
 
 export default function UserProfile() {
   const [user, setUser] = useState(null);
@@ -54,25 +54,19 @@ export default function UserProfile() {
     fetchQuote();
   }, []);
 
-  // NEW: interval to call POST /api/user/active every 60s and update local user.active
+  // Keep user session fresh and ensure token is attached
   useEffect(() => {
     let intervalId = null;
 
     const tick = async () => {
       try {
         const usn = localStorage.getItem("usn");
-        if (!usn) return; // not logged in
-
-        const res = await axios.post("/api/user/active", { usn });
-        const updatedActive = res?.data?.active;
-
-        // Update local user state with new active value (if user already loaded)
-        if (typeof updatedActive !== "undefined") {
-          setUser(prev => {
-            if (!prev) return prev; // if user not loaded yet, keep it null
-            return { ...prev, active: updatedActive };
-          });
-        }
+        if (!usn) return;
+        await authFetch("/api/user/active", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ usn }),
+        });
       } catch (err) {
         // Fail silently but log for debugging
         console.error("Failed to update active time:", err);
@@ -167,15 +161,24 @@ export default function UserProfile() {
         return;
       }
 
-      const res = await axios.get(`/api/user?usn=${usn}`);
-      setUser(res.data.user);
-      setProfileImage(res.data.user.profileimg || "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp");
+      const res = await authFetch(`/api/user?usn=${usn}`);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) {
+          signOutFromBrowser("Your session expired. Please login again.");
+          return;
+        }
+        throw new Error(data?.error || "Failed to fetch user profile");
+      }
+
+      setUser(data.user);
+      setProfileImage(data.user.profileimg || "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp");
       setMessage("");
       setHasError(false);
       
       const initialVisible = {};
-      if (res.data.user.subjects) {
-        res.data.user.subjects.forEach((subject, index) => {
+      if (data.user.subjects) {
+        data.user.subjects.forEach((subject, index) => {
           initialVisible[index] = Math.min(TOPICS_PER_LOAD, subject.topics?.length || 0);
         });
       }
@@ -363,10 +366,11 @@ export default function UserProfile() {
                     <span className="up-stat-label">Uploads</span>
                   </div>
                   <div className="up-stat">
-                    <span className="up-stat-number">{formatActiveTime(user.active || 0)}</span>
-                    <span className="up-stat-label">Active</span>
+                    <span className="up-stat-number">{Number(user.streaks) || 1}</span>
+                    <span className="up-stat-label">Streak</span>
                   </div>
                 </div>
+                <div className="up-highest-streak">Highest streak: {Number(user.highestStreak) || 1}</div>
               </div>
             </div>
 

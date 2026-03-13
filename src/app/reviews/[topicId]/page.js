@@ -25,6 +25,7 @@ import {
   FaCheck
 } from "react-icons/fa";
 import "./styles/ManageReviews.css";
+import { authFetch } from "@/lib/clientAuth";
 
 const REVIEW_TYPES = [
   { value: "feedback", label: "Feedback", icon: FaCommentDots, color: "#0ea5e9" },
@@ -378,11 +379,7 @@ const ManageReviewsPage = () => {
         setCurrentUserId(userId);
 
         // Fetch topic data to verify ownership
-        const token = localStorage.getItem("token");
-        const topicRes = await fetch(
-          `/api/work/getbytopicid/${topicId}`,
-          token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
-        );
+        const topicRes = await authFetch(`/api/work/getbytopicid/${topicId}`);
         if (!topicRes.ok) {
           setError("Topic not found.");
           setLoading(false);

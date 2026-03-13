@@ -9,6 +9,7 @@ import SubjectTopicFilter from './SubjectTopicFilter';
 import Ads from '../components/ads/Ads';
 import ImageLoader from '../components/ImageLoader';
 import './styles/WorkSearchInterface.css';
+import { authFetch } from '@/lib/clientAuth';
 
 // LocalStorage key for saved topics (same as in /works/[id])
 const SAVED_TOPICS_KEY = 'learnix_saved_topics';
@@ -189,7 +190,7 @@ const WorkSearchInterface = () => {
     try {
       // Use oldest API when sortOrder is 'oldest', otherwise use default (latest first)
       const apiEndpoint = sortOrder === 'oldest' ? '/api/work/oldest/paged' : '/api/work/paged';
-      const response = await fetch(`${apiEndpoint}?page=${pageToFetch}&pageSize=${ITEMS_PER_LOAD}`);
+      const response = await authFetch(`${apiEndpoint}?page=${pageToFetch}&pageSize=${ITEMS_PER_LOAD}`);
       const data = await response.json();
       if (data && Array.isArray(data.topics)) {
         const newTopics = data.topics.map(topic => ({
@@ -264,7 +265,7 @@ const WorkSearchInterface = () => {
 
       // Use oldest API when sortOrder is 'oldest', otherwise use default (latest first)
       const apiEndpoint = sortOrder === 'oldest' ? '/api/work/search-oldest' : '/api/work/search';
-      const response = await fetch(`${apiEndpoint}?${urlParams.toString()}`);
+      const response = await authFetch(`${apiEndpoint}?${urlParams.toString()}`);
       const data = await response.json();
       if (data && Array.isArray(data.topics)) {
         const newTopics = data.topics.map(topic => ({
@@ -313,7 +314,7 @@ const WorkSearchInterface = () => {
     if (pageNum === 1) setIsLoadingRelevant(true);
     else setIsLoadingMoreRelevant(true);
     try {
-      const res = await fetch(`/api/work/relevant?q=${encodeURIComponent(query)}&page=${pageNum}`);
+      const res = await authFetch(`/api/work/relevant?q=${encodeURIComponent(query)}&page=${pageNum}`);
       const data = await res.json();
       if (data && Array.isArray(data.topics)) {
         const mapped = data.topics.map(topic => ({
@@ -441,7 +442,7 @@ const WorkSearchInterface = () => {
       }
 
       // Call the API to generate PDF with template
-      const response = await fetch('/api/work/download-pdf', {
+      const response = await authFetch('/api/work/download-pdf', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

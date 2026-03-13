@@ -64,8 +64,8 @@ export const GET = async (req) => {
         subjects: subjectsWithTopics,
         createdAt: user.createdAt,
         profileimg: user.profileimg,
-        // Active is deprecated; return dummy value for compatibility
-        active: user.active ?? 0,
+        streaks: Number.isFinite(Number(user.streaks)) ? Number(user.streaks) : 1,
+        highestStreak: Number.isFinite(Number(user.highestStreak)) ? Number(user.highestStreak) : 1,
       },
     });
   } catch (err) {

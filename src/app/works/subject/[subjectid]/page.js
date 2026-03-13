@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { Navbar } from "../../../components/Navbar";
 import Footer from "../../../components/Footer";
 import WorkSubjectPage from "../../[id]/WorkSubjectPage";
+import { authFetch } from "@/lib/clientAuth";
 
 const WorkSubjectPageWrapper = () => {
   const params = useParams();
@@ -18,11 +19,8 @@ const WorkSubjectPageWrapper = () => {
 
     const fetchData = async () => {
       try {
-        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-        const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-
         const [res] = await Promise.all([
-          fetch(`/api/work/getbysubjectid/${subjectId}`, headers ? { headers } : undefined),
+          authFetch(`/api/work/getbysubjectid/${subjectId}`),
           new Promise((resolve) => setTimeout(resolve, 800)),
         ]);
 

@@ -23,7 +23,15 @@ export const GET = async (req, { params }) => {
       );
     }
 
-    const caller = await resolveAuthenticatedUser(req);
+    const auth = await resolveAuthenticatedUser(req, { withMeta: true });
+    if (auth.tokenProvided && auth.tokenInvalid) {
+      return NextResponse.json(
+        { error: "Token expired or invalid. Please login again." },
+        { status: 401 }
+      );
+    }
+
+    const caller = auth.user;
     const isOwner = caller && topic.userId.toString() === caller._id.toString();
 
     const topicVisibility = getVisibility(topic);

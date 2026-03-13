@@ -11,6 +11,9 @@ const UserSchema = new mongoose.Schema({
   },
   token: { type: String, default: null },
   tokenCreatedAt: { type: Date, default: null },
+  lastLoginAt: { type: Date, default: null },
+  streaks: { type: Number, default: 1 },
+  highestStreak: { type: Number, default: 1 },
   createdAt: { type: Date, default: Date.now }
 });
 

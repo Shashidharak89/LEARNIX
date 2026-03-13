@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import "./RandomQuote.css";
+import { authFetch } from "@/lib/clientAuth";
 
 export default function RandomQuote() {
   const [quote, setQuote] = useState(null);
@@ -12,7 +13,7 @@ export default function RandomQuote() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/quote");
+      const res = await authFetch("/api/quote");
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       setQuote(data);

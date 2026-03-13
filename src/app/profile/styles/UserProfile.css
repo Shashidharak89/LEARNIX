@@ -313,6 +313,12 @@
   text-transform: uppercase;
 }
 
+.up-highest-streak {
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  color: #dbeafe;
+}
+
 .up-meta {
   background-color: #f8f9fa;
   padding: 1rem 1.5rem;

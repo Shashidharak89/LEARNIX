@@ -19,6 +19,7 @@ import {
   FaCheck
 } from "react-icons/fa";
 import "./styles/TopicReviews.css";
+import { authFetch } from "@/lib/clientAuth";
 
 const REVIEW_TYPES = [
   { value: "feedback", label: "Feedback", icon: FaCommentDots, color: "#3b82f6" },
@@ -353,7 +354,7 @@ const TopicReviews = ({ topicId }) => {
         if (usn) {
           setIsLoggedIn(true);
           // Use lightweight endpoint that only returns user ID
-          const res = await fetch(`/api/user/id?usn=${usn}`);
+          const res = await authFetch(`/api/user/id?usn=${usn}`);
           if (res.ok) {
             const data = await res.json();
             setCurrentUserId(data.userId);
@@ -380,7 +381,7 @@ const TopicReviews = ({ topicId }) => {
         ? `/api/review/topic/${topicId}?userId=${currentUserId}`
         : `/api/review/topic/${topicId}`;
       
-      const res = await fetch(url);
+      const res = await authFetch(url);
       const data = await res.json();
       
       if (res.ok) {
@@ -412,7 +413,7 @@ const TopicReviews = ({ topicId }) => {
 
     try {
       setSubmitting(true);
-      const res = await fetch("/api/review", {
+      const res = await authFetch("/api/review", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -446,7 +447,7 @@ const TopicReviews = ({ topicId }) => {
     if (!currentUserId) return;
 
     try {
-      const res = await fetch(`/api/review/${reviewId}`, {
+      const res = await authFetch(`/api/review/${reviewId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -473,7 +474,7 @@ const TopicReviews = ({ topicId }) => {
   // Delete a review
   const handleDelete = async (reviewId) => {
     try {
-      const res = await fetch(`/api/review/${reviewId}?userId=${currentUserId}`, {
+      const res = await authFetch(`/api/review/${reviewId}?userId=${currentUserId}`, {
         method: "DELETE"
       });
 
@@ -492,7 +493,7 @@ const TopicReviews = ({ topicId }) => {
   // Delete a reply
   const handleDeleteReply = async (reviewId, replyIndex) => {
     try {
-      const res = await fetch(`/api/review/${reviewId}/reply`, {
+      const res = await authFetch(`/api/review/${reviewId}/reply`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

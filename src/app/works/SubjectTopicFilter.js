@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FiX } from 'react-icons/fi';
 import './SubjectTopicFilter.css';
+import { authFetch } from '@/lib/clientAuth';
 
 const SubjectTopicFilter = ({ onFilterChange, initialSubjects = [], initialTopics = [] }) => {
   const [subjects, setSubjects] = useState([]);
@@ -20,7 +21,7 @@ const SubjectTopicFilter = ({ onFilterChange, initialSubjects = [], initialTopic
     const fetchSubjects = async () => {
       setIsLoadingSubjects(true);
       try {
-        const response = await fetch('/api/subject/public');
+        const response = await authFetch('/api/subject/public');
         const data = await response.json();
         if (data.subjects) {
           setSubjects(data.subjects);
@@ -45,7 +46,7 @@ const SubjectTopicFilter = ({ onFilterChange, initialSubjects = [], initialTopic
           
           // Fetch topics for each selected subject
           for (const subject of selectedSubjects) {
-            const response = await fetch(`/api/topic/by-subject?subject=${encodeURIComponent(subject)}`);
+            const response = await authFetch(`/api/topic/by-subject?subject=${encodeURIComponent(subject)}`);
             const data = await response.json();
             if (data.topics) {
               data.topics.forEach(topic => topicsSet.add(topic));

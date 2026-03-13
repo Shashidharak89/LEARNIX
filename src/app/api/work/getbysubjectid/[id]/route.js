@@ -24,7 +24,15 @@ export const GET = async (req, { params }) => {
     }
 
     // Determine if current user is the owner
-    const currentUser = await resolveAuthenticatedUser(req);
+    const auth = await resolveAuthenticatedUser(req, { withMeta: true });
+    if (auth.tokenProvided && auth.tokenInvalid) {
+      return NextResponse.json(
+        { error: "Token expired or invalid. Please login again." },
+        { status: 401 }
+      );
+    }
+
+    const currentUser = auth.user;
     const isOwner = currentUser && subject.userId.toString() === currentUser._id.toString();
 
     const subjectVisibility = getVisibility(subject);
