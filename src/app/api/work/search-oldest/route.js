@@ -4,12 +4,22 @@ import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
 import { buildKeywordConditions } from "@/lib/searchHelper";
+import { resolveAuthenticatedUser } from "@/lib/authUser";
 
 // GET /api/work/search-oldest?q=keyword&page=1&pageSize=8&subjects=sub1,sub2&topics=topic1,topic2
 // Returns topics sorted by oldest first (ascending timestamp)
 export const GET = async (req) => {
   try {
     await connectDB();
+
+    const auth = await resolveAuthenticatedUser(req, { withMeta: true });
+    if (auth.tokenProvided && auth.tokenInvalid) {
+      return NextResponse.json(
+        { error: "Token expired or invalid. Please login again." },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const q = searchParams.get("q")?.trim() || "";
     const page = parseInt(searchParams.get("page")) || 1;

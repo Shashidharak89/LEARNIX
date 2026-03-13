@@ -3,11 +3,21 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
+import { resolveAuthenticatedUser } from "@/lib/authUser";
 
 // GET /api/work/paged?page=1&pageSize=8
 export const GET = async (req) => {
   try {
     await connectDB();
+
+    const auth = await resolveAuthenticatedUser(req, { withMeta: true });
+    if (auth.tokenProvided && auth.tokenInvalid) {
+      return NextResponse.json(
+        { error: "Token expired or invalid. Please login again." },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page")) || 1;
     const pageSize = parseInt(searchParams.get("pageSize")) || 8;

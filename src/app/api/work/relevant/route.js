@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
+import { resolveAuthenticatedUser } from "@/lib/authUser";
 
 const HF_SEARCH_URL = "https://shashidharak99-keyword-search-lernix.hf.space/search";
 const PAGE_SIZE = 8;
@@ -19,6 +20,16 @@ const PAGE_SIZE = 8;
  */
 export const GET = async (req) => {
   try {
+    await connectDB();
+
+    const auth = await resolveAuthenticatedUser(req, { withMeta: true });
+    if (auth.tokenProvided && auth.tokenInvalid) {
+      return NextResponse.json(
+        { error: "Token expired or invalid. Please login again." },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const q = searchParams.get("q")?.trim() || "";
     const page = parseInt(searchParams.get("page")) || 1;
@@ -63,7 +74,6 @@ export const GET = async (req) => {
     }
 
     // ── 3. Query DB for topics matching any of the relevant keywords ──────────
-    await connectDB();
 
     // For each keyword build OR conditions across topic name, content, and subject name
     // We collect subjectIds for subject-name matches first
