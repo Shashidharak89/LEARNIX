@@ -116,6 +116,12 @@
   border-color: rgba(251, 191, 36, 0.24);
 }
 
+.mse-visibility-badge.is-unlisted {
+  background: rgba(16, 185, 129, 0.12);
+  color: #065f46;
+  border-color: rgba(16, 185, 129, 0.24);
+}
+
 .mse-container.dark .mse-visibility-badge {
   border-color: rgba(226, 232, 240, 0.15);
 }
@@ -130,6 +136,12 @@
   background: rgba(251, 191, 36, 0.18);
   color: #fde68a;
   border-color: rgba(251, 191, 36, 0.28);
+}
+
+.mse-container.dark .mse-visibility-badge.is-unlisted {
+  background: rgba(16, 185, 129, 0.18);
+  color: #d1fae5;
+  border-color: rgba(16, 185, 129, 0.28);
 }
 
 /* Subject options (3-dot menu) */

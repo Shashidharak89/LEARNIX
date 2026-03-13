@@ -4,11 +4,12 @@ import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
 import Update from "@/models/Update";
+import { normalizeVisibility } from "@/lib/visibility";
 
 export async function POST(req) {
   try {
     await connectDB();
-    const { usn, subject: rawSubject, topic: rawTopic, content, images, public: isPublic } = await req.json();
+    const { usn, subject: rawSubject, topic: rawTopic, content, images, visibility } = await req.json();
     const subject = rawSubject?.trim();
     const topic = rawTopic?.trim();
 
@@ -34,13 +35,13 @@ export async function POST(req) {
       topic,
       content: content || "",
       images: images || [],
-      public: typeof isPublic === "boolean" ? isPublic : true,
+      visibility: normalizeVisibility(visibility),
       timestamp: new Date()
     });
 
     // If topic is public, create an Update record
     try {
-      if (newTopic.public) {
+      if (newTopic.visibility === "public") {
         await Update.create({
           title: 'Topic creation',
           content: `Created a topic - ${topic}`,
@@ -61,13 +62,13 @@ export async function POST(req) {
         return {
           _id: s._id,
           subject: s.subject,
-          public: s.public,
+          visibility: s.visibility || "public",
           topics: topics.map(t => ({
             _id: t._id,
             topic: t.topic,
             content: t.content,
             images: t.images,
-            public: t.public,
+            visibility: t.visibility || "public",
             timestamp: t.timestamp
           }))
         };

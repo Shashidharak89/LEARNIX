@@ -40,7 +40,7 @@ export const GET = async (req, { params }) => {
         _id: topic._id,
         topic: topic.topic,
         images: topic.images || [],
-        public: topic.public,
+        visibility: topic.visibility || "public",
         timestamp: topic.timestamp,
         content: topic.content,
       },

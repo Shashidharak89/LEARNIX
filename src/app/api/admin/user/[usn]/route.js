@@ -43,7 +43,7 @@ export const GET = async (req, { params }) => {
 
     // Fetch subject + topic counts for this user
     const subjects = await Subject.find({ userId: user._id })
-      .select("subject public createdAt")
+      .select("subject visibility createdAt")
       .lean();
 
     const subjectIds = subjects.map((s) => s._id);

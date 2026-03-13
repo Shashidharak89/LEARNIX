@@ -70,6 +70,7 @@ const WorkSubjectPage = ({ data, loading, error, onShare }) => {
 
   const { user, subject, topics } = data;
   const hasTopics = Array.isArray(topics) && topics.length > 0;
+  const subjectVisibility = subject?.visibility || "public";
 
   return (
     <div className="wsp-container">
@@ -116,17 +117,19 @@ const WorkSubjectPage = ({ data, loading, error, onShare }) => {
         <div className="wsp-subject-info">
           <div className="wsp-subject-header">
             <h2 className="wsp-subject-title">{subject.subject}</h2>
-            {!subject.public && (
+            {subjectVisibility !== "public" && (
               <span className="wsp-subject-private-badge">
                 <FaLock className="wsp-badge-icon" />
-                Private
+                {subjectVisibility.charAt(0).toUpperCase() + subjectVisibility.slice(1)}
               </span>
             )}
           </div>
           <p className="wsp-subject-description">
-            {subject.public
-              ? "This is a public subject. You can view all public topics below."
-              : "This is a private subject. Only the uploader can see this subject."}
+            {subjectVisibility === "public"
+              ? "This is a public subject. You can view all topics below."
+              : subjectVisibility === "unlisted"
+                ? "This is an unlisted subject. It is visible only via direct link."
+                : "This is a private subject. Only the uploader can see this subject."}
           </p>
         </div>
 
@@ -188,7 +191,7 @@ const WorkSubjectPage = ({ data, loading, error, onShare }) => {
           <div className="wsp-empty-state">
             <FaBook className="wsp-empty-icon" />
             <h3>No Topics Yet</h3>
-            <p>This subject doesn't have any public topics yet.</p>
+            <p>This subject doesn't have any visible topics yet.</p>
           </div>
         )}
       </div>

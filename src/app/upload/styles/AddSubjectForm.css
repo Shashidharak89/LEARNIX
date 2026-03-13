@@ -74,53 +74,43 @@
   font-size: 12px;
 }
 
-/* Toggle Button */
-.asf-toggle-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  font-size: 18px;
+/* Visibility Select */
+.asf-visibility-select {
+  width: 130px;
+  padding: 10px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
   background: #ffffff;
   border: 2px solid #e5e7eb;
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 14px;
+  padding-right: 26px;
   flex-shrink: 0;
 }
 
-.asf-toggle-btn:hover:not(:disabled) {
-  transform: scale(1.05);
+.asf-visibility-select:hover:not(:disabled) {
+  border-color: #1e40af;
+  background-color: #eff6ff;
 }
 
-.asf-toggle-btn:disabled {
+.asf-visibility-select:focus {
+  border-color: #1e40af;
+  background-color: #eff6ff;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+.asf-visibility-select:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-.asf-toggle-btn.asf-public {
-  color: #16a34a;
-  background: #dcfce7;
-  border-color: #22c55e;
-}
-
-.asf-toggle-btn.asf-public:hover:not(:disabled) {
-  background: #bbf7d0;
-  border-color: #16a34a;
-  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
-}
-
-.asf-toggle-btn.asf-private {
-  color: #6b7280;
-  background: #f3f4f6;
-  border-color: #d1d5db;
-}
-
-.asf-toggle-btn.asf-private:hover:not(:disabled) {
-  background: #e5e7eb;
-  border-color: #9ca3af;
-  box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
+  background-color: #f9fafb;
 }
 
 /* Add Button */
@@ -214,7 +204,7 @@
 
 /* Focus Visible for Accessibility */
 .asf-select:focus-visible,
-.asf-toggle-btn:focus-visible,
+.asf-visibility-select:focus-visible,
 .asf-add-btn:focus-visible,
 .asf-input:focus-visible {
   outline: 2px solid #1e40af;

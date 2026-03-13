@@ -2,13 +2,16 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
+import { normalizeVisibility } from "@/lib/visibility";
 
 export const GET = async () => {
   try {
     await connectDB();
 
-    // Get all public subjects
-    const subjects = await Subject.find({ public: { $ne: false } }).lean();
+    // Get all publicly listed subjects (missing visibility defaults to public)
+    const subjects = await Subject.find({
+      $or: [{ visibility: "public" }, { visibility: { $exists: false } }],
+    }).lean();
     
     // Extract unique subject names with their public topics and latest timestamp
     const subjectMap = {};
@@ -22,10 +25,10 @@ export const GET = async () => {
         };
       }
       
-      // Get public topics for this subject
+      // Get publicly listed topics for this subject
       const topics = await Topic.find({
         subjectId: subject._id,
-        public: { $ne: false }
+        $or: [{ visibility: "public" }, { visibility: { $exists: false } }],
       }).lean();
       
       topics.forEach(topic => {
@@ -63,7 +66,7 @@ export const GET = async () => {
 export async function PUT(req) {
   try {
     await connectDB();
-    const { usn, subjectId, public: isPublic } = await req.json();
+    const { usn, subjectId, visibility } = await req.json();
 
     if (!usn || !subjectId) {
       return NextResponse.json({ error: "USN and subjectId are required" }, { status: 400 });
@@ -75,14 +78,14 @@ export async function PUT(req) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const subject = await Subject.findOne({ _id: subjectId, userId: user._id });
+    const subject = await Subject.findOneAndUpdate(
+      { _id: subjectId, userId: user._id },
+      { $set: { visibility: normalizeVisibility(visibility) } },
+      { new: true, runValidators: true }
+    );
     if (!subject) {
       return NextResponse.json({ error: "Subject not found" }, { status: 404 });
     }
-
-    // Update subject public flag
-    subject.public = typeof isPublic === "boolean" ? isPublic : true;
-    await subject.save();
 
     // Fetch all subjects for response
     const subjects = await Subject.find({ userId: user._id }).lean();

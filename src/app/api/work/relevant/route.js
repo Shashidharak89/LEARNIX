@@ -83,7 +83,10 @@ export const GET = async (req) => {
     }
 
     const topicQuery = {
-      $and: [{ public: { $ne: false } }, { $or: orConditions }],
+      $and: [
+        { $or: [{ visibility: "public" }, { visibility: { $exists: false } }] },
+        { $or: orConditions },
+      ],
     };
 
     const total = await Topic.countDocuments(topicQuery);

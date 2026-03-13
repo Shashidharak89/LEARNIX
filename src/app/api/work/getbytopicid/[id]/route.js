@@ -54,7 +54,7 @@ export const GET = async (req, { params }) => {
         topic: topic.topic,
         content: topic.content,
         images: topic.images,
-        public: topic.public,
+        visibility: topic.visibility || "public",
         timestamp: topic.timestamp
       },
     });

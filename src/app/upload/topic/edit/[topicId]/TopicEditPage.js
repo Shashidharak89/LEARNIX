@@ -323,8 +323,14 @@ export default function TopicEditPage({ params }) {
           <span className="tep-topic-name">{topic.topic}</span>
           {subject && <span className="tep-subject-name">{subject.subject}</span>}
           <span className="tep-topic-date">{formatDate(topic.timestamp)}</span>
-          <span className={`tep-badge ${topic.public ? "tep-badge-pub" : "tep-badge-priv"}`}>
-            {topic.public ? "Public" : "Private"}
+          <span className={`tep-badge ${
+            (topic.visibility || "public") === "public"
+              ? "tep-badge-pub"
+              : (topic.visibility || "public") === "private"
+                ? "tep-badge-priv"
+                : "tep-badge-unlisted"
+          }`}>
+            {(topic.visibility || "public").charAt(0).toUpperCase() + (topic.visibility || "public").slice(1)}
           </span>
         </div>
       )}

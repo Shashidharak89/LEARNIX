@@ -140,10 +140,10 @@ export default function ManageSubjects() {
     pushToast("Topic deleted successfully!");
   };
 
-  const handleAddSubject = async (subjectName, isPublic) => {
+  const handleAddSubject = async (subjectName, visibility) => {
     setIsLoading(true);
     try {
-      await axios.post("/api/subject", { usn, subject: subjectName, public: isPublic });
+      await axios.post("/api/subject", { usn, subject: subjectName, visibility });
       fetchSubjects(usn, 1);
       pushToast("Subject added successfully!");
       setAddOpen(false);
@@ -155,11 +155,11 @@ export default function ManageSubjects() {
     }
   };
 
-  const handleAddTopic = async (subject, topicName, isPublic) => {
+  const handleAddTopic = async (subject, topicName, visibility) => {
     if (!subject || !topicName.trim()) return;
     setIsLoading(true);
     try {
-      await axios.post("/api/topic", { usn, subject, topic: topicName, images: [], public: isPublic });
+      await axios.post("/api/topic", { usn, subject, topic: topicName, images: [], visibility });
       fetchSubjects(usn, 1);
       pushToast("Topic added successfully!");
     } catch (err) {

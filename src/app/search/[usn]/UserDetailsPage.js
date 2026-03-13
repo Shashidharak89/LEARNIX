@@ -31,10 +31,10 @@ export default function UserDetailsPage({ usn }) {
 
   const filterSubjects = useCallback((subjects, searchTerm = '') => {
     return subjects
-      .filter(subject => subject.public !== false)
+      .filter(subject => (subject.visibility || "public") === "public")
       .map(subject => {
         const filteredTopics = subject.topics?.filter(topic => {
-          if (!(topic.public !== false)) return false;
+          if ((topic.visibility || "public") !== "public") return false;
           if (searchTerm) {
             return (
               topic.topic.toLowerCase().includes(searchTerm) ||

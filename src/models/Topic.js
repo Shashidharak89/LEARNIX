@@ -6,7 +6,11 @@ const TopicSchema = new mongoose.Schema({
   topic: { type: String, required: true },
   content: { type: String, default: "" },
   images: { type: [String], default: [] },
-  public: { type: Boolean, default: true },
+  visibility: {
+    type: String,
+    enum: ["public", "private", "unlisted"],
+    default: "public",
+  },
   timestamp: { type: Date, default: Date.now }
 });
 

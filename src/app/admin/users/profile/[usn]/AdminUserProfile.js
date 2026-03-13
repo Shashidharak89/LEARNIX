@@ -368,10 +368,10 @@ export default function AdminUserProfile({ params }) {
                   <div key={sub._id || i} className="aup-subject-card">
                     <div className="aup-subject-top">
                       <span className="aup-subject-name">{sub.subject}</span>
-                      <span className={`aup-subject-vis ${sub.public ? "aup-vis-pub" : "aup-vis-priv"}`}>
-                        {sub.public
+                      <span className={`aup-subject-vis ${(sub.visibility || "public") === "public" ? "aup-vis-pub" : "aup-vis-priv"}`}>
+                        {(sub.visibility || "public") === "public"
                           ? <><FiUnlock size={9} /> Public</>
-                          : <><FiLock size={9} /> Private</>}
+                          : <><FiLock size={9} /> {(sub.visibility || "public").charAt(0).toUpperCase() + (sub.visibility || "public").slice(1)}</>}
                       </span>
                     </div>
                     <p className="aup-subject-date"><FiCalendar size={10} /> {formatDate(sub.createdAt)}</p>

@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { FiPlus, FiEye, FiEyeOff } from "react-icons/fi";
+import { FiPlus } from "react-icons/fi";
 import "./styles/AddSubjectForm.css";
 
 export default function AddSubjectForm({ allUsers, isLoading, onAddSubject }) {
   const [newSubject, setNewSubject] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
   const [isCustomSubject, setIsCustomSubject] = useState(true);
-  const [isPublic, setIsPublic] = useState(true);
+  const [visibility, setVisibility] = useState("public");
 
   const getAllSubjects = () => {
     const subjectSet = new Set();
@@ -41,12 +41,12 @@ export default function AddSubjectForm({ allUsers, isLoading, onAddSubject }) {
     const subjectToAdd = isCustomSubject ? newSubject : selectedSubject;
     if (!subjectToAdd.trim()) return;
 
-    await onAddSubject(subjectToAdd, isPublic);
+    await onAddSubject(subjectToAdd, visibility);
 
     setNewSubject("");
     setSelectedSubject("");
     setIsCustomSubject(true);
-    setIsPublic(true);
+    setVisibility("public");
   };
 
   const uniqueSubjects = getAllSubjects();
@@ -68,16 +68,18 @@ export default function AddSubjectForm({ allUsers, isLoading, onAddSubject }) {
           ))}
         </select>
 
-        {/* Toggle Button */}
-        <button
-          type="button"
-          onClick={() => setIsPublic(!isPublic)}
+        <select
+          value={visibility}
+          onChange={(e) => setVisibility(e.target.value)}
+          className="asf-visibility-select"
           disabled={isLoading}
-          className={`asf-toggle-btn ${isPublic ? 'asf-public' : 'asf-private'}`}
-          title={isPublic ? 'Public' : 'Private'}
+          aria-label="Subject visibility"
+          title="Subject visibility"
         >
-          {isPublic ? <FiEye /> : <FiEyeOff />}
-        </button>
+          <option value="public">Public</option>
+          <option value="private">Private</option>
+          <option value="unlisted">Unlisted</option>
+        </select>
 
         {/* Add Button */}
         <button 

@@ -43,13 +43,13 @@ export const GET = async (req) => {
         return {
           _id: subject._id,
           subject: subject.subject,
-          public: subject.public,
+          visibility: subject.visibility || "public",
           topics: topics.map(t => ({
             _id: t._id,
             topic: t.topic,
             content: t.content,
             images: t.images,
-            public: t.public,
+            visibility: t.visibility || "public",
             timestamp: t.timestamp
           }))
         };

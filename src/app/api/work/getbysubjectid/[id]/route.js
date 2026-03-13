@@ -3,9 +3,10 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
+import { getVisibility } from "@/lib/visibility";
 
 // GET /api/work/getbysubjectid/:id
-// Fetches subject with all its topics (public if subject is public, or all if user is owner)
+// Fetches subject with all its topics based on visibility + ownership
 export const GET = async (req, { params }) => {
   try {
     await connectDB();
@@ -26,8 +27,10 @@ export const GET = async (req, { params }) => {
     const currentUser = usn ? await User.findOne({ usn: usn.toUpperCase() }).lean() : null;
     const isOwner = currentUser && subject.userId.toString() === currentUser._id.toString();
 
+    const subjectVisibility = getVisibility(subject);
+
     // If subject is private and user is not the owner, deny access
-    if (!subject.public && !isOwner) {
+    if (subjectVisibility === "private" && !isOwner) {
       return NextResponse.json(
         { error: "This subject is private and not accessible" },
         { status: 403 }
@@ -46,14 +49,13 @@ export const GET = async (req, { params }) => {
     // Fetch all topics for this subject
     let topicsQuery = { subjectId: id };
     
-    // If subject is public, show only public topics
-    // If user is owner, show all topics
+    // If requester is not owner, hide private topics (allow public + unlisted)
     if (!isOwner) {
-      topicsQuery.public = true;
+      topicsQuery.$or = [{ visibility: "public" }, { visibility: "unlisted" }, { visibility: { $exists: false } }];
     }
 
     const topics = await Topic.find(topicsQuery)
-      .select("_id topic content images public timestamp userId")
+      .select("_id topic content images visibility timestamp userId")
       .sort({ timestamp: -1 })
       .lean();
 
@@ -67,7 +69,7 @@ export const GET = async (req, { params }) => {
       subject: {
         _id: subject._id,
         subject: subject.subject,
-        public: subject.public,
+        visibility: subjectVisibility,
         timestamp: subject.timestamp,
       },
       topics: topics.map(topic => ({
@@ -75,7 +77,7 @@ export const GET = async (req, { params }) => {
         topic: topic.topic,
         content: topic.content,
         images: topic.images,
-        public: topic.public,
+        visibility: topic.visibility || "public",
         timestamp: topic.timestamp,
       })),
     });

@@ -111,13 +111,13 @@ export const PUT = async (req) => {
         return {
           _id: s._id,
           subject: s.subject,
-          public: s.public,
+          visibility: s.visibility || "public",
           topics: topics.map((tp) => ({
             _id: tp._id,
             topic: tp.topic,
             content: tp.content,
             images: tp.images,
-            public: tp.public,
+            visibility: tp.visibility || "public",
             timestamp: tp.timestamp,
           })),
         };

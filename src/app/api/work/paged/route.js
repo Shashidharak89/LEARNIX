@@ -13,15 +13,15 @@ export const GET = async (req) => {
     const pageSize = parseInt(searchParams.get("pageSize")) || 8;
     const skip = (page - 1) * pageSize;
 
-    // Find all public topics, sorted by timestamp desc
-    const topics = await Topic.find({ public: { $ne: false } })
+    // Find all publicly listed topics, sorted by timestamp desc
+    const topics = await Topic.find({ $or: [{ visibility: "public" }, { visibility: { $exists: false } }] })
       .sort({ timestamp: -1 })
       .skip(skip)
       .limit(pageSize)
       .lean();
 
     // Get total count for pagination
-    const total = await Topic.countDocuments({ public: { $ne: false } });
+    const total = await Topic.countDocuments({ $or: [{ visibility: "public" }, { visibility: { $exists: false } }] });
 
     // For each topic, get subject and user
     const topicsWithDetails = await Promise.all(

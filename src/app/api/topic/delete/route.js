@@ -45,13 +45,13 @@ export const DELETE = async (req) => {
         return {
           _id: s._id,
           subject: s.subject,
-          public: s.public,
+          visibility: s.visibility || "public",
           topics: topics.map(t => ({
             _id: t._id,
             topic: t.topic,
             content: t.content,
             images: t.images,
-            public: t.public,
+            visibility: t.visibility || "public",
             timestamp: t.timestamp
           }))
         };

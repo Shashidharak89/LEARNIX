@@ -27,7 +27,7 @@ export const GET = async (req) => {
       .filter(Boolean);
 
     // Build query conditions
-    let queryConditions = [{ public: { $ne: false } }];
+    let queryConditions = [{ $or: [{ visibility: "public" }, { visibility: { $exists: false } }] }];
 
     // Keyword search — topic name, content, subject, username, USN, _id, date
     if (q) {

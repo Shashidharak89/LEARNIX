@@ -42,7 +42,7 @@ export async function GET(req) {
       subjectsWithTopics = subjects.map((subject) => ({
         _id: subject._id,
         subject: subject.subject,
-        public: subject.public
+        visibility: subject.visibility || "public"
       }));
     } else {
       // Full (legacy) behavior: include topics for each subject
@@ -54,13 +54,13 @@ export async function GET(req) {
           return {
             _id: subject._id,
             subject: subject.subject,
-            public: subject.public,
+            visibility: subject.visibility || "public",
             topics: topics.map(t => ({
               _id: t._id,
               topic: t.topic,
               content: t.content,
               images: t.images,
-              public: t.public,
+              visibility: t.visibility || "public",
               timestamp: t.timestamp
             }))
           };

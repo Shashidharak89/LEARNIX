@@ -28,8 +28,8 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
   const [uploadProgress, setUploadProgress] = useState({});
   const [uploadedFiles, setUploadedFiles]   = useState({});
   const [uploadComplete, setUploadComplete] = useState({});
-  const [isTogglingPublic, setIsTogglingPublic] = useState(false);
-  const [topicPublic, setTopicPublic] = useState(topic.public !== false);
+  const [isUpdatingVisibility, setIsUpdatingVisibility] = useState(false);
+  const [topicVisibility, setTopicVisibility] = useState(topic.visibility || "public");
   const [topicImages, setTopicImages] = useState(Array.isArray(topic.images) ? [...topic.images] : []);
   const [openMenu, setOpenMenu]   = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
@@ -37,6 +37,7 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
   const [renameModal, setRenameModal] = useState(false);
   const [renameValue, setRenameValue] = useState("");
   const [isRenamingTopic, setIsRenamingTopic] = useState(false);
+  const [visibilityModal, setVisibilityModal] = useState({ open: false, nextVisibility: "public" });
 
   const menuRef        = useRef(null);
   const cameraInputRefs = useRef({});
@@ -71,10 +72,10 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
     return () => document.removeEventListener("mousedown", close);
   }, [openMenu]);
 
-  // keep local public state in sync when parent updates topic prop
+  // keep local visibility state in sync when parent updates topic prop
   useEffect(() => {
-    setTopicPublic(topic.public !== false);
-  }, [topic.public]);
+    setTopicVisibility(topic.visibility || "public");
+  }, [topic.visibility]);
 
   // keep local images in sync when topic prop updates from parent
   useEffect(() => {
@@ -206,17 +207,43 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
     } catch (err) { showMessage(err.response?.data?.error || "Failed to delete image", "error"); }
   };
 
-  const handlePublicToggle = async () => {
-    if (isLoading || isTogglingPublic) return;
-    setIsTogglingPublic(true);
+  const applyVisibilityChange = async (nextVisibility) => {
+    if (isLoading || isUpdatingVisibility) return;
+    setIsUpdatingVisibility(true);
     try {
-      await axios.put("/api/topic/public", { usn, subject, topic: topic.topic, public: !topicPublic });
+      await axios.put("/api/topic/public", {
+        usn,
+        topicId: topic._id,
+        subject,
+        topic: topic.topic,
+        visibility: nextVisibility,
+      });
       // update local UI immediately
-      setTopicPublic((p) => !p);
-      onRefreshSubjects();
-      showMessage(`Topic is now ${!topicPublic ? "public" : "private"}`, "success");
+      setTopicVisibility(nextVisibility);
+      await onRefreshSubjects();
+      showMessage(`Topic visibility changed to ${nextVisibility}`, "success");
     } catch (err) { showMessage(err.response?.data?.error || "Failed to update visibility", "error"); }
-    finally { setIsTogglingPublic(false); }
+    finally { setIsUpdatingVisibility(false); }
+  };
+
+  const requestVisibilityChange = (nextVisibility) => {
+    setOpenMenu(false);
+    setVisibilityModal({ open: true, nextVisibility });
+  };
+
+  const confirmVisibilityChange = async () => {
+    await applyVisibilityChange(visibilityModal.nextVisibility);
+    setVisibilityModal({ open: false, nextVisibility: "public" });
+  };
+
+  const cancelVisibilityChange = () => {
+    if (isUpdatingVisibility) return;
+    setVisibilityModal({ open: false, nextVisibility: "public" });
+  };
+
+  const visibilityLabel = (value) => {
+    const vis = value || "public";
+    return vis.charAt(0).toUpperCase() + vis.slice(1);
   };
 
   const handlePDFUploadSuccess = () => {
@@ -322,6 +349,24 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
         </div>
       )}
 
+      {visibilityModal.open && (
+        <div className="tc-modal-overlay" onClick={cancelVisibilityChange}>
+          <div className="tc-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="tc-modal-icon tc-modal-icon--edit"><FiEdit2 /></div>
+            <h4 className="tc-modal-title">Change topic visibility?</h4>
+            <p className="tc-modal-desc">
+              Set <strong>{topic.topic}</strong> to <strong>{visibilityLabel(visibilityModal.nextVisibility)}</strong>?
+            </p>
+            <div className="tc-modal-actions">
+              <button className="tc-modal-btn tc-modal-btn--cancel" onClick={cancelVisibilityChange} disabled={!!isUpdatingVisibility}>Cancel</button>
+              <button className="tc-modal-btn tc-modal-btn--save" onClick={confirmVisibilityChange} disabled={!!isUpdatingVisibility}>
+                {isUpdatingVisibility ? <><FiLoader className="tc-spin" /> Saving…</> : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Delete Image Modal ── */}
       {deleteConfirm.show && (
         <div className="tc-modal-overlay" onClick={cancelDelete}>
@@ -372,8 +417,8 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
             {new Date(topic.timestamp).toLocaleDateString()}
           </span>
 
-          <span className={`tc-badge ${topicPublic ? "tc-badge--public" : "tc-badge--private"}`}>
-            {topicPublic ? "Public" : "Private"}
+          <span className={`tc-badge tc-badge--${topicVisibility}`}>
+            {visibilityLabel(topicVisibility)}
           </span>
 
           <div className="tc-menu-wrap" ref={menuRef}>
@@ -404,9 +449,17 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
                 <button className="tc-dropdown-item" onClick={handleShare}>
                   <FiShare2 className="tc-dropdown-icon" /><span>Share</span>
                 </button>
-                <button className="tc-dropdown-item" onClick={handlePublicToggle} disabled={isLoading || isTogglingPublic}>
-                  {topicPublic ? <FiLock className="tc-dropdown-icon" /> : <FiUnlock className="tc-dropdown-icon" />}
-                  <span>{isTogglingPublic ? "Processing…" : topicPublic ? "Make Private" : "Make Public"}</span>
+                <button className="tc-dropdown-item" onClick={() => requestVisibilityChange("public")} disabled={isLoading || isUpdatingVisibility || topicVisibility === "public"}>
+                  <FiUnlock className="tc-dropdown-icon" />
+                  <span>Set Public</span>
+                </button>
+                <button className="tc-dropdown-item" onClick={() => requestVisibilityChange("unlisted")} disabled={isLoading || isUpdatingVisibility || topicVisibility === "unlisted"}>
+                  <FiFileText className="tc-dropdown-icon" />
+                  <span>Set Unlisted</span>
+                </button>
+                <button className="tc-dropdown-item" onClick={() => requestVisibilityChange("private")} disabled={isLoading || isUpdatingVisibility || topicVisibility === "private"}>
+                  <FiLock className="tc-dropdown-icon" />
+                  <span>Set Private</span>
                 </button>
                 <div className="tc-dropdown-divider" />
                 <button className="tc-dropdown-item tc-dropdown-item--danger" onClick={requestDeleteTopic}>

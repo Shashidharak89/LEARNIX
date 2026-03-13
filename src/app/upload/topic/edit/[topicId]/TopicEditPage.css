@@ -93,6 +93,7 @@
 }
 .tep-badge-pub  { background: #dcfce7; color: #15803d; }
 .tep-badge-priv { background: #f3f4f6; color: #4b5563; }
+.tep-badge-unlisted { background: #ecfdf5; color: #065f46; }
 
 /* ── Error ── */
 .tep-error {

@@ -3,11 +3,12 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Update from "@/models/Update";
+import { normalizeVisibility } from "@/lib/visibility";
 
 export async function POST(req) {
   try {
     await connectDB();
-    const { usn, subject: rawSubject, public: isPublic } = await req.json();
+    const { usn, subject: rawSubject, visibility } = await req.json();
     const subject = rawSubject?.trim();
 
     if (!usn || !subject) {
@@ -23,7 +24,7 @@ export async function POST(req) {
     const newSubject = await Subject.create({
       userId: user._id,
       subject,
-      public: isPublic !== undefined ? isPublic : true
+      visibility: normalizeVisibility(visibility)
     });
 
     // Create an Update record for this creation

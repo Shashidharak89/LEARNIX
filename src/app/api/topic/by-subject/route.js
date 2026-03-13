@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
+import { getVisibility } from "@/lib/visibility";
 
 export const GET = async (request) => {
   try {
@@ -28,15 +29,17 @@ export const GET = async (request) => {
       const currentUser = usn ? await User.findOne({ usn: usn.toUpperCase() }).lean() : null;
       const isOwner = currentUser && subjectObj.userId.toString() === currentUser._id.toString();
 
+      const subjectVisibility = getVisibility(subjectObj);
+
       // If subject is private and requester is not owner, deny access
-      if (!subjectObj.public && !isOwner) {
+      if (subjectVisibility === "private" && !isOwner) {
         return NextResponse.json({ error: "This subject is private and not accessible" }, { status: 403 });
       }
 
       // Build query: include private topics only for owner
       const query = { subjectId };
       if (!isOwner) {
-        query.public = { $ne: false };
+        query.$or = [{ visibility: "public" }, { visibility: "unlisted" }, { visibility: { $exists: false } }];
       }
 
       const total = await Topic.countDocuments(query);
@@ -56,20 +59,20 @@ export const GET = async (request) => {
       return NextResponse.json({ error: "subject or subjectId parameter is required" }, { status: 400 });
     }
 
-    // Find all public subjects with this name
+    // Find all publicly listed subjects with this name
     const subjects = await Subject.find({ 
       subject: subjectName,
-      public: { $ne: false }
+      $or: [{ visibility: "public" }, { visibility: { $exists: false } }],
     }).lean();
     
     // Map to store unique topics with their latest timestamp
     const topicsMap = {};
     
-    // Get all public topics from these subjects
+    // Get all publicly listed topics from these subjects
     for (const subject of subjects) {
       const topics = await Topic.find({
         subjectId: subject._id,
-        public: { $ne: false }
+        $or: [{ visibility: "public" }, { visibility: { $exists: false } }],
       }).lean();
       
       topics.forEach(topic => {
