@@ -254,6 +254,19 @@
   border-color: #3b82f6;
 }
 
+.adm-quick-btn-pink {
+  background: #fdf2f8;
+  border-color: #fbcfe8;
+  color: #9d174d;
+}
+
+.adm-quick-btn-pink::before { background: #ec4899; }
+
+.adm-quick-btn-pink:hover {
+  background: #fce7f3;
+  border-color: #ec4899;
+}
+
 .adm-quick-btn-icon {
   width: 44px;
   height: 44px;
@@ -269,6 +282,11 @@
 
 .adm-quick-btn:hover .adm-quick-btn-icon {
   transform: scale(1.1) rotate(5deg);
+}
+
+.adm-quick-btn-icon-pink {
+  background: #fce7f3;
+  color: #ec4899;
 }
 
 .adm-quick-btn-text {

@@ -1,0 +1,59 @@
+.af-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+.af-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  animation: af-fade-in 0.25s ease both;
+}
+
+.af-card:hover {
+  border-color: #ec4899;
+  box-shadow: 0 5px 18px rgba(236, 72, 153, 0.12);
+}
+
+.af-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.55rem;
+}
+
+.af-id {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #be185d;
+  background: #fce7f3;
+  border: 1px solid #f9a8d4;
+  border-radius: 999px;
+  padding: 0.18rem 0.5rem;
+}
+
+.af-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  font-size: 0.76rem;
+  color: #6b7280;
+}
+
+.af-text {
+  margin: 0;
+  color: #111827;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@keyframes af-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}

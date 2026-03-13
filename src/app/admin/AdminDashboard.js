@@ -354,6 +354,15 @@ export default function AdminDashboard() {
           </div>
           <FiArrowRight size={18} className="adm-quick-btn-arrow" />
         </Link>
+
+        <Link href="/admin/feedbacks" className="adm-quick-btn adm-quick-btn-pink">
+          <span className="adm-quick-btn-icon adm-quick-btn-icon-pink"><FiMessageCircle size={20} /></span>
+          <div className="adm-quick-btn-text">
+            <span className="adm-quick-btn-label">Feedbacks</span>
+            <span className="adm-quick-btn-sub">Read all user feedback submissions</span>
+          </div>
+          <FiArrowRight size={18} className="adm-quick-btn-arrow" />
+        </Link>
       </div>
 
       {/* ── Feature cards ── */}
