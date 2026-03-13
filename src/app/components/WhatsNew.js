@@ -13,7 +13,7 @@ export default function WhatsNew() {
       title: "Daily Login Streaks Added",
       date: "Mar 13, 2026",
       description:
-        "Streaks are now tracked from 12:00 AM to 12:00 AM (calendar-day based). Logging in on consecutive days increases streak by 1. Missing a day resets streak to 1. Highest Streak is tracked automatically and shown on profile and search user pages.",
+        "Streaks are now tracked from 12:00 AM to 12:00 AM (calendar-day based). Logging in on consecutive days increases streak by 1. Missing a day resets streak to 0. Highest Streak is tracked automatically and shown on profile and search user pages.",
     },
     {
       title: "Unlisted Visibility for Subject & Topic",

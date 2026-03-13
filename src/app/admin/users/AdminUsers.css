@@ -12,6 +12,35 @@
 }
 .au-back-link:hover { gap: 0.65rem; color: #2563eb; }
 
+.au-filter-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.7rem;
+}
+
+.au-filter-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.au-filter-select {
+  border: 1.5px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1e3a8a;
+  border-radius: 8px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  outline: none;
+}
+
+.au-filter-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
 .au-error-banner {
   background: #fee2e2;
   color: #991b1b;

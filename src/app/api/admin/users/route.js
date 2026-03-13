@@ -32,15 +32,79 @@ export const GET = async (req) => {
     const { searchParams } = new URL(req.url);
     const page  = Math.max(1, parseInt(searchParams.get("page")  || "1",  10));
     const limit = Math.max(1, parseInt(searchParams.get("limit") || "12", 10));
+    const sort  = searchParams.get("sort") || "createdAt";
     const skip  = (page - 1) * limit;
 
     const total = await User.countDocuments({});
-    const users = await User.find({})
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .select("name usn profileimg role createdAt lastLoginAt")
-      .lean();
+    let users = [];
+
+    if (sort === "createdAt") {
+      users = await User.find({})
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .select("name usn profileimg role createdAt lastLoginAt")
+        .lean();
+    } else {
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+
+      users = await User.aggregate([
+        {
+          $addFields: {
+            minutesSinceLastSeen: {
+              $cond: [
+                { $ne: ["$lastLoginAt", null] },
+                {
+                  $floor: {
+                    $divide: [
+                      { $subtract: ["$$NOW", "$lastLoginAt"] },
+                      60000,
+                    ],
+                  },
+                },
+                null,
+              ],
+            },
+            activityRank: {
+              $switch: {
+                branches: [
+                  { case: { $gte: ["$lastLoginAt", fiveMinutesAgo] }, then: 0 },
+                  { case: { $ne: ["$lastLoginAt", null] }, then: 1 },
+                ],
+                default: 2,
+              },
+            },
+            activitySortValue: {
+              $cond: [
+                { $gte: ["$lastLoginAt", fiveMinutesAgo] },
+                0,
+                {
+                  $cond: [
+                    { $ne: ["$lastLoginAt", null] },
+                    "$minutesSinceLastSeen",
+                    2147483647,
+                  ],
+                },
+              ],
+            },
+            nameLower: { $toLower: { $ifNull: ["$name", ""] } },
+          },
+        },
+        { $sort: { activityRank: 1, activitySortValue: 1, nameLower: 1, _id: 1 } },
+        { $skip: skip },
+        { $limit: limit },
+        {
+          $project: {
+            name: 1,
+            usn: 1,
+            profileimg: 1,
+            role: 1,
+            createdAt: 1,
+            lastLoginAt: 1,
+          },
+        },
+      ]);
+    }
 
     // Normalise: if role field is missing, treat as "user"
     const normalized = users.map(u => ({
@@ -53,6 +117,7 @@ export const GET = async (req) => {
       total,
       page,
       limit,
+      sort,
       totalPages: Math.ceil(total / limit),
     });
   } catch (err) {

@@ -78,6 +78,8 @@ export default function AdminUsers() {
   const [token, setToken]             = useState("");
   const [myUsn, setMyUsn]             = useState("");
   const [isLoaded, setIsLoaded]       = useState(false);
+  const [sortMode, setSortMode]       = useState("createdAt");
+  const [initialPage, setInitialPage] = useState(1);
 
   const [users, setUsers]             = useState([]);
   const [total, setTotal]             = useState(0);
@@ -97,42 +99,108 @@ export default function AdminUsers() {
   const confirmRef = useRef(null);
   const btnRefs    = useRef({});
 
+  const syncUrlState = useCallback((nextPage, nextSort) => {
+    if (typeof window === "undefined") return;
+    const params = new window.URLSearchParams(window.location.search);
+    params.set("page", String(Math.max(1, nextPage)));
+    params.set("sort", nextSort || "createdAt");
+    window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
+  }, []);
+
   // ── bootstrap ──
   useEffect(() => {
     const r = localStorage.getItem("role")  || "";
     const t = localStorage.getItem("token") || "";
     const u = localStorage.getItem("usn")   || "";
+
+    if (typeof window !== "undefined") {
+      const params = new window.URLSearchParams(window.location.search);
+      const qPage = Math.max(1, parseInt(params.get("page") || "1", 10));
+      const qSort = params.get("sort") === "activity" ? "activity" : "createdAt";
+      setInitialPage(qPage);
+      setSortMode(qSort);
+      syncUrlState(qPage, qSort);
+    }
+
     setMyRole(r); setToken(t); setMyUsn(u);
     setTimeout(() => setIsLoaded(true), 100);
-  }, []);
+  }, [syncUrlState]);
 
   // ── fetch users ──
-  const fetchUsers = useCallback(async (pageNum, append = false) => {
+  const requestUsersPage = useCallback(async (pageNum, sortValue) => {
     if (!token) return;
-    append ? setLoadingMore(true) : setLoading(true);
+    const res  = await fetch(`/api/admin/users?page=${pageNum}&limit=${PAGE_LIMIT}&sort=${sortValue}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Failed to fetch users");
+    }
+    return data;
+  }, [token]);
+
+  const hydrateUsers = useCallback(async (targetPage, sortValue) => {
+    if (!token) return;
+    setLoading(true);
+    setLoadingMore(false);
+    setError("");
+
+    try {
+      const safeTarget = Math.max(1, targetPage);
+      let mergedUsers = [];
+      let lastMeta = null;
+
+      for (let currentPage = 1; currentPage <= safeTarget; currentPage += 1) {
+        const data = await requestUsersPage(currentPage, sortValue);
+        mergedUsers = [...mergedUsers, ...(data.users || [])];
+        lastMeta = data;
+      }
+
+      setUsers(mergedUsers);
+      setTotal(lastMeta?.total || 0);
+      setPage(safeTarget);
+      setTotalPages(lastMeta?.totalPages || 1);
+      syncUrlState(safeTarget, sortValue);
+    } catch (err) {
+      setError(err.message || "Network error. Please try again.");
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [requestUsersPage, syncUrlState, token]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (token && (myRole === "admin" || myRole === "superadmin")) {
+      hydrateUsers(initialPage, sortMode);
+    }
+  }, [token, myRole, hydrateUsers, initialPage, sortMode, isLoaded]);
+
+  const handleViewMore = async () => {
+    if (page >= totalPages || !token) return;
+    setLoadingMore(true);
     setError("");
     try {
-      const res  = await fetch(`/api/admin/users?page=${pageNum}&limit=${PAGE_LIMIT}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || "Failed to fetch users"); return; }
-      append ? setUsers(prev => [...prev, ...data.users]) : setUsers(data.users);
+      const nextPage = page + 1;
+      const data = await requestUsersPage(nextPage, sortMode);
+      setUsers(prev => [...prev, ...(data.users || [])]);
       setTotal(data.total);
       setPage(data.page);
       setTotalPages(data.totalPages);
-    } catch {
-      setError("Network error. Please try again.");
+      syncUrlState(data.page, sortMode);
+    } catch (err) {
+      setError(err.message || "Network error. Please try again.");
     } finally {
-      setLoading(false); setLoadingMore(false);
+      setLoadingMore(false);
     }
-  }, [token]);
+  };
 
-  useEffect(() => {
-    if (token && (myRole === "admin" || myRole === "superadmin")) fetchUsers(1, false);
-  }, [token, myRole, fetchUsers]);
-
-  const handleViewMore = () => fetchUsers(page + 1, true);
+  const handleSortChange = (nextSort) => {
+    const safeSort = nextSort === "activity" ? "activity" : "createdAt";
+    setSortMode(safeSort);
+    setInitialPage(1);
+    syncUrlState(1, safeSort);
+  };
 
   // ── inline confirm helpers ──
   const openConfirm = (user, newRole, usn) => {
@@ -220,8 +288,20 @@ export default function AdminUsers() {
               All <span className="adm-title-highlight">Users</span>
             </h1>
             <p className="adm-subtitle">
-              Latest registered users — {total > 0 ? `${total} total` : "loading…"}
+              {sortMode === "activity" ? "Active-first users" : "Latest registered users"} — {total > 0 ? `${total} total` : "loading…"}
             </p>
+            <div className="au-filter-row">
+              <label htmlFor="au-sort-select" className="au-filter-label">Sort</label>
+              <select
+                id="au-sort-select"
+                className="au-filter-select"
+                value={sortMode}
+                onChange={(event) => handleSortChange(event.target.value)}
+              >
+                <option value="activity">Activeness first</option>
+                <option value="createdAt">Newest joined</option>
+              </select>
+            </div>
             <Link href="/admin/users/deleted" className="au-deleted-users-link">
               <FiTrash2 size={13} /> View Deleted Users
             </Link>
