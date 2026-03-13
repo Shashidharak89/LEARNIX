@@ -31,6 +31,48 @@ function formatDate(dateStr) {
   });
 }
 
+function getLastSeenMeta(lastLoginAt) {
+  if (!lastLoginAt) {
+    return { text: "Never active", isActive: false };
+  }
+
+  const seen = new Date(lastLoginAt);
+  if (Number.isNaN(seen.getTime())) {
+    return { text: "Never active", isActive: false };
+  }
+
+  const now = new Date();
+  const diffMs = Math.max(0, now.getTime() - seen.getTime());
+  const diffMinutes = Math.floor(diffMs / 60000);
+
+  if (diffMinutes < 5) {
+    return { text: "Active", isActive: true };
+  }
+
+  if (diffMinutes < 60) {
+    return { text: `${diffMinutes} mins ago`, isActive: false };
+  }
+
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) {
+    return { text: `${diffHours} ${diffHours === 1 ? "hour" : "hours"} ago`, isActive: false };
+  }
+
+  const absolute = seen
+    .toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    })
+    .replace(",", " at")
+    .replace(/\s(AM|PM)$/i, (value) => value.toLowerCase());
+
+  return { text: absolute, isActive: false };
+}
+
 export default function AdminUsers() {
   const [myRole, setMyRole]           = useState(null);
   const [token, setToken]             = useState("");
@@ -242,6 +284,7 @@ export default function AdminUsers() {
               const msg          = roleMsg[user.usn];
               const isOwnAccount = user.usn === myUsn;
               const isOpen       = openConfirmUsn === user.usn;
+              const lastSeen     = getLastSeenMeta(user.lastLoginAt);
 
               return (
                 <div
@@ -262,6 +305,9 @@ export default function AdminUsers() {
                     <div className="au-card-info">
                       <p className="au-user-name">{user.name}</p>
                       <p className="au-user-usn">{user.usn}</p>
+                      <p className={`au-last-seen ${lastSeen.isActive ? "au-last-seen-active" : ""}`}>
+                        Last seen: {lastSeen.text}
+                      </p>
                     </div>
                     <RoleBadge role={userRole} />
                   </div>

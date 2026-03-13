@@ -39,7 +39,7 @@ export const GET = async (req) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .select("name usn profileimg role createdAt")
+      .select("name usn profileimg role createdAt lastLoginAt")
       .lean();
 
     // Normalise: if role field is missing, treat as "user"

@@ -71,6 +71,15 @@
 .au-card-info { flex: 1; min-width: 0; }
 .au-user-name { font-size: 0.975rem; font-weight: 600; color: #1f2937; margin: 0 0 0.15rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .au-user-usn  { font-size: 0.78rem; color: #6b7280; margin: 0; font-family: monospace; letter-spacing: 0.04em; }
+.au-last-seen {
+  font-size: 0.74rem;
+  color: #6b7280;
+  margin: 0.3rem 0 0;
+}
+.au-last-seen-active {
+  color: #059669;
+  font-weight: 700;
+}
 
 .au-role-badge { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 12px; flex-shrink: 0; white-space: nowrap; }
 .au-role-superadmin { background: #fee2e2; color: #dc2626; }
