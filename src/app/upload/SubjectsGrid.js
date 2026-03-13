@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 import {
   FiBook,
   FiPlus,
@@ -394,10 +395,11 @@ export default function SubjectsGrid({
   const topicsContainerStyle = { marginTop: 12 };
 
   const emptyTopicsStyle = { display: "flex", gap: 8, alignItems: "center", color: "#64748b" };
+  const portalModal = (node) => (typeof document !== "undefined" ? createPortal(node, document.body) : null);
 
   return (
     <div className="mse-subjects-grid">
-      {deleteConfirm.open && (
+      {deleteConfirm.open && portalModal(
         <div className="mse-options-modal-overlay" onClick={cancelDeleteSubject}>
           <div className="mse-options-modal" onClick={(e) => e.stopPropagation()}>
             <div className="mse-options-modal-icon">
@@ -419,7 +421,7 @@ export default function SubjectsGrid({
         </div>
       )}
 
-      {renameModal.open && (
+      {renameModal.open && portalModal(
         <div className="mse-options-modal-overlay" onClick={cancelRenameSubject}>
           <div className="mse-options-modal" onClick={(e) => e.stopPropagation()}>
             <div className="mse-options-modal-icon mse-options-modal-icon-edit">
@@ -455,7 +457,7 @@ export default function SubjectsGrid({
         </div>
       )}
 
-      {visibilityConfirm.open && (
+      {visibilityConfirm.open && portalModal(
         <div className="mse-options-modal-overlay" onClick={cancelSubjectVisibilityChange}>
           <div className="mse-options-modal" onClick={(e) => e.stopPropagation()}>
             <div className="mse-options-modal-icon mse-options-modal-icon-edit">

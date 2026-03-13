@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { createPortal } from "react-dom";
 import axios from "axios";
 import imageCompression from "browser-image-compression";
 import {
@@ -302,12 +303,13 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
   const validImages    = getValidImages(topicImages || []);
   const filesForTopic  = filesMap[topicKey];
   const isMultipleFiles = Array.isArray(filesForTopic);
+  const portalModal = (node) => (typeof document !== "undefined" ? createPortal(node, document.body) : null);
 
   return (
     <div className="tc-card">
 
       {/* ── Rename Modal ── */}
-      {renameModal && (
+      {renameModal && portalModal(
         <div className="tc-modal-overlay" onClick={cancelRenameTopic}>
           <div className="tc-modal" onClick={(e) => e.stopPropagation()}>
             <div className="tc-modal-icon tc-modal-icon--edit"><FiEdit2 /></div>
@@ -333,7 +335,7 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
       )}
 
       {/* ── Delete Topic Modal ── */}
-      {deleteModal && (
+      {deleteModal && portalModal(
         <div className="tc-modal-overlay" onClick={cancelDeleteTopic}>
           <div className="tc-modal" onClick={(e) => e.stopPropagation()}>
             <div className="tc-modal-icon tc-modal-icon--danger"><FiTrash2 /></div>
@@ -349,7 +351,7 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
         </div>
       )}
 
-      {visibilityModal.open && (
+      {visibilityModal.open && portalModal(
         <div className="tc-modal-overlay" onClick={cancelVisibilityChange}>
           <div className="tc-modal" onClick={(e) => e.stopPropagation()}>
             <div className="tc-modal-icon tc-modal-icon--edit"><FiEdit2 /></div>
@@ -368,7 +370,7 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
       )}
 
       {/* ── Delete Image Modal ── */}
-      {deleteConfirm.show && (
+      {deleteConfirm.show && portalModal(
         <div className="tc-modal-overlay" onClick={cancelDelete}>
           <div className="tc-modal" onClick={(e) => e.stopPropagation()}>
             <div className="tc-modal-icon tc-modal-icon--danger"><FiAlertTriangle /></div>
