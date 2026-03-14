@@ -28,23 +28,19 @@ export async function GET(req) {
 
     const [data] = await res.json();
 
-    // -------------------------
-    // Metric tracking (safe)
-    // -------------------------
+    // METRIC TRACKING
     try {
       const today = new Date();
-      today.setHours(0, 0, 0, 0); // normalize to start of day
+      today.setHours(0, 0, 0, 0);
 
       await RequestMetric.findOneAndUpdate(
         { datetime: today },
         { $inc: { quote: 1 } },
-        { upsert: true, new: true }
+        { upsert: true }
       );
-    } catch (metricError) {
-      console.error("Metric update failed:", metricError.message);
-      // Do nothing → main API continues working
+    } catch (err) {
+      console.error("Metric update failed:", err.message);
     }
-    // -------------------------
 
     return NextResponse.json({
       content: data.q,

@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
+import RequestMetric from "@/models/RequestMetric";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
 
 // GET /api/work/paged?page=1&pageSize=8
@@ -23,21 +24,29 @@ export const GET = async (req) => {
     const pageSize = parseInt(searchParams.get("pageSize")) || 8;
     const skip = (page - 1) * pageSize;
 
-    // Find all publicly listed topics, sorted by timestamp desc
-    const topics = await Topic.find({ $or: [{ visibility: "public" }, { visibility: { $exists: false } }] })
+    const topics = await Topic.find({
+      $or: [
+        { visibility: "public" },
+        { visibility: { $exists: false } }
+      ]
+    })
       .sort({ timestamp: -1 })
       .skip(skip)
       .limit(pageSize)
       .lean();
 
-    // Get total count for pagination
-    const total = await Topic.countDocuments({ $or: [{ visibility: "public" }, { visibility: { $exists: false } }] });
+    const total = await Topic.countDocuments({
+      $or: [
+        { visibility: "public" },
+        { visibility: { $exists: false } }
+      ]
+    });
 
-    // For each topic, get subject and user
     const topicsWithDetails = await Promise.all(
       topics.map(async (topic) => {
         const subject = await Subject.findById(topic.subjectId).lean();
         const user = subject ? await User.findById(subject.userId).lean() : null;
+
         return {
           ...topic,
           subject: subject ? subject.subject : null,
@@ -50,6 +59,20 @@ export const GET = async (req) => {
       })
     );
 
+    // METRIC TRACKING
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      await RequestMetric.findOneAndUpdate(
+        { datetime: today },
+        { $inc: { works: 1 } },
+        { upsert: true }
+      );
+    } catch (err) {
+      console.error("Metric update failed:", err.message);
+    }
+
     return NextResponse.json({
       topics: topicsWithDetails,
       total,
@@ -57,8 +80,12 @@ export const GET = async (req) => {
       pageSize,
       totalPages: Math.ceil(total / pageSize),
     });
+
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Failed to fetch topics", details: err.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch topics", details: err.message },
+      { status: 500 }
+    );
   }
 };
