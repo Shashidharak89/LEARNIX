@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
+import RequestMetric from "@/models/RequestMetric";
 import { getVisibility } from "@/lib/visibility";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
 
@@ -11,9 +12,8 @@ export const GET = async (req, { params }) => {
   try {
     await connectDB();
 
-    const { id } = await params; // topic _id
+    const { id } = await params;
 
-    // Find the topic
     const topic = await Topic.findById(id).lean();
 
     if (!topic) {
@@ -42,7 +42,6 @@ export const GET = async (req, { params }) => {
       );
     }
 
-    // Find the user
     const user = await User.findById(topic.userId).lean();
     if (!user) {
       return NextResponse.json(
@@ -51,7 +50,6 @@ export const GET = async (req, { params }) => {
       );
     }
 
-    // Find the subject
     const subject = await Subject.findById(topic.subjectId).lean();
     if (!subject) {
       return NextResponse.json(
@@ -67,6 +65,16 @@ export const GET = async (req, { params }) => {
         { status: 403 }
       );
     }
+
+    // 🔹 Metric invocation (same record of the day)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    RequestMetric.findOneAndUpdate(
+      { datetime: today },
+      { $inc: { worksmain: 1 } },
+      { upsert: true }
+    ).catch(() => {});
 
     return NextResponse.json({
       user: {

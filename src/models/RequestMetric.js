@@ -10,4 +10,5 @@ const RequestMetricSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export default mongoose.models.RequestMetric || mongoose.model("RequestMetric", RequestMetricSchema);
+export default mongoose.models.RequestMetric ||
+  mongoose.model("RequestMetric", RequestMetricSchema);
