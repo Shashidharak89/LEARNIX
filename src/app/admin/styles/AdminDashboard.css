@@ -562,6 +562,7 @@
   align-items: center;
   gap: 0.55rem;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
 .adm-req-filter-label {
@@ -603,6 +604,25 @@
   padding: 0.9rem 1rem;
 }
 
+.adm-req-panel-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.adm-req-panel-chip {
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  padding: 0.22rem 0.6rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .adm-req-panel-title {
   font-size: 0.9rem;
   margin: 0 0 0.4rem;
@@ -621,6 +641,78 @@
   border-radius: 12px;
   background: #ffffff;
   padding: 1rem;
+}
+
+.adm-summary-compact {
+  margin-bottom: 0;
+  grid-template-columns: 1fr;
+}
+
+.adm-summary-compact .adm-summary-card {
+  padding: 0.9rem 1rem;
+}
+
+.adm-summary-compact .adm-summary-label {
+  white-space: normal;
+}
+
+.adm-req-chart-wrap {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.adm-req-chart-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.adm-req-chart-head .adm-req-panel-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+}
+
+.adm-req-range-group {
+  display: inline-flex;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.adm-req-range-btn {
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  color: #374151;
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.adm-req-range-btn:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.adm-req-range-btn-active {
+  background: #dbeafe;
+  border-color: #60a5fa;
+  color: #1e40af;
+}
+
+.adm-req-chart-area {
+  width: 100%;
+  min-height: 280px;
 }
 
 .adm-req-history-list {
@@ -743,6 +835,15 @@
     flex-direction: column;
     align-items: flex-start;
   }
+
+  .adm-req-history-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .adm-req-chart-area {
+    min-height: 250px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -766,6 +867,15 @@
 
   .adm-no-access-icon { width: 64px; height: 64px; }
   .adm-no-access-title { font-size: 1.5rem; }
+
+  .adm-req-panel-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .adm-req-chart-area {
+    min-height: 230px;
+  }
 }
 
 /* ── Accessibility ── */
