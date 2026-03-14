@@ -150,10 +150,10 @@ export default function AdminRequestMetrics({ role }) {
               onChange={(event) => setSelectedDate(event.target.value)}
             />
           </div>
-          <div className="adm-summary adm-summary-compact">
+          <div className="adm-summary adm-summary-compact adm-summary-metrics">
             {metricCards.map((metric) => (
               <div key={`day-${metric.key}`} className={`adm-summary-card ${metric.color}`}>
-                <div className="adm-summary-icon"><FiActivity size={20} /></div>
+                <div className="adm-summary-icon"><FiActivity size={16} /></div>
                 <div>
                   <div className="adm-summary-value">{formatCount(dayStats[metric.key])}</div>
                   <div className="adm-summary-label">{metric.label}</div>
@@ -168,10 +168,10 @@ export default function AdminRequestMetrics({ role }) {
             <h3 className="adm-req-panel-title">All Time</h3>
             <span className="adm-req-panel-chip">Lifetime totals</span>
           </div>
-          <div className="adm-summary adm-summary-compact">
+          <div className="adm-summary adm-summary-compact adm-summary-metrics">
             {metricCards.map((metric) => (
               <div key={`all-${metric.key}`} className={`adm-summary-card ${metric.color}`}>
-                <div className="adm-summary-icon"><FiActivity size={20} /></div>
+                <div className="adm-summary-icon"><FiActivity size={16} /></div>
                 <div>
                   <div className="adm-summary-value">{formatCount(totals[metric.key])}</div>
                   <div className="adm-summary-label">{metric.label}</div>

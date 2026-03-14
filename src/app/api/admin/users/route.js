@@ -35,7 +35,11 @@ export const GET = async (req) => {
     const sort  = searchParams.get("sort") || "createdAt";
     const skip  = (page - 1) * limit;
 
-    const total = await User.countDocuments({});
+    const isActivitySort = sort === "activity";
+    const activityFilter = { lastLoginAt: { $exists: true, $ne: null, $type: "date" } };
+    const total = isActivitySort
+      ? await User.countDocuments(activityFilter)
+      : await User.countDocuments({});
     let users = [];
 
     if (sort === "createdAt") {
@@ -46,51 +50,14 @@ export const GET = async (req) => {
         .select("name usn profileimg role createdAt lastLoginAt")
         .lean();
     } else {
-      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-
       users = await User.aggregate([
+        { $match: activityFilter },
         {
           $addFields: {
-            minutesSinceLastSeen: {
-              $cond: [
-                { $ne: ["$lastLoginAt", null] },
-                {
-                  $floor: {
-                    $divide: [
-                      { $subtract: ["$$NOW", "$lastLoginAt"] },
-                      60000,
-                    ],
-                  },
-                },
-                null,
-              ],
-            },
-            activityRank: {
-              $switch: {
-                branches: [
-                  { case: { $gte: ["$lastLoginAt", fiveMinutesAgo] }, then: 0 },
-                  { case: { $ne: ["$lastLoginAt", null] }, then: 1 },
-                ],
-                default: 2,
-              },
-            },
-            activitySortValue: {
-              $cond: [
-                { $gte: ["$lastLoginAt", fiveMinutesAgo] },
-                0,
-                {
-                  $cond: [
-                    { $ne: ["$lastLoginAt", null] },
-                    "$minutesSinceLastSeen",
-                    2147483647,
-                  ],
-                },
-              ],
-            },
             nameLower: { $toLower: { $ifNull: ["$name", ""] } },
           },
         },
-        { $sort: { activityRank: 1, activitySortValue: 1, nameLower: 1, _id: 1 } },
+        { $sort: { lastLoginAt: -1, nameLower: 1, _id: 1 } },
         { $skip: skip },
         { $limit: limit },
         {

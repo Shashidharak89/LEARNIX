@@ -298,7 +298,7 @@ export default function AdminUsers() {
                 value={sortMode}
                 onChange={(event) => handleSortChange(event.target.value)}
               >
-                <option value="activity">Activeness first</option>
+                <option value="activity">Latest active</option>
                 <option value="createdAt">Newest joined</option>
               </select>
             </div>
