@@ -150,15 +150,24 @@ export default function AdminRequestMetrics({ role }) {
               onChange={(event) => setSelectedDate(event.target.value)}
             />
           </div>
-          <div className="adm-req-lines">
-            <p>Works: <strong>{formatCount(dayStats.works)}</strong></p>
-            <p>Works Main: <strong>{formatCount(dayStats.worksmain)}</strong></p>
-            <p>Quote: <strong>{formatCount(dayStats.quote)}</strong></p>
+          <div className="adm-summary adm-summary-compact">
+            {metricCards.map((metric) => (
+              <div key={`day-${metric.key}`} className={`adm-summary-card ${metric.color}`}>
+                <div className="adm-summary-icon"><FiActivity size={20} /></div>
+                <div>
+                  <div className="adm-summary-value">{formatCount(dayStats[metric.key])}</div>
+                  <div className="adm-summary-label">{metric.label}</div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
         <div className="adm-req-panel">
-          <h3 className="adm-req-panel-title">All Time</h3>
+          <div className="adm-req-panel-top">
+            <h3 className="adm-req-panel-title">All Time</h3>
+            <span className="adm-req-panel-chip">Lifetime totals</span>
+          </div>
           <div className="adm-summary adm-summary-compact">
             {metricCards.map((metric) => (
               <div key={`all-${metric.key}`} className={`adm-summary-card ${metric.color}`}>
