@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
+import RequestMetric from "@/models/RequestMetric";
 
 export async function GET(req) {
   try {
@@ -25,11 +26,31 @@ export async function GET(req) {
       );
     }
 
-    const [data] = await res.json(); // zenquotes returns an array
+    const [data] = await res.json();
+
+    // -------------------------
+    // Metric tracking (safe)
+    // -------------------------
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // normalize to start of day
+
+      await RequestMetric.findOneAndUpdate(
+        { datetime: today },
+        { $inc: { quote: 1 } },
+        { upsert: true, new: true }
+      );
+    } catch (metricError) {
+      console.error("Metric update failed:", metricError.message);
+      // Do nothing → main API continues working
+    }
+    // -------------------------
+
     return NextResponse.json({
       content: data.q,
-      author:  data.a,
+      author: data.a,
     });
+
   } catch {
     return NextResponse.json(
       { error: "Failed to reach quote API" },
