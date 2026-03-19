@@ -217,6 +217,8 @@ const materialsData = [
                 files: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies-Lab/Assignment%201.docx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies-Lab/Assignment%202.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies-Lab/Assignment%203.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies-Lab/Assignment%204.docx" },
 
                 ]
 
@@ -253,8 +255,8 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/DMDW_MODULE_2_NOTES.pdf" },
 
                 ],
-                customfiles:[
-                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/Unofficial/DWMD-MSE1-IMP.pdf"},
+                customfiles: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/Unofficial/DWMD-MSE1-IMP.pdf" },
                 ],
             },
             {
@@ -269,6 +271,12 @@ const materialsData = [
                     // Unit 2
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/Unit-2.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/Enterprise%20Java_Unit%202.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/Enterprise%20Java_Unit%203_Collections.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/Enterprise%20Java_Unit%203_Event%20Handling.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/Enterprise%20Java_Unit%203_Multi-threaded%20Programming.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/Unit%203%5B3%20Chapters%5D.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/EJava%20Notes-Unit5.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/Assignment%20%20Questions_Unit%205.docx" },
                 ],
                 customfiles: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/Unofficial/EJAVA-IMP-QSNs.pdf" },
@@ -277,10 +285,15 @@ const materialsData = [
             {
                 subject: "Enterprise Java Lab",
                 files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java-Lab/Java_lab_task.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java-Lab/Format-report%5BJava%5D.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java-Lab/EJava%20Project%20titles%20-%20D%20Section.xlsx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java-Lab/Assignment-1_Java.docx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java-Lab/Assignment1.docx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java-Lab/Assignment2.docx" },
-
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java-Lab/Assignment3.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java-Lab/Assignment4.docx" },
+                    // { url: "" },
                 ]
             },
             {
@@ -322,10 +335,10 @@ const materialsData = [
 
             },
             {
-                subject:"Professional Communication Skills",
-                files:[],
-                customfiles:[
-                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Professional-Communication-Skills/Unofficial/PCS-MSE1-PTC.pdf"},
+                subject: "Professional Communication Skills",
+                files: [],
+                customfiles: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Professional-Communication-Skills/Unofficial/PCS-MSE1-PTC.pdf" },
                 ],
             },
         ],
