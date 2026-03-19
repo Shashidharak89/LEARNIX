@@ -10,6 +10,12 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Public Quick Sharing (24h) Added",
+      date: "Mar 19, 2026",
+      description:
+        "You can now post short public text updates directly from the home page (below the quote section). Posts appear instantly for everyone, preserve line breaks exactly as typed, and auto-expire after 24 hours. Home shows latest 3 posts with a View More button that opens /public-texts (latest 10 per page with server paging).",
+    },
+    {
       title: "Daily Login Streaks Added",
       date: "Mar 13, 2026",
       description:
