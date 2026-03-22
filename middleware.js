@@ -22,13 +22,13 @@ function extractIp(request) {
 export function middleware(request, event) {
   const pathname = request.nextUrl.pathname;
 
-  if (pathname.startsWith("/api/internal/ip-logs")) {
+  if (pathname.startsWith("/api/ipinfo-log") || pathname.startsWith("/api/internal/ip-logs")) {
     return NextResponse.next();
   }
 
   const ip = extractIp(request);
 
-  const ingestUrl = new URL("/api/internal/ip-logs", request.url);
+  const ingestUrl = new URL("/api/ipinfo-log", request.url);
   const payload = { ip: ip || "unknown" };
 
   event.waitUntil(
