@@ -541,6 +541,92 @@
   margin: 0;
 }
 
+/* ── Admin IP logs section ── */
+.adm-ip-section {
+  margin-bottom: 1.25rem;
+  animation: adm-fade-in 0.5s ease 0.32s both;
+}
+
+.adm-ip-head {
+  margin-bottom: 0.8rem;
+}
+
+.adm-ip-head .adm-section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.adm-ip-filter-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.9rem;
+}
+
+.adm-ip-filter-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.adm-ip-limit-select {
+  border: 1.5px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 0.3rem 0.55rem;
+  font-size: 0.82rem;
+  background: #eff6ff;
+  color: #1e3a8a;
+  font-weight: 700;
+}
+
+.adm-ip-limit-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.adm-ip-list-wrap {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 0.95rem;
+}
+
+.adm-ip-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.adm-ip-row {
+  border: 1px solid #e5e7eb;
+  border-left: 3px solid #60a5fa;
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.adm-ip-main {
+  display: grid;
+  gap: 0.22rem;
+}
+
+.adm-ip-line {
+  font-size: 0.8rem;
+  color: #374151;
+  line-height: 1.45;
+}
+
+.adm-ip-time {
+  flex-shrink: 0;
+  font-size: 0.74rem;
+  color: #6b7280;
+  font-weight: 700;
+  align-self: flex-start;
+}
+
 /* ── Request metrics section ── */
 .adm-req-section {
   margin-bottom: 2rem;
@@ -864,6 +950,11 @@
 
   .adm-req-chart-area {
     min-height: 250px;
+  }
+
+  .adm-ip-row {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .adm-summary-metrics {

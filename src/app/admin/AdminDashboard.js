@@ -28,6 +28,7 @@ import {
 } from "react-icons/fi";
 import { MdAdminPanelSettings, MdOutlineSupervisorAccount } from "react-icons/md";
 import "./styles/AdminDashboard.css";
+import AdminIpLogs from "./AdminIpLogs";
 import AdminRequestMetrics from "./AdminRequestMetrics";
 
 // ─── Privilege config per role ────────────────────────────────────────────────
@@ -426,6 +427,7 @@ export default function AdminDashboard() {
         </div>
       </section>
 
+      <AdminIpLogs role={role} />
       <AdminRequestMetrics role={role} />
 
     </div>
