@@ -3,6 +3,24 @@ import { connectDB } from "@/lib/db";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
 import RequestMetric from "@/models/RequestMetric";
 
+function extractIpFromReq(req) {
+  const candidates = [
+    req.headers.get("cf-connecting-ip"),
+    req.headers.get("x-forwarded-for"),
+    req.headers.get("x-real-ip"),
+    req.headers.get("x-client-ip"),
+  ];
+
+  for (const value of candidates) {
+    if (!value) continue;
+    const first = value.split(",")[0]?.trim() || "";
+    if (!first) continue;
+    return first.startsWith("::ffff:") ? first.slice(7) : first;
+  }
+
+  return "";
+}
+
 export async function GET(req) {
   try {
     await connectDB();
@@ -27,6 +45,19 @@ export async function GET(req) {
     }
 
     const [data] = await res.json();
+
+    try {
+      const origin = new URL(req.url).origin;
+      const ip = extractIpFromReq(req);
+      await fetch(`${origin}/api/ipinfo-log`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ip }),
+        cache: "no-store",
+      });
+    } catch (err) {
+      console.error("IP info logging failed:", err?.message || err);
+    }
 
     // METRIC TRACKING
     try {
