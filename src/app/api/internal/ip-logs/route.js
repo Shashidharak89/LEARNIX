@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import IPLogs from "@/models/IPLogs";
 
+export const runtime = "nodejs";
+
 function normalizeIp(value) {
   if (!value || typeof value !== "string") return "";
   const first = value.split(",")[0]?.trim() || "";
@@ -9,47 +11,45 @@ function normalizeIp(value) {
   return first;
 }
 
-function buildIPAPIUrl(ip) {
-  return `https://ipapi.co/${encodeURIComponent(ip)}/json/`;
+function buildIPInfoUrl(ip) {
+  const token = process.env.IPINFO_TOKEN || "";
+  const tokenPart = token ? `?token=${encodeURIComponent(token)}` : "";
+  if (!ip || ip === "unknown") {
+    return `https://ipinfo.io/json${tokenPart}`;
+  }
+  return `https://ipinfo.io/${encodeURIComponent(ip)}/json${tokenPart}`;
 }
 
 export const POST = async (req) => {
   try {
-    const sourceHeader = req.headers.get("x-ip-log-source") || "";
-    if (sourceHeader !== "middleware-v1") {
-      return NextResponse.json({ error: "Unauthorized source" }, { status: 401 });
-    }
-
     const body = await req.json().catch(() => ({}));
     const normalized = normalizeIp(body?.ip || "");
     const ip = normalized || "unknown";
 
     let lookup = {};
-    if (ip !== "unknown") {
-      try {
-        const response = await fetch(buildIPAPIUrl(ip), {
-          method: "GET",
-          headers: { Accept: "application/json" },
-          cache: "no-store",
-        });
+    try {
+      const response = await fetch(buildIPInfoUrl(ip), {
+        method: "GET",
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+      });
 
-        if (response.ok) {
-          lookup = await response.json();
-        }
-      } catch {
-        lookup = {};
+      if (response.ok) {
+        lookup = await response.json();
       }
+    } catch {
+      lookup = {};
     }
 
     await connectDB();
 
     await IPLogs.create({
-      ip,
+      ip: ip === "unknown" ? lookup?.ip || "unknown" : ip,
       network: lookup?.network || "",
-      version: lookup?.version || "",
+      version: lookup?.version || (lookup?.ip?.includes(":") ? "IPv6" : "IPv4"),
       city: lookup?.city || "",
       region: lookup?.region || "",
-      country_name: lookup?.country_name || "",
+      country_name: lookup?.country_name || lookup?.country || "",
       org: lookup?.org || "",
     });
 

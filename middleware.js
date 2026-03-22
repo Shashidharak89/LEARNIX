@@ -36,7 +36,6 @@ export function middleware(request, event) {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "x-ip-log-source": "middleware-v1",
       },
       body: JSON.stringify(payload),
       cache: "no-store",
