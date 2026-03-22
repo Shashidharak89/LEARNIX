@@ -45,7 +45,6 @@ export const POST = async (req) => {
 
     await IPLogs.create({
       ip: ip === "unknown" ? lookup?.ip || "unknown" : ip,
-      network: lookup?.network || "",
       version: lookup?.version || (lookup?.ip?.includes(":") ? "IPv6" : "IPv4"),
       city: lookup?.city || "",
       region: lookup?.region || "",

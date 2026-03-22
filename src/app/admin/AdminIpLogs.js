@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { FiGlobe, FiChevronDown } from "react-icons/fi";
+import { FiGlobe, FiChevronDown, FiRefreshCw } from "react-icons/fi";
 
 const DEFAULT_LIMIT = 10;
 
@@ -27,6 +27,7 @@ export default function AdminIpLogs({ role }) {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -138,6 +139,12 @@ export default function AdminIpLogs({ role }) {
     syncUrl(1, parsed);
   };
 
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchLogs(1, false, limit);
+    setRefreshing(false);
+  };
+
   return (
     <section className="adm-ip-section">
       <div className="adm-ip-head">
@@ -158,6 +165,14 @@ export default function AdminIpLogs({ role }) {
           <option value={20}>20</option>
           <option value={50}>50</option>
         </select>
+        <button
+          type="button"
+          className="adm-ip-refresh-btn"
+          onClick={handleRefresh}
+          disabled={refreshing || loading}
+        >
+          <FiRefreshCw size={14} /> {refreshing ? "Refreshing..." : "Refresh"}
+        </button>
       </div>
 
       {error && <div className="au-error-banner">{error}</div>}
@@ -173,7 +188,6 @@ export default function AdminIpLogs({ role }) {
               <div className="adm-ip-row" key={item._id}>
                 <div className="adm-ip-main">
                   <div className="adm-ip-line"><strong>IP:</strong> {item.ip || "—"}</div>
-                  <div className="adm-ip-line"><strong>Network:</strong> {item.network || "—"}</div>
                   <div className="adm-ip-line"><strong>Version:</strong> {item.version || "—"}</div>
                   <div className="adm-ip-line"><strong>City:</strong> {item.city || "—"}</div>
                   <div className="adm-ip-line"><strong>Region:</strong> {item.region || "—"}</div>

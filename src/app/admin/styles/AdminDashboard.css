@@ -543,12 +543,12 @@
 
 /* ── Admin IP logs section ── */
 .adm-ip-section {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   animation: adm-fade-in 0.5s ease 0.32s both;
 }
 
 .adm-ip-head {
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.5rem;
 }
 
 .adm-ip-head .adm-section-title {
@@ -561,7 +561,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  margin-bottom: 0.9rem;
+  margin-bottom: 0.65rem;
+  flex-wrap: wrap;
 }
 
 .adm-ip-filter-label {
@@ -573,11 +574,34 @@
 .adm-ip-limit-select {
   border: 1.5px solid #bfdbfe;
   border-radius: 8px;
-  padding: 0.3rem 0.55rem;
-  font-size: 0.82rem;
+  padding: 0.24rem 0.5rem;
+  font-size: 0.78rem;
   background: #eff6ff;
   color: #1e3a8a;
   font-weight: 700;
+}
+
+.adm-ip-refresh-btn {
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-radius: 8px;
+  padding: 0.3rem 0.58rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+}
+
+.adm-ip-refresh-btn:hover:not(:disabled) {
+  background: #dbeafe;
+}
+
+.adm-ip-refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .adm-ip-limit-select:focus {
@@ -590,38 +614,39 @@
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   background: #ffffff;
-  padding: 0.95rem;
+  padding: 0.72rem;
 }
 
 .adm-ip-list {
   display: grid;
-  gap: 0.65rem;
+  gap: 0.45rem;
 }
 
 .adm-ip-row {
-  border: 1px solid #e5e7eb;
-  border-left: 3px solid #60a5fa;
-  border-radius: 10px;
-  padding: 0.65rem 0.75rem;
+  border: 1px solid #dbeafe;
+  border-left: 3px solid #3b82f6;
+  border-radius: 9px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  padding: 0.48rem 0.6rem;
   display: flex;
   justify-content: space-between;
-  gap: 0.8rem;
+  gap: 0.65rem;
 }
 
 .adm-ip-main {
   display: grid;
-  gap: 0.22rem;
+  gap: 0.16rem;
 }
 
 .adm-ip-line {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: #374151;
-  line-height: 1.45;
+  line-height: 1.34;
 }
 
 .adm-ip-time {
   flex-shrink: 0;
-  font-size: 0.74rem;
+  font-size: 0.7rem;
   color: #6b7280;
   font-weight: 700;
   align-self: flex-start;

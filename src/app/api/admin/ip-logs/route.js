@@ -38,7 +38,7 @@ export const GET = async (req) => {
       .sort({ createdAt: -1, _id: -1 })
       .skip(skip)
       .limit(limit)
-      .select("ip network version city region country_name org createdAt updatedAt")
+      .select("ip version city region country_name org createdAt updatedAt")
       .lean();
 
     return NextResponse.json({

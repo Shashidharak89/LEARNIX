@@ -65,7 +65,6 @@ export const POST = async (req) => {
 
     const created = await IPLogs.create({
       ip: finalIp || "unknown",
-      network: ipinfo?.network || "",
       version: ipinfo?.version || inferVersion(finalIp),
       city: ipinfo?.city || "",
       region: ipinfo?.region || "",
@@ -79,7 +78,6 @@ export const POST = async (req) => {
         record: {
           _id: created._id,
           ip: created.ip,
-          network: created.network,
           version: created.version,
           city: created.city,
           region: created.region,
