@@ -86,6 +86,12 @@ const WorkSearchInterface = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const updatesTickerMessages = [
+    'See newly posted notes',
+    'See newly posted files',
+    'See newly posted announcements',
+    'Click here to open updates',
+  ];
 
   // Restore state from URL params so refresh keeps the search/filter state
   const initialQuery = searchParams.get('q') || '';
@@ -132,6 +138,7 @@ const WorkSearchInterface = () => {
   const [isLoadingRelevant, setIsLoadingRelevant] = useState(false);
   const [isLoadingMoreRelevant, setIsLoadingMoreRelevant] = useState(false);
   const [showRelevant, setShowRelevant] = useState(false);
+  const [updatesTickerIndex, setUpdatesTickerIndex] = useState(0);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -147,6 +154,14 @@ const WorkSearchInterface = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setUpdatesTickerIndex((prev) => (prev + 1) % updatesTickerMessages.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [updatesTickerMessages.length]);
 
   // Load saved topics from localStorage immediately on mount (before server data)
   useEffect(() => {
@@ -703,7 +718,11 @@ const WorkSearchInterface = () => {
         <div className="ws-updates-banner-wrap">
           <Link href="/updates" className="ws-updates-banner" aria-label="Open updates page">
             <span className="ws-updates-banner-title">UPDATES</span>
-            <span className="ws-updates-banner-info">See newly posted notes, files, and announcements.</span>
+            <span className="ws-updates-banner-ticker" aria-live="polite">
+              <span key={updatesTickerIndex} className="ws-updates-banner-slide">
+                {updatesTickerMessages[updatesTickerIndex]}
+              </span>
+            </span>
           </Link>
         </div>
         <div className="ws-search-container">
