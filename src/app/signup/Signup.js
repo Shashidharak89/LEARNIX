@@ -80,7 +80,7 @@ export default function Signup() {
               <FiHash className="input-icon" />
               <input
                 type="text"
-                placeholder="University Seat Number"
+                placeholder="USN / Register Number"
                 value={usn}
                 onChange={(e) => setUsn(e.target.value.toUpperCase())}
                 required

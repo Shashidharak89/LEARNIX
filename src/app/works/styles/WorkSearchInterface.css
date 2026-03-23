@@ -14,6 +14,55 @@
   margin-bottom: 40px;
 }
 
+.ws-updates-banner-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.ws-updates-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: min(90vw, 980px);
+  max-width: 90%;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #dbeafe;
+  background: #eff6ff;
+  color: #1d4ed8;
+  text-decoration: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ws-updates-banner:hover {
+  background: #dbeafe;
+  border-color: #bfdbfe;
+  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.12);
+}
+
+.ws-updates-banner-title {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ws-updates-banner-info {
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: #1e40af;
+}
+
+@media (max-width: 768px) {
+  .ws-updates-banner {
+    max-width: 95%;
+  }
+}
+
 .ws-search-container {
   display: flex;
   justify-content: center;

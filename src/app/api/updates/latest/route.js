@@ -9,11 +9,17 @@ export async function GET(req) {
 
     const url = new URL(req.url);
     const indexParam = url.searchParams.get('index') || '1';
+    const userId = (url.searchParams.get('userId') || '').trim();
     const pageIndex = Math.max(1, parseInt(indexParam, 10) || 1);
     const pageSize = 10;
     const skip = (pageIndex - 1) * pageSize;
 
-    const updates = await Update.find()
+    const query = {};
+    if (userId) {
+      query.userId = userId;
+    }
+
+    const updates = await Update.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(pageSize)

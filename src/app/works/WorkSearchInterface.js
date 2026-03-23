@@ -700,6 +700,12 @@ const WorkSearchInterface = () => {
   return (
     <div className="ws-container">
       <div className="ws-header">
+        <div className="ws-updates-banner-wrap">
+          <Link href="/updates" className="ws-updates-banner" aria-label="Open updates page">
+            <span className="ws-updates-banner-title">UPDATES</span>
+            <span className="ws-updates-banner-info">See newly posted notes, files, and announcements.</span>
+          </Link>
+        </div>
         <div className="ws-search-container">
           <div className="ws-search-box">
             <input

@@ -23,10 +23,16 @@ export default function UpdatesList() {
   const [deleteModal, setDeleteModal] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
 
-  const fetchPage = async (p = 1, append = false) => {
+  const fetchPage = async (p = 1, append = false, userId = currentUserId) => {
+    if (!userId) {
+      setUpdates([]);
+      setHasMore(false);
+      return;
+    }
+
     setLoading(true);
     try {
-      const res = await fetch(`/api/updates/latest?index=${p}`);
+      const res = await fetch(`/api/updates/latest?index=${p}&userId=${encodeURIComponent(userId)}`);
       if (!res.ok) throw new Error('Failed to load updates');
       const data = await res.json();
       const items = data?.updates || [];
@@ -41,16 +47,23 @@ export default function UpdatesList() {
   };
 
   useEffect(() => {
-    fetchPage(1, false);
-
     const usn = typeof window !== 'undefined' ? localStorage.getItem('usn') : null;
-    if (!usn) return;
+    if (!usn) {
+      setUpdates([]);
+      setHasMore(false);
+      return;
+    }
+
     (async () => {
       try {
         const res = await fetch(`/api/user/id?usn=${encodeURIComponent(usn)}`);
         if (res.ok) {
           const d = await res.json();
-          if (d?.userId) setCurrentUserId(d.userId);
+          if (d?.userId) {
+            setCurrentUserId(d.userId);
+            setPage(1);
+            fetchPage(1, false, d.userId);
+          }
         }
       } catch (e) {
         console.error('Failed to resolve current user id', e);
@@ -59,6 +72,7 @@ export default function UpdatesList() {
   }, []);
 
   const loadMore = () => {
+    if (!currentUserId) return;
     const next = page + 1;
     setPage(next);
     fetchPage(next, true);
