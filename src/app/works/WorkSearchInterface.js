@@ -139,6 +139,7 @@ const WorkSearchInterface = () => {
   const [isLoadingMoreRelevant, setIsLoadingMoreRelevant] = useState(false);
   const [showRelevant, setShowRelevant] = useState(false);
   const [updatesTickerIndex, setUpdatesTickerIndex] = useState(0);
+  const [updatesTickerPhase, setUpdatesTickerPhase] = useState('idle');
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -156,11 +157,36 @@ const WorkSearchInterface = () => {
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setUpdatesTickerIndex((prev) => (prev + 1) % updatesTickerMessages.length);
-    }, 2000);
+    const holdDurationMs = 3400;
+    const transitionDurationMs = 380;
 
-    return () => clearInterval(interval);
+    let holdTimer;
+    let exitTimer;
+    let enterTimer;
+
+    const runCycle = () => {
+      holdTimer = setTimeout(() => {
+        setUpdatesTickerPhase('exit');
+
+        exitTimer = setTimeout(() => {
+          setUpdatesTickerIndex((prev) => (prev + 1) % updatesTickerMessages.length);
+          setUpdatesTickerPhase('enter');
+
+          enterTimer = setTimeout(() => {
+            setUpdatesTickerPhase('idle');
+            runCycle();
+          }, transitionDurationMs);
+        }, transitionDurationMs);
+      }, holdDurationMs);
+    };
+
+    runCycle();
+
+    return () => {
+      clearTimeout(holdTimer);
+      clearTimeout(exitTimer);
+      clearTimeout(enterTimer);
+    };
   }, [updatesTickerMessages.length]);
 
   // Load saved topics from localStorage immediately on mount (before server data)
@@ -719,7 +745,9 @@ const WorkSearchInterface = () => {
           <Link href="/updates" className="ws-updates-banner" aria-label="Open updates page">
             <span className="ws-updates-banner-title">UPDATES</span>
             <span className="ws-updates-banner-ticker" aria-live="polite">
-              <span key={updatesTickerIndex} className="ws-updates-banner-slide">
+              <span
+                className={`ws-updates-banner-slide ${updatesTickerPhase === 'exit' ? 'is-exit' : ''} ${updatesTickerPhase === 'enter' ? 'is-enter' : ''}`}
+              >
                 {updatesTickerMessages[updatesTickerIndex]}
               </span>
             </span>

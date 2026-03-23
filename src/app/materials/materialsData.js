@@ -294,7 +294,10 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java-Lab/Assignment3.docx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java-Lab/Assignment4.docx" },
                     // { url: "" },
-                ]
+                ],
+                customfiles: [
+                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java-Lab/External/EJAVA-LAB-Assignment4-Solution.pdf"},
+                ],
             },
             {
                 subject: "Web Development Using Ruby on Rails & PostgreSQL",

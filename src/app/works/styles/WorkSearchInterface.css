@@ -50,13 +50,6 @@
   text-transform: uppercase;
 }
 
-.ws-updates-banner-info {
-  font-size: 0.82rem;
-  font-weight: 500;
-  line-height: 1.3;
-  color: #1e40af;
-}
-
 .ws-updates-banner-ticker {
   position: relative;
   width: 100%;
@@ -72,18 +65,32 @@
   font-weight: 500;
   line-height: 1.3;
   color: #1e40af;
-  animation: ws-updates-slide-rtl 1.8s linear;
+  transform: translateX(0);
+  opacity: 1;
 }
 
-@keyframes ws-updates-slide-rtl {
+.ws-updates-banner-slide.is-exit {
+  animation: ws-updates-exit-left 0.38s ease forwards;
+}
+
+.ws-updates-banner-slide.is-enter {
+  animation: ws-updates-enter-right 0.38s ease forwards;
+}
+
+@keyframes ws-updates-enter-right {
   0% {
     transform: translateX(110%);
     opacity: 0;
   }
-  15% {
+  100% {
+    transform: translateX(0);
     opacity: 1;
   }
-  85% {
+}
+
+@keyframes ws-updates-exit-left {
+  0% {
+    transform: translateX(0);
     opacity: 1;
   }
   100% {
