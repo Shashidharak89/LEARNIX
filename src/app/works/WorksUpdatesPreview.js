@@ -54,14 +54,6 @@ export default function WorksUpdatesPreview() {
         <div className="wup-list">
           {updates.slice(0, 3).map((update) => {
             const files = Array.isArray(update.files) ? update.files : [];
-            const firstFile = files[0] || null;
-            const firstFileUrl = firstFile ? (firstFile.url || firstFile) : null;
-            const firstFileName = firstFile
-              ? (firstFile.name || String(firstFileUrl || "").split("/").pop())
-              : null;
-            const firstFileViewUrl = firstFileUrl
-              ? `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(firstFileUrl)}`
-              : null;
 
             return (
               <article key={String(update._id)} className="wup-item">
@@ -75,40 +67,52 @@ export default function WorksUpdatesPreview() {
 
                 {update.content ? <p className="wup-content">{update.content}</p> : null}
 
-                {firstFileUrl ? (
-                  <div className="wup-file-row">
-                    <a
-                      href={firstFileViewUrl}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="wup-file-name"
-                      title={`Open ${firstFileName}`}
-                    >
-                      {firstFileName || "Open file"}
-                    </a>
-                    <div className="wup-file-actions">
-                      <a
-                        href={firstFileViewUrl}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        className="wup-file-btn"
-                        title="View"
-                        aria-label="View file"
-                      >
-                        <FiEye />
-                      </a>
-                      <a
-                        href={firstFileUrl}
-                        download={firstFileName || "file"}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        className="wup-file-btn"
-                        title="Download"
-                        aria-label="Download file"
-                      >
-                        <FiDownload />
-                      </a>
-                    </div>
+                {files.length > 0 ? (
+                  <div className="wup-files-list">
+                    {files.map((fileItem, fileIndex) => {
+                      const fileUrl = fileItem?.url || fileItem;
+                      if (!fileUrl) return null;
+
+                      const fileName = fileItem?.name || String(fileUrl).split("/").pop() || "Open file";
+                      const fileViewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(fileUrl)}`;
+
+                      return (
+                        <div key={`${String(update._id)}-file-${fileIndex}`} className="wup-file-row">
+                          <a
+                            href={fileViewUrl}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            className="wup-file-name"
+                            title={`Open ${fileName}`}
+                          >
+                            {fileName}
+                          </a>
+                          <div className="wup-file-actions">
+                            <a
+                              href={fileViewUrl}
+                              target="_blank"
+                              rel="noreferrer noopener"
+                              className="wup-file-btn"
+                              title="View"
+                              aria-label="View file"
+                            >
+                              <FiEye />
+                            </a>
+                            <a
+                              href={fileUrl}
+                              download={fileName || "file"}
+                              target="_blank"
+                              rel="noreferrer noopener"
+                              className="wup-file-btn"
+                              title="Download"
+                              aria-label="Download file"
+                            >
+                              <FiDownload />
+                            </a>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : update.links?.length ? (
                   <div className="wup-link-row">

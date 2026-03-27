@@ -100,6 +100,17 @@
   gap: 8px;
 }
 
+.wup-files-list {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wup-files-list .wup-file-row {
+  margin-top: 0;
+}
+
 .wup-file-name {
   font-size: 0.74rem;
   color: #1d4ed8;
