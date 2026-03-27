@@ -8,6 +8,7 @@ import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import SubjectTopicFilter from './SubjectTopicFilter';
 import Ads from '../components/ads/Ads';
 import ImageLoader from '../components/ImageLoader';
+import WorksUpdatesPreview from './WorksUpdatesPreview';
 import './styles/WorkSearchInterface.css';
 import { authFetch } from '@/lib/clientAuth';
 
@@ -86,12 +87,6 @@ const WorkSearchInterface = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const updatesTickerMessages = [
-    'See newly posted notes',
-    'See newly posted files',
-    'See newly posted announcements',
-    'Click here to open updates',
-  ];
 
   // Restore state from URL params so refresh keeps the search/filter state
   const initialQuery = searchParams.get('q') || '';
@@ -138,8 +133,6 @@ const WorkSearchInterface = () => {
   const [isLoadingRelevant, setIsLoadingRelevant] = useState(false);
   const [isLoadingMoreRelevant, setIsLoadingMoreRelevant] = useState(false);
   const [showRelevant, setShowRelevant] = useState(false);
-  const [updatesTickerIndex, setUpdatesTickerIndex] = useState(0);
-  const [updatesTickerPhase, setUpdatesTickerPhase] = useState('idle');
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -155,39 +148,6 @@ const WorkSearchInterface = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  useEffect(() => {
-    const holdDurationMs = 3400;
-    const transitionDurationMs = 380;
-
-    let holdTimer;
-    let exitTimer;
-    let enterTimer;
-
-    const runCycle = () => {
-      holdTimer = setTimeout(() => {
-        setUpdatesTickerPhase('exit');
-
-        exitTimer = setTimeout(() => {
-          setUpdatesTickerIndex((prev) => (prev + 1) % updatesTickerMessages.length);
-          setUpdatesTickerPhase('enter');
-
-          enterTimer = setTimeout(() => {
-            setUpdatesTickerPhase('idle');
-            runCycle();
-          }, transitionDurationMs);
-        }, transitionDurationMs);
-      }, holdDurationMs);
-    };
-
-    runCycle();
-
-    return () => {
-      clearTimeout(holdTimer);
-      clearTimeout(exitTimer);
-      clearTimeout(enterTimer);
-    };
-  }, [updatesTickerMessages.length]);
 
   // Load saved topics from localStorage immediately on mount (before server data)
   useEffect(() => {
@@ -741,18 +701,6 @@ const WorkSearchInterface = () => {
   return (
     <div className="ws-container">
       <div className="ws-header">
-        <div className="ws-updates-banner-wrap">
-          <Link href="/updates" className="ws-updates-banner" aria-label="Open updates page">
-            <span className="ws-updates-banner-title">UPDATES</span>
-            <span className="ws-updates-banner-ticker" aria-live="polite">
-              <span
-                className={`ws-updates-banner-slide ${updatesTickerPhase === 'exit' ? 'is-exit' : ''} ${updatesTickerPhase === 'enter' ? 'is-enter' : ''}`}
-              >
-                {updatesTickerMessages[updatesTickerIndex]}
-              </span>
-            </span>
-          </Link>
-        </div>
         <div className="ws-search-container">
           <div className="ws-search-box">
             <input
@@ -783,6 +731,10 @@ const WorkSearchInterface = () => {
       </div>
 
       <div className="ws-content">
+        {!searchQuery && selectedSubjects.length === 0 && selectedTopics.length === 0 && !isLoading && (
+          <WorksUpdatesPreview />
+        )}
+
         {/* Show cached saved topics immediately while loading */}
         {isLoading && cachedSavedTopics.length > 0 && (
           <div className="ws-saved-section">

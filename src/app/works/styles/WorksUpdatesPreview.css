@@ -1,0 +1,203 @@
+.wup-wrap {
+  width: 100%;
+  margin: 0 auto 16px;
+  border: 2px solid #f3f4f6;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 10px 10px 9px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.wup-wrap::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #3b82f6;
+}
+
+.wup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.wup-title {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.wup-loading,
+.wup-empty {
+  font-size: 0.82rem;
+  color: #475569;
+  padding: 4px 0 2px;
+}
+
+.wup-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.wup-item {
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.wup-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.wup-item-title {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wup-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.wup-content {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: #475569;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.wup-file-row {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wup-file-name {
+  font-size: 0.74rem;
+  color: #1d4ed8;
+  text-decoration: none;
+  max-width: 70%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wup-file-name:hover {
+  text-decoration: underline;
+}
+
+.wup-file-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wup-file-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: 1px solid #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #1e3a8a;
+  background: #ffffff;
+}
+
+.wup-file-btn:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.wup-link-row {
+  margin-top: 6px;
+}
+
+.wup-link-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.74rem;
+  color: #1d4ed8;
+  text-decoration: none;
+}
+
+.wup-link-item:hover {
+  text-decoration: underline;
+}
+
+.wup-more-wrap {
+  margin-top: 7px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.wup-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #1d4ed8;
+  animation: wup-pulse 1.4s ease-in-out infinite;
+}
+
+.wup-more-icon {
+  font-size: 0.95rem;
+}
+
+@keyframes wup-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translateX(2px);
+  }
+}
+
+@media (max-width: 640px) {
+  .wup-wrap {
+    padding: 8px;
+  }
+
+  .wup-item-title {
+    font-size: 0.8rem;
+  }
+
+  .wup-file-name {
+    max-width: 62%;
+  }
+}
