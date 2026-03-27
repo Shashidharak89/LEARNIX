@@ -67,6 +67,8 @@ export default function Footer() {
             <li><Link href="/privacy-policy">Privacy Policy</Link></li>
             <li><Link href="/terms">Terms &amp; Conditions</Link></li>
             <li><Link href="/disclaimer">Disclaimer</Link></li>
+            <li><Link href="/cancellation-refund">Cancellation &amp; Refund</Link></li>
+            <li><Link href="/shipping-delivery">Shipping &amp; Delivery</Link></li>
             <li><Link href="/help">Help / FAQ</Link></li>
             <li><Link href="/report-content">Report Content</Link></li>
             <li><a href="mailto:learnixp@gmail.com">Contact</a></li>
