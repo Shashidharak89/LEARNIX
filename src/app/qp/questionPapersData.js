@@ -355,6 +355,8 @@ const questionPapersData = [
                         "Data Warehousing and Data Mining": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766290752/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2023-25%5D/uxhfpn3ucr678fvyjsgj.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766290758/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2023-25%5D/y6jurl03zmtc5glejngj.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1766290989/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2023-25%5D/qkqphx41wgsnwuhpuiit.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1766291035/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2023-25%5D/dzubvewi9hgwscksk6lm.jpg",
                         ],
                         "Digital Image Processing and Pattern Recognition": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766290767/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2023-25%5D/nmhgmbc3sdf98inp4asx.jpg",
@@ -366,10 +368,6 @@ const questionPapersData = [
                         "Advanced Operating Systems with UNIX": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766290793/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2023-25%5D/vt8bnotjzmk0fqpnn4ka.jpg",
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1766290802/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2023-25%5D/ihb5nx7xaftfjucv2opr.jpg",
-                        ],
-                        "Data Warehousing and Data Mining": [
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1766290989/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2023-25%5D/qkqphx41wgsnwuhpuiit.jpg",
-                            "https://res.cloudinary.com/ddycnd409/image/upload/v1766291035/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2023-25%5D/dzubvewi9hgwscksk6lm.jpg",
                         ],
                         "Professional Communication Skills": [
                             "https://res.cloudinary.com/ddycnd409/image/upload/v1770299177/users/NN25MCA119/Previous%20year%20Question%20papers/2-Sem%20Exam%20QP%20%5B2023-25%5D/j0f1i2bvimqdakbdg8dl.jpg",

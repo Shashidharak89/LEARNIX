@@ -61,53 +61,6 @@ export default function TextShareTool() {
     };
   }, []);
 
-  // Keyboard shortcuts handler
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      // Only work when fullscreen is active
-      if (!isFullScreen) return;
-
-      // Ctrl+S or Cmd+S - Save changes
-      if ((e.ctrlKey || e.metaKey) && e.key === 's' && !e.shiftKey) {
-        e.preventDefault();
-        if (fetchedEditAccess && isEditing) {
-          handleSaveEdit();
-        }
-      }
-
-      // Ctrl+Shift+C - Copy all text
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C') {
-        e.preventDefault();
-        handleCopy(isEditing ? editedText : fetchedText);
-      }
-
-      // Ctrl+B - Cancel changes (only in edit mode)
-      if ((e.ctrlKey || e.metaKey) && e.key === 'b' && !e.shiftKey) {
-        e.preventDefault();
-        if (fetchedEditAccess && isEditing) {
-          handleCancelEdit();
-        }
-      }
-
-      // Ctrl+R - Refresh
-      if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-        e.preventDefault();
-        handleRefresh();
-      }
-
-      // Windows Key + Down Arrow or Escape - Exit fullscreen
-      if ((e.metaKey && e.key === 'ArrowDown') || e.key === 'Escape') {
-        e.preventDefault();
-        setIsFullScreen(false);
-      }
-    };
-
-    if (isFullScreen) {
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [isFullScreen, fetchedEditAccess, isEditing, editedText, fetchedText]); // Dependencies for the effect
-
   // Show toast notification
   const showToast = useCallback((message, type = "info") => {
     if (toastTimeoutRef.current) {
@@ -419,7 +372,7 @@ export default function TextShareTool() {
 
   // Delete a code (admin action)
   async function handleDeleteCode(codeToDelete) {
-    if (!confirm(`Delete code "${codeToDelete}"? This cannot be undone.`)) return;
+    if (!window.confirm(`Delete code "${codeToDelete}"? This cannot be undone.`)) return;
     
     setDeletingCode(codeToDelete);
     showToast("Deleting...", "info");
@@ -481,6 +434,53 @@ export default function TextShareTool() {
     navigator.clipboard.writeText(textToCopy);
     showToast("Copied to clipboard!", "success");
   };
+
+  // Keyboard shortcuts handler
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Only work when fullscreen is active
+      if (!isFullScreen) return;
+
+      // Ctrl+S or Cmd+S - Save changes
+      if ((e.ctrlKey || e.metaKey) && e.key === 's' && !e.shiftKey) {
+        e.preventDefault();
+        if (fetchedEditAccess && isEditing) {
+          handleSaveEdit();
+        }
+      }
+
+      // Ctrl+Shift+C - Copy all text
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C') {
+        e.preventDefault();
+        handleCopy(isEditing ? editedText : fetchedText);
+      }
+
+      // Ctrl+B - Cancel changes (only in edit mode)
+      if ((e.ctrlKey || e.metaKey) && e.key === 'b' && !e.shiftKey) {
+        e.preventDefault();
+        if (fetchedEditAccess && isEditing) {
+          handleCancelEdit();
+        }
+      }
+
+      // Ctrl+R - Refresh
+      if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+        e.preventDefault();
+        handleRefresh();
+      }
+
+      // Windows Key + Down Arrow or Escape - Exit fullscreen
+      if ((e.metaKey && e.key === 'ArrowDown') || e.key === 'Escape') {
+        e.preventDefault();
+        setIsFullScreen(false);
+      }
+    };
+
+    if (isFullScreen) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isFullScreen, fetchedEditAccess, isEditing, editedText, fetchedText]);
 
   return (
     <div className="tst-page-container">

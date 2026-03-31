@@ -19,7 +19,10 @@ export default function ChunkUploader() {
   const upload = async () => {
     if (!file) return;
     const total = Math.ceil(file.size / CHUNK_SIZE);
-    const uploadId = (crypto && crypto.randomUUID) ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+    const cryptoObj = typeof globalThis !== "undefined" ? globalThis.crypto : null;
+    const uploadId = (cryptoObj && cryptoObj.randomUUID)
+      ? cryptoObj.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
     setStatus("Uploading...");
     abortRef.current = false;
 

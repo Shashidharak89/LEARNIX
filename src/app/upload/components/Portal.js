@@ -4,25 +4,23 @@
 
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 export default function Portal({ children }) {
-  const elRef = useRef(null);
-
-  if (!elRef.current && typeof document !== "undefined") {
-    elRef.current = document.createElement("div");
-  }
+  const [el] = useState(() => {
+    if (typeof document === "undefined") return null;
+    return document.createElement("div");
+  });
 
   useEffect(() => {
-    const el = elRef.current;
-    if (!el) return;
+    if (!el || typeof document === "undefined") return;
     document.body.appendChild(el);
     return () => {
       document.body.removeChild(el);
     };
-  }, []);
+  }, [el]);
 
-  if (!elRef.current) return null;
-  return createPortal(children, elRef.current);
+  if (!el) return null;
+  return createPortal(children, el);
 }
