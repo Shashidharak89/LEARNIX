@@ -1,7 +1,8 @@
-import { createAppRoute } from "@trigger.dev/nextjs";
-import { imageGenerationTask } from "../../../trigger/imageGeneration.js";
-import { tasks } from "@trigger.dev/sdk/v3";
+import { NextResponse } from "next/server";
 
-tasks.register?.(imageGenerationTask);
-
-export const { POST } = createAppRoute(tasks);
+export async function POST() {
+	return NextResponse.json(
+		{ error: "Trigger route is disabled in this build" },
+		{ status: 410 }
+	);
+}
