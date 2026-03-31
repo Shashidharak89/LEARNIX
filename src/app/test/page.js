@@ -3,6 +3,7 @@ import { Navbar } from '../components/Navbar';
 import ChunkUploader from './ChunkUploader';
 import RandomQuote from './RandomQuote';
 import FluxImageGenerator from './FluxImageGenerator';
+import TriggerImageGenerator from './TriggerImageGenerator';
 
 export default function TestPage() {
   return (
@@ -17,6 +18,7 @@ export default function TestPage() {
       <ChunkUploader/>
       <RandomQuote/>
       <FluxImageGenerator/>
+      <TriggerImageGenerator/>
       </main>
     </>
   );

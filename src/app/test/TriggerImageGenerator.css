@@ -1,0 +1,127 @@
+.tig-wrap {
+  width: min(860px, 100%);
+  margin-top: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 16px;
+  text-align: left;
+}
+
+.tig-title {
+  margin: 0;
+  color: #1e3a8a;
+  font-size: 1.1rem;
+}
+
+.tig-subtitle {
+  margin: 6px 0 12px;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.tig-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tig-textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 0.95rem;
+  resize: vertical;
+}
+
+.tig-btn {
+  align-self: flex-start;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 8px;
+  padding: 9px 14px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.tig-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.tig-status {
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.tig-error {
+  margin-top: 10px;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.tig-result {
+  margin-top: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tig-result img {
+  display: block;
+  width: 100%;
+}
+
+.tig-gallery {
+  margin-top: 18px;
+}
+
+.tig-gallery h3 {
+  margin: 0 0 12px;
+  color: #1f2937;
+}
+
+.tig-empty {
+  color: #94a3b8;
+  font-size: 0.88rem;
+}
+
+.tig-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.tig-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.tig-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  display: block;
+}
+
+.tig-placeholder {
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.tig-card-meta {
+  padding: 8px;
+  font-size: 0.75rem;
+  color: #475569;
+}
