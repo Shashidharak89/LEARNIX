@@ -8,6 +8,7 @@ const HF_ENDPOINT = process.env.HF_TEXT_TO_IMAGE_ENDPOINT ||
 
 export const imageGenerationTask = task({
   id: "image-generation",
+  maxDuration: 3600,
   run: async (payload) => {
     const { generationId, prompt } = payload || {};
 
