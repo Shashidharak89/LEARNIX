@@ -1,0 +1,100 @@
+.fig-wrap {
+  width: min(820px, 100%);
+  margin-top: 24px;
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 16px;
+  text-align: left;
+}
+
+.fig-title {
+  margin: 0;
+  color: #1e3a8a;
+  font-size: 1.1rem;
+}
+
+.fig-meta {
+  margin: 8px 0 12px;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.fig-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fig-textarea {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 0.95rem;
+  resize: vertical;
+  min-height: 88px;
+}
+
+.fig-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.fig-generate-btn {
+  align-self: flex-start;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 8px;
+  padding: 9px 14px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.fig-generate-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.fig-error {
+  margin: 10px 0 0;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.fig-preview-card {
+  margin-top: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.fig-preview-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #f8fafc;
+}
+
+.fig-preview-actions {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.fig-action-link {
+  text-decoration: none;
+  color: #1d4ed8;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.fig-download-link {
+  color: #1e40af;
+}
