@@ -1,0 +1,145 @@
+.chat-inbox-container {
+  min-height: calc(100vh - 80px);
+  background: #f8fafc;
+  padding: 20px;
+}
+
+.chat-inbox-card {
+  max-width: 860px;
+  margin: 0 auto;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.chat-inbox-header {
+  padding: 16px 18px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.chat-inbox-header h1 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #0f172a;
+}
+
+.chat-inbox-header p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.chat-inbox-error {
+  margin: 12px 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.chat-inbox-error a {
+  margin-left: 6px;
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.chat-inbox-empty {
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #64748b;
+}
+
+.chat-inbox-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.chat-inbox-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 14px;
+  text-decoration: none;
+  color: inherit;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.chat-inbox-item:hover {
+  background: #f8fafc;
+}
+
+.chat-inbox-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #dbeafe;
+  flex-shrink: 0;
+}
+
+.chat-inbox-content {
+  min-width: 0;
+  flex: 1;
+}
+
+.chat-inbox-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+}
+
+.chat-inbox-top h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 0.97rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-inbox-top span {
+  font-size: 0.78rem;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.chat-inbox-content p {
+  margin: 3px 0 2px;
+  color: #334155;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-inbox-content small {
+  color: #94a3b8;
+}
+
+.chat-inbox-more-wrap {
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+.chat-inbox-more-btn {
+  border: 1px solid #bae6fd;
+  background: #f0f9ff;
+  color: #0369a1;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-inbox-more-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
