@@ -7,6 +7,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import { Navbar } from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import WorkTopicPage from "./WorkTopicPage";
+import ShareToUsersModal from "./ShareToUsersModal";
 import { authFetch } from "@/lib/clientAuth";
 
 // LocalStorage key for saved topics
@@ -95,6 +96,8 @@ const WorkTopicPageWrapper = () => {
   const [error, setError] = useState(null);
   const [isSaved, setIsSaved] = useState(false);
   const [usingCachedData, setUsingCachedData] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [sharePayload, setSharePayload] = useState({ url: "", text: "" });
 
   useEffect(() => {
     if (!id) return;
@@ -230,20 +233,11 @@ const WorkTopicPageWrapper = () => {
     const title = `${data.topic.topic} - ${data.subject.subject}`;
     const text = `Check out "${data.topic.topic}" uploaded by ${data.user.name} on Learnix`;
 
-    if (navigator.share) {
-      navigator
-        .share({
-          title: title,
-          text: text,
-          url: url,
-        })
-        .catch((err) => console.log("Error sharing:", err));
-    } else {
-      navigator.clipboard
-        .writeText(`${text}\n${url}`)
-        .then(() => alert("Link copied to clipboard!"))
-        .catch(() => alert("Failed to copy link"));
-    }
+    setSharePayload({
+      url,
+      text: `${title}\n${text}`,
+    });
+    setShareModalOpen(true);
   };
 
   return (
@@ -261,6 +255,13 @@ const WorkTopicPageWrapper = () => {
         isSaved={isSaved}
         onSaveToggle={handleSaveToggle}
         usingCachedData={usingCachedData}
+      />
+
+      <ShareToUsersModal
+        open={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        shareUrl={sharePayload.url}
+        shareText={sharePayload.text}
       />
       
 
