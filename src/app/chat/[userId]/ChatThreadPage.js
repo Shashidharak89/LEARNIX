@@ -195,6 +195,18 @@ export default function ChatThreadPage({ userId }) {
         )}
 
         <div className="chat-thread-list-wrap" ref={messagesContainerRef}>
+          {hasMore && (
+            <div className="chat-thread-more-wrap chat-thread-more-wrap-top">
+              <button
+                type="button"
+                className="chat-thread-more-btn"
+                onClick={() => loadMessages(nextCursor, true)}
+              >
+                View more
+              </button>
+            </div>
+          )}
+
           {loading ? (
             <div className="chat-thread-empty">Loading messages...</div>
           ) : messages.length === 0 ? (
@@ -249,18 +261,6 @@ export default function ChatThreadPage({ userId }) {
             </ul>
           )}
         </div>
-
-        {hasMore && (
-          <div className="chat-thread-more-wrap">
-            <button
-              type="button"
-              className="chat-thread-more-btn"
-              onClick={() => loadMessages(nextCursor, true)}
-            >
-              View more
-            </button>
-          </div>
-        )}
 
         <form className="chat-thread-form" onSubmit={handleSend}>
           <textarea

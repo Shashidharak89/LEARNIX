@@ -178,6 +178,10 @@
   justify-content: center;
 }
 
+.chat-thread-more-wrap-top {
+  padding: 0 0 10px;
+}
+
 .chat-thread-more-btn {
   border: 1px solid #bae6fd;
   background: #f0f9ff;
