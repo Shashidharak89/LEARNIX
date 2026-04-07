@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import axios from "axios";
 import { Calendar, BookOpen, ImageIcon, Eye, EyeOff, User, GraduationCap, Clock, ChevronDown, Search } from "lucide-react";
 import './styles/UserDetailsPage.css';
@@ -22,6 +23,7 @@ export default function UserDetailsPage({ usn }) {
   const [publicTotalImages, setPublicTotalImages] = useState(0);
   const [showResources, setShowResources] = useState(false);
   const [visibleSubjectsCount, setVisibleSubjectsCount] = useState(3);
+  const [viewerUsn, setViewerUsn] = useState("");
   
   
   const TOPICS_PER_LOAD = 3; // Load 3 topics at a time per subject
@@ -68,6 +70,11 @@ export default function UserDetailsPage({ usn }) {
       fetchUserDetails(usn);
     }
   }, [usn]);
+
+  useEffect(() => {
+    const currentUsn = localStorage.getItem("usn") || "";
+    setViewerUsn(currentUsn.toUpperCase());
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -205,6 +212,11 @@ export default function UserDetailsPage({ usn }) {
     );
   }
 
+  const canChat =
+    !!viewerUsn &&
+    !!user?.id &&
+    viewerUsn !== String(user?.usn || "").toUpperCase();
+
   return (
     <div className="user-details-container">
       <div className="user-details-wrapper">
@@ -256,6 +268,13 @@ export default function UserDetailsPage({ usn }) {
                 <div className="user-details-highest-streak">
                   Highest streak: {getSafeStreak(user.highestStreak)}
                 </div>
+                {canChat && (
+                  <div className="user-details-chat-wrap">
+                    <Link href={`/chat/${user.id}`} className="user-details-chat-link">
+                      Chat
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
 

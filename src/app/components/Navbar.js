@@ -311,6 +311,17 @@ export const Navbar = () => {
 
         {/* Right Section - Notification & Menu */}
         <div className="learnix-navbar-right">
+          {hasUSN && (
+            <Link
+              href="/chat"
+              className="learnix-chat-btn"
+              aria-label="Open chat"
+              title="Open chat"
+            >
+              <FiMessageSquare size={20} />
+            </Link>
+          )}
+
           {/* Notification Bell */}
           {hasUSN && (
             <div className="learnix-notification-wrapper" ref={notifRef}>
