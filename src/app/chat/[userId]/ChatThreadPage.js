@@ -17,6 +17,10 @@ function formatChatTime(value) {
   });
 }
 
+function toChronological(messages) {
+  return [...messages].reverse();
+}
+
 export default function ChatThreadPage({ userId }) {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -55,10 +59,12 @@ export default function ChatThreadPage({ userId }) {
       setHasMore(Boolean(data.hasMore));
       setNextCursor(data.nextCursor || null);
 
+      const incoming = toChronological(data.messages || []);
+
       if (append) {
-        setMessages((prev) => [...prev, ...(data.messages || [])]);
+        setMessages((prev) => [...incoming, ...prev]);
       } else {
-        setMessages(data.messages || []);
+        setMessages(incoming);
       }
     } catch (err) {
       setError("Network error while loading chat.");
@@ -98,7 +104,7 @@ export default function ChatThreadPage({ userId }) {
       }
 
       if (data?.message) {
-        setMessages((prev) => [data.message, ...prev]);
+        setMessages((prev) => [...prev, data.message]);
       }
       setDraft("");
     } catch {
