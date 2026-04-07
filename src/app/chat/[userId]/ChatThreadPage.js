@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { FiSend, FiMessageSquare } from "react-icons/fi";
 import { authFetch } from "@/lib/clientAuth";
@@ -31,8 +31,17 @@ export default function ChatThreadPage({ userId }) {
   const [draft, setDraft] = useState("");
   const [hasMore, setHasMore] = useState(false);
   const [nextCursor, setNextCursor] = useState(null);
+  const messagesContainerRef = useRef(null);
+  const shouldAutoScrollRef = useRef(true);
+
+  const scrollToBottom = () => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    container.scrollTop = container.scrollHeight;
+  };
 
   const loadMessages = async (cursor = null, append = false) => {
+    shouldAutoScrollRef.current = !append;
     setError("");
     try {
       const token = localStorage.getItem("token") || "";
@@ -81,12 +90,19 @@ export default function ChatThreadPage({ userId }) {
     loadMessages();
   }, [userId]);
 
+  useEffect(() => {
+    if (shouldAutoScrollRef.current) {
+      scrollToBottom();
+    }
+  }, [messages, loading]);
+
   const handleSend = async (event) => {
     event.preventDefault();
     const content = draft.trim();
     if (!content || sending) return;
 
     setSending(true);
+    shouldAutoScrollRef.current = true;
     setError("");
 
     try {
@@ -139,7 +155,7 @@ export default function ChatThreadPage({ userId }) {
           </div>
         )}
 
-        <div className="chat-thread-list-wrap">
+        <div className="chat-thread-list-wrap" ref={messagesContainerRef}>
           {loading ? (
             <div className="chat-thread-empty">Loading messages...</div>
           ) : messages.length === 0 ? (
