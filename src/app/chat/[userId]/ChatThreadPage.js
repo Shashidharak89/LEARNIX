@@ -6,6 +6,8 @@ import { FiSend, FiMessageSquare } from "react-icons/fi";
 import { authFetch } from "@/lib/clientAuth";
 import "./styles/ChatThreadPage.css";
 
+const URL_REGEX = /((https?:\/\/|www\.)[^\s]+|learnix\.dev[^\s]*)/gi;
+
 function formatChatTime(value) {
   const dt = new Date(value);
   if (Number.isNaN(dt.getTime())) return "";
@@ -19,6 +21,43 @@ function formatChatTime(value) {
 
 function toChronological(messages) {
   return [...messages].reverse();
+}
+
+function normalizeUrl(raw) {
+  const text = String(raw || "").trim();
+  if (!text) return null;
+
+  const withProtocol = /^https?:\/\//i.test(text) ? text : `https://${text}`;
+
+  try {
+    return new URL(withProtocol);
+  } catch {
+    return null;
+  }
+}
+
+function getLearnixLinksFromText(messageText) {
+  const found = String(messageText || "").match(URL_REGEX) || [];
+  const unique = Array.from(new Set(found.map((value) => value.trim())));
+
+  return unique
+    .map((raw) => {
+      const parsed = normalizeUrl(raw);
+      if (!parsed) return null;
+
+      const host = parsed.hostname.toLowerCase();
+      const isLearnix = host === "learnix.dev" || host.endsWith(".learnix.dev") || host === "www.learnix.dev";
+      if (!isLearnix) return null;
+
+      const pathname = parsed.pathname || "/";
+      const isWorksTopic = /^\/works\/.+/i.test(pathname);
+
+      return {
+        href: parsed.toString(),
+        isWorksTopic,
+      };
+    })
+    .filter(Boolean);
 }
 
 export default function ChatThreadPage({ userId }) {
@@ -167,6 +206,7 @@ export default function ChatThreadPage({ userId }) {
             <ul className="chat-thread-list">
               {messages.map((msg) => {
                 const mine = String(msg.from) === String(currentUserId);
+                const learnixLinks = getLearnixLinksFromText(msg.content);
                 return (
                   <li
                     key={msg._id}
@@ -174,6 +214,33 @@ export default function ChatThreadPage({ userId }) {
                   >
                     <div className={`chat-msg-bubble ${mine ? "chat-msg-bubble-right" : "chat-msg-bubble-left"}`}>
                       <p>{msg.content}</p>
+                      {learnixLinks.length > 0 && (
+                        <div className="chat-link-preview-list">
+                          {learnixLinks.map((link) => (
+                            <div key={link.href} className="chat-link-preview-card">
+                              <div className="chat-link-preview-head">Learnix</div>
+                              <a
+                                href={link.href}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="chat-link-preview-url"
+                              >
+                                {link.href}
+                              </a>
+                              {link.isWorksTopic && (
+                                <a
+                                  href={link.href}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="chat-link-topic-btn"
+                                >
+                                  View Topic
+                                </a>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                       <span>{formatChatTime(msg.timestamp)}</span>
                     </div>
                   </li>
