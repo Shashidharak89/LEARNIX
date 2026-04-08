@@ -10,6 +10,12 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "In-App Chat & Share to Learnix Users",
+      date: "Apr 07, 2026",
+      description:
+        "We added direct user-to-user chat in Learnix. You can now open chats from user profiles, see recent conversations on /chat, send messages in WhatsApp-style flow, and load older messages with View More. We also added Share from /works/[id] to send topic links directly to Learnix users (multi-select), plus Copy Link and external 3-dot share options.",
+    },
+    {
       title: "Public Quick Sharing (24h) Added",
       date: "Mar 19, 2026",
       description:
