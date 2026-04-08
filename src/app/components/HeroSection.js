@@ -30,6 +30,7 @@ import AutoPlayVideo from "../about/AutoPlayVideo";
 import UpdatesBanner from './UpdatesBanner';
 import RandomQuote from "../test/RandomQuote";
 import PublicQuickText from "./PublicQuickText";
+import DownloadAppBanner from "./DownloadAppBanner";
 
 export default function HeroSection() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -143,6 +144,7 @@ export default function HeroSection() {
           </div>
           <RandomQuote/>
           <PublicQuickText />
+          <DownloadAppBanner />
           <WhatIsLearnix/>
           <AutoPlayVideo videoUrl="https://res.cloudinary.com/dsojdpkgh/video/upload/v1766751517/zglomku8o9iuxxv99qwx.mp4" />
           <WhoIsLearnixFor/>

@@ -10,6 +10,12 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Learnix is now available on mobile app",
+      date: "Apr 08, 2026",
+      description:
+        "Now you can use Learnix on your Android phone too. Just tap the download button on the home page and install the Learnix app to access resources, tools, and chats more easily on mobile.",
+    },
+    {
       title: "In-App Chat & Share to Learnix Users",
       date: "Apr 07, 2026",
       description:
