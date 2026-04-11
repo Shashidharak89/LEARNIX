@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import {
   FiBookOpen,
@@ -31,18 +31,13 @@ import UpdatesBanner from './UpdatesBanner';
 import RandomQuote from "../test/RandomQuote";
 import PublicQuickText from "./PublicQuickText";
 import DownloadAppBanner from "./DownloadAppBanner";
+import HomeGroqAskBox from "./HomeGroqAskBox";
 
 export default function HeroSection() {
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const usn = localStorage.getItem("usn");
-      if (usn) {
-        setLoggedIn(true);
-      }
-    }
-  }, []);
+  const [loggedIn] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return Boolean(localStorage.getItem("usn"));
+  });
 
   return (
     <section className="learnix-hero-main">
@@ -145,6 +140,7 @@ export default function HeroSection() {
           <RandomQuote/>
           <PublicQuickText />
           <DownloadAppBanner />
+          <HomeGroqAskBox />
           <WhatIsLearnix/>
           <AutoPlayVideo videoUrl="https://res.cloudinary.com/dsojdpkgh/video/upload/v1766751517/zglomku8o9iuxxv99qwx.mp4" />
           <WhoIsLearnixFor/>
