@@ -537,6 +537,18 @@ export const Navbar = () => {
           </Link>
 
           <Link
+            href="/updates"
+            className="learnix-nav-item"
+            onClick={closeSidebar}
+            tabIndex={isOpen ? 0 : -1}
+          >
+            <span className="learnix-nav-icon">
+              <FiBell size={18} />
+            </span>
+            <span className="learnix-nav-text">Updates</span>
+          </Link>
+
+          <Link
             href="/upload"
             className="learnix-nav-item"
             onClick={closeSidebar}
