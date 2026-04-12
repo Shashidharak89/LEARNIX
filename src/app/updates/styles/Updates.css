@@ -91,6 +91,91 @@
   line-height: 1.5;
 }
 
+.upd-search-form {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.upd-search-wrap {
+  position: relative;
+  flex: 1;
+}
+
+.upd-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--upd-blue);
+  font-size: 16px;
+}
+
+.upd-search-input {
+  width: 100%;
+  height: 42px;
+  border-radius: 8px;
+  border: 1px solid var(--upd-border);
+  padding: 0 12px 0 38px;
+  font-size: 14px;
+  color: var(--upd-text);
+  background: #fff;
+  transition: border-color 180ms var(--upd-ease), box-shadow 180ms var(--upd-ease);
+}
+
+.upd-search-input:focus {
+  outline: none;
+  border-color: var(--upd-blue);
+  box-shadow: 0 0 0 3px rgba(11, 116, 255, 0.14);
+}
+
+.upd-search-btn {
+  height: 42px;
+  border: none;
+  border-radius: 8px;
+  background: var(--upd-blue);
+  color: #fff;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 180ms var(--upd-ease), transform 180ms var(--upd-ease);
+}
+
+.upd-search-btn:hover {
+  background: var(--upd-blue-dark);
+}
+
+.upd-search-btn:active {
+  transform: scale(0.98);
+}
+
+.upd-search-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: #8ab8ef;
+}
+
+.upd-search-clear-btn {
+  height: 42px;
+  border: 1px solid var(--upd-border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--upd-text);
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 180ms var(--upd-ease), background 180ms var(--upd-ease), color 180ms var(--upd-ease);
+}
+
+.upd-search-clear-btn:hover {
+  border-color: var(--upd-blue);
+  color: var(--upd-blue);
+  background: rgba(11, 116, 255, 0.04);
+}
+
 /* ============================================
    Updates List
    ============================================ */
@@ -538,6 +623,15 @@
   .upd-load-more-btn {
     font-size: 14px;
     padding: 10px 20px;
+  }
+
+  .upd-search-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .upd-search-btn {
+    width: 100%;
   }
 }
 

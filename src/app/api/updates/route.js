@@ -3,6 +3,10 @@ import { connectDB } from "@/lib/db";
 import Update from "@/models/Update";
 import User from "@/models/User";
 
+function escapeRegex(value = "") {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export async function GET(req) {
   try {
     await connectDB();
@@ -10,10 +14,33 @@ export async function GET(req) {
     const url = new URL(req.url);
     const indexParam = url.searchParams.get('index') || '1';
     const pageIndex = Math.max(1, parseInt(indexParam, 10) || 1);
+    const rawQuery = (url.searchParams.get('q') || '').trim();
     const pageSize = 10;
     const skip = (pageIndex - 1) * pageSize;
 
-    const updates = await Update.find()
+    const updateQuery = {};
+    if (rawQuery) {
+      const regex = new RegExp(escapeRegex(rawQuery), 'i');
+      const matchedUsers = await User.find(
+        { $or: [{ name: regex }, { usn: regex }] },
+        { _id: 1 }
+      ).lean();
+      const matchedUserIds = matchedUsers.map((u) => u._id);
+
+      updateQuery.$or = [
+        { title: regex },
+        { content: regex },
+        { links: { $elemMatch: { $regex: regex } } },
+        { 'files.name': regex },
+        { 'files.url': regex },
+      ];
+
+      if (matchedUserIds.length > 0) {
+        updateQuery.$or.push({ userId: { $in: matchedUserIds } });
+      }
+    }
+
+    const updates = await Update.find(updateQuery)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(pageSize)
