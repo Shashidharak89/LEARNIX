@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@gradio/client": "^2.1.0",
+    "@huggingface/inference": "^4.13.15",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.4.2",
     "@trigger.dev/sdk": "^4.4.3",

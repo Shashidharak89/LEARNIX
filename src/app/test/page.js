@@ -4,6 +4,7 @@ import ChunkUploader from './ChunkUploader';
 import RandomQuote from './RandomQuote';
 import FluxImageGenerator from './FluxImageGenerator';
 import TriggerImageGenerator from './TriggerImageGenerator';
+import HfImageGenerator from './HfImageGenerator';
 
 export default function TestPage() {
   return (
@@ -18,6 +19,7 @@ export default function TestPage() {
       <ChunkUploader/>
       <RandomQuote/>
       <FluxImageGenerator/>
+      <HfImageGenerator/>
       <TriggerImageGenerator/>
       </main>
     </>
