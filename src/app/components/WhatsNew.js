@@ -10,6 +10,12 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Topic Summarize Added",
+      date: "Apr 13, 2026",
+      description:
+        "On topic pages (/works/[id]), you can now summarize the full topic with AI using the Summarize with AI button. This helps you quickly understand long topics in a concise student-friendly format.",
+    },
+    {
       title: "AI Image Analysis + Advanced Retry Added",
       date: "Apr 13, 2026",
       description:

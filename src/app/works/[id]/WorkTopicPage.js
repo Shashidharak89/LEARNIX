@@ -24,6 +24,8 @@ import Ads from "../../components/ads/Ads";
 import ImageLoader from "../../components/ImageLoader";
 import "./styles/WorkTopicPage.css";
 
+const MAX_BULK_SUMMARY_TEXT_CHARS = 45000;
+
 // Skeleton Components
 const UserProfileSkeleton = () => (
   <div className="wtpc-user-section wtpc-skeleton-container">
@@ -326,6 +328,8 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
     try {
       const { recognize } = await import("tesseract.js");
       const extractedChunks = [];
+      let extractedTextLength = 0;
+      let exceededCapacity = false;
 
       for (let i = 0; i < validImages.length; i += 1) {
         const imageUrl = validImages[i];
@@ -333,11 +337,23 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
           const result = await recognize(imageUrl, "eng");
           const text = String(result?.data?.text || "").trim();
           if (text) {
+            extractedTextLength += text.length;
+            if (extractedTextLength > MAX_BULK_SUMMARY_TEXT_CHARS) {
+              exceededCapacity = true;
+              break;
+            }
             extractedChunks.push(`Page ${i + 1}:\n${text}`);
           }
         } catch {
           // Skip failed image OCR and continue with remaining pages.
         }
+      }
+
+      if (exceededCapacity) {
+        setBulkSummaryError(
+          `Topic text is too large to summarize (${extractedTextLength.toLocaleString()} chars). Maximum supported length is ${MAX_BULK_SUMMARY_TEXT_CHARS.toLocaleString()} chars. Please summarize fewer pages.`
+        );
+        return;
       }
 
       const combinedText = extractedChunks.join("\n\n").trim();
