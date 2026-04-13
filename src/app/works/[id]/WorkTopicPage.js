@@ -18,7 +18,7 @@ import {
   FaEye
 } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
-import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiCpu, FiX } from "react-icons/fi";
 import TopicReviews from "./TopicReviews";
 import Ads from "../../components/ads/Ads";
 import ImageLoader from "../../components/ImageLoader";
@@ -154,6 +154,9 @@ const WtpcLightbox = ({ images, startIndex, onClose }) => {
 const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isSaved, onSaveToggle, usingCachedData }) => {
   const [expandedImages, setExpandedImages] = useState({});
   const [showPageNumbers, setShowPageNumbers] = useState(false);
+  const [analyzingImages, setAnalyzingImages] = useState({});
+  const [analysisSummaryByImage, setAnalysisSummaryByImage] = useState({});
+  const [analysisErrorByImage, setAnalysisErrorByImage] = useState({});
   const [lightboxIndex, setLightboxIndex] = useState(null); // lightbox
   const [rangeModalOpen, setRangeModalOpen] = useState(false);
   const [allPages, setAllPages] = useState(true);
@@ -178,6 +181,58 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
       ...prev,
       [imageIndex]: !prev[imageIndex]
     }));
+  };
+
+  const analyzeImageWithAI = async (imageUrl, imageIndex) => {
+    if (!imageUrl || analyzingImages[imageIndex]) return;
+
+    setAnalyzingImages((prev) => ({ ...prev, [imageIndex]: true }));
+    setAnalysisErrorByImage((prev) => ({ ...prev, [imageIndex]: "" }));
+
+    try {
+      const { recognize } = await import("tesseract.js");
+      const result = await recognize(imageUrl, "eng");
+      const extractedText = String(result?.data?.text || "").trim();
+
+      if (!extractedText) {
+        setAnalysisSummaryByImage((prev) => ({ ...prev, [imageIndex]: "" }));
+        setAnalysisErrorByImage((prev) => ({
+          ...prev,
+          [imageIndex]: "No readable text found in this image.",
+        }));
+        return;
+      }
+
+      const summaryPrompt = `Summarize this extracted image text for a student. Keep it concise and clear.\\n\\n${extractedText}`;
+
+      const res = await fetch("/api/groq-chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ question: summaryPrompt }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Unable to analyze image right now.");
+      }
+
+      setAnalysisSummaryByImage((prev) => ({
+        ...prev,
+        [imageIndex]: data?.answer || "No summary returned.",
+      }));
+      setAnalysisErrorByImage((prev) => ({ ...prev, [imageIndex]: "" }));
+    } catch (err) {
+      setAnalysisSummaryByImage((prev) => ({ ...prev, [imageIndex]: "" }));
+      setAnalysisErrorByImage((prev) => ({
+        ...prev,
+        [imageIndex]: err?.message || "Failed to analyze this image.",
+      }));
+    } finally {
+      setAnalyzingImages((prev) => ({ ...prev, [imageIndex]: false }));
+    }
   };
 
   const downloadTopicAsPDF = () => {
@@ -451,6 +506,16 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
                       {showPageNumbers && (
                         <span className="wtpc-page-badge">{index + 1}</span>
                       )}
+                      <button
+                        type="button"
+                        className="wtpc-image-ai-btn"
+                        onClick={() => analyzeImageWithAI(imageUrl, index)}
+                        disabled={!!analyzingImages[index]}
+                        title={analyzingImages[index] ? "Analyzing image..." : "Analyze image with AI"}
+                        aria-label={analyzingImages[index] ? `Analyzing image ${index + 1}` : `Analyze image ${index + 1} with AI`}
+                      >
+                        <FiCpu />
+                      </button>
                       <div className="wtpc-image-wrapper">
                         <ImageLoader
                           src={imageUrl}
@@ -460,6 +525,21 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
                           loading="lazy"
                         />
                       </div>
+
+                      {analyzingImages[index] && (
+                        <div className="wtpc-image-ai-note">Analyzing image...</div>
+                      )}
+
+                      {analysisSummaryByImage[index] && !analyzingImages[index] && (
+                        <div className="wtpc-image-ai-summary">
+                          <h4>AI Summary</h4>
+                          <p>{analysisSummaryByImage[index]}</p>
+                        </div>
+                      )}
+
+                      {analysisErrorByImage[index] && !analyzingImages[index] && (
+                        <div className="wtpc-image-ai-error">{analysisErrorByImage[index]}</div>
+                      )}
                     </div>
                     {/* Ad after every 6 pages */}
                     {(index + 1) % 6 === 0 && (
