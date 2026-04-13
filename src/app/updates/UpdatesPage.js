@@ -1,19 +1,31 @@
 "use client";
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload } from 'react-icons/fi';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload, FiSearch } from 'react-icons/fi';
 import './styles/Updates.css';
 
 export default function UpdatesPage() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const keywordFromUrl = (searchParams.get('q') || '').trim();
+
   const [updates, setUpdates] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [searchQuery, setSearchQuery] = useState(keywordFromUrl);
 
-  const fetchUpdates = async (index = 1) => {
+  const fetchUpdates = async (index = 1, query = keywordFromUrl) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/updates?index=${index}`);
+      const params = new globalThis.URLSearchParams({ index: String(index) });
+      if (query) {
+        params.set('q', query);
+      }
+
+      const res = await fetch(`/api/updates?${params.toString()}`);
       if (!res.ok) throw new Error('Failed to fetch updates');
       const data = await res.json();
       if (Array.isArray(data.updates)) {
@@ -28,8 +40,10 @@ export default function UpdatesPage() {
   };
 
   useEffect(() => {
-    fetchUpdates(1);
-  }, []);
+    setSearchQuery(keywordFromUrl);
+    setPageIndex(1);
+    fetchUpdates(1, keywordFromUrl);
+  }, [keywordFromUrl]);
 
   const formatRelativeTime = (iso) => {
     try {
@@ -50,7 +64,25 @@ export default function UpdatesPage() {
   const loadMore = () => {
     const next = pageIndex + 1;
     setPageIndex(next);
-    fetchUpdates(next);
+    fetchUpdates(next, keywordFromUrl);
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    const trimmed = searchQuery.trim();
+
+    if (!trimmed) {
+      return;
+    }
+
+    const params = new globalThis.URLSearchParams(searchParams.toString());
+    params.set('q', trimmed);
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    router.push(pathname);
   };
 
   const UpdateSkeleton = () => (
@@ -76,13 +108,31 @@ export default function UpdatesPage() {
           <div className="upd-intro-card">
             <h1 className="upd-title">Updates</h1>
             <p className="upd-subtitle">Recent activity: subjects and public topics created by users.</p>
+
+            <form className="upd-search-form" onSubmit={handleSearchSubmit}>
+              <div className="upd-search-wrap">
+                <FiSearch className="upd-search-icon" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="upd-search-input"
+                  placeholder="Search updates..."
+                  aria-label="Search updates"
+                />
+              </div>
+              <button type="submit" className="upd-search-btn" disabled={!searchQuery.trim()}>Search</button>
+              {keywordFromUrl && (
+                <button type="button" className="upd-search-clear-btn" onClick={handleClearSearch}>Clear</button>
+              )}
+            </form>
           </div>
 
           <div className="upd-list">
             {updates.length === 0 && !loading && (
               <div className="upd-empty-state">
                 <FiClock className="upd-empty-icon" />
-                <p className="upd-empty-text">No updates yet.</p>
+                <p className="upd-empty-text">{keywordFromUrl ? 'No updates found for this keyword.' : 'No updates yet.'}</p>
               </div>
             )}
 
@@ -180,7 +230,7 @@ export default function UpdatesPage() {
                   {loading ? (
                     <><span className="upd-spinner"></span><span>Loading...</span></>
                   ) : (
-                    <><span>Load More</span><FiChevronRight className="upd-btn-icon" /></>
+                    <><span>View More</span><FiChevronRight className="upd-btn-icon" /></>
                   )}
                 </button>
               </div>

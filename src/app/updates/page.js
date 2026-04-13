@@ -1,4 +1,4 @@
-"use client";
+import { Suspense } from 'react';
 import { Navbar } from '../components/Navbar';
 import UpdatesPage from './UpdatesPage';
 
@@ -6,7 +6,9 @@ export default function Updates() {
   return (
     <>
       <Navbar />
-      <UpdatesPage/>
+      <Suspense fallback={null}>
+        <UpdatesPage />
+      </Suspense>
     </>
   );
 }
