@@ -10,6 +10,12 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "AI Image Analysis + Advanced Retry Added",
+      date: "Apr 13, 2026",
+      description:
+        "On topic pages (/works/[id]), you can now tap a small AI Analyze icon on each image to extract text and instantly get a clean summary. After the first summary appears, you will also see an Advanced Retry button at the bottom of that summary area. Advanced Retry refines the extracted text grammar using LanguageTool and then generates an improved summary again.",
+    },
+    {
       title: "Learnix is now available on mobile app",
       date: "Apr 08, 2026",
       description:
