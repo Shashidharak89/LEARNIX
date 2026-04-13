@@ -90,7 +90,7 @@ export default function ChatThreadPage({ userId }) {
         return;
       }
 
-      const query = new URLSearchParams({ limit: "20" });
+      const query = new globalThis.URLSearchParams({ limit: "20" });
       if (cursor) query.set("cursor", cursor);
 
       const res = await authFetch(`/api/chat/${userId}?${query.toString()}`);

@@ -20,7 +20,7 @@ export default function UpdatesPage() {
   const fetchUpdates = async (index = 1, query = keywordFromUrl) => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ index: String(index) });
+      const params = new globalThis.URLSearchParams({ index: String(index) });
       if (query) {
         params.set('q', query);
       }
@@ -75,7 +75,7 @@ export default function UpdatesPage() {
       return;
     }
 
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new globalThis.URLSearchParams(searchParams.toString());
     params.set('q', trimmed);
     router.push(`${pathname}?${params.toString()}`);
   };
