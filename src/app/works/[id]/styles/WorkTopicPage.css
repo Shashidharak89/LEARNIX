@@ -820,6 +820,29 @@
   white-space: pre-wrap;
 }
 
+.wtpc-image-ai-retry-btn {
+  margin-top: 10px;
+  padding: 7px 11px;
+  border-radius: 8px;
+  border: 1px solid #93c5fd;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.wtpc-image-ai-retry-btn:hover:not(:disabled) {
+  background: #dbeafe;
+  border-color: #60a5fa;
+}
+
+.wtpc-image-ai-retry-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .wtpc-image-ai-error {
   background: #fff1f2;
   color: #be123c;

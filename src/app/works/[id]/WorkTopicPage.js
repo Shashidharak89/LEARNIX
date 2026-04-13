@@ -155,6 +155,8 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
   const [expandedImages, setExpandedImages] = useState({});
   const [showPageNumbers, setShowPageNumbers] = useState(false);
   const [analyzingImages, setAnalyzingImages] = useState({});
+  const [advancedRetryingImages, setAdvancedRetryingImages] = useState({});
+  const [extractedTextByImage, setExtractedTextByImage] = useState({});
   const [analysisSummaryByImage, setAnalysisSummaryByImage] = useState({});
   const [analysisErrorByImage, setAnalysisErrorByImage] = useState({});
   const [lightboxIndex, setLightboxIndex] = useState(null); // lightbox
@@ -183,6 +185,66 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
     }));
   };
 
+  const summarizeTextWithGroq = async (textToSummarize, sourceLabel = "") => {
+    console.log(`[WorkTopicPage] Text sent to Groq${sourceLabel ? ` (${sourceLabel})` : ""}:`, textToSummarize);
+    const summaryPrompt = `Summarize this extracted image text for a student. Keep it concise and clear.\n\n${textToSummarize}`;
+
+    const res = await fetch("/api/groq-chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ question: summaryPrompt }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Unable to analyze image right now.");
+    }
+
+    return data?.answer || "No summary returned.";
+  };
+
+  const refineGrammarWithLanguageTool = async (rawText) => {
+    const params = new URLSearchParams();
+    params.set("text", rawText);
+    params.set("language", "en-US");
+
+    const res = await fetch("https://api.languagetool.org/v2/check", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params.toString(),
+    });
+
+    if (!res.ok) {
+      throw new Error("LanguageTool refinement failed.");
+    }
+
+    const data = await res.json();
+    const matches = Array.isArray(data?.matches) ? data.matches : [];
+
+    if (!matches.length) return rawText;
+
+    let refined = rawText;
+    const applicableMatches = matches
+      .filter((match) => Number.isInteger(match?.offset) && Number.isInteger(match?.length))
+      .sort((a, b) => b.offset - a.offset);
+
+    for (const match of applicableMatches) {
+      const replacement = match?.replacements?.[0]?.value;
+      if (!replacement) continue;
+      refined =
+        refined.slice(0, match.offset) +
+        replacement +
+        refined.slice(match.offset + match.length);
+    }
+
+    return refined;
+  };
+
   const analyzeImageWithAI = async (imageUrl, imageIndex) => {
     if (!imageUrl || analyzingImages[imageIndex]) return;
 
@@ -193,8 +255,10 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
       const { recognize } = await import("tesseract.js");
       const result = await recognize(imageUrl, "eng");
       const extractedText = String(result?.data?.text || "").trim();
+      console.log(`[WorkTopicPage] OCR extracted text (image ${imageIndex + 1}):`, extractedText);
 
       if (!extractedText) {
+        setExtractedTextByImage((prev) => ({ ...prev, [imageIndex]: "" }));
         setAnalysisSummaryByImage((prev) => ({ ...prev, [imageIndex]: "" }));
         setAnalysisErrorByImage((prev) => ({
           ...prev,
@@ -203,25 +267,12 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
         return;
       }
 
-      const summaryPrompt = `Summarize this extracted image text for a student. Keep it concise and clear.\\n\\n${extractedText}`;
-
-      const res = await fetch("/api/groq-chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ question: summaryPrompt }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.error || "Unable to analyze image right now.");
-      }
+      setExtractedTextByImage((prev) => ({ ...prev, [imageIndex]: extractedText }));
+      const summary = await summarizeTextWithGroq(extractedText, `initial image ${imageIndex + 1}`);
 
       setAnalysisSummaryByImage((prev) => ({
         ...prev,
-        [imageIndex]: data?.answer || "No summary returned.",
+        [imageIndex]: summary,
       }));
       setAnalysisErrorByImage((prev) => ({ ...prev, [imageIndex]: "" }));
     } catch (err) {
@@ -232,6 +283,33 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
       }));
     } finally {
       setAnalyzingImages((prev) => ({ ...prev, [imageIndex]: false }));
+    }
+  };
+
+  const handleAdvancedRetry = async (imageIndex) => {
+    const extractedText = String(extractedTextByImage[imageIndex] || "").trim();
+    if (!extractedText || advancedRetryingImages[imageIndex]) return;
+
+    setAdvancedRetryingImages((prev) => ({ ...prev, [imageIndex]: true }));
+    setAnalysisErrorByImage((prev) => ({ ...prev, [imageIndex]: "" }));
+
+    try {
+      const refinedText = await refineGrammarWithLanguageTool(extractedText);
+      console.log(`[WorkTopicPage] Advanced retry refined text (image ${imageIndex + 1}):`, refinedText);
+      const summary = await summarizeTextWithGroq(refinedText, `advanced-retry image ${imageIndex + 1}`);
+
+      setAnalysisSummaryByImage((prev) => ({
+        ...prev,
+        [imageIndex]: summary,
+      }));
+      setAnalysisErrorByImage((prev) => ({ ...prev, [imageIndex]: "" }));
+    } catch (err) {
+      setAnalysisErrorByImage((prev) => ({
+        ...prev,
+        [imageIndex]: err?.message || "Advanced retry failed.",
+      }));
+    } finally {
+      setAdvancedRetryingImages((prev) => ({ ...prev, [imageIndex]: false }));
     }
   };
 
@@ -510,9 +588,9 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
                         type="button"
                         className="wtpc-image-ai-btn"
                         onClick={() => analyzeImageWithAI(imageUrl, index)}
-                        disabled={!!analyzingImages[index]}
-                        title={analyzingImages[index] ? "Analyzing image..." : "Analyze image with AI"}
-                        aria-label={analyzingImages[index] ? `Analyzing image ${index + 1}` : `Analyze image ${index + 1} with AI`}
+                        disabled={!!analyzingImages[index] || !!advancedRetryingImages[index]}
+                        title={analyzingImages[index] || advancedRetryingImages[index] ? "Analyzing image..." : "Analyze image with AI"}
+                        aria-label={analyzingImages[index] || advancedRetryingImages[index] ? `Analyzing image ${index + 1}` : `Analyze image ${index + 1} with AI`}
                       >
                         <FiCpu />
                       </button>
@@ -530,14 +608,26 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
                         <div className="wtpc-image-ai-note">Analyzing image...</div>
                       )}
 
-                      {analysisSummaryByImage[index] && !analyzingImages[index] && (
+                      {advancedRetryingImages[index] && (
+                        <div className="wtpc-image-ai-note">Refining grammar and summarizing...</div>
+                      )}
+
+                      {analysisSummaryByImage[index] && !analyzingImages[index] && !advancedRetryingImages[index] && (
                         <div className="wtpc-image-ai-summary">
                           <h4>AI Summary</h4>
                           <p>{analysisSummaryByImage[index]}</p>
+                          <button
+                            type="button"
+                            className="wtpc-image-ai-retry-btn"
+                            onClick={() => handleAdvancedRetry(index)}
+                            disabled={!!advancedRetryingImages[index]}
+                          >
+                            {advancedRetryingImages[index] ? "Refining..." : "Advanced Retry"}
+                          </button>
                         </div>
                       )}
 
-                      {analysisErrorByImage[index] && !analyzingImages[index] && (
+                      {analysisErrorByImage[index] && !analyzingImages[index] && !advancedRetryingImages[index] && (
                         <div className="wtpc-image-ai-error">{analysisErrorByImage[index]}</div>
                       )}
                     </div>
