@@ -21,6 +21,7 @@
     "docx-preview": "^0.3.7",
     "fontkit": "^2.0.4",
     "form-data": "^4.0.4",
+    "google-auth-library": "^10.6.2",
     "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.12.1",
     "jsonwebtoken": "^9.0.3",

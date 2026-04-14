@@ -61,6 +61,7 @@ export const GET = async (req) => {
         id: user._id.toString(),
         name: user.name,
         usn: user.usn,
+        email: user.email || "",
         subjects: subjectsWithTopics,
         createdAt: user.createdAt,
         profileimg: user.profileimg,

@@ -2,23 +2,22 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
-import axios from "axios";
+import Script from "next/script";
 import {
   FiCalendar,
   FiBook,
   FiImage,
-  FiEye,
   FiEyeOff,
-  FiUser,
   FiClock,
   FiChevronDown,
   FiSearch,
   FiSettings,
   FiUpload,
   FiGrid,
-  FiCamera,
   FiLogIn,
-  FiAlertCircle
+  FiAlertCircle,
+  FiMail,
+  FiCheckCircle
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import ChangeName from './ChangeName';
@@ -28,7 +27,7 @@ import UserProfileSkeleton from './UserProfileSkeleton'; // Import the skeleton
 import './styles/UserProfile.css';
 import { authFetch, signOutFromBrowser } from '@/lib/clientAuth';
 
-export default function UserProfile() {
+export default function UserProfile({ googleClientId = "" }) {
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState("");
   const [hasError, setHasError] = useState(false);
@@ -45,6 +44,11 @@ export default function UserProfile() {
   const [isLoadingQuote, setIsLoadingQuote] = useState(false);
   const [showResources, setShowResources] = useState(false);
   const [visibleSubjectsCount, setVisibleSubjectsCount] = useState(3);
+  const [googleScriptReady, setGoogleScriptReady] = useState(false);
+  const [isBindingGoogle, setIsBindingGoogle] = useState(false);
+  const [googleBindMessage, setGoogleBindMessage] = useState("");
+  const [googleBindError, setGoogleBindError] = useState(false);
+  const googleButtonRef = useRef(null);
   
   const TOPICS_PER_LOAD = 5;
   const SUBJECTS_PER_LOAD = 3;
@@ -132,6 +136,64 @@ export default function UserProfile() {
 
     return () => imageObserver.disconnect();
   }, [expandedUploads, loadedImages]);
+
+  const handleGoogleCredential = useCallback(async (response) => {
+    const credential = String(response?.credential || "").trim();
+    if (!credential) {
+      setGoogleBindError(true);
+      setGoogleBindMessage("Google did not return a valid credential.");
+      return;
+    }
+
+    try {
+      setIsBindingGoogle(true);
+      setGoogleBindError(false);
+      setGoogleBindMessage("");
+
+      const res = await authFetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data?.error || "Failed to link Google account.");
+      }
+
+      setUser((prev) => {
+        if (!prev) return prev;
+        return { ...prev, email: data?.user?.email || prev.email };
+      });
+      setGoogleBindError(false);
+      setGoogleBindMessage("Google account linked successfully.");
+    } catch (error) {
+      setGoogleBindError(true);
+      setGoogleBindMessage(error.message || "Failed to link Google account.");
+    } finally {
+      setIsBindingGoogle(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!googleScriptReady || !googleButtonRef.current || !user || user.email || !googleClientId) return;
+    if (!window.google?.accounts?.id) return;
+
+    window.google.accounts.id.initialize({
+      client_id: googleClientId,
+      callback: handleGoogleCredential,
+    });
+
+    googleButtonRef.current.innerHTML = "";
+    window.google.accounts.id.renderButton(googleButtonRef.current, {
+      theme: "outline",
+      size: "large",
+      shape: "pill",
+      text: "continue_with",
+      logo_alignment: "left",
+      width: 280,
+    });
+  }, [googleScriptReady, user, googleClientId, handleGoogleCredential]);
 
   const fetchQuote = async () => {
     try {
@@ -316,6 +378,11 @@ export default function UserProfile() {
 
   return (
     <div className="up-container">
+      <Script
+        src="https://accounts.google.com/gsi/client"
+        strategy="afterInteractive"
+        onLoad={() => setGoogleScriptReady(true)}
+      />
       <div className="up-wrapper">
         {user && (
           <div className="up-card">
@@ -383,7 +450,44 @@ export default function UserProfile() {
                 <FiCalendar className="up-meta-icon" />
                 <span>Joined {formatDate(user.createdAt)}</span>
               </div>
+              {user.email && (
+                <div className="up-meta-item">
+                  <FiMail className="up-meta-icon" />
+                  <span>{user.email}</span>
+                </div>
+              )}
             </div>
+
+            {!user.email && (
+              <div className="up-google-bind">
+                <h3 className="up-google-bind-title">Bind your Google account</h3>
+                <p className="up-google-bind-subtitle">
+                  Add your verified Google email to your profile.
+                </p>
+
+                {googleClientId ? (
+                  <div ref={googleButtonRef} className="up-google-button-slot" />
+                ) : (
+                  <p className="up-google-status is-error">
+                    Google Client ID is missing in environment configuration.
+                  </p>
+                )}
+
+                {isBindingGoogle && (
+                  <div className="up-google-loading">
+                    <div className="up-mini-spinner"></div>
+                    <span>Linking Google account...</span>
+                  </div>
+                )}
+
+                {googleBindMessage && (
+                  <p className={`up-google-status ${googleBindError ? "is-error" : "is-success"}`}>
+                    {googleBindError ? <FiAlertCircle /> : <FiCheckCircle />}
+                    <span>{googleBindMessage}</span>
+                  </p>
+                )}
+              </div>
+            )}
 
             <div className="up-search">
               <FiSearch className="up-search-icon" />
