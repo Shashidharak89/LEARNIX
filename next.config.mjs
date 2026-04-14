@@ -6,6 +6,7 @@ const nextConfig = {
     domains: [
       "learnix.shashi-k.in",  // your own domain
       "res.cloudinary.com",   // allow Cloudinary images
+      "lh3.googleusercontent.com", // Google profile avatars
     ],
   },
 
