@@ -118,7 +118,12 @@ export default function Signup({ googleClientId = "" }) {
       logo_alignment: "left",
       width: 320,
     });
-    setIsGoogleButtonRendered(true);
+
+    setTimeout(() => {
+      if (googleButtonRef.current?.childElementCount > 0) {
+        setIsGoogleButtonRendered(true);
+      }
+    }, 300);
   }, [googleScriptReady, googleClientId, step, handleGoogleCredential]);
 
   const handleFinish = async (e) => {
@@ -361,7 +366,14 @@ export default function Signup({ googleClientId = "" }) {
 
           <div className="auth-switch-line">
             <span>Already registered? </span>
-            <Link href="/login" className="auth-switch-link">
+            <Link
+              href="/login"
+              className="auth-switch-link"
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.href = "/login";
+              }}
+            >
               Login
             </Link>
           </div>

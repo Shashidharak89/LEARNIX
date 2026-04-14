@@ -121,7 +121,12 @@ export default function Login({ googleClientId = "" }) {
       logo_alignment: "left",
       width: 320,
     });
-    setIsGoogleButtonRendered(true);
+
+    setTimeout(() => {
+      if (googleButtonRef.current?.childElementCount > 0) {
+        setIsGoogleButtonRendered(true);
+      }
+    }, 300);
   }, [googleScriptReady, googleClientId, handleGoogleCredential]);
 
   return (
@@ -227,7 +232,14 @@ export default function Login({ googleClientId = "" }) {
 
           <div className="auth-switch-line">
             <span>New here? </span>
-            <Link href="/signup" className="auth-switch-link">
+            <Link
+              href="/signup"
+              className="auth-switch-link"
+              onClick={(e) => {
+                e.preventDefault();
+                window.location.href = "/signup";
+              }}
+            >
               Register
             </Link>
           </div>
