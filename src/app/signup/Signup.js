@@ -20,6 +20,7 @@ export default function Signup({ googleClientId = "" }) {
   const [isFinishing, setIsFinishing] = useState(false);
   const [isManualLoading, setIsManualLoading] = useState(false);
   const [googleScriptReady, setGoogleScriptReady] = useState(false);
+  const [isGoogleButtonRendered, setIsGoogleButtonRendered] = useState(false);
   const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const googleButtonRef = useRef(null);
@@ -72,6 +73,33 @@ export default function Signup({ googleClientId = "" }) {
     }
   }, []);
 
+  const handleHardcodedGoogleClick = useCallback(() => {
+    if (!googleClientId) {
+      setIsSuccess(false);
+      setMessage("Google signup is currently unavailable.");
+      return;
+    }
+
+    if (!window.google?.accounts?.id) {
+      setIsSuccess(false);
+      setMessage("Google is still loading. Please try again.");
+      return;
+    }
+
+    try {
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: handleGoogleCredential,
+      });
+
+      // Fallback trigger when the official rendered button does not appear immediately.
+      window.google.accounts.id.prompt();
+    } catch {
+      setIsSuccess(false);
+      setMessage("Unable to open Google signup right now. Please try again.");
+    }
+  }, [googleClientId, handleGoogleCredential]);
+
   useEffect(() => {
     if (!googleScriptReady || !googleButtonRef.current || !googleClientId || step !== "verify") return;
     if (!window.google?.accounts?.id) return;
@@ -90,6 +118,7 @@ export default function Signup({ googleClientId = "" }) {
       logo_alignment: "left",
       width: 320,
     });
+    setIsGoogleButtonRendered(true);
   }, [googleScriptReady, googleClientId, step, handleGoogleCredential]);
 
   const handleFinish = async (e) => {
@@ -172,8 +201,22 @@ export default function Signup({ googleClientId = "" }) {
               <div className="auth-google-divider">
                 <span>Step 1</span>
               </div>
+              {!isGoogleButtonRendered && (
+                <button
+                  type="button"
+                  className="auth-google-hardcoded-btn"
+                  onClick={handleHardcodedGoogleClick}
+                  disabled={isGoogleLoading}
+                >
+                  Signup with Google
+                </button>
+              )}
               {googleClientId ? (
-                <div ref={googleButtonRef} className="auth-google-button-slot" />
+                <div
+                  ref={googleButtonRef}
+                  className="auth-google-button-slot"
+                  style={{ display: isGoogleButtonRendered ? "flex" : "none" }}
+                />
               ) : (
                 <div className="auth-google-missing">
                   Google signup is currently unavailable.

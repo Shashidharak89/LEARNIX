@@ -424,6 +424,30 @@
   justify-content: center;
 }
 
+.auth-google-hardcoded-btn {
+  width: 100%;
+  border: 2px solid #d1d5db;
+  background: #ffffff;
+  color: #111827;
+  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 0.55rem;
+}
+
+.auth-google-hardcoded-btn:hover:not(:disabled) {
+  border-color: #9ca3af;
+  background: #f9fafb;
+}
+
+.auth-google-hardcoded-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 .auth-google-loading {
   margin: 0.5rem 0 0;
   text-align: center;

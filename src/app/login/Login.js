@@ -15,6 +15,7 @@ export default function Login({ googleClientId = "" }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [googleScriptReady, setGoogleScriptReady] = useState(false);
+  const [isGoogleButtonRendered, setIsGoogleButtonRendered] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const googleButtonRef = useRef(null);
   const router = useRouter();
@@ -77,6 +78,31 @@ export default function Login({ googleClientId = "" }) {
     }
   }, [saveAuthAndRedirect]);
 
+  const handleHardcodedGoogleClick = useCallback(() => {
+    if (!googleClientId) {
+      setIsSuccess(false);
+      setMessage("Google login is currently unavailable.");
+      return;
+    }
+
+    if (!window.google?.accounts?.id) {
+      setIsSuccess(false);
+      setMessage("Google is still loading. Please try again.");
+      return;
+    }
+
+    try {
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: handleGoogleCredential,
+      });
+      window.google.accounts.id.prompt();
+    } catch {
+      setIsSuccess(false);
+      setMessage("Unable to open Google login right now. Please try again.");
+    }
+  }, [googleClientId, handleGoogleCredential]);
+
   useEffect(() => {
     if (!googleScriptReady || !googleButtonRef.current || !googleClientId) return;
     if (!window.google?.accounts?.id) return;
@@ -95,6 +121,7 @@ export default function Login({ googleClientId = "" }) {
       logo_alignment: "left",
       width: 320,
     });
+    setIsGoogleButtonRendered(true);
   }, [googleScriptReady, googleClientId, handleGoogleCredential]);
 
   return (
@@ -162,7 +189,23 @@ export default function Login({ googleClientId = "" }) {
               <span>or</span>
             </div>
             {googleClientId ? (
-              <div ref={googleButtonRef} className="auth-google-button-slot" />
+              <>
+                {!isGoogleButtonRendered && (
+                  <button
+                    type="button"
+                    className="auth-google-hardcoded-btn"
+                    onClick={handleHardcodedGoogleClick}
+                    disabled={isGoogleLoading}
+                  >
+                    Continue with Google
+                  </button>
+                )}
+                <div
+                  ref={googleButtonRef}
+                  className="auth-google-button-slot"
+                  style={{ display: isGoogleButtonRendered ? "flex" : "none" }}
+                />
+              </>
             ) : (
               <div className="auth-google-missing">
                 Google login is currently unavailable.
