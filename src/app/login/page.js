@@ -1,15 +1,13 @@
-"use client";
-
-import Footer from "../components/Footer";
 import { Navbar } from "../components/Navbar";
 import Login from "./Login";
 
 export default function signin() {
+    const googleClientId = process.env.CLIENT_ID || process.env.GOOGLE_CLIENT_ID || "";
 
     return (
         <div >
             <Navbar />
-            <Login />
+            <Login googleClientId={googleClientId} />
         
         </div>
     );
