@@ -6,16 +6,19 @@ import Image from "next/image";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FiUser, FiHash, FiArrowRight, FiCheckCircle, FiAlertCircle, FiMail } from "react-icons/fi";
+import { FiUser, FiHash, FiArrowRight, FiCheckCircle, FiAlertCircle, FiMail, FiLock } from "react-icons/fi";
 import "../login/styles/Login.css";
 
 export default function Signup({ googleClientId = "" }) {
   const [step, setStep] = useState("verify");
+  const [name, setName] = useState("");
   const [usn, setUsn] = useState("");
+  const [password, setPassword] = useState("");
   const [googleCredential, setGoogleCredential] = useState("");
   const [googleProfile, setGoogleProfile] = useState(null);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
+  const [isManualLoading, setIsManualLoading] = useState(false);
   const [googleScriptReady, setGoogleScriptReady] = useState(false);
   const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
@@ -118,6 +121,29 @@ export default function Signup({ googleClientId = "" }) {
     }
   };
 
+  const handleManualSignup = async (e) => {
+    e.preventDefault();
+    setIsManualLoading(true);
+    setMessage("");
+
+    try {
+      const res = await axios.post("/api/auth", {
+        name,
+        usn: usn.trim().toUpperCase(),
+        password,
+      });
+
+      setMessage(res.data.message || "Account created successfully.");
+      setIsSuccess(true);
+      saveAuthAndRedirect(res.data);
+    } catch (err) {
+      setMessage(err.response?.data?.error || "Something went wrong");
+      setIsSuccess(false);
+    } finally {
+      setIsManualLoading(false);
+    }
+  };
+
   return (
     <div className="auth-container">
       <Script
@@ -134,11 +160,13 @@ export default function Signup({ googleClientId = "" }) {
           <p className="auth-subtitle">
             {step === "verify"
               ? "Sign up with Google to verify your account"
-              : "Google verified. Enter USN / Reg No to finish"}
+              : step === "usn"
+                ? "Google verified. Enter USN / Reg No to finish"
+                : "Create account with name, USN and password"}
           </p>
         </div>
 
-        <form onSubmit={handleFinish} className="auth-form">
+        <form onSubmit={step === "manual" ? handleManualSignup : handleFinish} className="auth-form">
           {step === "verify" ? (
             <div className="auth-google-wrap">
               <div className="auth-google-divider">
@@ -154,8 +182,21 @@ export default function Signup({ googleClientId = "" }) {
               {isGoogleLoading && (
                 <p className="auth-google-loading">Verifying Google account...</p>
               )}
+
+              <button
+                type="button"
+                className="auth-guest-btn"
+                onClick={() => {
+                  setStep("manual");
+                  setMessage("");
+                  setIsSuccess(false);
+                }}
+                disabled={isGoogleLoading}
+              >
+                Continue without google account
+              </button>
             </div>
-          ) : (
+          ) : step === "usn" ? (
             <>
               <div className="auth-verified-profile">
                 <Image
@@ -202,6 +243,64 @@ export default function Signup({ googleClientId = "" }) {
                   {isFinishing ? "Creating account..." : "Finish Signup"}
                 </span>
                 <FiArrowRight className={`btn-icon ${isFinishing ? "spinning" : ""}`} />
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="input-group">
+                <div className="input-wrapper">
+                  <FiUser className="input-icon" />
+                  <input
+                    type="text"
+                    placeholder="Full Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    className="auth-input"
+                    disabled={isManualLoading}
+                  />
+                </div>
+              </div>
+
+              <div className="input-group">
+                <div className="input-wrapper">
+                  <FiHash className="input-icon" />
+                  <input
+                    type="text"
+                    placeholder="USN / Register Number / ID"
+                    value={usn}
+                    onChange={(e) => setUsn(e.target.value.toUpperCase())}
+                    required
+                    className="auth-input"
+                    disabled={isManualLoading}
+                  />
+                </div>
+              </div>
+
+              <div className="input-group">
+                <div className="input-wrapper">
+                  <FiLock className="input-icon" />
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="auth-input"
+                    disabled={isManualLoading}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className={`auth-submit-btn ${isManualLoading ? "loading" : ""}`}
+                disabled={isManualLoading}
+              >
+                <span className="btn-text">
+                  {isManualLoading ? "Creating account..." : "Sign up"}
+                </span>
+                <FiArrowRight className={`btn-icon ${isManualLoading ? "spinning" : ""}`} />
               </button>
             </>
           )}
