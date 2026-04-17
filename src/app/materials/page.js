@@ -7,8 +7,6 @@ import StudyMaterials from "./StudyMaterials";
 // Its material function
 export default function materials() {
 
-
-    
     return (
         <div >
             <Navbar />
