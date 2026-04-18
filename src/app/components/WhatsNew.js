@@ -10,6 +10,12 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Google Account Sign Up Added",
+      date: "Apr 19, 2026",
+      description:
+        "You can now create your Learnix account using Google for faster sign up and easier access without filling all details manually.",
+    },
+    {
       title: "Topic Summarize Added",
       date: "Apr 13, 2026",
       description:
