@@ -7,6 +7,7 @@ import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FiUser, FiHash, FiArrowRight, FiCheckCircle, FiAlertCircle, FiMail, FiLock } from "react-icons/fi";
+import { verifyTokenAndSyncAuth } from "@/lib/clientAuth";
 import "../login/styles/Login.css";
 
 export default function Signup({ googleClientId = "" }) {
@@ -28,22 +29,16 @@ export default function Signup({ googleClientId = "" }) {
 
   const saveAuthAndRedirect = useCallback((data) => {
     if (typeof window !== "undefined") {
-      localStorage.setItem("usn", data.user.usn);
-      localStorage.setItem("name", data.user.name);
-      if (data.user.role) {
-        localStorage.setItem("role", data.user.role);
-      }
-      if (data.user.plan) {
-        localStorage.setItem("plan", data.user.plan);
-      }
       if (data.token) {
         localStorage.setItem("token", data.token);
       }
     }
 
-    setTimeout(() => {
-      router.push("/dashboard");
-    }, 1200);
+    verifyTokenAndSyncAuth({ redirectOnFailure: false }).finally(() => {
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1200);
+    });
   }, [router]);
 
   const handleGoogleCredential = useCallback(async (response) => {

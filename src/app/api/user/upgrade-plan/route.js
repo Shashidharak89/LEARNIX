@@ -22,12 +22,23 @@ export async function GET(req) {
 
     if (!auth.user) return unauthorizedResponse();
 
-    const currentPlan = String(auth.user?.plan || "basic").toLowerCase();
+    const user = await User.findById(auth.user._id);
+    if (!user) {
+      return NextResponse.json({ error: "User not found." }, { status: 404 });
+    }
+
+    const hasPlan = typeof user.plan === "string" && user.plan.trim() !== "";
+    const currentPlan = hasPlan ? user.plan.trim().toLowerCase() : "basic";
+
+    if (!hasPlan) {
+      user.plan = "basic";
+      await user.save();
+    }
 
     return NextResponse.json({
       user: {
-        _id: auth.user._id,
-        usn: auth.user.usn,
+        _id: user._id,
+        usn: user.usn,
         plan: currentPlan,
       },
       canUpgradeToPro: currentPlan !== "pro",

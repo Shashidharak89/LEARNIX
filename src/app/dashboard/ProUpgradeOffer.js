@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { FiZap, FiClock, FiCheckCircle, FiArrowRight, FiStar } from "react-icons/fi";
 import { authFetch } from "@/lib/clientAuth";
+import { verifyTokenAndSyncAuth } from "@/lib/clientAuth";
 
 export default function ProUpgradeOffer({ isLoggedIn }) {
-  const [plan, setPlan] = useState("basic");
+  const [plan, setPlan] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetchingPlan, setFetchingPlan] = useState(true);
   const [message, setMessage] = useState("");
@@ -15,6 +16,7 @@ export default function ProUpgradeOffer({ isLoggedIn }) {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : "";
 
     if (!isLoggedIn || !token) {
+      setPlan("");
       setFetchingPlan(false);
       return;
     }
@@ -28,11 +30,9 @@ export default function ProUpgradeOffer({ isLoggedIn }) {
           throw new Error(data?.error || "Failed to fetch current plan.");
         }
 
-        const currentPlan = String(data?.user?.plan || "basic").toLowerCase();
+        const userPlan = String(data?.user?.plan || "").trim().toLowerCase();
+        const currentPlan = userPlan || "basic";
         setPlan(currentPlan);
-        if (typeof window !== "undefined") {
-          localStorage.setItem("plan", currentPlan);
-        }
       } catch (err) {
         setIsError(true);
         setMessage(err?.message || "Unable to load plan details.");
@@ -63,10 +63,8 @@ export default function ProUpgradeOffer({ isLoggedIn }) {
         throw new Error(data?.error || "Unable to upgrade right now.");
       }
 
-      setPlan("pro");
-      if (typeof window !== "undefined") {
-        localStorage.setItem("plan", "pro");
-      }
+      const verifiedUser = await verifyTokenAndSyncAuth({ redirectOnFailure: false });
+      setPlan(String(verifiedUser?.plan || "pro").toLowerCase());
       setMessage(data?.message || "You are on Pro privileges now.");
       setIsError(false);
     } catch (err) {

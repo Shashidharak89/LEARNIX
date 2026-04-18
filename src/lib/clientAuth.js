@@ -3,14 +3,90 @@ function getStoredToken() {
   return localStorage.getItem("token") || "";
 }
 
-export function signOutFromBrowser(reason = "Session expired. Please login again.") {
+function clearAuthStorage() {
   if (typeof window === "undefined") return;
-
   localStorage.removeItem("token");
   localStorage.removeItem("usn");
   localStorage.removeItem("name");
   localStorage.removeItem("role");
   localStorage.removeItem("plan");
+}
+
+function syncAuthStorageFromUser(user, token = "") {
+  if (typeof window === "undefined") return;
+  if (!user || !user.usn) {
+    clearAuthStorage();
+    return;
+  }
+
+  if (token) {
+    localStorage.setItem("token", token);
+  }
+
+  localStorage.setItem("usn", String(user.usn || "").toUpperCase());
+  localStorage.setItem("name", String(user.name || ""));
+  localStorage.setItem("role", String(user.role || "user"));
+  localStorage.setItem("plan", String(user.plan || "basic"));
+
+  window.dispatchEvent(
+    new window.CustomEvent("learnix:auth-synced", {
+      detail: {
+        user: {
+          usn: String(user.usn || "").toUpperCase(),
+          name: String(user.name || ""),
+          role: String(user.role || "user"),
+          plan: String(user.plan || "basic"),
+        },
+      },
+    })
+  );
+}
+
+export async function verifyTokenAndSyncAuth({ redirectOnFailure = false } = {}) {
+  if (typeof window === "undefined") return null;
+
+  const token = getStoredToken();
+  if (!token) {
+    clearAuthStorage();
+    return null;
+  }
+
+  try {
+    const response = await fetch("/api/auth/verify-token", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || !data?.user) {
+      clearAuthStorage();
+      if (redirectOnFailure && window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
+      return null;
+    }
+
+    syncAuthStorageFromUser(data.user, token);
+    return data.user;
+  } catch {
+    return null;
+  }
+}
+
+export function syncAuthStateFromLoginResponse(payload) {
+  if (typeof window === "undefined") return;
+  const token = String(payload?.token || "").trim();
+  const user = payload?.user || null;
+  syncAuthStorageFromUser(user, token);
+}
+
+export function signOutFromBrowser(reason = "Session expired. Please login again.") {
+  if (typeof window === "undefined") return;
+
+  clearAuthStorage();
 
   window.dispatchEvent(
     new window.CustomEvent("learnix:auth-expired", { detail: { reason } })

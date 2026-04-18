@@ -25,6 +25,7 @@ import {
 } from "react-icons/fi";
 import "./styles/Navbar.css";
 import { Fill } from "./Fill";
+import { verifyTokenAndSyncAuth, signOutFromBrowser } from "@/lib/clientAuth";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -45,10 +46,12 @@ export const Navbar = () => {
   const notifRef = useRef(null);
 
   useEffect(() => {
-    // initialize hasUSN from localStorage
-    const storedUsn = localStorage.getItem("usn");
-    setHasUSN(!!storedUsn);
-    setUserRole(localStorage.getItem("role") || "");
+    // verify token and sync local auth state on page load/refresh
+    verifyTokenAndSyncAuth({ redirectOnFailure: false }).finally(() => {
+      const storedUsn = localStorage.getItem("usn");
+      setHasUSN(!!storedUsn);
+      setUserRole(localStorage.getItem("role") || "");
+    });
 
     // keep hasUSN in sync if localStorage changes in other tabs
     const onStorage = (e) => {
@@ -59,7 +62,16 @@ export const Navbar = () => {
         setUserRole(e.newValue || "");
       }
     };
+
+    const onAuthSynced = (e) => {
+      const syncedUsn = e?.detail?.user?.usn || localStorage.getItem("usn");
+      const syncedRole = e?.detail?.user?.role || localStorage.getItem("role") || "";
+      setHasUSN(!!syncedUsn);
+      setUserRole(syncedRole);
+    };
+
     window.addEventListener("storage", onStorage);
+    window.addEventListener("learnix:auth-synced", onAuthSynced);
 
     // ---------- aligned interval logic ----------
     let intervalId = null;
@@ -117,6 +129,7 @@ export const Navbar = () => {
       if (timeoutId) clearTimeout(timeoutId);
       if (intervalId) clearInterval(intervalId);
       window.removeEventListener("storage", onStorage);
+      window.removeEventListener("learnix:auth-synced", onAuthSynced);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
@@ -150,8 +163,7 @@ export const Navbar = () => {
   };
 
   const handleSignout = () => {
-    localStorage.clear();
-    window.location.href = "/";
+    signOutFromBrowser("You have been signed out.");
   };
 
   // Fetch notifications (with pagination support)
