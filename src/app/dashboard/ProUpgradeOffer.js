@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { FiZap, FiClock, FiCheckCircle, FiArrowRight, FiStar } from "react-icons/fi";
-import { authFetch } from "@/lib/clientAuth";
-import { verifyTokenAndSyncAuth } from "@/lib/clientAuth";
 
 export default function ProUpgradeOffer({ isLoggedIn }) {
   const [plan, setPlan] = useState("");
@@ -14,8 +13,9 @@ export default function ProUpgradeOffer({ isLoggedIn }) {
 
   useEffect(() => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : "";
+    const usn = typeof window !== "undefined" ? localStorage.getItem("usn") : "";
 
-    if (!isLoggedIn || !token) {
+    if (!isLoggedIn || (!token && !usn)) {
       setPlan("");
       setFetchingPlan(false);
       return;
@@ -23,19 +23,21 @@ export default function ProUpgradeOffer({ isLoggedIn }) {
 
     const loadPlan = async () => {
       try {
-        const res = await authFetch("/api/user/upgrade-plan", { method: "GET" });
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data?.error || "Failed to fetch current plan.");
-        }
+        const qs = usn ? `?usn=${encodeURIComponent(usn)}` : "";
+        const tokenHeader = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await axios.get(`/api/user/upgrade-plan${qs}`, {
+          headers: tokenHeader,
+          params: { t: Date.now() },
+        });
+        const data = res.data;
 
         const userPlan = String(data?.user?.plan || "").trim().toLowerCase();
         const currentPlan = userPlan || "basic";
         setPlan(currentPlan);
       } catch (err) {
+        const apiError = err?.response?.data?.error;
         setIsError(true);
-        setMessage(err?.message || "Unable to load plan details.");
+        setMessage(apiError || err?.message || "Unable to load plan details.");
       } finally {
         setFetchingPlan(false);
       }
@@ -45,31 +47,34 @@ export default function ProUpgradeOffer({ isLoggedIn }) {
   }, [isLoggedIn]);
 
   const handleUpgrade = async () => {
+    const usn = typeof window !== "undefined" ? localStorage.getItem("usn") : "";
+    if (!usn) {
+      setIsError(true);
+      setMessage("USN not found. Please login again.");
+      return;
+    }
+
     setLoading(true);
     setMessage("");
     setIsError(false);
 
     try {
-      const res = await authFetch("/api/user/upgrade-plan", {
-        method: "POST",
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : "";
+      const tokenHeader = token ? { Authorization: `Bearer ${token}` } : {};
+      const res = await axios.post("/api/user/upgrade-plan", { usn, plan: "pro" }, {
         headers: {
-          "Content-Type": "application/json",
+          ...tokenHeader,
         },
-        body: JSON.stringify({ plan: "pro" }),
       });
-      const data = await res.json();
+      const data = res.data;
 
-      if (!res.ok) {
-        throw new Error(data?.error || "Unable to upgrade right now.");
-      }
-
-      const verifiedUser = await verifyTokenAndSyncAuth({ redirectOnFailure: false });
-      setPlan(String(verifiedUser?.plan || "pro").toLowerCase());
+      setPlan(String(data?.user?.plan || "pro").toLowerCase());
       setMessage(data?.message || "You are on Pro privileges now.");
       setIsError(false);
     } catch (err) {
+      const apiError = err?.response?.data?.error;
       setIsError(true);
-      setMessage(err?.message || "Upgrade failed.");
+      setMessage(apiError || err?.message || "Upgrade failed.");
     } finally {
       setLoading(false);
     }
@@ -90,7 +95,7 @@ export default function ProUpgradeOffer({ isLoggedIn }) {
         </div>
 
         <div className="learnix-pro-offer-body">
-          <h2 className="learnix-pro-title">You are on Pro privileges.</h2>
+          <h2 className="learnix-pro-title">You are already in Pro.</h2>
           <p className="learnix-pro-subtitle">
             Your Pro features are active now. More features are coming soon.
           </p>
