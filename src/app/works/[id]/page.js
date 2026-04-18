@@ -36,6 +36,14 @@ const saveTopic = (data) => {
     const existingIndex = savedTopics.findIndex(t => t.topic._id === data.topic._id);
     
     const topicToSave = {
+      viewer: data.viewer
+        ? {
+            _id: data.viewer._id,
+            usn: data.viewer.usn,
+            role: data.viewer.role,
+            plan: data.viewer.plan,
+          }
+        : null,
       topic: {
         _id: data.topic._id,
         topic: data.topic.topic,

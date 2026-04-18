@@ -6,6 +6,7 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, trim: true, lowercase: true, unique: true, sparse: true },
   password: { type: String },
   role: { type: String, enum: ["user", "admin", "superadmin"], default: "user" },
+  plan: { type: String, default: "basic" },
   profileimg: {
     type: String,
     default: "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp"

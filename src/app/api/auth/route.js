@@ -43,6 +43,7 @@ export async function POST(req) {
           user.profileimg = DEFAULT_PROFILE_IMG; // ensure it exists
         }
         if (!user.role) user.role = "user";
+        if (!user.plan) user.plan = "basic";
         
         const token = generateToken(user._id.toString(), user.usn);
         user.token = token;
@@ -51,7 +52,7 @@ export async function POST(req) {
 
         return NextResponse.json({
           message: "Password set successfully. You are now logged in.",
-          user: { name: user.name, usn: user.usn, profileimg: user.profileimg, role: user.role },
+          user: { name: user.name, usn: user.usn, profileimg: user.profileimg, role: user.role, plan: user.plan },
           token
         });
       } else {
@@ -63,6 +64,7 @@ export async function POST(req) {
 
         // Backfill role for old accounts that have none
         if (!user.role) user.role = "user";
+        if (!user.plan) user.plan = "basic";
 
         const token = generateToken(user._id.toString(), user.usn);
         user.token = token;
@@ -71,7 +73,7 @@ export async function POST(req) {
 
         return NextResponse.json({
           message: "Logged in successfully",
-          user: { name: user.name, usn: user.usn, profileimg: user.profileimg, role: user.role },
+          user: { name: user.name, usn: user.usn, profileimg: user.profileimg, role: user.role, plan: user.plan },
           token
         });
       }
@@ -84,6 +86,7 @@ export async function POST(req) {
         password: hashedPassword,
         profileimg: DEFAULT_PROFILE_IMG, // explicitly set
         role: "user",
+        plan: "basic",
       });
       
       const token = generateToken(newUser._id.toString(), newUser.usn);
@@ -93,7 +96,7 @@ export async function POST(req) {
 
       return NextResponse.json({
         message: "Account created",
-        user: { name: newUser.name, usn: newUser.usn, profileimg: newUser.profileimg, role: newUser.role },
+        user: { name: newUser.name, usn: newUser.usn, profileimg: newUser.profileimg, role: newUser.role, plan: newUser.plan },
         token
       });
     }

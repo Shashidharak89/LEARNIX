@@ -28,9 +28,10 @@ export async function POST(req) {
       user.name = user.name || name;
       if (!user.profileimg) user.profileimg = DEFAULT_PROFILE_IMG;
       if (!user.role) user.role = "user";
+      if (!user.plan) user.plan = "basic";
       await user.save();
 
-      return NextResponse.json({ message: "Account created", user: { name: user.name, usn: user.usn, profileimg: user.profileimg, role: user.role } });
+      return NextResponse.json({ message: "Account created", user: { name: user.name, usn: user.usn, profileimg: user.profileimg, role: user.role, plan: user.plan } });
     }
 
     // create new user
@@ -41,10 +42,11 @@ export async function POST(req) {
       password: hashedPassword,
       profileimg: DEFAULT_PROFILE_IMG,
       role: "user",
+      plan: "basic",
     });
     await newUser.save();
 
-    return NextResponse.json({ message: "Account created", user: { name: newUser.name, usn: newUser.usn, profileimg: newUser.profileimg, role: newUser.role } });
+    return NextResponse.json({ message: "Account created", user: { name: newUser.name, usn: newUser.usn, profileimg: newUser.profileimg, role: newUser.role, plan: newUser.plan } });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });

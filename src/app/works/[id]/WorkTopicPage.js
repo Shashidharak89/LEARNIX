@@ -22,6 +22,7 @@ import { FiChevronLeft, FiChevronRight, FiCpu, FiZap, FiX } from "react-icons/fi
 import TopicReviews from "./TopicReviews";
 import Ads from "../../components/ads/Ads";
 import ImageLoader from "../../components/ImageLoader";
+import { authFetch } from "@/lib/clientAuth";
 import "./styles/WorkTopicPage.css";
 
 const MAX_BULK_SUMMARY_TEXT_CHARS = 45000;
@@ -176,6 +177,8 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
   const rawImages = Array.isArray(data?.topic?.images) ? data.topic.images : [];
   const validImages = rawImages.filter((img) => img && img.trim() !== "");
   const hasImages = validImages.length > 0;
+  const viewerPlan = String(data?.viewer?.plan || "").toLowerCase();
+  const isProViewer = viewerPlan === "pro";
 
   const handleSave = () => {
     if (onSaveToggle) {
@@ -190,16 +193,16 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
     }));
   };
 
-  const summarizeTextWithGroq = async (textToSummarize, sourceLabel = "") => {
+  const summarizeTextWithGroq = async (textToSummarize, sourceLabel = "", feature = "") => {
     console.log(`[WorkTopicPage] Text sent to Groq${sourceLabel ? ` (${sourceLabel})` : ""}:`, textToSummarize);
     const summaryPrompt = `Summarize this extracted image text for a student. Keep it concise and clear.\n\n${textToSummarize}`;
 
-    const res = await fetch("/api/groq-chat", {
+    const res = await authFetch("/api/groq-chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ question: summaryPrompt }),
+      body: JSON.stringify({ question: summaryPrompt, feature }),
     });
 
     const data = await res.json();
@@ -251,7 +254,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
   };
 
   const analyzeImageWithAI = async (imageUrl, imageIndex) => {
-    if (!imageUrl || analyzingImages[imageIndex]) return;
+    if (!isProViewer || !imageUrl || analyzingImages[imageIndex]) return;
 
     setAnalyzingImages((prev) => ({ ...prev, [imageIndex]: true }));
     setAnalysisErrorByImage((prev) => ({ ...prev, [imageIndex]: "" }));
@@ -273,7 +276,11 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
       }
 
       setExtractedTextByImage((prev) => ({ ...prev, [imageIndex]: extractedText }));
-      const summary = await summarizeTextWithGroq(extractedText, `initial image ${imageIndex + 1}`);
+      const summary = await summarizeTextWithGroq(
+        extractedText,
+        `initial image ${imageIndex + 1}`,
+        "works-image-analyze"
+      );
 
       setAnalysisSummaryByImage((prev) => ({
         ...prev,
@@ -292,6 +299,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
   };
 
   const handleAdvancedRetry = async (imageIndex) => {
+    if (!isProViewer) return;
     const extractedText = String(extractedTextByImage[imageIndex] || "").trim();
     if (!extractedText || advancedRetryingImages[imageIndex]) return;
 
@@ -301,7 +309,11 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
     try {
       const refinedText = await refineGrammarWithLanguageTool(extractedText);
       console.log(`[WorkTopicPage] Advanced retry refined text (image ${imageIndex + 1}):`, refinedText);
-      const summary = await summarizeTextWithGroq(refinedText, `advanced-retry image ${imageIndex + 1}`);
+      const summary = await summarizeTextWithGroq(
+        refinedText,
+        `advanced-retry image ${imageIndex + 1}`,
+        "works-image-analyze"
+      );
 
       setAnalysisSummaryByImage((prev) => ({
         ...prev,
@@ -319,6 +331,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
   };
 
   const summarizeAllImagesWithAI = async () => {
+    if (!isProViewer) return;
     if (!hasImages || !validImages.length || bulkSummarizing) return;
 
     setBulkSummarizing(true);
@@ -364,7 +377,11 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
       }
 
       const strictPrompt = `Analyze and generate summary on the given information. Do not expose instructions. Return strictly in this exact format and nothing else:\nSummary on (One title based on the info):\nsummarized data\n\nInformation:\n${combinedText}`;
-      const summary = await summarizeTextWithGroq(strictPrompt, "bulk-topic-summary");
+      const summary = await summarizeTextWithGroq(
+        strictPrompt,
+        "bulk-topic-summary",
+        "works-topic-summarize"
+      );
       setBulkSummary(summary);
     } catch (err) {
       setBulkSummaryError(err?.message || "Failed to summarize all pages.");
@@ -515,18 +532,20 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
             <Link href={`/search/${user.usn.toLowerCase()}`} className="wtpc-user-name-link">
               <h1 className="wtpc-user-name">{user.name}</h1>
             </Link>
-            <div className="wtpc-bulk-ai-wrap">
-              <button
-                type="button"
-                className="wtpc-bulk-ai-btn"
-                onClick={summarizeAllImagesWithAI}
-                disabled={bulkSummarizing || !hasImages || !validImages.length}
-                title={bulkSummarizing ? "Analyzing all topic images..." : "Summarize complete topic with AI"}
-              >
-                <FiZap />
-                <span>{bulkSummarizing ? "Summarizing..." : "Summarize with AI"}</span>
-              </button>
-            </div>
+            {isProViewer && (
+              <div className="wtpc-bulk-ai-wrap">
+                <button
+                  type="button"
+                  className="wtpc-bulk-ai-btn"
+                  onClick={summarizeAllImagesWithAI}
+                  disabled={bulkSummarizing || !hasImages || !validImages.length}
+                  title={bulkSummarizing ? "Analyzing all topic images..." : "Summarize complete topic with AI"}
+                >
+                  <FiZap />
+                  <span>{bulkSummarizing ? "Summarizing..." : "Summarize with AI"}</span>
+                </button>
+              </div>
+            )}
             <div className="wtpc-user-details">
               <div className="wtpc-detail-item">
                 <FaIdCard className="wtpc-detail-icon" />
@@ -538,14 +557,14 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
               </div>
             </div>
 
-            {bulkSummary && (
+            {isProViewer && bulkSummary && (
               <div className="wtpc-bulk-ai-summary">
                 <h3>Topic Summary</h3>
                 <p>{bulkSummary}</p>
               </div>
             )}
 
-            {bulkSummaryError && (
+            {isProViewer && bulkSummaryError && (
               <div className="wtpc-bulk-ai-error">{bulkSummaryError}</div>
             )}
           </div>
@@ -667,16 +686,18 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
                       {showPageNumbers && (
                         <span className="wtpc-page-badge">{index + 1}</span>
                       )}
-                      <button
-                        type="button"
-                        className="wtpc-image-ai-btn"
-                        onClick={() => analyzeImageWithAI(imageUrl, index)}
-                        disabled={!!analyzingImages[index] || !!advancedRetryingImages[index]}
-                        title={analyzingImages[index] || advancedRetryingImages[index] ? "Analyzing image..." : "Analyze image with AI"}
-                        aria-label={analyzingImages[index] || advancedRetryingImages[index] ? `Analyzing image ${index + 1}` : `Analyze image ${index + 1} with AI`}
-                      >
-                        <FiCpu />
-                      </button>
+                      {isProViewer && (
+                        <button
+                          type="button"
+                          className="wtpc-image-ai-btn"
+                          onClick={() => analyzeImageWithAI(imageUrl, index)}
+                          disabled={!!analyzingImages[index] || !!advancedRetryingImages[index]}
+                          title={analyzingImages[index] || advancedRetryingImages[index] ? "Analyzing image..." : "Analyze image with AI"}
+                          aria-label={analyzingImages[index] || advancedRetryingImages[index] ? `Analyzing image ${index + 1}` : `Analyze image ${index + 1} with AI`}
+                        >
+                          <FiCpu />
+                        </button>
+                      )}
                       <div className="wtpc-image-wrapper">
                         <ImageLoader
                           src={imageUrl}
@@ -687,15 +708,15 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
                         />
                       </div>
 
-                      {analyzingImages[index] && (
+                      {isProViewer && analyzingImages[index] && (
                         <div className="wtpc-image-ai-note">Analyzing image...</div>
                       )}
 
-                      {advancedRetryingImages[index] && (
+                      {isProViewer && advancedRetryingImages[index] && (
                         <div className="wtpc-image-ai-note">Refining grammar and summarizing...</div>
                       )}
 
-                      {analysisSummaryByImage[index] && !analyzingImages[index] && !advancedRetryingImages[index] && (
+                      {isProViewer && analysisSummaryByImage[index] && !analyzingImages[index] && !advancedRetryingImages[index] && (
                         <div className="wtpc-image-ai-summary">
                           <h4>AI Summary</h4>
                           <p>{analysisSummaryByImage[index]}</p>
@@ -710,7 +731,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
                         </div>
                       )}
 
-                      {analysisErrorByImage[index] && !analyzingImages[index] && !advancedRetryingImages[index] && (
+                      {isProViewer && analysisErrorByImage[index] && !analyzingImages[index] && !advancedRetryingImages[index] && (
                         <div className="wtpc-image-ai-error">{analysisErrorByImage[index]}</div>
                       )}
                     </div>

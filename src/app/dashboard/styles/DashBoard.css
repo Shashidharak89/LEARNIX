@@ -345,6 +345,134 @@
   margin-bottom: 2.5rem;
 }
 
+/* Pro Offer Section */
+.learnix-pro-offer {
+  background: linear-gradient(135deg, #eff6ff 0%, #fffbeb 100%);
+  border: 1px solid #bfdbfe;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+  animation: learnix-fade-in 0.6s ease 1s both;
+}
+
+.learnix-pro-offer-top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px dashed #cbd5e1;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.learnix-pro-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.38rem 0.75rem;
+}
+
+.learnix-pro-pill-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.learnix-pro-pill-accent {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.learnix-pro-pill-success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.learnix-pro-offer-pro {
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+  border-color: #86efac;
+}
+
+.learnix-pro-offer-body {
+  padding: 1.25rem;
+}
+
+.learnix-pro-title {
+  font-size: 1.4rem;
+  line-height: 1.3;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.learnix-pro-subtitle {
+  color: #4b5563;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.learnix-pro-points {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.learnix-pro-point {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #1f2937;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.learnix-pro-point svg {
+  color: #059669;
+  flex-shrink: 0;
+}
+
+.learnix-pro-upgrade-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  border-radius: 10px;
+  padding: 0.8rem 1.15rem;
+  background-color: #3b82f6;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.learnix-pro-upgrade-btn:hover:not(:disabled) {
+  background-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+}
+
+.learnix-pro-upgrade-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.learnix-pro-message {
+  margin-top: 0.85rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.learnix-pro-message-success {
+  color: #047857;
+}
+
+.learnix-pro-message-error {
+  color: #b91c1c;
+}
+
 .learnix-section-title {
   font-size: 1.5rem;
   font-weight: 700;
@@ -694,6 +822,14 @@
   .learnix-action-item {
     padding: 1.25rem;
   }
+
+  .learnix-pro-points {
+    grid-template-columns: 1fr;
+  }
+
+  .learnix-pro-title {
+    font-size: 1.2rem;
+  }
   
   .learnix-auth-prompt-actions {
     flex-direction: column;
@@ -762,6 +898,15 @@
   
   .learnix-action-title {
     font-size: 1.125rem;
+  }
+
+  .learnix-pro-offer-top,
+  .learnix-pro-offer-body {
+    padding: 1rem;
+  }
+
+  .learnix-pro-title {
+    font-size: 1.08rem;
   }
   
   .learnix-auth-prompt-content {

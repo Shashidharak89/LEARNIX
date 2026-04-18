@@ -23,6 +23,7 @@ import { IoRocketOutline, IoLibraryOutline } from "react-icons/io5";
 import { RiGraduationCapLine } from "react-icons/ri";
 import "./styles/DashBoard.css";
 import WhatsNew from "../components/WhatsNew";
+import ProUpgradeOffer from "./ProUpgradeOffer";
 
 export default function DashBoard() {
   const [usn, setUsn] = useState(null);
@@ -265,6 +266,7 @@ export default function DashBoard() {
           )}
         </div>
       </main>
+      <ProUpgradeOffer isLoggedIn={Boolean(usn)} />
       {/* What's New banner */}
       <WhatsNew />
 

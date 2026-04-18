@@ -27,10 +27,13 @@ export async function POST(req) {
     // Backfill role for accounts created before role field was added
     if (!user.role) {
       user.role = "user";
-      await user.save();
     }
+    if (!user.plan) {
+      user.plan = "basic";
+    }
+    await user.save();
 
-    return NextResponse.json({ message: "Logged in successfully", user: { name: user.name, usn: user.usn, profileimg: user.profileimg, role: user.role } });
+    return NextResponse.json({ message: "Logged in successfully", user: { name: user.name, usn: user.usn, profileimg: user.profileimg, role: user.role, plan: user.plan } });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });

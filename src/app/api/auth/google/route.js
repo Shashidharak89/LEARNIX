@@ -58,6 +58,7 @@ export async function POST(req) {
         name: currentUser.name,
         usn: currentUser.usn,
         email: currentUser.email,
+        plan: currentUser.plan || "basic",
       },
     });
   } catch (error) {

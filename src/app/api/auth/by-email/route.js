@@ -31,6 +31,7 @@ export async function POST(req) {
           usn: user.usn,
           profileimg: user.profileimg,
           role: user.role,
+          plan: user.plan || "basic",
           email: user.email,
         },
         token,

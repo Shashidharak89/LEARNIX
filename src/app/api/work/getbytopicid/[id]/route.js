@@ -77,6 +77,14 @@ export const GET = async (req, { params }) => {
     ).catch(() => {});
 
     return NextResponse.json({
+      viewer: caller
+        ? {
+            _id: caller._id,
+            usn: caller.usn,
+            role: caller.role || "user",
+            plan: caller.plan || "basic",
+          }
+        : null,
       user: {
         _id: user._id,
         name: user.name,

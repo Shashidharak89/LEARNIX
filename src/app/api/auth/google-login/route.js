@@ -49,6 +49,9 @@ export async function POST(req) {
     if (!user.role) {
       user.role = "user";
     }
+    if (!user.plan) {
+      user.plan = "basic";
+    }
 
     const token = generateToken(user._id.toString(), user.usn);
     user.token = token;
@@ -62,6 +65,7 @@ export async function POST(req) {
         usn: user.usn,
         profileimg: user.profileimg,
         role: user.role,
+        plan: user.plan,
         email: user.email,
       },
       token,

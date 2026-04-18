@@ -113,6 +113,7 @@ export async function POST(req) {
       password: hashedPassword,
       profileimg: googleUser.picture || DEFAULT_PROFILE_IMG,
       role: "user",
+      plan: "basic",
     });
 
     const token = generateToken(newUser._id.toString(), newUser.usn);
@@ -129,6 +130,7 @@ export async function POST(req) {
           email: newUser.email,
           profileimg: newUser.profileimg,
           role: newUser.role,
+          plan: newUser.plan,
         },
         token,
       },

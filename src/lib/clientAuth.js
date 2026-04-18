@@ -10,6 +10,7 @@ export function signOutFromBrowser(reason = "Session expired. Please login again
   localStorage.removeItem("usn");
   localStorage.removeItem("name");
   localStorage.removeItem("role");
+  localStorage.removeItem("plan");
 
   window.dispatchEvent(
     new window.CustomEvent("learnix:auth-expired", { detail: { reason } })

@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
+import { connectDB } from "@/lib/db";
+import { resolveAuthenticatedUser } from "@/lib/authUser";
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 const MODEL = "llama-3.1-8b-instant";
+const PRO_ONLY_FEATURES = new Set(["works-image-analyze", "works-topic-summarize"]);
 
 export async function POST(req) {
   try {
@@ -16,12 +19,40 @@ export async function POST(req) {
 
     const body = await req.json();
     const question = String(body?.question || "").trim();
+    const feature = String(body?.feature || "").trim().toLowerCase();
 
     if (!question) {
       return NextResponse.json(
         { error: "Question is required" },
         { status: 400 }
       );
+    }
+
+    if (PRO_ONLY_FEATURES.has(feature)) {
+      await connectDB();
+      const auth = await resolveAuthenticatedUser(req, { withMeta: true });
+
+      if (auth.tokenProvided && auth.tokenInvalid) {
+        return NextResponse.json(
+          { error: "Token expired or invalid. Please login again." },
+          { status: 401 }
+        );
+      }
+
+      if (!auth.user) {
+        return NextResponse.json(
+          { error: "Login required for this feature." },
+          { status: 401 }
+        );
+      }
+
+      const plan = String(auth.user?.plan || "basic").toLowerCase();
+      if (plan !== "pro") {
+        return NextResponse.json(
+          { error: "This AI feature is available for Pro users only." },
+          { status: 403 }
+        );
+      }
     }
 
     const upstreamRes = await fetch(GROQ_URL, {

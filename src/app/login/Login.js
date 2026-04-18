@@ -27,6 +27,9 @@ export default function Login({ googleClientId = "" }) {
       if (data.user.role) {
         localStorage.setItem("role", data.user.role);
       }
+      if (data.user.plan) {
+        localStorage.setItem("plan", data.user.plan);
+      }
       if (data.token) {
         localStorage.setItem("token", data.token);
       }
