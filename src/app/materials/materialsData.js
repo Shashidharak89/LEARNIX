@@ -87,7 +87,7 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/ADBS%20Assignment(Task).docx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/View%20constraint%20details.docx" },
                 ],
-                customfiles: [
+                externalfiles: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Advanced-Data-Base-Systems/adbs-unit3-custom-notes-shashidharak.pdf" },
                 ],
             },
@@ -222,7 +222,7 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies-Lab/Assignment%206.docx" },
 
                 ],
-                customfiles: [
+                externalfiles: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies-Lab/External/AWT-Assignment4-Solution.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies-Lab/External/AWT-Assignment-6-Solution.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies-Lab/External/AWT-Assignment-6-Output.pdf" },
@@ -247,7 +247,7 @@ const materialsData = [
 
 
                 ],
-                customfiles: [
+                externalfiles: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies/Unofficial/AWT-IMP-QA.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies/Unofficial/AWT-IMP-secB.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies/External/AWT-U3-U4-MSE2-important-qa%20(1).pdf" },
@@ -286,7 +286,7 @@ const materialsData = [
 
 
                 ],
-                customfiles: [
+                externalfiles: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/Unofficial/DWMD-MSE1-IMP.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Data-Warehousing-and-Data-Mining/External/DWMD-Imp-for-MSE2.pdf" },
                 ],
@@ -314,7 +314,7 @@ const materialsData = [
                     // Unit 5
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/Enterprise%20Java_Unit%205.pdf" },
                 ],
-                customfiles: [
+                externalfiles: [
                     // Unit 1
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java/External/EJAVA-UNIT1-SHASHIDHARAK.pdf" },
 
@@ -338,7 +338,7 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java-Lab/Assignment4.docx" },
                     // { url: "" },
                 ],
-                customfiles: [
+                externalfiles: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Enterprise-Java-Lab/External/EJAVA-LAB-Assignment4-Solution.pdf" },
                 ],
             },
@@ -366,7 +366,7 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Web-Development-Using-Ruby-on-Rails-%26-PostgreSQL/Ruby%20on%20Rails_%20Comprehensive%20Guide%20with%20Real-world%20Examples%20(1)%20(1).pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Web-Development-Using-Ruby-on-Rails-%26-PostgreSQL/Ruby%20on%20Rails_%20Full%20Stack%20Mastery%20(1).pdf" },
                 ],
-                customfiles: [
+                externalfiles: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Web-Development-Using-Ruby-on-Rails-%26-PostgreSQL/External/Ruby-MSE2-(U3-U4).pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Web-Development-Using-Ruby-on-Rails-%26-PostgreSQL/External/Ruby_Rails_Revision_Notes.pdf" },
                 ],
@@ -380,7 +380,7 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Full-Stack-development-using-Django/module-3.pptm" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Full-Stack-development-using-Django/unit_4.pptx" },
                 ],
-                customfiles: [
+                externalfiles: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Full-Stack-development-using-Django/External/Django-U3-U4-IMP-MSE2.pdf" },
                 ],
             },
@@ -397,7 +397,7 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/UNIT-3-updated.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/Performance%2C%20Security%20%26%20Scalability%20Testing%20(2)_compressed.pdf" },
                 ],
-                customfiles: [
+                externalfiles: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/Unofficial/SET-IMP-MSE1-U1U2.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/Unofficial/SET-short%20Notes%20MSE1.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/tree/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/External" },
@@ -407,7 +407,7 @@ const materialsData = [
             {
                 subject: "Professional Communication Skills",
                 files: [],
-                customfiles: [
+                externalfiles: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Professional-Communication-Skills/Unofficial/PCS-MSE1-PTC.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/tree/main/MCA-NMAMIT/2nd-Sem-2025-26/Professional-Communication-Skills/External" },
                 ],

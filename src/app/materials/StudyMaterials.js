@@ -125,7 +125,7 @@ export default function StudyMaterials() {
                 <div className="sm-subjects-wrapper">
                   {sem.subjects.map((subj, subjIndex) => {
                     const unofficialKey = `${semIndex}-${subjIndex}`;
-                    const hasCustomFiles = subj.customfiles && subj.customfiles.length > 0;
+                    const hasExternalFiles = subj.externalfiles && subj.externalfiles.length > 0;
                     const isSubjOpen = openSubjectIndex === subjIndex;
                     const isUnofficialOpen = openUnofficialKey === unofficialKey;
 
@@ -150,8 +150,8 @@ export default function StudyMaterials() {
                         {isSubjOpen && (
                           <div className="sm-subject-content">
 
-                            {/* ── Unofficial Resources (only if customfiles exist) ── */}
-                            {hasCustomFiles && (
+                            {/* ── Unofficial Resources (only if externalfiles exist) ── */}
+                            {hasExternalFiles && (
                               <div className="sm-unofficial-block">
                                 <button
                                   className={`sm-unofficial-btn ${isUnofficialOpen ? "sm-unofficial-open" : ""}`}
@@ -160,7 +160,7 @@ export default function StudyMaterials() {
                                   <div className="sm-unofficial-left">
                                     <BookMarked size={16} />
                                     <span className="sm-unofficial-label">External Resources</span>
-                                    <span className="sm-unofficial-badge">{subj.customfiles.length} files</span>
+                                    <span className="sm-unofficial-badge">{subj.externalfiles.length} files</span>
                                   </div>
                                   <div className="sm-unofficial-chevron">
                                     {isUnofficialOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
@@ -168,7 +168,7 @@ export default function StudyMaterials() {
                                 </button>
 
                                 {isUnofficialOpen && (
-                                  <FilesList files={subj.customfiles} cssClass="sm-unofficial-files-list" />
+                                  <FilesList files={subj.externalfiles} cssClass="sm-unofficial-files-list" />
                                 )}
                               </div>
                             )}
