@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronDown, ChevronRight, BookOpen, FileText, Download, Eye, FolderOpen, BookMarked } from "lucide-react";
 import materialsData from "./materialsData";
 import "./styles/StudyMaterials.css";
@@ -61,24 +62,87 @@ function FilesList({ files, cssClass = "sm-files-list" }) {
 }
 
 export default function StudyMaterials() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // State synchronized with URL
   const [openSemesterIndex, setOpenSemesterIndex] = useState(null);
   const [openSubjectIndex, setOpenSubjectIndex] = useState(null);
-  // tracks which subject's "Unofficial Resources" section is open — key: "semIndex-subjIndex"
   const [openUnofficialKey, setOpenUnofficialKey] = useState(null);
 
+  // Initialize state from URL on mount
+  useEffect(() => {
+    const sem = searchParams.get("sem");
+    const subj = searchParams.get("subj");
+    const ext = searchParams.get("ext");
+
+    if (sem !== null) setOpenSemesterIndex(parseInt(sem));
+    if (subj !== null) setOpenSubjectIndex(parseInt(subj));
+    if (ext !== null) setOpenUnofficialKey(ext);
+  }, [searchParams]);
+
+  // Update URL when semester changes
   const toggleSemester = (index) => {
-    setOpenSemesterIndex(openSemesterIndex === index ? null : index);
+    const newSemIndex = openSemesterIndex === index ? null : index;
+
+    if (newSemIndex === null) {
+      // Close semester - remove sem, subj, and ext from URL
+      const params = new URLSearchParams(searchParams);
+      params.delete("sem");
+      params.delete("subj");
+      params.delete("ext");
+      router.push(`?${params.toString()}` || ".");
+    } else {
+      // Open semester
+      const params = new URLSearchParams(searchParams);
+      params.set("sem", newSemIndex);
+      params.delete("subj"); // Reset subject when changing semester
+      params.delete("ext");
+      router.push(`?${params.toString()}`);
+    }
+
+    setOpenSemesterIndex(newSemIndex);
     setOpenSubjectIndex(null);
     setOpenUnofficialKey(null);
   };
 
+  // Update URL when subject changes
   const toggleSubject = (index) => {
-    setOpenSubjectIndex(openSubjectIndex === index ? null : index);
+    const newSubjIndex = openSubjectIndex === index ? null : index;
+
+    const params = new URLSearchParams(searchParams);
+
+    if (newSubjIndex === null) {
+      // Close subject - remove subj and ext from URL
+      params.delete("subj");
+      params.delete("ext");
+    } else {
+      // Open subject
+      params.set("subj", newSubjIndex);
+      params.delete("ext"); // Reset external when changing subject
+    }
+
+    router.push(`?${params.toString()}`);
+    setOpenSubjectIndex(newSubjIndex);
     setOpenUnofficialKey(null);
   };
 
+  // Update URL when external files toggle changes
   const toggleUnofficial = (key) => {
-    setOpenUnofficialKey(openUnofficialKey === key ? null : key);
+    const newUnofficialKey = openUnofficialKey === key ? null : key;
+
+    const params = new URLSearchParams(searchParams);
+
+    if (newUnofficialKey === null) {
+      // Close external files - remove ext from URL
+      params.delete("ext");
+    } else {
+      // Open external files
+      params.set("ext", newUnofficialKey);
+    }
+
+    router.push(`?${params.toString()}`);
+    setOpenUnofficialKey(newUnofficialKey);
   };
 
   return (
