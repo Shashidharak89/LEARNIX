@@ -1,12 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { ChevronDown, ChevronRight, BookOpen, FileText, Download, Eye, FolderOpen, BookMarked } from "lucide-react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { ChevronDown, ChevronRight, BookOpen, FileText, Download, Eye, FolderOpen, BookMarked, Share2 } from "lucide-react";
 import materialsData from "./materialsData";
 import "./styles/StudyMaterials.css";
 
-function FilesList({ files, cssClass = "sm-files-list" }) {
+function FilesList({
+  files,
+  cssClass = "sm-files-list",
+  semIndex,
+  subjIndex,
+  source,
+  highlightedFileKey,
+  onShareFile,
+}) {
   return (
     <div className={cssClass}>
       {files.map((file, fIndex) => {
@@ -14,9 +21,11 @@ function FilesList({ files, cssClass = "sm-files-list" }) {
         const fileName = decodeURIComponent(rawFileName);
         const encodedUrl = encodeURIComponent(file.url);
         const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodedUrl}`;
+        const fileKey = `${semIndex}-${subjIndex}-${source}-${fIndex}`;
+        const isHighlighted = highlightedFileKey === fileKey;
 
         return (
-          <div key={fIndex} className="sm-file-card">
+          <div key={fIndex} className={`sm-file-card ${isHighlighted ? "sm-file-card-highlighted" : ""}`}>
             <a
               href={viewUrl}
               target="_blank"
@@ -31,6 +40,18 @@ function FilesList({ files, cssClass = "sm-files-list" }) {
               </div>
             </a>
             <div className="sm-file-actions">
+              <button
+                type="button"
+                className="sm-action-btn sm-share-btn"
+                title="Share file link"
+                aria-label={`Share ${fileName}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onShareFile(fileKey, fileName);
+                }}
+              >
+                <Share2 size={16} />
+              </button>
               <a
                 href={viewUrl}
                 target="_blank"
@@ -63,86 +84,106 @@ function FilesList({ files, cssClass = "sm-files-list" }) {
 
 export default function StudyMaterials() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // State synchronized with URL
-  const [openSemesterIndex, setOpenSemesterIndex] = useState(null);
-  const [openSubjectIndex, setOpenSubjectIndex] = useState(null);
-  const [openUnofficialKey, setOpenUnofficialKey] = useState(null);
+  const parseIndex = (value) => {
+    if (value === null) return null;
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
+  };
 
-  // Initialize state from URL on mount
-  useEffect(() => {
-    const sem = searchParams.get("sem");
-    const subj = searchParams.get("subj");
-    const ext = searchParams.get("ext");
+  const openSemesterIndex = parseIndex(searchParams.get("sem"));
+  const openSubjectIndex = parseIndex(searchParams.get("subj"));
+  const openUnofficialKey = searchParams.get("ext");
+  const highlightedFileKey = searchParams.get("file");
 
-    if (sem !== null) setOpenSemesterIndex(parseInt(sem));
-    if (subj !== null) setOpenSubjectIndex(parseInt(subj));
-    if (ext !== null) setOpenUnofficialKey(ext);
-  }, [searchParams]);
+  const buildQueryString = (updates) => {
+    const currentParams = Object.fromEntries(searchParams.entries());
+    const mergedParams = { ...currentParams, ...updates };
+
+    Object.keys(mergedParams).forEach((key) => {
+      const value = mergedParams[key];
+      if (value === null || value === undefined || value === "") {
+        delete mergedParams[key];
+      }
+    });
+
+    return Object.entries(mergedParams)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
+      .join("&");
+  };
+
+  const pushWithUpdates = (updates) => {
+    const queryString = buildQueryString(updates);
+    const nextPath = queryString ? `${pathname}?${queryString}` : pathname;
+    router.push(nextPath);
+    return nextPath;
+  };
+
+  const buildShareUrl = (updates) => {
+    const queryString = buildQueryString(updates);
+    const relativePath = queryString ? `${pathname}?${queryString}` : pathname;
+    return `${window.location.origin}${relativePath}`;
+  };
 
   // Update URL when semester changes
   const toggleSemester = (index) => {
     const newSemIndex = openSemesterIndex === index ? null : index;
 
     if (newSemIndex === null) {
-      // Close semester - remove sem, subj, and ext from URL
-      const params = new URLSearchParams(searchParams);
-      params.delete("sem");
-      params.delete("subj");
-      params.delete("ext");
-      router.push(`?${params.toString()}` || ".");
+      // Close semester - remove sem, subj, ext and shared file from URL
+      pushWithUpdates({ sem: null, subj: null, ext: null, file: null });
     } else {
       // Open semester
-      const params = new URLSearchParams(searchParams);
-      params.set("sem", newSemIndex);
-      params.delete("subj"); // Reset subject when changing semester
-      params.delete("ext");
-      router.push(`?${params.toString()}`);
+      pushWithUpdates({ sem: newSemIndex, subj: null, ext: null, file: null });
     }
-
-    setOpenSemesterIndex(newSemIndex);
-    setOpenSubjectIndex(null);
-    setOpenUnofficialKey(null);
   };
 
   // Update URL when subject changes
   const toggleSubject = (index) => {
     const newSubjIndex = openSubjectIndex === index ? null : index;
 
-    const params = new URLSearchParams(searchParams);
-
     if (newSubjIndex === null) {
-      // Close subject - remove subj and ext from URL
-      params.delete("subj");
-      params.delete("ext");
+      // Close subject - remove subj, ext and shared file from URL
+      pushWithUpdates({ subj: null, ext: null, file: null });
     } else {
       // Open subject
-      params.set("subj", newSubjIndex);
-      params.delete("ext"); // Reset external when changing subject
+      pushWithUpdates({ subj: newSubjIndex, ext: null, file: null });
     }
-
-    router.push(`?${params.toString()}`);
-    setOpenSubjectIndex(newSubjIndex);
-    setOpenUnofficialKey(null);
   };
 
   // Update URL when external files toggle changes
   const toggleUnofficial = (key) => {
     const newUnofficialKey = openUnofficialKey === key ? null : key;
 
-    const params = new URLSearchParams(searchParams);
-
     if (newUnofficialKey === null) {
-      // Close external files - remove ext from URL
-      params.delete("ext");
+      // Close external files - remove ext and shared file from URL
+      pushWithUpdates({ ext: null, file: null });
     } else {
       // Open external files
-      params.set("ext", newUnofficialKey);
+      pushWithUpdates({ ext: newUnofficialKey, file: null });
     }
+  };
 
-    router.push(`?${params.toString()}`);
-    setOpenUnofficialKey(newUnofficialKey);
+  const handleShareFile = (fileKey, fileName) => {
+    const shareUrl = buildShareUrl({ file: fileKey });
+    pushWithUpdates({ file: fileKey });
+
+    if (navigator.share) {
+      navigator
+        .share({
+          title: fileName,
+          text: `Check out this study material on Learnix: ${fileName}`,
+          url: shareUrl,
+        })
+        .catch(() => { });
+    } else {
+      navigator.clipboard
+        .writeText(shareUrl)
+        .then(() => alert("Link copied to clipboard!"))
+        .catch(() => alert("Failed to copy link"));
+    }
   };
 
   return (
@@ -232,13 +273,28 @@ export default function StudyMaterials() {
                                 </button>
 
                                 {isUnofficialOpen && (
-                                  <FilesList files={subj.externalfiles} cssClass="sm-unofficial-files-list" />
+                                  <FilesList
+                                    files={subj.externalfiles}
+                                    cssClass="sm-unofficial-files-list"
+                                    semIndex={semIndex}
+                                    subjIndex={subjIndex}
+                                    source="external"
+                                    highlightedFileKey={highlightedFileKey}
+                                    onShareFile={handleShareFile}
+                                  />
                                 )}
                               </div>
                             )}
 
                             {/* ── Official Files ── */}
-                            <FilesList files={subj.files} />
+                            <FilesList
+                              files={subj.files}
+                              semIndex={semIndex}
+                              subjIndex={subjIndex}
+                              source="official"
+                              highlightedFileKey={highlightedFileKey}
+                              onShareFile={handleShareFile}
+                            />
                           </div>
                         )}
                       </div>

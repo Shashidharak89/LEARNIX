@@ -251,6 +251,16 @@
   transform: translateX(4px);
 }
 
+.sm-file-card.sm-file-card-highlighted {
+  border-color: #059669;
+  background: #ecfdf5;
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15);
+}
+
+.sm-file-card.sm-file-card-highlighted .sm-file-link {
+  background: #f0fdf4;
+}
+
 .sm-file-link {
   display: flex;
   align-items: center;
@@ -321,6 +331,18 @@
   transform: scale(1.05);
 }
 
+.sm-share-btn {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.sm-share-btn:hover {
+  background: #4338ca;
+  color: #ffffff;
+  border-color: #4338ca;
+  transform: scale(1.05);
+}
+
 .sm-download-btn {
   background: #fef3c7;
   color: #d97706;
@@ -338,6 +360,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -348,6 +371,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -359,6 +383,7 @@
     opacity: 0;
     transform: translateX(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -370,6 +395,7 @@
     opacity: 0;
     transform: scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -381,6 +407,7 @@
     opacity: 0;
     max-height: 0;
   }
+
   to {
     opacity: 1;
     max-height: 1000px;
@@ -476,6 +503,17 @@
   border-color: #7c3aed;
 }
 
+.sm-unofficial-files-list .sm-share-btn {
+  background: #f3e8ff;
+  color: #6d28d9;
+}
+
+.sm-unofficial-files-list .sm-share-btn:hover {
+  background: #6d28d9;
+  color: #ffffff;
+  border-color: #6d28d9;
+}
+
 .sm-unofficial-files-list .sm-download-btn {
   background: #ede9fe;
   color: #7c3aed;
@@ -535,4 +573,3 @@
     height: 34px;
   }
 }
-

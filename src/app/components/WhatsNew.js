@@ -10,6 +10,12 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Share Study Materials via Link Added",
+      date: "Apr 28, 2026",
+      description:
+        "You can now share study materials using link. Check this out in /materials: open a file and tap the Share icon to generate a sharable link. The link preserves opened batch/subject/external state and highlights the shared file when opened.",
+    },
+    {
       title: "Google Account Sign Up Added",
       date: "Apr 19, 2026",
       description:
@@ -144,9 +150,8 @@ export default function WhatsNew() {
         {latestUpdates.map((update, idx) => (
           <div
             key={idx}
-            className={`wn__card ${
-              expandedUpdate === idx ? "wn__card_expanded" : ""
-            }`}
+            className={`wn__card ${expandedUpdate === idx ? "wn__card_expanded" : ""
+              }`}
           >
             <button
               className="wn__card_header"
@@ -160,9 +165,8 @@ export default function WhatsNew() {
                 <span className="wn__update_date">Updated: {update.date || "Earlier"}</span>
               </div>
               <FiChevronDown
-                className={`wn__chevron_icon ${
-                  expandedUpdate === idx ? "wn__chevron_rotated" : ""
-                }`}
+                className={`wn__chevron_icon ${expandedUpdate === idx ? "wn__chevron_rotated" : ""
+                  }`}
               />
             </button>
 
