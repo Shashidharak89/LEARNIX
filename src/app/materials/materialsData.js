@@ -219,10 +219,13 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies-Lab/Assignment%202.docx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies-Lab/Assignment%203.docx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies-Lab/Assignment%204.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies-Lab/Assignment%206.docx" },
 
                 ],
                 customfiles: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies-Lab/External/AWT-Assignment4-Solution.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies-Lab/External/AWT-Assignment-6-Solution.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies-Lab/External/AWT-Assignment-6-Output.pdf" },
                 ],
 
             },
