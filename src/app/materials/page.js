@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import Footer from "../components/Footer";
 import { Navbar } from "../components/Navbar";
 import StudyMaterials from "./StudyMaterials";
@@ -10,7 +11,9 @@ export default function materials() {
     return (
         <div >
             <Navbar />
-            <StudyMaterials/>
+            <Suspense fallback={<div className="sm-wrapper" />}>
+                <StudyMaterials />
+            </Suspense>
         </div>
     );
 }
