@@ -24,6 +24,7 @@ import { RiGraduationCapLine } from "react-icons/ri";
 import "./styles/DashBoard.css";
 import WhatsNew from "../components/WhatsNew";
 import ProUpgradeOffer from "./ProUpgradeOffer";
+import HeroNavCards from "../components/HeroNavCards";
 
 export default function DashBoard() {
   const [usn, setUsn] = useState(null);
@@ -142,34 +143,10 @@ export default function DashBoard() {
         </div>
       </section>
 
-      {/* Login Prompt for Unauthenticated Users */}
-      {/* {!usn && (
-        <section className="learnix-auth-prompt">
-          <div className="learnix-auth-prompt-content">
-            <div className="learnix-auth-prompt-icon">
-              <FiUser size={24} />
-            </div>
-            <h3 className="learnix-auth-prompt-title">Join Our Learning Community</h3>
-            <p className="learnix-auth-prompt-text">
-              Sign in to upload your own resources, save favorites, and access personalized features
-            </p>
-            <div className="learnix-auth-prompt-actions">
-              <Link href="/login" className="learnix-auth-prompt-btn learnix-auth-primary">
-                <FiLogIn size={16} />
-                <span>Sign In</span>
-              </Link>
-              <Link href="/login" className="learnix-auth-prompt-btn learnix-auth-secondary">
-                <FiUser size={16} />
-                <span>Create Account</span>
-              </Link>
-            </div>
-          </div>
-        </section>
-      )} */}
+      {/* <main className="learnix-main-actions">
 
-      {/* Main Action Cards */}
-      <main className="learnix-main-actions">
-        <h2 className="learnix-section-title">
+
+        {/* <h2 className="learnix-section-title">
           {usn ? "Your Dashboard" : "Explore Features"}
         </h2>
         <div className="learnix-action-grid">
@@ -266,7 +243,10 @@ export default function DashBoard() {
           )}
         </div>
       </main>
-      <ProUpgradeOffer isLoggedIn={Boolean(usn)} />
+      <ProUpgradeOffer isLoggedIn={Boolean(usn)} /> */} 
+
+
+      <HeroNavCards loggedIn={!!usn} />
       {/* What's New banner */}
       <WhatsNew />
 
