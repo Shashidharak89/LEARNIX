@@ -14,45 +14,37 @@ import {
 import { HiAcademicCap } from "react-icons/hi";
 import "./styles/HeroNavCards.css";
 
+const navItems = [
+  { href: "/learn",     Icon: HiAcademicCap, label: "Learn",           theme: "learn" },
+  { href: "/search",    Icon: FiSearch,      label: "Search",          theme: "search" },
+  { href: "/materials", Icon: FiBookOpen,    label: "Materials",       theme: "materials" },
+  { href: "/qp",        Icon: FiFileText,    label: "Question Papers", theme: "qp" },
+  { href: "/tools",     Icon: FiTool,        label: "Tools",           theme: "tools" },
+  { href: "/help",      Icon: FiHelpCircle,  label: "Help",            theme: "help" },
+  { href: "/upload",    Icon: FiUpload,      label: "Upload",          theme: "upload", authRequired: true },
+  { href: "/dashboard", Icon: FiTrendingUp,  label: "Dashboard",       theme: "dashboard" },
+  { href: "/updates",   Icon: FiBell,        label: "Updates",         theme: "updates" },
+];
+
 export default function HeroNavCards({ loggedIn }) {
   return (
-    <div className="learnix-nav-card-grid">
-      <Link href="/learn" className="learnix-nav-card">
-        <HiAcademicCap className="learnix-nav-card-icon" />
-        <span>Learn</span>
-      </Link>
-      <Link href="/search" className="learnix-nav-card">
-        <FiSearch className="learnix-nav-card-icon" />
-        <span>Search</span>
-      </Link>
-      <Link href="/materials" className="learnix-nav-card">
-        <FiBookOpen className="learnix-nav-card-icon" />
-        <span>Materials</span>
-      </Link>
-      <Link href="/qp" className="learnix-nav-card">
-        <FiFileText className="learnix-nav-card-icon" />
-        <span>Question Papers</span>
-      </Link>
-      <Link href="/tools" className="learnix-nav-card">
-        <FiTool className="learnix-nav-card-icon" />
-        <span>Tools</span>
-      </Link>
-      <Link href="/help" className="learnix-nav-card">
-        <FiHelpCircle className="learnix-nav-card-icon" />
-        <span>Help</span>
-      </Link>
-      <Link href={loggedIn ? "/upload" : "/login"} className="learnix-nav-card">
-        <FiUpload className="learnix-nav-card-icon" />
-        <span>Upload</span>
-      </Link>
-      <Link href="/dashboard" className="learnix-nav-card">
-        <FiTrendingUp className="learnix-nav-card-icon" />
-        <span>Dashboard</span>
-      </Link>
-      <Link href="/updates" className="learnix-nav-card">
-        <FiBell className="learnix-nav-card-icon" />
-        <span>Updates</span>
-      </Link>
-    </div>
+    <nav className="lnx-grid" aria-label="Quick navigation">
+      {navItems.map(({ href, Icon, label, theme, authRequired }) => {
+        const resolvedHref = authRequired && !loggedIn ? "/login" : href;
+
+        return (
+          <Link
+            key={label}
+            href={resolvedHref}
+            className={`lnx-card lnx-card--${theme}`}
+          >
+            <span className="lnx-icon-wrap" aria-hidden="true">
+              <Icon className="lnx-icon" />
+            </span>
+            <span className="lnx-label">{label}</span>
+          </Link>
+        );
+      })}
+    </nav>
   );
 }

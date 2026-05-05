@@ -1,108 +1,235 @@
-/* Navigation Card Grid */
-.learnix-nav-card-grid {
+/* HeroNavCards.css */
+
+/* ── Wrapper: flex-wrap + justify-content:center auto-centers orphaned items ── */
+.lnx-grid {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 16px;
-  max-width: 1100px;
-  margin: 0 auto 40px;
-  padding: 0 10px;
+  gap: 12px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 16px;
+  box-sizing: border-box;
 }
 
-.learnix-nav-card {
-  flex: 1 1 160px;
-  max-width: 190px;
-  background: #f3f4f6;
-  border: 2px solid #e5e7eb;
-  border-radius: 18px;
-  padding: 28px 18px;
+/* ── Card: fixed width so exactly 6 fit per row at max-width ── */
+.lnx-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 10px;
+  /* (900 - 32px padding - 5 gaps×12px) / 6 ≈ 130px */
+  width: 130px;
+  padding: 20px 10px;
+  background: #ffffff;
+  border: 1.5px solid #e4e8ef;
+  border-radius: 14px;
   text-decoration: none;
-  color: #1f2937;
-  font-weight: 600;
-  font-size: 1.1rem;
-  box-shadow: 0 2px 8px rgba(59,130,246,0.04);
-  transition: all 0.3s ease;
-  position: relative;
+  color: #111827;
+  overflow: hidden;
   cursor: pointer;
+  box-sizing: border-box;
+  transition:
+    border-color 0.22s ease,
+    box-shadow 0.22s ease,
+    transform 0.18s ease;
+  will-change: transform;
 }
 
-.learnix-nav-card:hover {
-  border-color: #2563eb;
-  background: #e0e7ff;
-  color: #2563eb;
-  box-shadow: 0 8px 24px rgba(37,99,235,0.08);
-  transform: none;
-}
-
-.learnix-nav-card-icon {
-  font-size: 1.85rem;
-  color: #2563eb;
-  transition: color 0.3s;
-}
-
-.learnix-nav-card:hover .learnix-nav-card-icon {
-  color: #fbbf24;
-}
-
-.learnix-nav-card-highlight {
-  border-color: #fbbf24;
-  background: linear-gradient(90deg, #fef9c3 60%, #e0e7ff 100%);
-  color: #b45309;
-  box-shadow: 0 8px 32px rgba(251,191,36,0.12);
-  position: relative;
-}
-
-.learnix-nav-card-highlight::after {
-  content: "Most Helpful";
+/* Bottom accent bar slides in on hover */
+.lnx-card::after {
+  content: "";
   position: absolute;
-  top: 12px;
-  right: 18px;
-  background: #fbbf24;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 44%;
+  height: 2.5px;
+  border-radius: 2px 2px 0 0;
+  background: var(--lnx-accent, #2563eb);
+  transition: transform 0.22s ease;
+  transform-origin: center;
+}
+
+.lnx-card:hover {
+  border-color: var(--lnx-accent, #2563eb);
+  box-shadow: 0 4px 20px var(--lnx-shadow, rgba(37, 99, 235, 0.12));
+  transform: translateY(-2px);
+}
+
+.lnx-card:hover::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+.lnx-card:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* ── Icon pill ── */
+.lnx-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--lnx-icon-bg, #eff6ff);
+  color: var(--lnx-accent, #2563eb);
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.lnx-card:hover .lnx-icon-wrap {
+  background: var(--lnx-accent, #2563eb);
   color: #fff;
-  font-size: 0.8rem;
-  font-weight: 700;
-  padding: 2px 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(251,191,36,0.08);
+  transform: scale(1.09);
 }
 
-@media (max-width: 768px) {
-  .learnix-nav-card-grid {
+.lnx-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* ── Label ── */
+.lnx-label {
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  color: #4b5563;
+  font-family: "DM Sans", "Manrope", sans-serif;
+  text-align: center;
+  line-height: 1.25;
+  transition: color 0.2s ease;
+}
+
+.lnx-card:hover .lnx-label {
+  color: var(--lnx-accent, #1d4ed8);
+}
+
+/* ══════════════════════════════════════════════
+   Per-card color themes via CSS custom props
+═══════════════════════════════════════════════ */
+
+.lnx-card--learn {
+  --lnx-accent: #4f46e5;
+  --lnx-icon-bg: #eef2ff;
+  --lnx-shadow: rgba(79, 70, 229, 0.13);
+}
+
+.lnx-card--search {
+  --lnx-accent: #0284c7;
+  --lnx-icon-bg: #e0f2fe;
+  --lnx-shadow: rgba(2, 132, 199, 0.13);
+}
+
+.lnx-card--materials {
+  --lnx-accent: #0d9488;
+  --lnx-icon-bg: #f0fdfa;
+  --lnx-shadow: rgba(13, 148, 136, 0.12);
+}
+
+.lnx-card--qp {
+  --lnx-accent: #ea580c;
+  --lnx-icon-bg: #fff7ed;
+  --lnx-shadow: rgba(234, 88, 12, 0.12);
+}
+
+.lnx-card--tools {
+  --lnx-accent: #475569;
+  --lnx-icon-bg: #f1f5f9;
+  --lnx-shadow: rgba(71, 85, 105, 0.12);
+}
+
+.lnx-card--help {
+  --lnx-accent: #e11d48;
+  --lnx-icon-bg: #fff1f2;
+  --lnx-shadow: rgba(225, 29, 72, 0.12);
+}
+
+.lnx-card--upload {
+  --lnx-accent: #2563eb;
+  --lnx-icon-bg: #eff6ff;
+  --lnx-shadow: rgba(37, 99, 235, 0.12);
+}
+
+.lnx-card--dashboard {
+  --lnx-accent: #7c3aed;
+  --lnx-icon-bg: #f5f3ff;
+  --lnx-shadow: rgba(124, 58, 237, 0.12);
+}
+
+.lnx-card--updates {
+  --lnx-accent: #d97706;
+  --lnx-icon-bg: #fffbeb;
+  --lnx-shadow: rgba(217, 119, 6, 0.13);
+  border-color: #fcd34d;
+  background: #fffdf5;
+}
+
+/* ── Staggered fade-up on mount ── */
+@keyframes lnx-fade-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.lnx-card { animation: lnx-fade-up 0.35s ease both; }
+.lnx-card:nth-child(1) { animation-delay: 0.04s; }
+.lnx-card:nth-child(2) { animation-delay: 0.08s; }
+.lnx-card:nth-child(3) { animation-delay: 0.12s; }
+.lnx-card:nth-child(4) { animation-delay: 0.16s; }
+.lnx-card:nth-child(5) { animation-delay: 0.20s; }
+.lnx-card:nth-child(6) { animation-delay: 0.24s; }
+.lnx-card:nth-child(7) { animation-delay: 0.28s; }
+.lnx-card:nth-child(8) { animation-delay: 0.32s; }
+.lnx-card:nth-child(9) { animation-delay: 0.36s; }
+
+/* ══════════════════════════════════════════════
+   Responsive breakpoints
+═══════════════════════════════════════════════ */
+
+/* ≤ 860px → 4 per row max */
+@media (max-width: 860px) {
+  .lnx-card {
+    width: calc((100% - 32px - 3 * 12px) / 4);
+    min-width: 100px;
+  }
+}
+
+/* ≤ 600px → 3 per row */
+@media (max-width: 600px) {
+  .lnx-grid {
     gap: 10px;
-    padding: 0;
-    margin-bottom: 28px;
+    padding: 0 12px;
   }
-
-  .learnix-nav-card {
-    flex: 0 1 calc(25% - 10px);
-    max-width: none;
-    padding: 14px 8px;
-    border-radius: 14px;
-    font-size: 0.9rem;
+  .lnx-card {
+    width: calc((100% - 24px - 2 * 10px) / 3);
+    min-width: 90px;
+    padding: 16px 8px;
     gap: 8px;
+    border-radius: 12px;
   }
-
-  .learnix-nav-card-icon {
-    font-size: 1.25rem;
-  }
+  .lnx-icon-wrap { width: 38px; height: 38px; }
+  .lnx-icon { width: 18px; height: 18px; }
+  .lnx-label { font-size: 11px; }
 }
 
-@media (max-width: 480px) {
-  .learnix-nav-card-grid {
-    gap: 8px;
+/* ≤ 380px → still 3 per row, just smaller */
+@media (max-width: 380px) {
+  .lnx-grid { gap: 8px; padding: 0 8px; }
+  .lnx-card {
+    width: calc((100% - 16px - 2 * 8px) / 3);
+    min-width: 80px;
+    padding: 13px 6px;
+    gap: 6px;
+    border-radius: 10px;
   }
-
-  .learnix-nav-card {
-    flex: 0 1 calc(25% - 8px);
-    padding: 12px 6px;
-    font-size: 0.85rem;
-  }
-
-  .learnix-nav-card-icon {
-    font-size: 1.1rem;
-  }
+  .lnx-icon-wrap { width: 34px; height: 34px; border-radius: 8px; }
+  .lnx-icon { width: 16px; height: 16px; }
+  .lnx-label { font-size: 10px; }
 }
