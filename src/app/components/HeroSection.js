@@ -32,6 +32,7 @@ import RandomQuote from "../test/RandomQuote";
 import PublicQuickText from "./PublicQuickText";
 import DownloadAppBanner from "./DownloadAppBanner";
 import HomeGroqAskBox from "./HomeGroqAskBox";
+import HeroNavCards from "./HeroNavCards";
 
 export default function HeroSection() {
   const [loggedIn] = useState(() => {
@@ -99,44 +100,7 @@ export default function HeroSection() {
             </div>
           </div>
 
-          <div className="learnix-nav-card-grid">
-            <Link href="/learn" className="learnix-nav-card">
-              <HiAcademicCap className="learnix-nav-card-icon" />
-              <span>Learn</span>
-            </Link>
-            <Link href="/search" className="learnix-nav-card">
-              <FiSearch className="learnix-nav-card-icon" />
-              <span>Search</span>
-            </Link>
-            <Link href="/materials" className="learnix-nav-card">
-              <FiBookOpen className="learnix-nav-card-icon" />
-              <span>Materials</span>
-            </Link>
-            <Link href="/qp" className="learnix-nav-card">
-              <FiFileText className="learnix-nav-card-icon" />
-              <span>Question Papers</span>
-            </Link>
-            <Link href="/tools" className="learnix-nav-card">
-              <FiTool className="learnix-nav-card-icon" />
-              <span>Tools</span>
-            </Link>
-            <Link href="/help" className="learnix-nav-card">
-              <FiHelpCircle className="learnix-nav-card-icon" />
-              <span>Help</span>
-            </Link>
-            <Link href={loggedIn ? "/upload" : "/login"} className="learnix-nav-card">
-              <FiUpload className="learnix-nav-card-icon" />
-              <span>Upload</span>
-            </Link>
-            <Link href="/dashboard" className="learnix-nav-card">
-              <FiTrendingUp className="learnix-nav-card-icon" />
-              <span>Dashboard</span>
-            </Link>
-            <Link href="/updates" className="learnix-nav-card">
-              <FiBell className="learnix-nav-card-icon" />
-              <span>Updates</span>
-            </Link>
-          </div>
+          <HeroNavCards loggedIn={loggedIn} />
           <RandomQuote/>
           <PublicQuickText />
           <DownloadAppBanner />
