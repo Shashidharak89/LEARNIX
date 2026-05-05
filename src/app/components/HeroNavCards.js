@@ -12,7 +12,7 @@ import {
   FiBell,
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
-import "./styles/HeroSection.css"; // Since styles for the grid are here
+import "./styles/HeroNavCards.css";
 
 export default function HeroNavCards({ loggedIn }) {
   return (
