@@ -10,6 +10,12 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Share Updates via Link Added",
+      date: "May 5, 2026",
+      description:
+        "Now you can share updates with your friends! Visit the Updates page (/updates) and tap the Share icon on any update to generate a shareable link. The shared link takes you directly to that update with it highlighted at the top. Perfect for sharing important announcements and activities with your peers!",
+    },
+    {
       title: "Share Study Materials via Link Added",
       date: "Apr 28, 2026",
       description:
