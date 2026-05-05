@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload, FiSearch } from 'react-icons/fi';
+import { Share2 } from 'lucide-react';
 import './styles/Updates.css';
 
 export default function UpdatesPage() {
@@ -10,12 +11,14 @@ export default function UpdatesPage() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const keywordFromUrl = (searchParams.get('q') || '').trim();
+  const sharedUpdateId = searchParams.get('update') || null;
 
   const [updates, setUpdates] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [searchQuery, setSearchQuery] = useState(keywordFromUrl);
+  const highlightedCardRef = useRef(null);
 
   const fetchUpdates = async (index = 1, query = keywordFromUrl) => {
     setLoading(true);
@@ -44,6 +47,15 @@ export default function UpdatesPage() {
     setPageIndex(1);
     fetchUpdates(1, keywordFromUrl);
   }, [keywordFromUrl]);
+
+  // Scroll highlighted update into view
+  useEffect(() => {
+    if (sharedUpdateId && highlightedCardRef.current) {
+      setTimeout(() => {
+        highlightedCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [sharedUpdateId, updates]);
 
   const formatRelativeTime = (iso) => {
     try {
@@ -85,6 +97,48 @@ export default function UpdatesPage() {
     router.push(pathname);
   };
 
+  const buildQueryString = (updates) => {
+    const currentParams = Object.fromEntries(searchParams.entries());
+    const mergedParams = { ...currentParams, ...updates };
+
+    Object.keys(mergedParams).forEach((key) => {
+      const value = mergedParams[key];
+      if (value === null || value === undefined || value === '') {
+        delete mergedParams[key];
+      }
+    });
+
+    return Object.entries(mergedParams)
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`)
+      .join('&');
+  };
+
+  const buildShareUrl = (updates) => {
+    const queryString = buildQueryString(updates);
+    const relativePath = queryString ? `${pathname}?${queryString}` : pathname;
+    return `${typeof window !== 'undefined' ? window.location.origin : ''}${relativePath}`;
+  };
+
+  const handleShareUpdate = (updateId, updateTitle) => {
+    const shareUrl = buildShareUrl({ update: updateId });
+    router.push(buildQueryString({ update: updateId }) ? `${pathname}?${buildQueryString({ update: updateId })}` : pathname);
+
+    if (navigator.share) {
+      navigator
+        .share({
+          title: updateTitle || 'Check this update',
+          text: `Check out this update on Learnix`,
+          url: shareUrl,
+        })
+        .catch(() => { });
+    } else {
+      navigator.clipboard
+        .writeText(shareUrl)
+        .then(() => alert("Link copied to clipboard!"))
+        .catch(() => alert("Failed to copy link"));
+    }
+  };
+
   const UpdateSkeleton = () => (
     <div className="upd-card upd-skeleton">
       <div className="upd-card-header">
@@ -100,6 +154,14 @@ export default function UpdatesPage() {
       </div>
     </div>
   );
+
+  // Sort updates: highlighted one at top
+  const sortedUpdates = sharedUpdateId
+    ? [
+      ...updates.filter((u) => u._id === sharedUpdateId),
+      ...updates.filter((u) => u._id !== sharedUpdateId),
+    ]
+    : updates;
 
   return (
     <>
@@ -144,8 +206,13 @@ export default function UpdatesPage() {
               </>
             )}
 
-            {updates.map((u, idx) => (
-              <div key={u._id} className="upd-card" style={{ animationDelay: `${idx * 50}ms` }}>
+            {sortedUpdates.map((u, idx) => (
+              <div
+                key={u._id}
+                ref={sharedUpdateId === u._id ? highlightedCardRef : null}
+                className={`upd-card ${sharedUpdateId === u._id ? 'upd-card-highlighted' : ''}`}
+                style={{ animationDelay: `${idx * 50}ms` }}
+              >
                 <div className="upd-card-header">
                   <img
                     src={u.profileUrl || '/default-profile.png'}
@@ -164,6 +231,18 @@ export default function UpdatesPage() {
                     <FiClock className="upd-time-icon" />
                     {formatRelativeTime(u.createdAt)}
                   </div>
+                  <button
+                    type="button"
+                    className="upd-share-btn"
+                    title="Share update"
+                    aria-label="Share update"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleShareUpdate(u._id, u.title || 'Update');
+                    }}
+                  >
+                    <Share2 size={16} />
+                  </button>
                 </div>
 
                 {u.content && <p className="upd-content">{u.content}</p>}

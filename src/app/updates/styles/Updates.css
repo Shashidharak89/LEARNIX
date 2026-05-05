@@ -275,6 +275,55 @@
   color: var(--upd-blue);
 }
 
+/* Share button */
+.upd-share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  border: 2px solid transparent;
+  background: rgba(11, 116, 255, 0.08);
+  color: var(--upd-blue);
+  cursor: pointer;
+  transition: all 200ms var(--upd-ease);
+  flex-shrink: 0;
+}
+
+.upd-share-btn:hover {
+  background: var(--upd-blue);
+  color: white;
+  border-color: var(--upd-blue);
+  transform: scale(1.05);
+}
+
+.upd-share-btn:active {
+  transform: scale(0.95);
+}
+
+.upd-share-btn:focus {
+  outline: 3px solid rgba(11, 116, 255, 0.3);
+  outline-offset: 2px;
+}
+
+/* Highlighted card (when shared via URL) */
+.upd-card.upd-card-highlighted {
+  border-color: #059669;
+  background: #ecfdf5;
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15);
+}
+
+.upd-card.upd-card-highlighted .upd-avatar {
+  border-color: #059669;
+}
+
+.upd-card.upd-card-highlighted .upd-share-btn {
+  background: #10b981;
+  color: white;
+  border-color: #059669;
+}
+
 /* Card Content */
 .upd-content {
   color: var(--upd-text);
@@ -499,6 +548,7 @@
     opacity: 0;
     transform: translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -510,6 +560,7 @@
     transform: scale(0.95) translateY(6px);
     opacity: 0;
   }
+
   to {
     transform: scale(1) translateY(0);
     opacity: 1;
@@ -520,6 +571,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -535,15 +587,19 @@
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }
 }
 
 @keyframes upd-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.6;
   }
@@ -601,6 +657,12 @@
     justify-content: flex-start;
     margin-left: 52px;
     font-size: 12px;
+  }
+
+  .upd-share-btn {
+    width: 28px;
+    height: 28px;
+    margin-left: auto;
   }
 
   .upd-user-name {
@@ -692,6 +754,7 @@
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -703,6 +766,7 @@
 
 /* High contrast mode */
 @media (prefers-contrast: high) {
+
   .upd-card,
   .upd-intro-card {
     border-width: 2px;
