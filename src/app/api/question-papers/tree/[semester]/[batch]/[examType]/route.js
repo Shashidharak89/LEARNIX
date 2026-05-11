@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { buildQuestionPaperResponse, getQuestionPaperByTreePath } from "../../../../../store";
+import { buildQuestionPaperResponse, getQuestionPaperByTreePath } from "../../../../store";
 
 export async function GET(req, { params }) {
     try {

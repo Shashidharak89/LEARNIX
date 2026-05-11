@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { PDFDocument } from "pdf-lib";
-import { buildQuestionPaperPdfImages, buildQuestionPaperResponse, getQuestionPaperByTreePath } from "../../../../../../store";
+import { buildQuestionPaperPdfImages, buildQuestionPaperResponse, getQuestionPaperByTreePath } from "../../../../../store";
 
 export async function POST(req, { params }) {
     try {
