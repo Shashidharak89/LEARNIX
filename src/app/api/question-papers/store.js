@@ -57,6 +57,79 @@ function flattenQuestionPaperData() {
 
 const QUESTION_PAPERS = flattenQuestionPaperData();
 
+function sortPaperList(papers) {
+    return [...papers].sort((a, b) => {
+        const semDiff = (a.semester || 0) - (b.semester || 0);
+        if (semDiff !== 0) return semDiff;
+
+        const batchA = String(a.batch || "");
+        const batchB = String(b.batch || "");
+        const batchDiff = batchA.localeCompare(batchB, undefined, { numeric: true, sensitivity: "base" });
+        if (batchDiff !== 0) return batchDiff;
+
+        return String(a.examType || "").localeCompare(String(b.examType || ""));
+    });
+}
+
+function normalizeKey(value = "") {
+    return String(value).trim().toLowerCase();
+}
+
+export function buildQuestionPaperTree(filters = {}) {
+    const list = listQuestionPapers(filters);
+    const grouped = new Map();
+
+    for (const paper of list) {
+        const semesterKey = paper.semesterLabel || `Semester ${paper.semester ?? ""}`;
+        const batchKey = paper.batch;
+        const examKey = paper.examType;
+
+        if (!grouped.has(semesterKey)) {
+            grouped.set(semesterKey, new Map());
+        }
+
+        const semesterMap = grouped.get(semesterKey);
+        if (!semesterMap.has(batchKey)) {
+            semesterMap.set(batchKey, []);
+        }
+
+        semesterMap.get(batchKey).push(paper);
+    }
+
+    return Array.from(grouped.entries()).map(([semesterLabel, batchMap]) => {
+        const batches = Array.from(batchMap.entries()).map(([batch, batchPapers]) => ({
+            batch,
+            exams: sortPaperList(batchPapers).map((paper) => ({
+                id: paper.id,
+                paperId: paper.paperId,
+                examType: paper.examType,
+                totalSubjects: paper.totalSubjects,
+                totalImages: paper.totalImages,
+                previewImages: paper.previewImages,
+                source: "static-json",
+            })),
+        }));
+
+        return {
+            semesterLabel,
+            semester: getSemesterNumber(semesterLabel),
+            batches,
+        };
+    }).sort((a, b) => (a.semester || 0) - (b.semester || 0));
+}
+
+export function getQuestionPaperByTreePath(semester, batch, examType) {
+    const semesterLabel = `MCA Semester ${semester}`;
+    const normalizedBatch = normalizeKey(batch);
+    const normalizedExam = normalizeKey(examType);
+
+    return QUESTION_PAPERS.find((paper) => {
+        return String(paper.semester) === String(semester) &&
+            normalizeKey(paper.batch) === normalizedBatch &&
+            normalizeKey(paper.examType) === normalizedExam;
+    }) || null;
+}
+
 function textIncludes(value, query) {
     return String(value || "").toLowerCase().includes(String(query || "").toLowerCase());
 }
