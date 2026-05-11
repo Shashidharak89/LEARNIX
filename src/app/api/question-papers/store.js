@@ -199,3 +199,79 @@ export function buildQuestionPaperPdfImages(paper, subjectQuery = "") {
     if (!paper) return [];
     return getQuestionPaperSubjects(paper, subjectQuery).flatMap((item) => item.images);
 }
+
+function normalizeSubject(value = "") {
+    return String(value).trim().toLowerCase();
+}
+
+export function listAllSubjectNames() {
+    const subjectMap = new Map();
+
+    for (const paper of QUESTION_PAPERS) {
+        for (const item of paper.subjects || []) {
+            const trimmed = String(item.subject || "").trim();
+            if (!trimmed) continue;
+
+            const key = normalizeSubject(trimmed);
+            if (!subjectMap.has(key)) {
+                subjectMap.set(key, trimmed);
+            }
+        }
+    }
+
+    return Array.from(subjectMap.values()).sort((a, b) =>
+        a.localeCompare(b, undefined, { sensitivity: "base" })
+    );
+}
+
+export function getSubjectAggregate(subjectName) {
+    const target = normalizeSubject(subjectName);
+    if (!target) return null;
+
+    const occurrences = [];
+    const images = [];
+
+    for (const paper of QUESTION_PAPERS) {
+        const matched = (paper.subjects || []).find(
+            (item) => normalizeSubject(item.subject) === target
+        );
+
+        if (!matched) continue;
+
+        const matchedImages = Array.isArray(matched.images) ? matched.images.filter(Boolean) : [];
+        images.push(...matchedImages);
+
+        occurrences.push({
+            paperId: paper.paperId,
+            semester: paper.semester,
+            semesterLabel: paper.semesterLabel,
+            batch: paper.batch,
+            examType: paper.examType,
+            imageCount: matchedImages.length,
+            images: matchedImages,
+        });
+    }
+
+    if (occurrences.length === 0) {
+        return null;
+    }
+
+    const uniqueImages = Array.from(new Set(images));
+    const canonicalSubject = occurrences.length > 0
+        ? (occurrences[0].images ? String(subjectName).trim() : String(subjectName).trim())
+        : String(subjectName).trim();
+
+    return {
+        subject: canonicalSubject,
+        totalPapers: occurrences.length,
+        totalImages: uniqueImages.length,
+        images: uniqueImages,
+        occurrences,
+        source: "static-json",
+    };
+}
+
+export function buildSubjectPdfImages(subjectName) {
+    const data = getSubjectAggregate(subjectName);
+    return data ? data.images : [];
+}
