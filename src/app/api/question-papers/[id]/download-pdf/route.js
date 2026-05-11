@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
-import QuestionPaper from "@/models/QuestionPaper";
 import { PDFDocument } from "pdf-lib";
+import { buildQuestionPaperPdfImages, buildQuestionPaperResponse, getQuestionPaperById } from "../../store";
 
 export async function POST(req, { params }) {
     try {
-        await connectDB();
-
         const { id } = await params;
+        const body = await req.json().catch(() => ({}));
+        const subject = body?.subject || "";
 
-        const paper = await QuestionPaper.findById(id).lean();
+        const paper = getQuestionPaperById(id);
 
         if (!paper) {
             return NextResponse.json(
@@ -18,39 +17,35 @@ export async function POST(req, { params }) {
             );
         }
 
-        if (!paper.images || paper.images.length === 0) {
+        const paperData = buildQuestionPaperResponse(paper, subject);
+        const images = buildQuestionPaperPdfImages(paper, subject);
+
+        if (!images.length) {
             return NextResponse.json(
-                { error: "No images available for this question paper" },
+                { error: subject ? "No images available for this subject" : "No images available for this question paper" },
                 { status: 400 }
             );
         }
 
-        // Create a new PDF document
         const pdfDoc = await PDFDocument.create();
 
-        // Process each image
-        for (let i = 0; i < paper.images.length; i++) {
-            const imageUrl = paper.images[i];
+        for (let i = 0; i < images.length; i++) {
+            const imageUrl = images[i];
 
             try {
-                // Fetch the image
                 const imageResponse = await fetch(imageUrl);
-                if (!imageResponse.ok) {
-                    console.warn(`Failed to fetch image ${i + 1}: ${imageUrl}`);
-                    continue;
-                }
+                if (!imageResponse.ok) continue;
 
                 const imageBuffer = await imageResponse.arrayBuffer();
+                const contentType = imageResponse.headers.get("content-type") || "";
 
-                // Embed the image based on type
                 let image;
-                if (imageUrl.toLowerCase().includes('.png')) {
+                if (contentType.includes("png") || imageUrl.toLowerCase().includes(".png")) {
                     image = await pdfDoc.embedPng(imageBuffer);
                 } else {
                     image = await pdfDoc.embedJpg(imageBuffer);
                 }
 
-                // Add a new page
                 const page = pdfDoc.addPage([image.width, image.height]);
                 page.drawImage(image, {
                     x: 0,
@@ -60,18 +55,13 @@ export async function POST(req, { params }) {
                 });
             } catch (imgError) {
                 console.error(`Error processing image ${i + 1}:`, imgError);
-                continue;
             }
         }
 
-        // Serialize the PDF
         const pdfBytes = await pdfDoc.save();
-
-        // Create filename
-        const fileName = `${paper.subject}_${paper.batch}_${paper.examType}.pdf`
+        const fileName = `${paperData.batch}_${paperData.examType}${subject ? `_${subject}` : ""}.pdf`
             .replace(/[^a-zA-Z0-9._-]/g, "_");
 
-        // Return the PDF as download
         return new NextResponse(pdfBytes, {
             headers: {
                 "Content-Type": "application/pdf",

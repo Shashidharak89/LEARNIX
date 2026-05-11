@@ -1,14 +1,13 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
-import QuestionPaper from "@/models/QuestionPaper";
+import { buildQuestionPaperResponse, getQuestionPaperById } from "../store";
 
 export async function GET(req, { params }) {
     try {
-        await connectDB();
-
         const { id } = await params;
+        const { searchParams } = new URL(req.url);
+        const subject = searchParams.get("subject") || "";
 
-        const paper = await QuestionPaper.findById(id).lean();
+        const paper = getQuestionPaperById(id);
 
         if (!paper) {
             return NextResponse.json(
@@ -17,47 +16,32 @@ export async function GET(req, { params }) {
             );
         }
 
-        return NextResponse.json({
-            success: true,
-            paper: {
-                _id: paper._id,
-                subject: paper.subject,
-                batch: paper.batch,
-                examType: paper.examType,
-                semester: paper.semester,
-                description: paper.description,
-                uploadedBy: paper.uploadedBy,
-                createdAt: paper.createdAt,
-                images: paper.images // Full list of images
-            }
-        }, { status: 200 });
+        const paperData = buildQuestionPaperResponse(paper, subject);
+
+        if (subject && paperData.subjects.length === 0) {
+            return NextResponse.json(
+                { error: "Subject not found for this question paper" },
+                { status: 404 }
+            );
+        }
+
+        return NextResponse.json(
+            {
+                success: true,
+                paper: paperData,
+                source: "static-json",
+            },
+            { status: 200 }
+        );
     } catch (error) {
         console.error("GET /api/question-papers/[id] error:", error);
         return NextResponse.json({ error: "Failed to fetch question paper" }, { status: 500 });
     }
 }
 
-export async function DELETE(req, { params }) {
-    try {
-        await connectDB();
-
-        const { id } = await params;
-
-        const paper = await QuestionPaper.findByIdAndDelete(id);
-
-        if (!paper) {
-            return NextResponse.json(
-                { error: "Question paper not found" },
-                { status: 404 }
-            );
-        }
-
-        return NextResponse.json({
-            success: true,
-            message: "Question paper deleted successfully"
-        }, { status: 200 });
-    } catch (error) {
-        console.error("DELETE /api/question-papers/[id] error:", error);
-        return NextResponse.json({ error: "Failed to delete question paper" }, { status: 500 });
-    }
+export async function DELETE() {
+    return NextResponse.json(
+        { error: "This endpoint is read-only. Question papers are served from static backend JSON." },
+        { status: 405 }
+    );
 }

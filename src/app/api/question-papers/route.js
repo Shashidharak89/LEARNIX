@@ -1,69 +1,51 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/lib/db";
-import QuestionPaper from "@/models/QuestionPaper";
+import { listQuestionPapers } from "./store";
 
 export async function GET(req) {
     try {
-        await connectDB();
-
         const { searchParams } = new URL(req.url);
-        const batch = searchParams.get("batch"); // Optional filter
-        const examType = searchParams.get("examType"); // Optional filter
-        const subject = searchParams.get("subject"); // Optional filter
+        const batch = searchParams.get("batch") || "";
+        const examType = searchParams.get("examType") || "";
+        const semester = searchParams.get("semester") || "";
+        const subject = searchParams.get("subject") || "";
+        const q = searchParams.get("q") || "";
 
-        const query = {};
-        if (batch) query.batch = batch;
-        if (examType) query.examType = examType;
-        if (subject) query.subject = { $regex: subject, $options: "i" };
+        const papers = listQuestionPapers({ batch, examType, semester, subject, q }).map((paper) => ({
+            id: paper.id,
+            paperId: paper.paperId,
+            semester: paper.semester,
+            semesterLabel: paper.semesterLabel,
+            batch: paper.batch,
+            examType: paper.examType,
+            totalSubjects: paper.totalSubjects,
+            totalImages: paper.totalImages,
+            subjectCount: paper.totalSubjects,
+            subjects: paper.subjects.map((item) => ({
+                subject: item.subject,
+                imageCount: item.images.length,
+            })),
+            previewImages: paper.previewImages,
+            visitlinks: paper.visitlinks,
+            source: "static-json",
+        }));
 
-        const papers = await QuestionPaper.find(query)
-            .select("_id subject batch examType semester description uploadedBy createdAt")
-            .sort({ createdAt: -1 })
-            .lean();
-
-        return NextResponse.json({
-            success: true,
-            total: papers.length,
-            papers
-        }, { status: 200 });
+        return NextResponse.json(
+            {
+                success: true,
+                total: papers.length,
+                papers,
+            },
+            { status: 200 }
+        );
     } catch (error) {
         console.error("GET /api/question-papers error:", error);
         return NextResponse.json({ error: "Failed to fetch question papers" }, { status: 500 });
     }
 }
 
-export async function POST(req) {
-    try {
-        await connectDB();
-
-        const { subject, batch, examType, semester, images, description, uploadedBy } = await req.json();
-
-        if (!subject || !batch || !examType || !semester || !images || images.length === 0) {
-            return NextResponse.json(
-                { error: "Required fields: subject, batch, examType, semester, images" },
-                { status: 400 }
-            );
-        }
-
-        const paper = new QuestionPaper({
-            subject,
-            batch,
-            examType,
-            semester,
-            images,
-            description,
-            uploadedBy
-        });
-
-        await paper.save();
-
-        return NextResponse.json({
-            success: true,
-            paperId: paper._id,
-            message: "Question paper created successfully"
-        }, { status: 201 });
-    } catch (error) {
-        console.error("POST /api/question-papers error:", error);
-        return NextResponse.json({ error: "Failed to create question paper" }, { status: 500 });
-    }
+export async function POST() {
+    return NextResponse.json(
+        { error: "This endpoint is read-only. Question papers are served from static backend JSON." },
+        { status: 405 }
+    );
 }
