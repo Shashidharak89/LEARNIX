@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { getSubjectAggregate } from "../../store";
 
-export async function GET(req, { params }) {
+export async function GET(req) {
     try {
-        const raw = params?.subject || "";
+        const pathname = req?.nextUrl?.pathname || "";
+        const parts = pathname.split("/").filter(Boolean);
+        const raw = parts[parts.length - 1] || "";
         const subject = decodeURIComponent(raw);
         const data = getSubjectAggregate(subject);
 

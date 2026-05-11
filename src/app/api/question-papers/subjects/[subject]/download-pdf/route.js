@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import { PDFDocument } from "pdf-lib";
 import { buildSubjectPdfImages, getSubjectAggregate } from "../../../store";
 
-export async function POST(req, { params }) {
+export async function POST(req) {
     try {
-        const raw = params?.subject || "";
+        const pathname = req?.nextUrl?.pathname || "";
+        const parts = pathname.split("/").filter(Boolean);
+        const raw = parts[parts.length - 2] || "";
         const subject = decodeURIComponent(raw);
 
         const aggregate = getSubjectAggregate(subject);
