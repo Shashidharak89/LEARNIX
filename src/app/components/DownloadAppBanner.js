@@ -4,10 +4,12 @@ import {
   FiDownload,
   FiSmartphone,
 } from "react-icons/fi";
+import { APP_DOWNLOAD } from "@/lib/appDownload";
 
 import "./styles/DownloadAppBanner.css";
 
 export default function DownloadAppBanner() {
+  const { version, url } = APP_DOWNLOAD;
 
   return (
 
@@ -41,14 +43,14 @@ export default function DownloadAppBanner() {
         <div className="dab-actions">
 
           <a
-            href="https://raw.githubusercontent.com/Shashidharak89/My-Android-Applications/main/Learnix/Learnix-v1.1.1.apk"
+            href={url}
             target="_blank"
             rel="noopener noreferrer"
             className="dab-download-btn"
           >
             <FiDownload size={16} />
             {" "}
-            Click to Download
+            Click to Download (v{version})
           </a>
 
         </div>
