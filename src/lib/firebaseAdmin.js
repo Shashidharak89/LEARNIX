@@ -28,5 +28,6 @@ function getFirebaseAdmin() {
         console.error("Firebase Admin initialization error:", error);
         throw new Error("Failed to initialize Firebase Admin SDK. Missing or invalid service account JSON.");
     }
+}
 
-    export const firebaseAdmin = getFirebaseAdmin();
+export const firebaseAdmin = getFirebaseAdmin();
