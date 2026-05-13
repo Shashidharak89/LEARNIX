@@ -8,24 +8,24 @@ const materialsData = [
                 subject: "Syllabus",
                 files: [
                     { name: "Syllabus", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Syllabus/1stMCA-Syllabus.pdf" },
-                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Syllabus/22CMPA20D2_22CMPA14D3_MCA_%20Regulations_Syllabus%20_2025.01.pdf" },
+                    { name: "MCA Regulations Syllabus 2025", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Syllabus/22CMPA20D2_22CMPA14D3_MCA_%20Regulations_Syllabus%20_2025.01.pdf" },
                 ],
             },
             {
                 subject: "Mathematics",
                 files: [
                     { name: "Mathematics Textbook", url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Mathematics/MATHS-TEXT-BOOK.pdf" },
-                    { name: "VassXMSE1SEM1 262.pdf Handwritten Notes", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Mathematics/VassXMSE1SEM1%262.pdf" },
+                    { name: "VassXMSE1SEM1 262 Handwritten Notes", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Mathematics/VassXMSE1SEM1%262.pdf" },
                 ],
             },
             {
                 subject: "Data Communication and Networking",
                 files: [
-                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/unit2-ch1.pdf" },
-                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/1.%20UNIT%201%20DCN%20QUESTION%20BANK.pdf" },
-                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/DCN-Data%20Encoding.pptx" },
-                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/DCN-protocol%20architecture.pptx" },
-                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/Data%20Communication%20and%20Networks-Introduction-final.pptx" },
+                    { name: "Unit 1 Ch1", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/unit2-ch1.pdf" },
+                    { name: "Unit 1 DCN Question Bank", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/1.%20UNIT%201%20DCN%20QUESTION%20BANK.pdf" },
+                    { name: "DCN Data Encoding", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/DCN-Data%20Encoding.pptx" },
+                    { name: "DCN Protocol Architecture", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/DCN-protocol%20architecture.pptx" },
+                    { name: "Data Communication and Networks Introduction", url: "https://raw.githubusercontent.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/Data%20Communication%20and%20Networks-Introduction-final.pptx" },
 
 
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-And-Computer-Communication/Unit1/App%20Layer-Unit2-Ch%202.pdf" },
