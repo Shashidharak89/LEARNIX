@@ -1,3 +1,5 @@
+/* eslint-env node */
+/* global require */
 const fs = require('fs');
 
 const cssPath = 'src/app/components/styles/HeroSection.css';

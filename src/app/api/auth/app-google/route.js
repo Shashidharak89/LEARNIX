@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
-import { firebaseAdmin } from "@/lib/firebaseAdmin"; // Import firebase admin
+import { getFirebaseAdminApp } from "@/lib/firebaseAdmin"; // Lazy Firebase Admin initializer
 
 // If you have a Web Client ID in env, it goes here
 const GOOGLE_CLIENT_ID = process.env.CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
@@ -50,6 +50,7 @@ export async function POST(req) {
         if (iss.includes("securetoken.google.com") || iss.includes("firebase")) {
             // Validate Firebase token
             try {
+                const firebaseAdmin = getFirebaseAdminApp();
                 const decodedFirebaseToken = await firebaseAdmin.auth().verifyIdToken(credential);
                 email = decodedFirebaseToken.email.toLowerCase();
                 name = decodedFirebaseToken.name || name;

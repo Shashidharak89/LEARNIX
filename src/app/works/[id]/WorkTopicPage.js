@@ -1,5 +1,7 @@
 "use client";
 
+/* global URLSearchParams */
+
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { 

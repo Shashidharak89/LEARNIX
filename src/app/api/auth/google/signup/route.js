@@ -1,5 +1,5 @@
 import { connectDB } from "@/lib/db";
-import { firebaseAdmin } from "@/lib/firebaseAdmin";
+import { getFirebaseAdminApp } from "@/lib/firebaseAdmin";
 import User from "@/models/User";
 import { generateToken } from "@/utils/jwt";
 import { successResponse, errorResponse } from "@/utils/apiResponse";
@@ -19,6 +19,7 @@ export async function POST(req) {
         // 1. Verify Firebase token
         let decodedToken;
         try {
+            const firebaseAdmin = getFirebaseAdminApp();
             decodedToken = await firebaseAdmin.auth().verifyIdToken(idToken);
         } catch (err) {
             console.warn("Invalid Firebase token:", err.message);
