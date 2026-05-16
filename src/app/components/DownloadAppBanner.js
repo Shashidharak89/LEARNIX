@@ -1,15 +1,28 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   FiDownload,
   FiSmartphone,
 } from "react-icons/fi";
-import { APP_DOWNLOAD } from "@/lib/appDownload";
 
 import "./styles/DownloadAppBanner.css";
 
 export default function DownloadAppBanner() {
-  const { version, url } = APP_DOWNLOAD;
+  const [appInfo, setAppInfo] = useState({ version: "", link: "" });
+
+  useEffect(() => {
+    async function fetchAppInfo() {
+      try {
+        const res = await fetch("/api/app-info");
+        const data = await res.json();
+        setAppInfo(data);
+      } catch (error) {
+        console.error("Failed to fetch app info:", error);
+      }
+    }
+    fetchAppInfo();
+  }, []);
 
   return (
 
@@ -43,14 +56,14 @@ export default function DownloadAppBanner() {
         <div className="dab-actions">
 
           <a
-            href={url}
+            href={appInfo.link || "#"}
             target="_blank"
             rel="noopener noreferrer"
             className="dab-download-btn"
           >
             <FiDownload size={16} />
             {" "}
-            Click to Download (v{version})
+            {appInfo.version ? `Click to Download (v${appInfo.version})` : "Loading..."}
           </a>
 
         </div>
