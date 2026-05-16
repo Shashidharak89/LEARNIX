@@ -122,6 +122,8 @@ const materialsData = [
                 subject: "Data Structures And Algorithms",
                 files: [
 
+
+
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20I/Chapter%201/Abstract_Data_Types.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20I/Chapter%201/Arrays_in_C_Presentation.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20I/Chapter%201/C%20structure%20Program%20simple.pdf" },
@@ -190,6 +192,10 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/Unit%20V/recursive%20binary%20search.pdf" },
 
                 ],
+                externalfiles: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/External/DSA-FULL-NOTES.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms/External/DSA-QB-SOLVED.pdf" },
+                ],
             },
             {
                 subject: "Data Structures And Algorithms Lab",
@@ -204,6 +210,15 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms-Lab/DSA%20Lab%20Assignment-7.docx" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms-Lab/DSA-ASSIGNMENT-QA.pdf" },
 
+                ],
+                externalfiles: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms-Lab/External/DSA-Assignment-2.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms-Lab/External/DSA-ASSIGNMENT-3.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms-Lab/External/DSA-ASSIGNMENT-4.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms-Lab/External/DSA-ASSIGNMENT-5.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms-Lab/External/DSA-ASSIGNMENT-6.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms-Lab/External/DSA-Assignment-7.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/1st-Sem-2025-26/Data-Structures-And-Algorithms-Lab/External/part_B_programs%20DSA.pdf" },
                 ],
             },
 
@@ -424,7 +439,7 @@ const materialsData = [
                 files: [],
                 externalfiles: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Professional-Communication-Skills/Unofficial/PCS-MSE1-PTC.pdf" },
-                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/tree/main/MCA-NMAMIT/2nd-Sem-2025-26/Professional-Communication-Skills/External" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Professional-Communication-Skills/External/PCS-MSE2-Important-questionAnswers.pdf" },
                 ],
             },
         ],
