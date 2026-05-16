@@ -440,6 +440,7 @@ const materialsData = [
                 externalfiles: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Professional-Communication-Skills/Unofficial/PCS-MSE1-PTC.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Professional-Communication-Skills/External/PCS-MSE2-Important-questionAnswers.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Professional-Communication-Skills/External/PCS-Sem-prep.pdf" },
                 ],
             },
         ],
