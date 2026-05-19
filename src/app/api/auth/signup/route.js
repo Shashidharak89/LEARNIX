@@ -15,7 +15,7 @@ export async function POST(req) {
       return NextResponse.json({ error: "Name, USN and password are required" }, { status: 400 });
     }
 
-    const usnUpper = usn.toUpperCase();
+    const usnUpper = usn.trim().toUpperCase();
     let user = await User.findOne({ usn: usnUpper });
 
     if (user) {

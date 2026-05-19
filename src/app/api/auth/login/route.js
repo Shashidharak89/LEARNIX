@@ -12,7 +12,7 @@ export async function POST(req) {
       return NextResponse.json({ error: "USN and password are required" }, { status: 400 });
     }
 
-    const usnUpper = usn.toUpperCase();
+    const usnUpper = usn.trim().toUpperCase();
     const user = await User.findOne({ usn: usnUpper });
 
     if (!user || !user.password) {
