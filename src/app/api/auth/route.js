@@ -31,7 +31,7 @@ export async function POST(req) {
       );
     }
 
-    const usnUpper = usn.toUpperCase();
+    const usnUpper = usn.trim().toUpperCase();
     let user = await User.findOne({ usn: usnUpper });
 
     if (user) {
@@ -44,7 +44,7 @@ export async function POST(req) {
         }
         if (!user.role) user.role = "user";
         if (!user.plan) user.plan = "basic";
-        
+
         const token = generateToken(user._id.toString(), user.usn);
         user.token = token;
         user.tokenCreatedAt = new Date();
@@ -88,7 +88,7 @@ export async function POST(req) {
         role: "user",
         plan: "basic",
       });
-      
+
       const token = generateToken(newUser._id.toString(), newUser.usn);
       newUser.token = token;
       newUser.tokenCreatedAt = new Date();
