@@ -281,6 +281,13 @@ export default function UpdatesPage() {
                       const name = f.name || url.split('/').pop();
                       const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
 
+                      // If it is a Cloudinary PDF, we transform the link to force direct download
+                      let downloadUrl = url;
+                      const isPdf = typeof url === 'string' && url.toLowerCase().endsWith('.pdf');
+                      if (isPdf && url.includes('res.cloudinary.com')) {
+                        downloadUrl = url.replace('/upload/', '/upload/fl_attachment/');
+                      }
+
                       return (
                         <div key={i} className="upd-file-card">
                           <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-card-name" title={`View ${name}`}>
@@ -291,7 +298,7 @@ export default function UpdatesPage() {
                             <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-view" title="View">
                               <FiEye />
                             </a>
-                            <a href={url} download={name} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-download" title="Download">
+                            <a href={downloadUrl} download={isPdf ? undefined : name} target={isPdf ? undefined : "_blank"} rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-download" title="Download">
                               <FiDownload />
                             </a>
                           </div>
