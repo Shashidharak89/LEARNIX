@@ -1,7 +1,8 @@
 "use client";
 
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { ChevronDown, ChevronRight, BookOpen, FileText, Download, Eye, FolderOpen, BookMarked, Share2 } from "lucide-react";
+import { ChevronDown, ChevronRight, BookOpen, FileText, Download, Eye, FolderOpen, BookMarked, Share2, Search, X } from "lucide-react";
 import materialsData from "./materialsData";
 import "./styles/StudyMaterials.css";
 
@@ -87,6 +88,95 @@ export default function StudyMaterials() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const searchParamKey = "keyword";
+  const searchParamValue = searchParams.get(searchParamKey) || "";
+  const [searchTerm, setSearchTerm] = useState(searchParamValue);
+  const searchDebounceRef = useRef(null);
+
+  useEffect(() => {
+    if (searchParamValue !== searchTerm) {
+      setSearchTerm(searchParamValue);
+    }
+  }, [searchParamValue]);
+
+  useEffect(() => {
+    if (searchTerm === searchParamValue) return;
+
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
+    }
+
+    searchDebounceRef.current = setTimeout(() => {
+      const nextParams = new URLSearchParams(searchParams.toString());
+      if (searchTerm.trim()) {
+        nextParams.set(searchParamKey, searchTerm);
+      } else {
+        nextParams.delete(searchParamKey);
+      }
+      const nextQuery = nextParams.toString();
+      const nextPath = nextQuery ? `${pathname}?${nextQuery}` : pathname;
+      router.replace(nextPath);
+    }, 250);
+
+    return () => {
+      if (searchDebounceRef.current) {
+        clearTimeout(searchDebounceRef.current);
+      }
+    };
+  }, [searchTerm, searchParamValue, pathname, router, searchParams, searchParamKey]);
+
+  const filteredMaterials = useMemo(() => {
+    if (!searchTerm.trim()) return materialsData;
+
+    const term = searchTerm.toLowerCase();
+
+    return materialsData.map(sem => {
+      // Check if semester name matches
+      const semMatches = sem.semester.toLowerCase().includes(term);
+
+      // Filter subjects
+      const filteredSubjects = sem.subjects.map(subj => {
+        const subjMatches = subj.subject.toLowerCase().includes(term);
+
+        // Filter files
+        const filteredFiles = (subj.files || []).filter(file => {
+          const rawFileName = file.name || file.url.split("/").pop().split("?")[0];
+          const fileName = decodeURIComponent(rawFileName);
+          return fileName.toLowerCase().includes(term);
+        });
+
+        const filteredExternalFiles = (subj.externalfiles || []).filter(file => {
+          const rawFileName = file.name || file.url.split("/").pop().split("?")[0];
+          const fileName = decodeURIComponent(rawFileName);
+          return fileName.toLowerCase().includes(term);
+        });
+
+        if (subjMatches || semMatches) {
+          return subj;
+        }
+
+        if (filteredFiles.length > 0 || filteredExternalFiles.length > 0) {
+          return {
+            ...subj,
+            files: filteredFiles,
+            externalfiles: filteredExternalFiles,
+          };
+        }
+
+        return null; // Subject doesn't match and has no matching files
+      }).filter(Boolean); // Remove nulls
+
+      if (semMatches || filteredSubjects.length > 0) {
+        return {
+          ...sem,
+          subjects: filteredSubjects.length > 0 ? filteredSubjects : (semMatches ? sem.subjects : [])
+        };
+      }
+
+      return null;
+    }).filter(Boolean);
+  }, [searchTerm]);
+
   const parseIndex = (value) => {
     if (value === null) return null;
     const parsed = Number(value);
@@ -125,6 +215,33 @@ export default function StudyMaterials() {
     const queryString = buildQueryString(updates);
     const relativePath = queryString ? `${pathname}?${queryString}` : pathname;
     return `${window.location.origin}${relativePath}`;
+  };
+
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+  };
+
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+    const trimmed = searchTerm.trim();
+    const nextParams = new URLSearchParams(searchParams.toString());
+
+    if (trimmed) {
+      nextParams.set(searchParamKey, trimmed);
+    } else {
+      nextParams.delete(searchParamKey);
+    }
+
+    const nextQuery = nextParams.toString();
+    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.delete(searchParamKey);
+    const nextQuery = nextParams.toString();
+    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname);
   };
 
   // Update URL when semester changes
@@ -202,108 +319,139 @@ export default function StudyMaterials() {
           </div>
         </div>
 
+        {/* Search Bar */}
+        <div className="sm-search-container">
+          <form className="sm-search-form" onSubmit={handleSearchSubmit}>
+            <div className="sm-search-wrapper">
+              <Search className="sm-search-icon" size={20} />
+              <input
+                type="text"
+                className="sm-search-input"
+                placeholder="Search semesters, subjects, or files..."
+                value={searchTerm}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                aria-label="Search study materials"
+              />
+            </div>
+            <button type="submit" className="sm-search-btn" disabled={!searchTerm.trim()}>
+              Search
+            </button>
+            {searchTerm && (
+              <button type="button" className="sm-search-clear-btn" onClick={handleClearSearch}>
+                Clear
+              </button>
+            )}
+          </form>
+        </div>
+
         {/* Materials List */}
         <div className="sm-materials-list">
-          {materialsData.map((sem, semIndex) => (
-            <div key={semIndex} className="sm-semester-block">
-              {/* Semester Header */}
-              <button
-                className={`sm-semester-btn ${openSemesterIndex === semIndex ? "sm-semester-open" : ""}`}
-                onClick={() => toggleSemester(semIndex)}
-              >
-                <div className="sm-semester-left">
-                  <FolderOpen size={20} />
-                  <span className="sm-semester-name">{sem.semester}</span>
-                  <span className="sm-subject-count">{sem.subjects.length} subjects</span>
-                </div>
-                <div className="sm-semester-icon">
-                  {openSemesterIndex === semIndex ? (
-                    <ChevronDown size={20} />
-                  ) : (
-                    <ChevronRight size={20} />
-                  )}
-                </div>
-              </button>
-
-              {/* Subjects Container */}
-              {openSemesterIndex === semIndex && (
-                <div className="sm-subjects-wrapper">
-                  {sem.subjects.map((subj, subjIndex) => {
-                    const unofficialKey = `${semIndex}-${subjIndex}`;
-                    const hasExternalFiles = subj.externalfiles && subj.externalfiles.length > 0;
-                    const isSubjOpen = openSubjectIndex === subjIndex;
-                    const isUnofficialOpen = openUnofficialKey === unofficialKey;
-
-                    return (
-                      <div key={subjIndex} className="sm-subject-block">
-                        {/* Subject Header */}
-                        <button
-                          className={`sm-subject-btn ${isSubjOpen ? "sm-subject-open" : ""}`}
-                          onClick={() => toggleSubject(subjIndex)}
-                        >
-                          <div className="sm-subject-left">
-                            <FileText size={18} />
-                            <span className="sm-subject-name">{subj.subject}</span>
-                            <span className="sm-file-count">{subj.files.length} files</span>
-                          </div>
-                          <div className="sm-subject-icon">
-                            {isSubjOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-                          </div>
-                        </button>
-
-                        {/* Expanded subject content */}
-                        {isSubjOpen && (
-                          <div className="sm-subject-content">
-
-                            {/* ── Unofficial Resources (only if externalfiles exist) ── */}
-                            {hasExternalFiles && (
-                              <div className="sm-unofficial-block">
-                                <button
-                                  className={`sm-unofficial-btn ${isUnofficialOpen ? "sm-unofficial-open" : ""}`}
-                                  onClick={() => toggleUnofficial(unofficialKey)}
-                                >
-                                  <div className="sm-unofficial-left">
-                                    <BookMarked size={16} />
-                                    <span className="sm-unofficial-label">External Resources</span>
-                                    <span className="sm-unofficial-badge">{subj.externalfiles.length} files</span>
-                                  </div>
-                                  <div className="sm-unofficial-chevron">
-                                    {isUnofficialOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-                                  </div>
-                                </button>
-
-                                {isUnofficialOpen && (
-                                  <FilesList
-                                    files={subj.externalfiles}
-                                    cssClass="sm-unofficial-files-list"
-                                    semIndex={semIndex}
-                                    subjIndex={subjIndex}
-                                    source="external"
-                                    highlightedFileKey={highlightedFileKey}
-                                    onShareFile={handleShareFile}
-                                  />
-                                )}
-                              </div>
-                            )}
-
-                            {/* ── Official Files ── */}
-                            <FilesList
-                              files={subj.files}
-                              semIndex={semIndex}
-                              subjIndex={subjIndex}
-                              source="official"
-                              highlightedFileKey={highlightedFileKey}
-                              onShareFile={handleShareFile}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+          {filteredMaterials.length === 0 && searchTerm ? (
+            <div className="sm-no-results">
+              <p>No study materials found for "{searchTerm}"</p>
             </div>
-          ))}
+          ) : (
+            filteredMaterials.map((sem, semIndex) => (
+              <div key={semIndex} className="sm-semester-block">
+                {/* Semester Header */}
+                <button
+                  className={`sm-semester-btn ${searchTerm || openSemesterIndex === semIndex ? "sm-semester-open" : ""}`}
+                  onClick={() => toggleSemester(semIndex)}
+                >
+                  <div className="sm-semester-left">
+                    <FolderOpen size={20} />
+                    <span className="sm-semester-name">{sem.semester}</span>
+                    <span className="sm-subject-count">{sem.subjects.length} subjects</span>
+                  </div>
+                  <div className="sm-semester-icon">
+                    {searchTerm || openSemesterIndex === semIndex ? (
+                      <ChevronDown size={20} />
+                    ) : (
+                      <ChevronRight size={20} />
+                    )}
+                  </div>
+                </button>
+
+                {/* Subjects Container */}
+                {(searchTerm || openSemesterIndex === semIndex) && (
+                  <div className="sm-subjects-wrapper">
+                    {sem.subjects.map((subj, subjIndex) => {
+                      const unofficialKey = `${semIndex}-${subjIndex}`;
+                      const hasExternalFiles = subj.externalfiles && subj.externalfiles.length > 0;
+                      const isSubjOpen = searchTerm ? true : openSubjectIndex === subjIndex;
+                      const isUnofficialOpen = searchTerm ? true : openUnofficialKey === unofficialKey;
+
+                      return (
+                        <div key={subjIndex} className="sm-subject-block">
+                          {/* Subject Header */}
+                          <button
+                            className={`sm-subject-btn ${isSubjOpen ? "sm-subject-open" : ""}`}
+                            onClick={() => toggleSubject(subjIndex)}
+                          >
+                            <div className="sm-subject-left">
+                              <FileText size={18} />
+                              <span className="sm-subject-name">{subj.subject}</span>
+                              <span className="sm-file-count">{subj.files.length} files</span>
+                            </div>
+                            <div className="sm-subject-icon">
+                              {isSubjOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                            </div>
+                          </button>
+
+                          {/* Expanded subject content */}
+                          {isSubjOpen && (
+                            <div className="sm-subject-content">
+
+                              {/* ── Unofficial Resources (only if externalfiles exist) ── */}
+                              {hasExternalFiles && (
+                                <div className="sm-unofficial-block">
+                                  <button
+                                    className={`sm-unofficial-btn ${isUnofficialOpen ? "sm-unofficial-open" : ""}`}
+                                    onClick={() => toggleUnofficial(unofficialKey)}
+                                  >
+                                    <div className="sm-unofficial-left">
+                                      <BookMarked size={16} />
+                                      <span className="sm-unofficial-label">External Resources</span>
+                                      <span className="sm-unofficial-badge">{subj.externalfiles.length} files</span>
+                                    </div>
+                                    <div className="sm-unofficial-chevron">
+                                      {isUnofficialOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                                    </div>
+                                  </button>
+
+                                  {isUnofficialOpen && (
+                                    <FilesList
+                                      files={subj.externalfiles}
+                                      cssClass="sm-unofficial-files-list"
+                                      semIndex={semIndex}
+                                      subjIndex={subjIndex}
+                                      source="external"
+                                      highlightedFileKey={highlightedFileKey}
+                                      onShareFile={handleShareFile}
+                                    />
+                                  )}
+                                </div>
+                              )}
+
+                              {/* ── Official Files ── */}
+                              <FilesList
+                                files={subj.files}
+                                semIndex={semIndex}
+                                subjIndex={subjIndex}
+                                source="official"
+                                highlightedFileKey={highlightedFileKey}
+                                onShareFile={handleShareFile}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

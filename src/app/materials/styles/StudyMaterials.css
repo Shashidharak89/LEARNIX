@@ -57,6 +57,128 @@
   color: #6b7280;
 }
 
+/* Search Bar */
+.sm-search-container {
+  margin-bottom: 24px;
+  animation: sm-slide-up 0.5s ease-out;
+}
+
+.sm-search-form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sm-search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  flex: 1;
+}
+
+.sm-search-wrapper:focus-within {
+  border-color: #fbbf24;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.1);
+}
+
+.sm-search-icon {
+  margin-left: 16px;
+  color: #9ca3af;
+}
+
+.sm-search-input {
+  flex: 1;
+  padding: 16px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: #111827;
+  outline: none;
+}
+
+.sm-search-input::placeholder {
+  color: #9ca3af;
+}
+
+.sm-search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  padding: 8px;
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.sm-search-clear:hover {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+
+.sm-search-btn {
+  height: 48px;
+  border: none;
+  border-radius: 10px;
+  background: #fbbf24;
+  color: #111827;
+  padding: 0 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.sm-search-btn:hover {
+  background: #f59e0b;
+}
+
+.sm-search-btn:active {
+  transform: scale(0.98);
+}
+
+.sm-search-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sm-search-clear-btn {
+  height: 48px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #111827;
+  padding: 0 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.sm-search-clear-btn:hover {
+  border-color: #fbbf24;
+  color: #d97706;
+  background: #fffbeb;
+}
+
+.sm-no-results {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+  background: #f9fafb;
+  border-radius: 14px;
+  border: 1px dashed #d1d5db;
+  font-size: 16px;
+}
+
 /* Materials List */
 .sm-materials-list {
   display: flex;
