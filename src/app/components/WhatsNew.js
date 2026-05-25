@@ -16,12 +16,6 @@ export default function WhatsNew() {
         "We added a search bar to Study Materials so you can quickly find semesters, subjects, and files. Your keyword is now reflected in the URL for easy sharing and bookmarking.",
     },
     {
-      title: "Study Materials Added",
-      date: "May 24, 2026",
-      description:
-        "We have added a new Study Materials section with semester-wise subjects, official files, and external resources. Use the search bar to quickly find any subject or file, and share materials with a direct link.",
-    },
-    {
       title: "Share Updates via Link Added",
       date: "May 5, 2026",
       description:

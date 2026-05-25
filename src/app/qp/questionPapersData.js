@@ -500,6 +500,39 @@ const questionPapersData = [
                         ],
                     },
                 },
+                mse2: {
+                    id: "QP0302",
+                    imageurls: {
+                        "Enterprise Java": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1777892811/users/NN25MCA119/2nd%20sem%20question%20papers%20%282025-26%29/MSE%202/e5viv6sxraeooyrh2obs.jpg",
+                        ],
+                        "Advanced Web Technologies": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1777892834/users/NN25MCA119/2nd%20sem%20question%20papers%20%282025-26%29/MSE%202/byfrts4ubfzirjio5knt.jpg",
+
+                        ],
+                        "Software Engineering and Testing": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1777892828/users/NN25MCA119/2nd%20sem%20question%20papers%20%282025-26%29/MSE%202/bpcfyy84psi2ydkbbelf.jpg",
+
+                        ],
+                        "Data Warehousing and Data Mining": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1777892820/users/NN25MCA119/2nd%20sem%20question%20papers%20%282025-26%29/MSE%202/vilmjvvffx3yhfocuart.jpg",
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1777892868/users/NN25MCA119/2nd%20sem%20question%20papers%20%282025-26%29/MSE%202/juzvnaswref4oenbgjat.jpg",
+
+                        ],
+                        "Professional Communication Skills": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1777892856/users/NN25MCA119/2nd%20sem%20question%20papers%20%282025-26%29/MSE%202/okxd4lyl7stdxjfpplzm.jpg",
+
+                        ],
+                        "Full Stack Development using Django": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1777892847/users/NN25MCA119/2nd%20sem%20question%20papers%20%282025-26%29/MSE%202/d1qytuzg1kcokmiejtar.jpg",
+
+                        ],
+                        "Web Development using Ruby on Rails & PostgreSQL": [
+                            "https://res.cloudinary.com/ddycnd409/image/upload/v1777892862/users/NN25MCA119/2nd%20sem%20question%20papers%20%282025-26%29/MSE%202/mhddrq4qhzo0ghaexanl.jpg"
+                        ],
+                    },
+                    visitlink: ["69f87d9bc2369db5dd90df31"],
+                }
             }
 
         ],
