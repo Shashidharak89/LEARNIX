@@ -269,9 +269,12 @@ const materialsData = [
 
                     // Unit 4
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies/UNIT%20-%2041.pptx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies/UNIT%20Vi.pptx" },
 
                     // Unit 5
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies/JQUERY%20and%20Introduction%20to%20Angular%20JS.pptx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies/UNIT%20V%20PHP%20programs.docx" },
+
 
 
                 ],
