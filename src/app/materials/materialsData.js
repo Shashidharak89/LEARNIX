@@ -228,9 +228,9 @@ const materialsData = [
         semester: "2nd Sem - MCA 2025-27",
         subjects: [
             {
-                subject:"Syllabus",
-                files:[
-                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Syllabus/2nd-Sem-Syllabus-2026.pdf"},
+                subject: "Syllabus",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Syllabus/2nd-Sem-Syllabus-2026.pdf" },
                 ],
             },
             {
@@ -288,6 +288,7 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies/Unofficial/AWT-IMP-QA.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies/Unofficial/AWT-IMP-secB.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies/External/AWT-U3-U4-MSE2-important-qa%20(1).pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies/External/AWT-IMP(FinalExam)-NMIT-2ndSem-ShashidharaK.pdf" },
                 ],
             },
             {
