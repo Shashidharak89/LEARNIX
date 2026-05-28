@@ -228,6 +228,12 @@ const materialsData = [
         semester: "2nd Sem - MCA 2025-27",
         subjects: [
             {
+                subject:"Syllabus",
+                files:[
+                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Syllabus/2nd-Sem-Syllabus-2026.pdf"},
+                ],
+            },
+            {
                 subject: "Advanced Web Technologies Lab",
                 files: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Advanced-Web-Technologies-Lab/Assignment%201.docx" },
