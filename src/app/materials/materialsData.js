@@ -447,6 +447,7 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/Unofficial/SET-IMP-MSE1-U1U2.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/Unofficial/SET-short%20Notes%20MSE1.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/tree/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/External" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Software-Engineering-and-Testing/External/SET-IMP-FinalExam-2026.pdf" },
                 ],
 
             },
