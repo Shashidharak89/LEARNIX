@@ -1,0 +1,349 @@
+/* ─────────────────────────────────────────────────────────────── */
+/* Admin Updates Component Styles                                   */
+/* ─────────────────────────────────────────────────────────────── */
+
+.au-updates-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.au-update-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    animation: slideInUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.au-update-card:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(1rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.au-update-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    gap: 1rem;
+}
+
+.au-update-meta {
+    flex: 1;
+}
+
+.au-update-id {
+    display: inline-block;
+    background: #f3f4f6;
+    color: #374151;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.au-update-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0.5rem 0;
+    word-break: break-word;
+}
+
+.au-update-user {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
+}
+
+.au-update-user img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.au-update-user-name {
+    font-weight: 500;
+    color: #374151;
+}
+
+.au-update-user-usn {
+    background: #f0f9ff;
+    color: #0369a1;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.au-update-time {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin-top: 0.5rem;
+}
+
+.au-update-delete-btn {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.au-update-delete-btn:hover {
+    background: #fecaca;
+    border-color: #f87171;
+}
+
+.au-update-delete-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.au-update-content {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+    color: #374151;
+    line-height: 1.6;
+    word-break: break-word;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.au-update-links {
+    margin: 0.75rem 0 0 0;
+}
+
+.au-update-links-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.au-update-links-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.au-update-link-item {
+    background: #dbeafe;
+    color: #0369a1;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    text-decoration: none;
+    word-break: break-all;
+    transition: background 0.2s;
+}
+
+.au-update-link-item:hover {
+    background: #bfdbfe;
+}
+
+.au-update-files {
+    margin: 0.75rem 0 0 0;
+}
+
+.au-update-files-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.au-update-files-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.au-update-file-item {
+    background: #f0fdf4;
+    color: #065f46;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    text-decoration: none;
+    word-break: break-all;
+    transition: background 0.2s;
+}
+
+.au-update-file-item:hover {
+    background: #dcfce7;
+}
+
+.au-empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #9ca3af;
+}
+
+.au-empty svg {
+    margin: 0 auto 1rem;
+    color: #d1d5db;
+}
+
+.au-empty p {
+    font-size: 1.125rem;
+}
+
+.au-loading-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #9ca3af;
+}
+
+.au-spinner {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.au-error-banner {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid #fecaca;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.au-view-more-wrap {
+    text-align: center;
+    padding: 2rem 0;
+}
+
+.au-view-more-btn {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.au-view-more-btn:hover:not(:disabled) {
+    background: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.au-view-more-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.au-dots span {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: white;
+    animation: dots 1.4s infinite;
+}
+
+.au-dots span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.au-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.au-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes dots {
+
+    0%,
+    60%,
+    100% {
+        opacity: 0.3;
+    }
+
+    30% {
+        opacity: 1;
+    }
+}
+
+.au-all-loaded {
+    text-align: center;
+    padding: 2rem;
+    color: #10b981;
+    font-weight: 500;
+    background: #f0fdf4;
+    border-radius: 0.75rem;
+    border: 1px solid #d1fae5;
+}
+
+.au-back-link {
+    background: none;
+    border: none;
+    color: #0369a1;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.au-back-link:hover {
+    color: #0284c7;
+}

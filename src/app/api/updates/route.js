@@ -128,3 +128,28 @@ export async function POST(req) {
     return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
   }
 }
+
+// Delete an update
+export async function DELETE(req) {
+  try {
+    await connectDB();
+
+    const url = new URL(req.url);
+    const updateId = url.searchParams.get('id');
+
+    if (!updateId) {
+      return NextResponse.json({ error: 'Update ID is required' }, { status: 400 });
+    }
+
+    const result = await Update.findByIdAndDelete(updateId);
+
+    if (!result) {
+      return NextResponse.json({ error: 'Update not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Update deleted successfully' }, { status: 200 });
+  } catch (error) {
+    console.error('DELETE /api/updates error:', error);
+    return NextResponse.json({ error: 'Failed to delete update' }, { status: 500 });
+  }
+}

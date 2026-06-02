@@ -64,12 +64,12 @@ const FEATURES = [
     iconBg: "#dbeafe",
     iconColor: "#3b82f6",
     privileges: [
-      { label: "View all users",             admin: "full",    superadmin: "full"    },
-      { label: "Edit user profile & name",   admin: "full",    superadmin: "full"    },
-      { label: "Suspend / Deactivate user",  admin: "limited", superadmin: "full"    },
-      { label: "Delete user permanently",    admin: "none",    superadmin: "full"    },
-      { label: "Assign / change user roles", admin: "none",    superadmin: "full"    },
-      { label: "Reset user password",        admin: "limited", superadmin: "full"    },
+      { label: "View all users", admin: "full", superadmin: "full" },
+      { label: "Edit user profile & name", admin: "full", superadmin: "full" },
+      { label: "Suspend / Deactivate user", admin: "limited", superadmin: "full" },
+      { label: "Delete user permanently", admin: "none", superadmin: "full" },
+      { label: "Assign / change user roles", admin: "none", superadmin: "full" },
+      { label: "Reset user password", admin: "limited", superadmin: "full" },
     ],
   },
   {
@@ -80,12 +80,12 @@ const FEATURES = [
     iconBg: "#fef3c7",
     iconColor: "#f59e0b",
     privileges: [
-      { label: "View all topics & works",    admin: "full",    superadmin: "full"    },
-      { label: "Edit topic content",         admin: "full",    superadmin: "full"    },
-      { label: "Hide / unpublish content",   admin: "full",    superadmin: "full"    },
-      { label: "Delete topics permanently",  admin: "limited", superadmin: "full"    },
-      { label: "Bulk delete content",        admin: "none",    superadmin: "full"    },
-      { label: "Feature / pin topics",       admin: "full",    superadmin: "full"    },
+      { label: "View all topics & works", admin: "full", superadmin: "full" },
+      { label: "Edit topic content", admin: "full", superadmin: "full" },
+      { label: "Hide / unpublish content", admin: "full", superadmin: "full" },
+      { label: "Delete topics permanently", admin: "limited", superadmin: "full" },
+      { label: "Bulk delete content", admin: "none", superadmin: "full" },
+      { label: "Feature / pin topics", admin: "full", superadmin: "full" },
     ],
   },
   {
@@ -96,11 +96,11 @@ const FEATURES = [
     iconBg: "#fee2e2",
     iconColor: "#ef4444",
     privileges: [
-      { label: "View reported content",      admin: "full",    superadmin: "full"    },
-      { label: "Dismiss / resolve reports",  admin: "full",    superadmin: "full"    },
-      { label: "Warn content owner",         admin: "full",    superadmin: "full"    },
-      { label: "Escalate reports",           admin: "full",    superadmin: "full"    },
-      { label: "View reporter identity",     admin: "limited", superadmin: "full"    },
+      { label: "View reported content", admin: "full", superadmin: "full" },
+      { label: "Dismiss / resolve reports", admin: "full", superadmin: "full" },
+      { label: "Warn content owner", admin: "full", superadmin: "full" },
+      { label: "Escalate reports", admin: "full", superadmin: "full" },
+      { label: "View reporter identity", admin: "limited", superadmin: "full" },
     ],
   },
   {
@@ -111,11 +111,11 @@ const FEATURES = [
     iconBg: "#d1fae5",
     iconColor: "#10b981",
     privileges: [
-      { label: "View all uploaded files",    admin: "full",    superadmin: "full"    },
-      { label: "Download any file",          admin: "full",    superadmin: "full"    },
-      { label: "Delete files",               admin: "limited", superadmin: "full"    },
-      { label: "Manage Cloudinary storage",  admin: "none",    superadmin: "full"    },
-      { label: "Storage usage analytics",    admin: "full",    superadmin: "full"    },
+      { label: "View all uploaded files", admin: "full", superadmin: "full" },
+      { label: "Download any file", admin: "full", superadmin: "full" },
+      { label: "Delete files", admin: "limited", superadmin: "full" },
+      { label: "Manage Cloudinary storage", admin: "none", superadmin: "full" },
+      { label: "Storage usage analytics", admin: "full", superadmin: "full" },
     ],
   },
   {
@@ -126,11 +126,11 @@ const FEATURES = [
     iconBg: "#ede9fe",
     iconColor: "#7c3aed",
     privileges: [
-      { label: "View all materials",         admin: "full",    superadmin: "full"    },
-      { label: "Add new material entries",   admin: "full",    superadmin: "full"    },
-      { label: "Edit material metadata",     admin: "full",    superadmin: "full"    },
-      { label: "Delete material entries",    admin: "limited", superadmin: "full"    },
-      { label: "Publish / unpublish materials", admin: "full", superadmin: "full"   },
+      { label: "View all materials", admin: "full", superadmin: "full" },
+      { label: "Add new material entries", admin: "full", superadmin: "full" },
+      { label: "Edit material metadata", admin: "full", superadmin: "full" },
+      { label: "Delete material entries", admin: "limited", superadmin: "full" },
+      { label: "Publish / unpublish materials", admin: "full", superadmin: "full" },
     ],
   },
   {
@@ -141,10 +141,10 @@ const FEATURES = [
     iconBg: "#fce7f3",
     iconColor: "#ec4899",
     privileges: [
-      { label: "Read all feedback",          admin: "full",    superadmin: "full"    },
-      { label: "Reply to feedback",          admin: "full",    superadmin: "full"    },
-      { label: "Delete feedback entries",    admin: "limited", superadmin: "full"    },
-      { label: "Export feedback data",       admin: "none",    superadmin: "full"    },
+      { label: "Read all feedback", admin: "full", superadmin: "full" },
+      { label: "Reply to feedback", admin: "full", superadmin: "full" },
+      { label: "Delete feedback entries", admin: "limited", superadmin: "full" },
+      { label: "Export feedback data", admin: "none", superadmin: "full" },
     ],
   },
   {
@@ -155,10 +155,10 @@ const FEATURES = [
     iconBg: "#fef3c7",
     iconColor: "#d97706",
     privileges: [
-      { label: "View all notifications",     admin: "full",    superadmin: "full"    },
-      { label: "Send announcements",         admin: "limited", superadmin: "full"    },
-      { label: "Broadcast to all users",     admin: "none",    superadmin: "full"    },
-      { label: "Delete notifications",       admin: "limited", superadmin: "full"    },
+      { label: "View all notifications", admin: "full", superadmin: "full" },
+      { label: "Send announcements", admin: "limited", superadmin: "full" },
+      { label: "Broadcast to all users", admin: "none", superadmin: "full" },
+      { label: "Delete notifications", admin: "limited", superadmin: "full" },
     ],
   },
   {
@@ -169,10 +169,10 @@ const FEATURES = [
     iconBg: "#dbeafe",
     iconColor: "#2563eb",
     privileges: [
-      { label: "View usage stats",           admin: "full",    superadmin: "full"    },
-      { label: "View user activity logs",    admin: "limited", superadmin: "full"    },
-      { label: "Export analytics data",      admin: "none",    superadmin: "full"    },
-      { label: "Access raw DB metrics",      admin: "none",    superadmin: "full"    },
+      { label: "View usage stats", admin: "full", superadmin: "full" },
+      { label: "View user activity logs", admin: "limited", superadmin: "full" },
+      { label: "Export analytics data", admin: "none", superadmin: "full" },
+      { label: "Access raw DB metrics", admin: "none", superadmin: "full" },
     ],
   },
   {
@@ -183,11 +183,11 @@ const FEATURES = [
     iconBg: "#f3f4f6",
     iconColor: "#374151",
     privileges: [
-      { label: "View platform settings",     admin: "full",    superadmin: "full"    },
-      { label: "Toggle feature flags",       admin: "none",    superadmin: "full"    },
-      { label: "Enable maintenance mode",    admin: "none",    superadmin: "full"    },
-      { label: "Modify env configuration",   admin: "none",    superadmin: "full"    },
-      { label: "Manage API keys",            admin: "none",    superadmin: "full"    },
+      { label: "View platform settings", admin: "full", superadmin: "full" },
+      { label: "Toggle feature flags", admin: "none", superadmin: "full" },
+      { label: "Enable maintenance mode", admin: "none", superadmin: "full" },
+      { label: "Modify env configuration", admin: "none", superadmin: "full" },
+      { label: "Manage API keys", admin: "none", superadmin: "full" },
     ],
   },
   {
@@ -198,11 +198,11 @@ const FEATURES = [
     iconBg: "#f0fdf4",
     iconColor: "#16a34a",
     privileges: [
-      { label: "View collection counts",     admin: "full",    superadmin: "full"    },
-      { label: "Run read-only queries",      admin: "none",    superadmin: "full"    },
-      { label: "Trigger manual backup",      admin: "none",    superadmin: "full"    },
-      { label: "Restore from backup",        admin: "none",    superadmin: "full"    },
-      { label: "Drop / truncate collection", admin: "none",    superadmin: "full"    },
+      { label: "View collection counts", admin: "full", superadmin: "full" },
+      { label: "Run read-only queries", admin: "none", superadmin: "full" },
+      { label: "Trigger manual backup", admin: "none", superadmin: "full" },
+      { label: "Restore from backup", admin: "none", superadmin: "full" },
+      { label: "Drop / truncate collection", admin: "none", superadmin: "full" },
     ],
   },
 ];
@@ -241,7 +241,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     const storedRole = localStorage.getItem("role") || "";
     const storedName = localStorage.getItem("name") || "";
-    const storedUsn  = localStorage.getItem("usn")  || "";
+    const storedUsn = localStorage.getItem("usn") || "";
     setRole(storedRole);
     setName(storedName);
     setUsn(storedUsn);
@@ -251,16 +251,16 @@ export default function AdminDashboard() {
   // Guard: still loading localStorage
   if (role === null) return null;
 
-  const isAdmin      = role === "admin";
+  const isAdmin = role === "admin";
   const isSuperAdmin = role === "superadmin";
 
   const cfg = ROLE_CONFIG[role] || ROLE_CONFIG.admin;
   const totalFeatures = FEATURES.length;
-  const fullAccess    = FEATURES.reduce((acc, f) =>
+  const fullAccess = FEATURES.reduce((acc, f) =>
     acc + f.privileges.filter(p => p[role] === "full").length, 0);
   const limitedAccess = FEATURES.reduce((acc, f) =>
     acc + f.privileges.filter(p => p[role] === "limited").length, 0);
-  const noAccess      = FEATURES.reduce((acc, f) =>
+  const noAccess = FEATURES.reduce((acc, f) =>
     acc + f.privileges.filter(p => p[role] === "none").length, 0);
 
   return (
@@ -365,6 +365,15 @@ export default function AdminDashboard() {
           </div>
           <FiArrowRight size={18} className="adm-quick-btn-arrow" />
         </Link>
+
+        <Link href="/admin/updates" className="adm-quick-btn adm-quick-btn-purple">
+          <span className="adm-quick-btn-icon adm-quick-btn-icon-purple"><FiBook size={20} /></span>
+          <div className="adm-quick-btn-text">
+            <span className="adm-quick-btn-label">Updates</span>
+            <span className="adm-quick-btn-sub">View and manage platform updates</span>
+          </div>
+          <FiArrowRight size={18} className="adm-quick-btn-arrow" />
+        </Link>
       </div>
 
       {/* ── Feature cards ── */}
@@ -378,9 +387,9 @@ export default function AdminDashboard() {
           {FEATURES.map((feature) => {
             const isExpanded = expandedCard === feature.id;
             const myPrivileges = feature.privileges;
-            const myFull    = myPrivileges.filter(p => p[role] === "full").length;
+            const myFull = myPrivileges.filter(p => p[role] === "full").length;
             const myLimited = myPrivileges.filter(p => p[role] === "limited").length;
-            const myNone    = myPrivileges.filter(p => p[role] === "none").length;
+            const myNone = myPrivileges.filter(p => p[role] === "none").length;
 
             return (
               <div
@@ -396,9 +405,9 @@ export default function AdminDashboard() {
                   <div className="adm-feature-meta">
                     <h3 className="adm-feature-title">{feature.title}</h3>
                     <div className="adm-feature-pill-row">
-                      {myFull > 0    && <span className="adm-pill adm-pill-green">{myFull} full</span>}
+                      {myFull > 0 && <span className="adm-pill adm-pill-green">{myFull} full</span>}
                       {myLimited > 0 && <span className="adm-pill adm-pill-yellow">{myLimited} limited</span>}
-                      {myNone > 0    && <span className="adm-pill adm-pill-gray">{myNone} restricted</span>}
+                      {myNone > 0 && <span className="adm-pill adm-pill-gray">{myNone} restricted</span>}
                     </div>
                   </div>
                   <div className="adm-feature-chevron">{isExpanded ? "▲" : "▼"}</div>
