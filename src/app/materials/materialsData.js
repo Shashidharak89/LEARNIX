@@ -494,6 +494,18 @@ const materialsData = [
 
             },
             {
+                subject: "Applied Data Science and Analytics",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Applied-Data-Science-and-Analytics/Introducing%20Data%20Science%20-%20Big%20Data%2C%20Machine%20Learning%20and%20more%2C%20using%20Python%20tools%20(2020)-1.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Applied-Data-Science-and-Analytics/Copy%20of%20ADSA_Unit1.pptx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Applied-Data-Science-and-Analytics/Unit%202.pptx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Applied-Data-Science-and-Analytics/Unit%203.pptx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Applied-Data-Science-and-Analytics/Module4_ADSA.pptx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Applied-Data-Science-and-Analytics/Module5_ADSA.pptx" },
+
+                ],
+            },
+            {
                 subject: "Professional Communication Skills",
                 files: [],
                 externalfiles: [
@@ -502,6 +514,11 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Professional-Communication-Skills/External/PCS-Sem-prep.pdf" },
                 ],
             },
+        ],
+    },
+    {
+        semester: "3rd Sem - MCA 2025-27",
+        subjects: [
         ],
     },
     {
