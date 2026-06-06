@@ -506,6 +506,13 @@ const materialsData = [
                 ],
             },
             {
+                subject:"Digital Image Processing and Pattern Recognition",
+                files:[
+                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Digital-Image-Processing-and-Pattern-Recognition/Assignment%201%20-%20DIPPR%20Unit%20I%20%20%20II%20_92ffd701812d4296c11bb46109cc62cc.docx"},
+                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Digital-Image-Processing-and-Pattern-Recognition/Assignment%202%20-%20DIP%20%20PR_149e4a2ff1c54f8ec992717b4e83aead.pdf"},
+                ],
+            },
+            {
                 subject: "Professional Communication Skills",
                 files: [],
                 externalfiles: [
