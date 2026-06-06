@@ -460,6 +460,11 @@ const materialsData = [
                 ],
                 externalfiles: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Full-Stack-development-using-Django/External/Django-U3-U4-IMP-MSE2.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Full-Stack-development-using-Django/External/Django-Unit1-Imp-ShashidharaK.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Full-Stack-development-using-Django/External/Django-Unit2-Imp-ShashidharaK.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Full-Stack-development-using-Django/External/Django-Unit3-Imp-ShashidharaK.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Full-Stack-development-using-Django/External/Django-Unit4-Imp-ShashidharaK.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Full-Stack-development-using-Django/External/Django-Unit5-Imp-ShashidharaK.pdf" },
                 ],
             },
             {
