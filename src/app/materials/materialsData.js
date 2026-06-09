@@ -506,10 +506,10 @@ const materialsData = [
                 ],
             },
             {
-                subject:"Digital Image Processing and Pattern Recognition",
-                files:[
-                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Digital-Image-Processing-and-Pattern-Recognition/Assignment%201%20-%20DIPPR%20Unit%20I%20%20%20II%20_92ffd701812d4296c11bb46109cc62cc.docx"},
-                    {url:"https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Digital-Image-Processing-and-Pattern-Recognition/Assignment%202%20-%20DIP%20%20PR_149e4a2ff1c54f8ec992717b4e83aead.pdf"},
+                subject: "Digital Image Processing and Pattern Recognition",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Digital-Image-Processing-and-Pattern-Recognition/Assignment%201%20-%20DIPPR%20Unit%20I%20%20%20II%20_92ffd701812d4296c11bb46109cc62cc.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/MCA-NMAMIT/2nd-Sem-2025-26/Digital-Image-Processing-and-Pattern-Recognition/Assignment%202%20-%20DIP%20%20PR_149e4a2ff1c54f8ec992717b4e83aead.pdf" },
                 ],
             },
             {
@@ -615,7 +615,25 @@ const materialsData = [
         ],
     },
     {
-        semester: "6th Sem-BCA [Mangalore University] 2022-2025",
+        semester: "2nd Sem-BCA [SEP] [Mangalore University] 2025-2026",
+        subjects: [
+            {
+                subject: "Data Structures",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/2nd-Semester/Data-Structures/datastructure-unit1.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/2nd-Semester/Data-Structures/datastructure-unit1.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/2nd-Semester/Data-Structures/dsUNIT%202.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/2nd-Semester/Data-Structures/dsunit4.pdf" },
+                ],
+                subject: "Object Oriented Programming with Java",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/2nd-Semester/Object-Oriented-Programming-with-JAVA/Java%20Unit%201%20%26%202%20notes.pdf" },
+                ],
+            }
+        ]
+    },
+    {
+        semester: "6th Sem-BCA [NEP] [Mangalore University] 2022-2025",
         subjects: [
             {
                 subject: "Syllabus",
