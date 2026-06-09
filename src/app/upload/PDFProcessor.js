@@ -6,8 +6,7 @@ import { FiUpload, FiX, FiFile, FiImage, FiCheck, FiLoader, FiCheckCircle, FiAle
 import "./styles/PDFProcessor.css";
 
 export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuccess, onUploadError }) {
-  const [pdfFile, setPdfFile] = useState(null);
-  const [originalFile, setOriginalFile] = useState(null);
+  const [originalFiles, setOriginalFiles] = useState([]);
   const [pages, setPages] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -29,22 +28,27 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
   };
 
   const handleFileSelect = async (event) => {
-    const file = event.target.files[0];
-    if (!file) {
+    const files = Array.from(event.target.files);
+    if (!files || files.length === 0) {
       return;
     }
     
-    const isPDF = file.type === "application/pdf";
-    const isDOCX = file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || file.name.toLowerCase().endsWith('.docx');
-    
-    if (!isPDF && !isDOCX) {
-      showMessage("Please select a valid PDF or DOCX file.", "error");
+    const validFiles = files.filter(file => {
+      const isPDF = file.type === "application/pdf";
+      const isDOCX = file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || file.name.toLowerCase().endsWith('.docx');
+      return isPDF || isDOCX;
+    });
+
+    if (validFiles.length === 0) {
+      showMessage("Please select valid PDF or DOCX files.", "error");
       return;
     }
 
-    // Reset states when new file is selected
-    setPdfFile(null);
-    setOriginalFile(null);
+    // Sort files by lastModified time (ascending)
+    validFiles.sort((a, b) => a.lastModified - b.lastModified);
+
+    // Reset states when new files are selected
+    setOriginalFiles(validFiles);
     setPages([]);
     setUploadedPages(new Set());
     setProgress(0);
@@ -53,25 +57,56 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
     setMessage("");
     setMessageType("");
     
-    setOriginalFile(file);
+    setIsProcessing(true);
+    let allExtractedPages = [];
     
     try {
-      if (isDOCX) {
-        await convertDOCX(file);
+      if (!window.pdfjsLib) {
+        await loadPDFJS();
+      }
+
+      for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i];
+        showMessage(`Processing file ${i + 1}/${validFiles.length}: ${file.name}`, "");
+        
+        try {
+          const isDOCX = file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || file.name.toLowerCase().endsWith('.docx');
+          let pdfToProcess = file;
+          
+          if (isDOCX) {
+            pdfToProcess = await convertDOCXHelper(file);
+          }
+          
+          if (pdfToProcess) {
+            const newPages = await processPDFWithLibHelper(pdfToProcess);
+            newPages.forEach(p => {
+              allExtractedPages.push({
+                ...p,
+                globalIndex: allExtractedPages.length + 1
+              });
+            });
+          }
+        } catch (error) {
+          console.error(`Error processing file ${file.name}:`, error);
+        }
+      }
+
+      if (allExtractedPages.length === 0) {
+        showMessage("No pages could be extracted from the selected files.", "error");
       } else {
-        setPdfFile(file);
-        await processPDF(file);
+        setPages(allExtractedPages);
+        const totalSize = allExtractedPages.reduce((sum, page) => sum + page.size, 0);
+        showMessage(`Successfully extracted ${allExtractedPages.length} pages from ${validFiles.length} files (${(totalSize / 1024 / 1024).toFixed(2)}MB total)`, "success");
       }
     } catch (error) {
-      console.error("Error handling file:", error);
-      showMessage("Error processing file. Please try again.", "error");
+      console.error("Error in batch processing:", error);
+      showMessage("Error processing files. Please try again.", "error");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const convertDOCX = async (docxFile) => {
-    setIsProcessing(true);
-    showMessage("Converting DOCX to PDF...", "");
-
+  const convertDOCXHelper = async (docxFile) => {
     try {
       const fd = new FormData();
       fd.append("file", docxFile);
@@ -88,32 +123,10 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
 
       const blob = res.data;
       const pdfName = docxFile.name.replace(/\.docx$/i, ".pdf");
-      const pdfFile = new File([blob], pdfName, { type: "application/pdf" });
-
-      setPdfFile(pdfFile);
-      showMessage("DOCX converted to PDF successfully. Extracting pages...", "success");
-      await processPDF(pdfFile);
+      return new File([blob], pdfName, { type: "application/pdf" });
     } catch (error) {
       console.error("DOCX conversion error:", error);
-      let errorMsg = error.message || "Conversion failed";
-      showMessage(errorMsg, "error");
-      setIsProcessing(false);
-    }
-  };
-
-  const processPDF = async (file) => {
-    setIsProcessing(true);
-    showMessage("Processing PDF...", "");
-
-    try {
-      if (!window.pdfjsLib) {
-        await loadPDFJS();
-      }
-      await processPDFWithLib(file);
-    } catch (error) {
-      console.error("Error processing PDF:", error);
-      showMessage("Error processing PDF. Please try again.", "error");
-      setIsProcessing(false);
+      throw error;
     }
   };
 
@@ -136,15 +149,13 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
     });
   };
 
-  const processPDFWithLib = async (file) => {
+  const processPDFWithLibHelper = async (file) => {
     try {
       const arrayBuffer = await file.arrayBuffer();
       const typedArray = new Uint8Array(arrayBuffer);
       const pdf = await window.pdfjsLib.getDocument(typedArray).promise;
       const numPages = pdf.numPages;
       const extractedPages = [];
-
-      showMessage(`Extracting ${numPages} pages from PDF...`, "");
 
       for (let pageNum = 1; pageNum <= numPages; pageNum++) {
         try {
@@ -208,7 +219,7 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
 
           if (blob) {
             extractedPages.push({
-              pageNumber: pageNum,
+              pageNumber: pageNum, // keep original page number for UI or debugging
               blob: blob,
               imageUrl: URL.createObjectURL(blob),
               fileName: `${file.name.replace('.pdf', '')}_page_${pageNum}.jpg`,
@@ -218,35 +229,18 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
 
           // Update progress during extraction
           const extractProgress = Math.round((pageNum / numPages) * 100);
-          showMessage(`Extracting page ${pageNum}/${numPages} (${extractProgress}%)...`, "");
+          showMessage(`Extracting page ${pageNum}/${numPages} from ${file.name} (${extractProgress}%)...`, "");
           
         } catch (pageError) {
           console.error(`Error processing page ${pageNum}:`, pageError);
-          showMessage(`Error processing page ${pageNum}, skipping...`, "error");
         }
       }
 
-      if (extractedPages.length === 0) {
-        showMessage("No pages could be extracted from the PDF.", "error");
-        setIsProcessing(false);
-        return;
-      }
-
-      setPages(extractedPages);
-      const totalSize = extractedPages.reduce((sum, page) => sum + page.size, 0);
-      showMessage(`Successfully extracted ${extractedPages.length} pages from PDF (${(totalSize / 1024 / 1024).toFixed(2)}MB total)`, "success");
+      return extractedPages;
       
     } catch (error) {
       console.error("Error processing PDF:", error);
-      if (error.name === 'InvalidPDFException') {
-        showMessage("Invalid PDF file. Please try a different PDF.", "error");
-      } else if (error.name === 'MissingPDFException') {
-        showMessage("PDF file appears to be corrupted. Please try a different file.", "error");
-      } else {
-        showMessage("Error processing PDF. Please try again.", "error");
-      }
-    } finally {
-      setIsProcessing(false);
+      throw error;
     }
   };
 
@@ -271,16 +265,16 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
       try {
         await uploadPage(page, i + 1, pages.length);
         successCount++;
-        setUploadedPages(prev => new Set([...prev, page.pageNumber]));
+        setUploadedPages(prev => new Set([...prev, page.globalIndex]));
         
         const percent = Math.round(((i + 1) / pages.length) * 100);
         setProgress(percent);
-        showMessage(`Uploaded page ${page.pageNumber} (${i + 1}/${pages.length} - ${percent}%)`, "");
+        showMessage(`Uploaded page ${page.globalIndex} (${i + 1}/${pages.length} - ${percent}%)`, "");
         
       } catch (error) {
         failCount++;
-        console.error(`Failed to upload page ${page.pageNumber}:`, error);
-        showMessage(`Failed to upload page ${page.pageNumber}`, "error");
+        console.error(`Failed to upload page ${page.globalIndex}:`, error);
+        showMessage(`Failed to upload page ${page.globalIndex}`, "error");
       }
     }
     
@@ -397,9 +391,10 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
             <div className="pdf-processor-file-select">
               <label className="pdf-processor-select-btn">
                 <FiFile className="pdf-select-icon" />
-                {originalFile ? 'Change File' : 'Select PDF or DOCX File'}
+                {originalFiles.length > 0 ? 'Add More Files' : 'Select PDF or DOCX Files'}
                 <input 
                   type="file" 
+                  multiple
                   accept=".pdf,application/pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
                   onChange={handleFileSelect} 
                   disabled={isProcessing || uploading} 
@@ -408,15 +403,17 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
               </label>
             </div>
 
-            {originalFile && (
-              <div className="pdf-processor-file-info">
-                <div className="pdf-file-details">
-                  <FiFile className="pdf-file-icon" />
-                  <div className="pdf-file-text">
-                    <div className="pdf-file-name">{originalFile.name}</div>
-                    <div className="pdf-file-size">{(originalFile.size / 1024 / 1024).toFixed(2)} MB</div>
+            {originalFiles.length > 0 && (
+              <div className="pdf-processor-file-info" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {originalFiles.map((file, idx) => (
+                  <div key={idx} className="pdf-file-details">
+                    <FiFile className="pdf-file-icon" />
+                    <div className="pdf-file-text">
+                      <div className="pdf-file-name">{file.name}</div>
+                      <div className="pdf-file-size">{(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
             )}
 
@@ -439,21 +436,21 @@ export default function PDFProcessor({ usn, subject, topic, onClose, onUploadSuc
                 <div className="pdf-processor-preview-grid">
                   {pages.map((page) => (
                     <div 
-                      key={page.pageNumber} 
-                      className={`pdf-processor-page ${uploadedPages.has(page.pageNumber) ? "uploaded" : ""}`}
+                      key={page.globalIndex} 
+                      className={`pdf-processor-page ${uploadedPages.has(page.globalIndex) ? "uploaded" : ""}`}
                     >
                       <div className="pdf-processor-page-header">
                         <span className="pdf-page-title">
-                          <FiImage /> Page {page.pageNumber}
+                          <FiImage /> Page {page.globalIndex}
                         </span>
-                        {uploadedPages.has(page.pageNumber) && (
+                        {uploadedPages.has(page.globalIndex) && (
                           <FiCheck className="pdf-page-check" />
                         )}
                       </div>
                       <div className="pdf-processor-thumb-container">
                         <img 
                           src={page.imageUrl} 
-                          alt={`Page ${page.pageNumber}`} 
+                          alt={`Page ${page.globalIndex}`} 
                           className="pdf-processor-thumb" 
                           loading="lazy"
                         />
