@@ -4,7 +4,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { FiMail, FiArrowRight, FiAlertCircle } from "react-icons/fi";
-import "../styles/Login.css";
+import "../styles/Otp.css";
 
 export default function SendOtp() {
   const [email, setEmail] = useState("");
@@ -28,47 +28,40 @@ export default function SendOtp() {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-wrapper">
-        <div className="auth-header">
-          <div className="auth-icon-circle">
-            <FiMail className="auth-main-icon" />
-          </div>
-          <h1 className="auth-title">Login with OTP</h1>
-          <p className="auth-subtitle">Enter your email to receive an OTP</p>
+    <div className="otp-root">
+      <div className="otp-card">
+        <div className="otp-header">
+          <h1 className="otp-title">Login with OTP</h1>
+          <p className="otp-subtitle">Enter your email to receive an OTP</p>
         </div>
 
-        <form onSubmit={handleSendOtp} className="auth-form">
-          <div className="input-group">
-            <div className="input-wrapper">
-              <FiMail className="input-icon" />
-              <input
-                type="email"
-                placeholder="Email Address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="auth-input"
-                disabled={isLoading}
-              />
-            </div>
+        <form onSubmit={handleSendOtp} className="otp-form">
+          <div className="otp-input-wrap">
+            <FiMail className="otp-input-icon" />
+            <input
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="otp-input"
+              disabled={isLoading}
+            />
           </div>
 
           <button 
             type="submit" 
-            className={`auth-submit-btn ${isLoading ? "loading" : ""}`}
+            className="otp-btn-primary"
             disabled={isLoading}
           >
-            <span className="btn-text">
-              {isLoading ? "Sending..." : "Send OTP"}
-            </span>
-            <FiArrowRight className={`btn-icon ${isLoading ? "spinning" : ""}`} />
+            <span>{isLoading ? "Sending..." : "Send OTP"}</span>
+            <FiArrowRight className={`otp-btn-arrow ${isLoading ? "otp-spin" : ""}`} />
           </button>
         </form>
 
         {message && (
-          <div className="auth-message error">
-            <FiAlertCircle className="message-icon" />
+          <div className="otp-message otp-message--err">
+            <FiAlertCircle />
             <span>{message}</span>
           </div>
         )}

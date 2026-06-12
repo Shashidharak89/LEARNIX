@@ -5,7 +5,7 @@ import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FiLock, FiArrowRight, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import { verifyTokenAndSyncAuth } from "@/lib/clientAuth";
-import "../../styles/Login.css";
+import "../../styles/Otp.css";
 
 function VerifyOtpContent() {
   const [otp, setOtp] = useState("");
@@ -57,62 +57,48 @@ function VerifyOtpContent() {
   if (!email) return null;
 
   return (
-    <div className="auth-container">
-      <div className="auth-wrapper">
-        <div className="auth-header">
-          <div className="auth-icon-circle">
-            <FiLock className="auth-main-icon" />
-          </div>
-          <h1 className="auth-title">Verify OTP</h1>
-          <p className="auth-subtitle">Enter the 6-digit code sent to {email}</p>
+    <div className="otp-root">
+      <div className="otp-card">
+        <div className="otp-header">
+          <h1 className="otp-title">Verify OTP</h1>
+          <p className="otp-subtitle">Enter the 6-digit code sent to {email}</p>
         </div>
 
-        <form onSubmit={handleVerifyOtp} className="auth-form">
-          <div className="input-group">
-            <div className="input-wrapper">
-              <FiLock className="input-icon" />
-              <input
-                type="text"
-                placeholder="6-Digit OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
-                required
-                className="auth-input"
-                disabled={isLoading}
-                maxLength={6}
-              />
-            </div>
+        <form onSubmit={handleVerifyOtp} className="otp-form">
+          <div className="otp-input-wrap">
+            <FiLock className="otp-input-icon" />
+            <input
+              type="text"
+              placeholder="6-Digit OTP"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
+              required
+              className="otp-input"
+              disabled={isLoading}
+              maxLength={6}
+            />
           </div>
 
           <button 
             type="submit" 
-            className={`auth-submit-btn ${isLoading ? "loading" : ""}`}
+            className="otp-btn-primary"
             disabled={isLoading || otp.length !== 6}
           >
-            <span className="btn-text">
-              {isLoading ? "Verifying..." : "Submit"}
-            </span>
-            <FiArrowRight className={`btn-icon ${isLoading ? "spinning" : ""}`} />
+            <span>{isLoading ? "Verifying..." : "Submit"}</span>
+            <FiArrowRight className={`otp-btn-arrow ${isLoading ? "otp-spin" : ""}`} />
           </button>
           
-          <div className="auth-switch-line">
-            <span 
-              className="auth-switch-link" 
-              style={{ cursor: 'pointer' }}
-              onClick={() => router.push("/login/otp")}
-            >
-              Change Email / Resend OTP
-            </span>
-          </div>
+          <span 
+            className="otp-link"
+            onClick={() => router.push("/login/otp")}
+          >
+            Change Email / Resend OTP
+          </span>
         </form>
 
         {message && (
-          <div className={`auth-message ${isSuccess ? "success" : "error"}`}>
-            {isSuccess ? (
-              <FiCheckCircle className="message-icon" />
-            ) : (
-              <FiAlertCircle className="message-icon" />
-            )}
+          <div className={`otp-message ${isSuccess ? "otp-message--ok" : "otp-message--err"}`}>
+            {isSuccess ? <FiCheckCircle /> : <FiAlertCircle />}
             <span>{message}</span>
           </div>
         )}
@@ -123,7 +109,7 @@ function VerifyOtpContent() {
 
 export default function VerifyOtp() {
   return (
-    <Suspense fallback={<div className="auth-container"><p>Loading...</p></div>}>
+    <Suspense fallback={<div className="otp-root"><p>Loading...</p></div>}>
       <VerifyOtpContent />
     </Suspense>
   );

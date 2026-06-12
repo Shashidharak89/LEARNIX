@@ -40,8 +40,7 @@ export default function RootLayout({ children }) {
         <meta name="referrer" content="no-referrer-when-downgrade" />
         <meta name="google-adsense-account" content="ca-pub-4934238485595915" />
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4934238485595915" crossOrigin="anonymous"></script>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4934238485595915"
-          crossorigin="shashidhara k"></script>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4934238485595915" crossOrigin="anonymous"></script>
         
         {/* Google Analytics */}
         <Script

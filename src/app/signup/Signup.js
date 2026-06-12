@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FiUser, FiHash, FiArrowRight, FiCheckCircle, FiAlertCircle, FiMail, FiLock } from "react-icons/fi";
 import { verifyTokenAndSyncAuth } from "@/lib/clientAuth";
-import "../login/styles/Login.css";
+import "./styles/Signup.css";
 
 export default function Signup({ googleClientId = "" }) {
   const [step, setStep] = useState("verify");
@@ -90,7 +90,6 @@ export default function Signup({ googleClientId = "" }) {
         callback: handleGoogleCredential,
       });
 
-      // Fallback trigger when the official rendered button does not appear immediately.
       window.google.accounts.id.prompt();
     } catch {
       setIsSuccess(false);
@@ -113,8 +112,8 @@ export default function Signup({ googleClientId = "" }) {
       size: "large",
       shape: "pill",
       text: "signup_with",
-      logo_alignment: "left",
-      width: 320,
+      logo_alignment: "center",
+      width: 280,
     });
 
     setTimeout(() => {
@@ -177,19 +176,16 @@ export default function Signup({ googleClientId = "" }) {
   };
 
   return (
-    <div className="auth-container">
+    <div className="sgn-root">
       <Script
         src="https://accounts.google.com/gsi/client"
         strategy="afterInteractive"
         onLoad={() => setGoogleScriptReady(true)}
       />
-      <div className="auth-wrapper">
-        <div className="auth-header">
-          <div className="auth-icon-circle">
-            <FiUser className="auth-main-icon" />
-          </div>
-          <h1 className="auth-title">Create Account</h1>
-          <p className="auth-subtitle">
+      <div className="sgn-card">
+        <div className="sgn-header">
+          <h1 className="sgn-title">Create Account</h1>
+          <p className="sgn-subtitle">
             {step === "verify"
               ? "Sign up with Google to verify your account"
               : step === "usn"
@@ -198,40 +194,40 @@ export default function Signup({ googleClientId = "" }) {
           </p>
         </div>
 
-        <form onSubmit={step === "manual" ? handleManualSignup : handleFinish} className="auth-form">
+        <form onSubmit={step === "manual" ? handleManualSignup : handleFinish} className="sgn-form">
           {step === "verify" ? (
-            <div className="auth-google-wrap">
-              <div className="auth-google-divider">
-                <span>Step 1</span>
-              </div>
+            <div className="sgn-google-wrap">
+              <div className="sgn-divider"><span>Step 1</span></div>
               {!isGoogleButtonRendered && (
                 <button
                   type="button"
-                  className="auth-google-hardcoded-btn"
+                  className="sgn-google-hardcoded-btn"
                   onClick={handleHardcodedGoogleClick}
                   disabled={isGoogleLoading}
                 >
+                  <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                    <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z" />
+                    <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z" />
+                    <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332Z" />
+                    <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58Z" />
+                  </svg>
                   Signup with Google
                 </button>
               )}
               {googleClientId ? (
                 <div
                   ref={googleButtonRef}
-                  className="auth-google-button-slot"
+                  className="sgn-google-slot"
                   style={{ display: isGoogleButtonRendered ? "flex" : "none" }}
                 />
               ) : (
-                <div className="auth-google-missing">
-                  Google signup is currently unavailable.
-                </div>
+                <div style={{ color: 'red' }}>Google signup is currently unavailable.</div>
               )}
-              {isGoogleLoading && (
-                <p className="auth-google-loading">Verifying Google account...</p>
-              )}
+              {isGoogleLoading && <p style={{ color: '#2563eb' }}>Verifying Google account...</p>}
 
               <button
                 type="button"
-                className="auth-guest-btn"
+                className="sgn-guest-btn"
                 onClick={() => {
                   setStep("manual");
                   setMessage("");
@@ -239,150 +235,124 @@ export default function Signup({ googleClientId = "" }) {
                 }}
                 disabled={isGoogleLoading}
               >
-                Continue without google account
+                Continue without Google account
               </button>
             </div>
           ) : step === "usn" ? (
             <>
-              <div className="auth-verified-profile">
+              <div className="sgn-verified-profile">
                 <Image
                   src={googleProfile?.profileimg || "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp"}
                   alt="Google Profile"
-                  className="auth-verified-avatar"
+                  className="sgn-verified-avatar"
                   width={44}
                   height={44}
                 />
-                <div className="auth-verified-details">
-                  <p className="auth-verified-name">{googleProfile?.name || "Google User"}</p>
-                  <p className="auth-verified-email">
+                <div className="sgn-verified-details">
+                  <p className="sgn-verified-name">{googleProfile?.name || "Google User"}</p>
+                  <p className="sgn-verified-email">
                     <FiMail />
                     <span>{googleProfile?.email || ""}</span>
                   </p>
                 </div>
               </div>
 
-              <div className="auth-google-divider">
-                <span>Step 2</span>
-              </div>
+              <div className="sgn-divider"><span>Step 2</span></div>
 
-              <div className="input-group">
-                <div className="input-wrapper">
-                  <FiHash className="input-icon" />
-                  <input
-                    type="text"
-                    placeholder="USN / Register Number / ID"
-                    value={usn}
-                    onChange={(e) => setUsn(e.target.value.toUpperCase())}
-                    required
-                    className="auth-input"
-                    disabled={isFinishing}
-                  />
-                </div>
+              <div className="sgn-input-wrap">
+                <FiHash className="sgn-input-icon" />
+                <input
+                  type="text"
+                  placeholder="USN / Register Number / ID"
+                  value={usn}
+                  onChange={(e) => setUsn(e.target.value.toUpperCase())}
+                  required
+                  className="sgn-input"
+                  disabled={isFinishing}
+                />
               </div>
 
               <button
                 type="submit"
-                className={`auth-submit-btn ${isFinishing ? "loading" : ""}`}
+                className="sgn-btn-primary"
                 disabled={isFinishing}
               >
-                <span className="btn-text">
-                  {isFinishing ? "Creating account..." : "Finish Signup"}
-                </span>
-                <FiArrowRight className={`btn-icon ${isFinishing ? "spinning" : ""}`} />
+                <span>{isFinishing ? "Creating account..." : "Finish Signup"}</span>
+                <FiArrowRight className={`sgn-btn-arrow ${isFinishing ? "sgn-spin" : ""}`} />
               </button>
             </>
           ) : (
             <>
-              <div className="input-group">
-                <div className="input-wrapper">
-                  <FiUser className="input-icon" />
-                  <input
-                    type="text"
-                    placeholder="Full Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    className="auth-input"
-                    disabled={isManualLoading}
-                  />
-                </div>
+              <div className="sgn-input-wrap">
+                <FiUser className="sgn-input-icon" />
+                <input
+                  type="text"
+                  placeholder="Full Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="sgn-input"
+                  disabled={isManualLoading}
+                />
               </div>
 
-              <div className="input-group">
-                <div className="input-wrapper">
-                  <FiHash className="input-icon" />
-                  <input
-                    type="text"
-                    placeholder="USN / Register Number / ID"
-                    value={usn}
-                    onChange={(e) => setUsn(e.target.value.toUpperCase())}
-                    required
-                    className="auth-input"
-                    disabled={isManualLoading}
-                  />
-                </div>
+              <div className="sgn-input-wrap">
+                <FiHash className="sgn-input-icon" />
+                <input
+                  type="text"
+                  placeholder="USN / Register Number / ID"
+                  value={usn}
+                  onChange={(e) => setUsn(e.target.value.toUpperCase())}
+                  required
+                  className="sgn-input"
+                  disabled={isManualLoading}
+                />
               </div>
 
-              <div className="input-group">
-                <div className="input-wrapper">
-                  <FiLock className="input-icon" />
-                  <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="auth-input"
-                    disabled={isManualLoading}
-                  />
-                </div>
+              <div className="sgn-input-wrap">
+                <FiLock className="sgn-input-icon" />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="sgn-input"
+                  disabled={isManualLoading}
+                />
               </div>
 
               <button
                 type="submit"
-                className={`auth-submit-btn ${isManualLoading ? "loading" : ""}`}
+                className="sgn-btn-primary"
                 disabled={isManualLoading}
               >
-                <span className="btn-text">
-                  {isManualLoading ? "Creating account..." : "Sign up"}
-                </span>
-                <FiArrowRight className={`btn-icon ${isManualLoading ? "spinning" : ""}`} />
+                <span>{isManualLoading ? "Creating account..." : "Sign up"}</span>
+                <FiArrowRight className={`sgn-btn-arrow ${isManualLoading ? "sgn-spin" : ""}`} />
               </button>
             </>
           )}
 
           {message && (
-            <div className={`auth-message ${isSuccess ? "success" : "error"}`}>
-              {isSuccess ? (
-                <FiCheckCircle className="message-icon" />
-              ) : (
-                <FiAlertCircle className="message-icon" />
-              )}
+            <div className={`sgn-message ${isSuccess ? "sgn-message--ok" : "sgn-message--err"}`}>
+              {isSuccess ? <FiCheckCircle /> : <FiAlertCircle />}
               <span>{message}</span>
             </div>
           )}
 
-          <div className="auth-switch-line">
-            <span>Already registered? </span>
+          <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+            <span style={{ color: '#555', fontSize: '0.95rem' }}>Already registered? </span>
             <Link
               href="/login"
-              className="auth-switch-link"
-              onClick={(e) => {
-                e.preventDefault();
-                window.location.href = "/login";
-              }}
+              className="sgn-link"
+              style={{ display: 'inline' }}
+              onClick={(e) => { e.preventDefault(); window.location.href = "/login"; }}
             >
               Login
             </Link>
           </div>
 
         </form>
-
-        <div className="auth-footer">
-          <div className="auth-decorative-line"></div>
-          <span className="auth-footer-text">Secure Authentication</span>
-          <div className="auth-decorative-line"></div>
-        </div>
       </div>
     </div>
   );
