@@ -10,6 +10,12 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "New Authentication Features",
+      date: "Jun 12, 2026",
+      description:
+        "We've added 'Reset password by email' and 'Login by email and OTP' features to enhance security and provide a more seamless login experience. You can now easily recover your account or login without a password using your registered email.",
+    },
+    {
       title: "Study Materials Search Added",
       date: "May 24, 2026",
       description:
