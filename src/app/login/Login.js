@@ -242,6 +242,13 @@ export default function Login({ googleClientId = "" }) {
             </Link>
           </div>
 
+          <div className="auth-switch-line" style={{ marginTop: '0px' }}>
+            <span>Prefer email? </span>
+            <Link href="/login/otp" className="auth-switch-link">
+              Login with OTP
+            </Link>
+          </div>
+
           <button
             type="button"
             className="auth-guest-btn"
