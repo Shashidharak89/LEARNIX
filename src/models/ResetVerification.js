@@ -1,0 +1,10 @@
+import mongoose from "mongoose";
+
+const ResetVerificationSchema = new mongoose.Schema({
+  email: { type: String, required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  otp: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now, expires: 1800 } // Auto delete after 30 mins
+});
+
+export default mongoose.models.ResetVerification || mongoose.model("ResetVerification", ResetVerificationSchema);

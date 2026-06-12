@@ -174,6 +174,11 @@ export default function Login({ googleClientId = "" }) {
                 disabled={isLoading}
               />
             </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
+              <Link href="/login/reset-password" style={{ fontSize: '12px', color: '#6366f1', textDecoration: 'none' }}>
+                Forgot Password?
+              </Link>
+            </div>
           </div>
 
           <button 
