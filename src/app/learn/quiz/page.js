@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FiZap } from 'react-icons/fi';
+import { FiZap, FiClock } from 'react-icons/fi';
 import { Navbar } from "../../components/Navbar";
 import quizData from "./data/quizdata.json";
 import "./QuizList.css";
@@ -29,8 +29,20 @@ export default function QuizListPage() {
           </p>
         </header>
 
-        {/* QuizDeck banner — special promo area */}
-        <section className="quizdeck-banner-wrap">
+        {/* Banners — special promo area */}
+        <section className="quizdeck-banner-wrap" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          
+          <Link href="/learn/quiz/daily" className="quizdeck-banner" style={{ background: 'linear-gradient(90deg, #f0fdf4, #dcfce7)', borderColor: '#bbf7d0' }}>
+            <div className="quizdeck-banner-left">
+              <div className="quizdeck-icon" style={{ borderColor: '#bbf7d0', color: '#16a34a' }}><FiClock /></div>
+              <div>
+                <div className="quizdeck-title" style={{ color: '#166534' }}>Daily Challenge</div>
+                <div className="quizdeck-sub" style={{ color: '#15803d' }}>5 Questions. 1 Attempt. Compete on the leaderboard!</div>
+              </div>
+            </div>
+            <div className="quizdeck-cta" style={{ color: '#16a34a' }}>Play Today →</div>
+          </Link>
+
           <Link href="/learn/quiz/quizdeck" className="quizdeck-banner">
             <div className="quizdeck-banner-left">
               <div className="quizdeck-icon"><FiZap /></div>
