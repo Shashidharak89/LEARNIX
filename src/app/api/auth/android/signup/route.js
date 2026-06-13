@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
 import { getFirebaseAdminApp } from "@/lib/firebaseAdmin";
+import { sendEvent, closeConnection } from "@/lib/sseManager";
 
 const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey";
 
@@ -18,6 +19,8 @@ const generateRandomPassword = (length = 10) => {
 };
 
 export async function POST(req) {
+    let currentRequestId = null;
+    
     try {
         await connectDB();
         
@@ -28,10 +31,13 @@ export async function POST(req) {
             body = {};
         }
 
-        const { idToken } = body;
+        const { idToken, requestId } = body;
+        currentRequestId = requestId;
 
         // Validation: Reject request if idToken is missing
         if (!idToken) {
+            if (requestId) sendEvent(requestId, { error: "Missing token" });
+            if (requestId) closeConnection(requestId);
             return NextResponse.json(
                 { success: false, message: "Missing token" },
                 { status: 400 }
@@ -43,6 +49,8 @@ export async function POST(req) {
             firebaseAdmin = getFirebaseAdminApp();
         } catch (error) {
             console.error("Firebase Admin Initialization Error:", error);
+            if (requestId) sendEvent(requestId, { error: "Internal server error" });
+            if (requestId) closeConnection(requestId);
             return NextResponse.json(
                 { success: false, message: "Internal server error" },
                 { status: 500 }
@@ -54,6 +62,9 @@ export async function POST(req) {
         try {
             decodedToken = await firebaseAdmin.auth().verifyIdToken(idToken);
         } catch (error) {
+            if (requestId) sendEvent(requestId, { error: "Invalid Firebase token" });
+            if (requestId) closeConnection(requestId);
+            
             if (error.code === "auth/id-token-expired") {
                 return NextResponse.json(
                     { success: false, message: "Expired Firebase token" },
@@ -69,6 +80,8 @@ export async function POST(req) {
         const { email, name, picture, email_verified } = decodedToken;
 
         if (!email_verified) {
+            if (requestId) sendEvent(requestId, { error: "Email not verified" });
+            if (requestId) closeConnection(requestId);
             return NextResponse.json(
                 { success: false, message: "Email not verified" },
                 { status: 403 }
@@ -77,14 +90,20 @@ export async function POST(req) {
 
         const userEmail = email.toLowerCase();
         
+        if (requestId) sendEvent(requestId, { step: 1, message: "User existence checked" });
+        
         // 1. Check if user already exists
         const existingUser = await User.findOne({ email: userEmail });
         if (existingUser) {
+            if (requestId) sendEvent(requestId, { error: "Account already exists" });
+            if (requestId) closeConnection(requestId);
             return NextResponse.json(
                 { success: false, message: "Account already exists with this email" },
                 { status: 409 }
             );
         }
+        
+        if (requestId) sendEvent(requestId, { step: 2, message: "USN generated" });
 
         // 2. Generate Base USN from the first part of the email
         let baseUsn = email.split('@')[0].toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -100,10 +119,14 @@ export async function POST(req) {
             finalUsn = `${baseUsn}${counter}`;
             counter++;
         }
+        
+        if (requestId) sendEvent(requestId, { step: 3, message: "Password generated" });
 
         // 4. Generate random 10-character password and hash it
         const rawPassword = generateRandomPassword(10);
         const hashedPassword = await bcrypt.hash(rawPassword, 10);
+
+        if (requestId) sendEvent(requestId, { step: 4, message: "Email sent" });
 
         // 5. Send credentials via email using Nodemailer
         try {
@@ -128,6 +151,8 @@ export async function POST(req) {
             console.error("Failed to send welcome email:", emailError);
             // We'll still proceed to save the user even if email fails
         }
+        
+        if (requestId) sendEvent(requestId, { step: 5, message: "User saved" });
 
         // 6. Create and save the new user
         const newUser = new User({
@@ -141,9 +166,14 @@ export async function POST(req) {
         });
 
         await newUser.save();
+        
+        if (requestId) sendEvent(requestId, { step: 6, message: "JWT generated" });
 
         // 7. Generate JWT
         const token = generateToken(newUser._id.toString(), newUser.usn);
+
+        if (requestId) sendEvent(requestId, { step: 7, message: "Registration completed" });
+        if (requestId) closeConnection(requestId);
 
         // 8. Return success response
         return NextResponse.json(
@@ -163,6 +193,9 @@ export async function POST(req) {
 
     } catch (error) {
         console.error("POST /api/auth/android/signup error:", error);
+        if (currentRequestId) sendEvent(currentRequestId, { error: "Internal server error" });
+        if (currentRequestId) closeConnection(currentRequestId);
+        
         return NextResponse.json(
             { success: false, message: "Internal server error" },
             { status: 500 }
