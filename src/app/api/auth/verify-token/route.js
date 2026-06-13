@@ -30,8 +30,11 @@ export async function GET(req) {
         _id: user._id,
         usn: user.usn,
         name: user.name,
+        email: user.email || null,
         role: user.role || "user",
         plan: user.plan || "basic",
+        profileimg: user.profileimg,
+        timestamp: Date.now(),
       },
     });
   } catch (error) {
