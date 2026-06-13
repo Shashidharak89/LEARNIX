@@ -18,8 +18,6 @@ const generateRandomPassword = (length = 10) => {
     return crypto.randomBytes(Math.ceil(length / 2)).toString("hex").slice(0, length);
 };
 
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
 export async function POST(req) {
     let currentRequestId = null;
     
@@ -92,10 +90,7 @@ export async function POST(req) {
 
         const userEmail = email.toLowerCase();
         
-        if (requestId) {
-            await delay(1000);
-            sendEvent(requestId, { step: 1, message: "User existence checked" });
-        }
+        if (requestId) sendEvent(requestId, { step: 1, message: "User existence checked" });
         
         // 1. Check if user already exists
         const existingUser = await User.findOne({ email: userEmail });
@@ -108,10 +103,7 @@ export async function POST(req) {
             );
         }
         
-        if (requestId) {
-            await delay(1000);
-            sendEvent(requestId, { step: 2, message: "USN generated" });
-        }
+        if (requestId) sendEvent(requestId, { step: 2, message: "USN generated" });
 
         // 2. Generate Base USN from the first part of the email
         let baseUsn = email.split('@')[0].toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -128,19 +120,13 @@ export async function POST(req) {
             counter++;
         }
         
-        if (requestId) {
-            await delay(1000);
-            sendEvent(requestId, { step: 3, message: "Password generated" });
-        }
+        if (requestId) sendEvent(requestId, { step: 3, message: "Password generated" });
 
         // 4. Generate random 10-character password and hash it
         const rawPassword = generateRandomPassword(10);
         const hashedPassword = await bcrypt.hash(rawPassword, 10);
 
-        if (requestId) {
-            await delay(1000);
-            sendEvent(requestId, { step: 4, message: "Email sent" });
-        }
+        if (requestId) sendEvent(requestId, { step: 4, message: "Email sent" });
 
         // 5. Send credentials via email using Nodemailer
         try {
@@ -166,10 +152,7 @@ export async function POST(req) {
             // We'll still proceed to save the user even if email fails
         }
         
-        if (requestId) {
-            await delay(1000);
-            sendEvent(requestId, { step: 5, message: "User saved" });
-        }
+        if (requestId) sendEvent(requestId, { step: 5, message: "User saved" });
 
         // 6. Create and save the new user
         const newUser = new User({
@@ -184,18 +167,12 @@ export async function POST(req) {
 
         await newUser.save();
         
-        if (requestId) {
-            await delay(1000);
-            sendEvent(requestId, { step: 6, message: "JWT generated" });
-        }
+        if (requestId) sendEvent(requestId, { step: 6, message: "JWT generated" });
 
         // 7. Generate JWT
         const token = generateToken(newUser._id.toString(), newUser.usn);
 
-        if (requestId) {
-            await delay(1000);
-            sendEvent(requestId, { step: 7, message: "Registration completed" });
-        }
+        if (requestId) sendEvent(requestId, { step: 7, message: "Registration completed" });
         if (requestId) closeConnection(requestId);
 
         // 8. Return success response
