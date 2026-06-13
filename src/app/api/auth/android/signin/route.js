@@ -13,7 +13,7 @@ const generateToken = (userId, usn) => {
 export async function POST(req) {
     try {
         await connectDB();
-        
+
         let body;
         try {
             body = await req.json();
@@ -79,7 +79,7 @@ export async function POST(req) {
         if (!user) {
             // Do NOT create a user yet. Return 404.
             return NextResponse.json(
-                { success: false, message: "Account not found" },
+                { success: false, message: "User Account not found, please signup" },
                 { status: 404 }
             );
         }
