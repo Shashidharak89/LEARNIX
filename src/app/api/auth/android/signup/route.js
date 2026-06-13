@@ -95,11 +95,31 @@ export async function POST(req) {
         // 1. Check if user already exists
         const existingUser = await User.findOne({ email: userEmail });
         if (existingUser) {
-            if (requestId) sendEvent(requestId, { error: "Account already exists" });
+            if (requestId) sendEvent(requestId, { step: 2, message: "Existing account found" });
+            
+            const token = generateToken(existingUser._id.toString(), existingUser.usn);
+            
+            if (requestId) sendEvent(requestId, { step: 3, message: "JWT generated" });
+            if (requestId) sendEvent(requestId, { step: 4, message: "Login completed" });
             if (requestId) closeConnection(requestId);
+            
             return NextResponse.json(
-                { success: false, message: "Account already exists with this email" },
-                { status: 409 }
+                {
+                    success: true,
+                    message: "Login successful",
+                    isNewUser: false,
+                    token: token,
+                    user: {
+                        _id: existingUser._id.toString(),
+                        name: existingUser.name,
+                        usn: existingUser.usn,
+                        email: existingUser.email,
+                        profileimg: existingUser.profileimg,
+                        role: existingUser.role,
+                        plan: existingUser.plan
+                    }
+                },
+                { status: 200 }
             );
         }
         
@@ -180,12 +200,16 @@ export async function POST(req) {
             {
                 success: true,
                 message: "Account created successfully",
+                isNewUser: true,
                 token: token,
                 user: {
                     _id: newUser._id.toString(),
                     name: newUser.name,
                     usn: newUser.usn,
                     email: newUser.email,
+                    profileimg: newUser.profileimg,
+                    role: newUser.role,
+                    plan: newUser.plan
                 },
             },
             { status: 201 }
