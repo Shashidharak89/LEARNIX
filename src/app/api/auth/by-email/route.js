@@ -27,12 +27,14 @@ export async function POST(req) {
       {
         exists: true,
         user: {
+          _id: user._id,
           name: user.name,
           usn: user.usn,
+          email: user.email,
           profileimg: user.profileimg,
           role: user.role,
           plan: user.plan || "basic",
-          email: user.email,
+          createdAt: user.createdAt
         },
         token,
       },

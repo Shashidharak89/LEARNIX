@@ -33,7 +33,7 @@ export async function POST(req) {
     }
     await user.save();
 
-    return NextResponse.json({ message: "Logged in successfully", user: { name: user.name, usn: user.usn, profileimg: user.profileimg, role: user.role, plan: user.plan } });
+    return NextResponse.json({ message: "Logged in successfully", user: { _id: user._id, name: user.name, usn: user.usn, email: user.email, profileimg: user.profileimg, role: user.role, plan: user.plan, createdAt: user.createdAt } });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });

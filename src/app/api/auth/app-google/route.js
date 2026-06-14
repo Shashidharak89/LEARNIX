@@ -111,12 +111,14 @@ export async function POST(req) {
                 {
                     message: "Logged in successfully with Google.",
                     user: {
+                        _id: user._id,
                         name: user.name,
                         usn: user.usn,
                         email: user.email,
                         profileimg: user.profileimg,
                         role: user.role,
                         plan: user.plan,
+                        createdAt: user.createdAt
                     },
                     token,
                 },
@@ -165,12 +167,14 @@ export async function POST(req) {
             {
                 message: "Account created and logged in securely.",
                 user: {
+                    _id: user._id,
                     name: user.name,
                     usn: user.usn,
                     email: user.email,
                     profileimg: user.profileimg,
                     role: user.role,
                     plan: user.plan,
+                    createdAt: user.createdAt
                 },
                 token,
             },
