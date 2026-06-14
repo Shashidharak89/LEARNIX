@@ -25,17 +25,18 @@ export async function GET(req) {
     if (!quiz) {
       // First user of the day/topic triggers fetching 5 random questions
       const categoryMap = {
-        computer: 18,
-        mathematics: 19,
+        computer: 18, computers: 18,
+        mathematics: 19, math: 19, maths: 19,
         history: 23,
-        sports: 21,
+        sports: 21, sport: 21,
         geography: 22,
-        science: 17
+        science: 17, scirnce: 17 // added typo handling
       };
       
+      const normalizedTopic = topic.toLowerCase();
       let apiUrl = "https://opentdb.com/api.php?amount=5";
-      if (topic !== 'random' && categoryMap[topic]) {
-        apiUrl += `&category=${categoryMap[topic]}`;
+      if (normalizedTopic !== 'random' && categoryMap[normalizedTopic]) {
+        apiUrl += `&category=${categoryMap[normalizedTopic]}`;
       }
 
       const res = await fetch(apiUrl);
