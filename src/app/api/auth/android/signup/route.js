@@ -116,7 +116,8 @@ export async function POST(req) {
                         email: existingUser.email,
                         profileimg: existingUser.profileimg,
                         role: existingUser.role,
-                        plan: existingUser.plan
+                        plan: existingUser.plan,
+                        createdAt: existingUser.createdAt
                     }
                 },
                 { status: 200 }
@@ -209,7 +210,8 @@ export async function POST(req) {
                     email: newUser.email,
                     profileimg: newUser.profileimg,
                     role: newUser.role,
-                    plan: newUser.plan
+                    plan: newUser.plan,
+                    createdAt: newUser.createdAt
                 },
             },
             { status: 201 }
