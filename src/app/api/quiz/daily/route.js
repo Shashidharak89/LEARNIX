@@ -12,15 +12,33 @@ export async function GET(req) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(req.url);
+    const topic = searchParams.get('topic') || 'random';
+
     // Determine the current date string (YYYY-MM-DD)
     const today = new Date();
-    const dateStr = today.toISOString().split('T')[0];
+    const baseDateStr = today.toISOString().split('T')[0];
+    const dateStr = topic === 'random' ? baseDateStr : `${baseDateStr}_${topic}`;
 
     let quiz = await DailyQuiz.findOne({ dateStr });
 
     if (!quiz) {
-      // First user of the day triggers fetching 5 random questions
-      const res = await fetch("https://opentdb.com/api.php?amount=5");
+      // First user of the day/topic triggers fetching 5 random questions
+      const categoryMap = {
+        computer: 18,
+        mathematics: 19,
+        history: 23,
+        sports: 21,
+        geography: 22,
+        science: 17
+      };
+      
+      let apiUrl = "https://opentdb.com/api.php?amount=5";
+      if (topic !== 'random' && categoryMap[topic]) {
+        apiUrl += `&category=${categoryMap[topic]}`;
+      }
+
+      const res = await fetch(apiUrl);
       const data = await res.json();
       
       if (data.response_code === 0 && data.results.length > 0) {
