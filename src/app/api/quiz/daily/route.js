@@ -14,41 +14,19 @@ export async function GET(req) {
 
     const { searchParams } = new URL(req.url);
     const rawTopic = searchParams.get('topic') || 'random';
-
-    // Normalize topic for consistent dateStr and category mapping
-    const topicToCanonical = {
-      computer: 'computer', computers: 'computer',
-      mathematics: 'math', math: 'math', maths: 'math',
-      history: 'history',
-      sports: 'sports', sport: 'sports',
-      geography: 'geography',
-      science: 'science', scirnce: 'science'
-    };
-    const normalizedInput = rawTopic.toLowerCase();
-    const topic = topicToCanonical[normalizedInput] || normalizedInput;
+    
+    // For now, only 'random' is supported as per request
+    const topic = 'random';
 
     // Determine the current date string (YYYY-MM-DD)
     const today = new Date();
-    const baseDateStr = today.toISOString().split('T')[0];
-    const dateStr = topic === 'random' ? baseDateStr : `${baseDateStr}_${topic}`;
+    const dateStr = today.toISOString().split('T')[0];
 
     let quiz = await DailyQuiz.findOne({ dateStr });
 
     if (!quiz) {
-      // First user of the day/topic triggers fetching 5 random questions
-      const categoryMap = {
-        computer: 18,
-        math: 19,
-        history: 23,
-        sports: 21,
-        geography: 22,
-        science: 17
-      };
-      
+      // First user of the day triggers fetching 5 random questions
       let apiUrl = "https://opentdb.com/api.php?amount=5";
-      if (topic !== 'random' && categoryMap[topic]) {
-        apiUrl += `&category=${categoryMap[topic]}`;
-      }
 
       const res = await fetch(apiUrl);
       const data = await res.json();
