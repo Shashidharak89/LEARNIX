@@ -98,6 +98,9 @@ export async function POST(req) {
             if (requestId) sendEvent(requestId, { step: 2, message: "Existing account found" });
             
             const token = generateToken(existingUser._id.toString(), existingUser.usn);
+            existingUser.token = token;
+            existingUser.tokenCreatedAt = new Date();
+            await existingUser.save();
             
             if (requestId) sendEvent(requestId, { step: 3, message: "JWT generated" });
             if (requestId) sendEvent(requestId, { step: 4, message: "Login completed" });
@@ -192,6 +195,9 @@ export async function POST(req) {
 
         // 7. Generate JWT
         const token = generateToken(newUser._id.toString(), newUser.usn);
+        newUser.token = token;
+        newUser.tokenCreatedAt = new Date();
+        await newUser.save();
 
         if (requestId) sendEvent(requestId, { step: 7, message: "Registration completed" });
         if (requestId) closeConnection(requestId);
