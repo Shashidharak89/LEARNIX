@@ -12,22 +12,23 @@ export async function POST(req) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { score, timeTakenMs, dateStr, quizDayId } = await req.json();
+    const { score, timeTakenMs, dateStr, quizDayId, category = 'random' } = await req.json();
 
     if (timeTakenMs == null || score == null || !dateStr || !quizDayId) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // Check if the user already played today
-    const existing = await DailyQuizEnrollment.findOne({ userId: userResult.user._id, dateStr });
+    // Check if the user already played today in this category
+    const existing = await DailyQuizEnrollment.findOne({ userId: userResult.user._id, dateStr, category });
     if (existing) {
-      return NextResponse.json({ error: "You have already participated today" }, { status: 400 });
+      return NextResponse.json({ error: `You have already participated in the ${category} quiz today` }, { status: 400 });
     }
 
     const newEnrollment = await DailyQuizEnrollment.create({
       userId: userResult.user._id,
       quizDayId,
       dateStr,
+      category,
       score,
       timeTakenMs
     });

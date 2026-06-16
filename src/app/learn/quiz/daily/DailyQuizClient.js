@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { FiPlay, FiClock, FiStar, FiAward, FiChevronDown } from 'react-icons/fi';
+import { FiPlay, FiClock, FiStar, FiAward, FiChevronDown, FiArrowLeft } from 'react-icons/fi';
 import styles from './DailyQuiz.module.css';
 
 export default function DailyQuizClient() {
@@ -15,7 +15,8 @@ export default function DailyQuizClient() {
   const [enrollment, setEnrollment] = useState(null);
   const [dateStr, setDateStr] = useState('');
 
-  const [phase, setPhase] = useState('intro'); // intro, playing, results
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [phase, setPhase] = useState('categories'); // categories, intro, playing, results
   const [qIndex, setQIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [startTime, setStartTime] = useState(0);
@@ -24,12 +25,31 @@ export default function DailyQuizClient() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
 
+  const categories = [
+    { id: 'random', name: 'Mixed Trivia', icon: '🎲', color: '#8b5cf6' },
+    { id: 'general', name: 'General Knowledge', icon: '🧠', color: '#3b82f6' },
+    { id: 'science', name: 'Science & Nature', icon: '🔬', color: '#10b981' },
+    { id: 'computers', name: 'Computers', icon: '💻', color: '#6366f1' },
+    { id: 'math', name: 'Mathematics', icon: '📐', color: '#f59e0b' },
+    { id: 'sports', name: 'Sports', icon: '⚽', color: '#ef4444' },
+    { id: 'geography', name: 'Geography', icon: '🌍', color: '#14b8a6' },
+    { id: 'history', name: 'History', icon: '📜', color: '#d97706' },
+    { id: 'film', name: 'Movies', icon: '🎬', color: '#ec4899' },
+    { id: 'music', name: 'Music', icon: '🎵', color: '#8b5cf6' },
+    { id: 'videogames', name: 'Video Games', icon: '🎮', color: '#0ea5e9' },
+    { id: 'books', name: 'Books', icon: '📚', color: '#84cc16' },
+    { id: 'art', name: 'Art', icon: '🎨', color: '#f43f5e' },
+    { id: 'animals', name: 'Animals', icon: '🐾', color: '#a855f7' },
+  ];
+
   // For question rendering
   const [shuffledOptions, setShuffledOptions] = useState([]);
   const [selectedOpt, setSelectedOpt] = useState(null);
 
-  const fetchDailyQuiz = async () => {
+  const fetchDailyQuiz = async (category) => {
     try {
+      setLoading(true);
+      setError(null);
       const token = localStorage.getItem('token');
       if (!token) {
         setError('not_logged_in');
@@ -37,7 +57,7 @@ export default function DailyQuizClient() {
         return;
       }
 
-      const res = await fetch('/api/quiz/daily', {
+      const res = await fetch(`/api/quiz/daily?category=${category}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -53,7 +73,7 @@ export default function DailyQuizClient() {
 
       if (data.alreadyPlayed) {
         setPhase('results');
-        fetchLeaderboard(data.quiz.dateStr, 1);
+        fetchLeaderboard(data.quiz.dateStr, category, 1);
       } else {
         setPhase('intro');
       }
@@ -64,9 +84,9 @@ export default function DailyQuizClient() {
     }
   };
 
-  const fetchLeaderboard = async (dStr, p) => {
+  const fetchLeaderboard = async (dStr, cat, p) => {
     try {
-      const res = await fetch(`/api/quiz/daily/leaderboard?dateStr=${dStr}&page=${p}`);
+      const res = await fetch(`/api/quiz/daily/leaderboard?dateStr=${dStr}&category=${cat}&page=${p}`);
       const data = await res.json();
       if (res.ok) {
         if (p === 1) {
@@ -82,8 +102,18 @@ export default function DailyQuizClient() {
   };
 
   useEffect(() => {
-    fetchDailyQuiz();
+    // Check login status first, then show categories
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('not_logged_in');
+    }
+    setLoading(false);
   }, []);
+
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+    fetchDailyQuiz(category.id);
+  };
 
   useEffect(() => {
     if (phase === 'playing' && quizData?.questions[qIndex]) {
@@ -136,6 +166,7 @@ export default function DailyQuizClient() {
           score: finalScore,
           timeTakenMs,
           dateStr: quizData.dateStr,
+          category: selectedCategory.id,
           quizDayId: quizData._id
         })
       });
@@ -144,7 +175,7 @@ export default function DailyQuizClient() {
       if (res.ok) {
         setEnrollment(data.enrollment);
         setAlreadyPlayed(true);
-        fetchLeaderboard(quizData.dateStr, 1);
+        fetchLeaderboard(quizData.dateStr, selectedCategory.id, 1);
       } else {
         setError(data.error);
       }
@@ -156,7 +187,7 @@ export default function DailyQuizClient() {
   const loadMore = () => {
     const nextPage = page + 1;
     setPage(nextPage);
-    fetchLeaderboard(dateStr, nextPage);
+    fetchLeaderboard(dateStr, selectedCategory.id, nextPage);
   };
 
   const formatTime = (ms) => (ms / 1000).toFixed(2) + "s";
@@ -183,10 +214,36 @@ export default function DailyQuizClient() {
 
         {error && error !== 'not_logged_in' && <div className={styles.error}>{error}</div>}
 
-        {phase === 'intro' && quizData && (
+        {phase === 'categories' && (
           <div>
-            <h1 className={styles.title}>Daily Challenge</h1>
-            <p className={styles.subtitle}></p>
+            <h1 className={styles.title}>Daily Quizzes</h1>
+            <p className={styles.subtitle}>Select a category to play today's quiz!</p>
+            <div className={styles.categoriesGrid}>
+              {categories.map((cat) => (
+                <div 
+                  key={cat.id} 
+                  className={styles.categoryCard} 
+                  onClick={() => handleCategorySelect(cat)}
+                  style={{ borderTop: `4px solid ${cat.color}` }}
+                >
+                  <div className={styles.categoryIcon} style={{ backgroundColor: `${cat.color}20` }}>{cat.icon}</div>
+                  <h3 className={styles.categoryName}>{cat.name}</h3>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {phase === 'intro' && quizData && selectedCategory && (
+          <div>
+            <button className={styles.backLink} onClick={() => setPhase('categories')}>
+              <FiArrowLeft /> Back to Categories
+            </button>
+            <div className={styles.categoryIconLarge} style={{ backgroundColor: `${selectedCategory.color}20`, color: selectedCategory.color }}>
+              {selectedCategory.icon}
+            </div>
+            <h1 className={styles.title}>{selectedCategory.name} Challenge</h1>
+            <p className={styles.subtitle}>5 new questions every day. Test your knowledge!</p>
             <button className={styles.startBtn} onClick={startQuiz}>
               <FiPlay /> Play Now
             </button>
@@ -216,9 +273,15 @@ export default function DailyQuizClient() {
           </div>
         )}
 
-        {phase === 'results' && (
+        {phase === 'results' && selectedCategory && (
           <div>
-            <h1 className={styles.title}>Results</h1>
+            <button className={styles.backLink} onClick={() => {
+              setPhase('categories');
+              setSelectedCategory(null);
+            }}>
+              <FiArrowLeft /> All Categories
+            </button>
+            <h1 className={styles.title}>{selectedCategory.name} Results</h1>
             <div className={styles.statRow}>
               <div className={`${styles.statBox} ${styles.statBoxGreen}`}>
                 <div className={styles.statNum}>{enrollment ? enrollment.score : score}/5</div>
