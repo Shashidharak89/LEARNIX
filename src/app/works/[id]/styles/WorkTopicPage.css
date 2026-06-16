@@ -1745,3 +1745,113 @@
   .wtpc-lb-prev { left: 0.25rem; }
   .wtpc-lb-next { right: 0.25rem; }
 }
+
+/* App Banner */
+.wtpc-app-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-bottom: 2px solid #bae6fd;
+  padding: 12px 24px;
+  animation: wtpc-slide-down 0.5s ease-out;
+  position: relative;
+}
+
+.wtpc-app-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wtpc-app-banner-text h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0369a1;
+}
+
+.wtpc-app-banner-text p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #0c4a6e;
+}
+
+.wtpc-app-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wtpc-app-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.wtpc-open-btn {
+  background-color: #0284c7;
+  color: #fff;
+}
+
+.wtpc-open-btn:hover {
+  background-color: #0369a1;
+  transform: translateY(-1px);
+}
+
+.wtpc-install-btn {
+  background-color: #fff;
+  color: #0284c7;
+  border: 2px solid #0284c7;
+}
+
+.wtpc-install-btn:hover {
+  background-color: #f0f9ff;
+  transform: translateY(-1px);
+}
+
+.wtpc-app-close-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.wtpc-app-close-btn:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+@keyframes wtpc-slide-down {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .wtpc-app-banner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 16px;
+  }
+  .wtpc-app-banner-actions {
+    justify-content: space-between;
+  }
+}
