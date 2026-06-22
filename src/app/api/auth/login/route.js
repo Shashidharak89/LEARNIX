@@ -12,8 +12,12 @@ export async function POST(req) {
       return NextResponse.json({ error: "USN and password are required" }, { status: 400 });
     }
 
-    const usnUpper = usn.trim().toUpperCase();
-    const user = await User.findOne({ usn: usnUpper });
+    let user;
+    if (usn.includes("@")) {
+      user = await User.findOne({ email: usn.trim().toLowerCase() });
+    } else {
+      user = await User.findOne({ usn: usn.trim().toUpperCase() });
+    }
 
     if (!user || !user.password) {
       return NextResponse.json({ error: "Account not found or password not set. Please signup first." }, { status: 404 });
