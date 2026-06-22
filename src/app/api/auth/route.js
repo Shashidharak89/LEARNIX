@@ -32,7 +32,12 @@ export async function POST(req) {
     }
 
     const usnUpper = usn.trim().toUpperCase();
-    let user = await User.findOne({ usn: usnUpper });
+    let user;
+    if (usn.includes("@")) {
+      user = await User.findOne({ email: usn.trim().toLowerCase() });
+    } else {
+      user = await User.findOne({ usn: usnUpper });
+    }
 
     if (user) {
       if (!user.password) {
@@ -78,6 +83,10 @@ export async function POST(req) {
         });
       }
     } else {
+      if (usn.includes("@")) {
+        return NextResponse.json({ error: "Account not found for this email. Please use your USN to sign up." }, { status: 404 });
+      }
+
       // Create new account with password
       const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = new User({
