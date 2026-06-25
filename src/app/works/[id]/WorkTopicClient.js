@@ -180,37 +180,183 @@ const WorkTopicPageWrapper = () => {
         if (btnText) btnText.textContent = 'Generating...';
       }
 
-      // Call the API to generate PDF with template
-      const response = await authFetch('/api/work/download-pdf', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      // Dynamically import pdf-lib to reduce initial bundle size
+      const { PDFDocument, rgb, StandardFonts } = await import('pdf-lib');
+
+      // 1. Fetch the template PDF from public folder
+      const templateRes = await fetch('/download-resource-template.pdf');
+      if (!templateRes.ok) {
+        throw new Error("Could not fetch PDF template. Make sure download-resource-template.pdf is in the public folder.");
+      }
+      const templateBytes = await templateRes.arrayBuffer();
+
+      // Create a new PDF document to work with
+      const pdfDoc = await PDFDocument.load(templateBytes);
+
+      // Get the first page (template page)
+      const pages = pdfDoc.getPages();
+      const firstPage = pages[0];
+      const { height } = firstPage.getSize();
+
+      // Embed fonts - using standard fonts
+      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+      const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+      // Prepare replacement values
+      const replacements = {
+        '[name]': { value: data.user.name, size: 14, bold: true, color: rgb(0, 0, 0) },
+        '[usn]': { value: data.user.usn, size: 12, bold: false, color: rgb(0, 0, 0) },
+        '[date]': { 
+          value: new Date(data.topic.timestamp).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          }), 
+          size: 12, 
+          bold: false, 
+          color: rgb(0, 0, 0) 
         },
-        body: JSON.stringify({
-          topicId: id,
-          user: data.user,
-          subject: data.subject,
-          topic: data.topic,
-          startPage: options.startPage,
-          endPage: options.endPage,
-          allPages: options.allPages,
-          selectedPages: options.selectedPages,
-        }),
+        '[subjectname]': { value: data.subject.subject, size: 14, bold: true, color: rgb(0, 0, 0) },
+        '[topicname]': { value: data.topic.topic, size: 16, bold: true, color: rgb(0.1, 0.3, 0.6) },
+        '[topicid]': { value: id, size: 10, bold: false, color: rgb(0.4, 0.4, 0.4) },
+      };
+
+      // Common positions for the standard template
+      const placeholderPositions = {
+        '[name]': { x: 180, y: 285, width: 350 },
+        '[usn]': { x: 180, y: 315, width: 350 },
+        '[subjectname]': { x: 180, y: 385, width: 350 },
+        '[topicname]': { x: 180, y: 455, width: 350 },
+        '[date]': { x: 180, y: 515, width: 350 },
+        '[topicid]': { x: 180, y: 675, width: 350 },
+      };
+
+      // For each placeholder, draw a white rectangle to cover it and add the replacement text
+      Object.keys(replacements).forEach((placeholder) => {
+        const position = placeholderPositions[placeholder];
+        const replacement = replacements[placeholder];
+        
+        if (position && replacement) {
+          // Calculate text height based on font size
+          const textHeight = replacement.size + 4;
+          
+          // Draw white rectangle to cover the placeholder
+          firstPage.drawRectangle({
+            x: position.x - 5,
+            y: height - position.y - textHeight,
+            width: position.width,
+            height: textHeight + 2,
+            color: rgb(1, 1, 1),
+            borderColor: rgb(1, 1, 1),
+            borderWidth: 0,
+          });
+
+          // Draw the replacement text
+          firstPage.drawText(replacement.value || "N/A", {
+            x: position.x,
+            y: height - position.y,
+            size: replacement.size,
+            font: replacement.bold ? fontBold : font,
+            color: replacement.color,
+          });
+        }
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate PDF');
+      // Process and add images starting from page 2
+      const validImages = data.topic.images.filter((url) => url && url.trim() !== "");
+      const total = validImages.length;
+      let rangedImages = validImages;
+
+      if (Array.isArray(options.selectedPages) && options.selectedPages.length > 0) {
+        const uniqueSelection = Array.from(new Set(options.selectedPages.map((n) => parseInt(n, 10))))
+          .filter((n) => !Number.isNaN(n) && n >= 1 && n <= total).sort((a, b) => a - b);
+        rangedImages = uniqueSelection.map((n) => validImages[n - 1]).filter(Boolean);
+      } else if (!options.allPages) {
+        let sliceStart = 1;
+        let sliceEnd = total;
+        const s = Math.max(1, Math.min(total, parseInt(options.startPage, 10) || 1));
+        const e = Math.max(s, Math.min(total, parseInt(options.endPage, 10) || total));
+        sliceStart = s;
+        sliceEnd = e;
+        rangedImages = validImages.slice(sliceStart - 1, sliceEnd);
       }
 
-      // Get the PDF blob
-      const blob = await response.blob();
-      
-      // Create download link
+      for (let i = 0; i < rangedImages.length; i++) {
+        const imageUrl = rangedImages[i];
+        
+        try {
+          let fetchUrl = imageUrl;
+          // Optimizing cloudinary URLs to request jpg to ensure stability
+          if (fetchUrl.includes('cloudinary.com') && !fetchUrl.includes('/f_jpg/')) {
+            fetchUrl = fetchUrl.replace('/upload/', '/upload/f_jpg/');
+          }
+
+          const imageResponse = await fetch(fetchUrl);
+          if (!imageResponse.ok) continue;
+          
+          const imageBuffer = await imageResponse.arrayBuffer();
+          const contentType = imageResponse.headers.get("content-type") || "";
+          
+          let image;
+          if (contentType.includes("png") || fetchUrl.toLowerCase().includes(".png")) {
+            try {
+              image = await pdfDoc.embedPng(imageBuffer);
+            } catch (e) {
+              image = await pdfDoc.embedJpg(imageBuffer);
+            }
+          } else {
+            try {
+              image = await pdfDoc.embedJpg(imageBuffer);
+            } catch (e) {
+              image = await pdfDoc.embedPng(imageBuffer);
+            }
+          }
+
+          const imagePage = pdfDoc.addPage();
+          const pageWidth = imagePage.getWidth();
+          const pageHeight = imagePage.getHeight();
+
+          const imgWidth = image.width;
+          const imgHeight = image.height;
+          const margin = 20;
+
+          const maxWidth = pageWidth - (2 * margin);
+          const maxHeight = pageHeight - (2 * margin);
+          
+          const scaleX = maxWidth / imgWidth;
+          const scaleY = maxHeight / imgHeight;
+          const scale = Math.min(scaleX, scaleY);
+
+          const scaledWidth = imgWidth * scale;
+          const scaledHeight = imgHeight * scale;
+
+          const x = (pageWidth - scaledWidth) / 2;
+          const y = (pageHeight - scaledHeight) / 2;
+
+          imagePage.drawImage(image, {
+            x,
+            y,
+            width: scaledWidth,
+            height: scaledHeight,
+          });
+        } catch (imgError) {
+          console.error(`Error processing image ${i + 1}:`, imgError);
+        }
+      }
+
+      // Serialize the PDF to bytes (a Uint8Array)
+      const pdfBytes = await pdfDoc.save();
+
+      // Create filename
+      const fileName = `${data.topic.topic}_${data.subject.subject}_${data.user.name}`
+        .replace(/[^a-zA-Z0-9]/g, "_") + ".pdf";
+
+      // Download it
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${data.topic.topic}_${data.subject.subject}_${data.user.name}`
-        .replace(/[^a-zA-Z0-9]/g, "_") + ".pdf";
+      a.download = fileName;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
