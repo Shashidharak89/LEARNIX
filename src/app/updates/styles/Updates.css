@@ -91,6 +91,55 @@
   line-height: 1.5;
 }
 
+.upd-intro-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.upd-action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.upd-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 180ms var(--upd-ease);
+}
+
+.upd-action-btn-primary {
+  background: var(--upd-blue);
+  color: #fff;
+  border: none;
+}
+.upd-action-btn-primary:hover {
+  background: var(--upd-blue-dark);
+}
+
+.upd-action-btn-secondary {
+  background: rgba(11, 116, 255, 0.08);
+  color: var(--upd-blue);
+  border: 1px solid rgba(11, 116, 255, 0.2);
+}
+.upd-action-btn-secondary:hover {
+  background: rgba(11, 116, 255, 0.15);
+}
+
+.upd-action-icon {
+  font-size: 16px;
+}
+
 .upd-search-form {
   margin-top: 14px;
   display: flex;
@@ -620,6 +669,14 @@
 
 /* Very small screens */
 @media (max-width: 500px) {
+  .upd-action-text {
+    display: none;
+  }
+  .upd-action-btn {
+    padding: 0;
+    width: 36px;
+  }
+
   .upd-main {
     width: 100%;
     padding: 0 12px;

@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload, FiSearch } from 'react-icons/fi';
+import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload, FiSearch, FiPlus, FiSettings } from 'react-icons/fi';
 import { Share2 } from 'lucide-react';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
 import './styles/Updates.css';
@@ -177,8 +177,24 @@ export default function UpdatesPage() {
       <div className="upd-page-container">
         <main className="upd-main">
           <div className="upd-intro-card">
-            <h1 className="upd-title">Updates</h1>
-            <p className="upd-subtitle">Recent activity: subjects and public topics created by users.</p>
+            <div className="upd-intro-header">
+              <div>
+                <h1 className="upd-title">Updates</h1>
+                <p className="upd-subtitle">Recent activity: subjects and public topics created by users.</p>
+              </div>
+              {isLoggedIn && (
+                <div className="upd-action-buttons">
+                  <button type="button" className="upd-action-btn upd-action-btn-primary" onClick={() => setShowAddModal(true)} title="Add Update">
+                    <FiPlus className="upd-action-icon" />
+                    <span className="upd-action-text">Add Update</span>
+                  </button>
+                  <Link href="/upload/updates" className="upd-action-btn upd-action-btn-secondary" title="Manage Updates">
+                    <FiSettings className="upd-action-icon" />
+                    <span className="upd-action-text">Manage</span>
+                  </Link>
+                </div>
+              )}
+            </div>
 
             <form className="upd-search-form" onSubmit={handleSearchSubmit}>
               <div className="upd-search-wrap">
@@ -197,13 +213,6 @@ export default function UpdatesPage() {
                 <button type="button" className="upd-search-clear-btn" onClick={handleClearSearch}>Clear</button>
               )}
             </form>
-
-            {isLoggedIn && (
-              <div style={{ marginTop: '14px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                <button type="button" className="upd-search-btn" onClick={() => setShowAddModal(true)}>+ Add Update</button>
-                <Link href="/upload/updates" className="upd-search-clear-btn" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>Go to Upload Page</Link>
-              </div>
-            )}
           </div>
 
           <div className="upd-list">
