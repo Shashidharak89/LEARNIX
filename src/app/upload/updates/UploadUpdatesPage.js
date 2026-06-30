@@ -13,7 +13,7 @@ export default function UploadUpdatesPage() {
   };
   return (
     <>
-      <div style={{ maxWidth: 900, margin: '28px auto', padding: '0 16px' }}>
+      <div style={{ width: '94%', maxWidth: '1400px', margin: '28px auto', padding: '0 18px', boxSizing: 'border-box' }}>
         <main style={{ background: '#fff', padding: 18, borderRadius: 8 }}>
           <AddUpdateForm onUpdateAdded={handleUpdateAdded} />
 

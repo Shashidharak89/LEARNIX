@@ -481,6 +481,15 @@
   text-decoration: none;
   transition: all 220ms var(--upl-ease);
   white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.upl-link span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .upl-link-internal {
