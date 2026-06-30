@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload, FiSearch } from 'react-icons/fi';
 import { Share2 } from 'lucide-react';
+import AddUpdateForm from '../upload/updates/AddUpdateForm';
 import './styles/Updates.css';
 
 export default function UpdatesPage() {
@@ -18,6 +19,8 @@ export default function UpdatesPage() {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [searchQuery, setSearchQuery] = useState(keywordFromUrl);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const highlightedCardRef = useRef(null);
 
   const fetchUpdates = async (index = 1, query = keywordFromUrl) => {
@@ -47,6 +50,12 @@ export default function UpdatesPage() {
     setPageIndex(1);
     fetchUpdates(1, keywordFromUrl);
   }, [keywordFromUrl]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsLoggedIn(!!localStorage.getItem('token'));
+    }
+  }, []);
 
   // Scroll highlighted update into view
   useEffect(() => {
@@ -188,6 +197,13 @@ export default function UpdatesPage() {
                 <button type="button" className="upd-search-clear-btn" onClick={handleClearSearch}>Clear</button>
               )}
             </form>
+
+            {isLoggedIn && (
+              <div style={{ marginTop: '14px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <button type="button" className="upd-search-btn" onClick={() => setShowAddModal(true)}>+ Add Update</button>
+                <Link href="/upload/updates" className="upd-search-clear-btn" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>Go to Upload Page</Link>
+              </div>
+            )}
           </div>
 
           <div className="upd-list">
@@ -324,6 +340,23 @@ export default function UpdatesPage() {
           </div>
         </main>
       </div>
+
+      {showAddModal && (
+        <div className="upd-modal-overlay" onClick={() => {
+          setShowAddModal(false);
+          fetchUpdates(1, keywordFromUrl); // Refresh when closed
+        }}>
+          <div className="upd-modal-content" onClick={e => e.stopPropagation()}>
+            <button className="upd-modal-close" onClick={() => {
+              setShowAddModal(false);
+              fetchUpdates(1, keywordFromUrl);
+            }}>✕</button>
+            <div className="upd-modal-scroll-area">
+               <AddUpdateForm />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
