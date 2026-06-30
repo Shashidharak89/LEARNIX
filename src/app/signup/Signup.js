@@ -12,14 +12,11 @@ import "./styles/Signup.css";
 
 export default function Signup({ googleClientId = "" }) {
   const [step, setStep] = useState("verify");
-  const [name, setName] = useState("");
   const [usn, setUsn] = useState("");
-  const [password, setPassword] = useState("");
   const [googleCredential, setGoogleCredential] = useState("");
   const [googleProfile, setGoogleProfile] = useState(null);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
-  const [isManualLoading, setIsManualLoading] = useState(false);
   const [googleScriptReady, setGoogleScriptReady] = useState(false);
   const [isGoogleButtonRendered, setIsGoogleButtonRendered] = useState(false);
   const [message, setMessage] = useState("");
@@ -152,29 +149,6 @@ export default function Signup({ googleClientId = "" }) {
     }
   };
 
-  const handleManualSignup = async (e) => {
-    e.preventDefault();
-    setIsManualLoading(true);
-    setMessage("");
-
-    try {
-      const res = await axios.post("/api/auth", {
-        name,
-        usn: usn.trim().toUpperCase(),
-        password,
-      });
-
-      setMessage(res.data.message || "Account created successfully.");
-      setIsSuccess(true);
-      saveAuthAndRedirect(res.data);
-    } catch (err) {
-      setMessage(err.response?.data?.error || "Something went wrong");
-      setIsSuccess(false);
-    } finally {
-      setIsManualLoading(false);
-    }
-  };
-
   return (
     <div className="sgn-root">
       <Script
@@ -188,13 +162,11 @@ export default function Signup({ googleClientId = "" }) {
           <p className="sgn-subtitle">
             {step === "verify"
               ? "Sign up with Google to verify your account"
-              : step === "usn"
-                ? "Google verified. Enter USN / Reg No to finish"
-                : "Create account with name, USN and password"}
+              : "Google verified. Enter USN / Reg No to finish"}
           </p>
         </div>
 
-        <form onSubmit={step === "manual" ? handleManualSignup : handleFinish} className="sgn-form">
+        <form onSubmit={handleFinish} className="sgn-form">
           {step === "verify" ? (
             <div className="sgn-google-wrap">
               <div className="sgn-divider"><span>Step 1</span></div>
@@ -224,21 +196,8 @@ export default function Signup({ googleClientId = "" }) {
                 <div style={{ color: 'red' }}>Google signup is currently unavailable.</div>
               )}
               {isGoogleLoading && <p style={{ color: '#2563eb' }}>Verifying Google account...</p>}
-
-              <button
-                type="button"
-                className="sgn-guest-btn"
-                onClick={() => {
-                  setStep("manual");
-                  setMessage("");
-                  setIsSuccess(false);
-                }}
-                disabled={isGoogleLoading}
-              >
-                Continue without Google account
-              </button>
             </div>
-          ) : step === "usn" ? (
+          ) : (
             <>
               <div className="sgn-verified-profile">
                 <Image
@@ -279,56 +238,6 @@ export default function Signup({ googleClientId = "" }) {
               >
                 <span>{isFinishing ? "Creating account..." : "Finish Signup"}</span>
                 <FiArrowRight className={`sgn-btn-arrow ${isFinishing ? "sgn-spin" : ""}`} />
-              </button>
-            </>
-          ) : (
-            <>
-              <div className="sgn-input-wrap">
-                <FiUser className="sgn-input-icon" />
-                <input
-                  type="text"
-                  placeholder="Full Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  className="sgn-input"
-                  disabled={isManualLoading}
-                />
-              </div>
-
-              <div className="sgn-input-wrap">
-                <FiHash className="sgn-input-icon" />
-                <input
-                  type="text"
-                  placeholder="USN / Register Number / ID"
-                  value={usn}
-                  onChange={(e) => setUsn(e.target.value.toUpperCase())}
-                  required
-                  className="sgn-input"
-                  disabled={isManualLoading}
-                />
-              </div>
-
-              <div className="sgn-input-wrap">
-                <FiLock className="sgn-input-icon" />
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="sgn-input"
-                  disabled={isManualLoading}
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="sgn-btn-primary"
-                disabled={isManualLoading}
-              >
-                <span>{isManualLoading ? "Creating account..." : "Sign up"}</span>
-                <FiArrowRight className={`sgn-btn-arrow ${isManualLoading ? "sgn-spin" : ""}`} />
               </button>
             </>
           )}

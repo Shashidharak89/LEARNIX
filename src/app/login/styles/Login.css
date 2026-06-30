@@ -8,8 +8,6 @@
   background: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   padding: 2rem;
-  background-image: radial-gradient(#87ceeb 1.5px, transparent 1.5px);
-  background-size: 30px 30px;
 }
 
 .lgn-card {
