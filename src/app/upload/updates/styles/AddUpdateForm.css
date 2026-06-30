@@ -135,11 +135,25 @@
    Form Fields
    ============================================ */
 
+.auf-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 769px) {
+  .auf-form-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+}
+
 .auf-field {
+  /* Default margin preserved for non-grid usage, but reset in grid */
   margin-bottom: 24px;
 }
 
-.auf-field:last-of-type {
+.auf-form-grid .auf-field {
   margin-bottom: 0;
 }
 
@@ -410,8 +424,8 @@
     border-radius: 8px;
   }
 
-  .auf-field {
-    margin-bottom: 18px;
+  .auf-form-grid {
+    gap: 16px;
   }
 
   .auf-label {

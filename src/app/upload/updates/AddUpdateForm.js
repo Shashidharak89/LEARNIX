@@ -144,88 +144,91 @@ export default function AddUpdateForm({ onUpdateAdded }) {
       {/* Form Card */}
       <div className="auf-card">
         <form onSubmit={handleSubmit} className="auf-form">
-          {/* Title Field */}
-          <div className="auf-field">
-            <label className="auf-label">
-              <FiEdit3 className="auf-label-icon" />
-              <span>Title</span>
-              <span className="auf-required">*</span>
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter update title..."
-              className="auf-input"
-              required
-            />
-          </div>
-
-          {/* Files / Raw Upload Field */}
-            <label className="auf-label">
-              <FiImage className="auf-label-icon" />
-              <span>Files (optional)</span>
-            </label>
-            <div className="auf-file-row">
-              <label className="auf-file-btn">
-                <FiUpload />
-                <span>Upload files</span>
-                <input type="file" multiple onChange={handleFilesSelected} className="auf-hidden-input" />
+          <div className="auf-form-grid">
+            {/* Title Field */}
+            <div className="auf-field">
+              <label className="auf-label">
+                <FiEdit3 className="auf-label-icon" />
+                <span>Title</span>
+                <span className="auf-required">*</span>
               </label>
-              {isUploadingFiles && <span className="auf-file-uploading">Uploading…</span>}
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Enter update title..."
+                className="auf-input"
+                required
+              />
             </div>
 
-            {uploadedFiles.length > 0 && (
-              <div className="auf-uploaded-files">
-                {uploadedFiles.map((f, i) => (
-                  <div key={i} className="auf-uploaded-file">
-                    <a href={f.url} target="_blank" rel="noreferrer noopener" className="auf-uploaded-link">
-                      <span className="auf-file-name">{f.name || f.url}</span>
-                    </a>
-                    <button type="button" className="auf-file-remove" onClick={() => removeUploadedFile(i)}>
-                      <FiTrash2 />
-                    </button>
-                  </div>
-                ))}
+            {/* Files / Raw Upload Field */}
+            <div className="auf-field">
+              <label className="auf-label">
+                <FiImage className="auf-label-icon" />
+                <span>Files (optional)</span>
+              </label>
+              <div className="auf-file-row">
+                <label className="auf-file-btn">
+                  <FiUpload />
+                  <span>Upload files</span>
+                  <input type="file" multiple onChange={handleFilesSelected} className="auf-hidden-input" />
+                </label>
+                {isUploadingFiles && <span className="auf-file-uploading">Uploading…</span>}
               </div>
+
+              {uploadedFiles.length > 0 && (
+                <div className="auf-uploaded-files">
+                  {uploadedFiles.map((f, i) => (
+                    <div key={i} className="auf-uploaded-file">
+                      <a href={f.url} target="_blank" rel="noreferrer noopener" className="auf-uploaded-link">
+                        <span className="auf-file-name">{f.name || f.url}</span>
+                      </a>
+                      <button type="button" className="auf-file-remove" onClick={() => removeUploadedFile(i)}>
+                        <FiTrash2 />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               )}
-
-
-          {/* Content Field */}
-          <div className="auf-field">
-            <label className="auf-label">
-              <FiEdit3 className="auf-label-icon" />
-              <span>Content</span>
-              <span className="auf-required">*</span>
-            </label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Write your update content here..."
-              rows={6}
-              className="auf-textarea"
-              required
-            />
-            <div className="auf-hint">
-              Share information, announcements, or resources with the community
             </div>
-          </div>
 
-          {/* Links Field */}
-          <div className="auf-field">
-            <label className="auf-label">
-              <FiLink className="auf-label-icon" />
-              <span>Links (optional)</span>
-            </label>
-            <textarea
-              value={linksText}
-              onChange={(e) => setLinksText(e.target.value)}
-              placeholder="/internal/path or https://external-link.com&#10;Separate multiple links with commas or new lines"
-              rows={3}
-              className="auf-textarea auf-textarea-links"
-            />
-            <div className="auf-hint">
-              Add internal paths (starting with /) or external URLs
+            {/* Content Field */}
+            <div className="auf-field">
+              <label className="auf-label">
+                <FiEdit3 className="auf-label-icon" />
+                <span>Content</span>
+                <span className="auf-required">*</span>
+              </label>
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Write your update content here..."
+                rows={4}
+                className="auf-textarea"
+                required
+              />
+              <div className="auf-hint">
+                Share information, announcements, or resources with the community
+              </div>
+            </div>
+
+            {/* Links Field */}
+            <div className="auf-field">
+              <label className="auf-label">
+                <FiLink className="auf-label-icon" />
+                <span>Links (optional)</span>
+              </label>
+              <textarea
+                value={linksText}
+                onChange={(e) => setLinksText(e.target.value)}
+                placeholder="/internal/path or https://external-link.com&#10;Separate multiple links with commas or new lines"
+                rows={4}
+                className="auf-textarea auf-textarea-links"
+              />
+              <div className="auf-hint">
+                Add internal paths (starting with /) or external URLs
+              </div>
             </div>
           </div>
 
