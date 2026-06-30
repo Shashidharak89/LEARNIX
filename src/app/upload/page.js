@@ -2,15 +2,13 @@
 
 import ManageSubjects from "./ManageSubjects";
 import { Navbar } from "../components/Navbar";
-import Footer from "../components/Footer";
-
 
 export default function upload() {
 
   return (
     <div >
       <Navbar />
-      <div style={{  margin: '18px auto', padding: '0 16px' }}>
+      <div style={{ margin: '18px auto', padding: '0 16px' }}>
         <a href="/upload/updates" style={{ textDecoration: 'none' }}>
           <div
             className="learnix-updates-banner"

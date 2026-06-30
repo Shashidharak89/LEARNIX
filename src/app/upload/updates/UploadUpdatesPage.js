@@ -13,8 +13,8 @@ export default function UploadUpdatesPage() {
   };
   return (
     <>
-      <div style={{ width: '94%', maxWidth: '1400px', margin: '28px auto', padding: '0 18px', boxSizing: 'border-box' }}>
-        <main style={{ background: '#fff', padding: 18, borderRadius: 8 }}>
+      <div className="upload-updates-page" style={{ width: '94%', maxWidth: '1400px', margin: '28px auto', boxSizing: 'border-box' }}>
+        <main>
           <AddUpdateForm onUpdateAdded={handleUpdateAdded} />
 
           <UpdatesList refreshKey={refreshKey} />
