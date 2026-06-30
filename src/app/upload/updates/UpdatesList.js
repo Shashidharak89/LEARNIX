@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { FiTrash2, FiEdit2, FiSave, FiX, FiUser, FiClock, FiExternalLink, FiChevronRight, FiAlertCircle, FiAlertTriangle, FiUpload, FiDownload, FiEye } from "react-icons/fi";
 import './styles/UpdatesList.css';
 
-export default function UpdatesList() {
+export default function UpdatesList({ refreshKey }) {
   const [updates, setUpdates] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -70,6 +70,13 @@ export default function UpdatesList() {
       }
     })();
   }, []);
+
+  useEffect(() => {
+    if (refreshKey > 0 && currentUserId) {
+      setPage(1);
+      fetchPage(1, false, currentUserId);
+    }
+  }, [refreshKey]);
 
   const loadMore = () => {
     if (!currentUserId) return;

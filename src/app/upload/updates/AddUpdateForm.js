@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { FiEdit3, FiSend, FiX, FiUser, FiLink, FiAlertCircle, FiCheckCircle, FiImage, FiTrash2, FiUpload } from "react-icons/fi";
 import './styles/AddUpdateForm.css';
 
-export default function AddUpdateForm() {
+export default function AddUpdateForm({ onUpdateAdded }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [linksText, setLinksText] = useState("");
@@ -69,8 +69,7 @@ export default function AddUpdateForm() {
         setContent('');
         setLinksText('');
         setUploadedFiles([]);
-        // Optionally navigate to updates list
-        // router.push('/updates');
+        if (onUpdateAdded) onUpdateAdded();
       } else {
         showToast(data?.error || 'Failed to create update', 'error');
       }
