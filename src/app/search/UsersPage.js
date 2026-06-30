@@ -27,28 +27,29 @@ export default function UsersPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    // When query changes (after initial), reset and fetch from page 1
-    if (!initialLoading) {
-      setPage(1);
-      // Update URL with search query
-      if (query.trim()) {
-        window.history.replaceState({}, '', `${pathname}?q=${encodeURIComponent(query)}`);
-      } else {
-        window.history.replaceState({}, '', pathname);
-      }
-      fetchUsers(true);
+  const handleSearch = () => {
+    setPage(1);
+    if (query.trim()) {
+      window.history.replaceState({}, '', `${pathname}?q=${encodeURIComponent(query)}`);
+    } else {
+      window.history.replaceState({}, '', pathname);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
+    fetchUsers(true, query);
+  };
 
-  const fetchUsers = async (reset = false) => {
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const fetchUsers = async (reset = false, searchQuery = query) => {
     if (loading) return;
     setLoading(true);
 
     try {
       const res = await fetch(
-        `/api/user/all?search=${encodeURIComponent(query)}&page=${
+        `/api/user/all?search=${encodeURIComponent(searchQuery)}&page=${
           reset ? 1 : page
         }&limit=${limit}`
       );
@@ -110,14 +111,22 @@ export default function UsersPage() {
 
       <div className="modern-search-section">
         <div className="modern-search-container">
-          <FiSearch className="search-icon-modern" />
           <input
             type="text"
             className="modern-search-input"
             placeholder="Search by name, USN, subject, or topic..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
+          <button 
+             type="button"
+             onClick={handleSearch}
+             className="modern-search-btn"
+             aria-label="Search"
+          >
+             <FiSearch className="search-icon-modern" />
+          </button>
         </div>
       </div>
 
