@@ -68,6 +68,8 @@ export default function QPAdminPage() {
     const [activeTab, setActiveTab] = useState("QPUniversities");
     const [formData, setFormData] = useState({});
     const [records, setRecords] = useState([]);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [references, setReferences] = useState({});
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(null);
@@ -75,7 +77,9 @@ export default function QPAdminPage() {
     // Fetch records for the active tab
     useEffect(() => {
         if (activeTab === "Viewer") return;
-        fetchRecords(activeTab);
+        setPage(1);
+        setRecords([]);
+        fetchRecords(activeTab, 1);
     }, [activeTab]);
 
     // Fetch references (e.g. for dropdowns)
@@ -105,13 +109,30 @@ export default function QPAdminPage() {
         setMessage(null);
     }, [activeTab]);
 
-    const fetchRecords = async (modelName) => {
+    const apiMap = {
+        QPUniversities: "/api/qp/v1/universities",
+        QPColleges: "/api/qp/v1/colleges",
+        QPSemesters: "/api/qp/v1/semesters",
+        QPCourse: "/api/qp/v1/courses",
+        QPSubjects: "/api/qp/v1/subjects",
+        QPBatches: "/api/qp/v1/batches",
+        QPExamType: "/api/qp/v1/examtypes",
+        QPImages: "/api/qp/v1/images"
+    };
+
+    const fetchRecords = async (modelName, pageNum = 1) => {
         setLoading(true);
         try {
-            const res = await fetch(`/api/admin/qp-models?model=${modelName}`);
+            const endpoint = apiMap[modelName];
+            const res = await fetch(`${endpoint}?page=${pageNum}&limit=20`);
             const json = await res.json();
             if (json.success) {
-                setRecords(json.data);
+                if (pageNum === 1) {
+                    setRecords(json.data);
+                } else {
+                    setRecords(prev => [...prev, ...json.data]);
+                }
+                setTotalPages(json.pagination?.totalPages || 1);
             }
         } catch (error) {
             console.error(error);
@@ -154,7 +175,8 @@ export default function QPAdminPage() {
 
             if (json.success) {
                 setMessage({ type: "success", text: "Record added successfully!" });
-                fetchRecords(activeTab); // refresh
+                setPage(1);
+                fetchRecords(activeTab, 1); // refresh
 
                 // Keep references and reset other fields if needed, but a full reset is simpler
                 const config = modelsConfig[activeTab];
@@ -308,6 +330,23 @@ export default function QPAdminPage() {
                                             </div>
                                         </div>
                                     ))
+                                )}
+                                
+                                {page < totalPages && (
+                                    <div style={{ textAlign: "center", marginTop: "20px" }}>
+                                        <button 
+                                            className="qp-submit-btn" 
+                                            style={{ backgroundColor: "#6b7280", width: "auto", display: "inline-block", padding: "10px 20px" }}
+                                            onClick={() => {
+                                                const nextPage = page + 1;
+                                                setPage(nextPage);
+                                                fetchRecords(activeTab, nextPage);
+                                            }}
+                                            disabled={loading}
+                                        >
+                                            {loading ? "Loading..." : "View More"}
+                                        </button>
+                                    </div>
                                 )}
                             </div>
                         </div>
