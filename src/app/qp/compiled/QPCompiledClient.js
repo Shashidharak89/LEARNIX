@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { FaArrowLeft, FaImage } from "react-icons/fa";
+import { FaArrowLeft, FaImage, FaDownload, FaShare } from "react-icons/fa";
 import { Navbar } from "../../components/Navbar";
 import ImageLoader from "../../components/ImageLoader";
 import "../../works/[id]/styles/WorkTopicPage.css"; 
@@ -16,6 +16,7 @@ export default function QPCompiledClient() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [expandedImages, setExpandedImages] = useState({});
+    const [downloading, setDownloading] = useState(false);
 
     useEffect(() => {
         const fetchCompiledData = async () => {
@@ -64,6 +65,59 @@ export default function QPCompiledClient() {
         }));
     };
 
+    const handleDownload = async () => {
+        if (!images || images.length === 0) return;
+        setDownloading(true);
+        try {
+            const res = await fetch('/api/work/download-pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    images, 
+                    fileName: `${title.replace(/[^a-zA-Z0-9.-]/g, '_')}_Question_Papers` 
+                })
+            });
+            
+            if (!res.ok) throw new Error("Failed to generate PDF");
+            
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `${title.replace(/[^a-zA-Z0-9.-]/g, '_')}_Question_Papers.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            alert(err.message || "An error occurred during download.");
+        } finally {
+            setDownloading(false);
+        }
+    };
+
+    const handleShare = async () => {
+        const url = window.location.href;
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: `${title} | Question Papers`,
+                    text: `Check out these compiled Question Papers for ${title}`,
+                    url: url
+                });
+            } catch (err) {
+                console.error("Error sharing", err);
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(url);
+                alert("Link copied to clipboard!");
+            } catch (err) {
+                alert("Failed to copy link.");
+            }
+        }
+    };
+
     if (loading) {
         return (
             <div className="wtpc-container">
@@ -110,6 +164,23 @@ export default function QPCompiledClient() {
                             <FaArrowLeft />
                             <span className="wtpc-btn-text">Back to Search</span>
                         </Link>
+                        
+                        <button 
+                            className="wtpc-action-btn wtpc-download-btn" 
+                            onClick={handleDownload}
+                            disabled={downloading}
+                        >
+                            <FaDownload />
+                            <span className="wtpc-btn-text">{downloading ? "Generating..." : "Download PDF"}</span>
+                        </button>
+                        
+                        <button 
+                            className="wtpc-action-btn wtpc-share-btn" 
+                            onClick={handleShare}
+                        >
+                            <FaShare />
+                            <span className="wtpc-btn-text">Share</span>
+                        </button>
                     </div>
 
                     <div className="wtpc-images-section">
