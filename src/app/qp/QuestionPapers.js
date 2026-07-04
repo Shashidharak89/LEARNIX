@@ -17,32 +17,36 @@ import {
   FiBook,
   FiExternalLink,
 } from "react-icons/fi";
+import DirectoryNode from "./DirectoryNode";
 import "./styles/QuestionPapers.css";
 
 export default function QuestionPapers() {
-  const [tree, setTree] = useState(null);
+  const [universities, setUniversities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [expandedNodes, setExpandedNodes] = useState({});
-  const [searchSubject, setSearchSubject] = useState("");
-  const [selectedSubject, setSelectedSubject] = useState("");
-  const [subjectDownloading, setSubjectDownloading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [feedback, setFeedback] = useState("");
   const [sending, setSending] = useState(false);
 
   useEffect(() => {
-    fetchTree();
+    fetchUniversities(1);
   }, []);
 
-  const fetchTree = async () => {
+  const fetchUniversities = async (pageNum, append = false) => {
     setLoading(true);
     try {
-      const res = await fetch("/api/qp/tree");
+      const res = await fetch(`/api/qp/v1/universities?page=${pageNum}&limit=20`);
       const json = await res.json();
       if (json.success) {
-        setTree(json.tree);
+        if (append) {
+            setUniversities(prev => [...prev, ...json.data]);
+        } else {
+            setUniversities(json.data);
+        }
+        setTotalPages(json.pagination.totalPages);
       } else {
-        setError(json.error || "Failed to load question papers");
+        setError(json.error || "Failed to load universities");
       }
     } catch (err) {
       setError(err.message);
@@ -50,57 +54,12 @@ export default function QuestionPapers() {
     setLoading(false);
   };
 
-    // Unused legacy subject functions removed
-
-  const toggleNode = (nodeId) => {
-    setExpandedNodes(prev => ({
-      ...prev,
-      [nodeId]: !prev[nodeId]
-    }));
-  };
-
-  const renderTree = (data, path = "", depth = 0) => {
-    return Object.entries(data).map(([key, value]) => {
-      const nodeId = `${path}-${key}`;
-      
-      // If it's a leaf node (ExamType)
-      if (value && value.isLeaf) {
-        const { batchId, examTypeId, collegeId, courseId, semesterId } = value;
-        const url = `/qp/compiled?batchId=${batchId}&examTypeId=${examTypeId}&collegeId=${collegeId}&courseId=${courseId}&semesterId=${semesterId}`;
-        return (
-          <div key={nodeId} style={{ marginLeft: "15px", marginTop: "8px", marginBottom: "8px" }}>
-             <a href={url} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", color: "#0b74ff", fontWeight: "600", padding: "10px 14px", background: "#f8faff", borderRadius: "8px", border: "1px solid #0b74ff", transition: "all 0.2s" }} onMouseOver={(e) => { e.currentTarget.style.background = "#0b74ff"; e.currentTarget.style.color = "#fff"; }} onMouseOut={(e) => { e.currentTarget.style.background = "#f8faff"; e.currentTarget.style.color = "#0b74ff"; }}>
-                 <FiFileText size={16} /> View {key} Papers
-             </a>
-          </div>
-        );
+  const handleLoadMore = () => {
+      if (page < totalPages) {
+          const nextPage = page + 1;
+          setPage(nextPage);
+          fetchUniversities(nextPage, true);
       }
-
-      // Normal intermediate nodes
-      const isExpanded = expandedNodes[nodeId];
-      const isTopLevel = depth === 0;
-      
-      return (
-        <div key={nodeId} className={isTopLevel ? "qp-semester-card" : "qp-batch-card"} style={isTopLevel ? { marginBottom: "12px" } : { marginLeft: "15px", marginTop: "8px" }}>
-          <button
-            className={isTopLevel ? `qp-semester-toggle ${isExpanded ? "qp-semester-active" : ""}` : `qp-batch-toggle ${isExpanded ? "qp-batch-active" : ""}`}
-            onClick={() => toggleNode(nodeId)}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              {!isTopLevel && <FiUsers size={18} />}
-              <span className={isTopLevel ? "qp-semester-title" : ""}>{key}</span>
-            </div>
-            {isExpanded ? <FiChevronDown size={isTopLevel ? 20 : 16} /> : <FiChevronRight size={isTopLevel ? 20 : 16} />}
-          </button>
-
-          {isExpanded && (
-            <div className={isTopLevel ? "qp-batches-container" : ""}>
-              {renderTree(value, nodeId, depth + 1)}
-            </div>
-          )}
-        </div>
-      );
-    });
   };
 
   return (
@@ -124,15 +83,39 @@ export default function QuestionPapers() {
             <h2 id="qp-papers-section" className="qp-subtitle">Browse Question Papers Directory</h2>
           </div>
           
-          <div className="qp-content">
-            {loading ? (
-              <p>Loading directory...</p>
+          <div className="qp-content" style={{ padding: "10px", background: "#f8f9fa", borderRadius: "12px", border: "1px solid #eaeaea" }}>
+            {loading && page === 1 ? (
+              <p style={{ textAlign: "center", color: "#888", padding: "20px" }}>Loading directory...</p>
             ) : error ? (
-              <p style={{ color: "red" }}>{error}</p>
-            ) : tree && Object.keys(tree).length > 0 ? (
-              renderTree(tree, "root", 0)
+              <p style={{ color: "red", textAlign: "center", padding: "20px" }}>{error}</p>
+            ) : universities.length > 0 ? (
+              <div>
+                  {universities.map(uni => (
+                      <DirectoryNode key={uni._id} type="university" data={uni} />
+                  ))}
+                  
+                  {page < totalPages && (
+                      <div style={{ textAlign: "center", marginTop: "20px" }}>
+                          <button 
+                              onClick={handleLoadMore}
+                              disabled={loading}
+                              style={{
+                                  background: loading ? "#e9ecef" : "#fff",
+                                  color: loading ? "#888" : "#0b74ff",
+                                  border: "1px solid #0b74ff",
+                                  padding: "8px 20px",
+                                  borderRadius: "6px",
+                                  cursor: loading ? "default" : "pointer",
+                                  fontWeight: "600"
+                              }}
+                          >
+                              {loading ? "Loading..." : "Load More Universities"}
+                          </button>
+                      </div>
+                  )}
+              </div>
             ) : (
-              <p>No question papers found.</p>
+              <p style={{ textAlign: "center", color: "#888", padding: "20px" }}>No question papers found.</p>
             )}
           </div>
         </section>
