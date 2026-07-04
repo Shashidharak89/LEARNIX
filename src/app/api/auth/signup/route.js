@@ -31,7 +31,7 @@ export async function POST(req) {
       if (!user.plan) user.plan = "basic";
       await user.save();
 
-      return NextResponse.json({ message: "Account created", user: { name: user.name, usn: user.usn, profileimg: user.profileimg, role: user.role, plan: user.plan } });
+      return NextResponse.json({ message: "Account created", user: { name: user.name, usn: user.usn, profileimg: user.profileimg, role: user.role, plan: user.plan, balance: user.balance || 0 } });
     }
 
     // create new user
@@ -46,7 +46,7 @@ export async function POST(req) {
     });
     await newUser.save();
 
-    return NextResponse.json({ message: "Account created", user: { name: newUser.name, usn: newUser.usn, profileimg: newUser.profileimg, role: newUser.role, plan: newUser.plan } });
+    return NextResponse.json({ message: "Account created", user: { name: newUser.name, usn: newUser.usn, profileimg: newUser.profileimg, role: newUser.role, plan: newUser.plan, balance: newUser.balance || 0 } });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });

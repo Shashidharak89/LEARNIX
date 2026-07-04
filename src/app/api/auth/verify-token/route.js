@@ -34,6 +34,7 @@ export async function GET(req) {
         role: user.role || "user",
         plan: user.plan || "basic",
         profileimg: user.profileimg,
+        balance: user.balance || 0,
         createdAt: user.createdAt ? new Date(user.createdAt).toISOString() : null,
       },
     });

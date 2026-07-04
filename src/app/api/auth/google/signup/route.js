@@ -80,6 +80,7 @@ export async function POST(req) {
                 profileUrl: newUser.profileimg,
                 role: newUser.role,
                 plan: newUser.plan,
+                balance: newUser.balance || 0,
                 createdAt: newUser.createdAt,
                 lastLogin: newUser.lastLoginAt
             }

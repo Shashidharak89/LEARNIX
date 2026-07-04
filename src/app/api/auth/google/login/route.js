@@ -70,6 +70,7 @@ export async function POST(req) {
                 profileUrl: user.profileimg,
                 role: user.role,
                 plan: user.plan,
+                balance: user.balance || 0,
                 createdAt: user.createdAt,
                 lastLogin: user.lastLoginAt
             }

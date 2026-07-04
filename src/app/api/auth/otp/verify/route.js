@@ -65,7 +65,7 @@ export async function POST(req) {
 
     return NextResponse.json({
       message: "Logged in successfully",
-      user: { name: user.name, usn: user.usn, profileimg: user.profileimg, role: user.role, plan: user.plan },
+      user: { name: user.name, usn: user.usn, profileimg: user.profileimg, role: user.role, plan: user.plan, balance: user.balance || 0 },
       token
     }, { status: 200 });
 

@@ -120,6 +120,7 @@ export async function POST(req) {
                         profileimg: existingUser.profileimg,
                         role: existingUser.role,
                         plan: existingUser.plan,
+                        balance: existingUser.balance || 0,
                         createdAt: existingUser.createdAt
                     }
                 },
@@ -217,6 +218,7 @@ export async function POST(req) {
                     profileimg: newUser.profileimg,
                     role: newUser.role,
                     plan: newUser.plan,
+                    balance: newUser.balance || 0,
                     createdAt: newUser.createdAt
                 },
             },

@@ -131,6 +131,7 @@ export async function POST(req) {
           profileimg: newUser.profileimg,
           role: newUser.role,
           plan: newUser.plan,
+          balance: newUser.balance || 0,
         },
         token,
       },

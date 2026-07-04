@@ -57,7 +57,7 @@ export async function POST(req) {
 
         return NextResponse.json({
           message: "Password set successfully. You are now logged in.",
-          user: { _id: user._id, name: user.name, usn: user.usn, email: user.email, profileimg: user.profileimg, role: user.role, plan: user.plan, createdAt: user.createdAt },
+          user: { _id: user._id, name: user.name, usn: user.usn, email: user.email, profileimg: user.profileimg, role: user.role, plan: user.plan, balance: user.balance || 0, createdAt: user.createdAt },
           token
         });
       } else {
@@ -78,7 +78,7 @@ export async function POST(req) {
 
         return NextResponse.json({
           message: "Logged in successfully",
-          user: { _id: user._id, name: user.name, usn: user.usn, email: user.email, profileimg: user.profileimg, role: user.role, plan: user.plan, createdAt: user.createdAt },
+          user: { _id: user._id, name: user.name, usn: user.usn, email: user.email, profileimg: user.profileimg, role: user.role, plan: user.plan, balance: user.balance || 0, createdAt: user.createdAt },
           token
         });
       }
@@ -105,7 +105,7 @@ export async function POST(req) {
 
       return NextResponse.json({
         message: "Account created",
-        user: { _id: newUser._id, name: newUser.name, usn: newUser.usn, email: newUser.email, profileimg: newUser.profileimg, role: newUser.role, plan: newUser.plan, createdAt: newUser.createdAt },
+        user: { _id: newUser._id, name: newUser.name, usn: newUser.usn, email: newUser.email, profileimg: newUser.profileimg, role: newUser.role, plan: newUser.plan, balance: newUser.balance || 0, createdAt: newUser.createdAt },
         token
       });
     }
