@@ -2,6 +2,7 @@ import { Navbar } from "../components/Navbar";
 import QPSearch from "./QPSearch";
 import QPFilterSearch from "./QPFilterSearch";
 import QuestionPapers from "./QuestionPapers";
+import "./styles/QuestionPapers.css";
 
 export const metadata = {
     title: "Question Papers | Learnix",

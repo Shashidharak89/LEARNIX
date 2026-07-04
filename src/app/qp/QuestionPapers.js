@@ -14,11 +14,9 @@ import {
   FiHelpCircle,
   FiEye,
   FiShare2,
-  FiBook,
   FiExternalLink,
 } from "react-icons/fi";
 import DirectoryNode from "./DirectoryNode";
-import "./styles/QuestionPapers.css";
 
 export default function QuestionPapers() {
   const [universities, setUniversities] = useState([]);

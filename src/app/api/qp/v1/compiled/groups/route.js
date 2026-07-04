@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import QPImages from "@/models/QPImages";
 import QPSubjects from "@/models/QPSubjects";
+import QPBatches from "@/models/QPBatches";
+import QPExamType from "@/models/QPExamType";
 import mongoose from "mongoose";
 
 export async function GET(req) {

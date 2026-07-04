@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { FiSearch, FiChevronDown, FiChevronRight, FiFileText, FiExternalLink } from "react-icons/fi";
-import "./styles/QuestionPapers.css";
 
 export default function QPSearch() {
     const [query, setQuery] = useState("");

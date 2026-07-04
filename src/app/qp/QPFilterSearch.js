@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { FiChevronDown, FiFileText, FiExternalLink, FiX } from "react-icons/fi";
-import "./styles/QuestionPapers.css";
 
 // Custom Dropdown Component
 const CustomDropdown = ({ label, options, value, onChange, onLoadMore, hasMore, loading, placeholder }) => {
@@ -194,11 +193,11 @@ export default function QPFilterSearch() {
         }
     }, [filters.semester, filters.course, filters.college]);
 
-    // Fetch Results based on Filters
-    useEffect(() => {
+    // Manual Fetch Results Trigger
+    const handleSearch = () => {
         setResultsPage(1);
         fetchResults(1, true);
-    }, [filters]);
+    };
 
     const fetchDropdownData = async (type, endpoint, append = false) => {
         try {
@@ -342,6 +341,29 @@ export default function QPFilterSearch() {
                         hasMore={pages.subjects.current < pages.subjects.total}
                         onLoadMore={() => handleDropdownLoadMore("subjects")}
                     />
+                </div>
+                
+                <div style={{ textAlign: "center", marginBottom: "30px" }}>
+                    <button 
+                        onClick={handleSearch}
+                        disabled={loadingResults}
+                        style={{
+                            background: "#0b74ff",
+                            color: "#fff",
+                            border: "none",
+                            padding: "12px 30px",
+                            borderRadius: "8px",
+                            cursor: loadingResults ? "default" : "pointer",
+                            fontWeight: "bold",
+                            fontSize: "16px",
+                            transition: "all 0.2s ease",
+                            boxShadow: "0 4px 12px rgba(11, 116, 255, 0.2)"
+                        }}
+                        onMouseOver={(e) => { if (!loadingResults) e.currentTarget.style.background = "#0958c2"; }}
+                        onMouseOut={(e) => { if (!loadingResults) e.currentTarget.style.background = "#0b74ff"; }}
+                    >
+                        {loadingResults ? "Searching..." : "Search Question Papers"}
+                    </button>
                 </div>
 
                 <div className="qp-results-container">
