@@ -12,23 +12,7 @@ import {
 } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
 import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
-import questionPapersData from "../../questionPapersData";
 import "./SubjectViewer.css";
-
-/* ── helpers ── */
-const getImagesBySubject = (subject) => {
-  const images = [];
-  for (const sem of questionPapersData) {
-    for (const batch of sem.batches) {
-      for (const examKey of ["mse1", "mse2", "final"]) {
-        const exam = batch[examKey];
-        const urls = exam?.imageurls?.[subject];
-        if (Array.isArray(urls)) images.push(...urls.filter(Boolean));
-      }
-    }
-  }
-  return images;
-};
 
 const decodeSubject = (slug) => {
   try {
@@ -88,7 +72,46 @@ function Lightbox({ images, startIndex, onClose }) {
 export default function SubjectViewer({ params }) {
   const { subject: subjectSlug } = use(params);
   const subject = decodeSubject(subjectSlug);
-  const images = getImagesBySubject(subject);
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetchTreeAndExtractImages();
+  }, [subject]);
+
+  const fetchTreeAndExtractImages = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/qp/tree");
+      const json = await res.json();
+      if (json.success) {
+        const tree = json.tree;
+        const imagesList = [];
+        
+        Object.values(tree).forEach(colleges => {
+          Object.values(colleges).forEach(courses => {
+            Object.values(courses).forEach(semesters => {
+              Object.values(semesters).forEach(subjectsObj => {
+                if (subjectsObj[subject]) {
+                  subjectsObj[subject].forEach(item => {
+                    imagesList.push(...item.images);
+                  });
+                }
+              });
+            });
+          });
+        });
+        
+        setImages(imagesList);
+      } else {
+        setError(json.error || "Failed to load");
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+    setLoading(false);
+  };
 
   const [expandedImages, setExpandedImages] = useState({});
   const [showPageNumbers, setShowPageNumbers] = useState(false);
@@ -101,7 +124,13 @@ export default function SubjectViewer({ params }) {
   const [selectedPages, setSelectedPages] = useState([]);
   const [visiblePageCount, setVisiblePageCount] = useState(10);
   const [startPage, setStartPage] = useState(1);
-  const [endPage, setEndPage] = useState(images.length || 1);
+  const [endPage, setEndPage] = useState(1);
+  
+  useEffect(() => {
+    if (images.length > 0) {
+      setEndPage(images.length);
+    }
+  }, [images]);
 
   const hasImages = images.length > 0;
 
@@ -196,6 +225,14 @@ export default function SubjectViewer({ params }) {
       try { await navigator.clipboard.writeText(text); alert("Link copied!"); } catch {}
     }
   };
+
+  if (loading) {
+    return <div style={{textAlign: "center", padding: "50px", fontSize: "1.2rem"}}>Loading Question Papers...</div>;
+  }
+  
+  if (error) {
+    return <div style={{textAlign: "center", padding: "50px", color: "red"}}>{error}</div>;
+  }
 
   return (
     <div className="sv-container">
