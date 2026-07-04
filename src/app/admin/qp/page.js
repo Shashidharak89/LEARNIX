@@ -8,69 +8,49 @@ const modelsConfig = {
     QPUniversities: {
         fields: [
             { name: "name", type: "text", required: true },
-            { name: "code", type: "text", required: true },
+            { name: "city", type: "text" },
             { name: "state", type: "text" },
-            { name: "country", type: "text", default: "India" },
-            { name: "isActive", type: "checkbox", default: true }
+            { name: "district", type: "text" }
         ]
     },
     QPColleges: {
         fields: [
             { name: "name", type: "text", required: true },
-            { name: "code", type: "text", required: true },
-            { name: "university", type: "select", ref: "QPUniversities" },
-            { name: "city", type: "text" },
-            { name: "state", type: "text" },
-            { name: "isActive", type: "checkbox", default: true }
+            { name: "university", type: "select", ref: "QPUniversities", required: true },
+            { name: "location", type: "text" }
         ]
     },
     QPSemesters: {
         fields: [
-            { name: "semesterNumber", type: "number", required: true },
-            { name: "name", type: "text", required: true },
-            { name: "duration", type: "text", default: "6 months" },
-            { name: "isActive", type: "checkbox", default: true }
+            { name: "semesterNumber", type: "number", required: true }
         ]
     },
     QPExamType: {
         fields: [
-            { name: "name", type: "text", required: true },
-            { name: "code", type: "text", required: true },
-            { name: "description", type: "text" },
-            { name: "isInternal", type: "checkbox", default: false },
-            { name: "maxMarks", type: "number", default: 100 },
-            { name: "isActive", type: "checkbox", default: true }
+            { name: "name", type: "text", required: true }
         ]
     },
     QPBatches: {
         fields: [
-            { name: "year", type: "number", required: true },
-            { name: "name", type: "text", required: true },
             { name: "startYear", type: "number", required: true },
-            { name: "endYear", type: "number", required: true },
-            { name: "description", type: "text" },
-            { name: "isActive", type: "checkbox", default: true }
+            { name: "endYear", type: "number", required: true }
         ]
     },
     QPSubjects: {
         fields: [
             { name: "name", type: "text", required: true },
-            { name: "code", type: "text", required: true },
-            { name: "semester", type: "select", ref: "QPSemesters" },
-            { name: "college", type: "select", ref: "QPColleges" },
-            { name: "credits", type: "number", default: 4 },
-            { name: "description", type: "text" },
-            { name: "isActive", type: "checkbox", default: true }
+            { name: "semester", type: "select", ref: "QPSemesters", required: true },
+            { name: "college", type: "select", ref: "QPColleges", required: true }
         ]
     },
     QPImages: {
         fields: [
-            { name: "semister", type: "text", required: true, label: "Semester Name (e.g. MCA Semester 1)" },
-            { name: "batchname", type: "text", required: true, label: "Batch Name (e.g. 2022-2024)" },
-            { name: "finalId", type: "text", required: true, label: "Final ID (e.g. QP0103)" },
-            { name: "subjectName", type: "text", required: true, label: "Subject Name" },
+            { name: "subject", type: "select", ref: "QPSubjects", required: true },
+            { name: "college", type: "select", ref: "QPColleges", required: true },
+            { name: "batch", type: "select", ref: "QPBatches", required: true },
+            { name: "examtype", type: "select", ref: "QPExamType", required: true },
             { name: "imageUrls", type: "text", label: "Image URLs (comma separated)" },
-            { name: "visitlink", type: "text", label: "Visit Link (comma separated)" }
+            { name: "visitLink", type: "text", label: "Visit Link" }
         ],
         customSubmit: true
     }
@@ -144,25 +124,8 @@ export default function QPAdminPage() {
         let payload = { ...formData };
 
         if (activeTab === "QPImages") {
-            // Reconstruct nested JSON format for QPImages
             const imageUrlsList = payload.imageUrls ? payload.imageUrls.split(',').map(s => s.trim()).filter(Boolean) : [];
-            const visitLinksList = payload.visitlink ? payload.visitlink.split(',').map(s => s.trim()).filter(Boolean) : [];
-
-            payload = {
-                semister: payload.semister,
-                batches: [
-                    {
-                        batchname: payload.batchname,
-                        final: {
-                            id: payload.finalId,
-                            imageurls: {
-                                [payload.subjectName]: imageUrlsList
-                            },
-                            visitlink: visitLinksList
-                        }
-                    }
-                ]
-            };
+            payload.imageUrls = imageUrlsList;
         }
 
         try {
@@ -181,6 +144,16 @@ export default function QPAdminPage() {
             if (json.success) {
                 setMessage({ type: "success", text: "Record added successfully!" });
                 fetchRecords(activeTab); // refresh
+                
+                // Keep references and reset other fields if needed, but a full reset is simpler
+                const config = modelsConfig[activeTab];
+                const resetForm = { ...formData };
+                config.fields.forEach(f => {
+                   if(f.type !== "select") {
+                       resetForm[f.name] = "";
+                   }
+                });
+                setFormData(resetForm);
             } else {
                 setMessage({ type: "error", text: json.error || json.message });
             }
@@ -188,6 +161,16 @@ export default function QPAdminPage() {
             setMessage({ type: "error", text: error.message });
         }
         setLoading(false);
+    };
+
+    const getReferenceLabel = (refModel, id) => {
+        if (!references[refModel]) return id;
+        const refDoc = references[refModel].find(r => r._id === id);
+        if (!refDoc) return id;
+        
+        if (refModel === "QPBatches") return `${refDoc.startYear}-${refDoc.endYear}`;
+        if (refModel === "QPSemesters") return `Sem ${refDoc.semesterNumber}`;
+        return refDoc.name || id;
     };
 
     return (
@@ -254,7 +237,9 @@ export default function QPAdminPage() {
                                             <option value="">-- Select {field.name} --</option>
                                             {references[field.ref] && references[field.ref].map(refDoc => (
                                                 <option key={refDoc._id} value={refDoc._id}>
-                                                    {refDoc.name || refDoc.semesterNumber || refDoc._id}
+                                                    {field.ref === "QPBatches" ? `${refDoc.startYear}-${refDoc.endYear}` : 
+                                                     field.ref === "QPSemesters" ? `Semester ${refDoc.semesterNumber}` : 
+                                                     (refDoc.name || refDoc._id)}
                                                 </option>
                                             ))}
                                         </select>
@@ -277,20 +262,22 @@ export default function QPAdminPage() {
                             ) : (
                                 records.map((record) => (
                                     <div key={record._id} className="qp-record-card">
-                                        {activeTab === "QPImages" ? (
-                                            <div>
-                                                <strong>{record.semister}</strong>
-                                                <pre className="qp-json-preview">
-                                                    {JSON.stringify(record.batches, null, 2)}
-                                                </pre>
-                                            </div>
-                                        ) : (
-                                            <div>
-                                                <strong>{record.name || record.semesterNumber || record.year}</strong>
-                                                <span className="qp-record-code">{record.code && ` (${record.code})`}</span>
-                                            </div>
-                                        )}
-                                        <div className="qp-record-meta">ID: {record._id}</div>
+                                        <div className="qp-record-meta-top">ID: {record._id}</div>
+                                        <div className="qp-record-details">
+                                            {modelsConfig[activeTab].fields.map(f => (
+                                                <div key={f.name} className="qp-record-detail-item">
+                                                    <span className="qp-record-detail-label">{f.name}: </span>
+                                                    <span className="qp-record-detail-value">
+                                                        {f.type === 'select' ? 
+                                                            getReferenceLabel(f.ref, record[f.name]) : 
+                                                            f.name === 'imageUrls' ? 
+                                                                (record[f.name] && record[f.name].length) + " images" :
+                                                                String(record[f.name] || 'N/A')
+                                                        }
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 ))
                             )}
