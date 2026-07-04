@@ -240,12 +240,14 @@ export default function QPFilterSearch() {
     const fetchResults = async (pageNum, isNewSearch = false) => {
         setLoadingResults(true);
         try {
-            let endpoint = `/api/qp/v1/images?page=${pageNum}&limit=20`;
+            let endpoint = `/api/qp/v1/compiled/groups?page=${pageNum}&limit=20`;
             
             // Build query params based on selected filters
             if (filters.subject) endpoint += `&subjectId=${filters.subject}`;
             if (filters.college) endpoint += `&collegeId=${filters.college}`;
             if (filters.batch) endpoint += `&batchId=${filters.batch}`;
+            if (filters.course) endpoint += `&courseId=${filters.course}`;
+            if (filters.semester) endpoint += `&semesterId=${filters.semester}`;
 
             const res = await fetch(endpoint);
             const json = await res.json();
@@ -355,40 +357,74 @@ export default function QPFilterSearch() {
                         </div>
                     ) : (
                         <div>
-                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "20px" }}>
-                                {results.map((record) => (
-                                    <div key={record._id} style={{ border: "1px solid #eaeaea", borderRadius: "12px", overflow: "hidden", background: "#fff", padding: "20px", boxShadow: "0 4px 15px rgba(0,0,0,0.03)" }}>
-                                        <div style={{ display: "inline-block", background: "#f2c200", color: "#111", padding: "4px 8px", borderRadius: "6px", fontSize: "12px", fontWeight: "bold", marginBottom: "10px" }}>
-                                            {record.batch ? `${record.batch.startYear}-${record.batch.endYear}` : "Unknown Batch"}
-                                        </div>
-                                        <div style={{ display: "inline-block", background: "#0b74ff", color: "#fff", padding: "4px 8px", borderRadius: "4px", fontSize: "12px", fontWeight: "bold", marginBottom: "10px", marginLeft: "10px" }}>
-                                            {record.examtype ? record.examtype.name : "Exam"}
-                                        </div>
-                                        
-                                        <h4 style={{ fontSize: "16px", color: "#333", margin: "0 0 15px 0" }}>
-                                            {record.subject ? record.subject.name : "Unknown Subject"}
-                                        </h4>
-                                        
-                                        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-                                            {record.imageUrls && record.imageUrls.map((url, i) => (
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px" }}>
+                                {results.map((group, i) => {
+                                    if (group.type === "subject") {
+                                        const subName = group.subject ? group.subject.name : "Unknown Subject";
+                                        return (
+                                            <div key={i} style={{ border: "1px solid #eaeaea", borderRadius: "12px", overflow: "hidden", background: "#fff", padding: "24px", boxShadow: "0 4px 15px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                                                <div>
+                                                    <div style={{ display: "inline-block", background: "#0b74ff", color: "#fff", padding: "6px 10px", borderRadius: "6px", fontSize: "13px", fontWeight: "bold", marginBottom: "12px" }}>
+                                                        Subject Match
+                                                    </div>
+                                                    <h4 style={{ fontSize: "20px", color: "#111", margin: "0 0 10px 0" }}>
+                                                        {subName}
+                                                    </h4>
+                                                    <p style={{ color: "#666", fontSize: "14px", margin: "0 0 20px 0" }}>
+                                                        Contains compiled papers ({group.recordCount} records) for this subject.
+                                                    </p>
+                                                </div>
                                                 <a 
-                                                    key={i} href={url} target="_blank" rel="noopener noreferrer"
-                                                    style={{ display: "inline-flex", alignItems: "center", gap: "6px", textDecoration: "none", color: "#0b74ff", border: "1px solid #0b74ff", padding: "6px 12px", borderRadius: "8px", fontSize: "13px", background: "#f8faff", fontWeight: "500" }}
+                                                    href={group.subject ? `/qp/${group.subject._id}` : "#"} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", textDecoration: "none", color: "#fff", background: "#0b74ff", padding: "12px 20px", borderRadius: "8px", fontSize: "15px", fontWeight: "600", transition: "all 0.2s" }}
+                                                    onMouseOver={(e) => { e.currentTarget.style.background = "#0958c2"; }}
+                                                    onMouseOut={(e) => { e.currentTarget.style.background = "#0b74ff"; }}
                                                 >
-                                                    <FiFileText size={14} /> Part {i + 1}
+                                                    <FiFileText size={18} /> View Compiled Papers
                                                 </a>
-                                            ))}
-                                            {record.visitLink && record.visitLink.map((link, i) => (
+                                            </div>
+                                        );
+                                    } else {
+                                        const batchName = group.batch ? `${group.batch.startYear}-${group.batch.endYear}` : "General";
+                                        const examName = group.examtype ? group.examtype.name : "Exam";
+                                        
+                                        // Build query parameters for compiled view
+                                        const queryParams = new URLSearchParams();
+                                        if (group.batch) queryParams.set("batchId", group.batch._id);
+                                        if (group.examtype) queryParams.set("examTypeId", group.examtype._id);
+                                        if (filters.college) queryParams.set("collegeId", filters.college);
+                                        if (filters.course) queryParams.set("courseId", filters.course);
+                                        if (filters.semester) queryParams.set("semesterId", filters.semester);
+
+                                        return (
+                                            <div key={i} style={{ border: "1px solid #eaeaea", borderRadius: "12px", overflow: "hidden", background: "#fff", padding: "24px", boxShadow: "0 4px 15px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                                                <div>
+                                                    <div style={{ display: "inline-block", background: "#f2c200", color: "#111", padding: "6px 10px", borderRadius: "6px", fontSize: "13px", fontWeight: "bold", marginBottom: "12px" }}>
+                                                        Batch: {batchName}
+                                                    </div>
+                                                    <h4 style={{ fontSize: "20px", color: "#111", margin: "0 0 10px 0" }}>
+                                                        {examName}
+                                                    </h4>
+                                                    <p style={{ color: "#666", fontSize: "14px", margin: "0 0 20px 0" }}>
+                                                        Contains compiled papers ({group.recordCount} records) for all selected filters.
+                                                    </p>
+                                                </div>
                                                 <a 
-                                                    key={`link-${i}`} href={`/works/${link}`} target="_blank" rel="noopener noreferrer"
-                                                    style={{ display: "inline-flex", alignItems: "center", gap: "6px", textDecoration: "none", color: "#ff6b00", border: "1px solid #ff6b00", padding: "6px 12px", borderRadius: "8px", fontSize: "13px", background: "#fff5f0", fontWeight: "500" }}
+                                                    href={`/qp/compiled?${queryParams.toString()}`} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", textDecoration: "none", color: "#fff", background: "#0b74ff", padding: "12px 20px", borderRadius: "8px", fontSize: "15px", fontWeight: "600", transition: "all 0.2s" }}
+                                                    onMouseOver={(e) => { e.currentTarget.style.background = "#0958c2"; }}
+                                                    onMouseOut={(e) => { e.currentTarget.style.background = "#0b74ff"; }}
                                                 >
-                                                    <FiExternalLink size={14} /> Visit
+                                                    <FiFileText size={18} /> View Compiled Papers
                                                 </a>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))}
+                                            </div>
+                                        );
+                                    }
+                                })}
                             </div>
                             
                             {resultsPage < resultsTotalPages && (
@@ -408,7 +444,7 @@ export default function QPFilterSearch() {
                                             transition: "all 0.2s ease"
                                         }}
                                     >
-                                        {loadingResults ? "Loading..." : "Load More Records"}
+                                        {loadingResults ? "Loading..." : "Load More Groups"}
                                     </button>
                                 </div>
                             )}

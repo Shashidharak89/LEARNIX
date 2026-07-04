@@ -17,11 +17,27 @@ export async function GET(req) {
         const subjectId = url.searchParams.get("subjectId");
         const collegeId = url.searchParams.get("collegeId");
         const batchId = url.searchParams.get("batchId");
+        const examTypeId = url.searchParams.get("examTypeId");
+        const courseId = url.searchParams.get("courseId");
+        const semesterId = url.searchParams.get("semesterId");
         
         const query = {};
         if (subjectId) query.subject = subjectId;
         if (collegeId) query.college = collegeId;
         if (batchId) query.batch = batchId;
+        if (examTypeId) query.examtype = examTypeId;
+
+        // If no explicit subjectId is provided but course/semester is, restrict subjects
+        if (!subjectId && (courseId || semesterId)) {
+            const subjectQuery = {};
+            if (collegeId) subjectQuery.college = collegeId;
+            if (courseId) subjectQuery.course = courseId;
+            if (semesterId) subjectQuery.semester = semesterId;
+            
+            const validSubjects = await QPSubjects.find(subjectQuery).select('_id').lean();
+            const validSubjectIds = validSubjects.map(s => s._id);
+            query.subject = { $in: validSubjectIds };
+        }
 
         const [records, total] = await Promise.all([
             QPImages.find(query)
