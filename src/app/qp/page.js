@@ -1,5 +1,6 @@
 import { Navbar } from "../components/Navbar";
 import QPSearch from "./QPSearch";
+import QPFilterSearch from "./QPFilterSearch";
 import QuestionPapers from "./QuestionPapers";
 
 export const metadata = {
@@ -21,6 +22,7 @@ export default function QuestionPapersPage() {
         <div>
             <Navbar/>
             <QPSearch />
+            <QPFilterSearch />
             <QuestionPapers />
         </div>
     );

@@ -15,7 +15,13 @@ export async function GET(req) {
         const skip = (page - 1) * limit;
 
         const subjectId = url.searchParams.get("subjectId");
-        const query = subjectId ? { subject: subjectId } : {};
+        const collegeId = url.searchParams.get("collegeId");
+        const batchId = url.searchParams.get("batchId");
+        
+        const query = {};
+        if (subjectId) query.subject = subjectId;
+        if (collegeId) query.college = collegeId;
+        if (batchId) query.batch = batchId;
 
         const [records, total] = await Promise.all([
             QPImages.find(query)
