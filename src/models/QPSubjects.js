@@ -11,7 +11,13 @@ const QPSubjectsSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "QPColleges",
         required: true
+    },
+    course: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "QPCourse",
+        required: true
     }
 }, { timestamps: true });
 
-export default mongoose.models.QPSubjects || mongoose.model("QPSubjects", QPSubjectsSchema);
+delete mongoose.models.QPSubjects;
+export default mongoose.model("QPSubjects", QPSubjectsSchema);

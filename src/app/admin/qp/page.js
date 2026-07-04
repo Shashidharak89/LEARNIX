@@ -39,8 +39,14 @@ const modelsConfig = {
     QPSubjects: {
         fields: [
             { name: "name", type: "text", required: true },
+            { name: "course", type: "select", ref: "QPCourse", required: true },
             { name: "semester", type: "select", ref: "QPSemesters", required: true },
             { name: "college", type: "select", ref: "QPColleges", required: true }
+        ]
+    },
+    QPCourse: {
+        fields: [
+            { name: "name", type: "text", required: true }
         ]
     },
     QPImages: {

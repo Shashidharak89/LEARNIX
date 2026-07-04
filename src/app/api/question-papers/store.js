@@ -4,6 +4,7 @@ import QPSubjects from "@/models/QPSubjects";
 import QPBatches from "@/models/QPBatches";
 import QPExamType from "@/models/QPExamType";
 import QPSemesters from "@/models/QPSemesters";
+import QPCourse from "@/models/QPCourse";
 
 function normalizeExamType(examKey = "") {
     return String(examKey).toUpperCase();
@@ -38,7 +39,10 @@ async function fetchAllPapers() {
     const qpImages = await QPImages.find()
         .populate({
             path: 'subject',
-            populate: { path: 'semester', model: 'QPSemesters' }
+            populate: [
+                { path: 'semester', model: 'QPSemesters' },
+                { path: 'course', model: 'QPCourse' }
+            ]
         })
         .populate('batch')
         .populate('examtype')
@@ -50,7 +54,8 @@ async function fetchAllPapers() {
         if (!img.subject || !img.batch || !img.examtype || !img.subject.semester) continue;
         
         const semester = img.subject.semester.semesterNumber;
-        const semesterLabel = `Semester ${semester}`;
+        const courseName = img.subject.course ? img.subject.course.name : '';
+        const semesterLabel = courseName ? `${courseName} Semester ${semester}` : `Semester ${semester}`;
         const batch = `${img.batch.startYear}-${img.batch.endYear}`;
         const examType = normalizeExamType(img.examtype.name);
         

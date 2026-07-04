@@ -7,6 +7,7 @@ import QPExamType from "@/models/QPExamType";
 import QPBatches from "@/models/QPBatches";
 import QPSubjects from "@/models/QPSubjects";
 import QPImages from "@/models/QPImages";
+import QPCourse from "@/models/QPCourse";
 
 const models = {
     QPUniversities,
@@ -15,7 +16,8 @@ const models = {
     QPExamType,
     QPBatches,
     QPSubjects,
-    QPImages
+    QPImages,
+    QPCourse
 };
 
 export async function GET(req) {
