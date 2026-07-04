@@ -374,6 +374,15 @@ export default function AdminDashboard() {
           </div>
           <FiArrowRight size={18} className="adm-quick-btn-arrow" />
         </Link>
+
+        <Link href="/admin/qp" className="adm-quick-btn adm-quick-btn-green" style={{ background: 'rgba(16, 185, 129, 0.1)', borderColor: 'rgba(16, 185, 129, 0.2)' }}>
+          <span className="adm-quick-btn-icon" style={{ background: '#d1fae5', color: '#10b981' }}><FiFileText size={20} /></span>
+          <div className="adm-quick-btn-text">
+            <span className="adm-quick-btn-label">QP Management</span>
+            <span className="adm-quick-btn-sub">Manage QP Universities, Subjects, and Exams</span>
+          </div>
+          <FiArrowRight size={18} className="adm-quick-btn-arrow" />
+        </Link>
       </div>
 
       {/* ── Feature cards ── */}

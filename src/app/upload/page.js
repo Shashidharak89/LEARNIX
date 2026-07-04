@@ -34,6 +34,8 @@ export default function upload() {
           </div>
         </a>
 
+
+
         <ManageSubjects />
       </div>
 
