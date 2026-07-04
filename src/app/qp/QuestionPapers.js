@@ -113,7 +113,7 @@ export default function QuestionPapers() {
         <section className="qp-card qp-intro" aria-labelledby="qp-title">
           <h1 id="qp-title" className="qp-title">Question Papers</h1>
           <p className="qp-plain">
-            <strong>University → College → Course → Batch → Semester → Exam Type</strong>.
+            <strong>University → College → Course → Semester → Batch → Exam Type</strong>.
           </p>
         </section>
 

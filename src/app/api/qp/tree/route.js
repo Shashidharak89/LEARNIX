@@ -45,12 +45,12 @@ export async function GET() {
             if (!tree[uniName]) tree[uniName] = {};
             if (!tree[uniName][collName]) tree[uniName][collName] = {};
             if (!tree[uniName][collName][courseName]) tree[uniName][collName][courseName] = {};
-            if (!tree[uniName][collName][courseName][batchName]) tree[uniName][collName][courseName][batchName] = {};
-            if (!tree[uniName][collName][courseName][batchName][semName]) tree[uniName][collName][courseName][batchName][semName] = {};
+            if (!tree[uniName][collName][courseName][semName]) tree[uniName][collName][courseName][semName] = {};
+            if (!tree[uniName][collName][courseName][semName][batchName]) tree[uniName][collName][courseName][semName][batchName] = {};
             
             // Only add if it doesn't already exist to prevent duplicates for the same examType
-            if (!tree[uniName][collName][courseName][batchName][semName][examName]) {
-                tree[uniName][collName][courseName][batchName][semName][examName] = {
+            if (!tree[uniName][collName][courseName][semName][batchName][examName]) {
+                tree[uniName][collName][courseName][semName][batchName][examName] = {
                     isLeaf: true,
                     collegeId: img.college._id,
                     courseId: img.subject.course._id,
