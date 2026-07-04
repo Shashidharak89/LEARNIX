@@ -47,11 +47,11 @@ export default function QPApiTester() {
     const presetEndpoints = [
         { label: "Universities (Latest 20)", path: "/api/qp/v1/universities" },
         { label: "Colleges (Latest 20)", path: "/api/qp/v1/colleges" },
-        { label: "Colleges under University", path: "/api/qp/v1/colleges", params: [{ key: "universityId", value: "" }] },
+        { label: "Colleges under University", path: "/api/qp/v1/colleges/by-university", params: [{ key: "universityId", value: "" }] },
         { label: "Semesters (Latest 20)", path: "/api/qp/v1/semesters" },
         { label: "Courses (Latest 20)", path: "/api/qp/v1/courses" },
         { label: "Subjects (Overall)", path: "/api/qp/v1/subjects" },
-        { label: "Subjects under College", path: "/api/qp/v1/subjects", params: [{ key: "collegeId", value: "" }] },
+        { label: "Subjects under College", path: "/api/qp/v1/subjects/by-college", params: [{ key: "collegeId", value: "" }] },
         { label: "Search All QP Models", path: "/api/qp/v1/search/all", params: [{ key: "q", value: "test" }] },
         { label: "Search Subjects Only", path: "/api/qp/v1/search/subjects", params: [{ key: "q", value: "math" }] }
     ];
