@@ -29,30 +29,36 @@ export async function GET() {
             .populate('examtype')
             .lean();
 
-        // Grouping: University -> College -> Course -> Semester -> Subject -> Images
+        // Grouping: University -> College -> Course -> Batch -> Semester -> Exam Type
         const tree = {};
 
         for (const img of qpImages) {
-            if (!img.college || !img.college.university || !img.subject || !img.subject.course || !img.subject.semester) continue;
+            if (!img.college || !img.college.university || !img.subject || !img.subject.course || !img.subject.semester || !img.batch || !img.examtype) continue;
 
             const uniName = img.college.university.name;
             const collName = img.college.name;
             const courseName = img.subject.course.name;
+            const batchName = `${img.batch.startYear}-${img.batch.endYear}`;
             const semName = `Semester ${img.subject.semester.semesterNumber}`;
-            const subName = img.subject.name;
+            const examName = img.examtype.name;
 
             if (!tree[uniName]) tree[uniName] = {};
             if (!tree[uniName][collName]) tree[uniName][collName] = {};
             if (!tree[uniName][collName][courseName]) tree[uniName][collName][courseName] = {};
-            if (!tree[uniName][collName][courseName][semName]) tree[uniName][collName][courseName][semName] = {};
-            if (!tree[uniName][collName][courseName][semName][subName]) tree[uniName][collName][courseName][semName][subName] = [];
-
-            tree[uniName][collName][courseName][semName][subName].push({
-                batch: img.batch ? `${img.batch.startYear}-${img.batch.endYear}` : 'Unknown',
-                examType: img.examtype ? img.examtype.name : 'Unknown',
-                images: img.imageUrls || [],
-                id: img._id
-            });
+            if (!tree[uniName][collName][courseName][batchName]) tree[uniName][collName][courseName][batchName] = {};
+            if (!tree[uniName][collName][courseName][batchName][semName]) tree[uniName][collName][courseName][batchName][semName] = {};
+            
+            // Only add if it doesn't already exist to prevent duplicates for the same examType
+            if (!tree[uniName][collName][courseName][batchName][semName][examName]) {
+                tree[uniName][collName][courseName][batchName][semName][examName] = {
+                    isLeaf: true,
+                    collegeId: img.college._id,
+                    courseId: img.subject.course._id,
+                    semesterId: img.subject.semester._id,
+                    batchId: img.batch._id,
+                    examTypeId: img.examtype._id
+                };
+            }
         }
 
         return NextResponse.json({ success: true, tree }, { status: 200 });

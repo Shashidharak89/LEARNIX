@@ -24,7 +24,6 @@ export default function QuestionPapers() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expandedNodes, setExpandedNodes] = useState({});
-  const [subjects, setSubjects] = useState([]);
   const [searchSubject, setSearchSubject] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
   const [subjectDownloading, setSubjectDownloading] = useState(false);
@@ -42,7 +41,6 @@ export default function QuestionPapers() {
       const json = await res.json();
       if (json.success) {
         setTree(json.tree);
-        extractSubjects(json.tree);
       } else {
         setError(json.error || "Failed to load question papers");
       }
@@ -52,19 +50,7 @@ export default function QuestionPapers() {
     setLoading(false);
   };
 
-  const extractSubjects = (treeData) => {
-    const subs = new Set();
-    Object.values(treeData).forEach(colleges => {
-      Object.values(colleges).forEach(courses => {
-        Object.values(courses).forEach(semesters => {
-          Object.values(semesters).forEach(subjectsObj => {
-            Object.keys(subjectsObj).forEach(sub => subs.add(sub));
-          });
-        });
-      });
-    });
-    setSubjects(Array.from(subs).sort());
-  };
+    // Unused legacy subject functions removed
 
   const toggleNode = (nodeId) => {
     setExpandedNodes(prev => ({
@@ -73,87 +59,24 @@ export default function QuestionPapers() {
     }));
   };
 
-  const getImagesBySubject = (subName) => {
-    const imagesList = [];
-    if (!tree) return imagesList;
-    Object.values(tree).forEach(colleges => {
-      Object.values(colleges).forEach(courses => {
-        Object.values(courses).forEach(semesters => {
-          Object.values(semesters).forEach(subjectsObj => {
-            if (subjectsObj[subName]) {
-              subjectsObj[subName].forEach(item => {
-                imagesList.push(...item.images);
-              });
-            }
-          });
-        });
-      });
-    });
-    return imagesList;
-  };
-
-  const handleSubjectDownload = async () => {
-    if (!selectedSubject) return;
-    const images = getImagesBySubject(selectedSubject);
-    if (!images.length) {
-      alert("No images found for this subject.");
-      return;
-    }
-    try {
-      setSubjectDownloading(true);
-      const { jsPDF } = await import("jspdf");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      for (let i = 0; i < images.length; i++) {
-        const response = await fetch(images[i]);
-        const blob = await response.blob();
-        const base64 = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(blob);
-        });
-        if (i > 0) pdf.addPage();
-        pdf.addImage(base64, "JPEG", 0, 0, pageWidth, pageHeight);
-      }
-      const fileName = `${selectedSubject}_All_QP_LEARNIX.pdf`.replace(/\s+/g, "_");
-      pdf.save(fileName);
-    } catch (err) {
-      alert("Failed to generate PDF. Please try again.");
-    } finally {
-      setSubjectDownloading(false);
-    }
-  };
-
   const renderTree = (data, path = "", depth = 0) => {
-    if (Array.isArray(data)) {
-      return (
-        <div className="qp-exams-container">
-          {data.map((item, idx) => (
-            <div key={`${path}-${idx}`} className="qp-exam-card-wrapper" style={{ padding: "10px", flexDirection: "column", alignItems: "flex-start", gap: "10px" }}>
-              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                <span className="qp-batch-active" style={{ padding: "4px 8px", background: "#f2c200", color: "#111", borderRadius: "4px", fontSize: "12px", fontWeight: "bold" }}>
-                  {item.batch}
-                </span>
-                <span style={{ padding: "4px 8px", background: "#0b74ff", color: "#fff", borderRadius: "4px", fontSize: "12px", fontWeight: "bold" }}>
-                  {item.examType}
-                </span>
-              </div>
-              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
-                {item.images.map((url, i) => (
-                  <a key={i} href={url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", color: "#0b74ff", border: "1px solid #0b74ff", padding: "6px 12px", borderRadius: "6px", fontSize: "13px" }}>
-                    View Image {i + 1}
-                  </a>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      );
-    }
-
     return Object.entries(data).map(([key, value]) => {
       const nodeId = `${path}-${key}`;
+      
+      // If it's a leaf node (ExamType)
+      if (value && value.isLeaf) {
+        const { batchId, examTypeId, collegeId, courseId, semesterId } = value;
+        const url = `/qp/compiled?batchId=${batchId}&examTypeId=${examTypeId}&collegeId=${collegeId}&courseId=${courseId}&semesterId=${semesterId}`;
+        return (
+          <div key={nodeId} style={{ marginLeft: "15px", marginTop: "8px", marginBottom: "8px" }}>
+             <a href={url} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", color: "#0b74ff", fontWeight: "600", padding: "10px 14px", background: "#f8faff", borderRadius: "8px", border: "1px solid #0b74ff", transition: "all 0.2s" }} onMouseOver={(e) => { e.currentTarget.style.background = "#0b74ff"; e.currentTarget.style.color = "#fff"; }} onMouseOut={(e) => { e.currentTarget.style.background = "#f8faff"; e.currentTarget.style.color = "#0b74ff"; }}>
+                 <FiFileText size={16} /> View {key} Papers
+             </a>
+          </div>
+        );
+      }
+
+      // Normal intermediate nodes
       const isExpanded = expandedNodes[nodeId];
       const isTopLevel = depth === 0;
       
@@ -190,78 +113,8 @@ export default function QuestionPapers() {
         <section className="qp-card qp-intro" aria-labelledby="qp-title">
           <h1 id="qp-title" className="qp-title">Question Papers</h1>
           <p className="qp-plain">
-            Explore and download previous year question papers organized by{" "}
-            <strong>University → College → Course → Semester → Subject</strong>. View papers directly or download them as PDFs.
+            <strong>University → College → Course → Batch → Semester → Exam Type</strong>.
           </p>
-        </section>
-
-        {/* Download by Subject Section */}
-        <section className="qp-card" aria-labelledby="qp-subject-section">
-          <div className="qp-section-header">
-            <FiBook className="qp-section-icon" />
-            <h2 id="qp-subject-section" className="qp-subtitle">Download by Subject</h2>
-          </div>
-          <p className="qp-plain">
-            Select a subject to download all its available question papers across all semesters, batches, and exam types.
-          </p>
-          <div className="qp-subject-row">
-            <div className="qp-subject-select-wrap">
-              <div className="qp-subject-search">
-                <input
-                  type="text"
-                  className="qp-subject-search-input"
-                  placeholder="Search subjects..."
-                  value={searchSubject}
-                  onChange={(e) => { setSearchSubject(e.target.value); setSelectedSubject(''); }}
-                  aria-label="Search subjects"
-                />
-                <button
-                  type="button"
-                  className="qp-subject-clear"
-                  onClick={() => { setSearchSubject(''); setSelectedSubject(''); }}
-                  title="Clear"
-                >
-                  ×
-                </button>
-
-                <select
-                  className="qp-subject-select"
-                  value={selectedSubject}
-                  onChange={(e) => setSelectedSubject(e.target.value)}
-                  aria-label="Select subject"
-                >
-                  <option value="">-- Select subject --</option>
-                  {subjects
-                    .filter(s => s.toLowerCase().includes(searchSubject.toLowerCase()))
-                    .map((subj) => (
-                      <option key={subj} value={subj}>{subj}</option>
-                    ))}
-                </select>
-              </div>
-            </div>
-
-            {selectedSubject && (() => {
-              const imgs = getImagesBySubject(selectedSubject);
-              return (
-                <div className="qp-subject-info">
-                  <span className="qp-subject-count">
-                    {imgs.length} image{imgs.length !== 1 ? "s" : ""} found
-                  </span>
-                  <Link
-                    href={`/qp/query/${encodeURIComponent(selectedSubject)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="qp-subject-view-btn"
-                    title={`View all ${selectedSubject} question papers`}
-                    style={{ display: "flex", alignItems: "center", gap: "6px", background: "#0b74ff", color: "#fff", padding: "10px 16px", borderRadius: "8px", textDecoration: "none", fontWeight: "bold" }}
-                  >
-                    <FiEye size={16} />
-                    <span>View All</span>
-                  </Link>
-                </div>
-              );
-            })()}
-          </div>
         </section>
 
         {/* Tree Directory Section */}
