@@ -7,7 +7,7 @@ export async function GET(req, { params }) {
         const { searchParams } = new URL(req.url);
         const subject = searchParams.get("subject") || "";
 
-        const paper = getQuestionPaperByTreePath(semester, batch, examType);
+        const paper = await getQuestionPaperByTreePath(semester, batch, examType);
 
         if (!paper) {
             return NextResponse.json(

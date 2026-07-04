@@ -7,7 +7,7 @@ export async function GET(req, { params }) {
         const { searchParams } = new URL(req.url);
         const subject = searchParams.get("subject") || "";
 
-        const paper = getQuestionPaperById(id);
+        const paper = await getQuestionPaperById(id);
 
         if (!paper) {
             return NextResponse.json(

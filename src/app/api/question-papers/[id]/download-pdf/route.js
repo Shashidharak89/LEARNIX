@@ -8,7 +8,7 @@ export async function POST(req, { params }) {
         const body = await req.json().catch(() => ({}));
         const subject = body?.subject || "";
 
-        const paper = getQuestionPaperById(id);
+        const paper = await getQuestionPaperById(id);
 
         if (!paper) {
             return NextResponse.json(

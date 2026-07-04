@@ -3,7 +3,7 @@ import { listAllSubjectNames } from "../store";
 
 export async function GET() {
     try {
-        const subjects = listAllSubjectNames();
+        const subjects = await listAllSubjectNames();
         return NextResponse.json({ subjects });
     } catch (error) {
         console.error("GET /api/question-papers/subjects error:", error);

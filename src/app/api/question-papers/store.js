@@ -1,61 +1,13 @@
-import questionPapersData from "@/app/qp/questionPapersData";
-
-function getSemesterNumber(label = "") {
-    const match = String(label).match(/\d+/);
-    return match ? Number(match[0]) : null;
-}
+import { connectDB } from "@/lib/db";
+import QPImages from "@/models/QPImages";
+import QPSubjects from "@/models/QPSubjects";
+import QPBatches from "@/models/QPBatches";
+import QPExamType from "@/models/QPExamType";
+import QPSemesters from "@/models/QPSemesters";
 
 function normalizeExamType(examKey = "") {
     return String(examKey).toUpperCase();
 }
-
-function isPlainObject(value) {
-    return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function flattenQuestionPaperData() {
-    const papers = [];
-
-    for (const semesterEntry of questionPapersData) {
-        const semesterLabel = semesterEntry.semister || semesterEntry.semester || "";
-        const semester = getSemesterNumber(semesterLabel);
-
-        for (const batchEntry of semesterEntry.batches || []) {
-            const batch = batchEntry.batchname || batchEntry.batch || "";
-
-            for (const [examKey, examData] of Object.entries(batchEntry)) {
-                if (examKey === "batchname" || !isPlainObject(examData)) continue;
-
-                const subjects = Object.entries(examData.imageurls || {})
-                    .map(([subject, images]) => ({
-                        subject,
-                        images: Array.isArray(images) ? images.filter(Boolean) : [],
-                    }))
-                    .filter((item) => item.images.length > 0);
-
-                const allImages = subjects.flatMap((item) => item.images);
-
-                papers.push({
-                    id: examData.id,
-                    paperId: examData.id,
-                    semester,
-                    semesterLabel,
-                    batch,
-                    examType: normalizeExamType(examKey),
-                    subjects,
-                    totalSubjects: subjects.length,
-                    totalImages: allImages.length,
-                    previewImages: allImages.slice(0, 2),
-                    visitlinks: Array.isArray(examData.visitlink) ? examData.visitlink : [],
-                });
-            }
-        }
-    }
-
-    return papers.filter((paper) => Boolean(paper.id));
-}
-
-const QUESTION_PAPERS = flattenQuestionPaperData();
 
 function sortPaperList(papers) {
     return [...papers].sort((a, b) => {
@@ -75,14 +27,97 @@ function normalizeKey(value = "") {
     return String(value).trim().toLowerCase();
 }
 
-export function buildQuestionPaperTree(filters = {}) {
-    const list = listQuestionPapers(filters);
+function textIncludes(value, query) {
+    return String(value || "").toLowerCase().includes(String(query || "").toLowerCase());
+}
+
+async function fetchAllPapers() {
+    await connectDB();
+    
+    // Using lean() for faster read operations
+    const qpImages = await QPImages.find()
+        .populate({
+            path: 'subject',
+            populate: { path: 'semester', model: 'QPSemesters' }
+        })
+        .populate('batch')
+        .populate('examtype')
+        .lean();
+
+    const grouped = new Map();
+
+    for (const img of qpImages) {
+        if (!img.subject || !img.batch || !img.examtype || !img.subject.semester) continue;
+        
+        const semester = img.subject.semester.semesterNumber;
+        const semesterLabel = `Semester ${semester}`;
+        const batch = `${img.batch.startYear}-${img.batch.endYear}`;
+        const examType = normalizeExamType(img.examtype.name);
+        
+        // Use a composite key based on properties
+        const paperId = `${semester}_${batch}_${examType}`.replace(/\s+/g, "_");
+        
+        if (!grouped.has(paperId)) {
+            grouped.set(paperId, {
+                id: paperId,
+                paperId: paperId,
+                semester,
+                semesterLabel,
+                batch,
+                examType,
+                subjectsMap: new Map(),
+                visitlinks: []
+            });
+        }
+        
+        const group = grouped.get(paperId);
+        
+        if (img.visitLink) {
+            group.visitlinks.push(img.visitLink);
+        }
+        
+        const subjectName = img.subject.name;
+        if (!group.subjectsMap.has(subjectName)) {
+            group.subjectsMap.set(subjectName, []);
+        }
+        group.subjectsMap.get(subjectName).push(...(img.imageUrls || []));
+    }
+
+    const papers = [];
+    for (const group of grouped.values()) {
+        const subjects = Array.from(group.subjectsMap.entries()).map(([subject, images]) => ({
+            subject,
+            images: images.filter(Boolean)
+        })).filter(item => item.images.length > 0);
+        
+        const allImages = subjects.flatMap(item => item.images);
+        
+        papers.push({
+            id: group.id,
+            paperId: group.paperId,
+            semester: group.semester,
+            semesterLabel: group.semesterLabel,
+            batch: group.batch,
+            examType: group.examType,
+            subjects,
+            totalSubjects: subjects.length,
+            totalImages: allImages.length,
+            previewImages: allImages.slice(0, 2),
+            visitlinks: Array.from(new Set(group.visitlinks))
+        });
+    }
+
+    return papers;
+}
+
+export async function buildQuestionPaperTree(filters = {}) {
+    const list = await listQuestionPapers(filters);
     const grouped = new Map();
 
     for (const paper of list) {
         const semesterKey = paper.semesterLabel || `Semester ${paper.semester ?? ""}`;
         const batchKey = paper.batch;
-        const examKey = paper.examType;
+        // examKey unused as grouping goes up to batch
 
         if (!grouped.has(semesterKey)) {
             grouped.set(semesterKey, new Map());
@@ -106,38 +141,39 @@ export function buildQuestionPaperTree(filters = {}) {
                 totalSubjects: paper.totalSubjects,
                 totalImages: paper.totalImages,
                 previewImages: paper.previewImages,
-                source: "static-json",
+                source: "mongodb",
             })),
         }));
 
+        // Simple extraction of semester number
+        const match = String(semesterLabel).match(/\d+/);
+        const semNumber = match ? Number(match[0]) : 0;
+
         return {
             semesterLabel,
-            semester: getSemesterNumber(semesterLabel),
+            semester: semNumber,
             batches,
         };
     }).sort((a, b) => (a.semester || 0) - (b.semester || 0));
 }
 
-export function getQuestionPaperByTreePath(semester, batch, examType) {
-    const semesterLabel = `MCA Semester ${semester}`;
+export async function getQuestionPaperByTreePath(semester, batch, examType) {
+    const papers = await fetchAllPapers();
     const normalizedBatch = normalizeKey(batch);
     const normalizedExam = normalizeKey(examType);
 
-    return QUESTION_PAPERS.find((paper) => {
+    return papers.find((paper) => {
         return String(paper.semester) === String(semester) &&
             normalizeKey(paper.batch) === normalizedBatch &&
             normalizeKey(paper.examType) === normalizedExam;
     }) || null;
 }
 
-function textIncludes(value, query) {
-    return String(value || "").toLowerCase().includes(String(query || "").toLowerCase());
-}
-
-export function listQuestionPapers(filters = {}) {
+export async function listQuestionPapers(filters = {}) {
+    const papers = await fetchAllPapers();
     const { batch, examType, semester, subject, q } = filters;
 
-    return QUESTION_PAPERS.filter((paper) => {
+    return papers.filter((paper) => {
         if (batch && !textIncludes(paper.batch, batch)) return false;
         if (examType && !textIncludes(paper.examType, examType)) return false;
         if (semester && String(paper.semester) !== String(semester)) return false;
@@ -158,8 +194,9 @@ export function listQuestionPapers(filters = {}) {
     });
 }
 
-export function getQuestionPaperById(id) {
-    return QUESTION_PAPERS.find((paper) => paper.id === id) || null;
+export async function getQuestionPaperById(id) {
+    const papers = await fetchAllPapers();
+    return papers.find((paper) => paper.id === id) || null;
 }
 
 export function getQuestionPaperSubjects(paper, subjectQuery) {
@@ -191,7 +228,7 @@ export function buildQuestionPaperResponse(paper, subjectQuery = "") {
         visitlinks: paper.visitlinks,
         subjects,
         images,
-        source: "static-json",
+        source: "mongodb",
     };
 }
 
@@ -204,10 +241,11 @@ function normalizeSubject(value = "") {
     return String(value).trim().toLowerCase();
 }
 
-export function listAllSubjectNames() {
+export async function listAllSubjectNames() {
+    const papers = await fetchAllPapers();
     const subjectMap = new Map();
 
-    for (const paper of QUESTION_PAPERS) {
+    for (const paper of papers) {
         for (const item of paper.subjects || []) {
             const trimmed = String(item.subject || "").trim();
             if (!trimmed) continue;
@@ -224,14 +262,15 @@ export function listAllSubjectNames() {
     );
 }
 
-export function getSubjectAggregate(subjectName) {
+export async function getSubjectAggregate(subjectName) {
+    const papers = await fetchAllPapers();
     const target = normalizeSubject(subjectName);
     if (!target) return null;
 
     const occurrences = [];
     const images = [];
 
-    for (const paper of QUESTION_PAPERS) {
+    for (const paper of papers) {
         const matched = (paper.subjects || []).find(
             (item) => normalizeSubject(item.subject) === target
         );
@@ -267,11 +306,11 @@ export function getSubjectAggregate(subjectName) {
         totalImages: uniqueImages.length,
         images: uniqueImages,
         occurrences,
-        source: "static-json",
+        source: "mongodb",
     };
 }
 
-export function buildSubjectPdfImages(subjectName) {
-    const data = getSubjectAggregate(subjectName);
+export async function buildSubjectPdfImages(subjectName) {
+    const data = await getSubjectAggregate(subjectName);
     return data ? data.images : [];
 }

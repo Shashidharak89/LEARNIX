@@ -10,7 +10,7 @@ export async function GET(req) {
         const subject = searchParams.get("subject") || "";
         const q = searchParams.get("q") || "";
 
-        const tree = buildQuestionPaperTree({ semester, batch, examType, subject, q });
+        const tree = await buildQuestionPaperTree({ semester, batch, examType, subject, q });
 
         return NextResponse.json(
             {

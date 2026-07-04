@@ -10,7 +10,7 @@ export async function GET(req) {
         const subject = searchParams.get("subject") || "";
         const q = searchParams.get("q") || "";
 
-        const papers = listQuestionPapers({ batch, examType, semester, subject, q }).map((paper) => ({
+        const papers = await listQuestionPapers({ batch, examType, semester, subject, q }).map((paper) => ({
             id: paper.id,
             paperId: paper.paperId,
             semester: paper.semester,
