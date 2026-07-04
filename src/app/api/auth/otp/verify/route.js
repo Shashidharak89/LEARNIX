@@ -7,14 +7,14 @@ import jwt from "jsonwebtoken";
 
 const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey";
 
-const generateToken = (userId, usn) =>
-  jwt.sign({ userId, usn }, SECRET_KEY, { expiresIn: "30d" });
+const generateToken = (userId) =>
+  jwt.sign({ userId }, SECRET_KEY, { expiresIn: "30d" });
 
 export async function POST(req) {
   try {
     const body = await req.json();
     const { email, otp } = body;
-    
+
     if (!email || !otp) {
       return NextResponse.json({ error: "Email and OTP are required" }, { status: 400 });
     }
@@ -53,7 +53,7 @@ export async function POST(req) {
     await Verification.deleteMany({ email: emailTrimmed });
 
     // Generate JWT token
-    const token = generateToken(user._id.toString(), user.usn);
+    const token = generateToken(user._id.toString());
 
     // Save token to user
     user.token = token;

@@ -8,8 +8,8 @@ const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey";
 const GOOGLE_CLIENT_ID = process.env.CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
 const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : null;
 
-const generateToken = (userId, usn) =>
-  jwt.sign({ userId, usn }, SECRET_KEY, { expiresIn: "30d" });
+const generateToken = (userId) =>
+  jwt.sign({ userId }, SECRET_KEY, { expiresIn: "30d" });
 
 export async function POST(req) {
   try {
@@ -53,7 +53,7 @@ export async function POST(req) {
       user.plan = "basic";
     }
 
-    const token = generateToken(user._id.toString(), user.usn);
+    const token = generateToken(user._id.toString());
     user.token = token;
     user.tokenCreatedAt = new Date();
     await user.save();

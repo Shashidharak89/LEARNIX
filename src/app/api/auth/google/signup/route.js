@@ -62,7 +62,7 @@ export async function POST(req) {
             lastLoginAt: new Date()
         });
 
-        const backendToken = generateToken({ userId: newUser._id.toString(), email: newUser.email, usn: newUser.usn });
+        const backendToken = generateToken(newUser._id.toString());
 
         // Save backwards-compatible token stuff
         newUser.token = backendToken;

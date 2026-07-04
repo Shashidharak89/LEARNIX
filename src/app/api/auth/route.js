@@ -11,9 +11,9 @@ const DEFAULT_PROFILE_IMG =
 const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey";
 
 // Helper function to generate JWT token
-const generateToken = (userId, usn) => {
+const generateToken = (userId) => {
   return jwt.sign(
-    { userId, usn },
+    { userId },
     SECRET_KEY,
     { expiresIn: "30d" } // Token expires in 30 days
   );
@@ -50,7 +50,7 @@ export async function POST(req) {
         if (!user.role) user.role = "user";
         if (!user.plan) user.plan = "basic";
 
-        const token = generateToken(user._id.toString(), user.usn);
+        const token = generateToken(user._id.toString());
         user.token = token;
         user.tokenCreatedAt = new Date();
         await user.save();
@@ -71,7 +71,7 @@ export async function POST(req) {
         if (!user.role) user.role = "user";
         if (!user.plan) user.plan = "basic";
 
-        const token = generateToken(user._id.toString(), user.usn);
+        const token = generateToken(user._id.toString());
         user.token = token;
         user.tokenCreatedAt = new Date();
         await user.save();
@@ -98,7 +98,7 @@ export async function POST(req) {
         plan: "basic",
       });
 
-      const token = generateToken(newUser._id.toString(), newUser.usn);
+      const token = generateToken(newUser._id.toString());
       newUser.token = token;
       newUser.tokenCreatedAt = new Date();
       await newUser.save();

@@ -52,7 +52,7 @@ export async function POST(req) {
         if (!user.role) user.role = "user";
         if (!user.plan) user.plan = "basic";
 
-        const backendToken = generateToken({ userId: user._id.toString(), email: user.email, usn: user.usn });
+        const backendToken = generateToken(user._id.toString());
 
         // Maintain token backward compatibility 
         user.token = backendToken;

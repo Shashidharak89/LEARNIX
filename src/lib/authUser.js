@@ -66,14 +66,6 @@ export async function resolveAuthenticatedUser(req, options = {}) {
         : null;
     }
 
-    const decodedUsn = String(decoded.usn || "").toUpperCase();
-    const actualUsn = String(userDoc.usn || "").toUpperCase();
-    if (decodedUsn && actualUsn && decodedUsn !== actualUsn) {
-      return withMeta
-        ? { user: null, tokenProvided: true, tokenInvalid: true, reason: "usn-mismatch" }
-        : null;
-    }
-
     if (userDoc.token && userDoc.token !== token) {
       return withMeta
         ? { user: null, tokenProvided: true, tokenInvalid: true, reason: "token-revoked" }

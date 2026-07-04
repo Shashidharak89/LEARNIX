@@ -10,8 +10,8 @@ import { sendEvent, closeConnection } from "@/lib/sseManager";
 
 const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey";
 
-const generateToken = (userId, usn) => {
-    return jwt.sign({ userId, usn }, SECRET_KEY, { expiresIn: "30d" });
+const generateToken = (userId) => {
+    return jwt.sign({ userId }, SECRET_KEY, { expiresIn: "30d" });
 };
 
 const generateRandomPassword = (length = 10) => {
@@ -20,10 +20,10 @@ const generateRandomPassword = (length = 10) => {
 
 export async function POST(req) {
     let currentRequestId = null;
-    
+
     try {
         await connectDB();
-        
+
         let body;
         try {
             body = await req.json();
@@ -64,7 +64,7 @@ export async function POST(req) {
         } catch (error) {
             if (requestId) sendEvent(requestId, { error: "Invalid Firebase token" });
             if (requestId) closeConnection(requestId);
-            
+
             if (error.code === "auth/id-token-expired") {
                 return NextResponse.json(
                     { success: false, message: "Expired Firebase token" },
@@ -89,23 +89,23 @@ export async function POST(req) {
         }
 
         const userEmail = email.toLowerCase();
-        
+
         if (requestId) sendEvent(requestId, { step: 1, message: "User existence checked" });
-        
+
         // 1. Check if user already exists
         const existingUser = await User.findOne({ email: userEmail });
         if (existingUser) {
             if (requestId) sendEvent(requestId, { step: 2, message: "Existing account found" });
-            
-            const token = generateToken(existingUser._id.toString(), existingUser.usn);
+
+            const token = generateToken(existingUser._id.toString());
             existingUser.token = token;
             existingUser.tokenCreatedAt = new Date();
             await existingUser.save();
-            
+
             if (requestId) sendEvent(requestId, { step: 3, message: "JWT generated" });
             if (requestId) sendEvent(requestId, { step: 4, message: "Login completed" });
             if (requestId) closeConnection(requestId);
-            
+
             return NextResponse.json(
                 {
                     success: true,
@@ -126,7 +126,7 @@ export async function POST(req) {
                 { status: 200 }
             );
         }
-        
+
         if (requestId) sendEvent(requestId, { step: 2, message: "USN generated" });
 
         // 2. Generate Base USN from the first part of the email
@@ -134,16 +134,16 @@ export async function POST(req) {
         if (!baseUsn) {
             baseUsn = "USER"; // Fallback
         }
-        
+
         let finalUsn = baseUsn;
         let counter = 1;
-        
+
         // 3. Ensure USN is unique
         while (await User.findOne({ usn: finalUsn })) {
             finalUsn = `${baseUsn}${counter}`;
             counter++;
         }
-        
+
         if (requestId) sendEvent(requestId, { step: 3, message: "Password generated" });
 
         // 4. Generate random 10-character password and hash it
@@ -175,7 +175,7 @@ export async function POST(req) {
             console.error("Failed to send welcome email:", emailError);
             // We'll still proceed to save the user even if email fails
         }
-        
+
         if (requestId) sendEvent(requestId, { step: 5, message: "User saved" });
 
         // 6. Create and save the new user
@@ -190,11 +190,11 @@ export async function POST(req) {
         });
 
         await newUser.save();
-        
+
         if (requestId) sendEvent(requestId, { step: 6, message: "JWT generated" });
 
         // 7. Generate JWT
-        const token = generateToken(newUser._id.toString(), newUser.usn);
+        const token = generateToken(newUser._id.toString());
         newUser.token = token;
         newUser.tokenCreatedAt = new Date();
         await newUser.save();
@@ -227,7 +227,7 @@ export async function POST(req) {
         console.error("POST /api/auth/android/signup error:", error);
         if (currentRequestId) sendEvent(currentRequestId, { error: "Internal server error" });
         if (currentRequestId) closeConnection(currentRequestId);
-        
+
         return NextResponse.json(
             { success: false, message: "Internal server error" },
             { status: 500 }

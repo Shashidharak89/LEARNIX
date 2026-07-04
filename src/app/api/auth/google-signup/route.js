@@ -12,8 +12,8 @@ const googleClient = GOOGLE_CLIENT_ID ? new OAuth2Client(GOOGLE_CLIENT_ID) : nul
 const DEFAULT_PROFILE_IMG =
   "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp";
 
-const generateToken = (userId, usn) =>
-  jwt.sign({ userId, usn }, SECRET_KEY, { expiresIn: "30d" });
+const generateToken = (userId) =>
+  jwt.sign({ userId }, SECRET_KEY, { expiresIn: "30d" });
 
 function generateRandomPassword() {
   return crypto.randomBytes(16).toString("hex");
@@ -116,7 +116,7 @@ export async function POST(req) {
       plan: "basic",
     });
 
-    const token = generateToken(newUser._id.toString(), newUser.usn);
+    const token = generateToken(newUser._id.toString());
     newUser.token = token;
     newUser.tokenCreatedAt = new Date();
     await newUser.save();

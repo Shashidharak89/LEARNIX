@@ -13,8 +13,8 @@ const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey";
 const DEFAULT_PROFILE_IMG =
     "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp";
 
-const generateToken = (userId, usn) =>
-    jwt.sign({ userId, usn }, SECRET_KEY, { expiresIn: "30d" });
+const generateToken = (userId) =>
+    jwt.sign({ userId }, SECRET_KEY, { expiresIn: "30d" });
 
 export async function POST(req) {
     try {

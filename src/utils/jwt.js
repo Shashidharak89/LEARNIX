@@ -2,8 +2,8 @@ import jwt from "jsonwebtoken";
 
 const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey";
 
-export function generateToken(payload, expiresIn = "30d") {
-    return jwt.sign(payload, SECRET_KEY, { expiresIn });
+export function generateToken(userId, expiresIn = "30d") {
+    return jwt.sign({ userId }, SECRET_KEY, { expiresIn });
 }
 
 export function verifyToken(token) {

@@ -5,8 +5,8 @@ import jwt from "jsonwebtoken";
 
 const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey";
 
-const generateToken = (userId, usn) =>
-  jwt.sign({ userId, usn }, SECRET_KEY, { expiresIn: "30d" });
+const generateToken = (userId) =>
+  jwt.sign({ userId }, SECRET_KEY, { expiresIn: "30d" });
 
 export async function POST(req) {
   try {
@@ -22,7 +22,7 @@ export async function POST(req) {
       return NextResponse.json({ exists: false }, { status: 200 });
     }
 
-    const token = generateToken(user._id.toString(), user.usn);
+    const token = generateToken(user._id.toString());
     return NextResponse.json(
       {
         exists: true,
