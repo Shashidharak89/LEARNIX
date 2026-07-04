@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import QPImages from "@/models/QPImages";
+import QPSubjects from "@/models/QPSubjects";
+import QPBatches from "@/models/QPBatches";
+import QPExamType from "@/models/QPExamType";
+import QPColleges from "@/models/QPColleges";
 
 export async function GET(req) {
     try {
@@ -10,9 +14,20 @@ export async function GET(req) {
         const limit = parseInt(url.searchParams.get("limit")) || 20;
         const skip = (page - 1) * limit;
 
+        const subjectId = url.searchParams.get("subjectId");
+        const query = subjectId ? { subject: subjectId } : {};
+
         const [records, total] = await Promise.all([
-            QPImages.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-            QPImages.countDocuments({})
+            QPImages.find(query)
+                .populate("subject")
+                .populate("batch")
+                .populate("examtype")
+                .populate("college")
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            QPImages.countDocuments(query)
         ]);
 
         return NextResponse.json({

@@ -11,10 +11,7 @@ export default function QPSearch() {
     const [totalPages, setTotalPages] = useState(1);
     const [loadingSubjects, setLoadingSubjects] = useState(false);
     const [hasInitialFetched, setHasInitialFetched] = useState(false);
-    
-    const [expandedSubjects, setExpandedSubjects] = useState({});
-    const [subjectImages, setSubjectImages] = useState({});
-    const [loadingSubjectImages, setLoadingSubjectImages] = useState({});
+
 
     // Debounced search logic
     useEffect(() => {
@@ -58,98 +55,7 @@ export default function QPSearch() {
         }
     };
 
-    const toggleSubject = async (subjectId) => {
-        const isExpanded = !!expandedSubjects[subjectId];
-        
-        setExpandedSubjects(prev => ({
-            ...prev,
-            [subjectId]: !isExpanded
-        }));
 
-        if (!isExpanded && !subjectImages[subjectId]) {
-            setLoadingSubjectImages(prev => ({ ...prev, [subjectId]: true }));
-            try {
-                // Fetch images for the expanded subject
-                const res = await fetch(`/api/qp/v1/images?subjectId=${subjectId}&limit=50`);
-                const json = await res.json();
-                if (json.success) {
-                    setSubjectImages(prev => ({
-                        ...prev,
-                        [subjectId]: json.data
-                    }));
-                }
-            } catch (err) {
-                console.error("Failed to load images", err);
-            }
-            setLoadingSubjectImages(prev => ({ ...prev, [subjectId]: false }));
-        }
-    };
-
-    const renderSubjectDetails = (subjectId) => {
-        if (loadingSubjectImages[subjectId]) return <div style={{ padding: "15px", color: "#666", fontSize: "14px" }}>Loading question papers...</div>;
-        
-        const images = subjectImages[subjectId];
-        if (!images || images.length === 0) return <div style={{ padding: "15px", color: "#666", fontSize: "14px" }}>No question papers available for this subject yet.</div>;
-
-        // Group by batch and examType for clean presentation
-        const grouped = {};
-        images.forEach(imgRecord => {
-            const batchName = imgRecord.batch ? `${imgRecord.batch.startYear}-${imgRecord.batch.endYear}` : "Unknown Batch";
-            const examTypeName = imgRecord.examtype ? imgRecord.examtype.name : "Final";
-            
-            if (!grouped[batchName]) grouped[batchName] = {};
-            if (!grouped[batchName][examTypeName]) grouped[batchName][examTypeName] = [];
-            
-            grouped[batchName][examTypeName].push(imgRecord);
-        });
-
-        return (
-            <div className="qp-batches-container" style={{ padding: "15px" }}>
-                {Object.entries(grouped).map(([batch, exams]) => (
-                    <div key={batch} style={{ marginBottom: "20px" }}>
-                        <div style={{ display: "inline-block", background: "#f2c200", color: "#111", padding: "6px 10px", borderRadius: "6px", fontSize: "13px", fontWeight: "bold", marginBottom: "12px" }}>
-                            Batch: {batch}
-                        </div>
-                        <div style={{ paddingLeft: "10px", borderLeft: "2px solid #eaeaea", marginLeft: "10px" }}>
-                            {Object.entries(exams).map(([examType, records]) => (
-                                <div key={examType} style={{ marginBottom: "15px" }}>
-                                    <div style={{ display: "inline-block", background: "#0b74ff", color: "#fff", padding: "4px 10px", borderRadius: "4px", fontSize: "12px", fontWeight: "bold", marginBottom: "8px" }}>
-                                        {examType}
-                                    </div>
-                                    <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginTop: "4px" }}>
-                                        {records.map(record => (
-                                            record.imageUrls.map((url, i) => (
-                                                <a 
-                                                    key={`${record._id}-${i}`} href={url} target="_blank" rel="noopener noreferrer"
-                                                    style={{ display: "flex", alignItems: "center", gap: "6px", textDecoration: "none", color: "#0b74ff", border: "1px solid #0b74ff", padding: "8px 14px", borderRadius: "8px", fontSize: "13px", background: "#f8faff", transition: "all 0.2s", fontWeight: "500" }}
-                                                    onMouseOver={(e) => { e.currentTarget.style.background = "#0b74ff"; e.currentTarget.style.color = "#fff"; }}
-                                                    onMouseOut={(e) => { e.currentTarget.style.background = "#f8faff"; e.currentTarget.style.color = "#0b74ff"; }}
-                                                >
-                                                    <FiFileText size={16} /> View QP Part {i + 1}
-                                                </a>
-                                            ))
-                                        ))}
-                                        {records.map(record => (
-                                            record.visitLink && record.visitLink.length > 0 && record.visitLink.map((link, i) => (
-                                                <a 
-                                                    key={`link-${record._id}-${i}`} href={`/works/${link}`} target="_blank" rel="noopener noreferrer"
-                                                    style={{ display: "flex", alignItems: "center", gap: "6px", textDecoration: "none", color: "#ff6b00", border: "1px solid #ff6b00", padding: "8px 14px", borderRadius: "8px", fontSize: "13px", background: "#fff5f0", transition: "all 0.2s", fontWeight: "500" }}
-                                                    onMouseOver={(e) => { e.currentTarget.style.background = "#ff6b00"; e.currentTarget.style.color = "#fff"; }}
-                                                    onMouseOut={(e) => { e.currentTarget.style.background = "#fff5f0"; e.currentTarget.style.color = "#ff6b00"; }}
-                                                >
-                                                    <FiExternalLink size={16} /> Visit Resources
-                                                </a>
-                                            ))
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                ))}
-            </div>
-        );
-    };
 
     return (
         <div className="qp-page-container" style={{ paddingBottom: "10px", minHeight: "auto", marginTop: "30px" }}>
@@ -205,33 +111,31 @@ export default function QPSearch() {
                         <>
                             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                                 {subjects.map(sub => {
-                                    const isExpanded = expandedSubjects[sub._id];
                                     return (
-                                        <div key={sub._id} style={{ border: "1px solid #eaeaea", borderRadius: "12px", overflow: "hidden", background: "#fff", transition: "all 0.2s", boxShadow: isExpanded ? "0 4px 15px rgba(0,0,0,0.05)" : "none" }}>
-                                            <button 
-                                                onClick={() => toggleSubject(sub._id)}
+                                        <div key={sub._id} style={{ border: "1px solid #eaeaea", borderRadius: "12px", overflow: "hidden", background: "#fff", transition: "all 0.2s", boxShadow: "none" }}>
+                                            <a 
+                                                href={`/qp/${sub._id}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
                                                 style={{ 
                                                     width: "100%", 
                                                     display: "flex", 
                                                     justifyContent: "space-between", 
                                                     alignItems: "center", 
                                                     padding: "18px 20px", 
-                                                    background: isExpanded ? "#f8faff" : "#fff", 
+                                                    background: "#fff", 
                                                     border: "none", 
                                                     cursor: "pointer",
                                                     textAlign: "left",
+                                                    textDecoration: "none",
                                                     transition: "background 0.2s"
                                                 }}
+                                                onMouseOver={(e) => { e.currentTarget.style.background = "#f8faff"; }}
+                                                onMouseOut={(e) => { e.currentTarget.style.background = "#fff"; }}
                                             >
-                                                <span style={{ fontSize: "16px", color: isExpanded ? "#0b74ff" : "#333", fontWeight: isExpanded ? "700" : "600" }}>{sub.name}</span>
-                                                {isExpanded ? <FiChevronDown size={22} color="#0b74ff" /> : <FiChevronRight size={22} color="#888" />}
-                                            </button>
-                                            
-                                            {isExpanded && (
-                                                <div style={{ borderTop: "1px solid #eaeaea", background: "#fff" }}>
-                                                    {renderSubjectDetails(sub._id)}
-                                                </div>
-                                            )}
+                                                <span style={{ fontSize: "16px", color: "#333", fontWeight: "600" }}>{sub.name}</span>
+                                                <FiExternalLink size={20} color="#888" />
+                                            </a>
                                         </div>
                                     );
                                 })}

@@ -6,6 +6,8 @@ import QPColleges from "@/models/QPColleges";
 import QPUniversities from "@/models/QPUniversities";
 import QPCourse from "@/models/QPCourse";
 import QPSemesters from "@/models/QPSemesters";
+import QPBatches from "@/models/QPBatches";
+import QPExamType from "@/models/QPExamType";
 
 export async function GET() {
     try {
