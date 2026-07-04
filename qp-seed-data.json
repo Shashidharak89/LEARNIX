@@ -1,0 +1,174 @@
+{
+    "universities": [
+        {
+            "name": "Visvesvaraya Technological University",
+            "code": "VTU",
+            "state": "Karnataka",
+            "country": "India",
+            "isActive": true
+        }
+    ],
+    "colleges": [
+        {
+            "name": "NMAMIT Nitte",
+            "code": "NMAMIT",
+            "universityCode": "VTU",
+            "city": "Nitte",
+            "state": "Karnataka",
+            "isActive": true
+        }
+    ],
+    "semesters": [
+        {
+            "semesterNumber": 1,
+            "name": "First Semester"
+        },
+        {
+            "semesterNumber": 2,
+            "name": "Second Semester"
+        },
+        {
+            "semesterNumber": 3,
+            "name": "Third Semester"
+        },
+        {
+            "semesterNumber": 4,
+            "name": "Fourth Semester"
+        },
+        {
+            "semesterNumber": 5,
+            "name": "Fifth Semester"
+        },
+        {
+            "semesterNumber": 6,
+            "name": "Sixth Semester"
+        },
+        {
+            "semesterNumber": 7,
+            "name": "Seventh Semester"
+        },
+        {
+            "semesterNumber": 8,
+            "name": "Eighth Semester"
+        }
+    ],
+    "examTypes": [
+        {
+            "name": "MSE 1",
+            "code": "MSE1",
+            "description": "Mid Semester Exam 1",
+            "isInternal": true,
+            "maxMarks": 20
+        },
+        {
+            "name": "MSE 2",
+            "code": "MSE2",
+            "description": "Mid Semester Exam 2",
+            "isInternal": true,
+            "maxMarks": 20
+        },
+        {
+            "name": "Final Exam",
+            "code": "FINAL",
+            "description": "Final Semester Exam",
+            "isInternal": false,
+            "maxMarks": 100
+        },
+        {
+            "name": "Quiz",
+            "code": "QUIZ",
+            "description": "Quiz Assessment",
+            "isInternal": true,
+            "maxMarks": 10
+        },
+        {
+            "name": "Assignment",
+            "code": "ASSIGN",
+            "description": "Assignment Assessment",
+            "isInternal": true,
+            "maxMarks": 15
+        }
+    ],
+    "batches": [
+        {
+            "year": 2026,
+            "name": "Batch 2026",
+            "startYear": 2026,
+            "endYear": 2030
+        },
+        {
+            "year": 2027,
+            "name": "Batch 2027",
+            "startYear": 2027,
+            "endYear": 2031
+        },
+        {
+            "year": 2028,
+            "name": "Batch 2028",
+            "startYear": 2028,
+            "endYear": 2032
+        }
+    ],
+    "subjects": [
+        {
+            "name": "Object Oriented Programming",
+            "code": "OOP",
+            "semesterNumber": 3,
+            "credits": 4
+        },
+        {
+            "name": "Advanced Database Systems",
+            "code": "ADBS",
+            "semesterNumber": 5,
+            "credits": 4
+        },
+        {
+            "name": "Java Programming",
+            "code": "JAVA",
+            "semesterNumber": 4,
+            "credits": 3
+        },
+        {
+            "name": "Data Structures",
+            "code": "DS",
+            "semesterNumber": 2,
+            "credits": 4
+        },
+        {
+            "name": "Web Technologies",
+            "code": "WT",
+            "semesterNumber": 5,
+            "credits": 4
+        },
+        {
+            "name": "Software Engineering",
+            "code": "SE",
+            "semesterNumber": 6,
+            "credits": 4
+        },
+        {
+            "name": "Machine Learning",
+            "code": "ML",
+            "semesterNumber": 7,
+            "credits": 4
+        },
+        {
+            "name": "Artificial Intelligence",
+            "code": "AI",
+            "semesterNumber": 7,
+            "credits": 4
+        },
+        {
+            "name": "Cloud Computing",
+            "code": "CC",
+            "semesterNumber": 8,
+            "credits": 4
+        },
+        {
+            "name": "Cybersecurity",
+            "code": "CS",
+            "semesterNumber": 6,
+            "credits": 3
+        }
+    ]
+}
