@@ -17,6 +17,7 @@ const UserSchema = new mongoose.Schema({
   lastLoginAt: { type: Date, default: null },
   streaks: { type: Number, default: 1 },
   highestStreak: { type: Number, default: 1 },
+  balance: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }
 });
 
