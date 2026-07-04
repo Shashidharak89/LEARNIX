@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Navbar } from "@/app/components/Navbar";
 
 export default function QPApiTester() {
@@ -9,6 +9,40 @@ export default function QPApiTester() {
     const [queryParams, setQueryParams] = useState([{ key: "page", value: "1" }, { key: "limit", value: "20" }]);
     const [response, setResponse] = useState(null);
     const [loading, setLoading] = useState(false);
+    
+    const [referenceData, setReferenceData] = useState({
+        universityId: [],
+        collegeId: [],
+        semesterId: [],
+        courseId: []
+    });
+
+    useEffect(() => {
+        const fetchRefs = async () => {
+            try {
+                const [uni, col, sem, crs] = await Promise.all([
+                    fetch("/api/qp/v1/universities?limit=50").then(r => r.json()),
+                    fetch("/api/qp/v1/colleges?limit=50").then(r => r.json()),
+                    fetch("/api/qp/v1/semesters?limit=50").then(r => r.json()),
+                    fetch("/api/qp/v1/courses?limit=50").then(r => r.json()),
+                ]);
+                setReferenceData({
+                    universityId: uni.data || [],
+                    collegeId: col.data || [],
+                    semesterId: sem.data || [],
+                    courseId: crs.data || []
+                });
+            } catch (err) {
+                console.error("Failed to fetch references", err);
+            }
+        };
+        fetchRefs();
+    }, []);
+
+    const getRefLabel = (type, item) => {
+        if (type === 'semesterId') return `Semester ${item.semesterNumber}`;
+        return item.name;
+    };
 
     const presetEndpoints = [
         { label: "Universities (Latest 20)", path: "/api/qp/v1/universities" },
@@ -105,8 +139,33 @@ export default function QPApiTester() {
                         <h3 style={{ fontSize: "1.1rem", marginBottom: "10px" }}>Query Parameters</h3>
                         {queryParams.map((param, idx) => (
                             <div key={idx} style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
-                                <input type="text" placeholder="Key" value={param.key} onChange={e => updateParam(idx, "key", e.target.value)} style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }} />
-                                <input type="text" placeholder="Value" value={param.value} onChange={e => updateParam(idx, "value", e.target.value)} style={{ flex: 2, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }} />
+                                <input type="text" placeholder="Key" value={param.key} onChange={e => updateParam(idx, "key", e.target.value)} style={{ flex: 1, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }} list="query-keys" />
+                                <datalist id="query-keys">
+                                    <option value="universityId" />
+                                    <option value="collegeId" />
+                                    <option value="courseId" />
+                                    <option value="semesterId" />
+                                    <option value="q" />
+                                    <option value="page" />
+                                    <option value="limit" />
+                                </datalist>
+                                
+                                {["universityId", "collegeId", "semesterId", "courseId"].includes(param.key) ? (
+                                    <select 
+                                        value={param.value} 
+                                        onChange={e => updateParam(idx, "value", e.target.value)}
+                                        style={{ flex: 2, padding: "8px", border: "1px solid #ccc", borderRadius: "4px", backgroundColor: "#f8faff" }}
+                                    >
+                                        <option value="">-- Select {param.key.replace("Id", "")} --</option>
+                                        {referenceData[param.key].map(item => (
+                                            <option key={item._id} value={item._id}>
+                                                {getRefLabel(param.key, item)}
+                                            </option>
+                                        ))}
+                                    </select>
+                                ) : (
+                                    <input type="text" placeholder="Value" value={param.value} onChange={e => updateParam(idx, "value", e.target.value)} style={{ flex: 2, padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }} />
+                                )}
                                 <button onClick={() => removeParam(idx)} style={{ padding: "8px 12px", backgroundColor: "#ef4444", color: "white", border: "none", borderRadius: "4px", cursor: "pointer" }}>X</button>
                             </div>
                         ))}

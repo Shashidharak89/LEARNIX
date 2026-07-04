@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Navbar } from "@/app/components/Navbar";
 import QPViewer from "./QPViewer";
+import Link from "next/link";
 import "./QPAdmin.css";
 
 const modelsConfig = {
@@ -209,6 +210,13 @@ export default function QPAdminPage() {
                     >
                         Viewer 👀
                     </button>
+                    <Link
+                        href="/admin/qp-api-tester"
+                        className="qp-admin-tab"
+                        style={{ marginLeft: "10px", textDecoration: "none", color: "inherit" }}
+                    >
+                        API Tester 🛠️
+                    </Link>
                 </div>
 
                 {activeTab === "Viewer" ? (
