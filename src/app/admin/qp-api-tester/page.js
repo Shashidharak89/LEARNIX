@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Navbar } from "@/app/components/Navbar";
 
 export default function QPApiTester() {
-    const [endpoint, setEndpoint] = useState("/api/qp/v1/universities");
+    const [endpoint, setEndpoint] = useState("/api/qp/v1/universities?page=1&limit=20");
     const [method, setMethod] = useState("GET");
     const [queryParams, setQueryParams] = useState([{ key: "page", value: "1" }, { key: "limit", value: "20" }]);
     const [response, setResponse] = useState(null);
@@ -56,31 +56,62 @@ export default function QPApiTester() {
         { label: "Search Subjects Only", path: "/api/qp/v1/search/subjects", params: [{ key: "q", value: "math" }] }
     ];
 
+    const syncEndpointToParams = (newParams, basePath) => {
+        try {
+            const urlObj = new URL(basePath || endpoint, "http://dummy");
+            urlObj.search = "";
+            newParams.forEach(p => {
+                if (p.key && p.value) {
+                    urlObj.searchParams.append(p.key, p.value);
+                }
+            });
+            setEndpoint(urlObj.pathname + urlObj.search);
+        } catch (e) {}
+    };
+
     const loadPreset = (preset) => {
-        setEndpoint(preset.path);
         const newParams = [{ key: "page", value: "1" }, { key: "limit", value: "20" }];
         if (preset.params) {
             preset.params.forEach(p => newParams.push({ ...p }));
         }
         setQueryParams(newParams);
+        syncEndpointToParams(newParams, preset.path);
     };
 
     const addParam = () => setQueryParams([...queryParams, { key: "", value: "" }]);
-    const removeParam = (index) => setQueryParams(queryParams.filter((_, i) => i !== index));
+    
+    const removeParam = (index) => {
+        const newParams = queryParams.filter((_, i) => i !== index);
+        setQueryParams(newParams);
+        syncEndpointToParams(newParams);
+    };
+
     const updateParam = (index, field, val) => {
         const newParams = [...queryParams];
         newParams[index][field] = val;
         setQueryParams(newParams);
+        syncEndpointToParams(newParams);
+    };
+
+    const handleEndpointChange = (e) => {
+        const val = e.target.value;
+        setEndpoint(val);
+        try {
+            const urlObj = new URL(val, "http://dummy");
+            const newParams = [];
+            urlObj.searchParams.forEach((value, key) => {
+                newParams.push({ key, value });
+            });
+            if (newParams.length === 0) newParams.push({ key: "", value: "" });
+            setQueryParams(newParams);
+        } catch (err) {}
     };
 
     const handleTest = async () => {
         setLoading(true);
         try {
             const url = new URL(window.location.origin + endpoint);
-            queryParams.forEach(p => {
-                if (p.key && p.value) url.searchParams.append(p.key, p.value);
-            });
-
+            
             const res = await fetch(url.toString(), { method });
             const json = await res.json();
             setResponse({
@@ -127,7 +158,7 @@ export default function QPApiTester() {
                         <input 
                             type="text" 
                             value={endpoint} 
-                            onChange={e => setEndpoint(e.target.value)} 
+                            onChange={handleEndpointChange} 
                             style={{ flex: 1, padding: "10px", borderRadius: "6px", border: "1px solid #ccc", fontFamily: "monospace" }} 
                         />
                         <button onClick={handleTest} disabled={loading} style={{ padding: "10px 20px", backgroundColor: "#3b82f6", color: "white", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "bold" }}>

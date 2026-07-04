@@ -17,7 +17,7 @@ const modelMap = {
 export async function GET(req, { params }) {
     try {
         await connectDB();
-        const { model } = params;
+        const { model } = await params;
         const url = new URL(req.url);
         
         const q = url.searchParams.get("q") || "";

@@ -23,7 +23,7 @@ const modelMap = {
 export async function GET(req, { params }) {
     try {
         await connectDB();
-        const { model } = params;
+        const { model } = await params;
         const url = new URL(req.url);
         
         const page = parseInt(url.searchParams.get("page")) || 1;
