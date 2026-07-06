@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
+import User from "@/models/User";
 
 export async function GET(req) {
     try {
@@ -13,20 +14,19 @@ export async function GET(req) {
             );
         }
 
-        // Initialize balance to 0 if it doesn't exist, then increment by 1
-        if (typeof user.balance !== 'number' || user.balance == null) {
-            user.balance = 0;
-        }
-        user.balance += 1;
-
-        // Save the updated user
-        await user.save();
+        // Update the balance directly in the database using findByIdAndUpdate. 
+        // If balance doesn't exist, $inc automatically treats it as 0 and adds 1.
+        const updatedUser = await User.findByIdAndUpdate(
+            user._id,
+            { $inc: { balance: 1 } },
+            { new: true } // Return the updated document
+        );
 
         return NextResponse.json(
             {
                 success: true,
                 message: "Balance updated successfully",
-                balance: user.balance
+                balance: updatedUser.balance
             },
             { status: 200 }
         );
