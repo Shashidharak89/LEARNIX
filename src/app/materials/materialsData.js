@@ -615,7 +615,7 @@ const materialsData = [
         ],
     },
     {
-        semester: "2nd Sem-BCA [SEP] [Mangalore University] 2025-2026",
+        semester: "2nd Sem-BCA [SEP] [Mangalore University] 2024-2027",
         subjects: [
             {
                 subject: "Data Structures",
@@ -636,7 +636,7 @@ const materialsData = [
         ]
     },
     {
-        semester: "3rd Sem-BCA [SEP] [Mangalore University] 2025-2026",
+        semester: "3rd Sem-BCA [SEP] [Mangalore University] 2024-2027",
         subjects: [
             {
                 subject: "C# & .NET Framework",
@@ -690,6 +690,60 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/Open-Source-Tools/OST%20-SEP%20by%20MUCSTA.pdf" },
                 ]
             },
+        ]
+    },
+    {
+        semester: "4th Sem-BCA [SEP] [Mangalore University] 2024-2027",
+        subjects: [
+            {
+                subject: "Advanced JAVA and J2EE",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Advanced-JAVA-and-J2EE/AJAVA%20-%20I%20UNIT.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Advanced-JAVA-and-J2EE/AJAVA%20-%20II%20UNIT.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Advanced-JAVA-and-J2EE/AJAVA%20-%20III%20UNIT.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Advanced-JAVA-and-J2EE/AJAVA%20-%20IV%20UNIT.pdf" },
+                ],
+            },
+            {
+                subject: "Digital-Image-Processing",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Digital-Image-Processing/DIP-1.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Digital-Image-Processing/Digital%20Image%20Processing%20Unit%201%20Study%20Material.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Digital-Image-Processing/Digital_Image%20Proessing%20Unit%202%20Study%20Material%202026.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Digital-Image-Processing/UNIT%203%20Digital%20Image%20Processing%20Study%20Material.pdf" },
+                ],
+            },
+            {
+                subject: "Operating System",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Operating-System/OS%20unit%201%205m.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Operating-System/OS%20UNIT-1%202m.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Operating-System/OS%20L1.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Operating-System/unit%202%205m.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Operating-System/OS%20L2.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Operating-System/unit%203%205m.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Operating-System/OS%20L3.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Operating-System/unit%204%205m.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Operating-System/OS%20IV%20sem%202M.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Operating-System/2%20MARK'S.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Operating-System/OS%202m%20234%20unit.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Operating-System/OS%20NEP%20%20June%20-2025.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Operating-System/Operating%20System.pdf" },
+                ],
+            },
+            {
+                subject: "Python Programming",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Python-Programming/PYTHON_QB_Completed.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Python-Programming/python1-1.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Python-Programming/python%20inheritence%20PPT.pptx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Python-Programming/python%20GUI%20PPT.pptx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Python-Programming/UNIT-4%20python%20SQLITe-1.pptx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Python-Programming/Unit4_python.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Python-Programming/unit4%20python%20complete%20notes.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/4th-Semester/Python-Programming/python%20record%20SEP%20divya.pdf" },
+                ]
+            }
         ]
     },
     {
