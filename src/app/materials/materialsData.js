@@ -636,6 +636,63 @@ const materialsData = [
         ]
     },
     {
+        semester: "3rd Sem-BCA [SEP] [Mangalore University] 2025-2026",
+        subjects: [
+            {
+                subject: "C# & .NET Framework",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/C%23-%26-.NET-Framework/UNIT%20I.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/C%23-%26-.NET-Framework/C%23%20%26%20Dot%20Net%20%20Unit%20I%20Class%20Notes.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/C%23-%26-.NET-Framework/UNIT%20II.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/C%23-%26-.NET-Framework/unit%202.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/C%23-%26-.NET-Framework/UNIT%20III.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/C%23-%26-.NET-Framework/C%23%20QP%20Solved%20Unit-3%20%26%204%20Pleaseopen.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/C%23-%26-.NET-Framework/UNIT%20IV.docx" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/C%23-%26-.NET-Framework/Unit_IV_ADO_NET_Full_Answers.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/C%23-%26-.NET-Framework/BCA_III_Sem_Strings.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/C%23-%26-.NET-Framework/C%23%20STEPS%20Final.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/C%23-%26-.NET-Framework/C%23-Notes-a.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/C%23-%26-.NET-Framework/c%23-Notes-a.pdf" },
+                    { url: "" },
+                    { url: "" },
+                    { url: "" },
+                    { url: "" },
+                    { url: "" },
+                ],
+                externalfiles: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/C%23-%26-.NET-Framework/External/BCACAC%20313.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/C%23-%26-.NET-Framework/External/NEP%20BCA%20III%20Sem%20C%20%23%20and%20DOT%20NET%20Framework.pdf" },
+                ]
+            },
+            {
+                subject: "Computer Networks",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/Computer-Networks/BCA_III_Sem_Computer_Networks_Unit-I_Full_Answers.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/Computer-Networks/CCN%201st%20Unit.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/Computer-Networks/Computer%20Networks%20-Question%20Bank%20by%20MUCSTA.pdf" },
+                ],
+            },
+            {
+                subject: "Database Management System",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/Database-Management-System/DBMS%20-%20I%20UNIT.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/Database-Management-System/Unit%20I%20ER-Model.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/Database-Management-System/DBMS%20UNIT%201.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/Database-Management-System/DBMS%20UNIT%202.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/Database-Management-System/UNIT%203%20DBMS.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/Database-Management-System/DBMS%20Unit%204.pdf" },
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/Database-Management-System/module-2%20functional%20dependencies.pdf" },
+                ],
+            },
+            {
+                subject: "Open Source Tools",
+                files: [
+                    { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/Open-Source-Tools/OST%20-SEP%20by%20MUCSTA.pdf" },
+                ]
+            },
+        ]
+    },
+    {
         semester: "6th Sem-BCA [NEP] [Mangalore University] 2022-2025",
         subjects: [
             {
