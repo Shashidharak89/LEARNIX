@@ -653,11 +653,6 @@ const materialsData = [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/C%23-%26-.NET-Framework/C%23%20STEPS%20Final.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/C%23-%26-.NET-Framework/C%23-Notes-a.pdf" },
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/C%23-%26-.NET-Framework/c%23-Notes-a.pdf" },
-                    { url: "" },
-                    { url: "" },
-                    { url: "" },
-                    { url: "" },
-                    { url: "" },
                 ],
                 externalfiles: [
                     { url: "https://raw.github.com/Shashidharak89/Study_Materials_Collection/main/BCA-MANGALORE-U-SEP/3rd-Semester/C%23-%26-.NET-Framework/External/BCACAC%20313.pdf" },
