@@ -19,7 +19,7 @@ export async function GET(req) {
         const query = { sub: subjectId };
 
         const [records, total] = await Promise.all([
-            SMFiles.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+            SMFiles.find(query).sort({ createdAt: 1 }).skip(skip).limit(limit).lean(),
             SMFiles.countDocuments(query)
         ]);
 

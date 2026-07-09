@@ -3,18 +3,78 @@
 import React, { useState } from "react";
 import { FiChevronRight, FiChevronDown, FiFolder, FiFileText, FiDownload } from "react-icons/fi";
 
+const hasMatchingDescendant = (node, type, query) => {
+    if (!query) return false;
+    const term = query.toLowerCase();
+
+    const matchesNode = (n, t) => {
+        let name = n.name || "";
+        if (t === "semester") name = `Semester ${n.sem}`;
+        if (t === "batch") name = `Batch ${n.startyear}-${n.endyear}`;
+        if (t === "file") {
+            const raw = n.name || n.fileurl.split("/").pop().split("?")[0];
+            name = decodeURIComponent(raw);
+        }
+        return name.toLowerCase().includes(term);
+    };
+
+    if (!node.children || node.children.length === 0) return false;
+
+    let nextType = "file";
+    if (type === "university") nextType = "college";
+    else if (type === "college") nextType = "course";
+    else if (type === "course") nextType = "semester";
+    else if (type === "semester") nextType = "batch";
+    else if (type === "batch") nextType = "subject";
+
+    for (const child of node.children) {
+        if (matchesNode(child, nextType)) {
+            return true;
+        }
+        if (hasMatchingDescendant(child, nextType, query)) {
+            return true;
+        }
+    }
+    return false;
+};
+
 export default function SMDirectoryNode({ 
     level = 0, 
     type = "university", 
     data, 
     parentParams = {},
+    searchActive = false,
+    highlightKeyword = "",
 }) {
     const [expanded, setExpanded] = useState(false);
     const [externalExpanded, setExternalExpanded] = useState(false);
-    const [children, setChildren] = useState([]);
+    const [children, setChildren] = useState(data.children || []);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
+
+    React.useEffect(() => {
+        if (searchActive) {
+            const exp = hasMatchingDescendant(data, type, highlightKeyword);
+            setExpanded(exp);
+            const extExp = (data.children || []).some(c => 
+                c.type === "external" && 
+                decodeURIComponent(c.name || c.fileurl.split("/").pop().split("?")[0]).toLowerCase().includes(highlightKeyword.toLowerCase())
+            );
+            setExternalExpanded(extExp);
+        } else {
+            setExpanded(false);
+            setExternalExpanded(false);
+        }
+    }, [searchActive, data, highlightKeyword]);
+
+    React.useEffect(() => {
+        if (data.children) {
+            setChildren(data.children);
+        } else if (!searchActive) {
+            setChildren([]);
+        }
+    }, [data.children, searchActive]);
 
     const fetchChildren = async (pageNum, append = false) => {
         setLoading(true);
@@ -89,6 +149,26 @@ export default function SMDirectoryNode({
         displayName = decodeURIComponent(raw);
     }
 
+    const highlightText = (text, keyword) => {
+        if (!keyword || !text) return <span>{text}</span>;
+        const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const regex = new RegExp(`(${escaped})`, "gi");
+        const parts = String(text).split(regex);
+        return (
+            <span>
+                {parts.map((part, i) => 
+                    regex.test(part) ? (
+                        <mark key={i} style={{ background: "#fef08a", color: "#854d0e", padding: "0 2px", borderRadius: "2px", fontWeight: "bold" }}>
+                            {part}
+                        </mark>
+                    ) : (
+                        part
+                    )
+                )}
+            </span>
+        );
+    };
+
     return (
         <div style={{ marginLeft: level > 0 ? "20px" : "0", marginTop: "8px" }}>
             {type !== "file" ? (
@@ -105,7 +185,7 @@ export default function SMDirectoryNode({
                     >
                         {expanded ? <FiChevronDown color="#7c3aed" /> : <FiChevronRight color="#888" />}
                         <FiFolder color={expanded ? "#7c3aed" : "#a78bfa"} />
-                        <span>{displayName}</span>
+                        <span>{highlightText(displayName, highlightKeyword)}</span>
                     </div>
 
                     {expanded && (
@@ -161,6 +241,8 @@ export default function SMDirectoryNode({
                                                             type="file"
                                                             data={child}
                                                             parentParams={nextParams}
+                                                            searchActive={searchActive}
+                                                            highlightKeyword={highlightKeyword}
                                                         />
                                                     ))}
                                                 </div>
@@ -176,6 +258,8 @@ export default function SMDirectoryNode({
                                             type="file"
                                             data={child}
                                             parentParams={nextParams}
+                                            searchActive={searchActive}
+                                            highlightKeyword={highlightKeyword}
                                         />
                                     ))}
                                 </>
@@ -187,6 +271,8 @@ export default function SMDirectoryNode({
                                         type={nextType || "file"}
                                         data={child}
                                         parentParams={nextParams}
+                                        searchActive={searchActive}
+                                        highlightKeyword={highlightKeyword}
                                     />
                                 ))
                             )}
@@ -230,7 +316,7 @@ export default function SMDirectoryNode({
                                 textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap",
                                 color: "#4b5563"
                             }}>
-                                {displayName}
+                                {highlightText(displayName, highlightKeyword)}
                             </span>
                             {data.type === "external" && (
                                 <span style={{

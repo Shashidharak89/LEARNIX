@@ -19,7 +19,7 @@ export async function GET(req) {
                     { path: 'batch' },
                     { path: 'college', populate: { path: 'university' } }
                 ]
-            }).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+            }).sort({ createdAt: 1 }).skip(skip).limit(limit).lean(),
             SMFiles.countDocuments({})
         ]);
 

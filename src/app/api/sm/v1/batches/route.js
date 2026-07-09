@@ -11,7 +11,7 @@ export async function GET(req) {
         const skip = (page - 1) * limit;
 
         const [records, total] = await Promise.all([
-            SMBatch.find({}).sort({ startyear: -1 }).skip(skip).limit(limit).lean(),
+            SMBatch.find({}).sort({ startyear: 1 }).skip(skip).limit(limit).lean(),
             SMBatch.countDocuments({})
         ]);
 

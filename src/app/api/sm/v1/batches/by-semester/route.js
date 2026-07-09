@@ -25,7 +25,7 @@ export async function GET(req) {
         const query = { _id: { $in: batchIds } };
 
         const [records, total] = await Promise.all([
-            SMBatch.find(query).sort({ startyear: -1 }).skip(skip).limit(limit).lean(),
+            SMBatch.find(query).sort({ startyear: 1 }).skip(skip).limit(limit).lean(),
             SMBatch.countDocuments(query)
         ]);
 
