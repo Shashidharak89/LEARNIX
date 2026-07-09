@@ -75,6 +75,7 @@ const modelsConfig = {
         label: "Study Files",
         icon: <FiFileText />,
         fields: [
+            { name: "name", type: "text", label: "File Name (Optional)", required: false, placeholder: "e.g. Syllabus Unit 1" },
             { name: "fileurl", type: "text", label: "File URL", required: true, placeholder: "e.g. https://raw.githubusercontent.com/.../file.pdf" },
             { name: "sub", type: "select", label: "Subject", ref: "SMSubject", required: true }
         ]
@@ -398,8 +399,9 @@ export default function SMAdmin() {
 
                                                 {activeTab === "SMFiles" && (
                                                     <div className="sm-card-details">
-                                                        <h4 className="sm-record-title">File URL:</h4>
-                                                        <a href={record.fileurl} target="_blank" rel="noopener noreferrer" className="sm-file-link">
+                                                        {record.name && <h3 className="sm-record-title">{record.name}</h3>}
+                                                        <h4 className="sm-record-sub" style={{ marginTop: "4px", fontWeight: "bold" }}>File URL:</h4>
+                                                        <a href={record.fileurl} target="_blank" rel="noopener noreferrer" className="sm-file-link" style={{ wordBreak: "break-all", display: "block", marginBottom: "8px" }}>
                                                             {record.fileurl}
                                                         </a>
                                                         <p className="sm-record-sub">Subject: {record.sub?.name || "N/A"}</p>

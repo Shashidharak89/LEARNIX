@@ -22,6 +22,9 @@ const SMSubjectSchema = new mongoose.Schema({
         ref: "SMBatch",
         required: true
     }
-}, { timestamps: true });
+}, { timestamps: true, strictPopulate: false });
 
-export default mongoose.models.SMSubject || mongoose.model("SMSubject", SMSubjectSchema);
+if (mongoose.models.SMSubject) {
+    delete mongoose.models.SMSubject;
+}
+export default mongoose.model("SMSubject", SMSubjectSchema);

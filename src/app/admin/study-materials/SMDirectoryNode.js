@@ -83,6 +83,7 @@ export default function SMDirectoryNode({
     let displayName = data.name;
     if (type === "semester") displayName = `Semester ${data.sem}`;
     if (type === "batch") displayName = `Batch ${data.startyear}-${data.endyear}`;
+    if (type === "file") displayName = data.name || "View Study File Resource";
 
     return (
         <div style={{ marginLeft: level > 0 ? "20px" : "0", marginTop: "8px" }}>
@@ -152,7 +153,7 @@ export default function SMDirectoryNode({
                         onMouseOver={(e) => { e.currentTarget.style.background = "#7c3aed"; e.currentTarget.style.color = "#fff"; }} 
                         onMouseOut={(e) => { e.currentTarget.style.background = "#fdfbff"; e.currentTarget.style.color = "#7c3aed"; }}
                     >
-                        <FiFileText /> View Study File Resource
+                        <FiFileText /> {displayName}
                     </a>
                 </div>
             )}
