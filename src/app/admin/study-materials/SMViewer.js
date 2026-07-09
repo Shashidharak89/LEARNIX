@@ -1,41 +1,31 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { FiFileText } from "react-icons/fi";
+import SMDirectoryNode from "./SMDirectoryNode";
 import "./SMViewer.css";
 
 export default function SMViewer() {
-    const [tree, setTree] = useState(null);
+    const [universities, setUniversities] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [expandedNodes, setExpandedNodes] = useState({});
-    
-    const [subjects, setSubjects] = useState([]);
-    const [selectedSubject, setSelectedSubject] = useState("");
-    const [subjectFiles, setSubjectFiles] = useState(null);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
-    const extractSubjects = (treeData) => {
-        const subs = new Set();
-        // Traverse tree to get all unique subject names
-        Object.values(treeData).forEach(colleges => {
-            Object.values(colleges).forEach(courses => {
-                Object.values(courses).forEach(semesters => {
-                    Object.keys(semesters).forEach(sub => subs.add(sub));
-                });
-            });
-        });
-        setSubjects(Array.from(subs).sort());
-    };
-
-    const fetchTree = async () => {
+    const fetchUniversities = async (pageNum, append = false) => {
         setLoading(true);
         try {
-            const res = await fetch("/api/admin/sm-tree");
+            const res = await fetch(`/api/sm/v1/universities?page=${pageNum}&limit=20`, { cache: "no-store" });
             const json = await res.json();
             if (json.success) {
-                setTree(json.tree);
-                extractSubjects(json.tree);
+                if (append) {
+                    setUniversities(prev => [...prev, ...json.data]);
+                } else {
+                    setUniversities(json.data);
+                }
+                setTotalPages(json.pagination.totalPages);
             } else {
-                setError(json.error || "Failed to load study materials tree");
+                setError(json.error || "Failed to load universities");
             }
         } catch (err) {
             setError(err.message);
@@ -44,130 +34,60 @@ export default function SMViewer() {
     };
 
     useEffect(() => {
-        fetchTree();
+        fetchUniversities(1);
     }, []);
 
-    const handleSubjectSelect = (subName) => {
-        setSelectedSubject(subName);
-        if (!subName || !tree) {
-            setSubjectFiles(null);
-            return;
+    const handleLoadMore = () => {
+        if (page < totalPages) {
+            const nextPage = page + 1;
+            setPage(nextPage);
+            fetchUniversities(nextPage, true);
         }
-
-        const filesList = [];
-        // Extract all files for this subject
-        Object.values(tree).forEach(colleges => {
-            Object.values(colleges).forEach(courses => {
-                Object.values(courses).forEach(semesters => {
-                    if (semesters[subName]) {
-                        filesList.push(...semesters[subName]);
-                    }
-                });
-            });
-        });
-        setSubjectFiles(filesList);
     };
-
-    const toggleNode = (nodeId) => {
-        setExpandedNodes(prev => ({
-            ...prev,
-            [nodeId]: !prev[nodeId]
-        }));
-    };
-
-    const renderTree = (data, path = "") => {
-        if (Array.isArray(data)) {
-            // It's the array of files
-            return (
-                <div className="sm-viewer-files-list">
-                    {data.map((item, idx) => (
-                        <div key={`${path}-${idx}`} className="sm-viewer-file-item">
-                            <div className="sm-viewer-file-meta">
-                                <span className="sm-tag batch">{item.batch}</span>
-                            </div>
-                            <div className="sm-viewer-file-urls">
-                                <a href={item.fileUrl} target="_blank" rel="noopener noreferrer" className="sm-file-btn">
-                                    View Resource Link
-                                </a>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            );
-        }
-
-        return Object.entries(data).map(([key, value]) => {
-            const nodeId = `${path}-${key}`;
-            const isExpanded = expandedNodes[nodeId];
-            return (
-                <div key={nodeId} className="sm-viewer-node">
-                    <div 
-                        className="sm-viewer-node-header" 
-                        onClick={() => toggleNode(nodeId)}
-                    >
-                        <span className={`sm-viewer-chevron ${isExpanded ? 'expanded' : ''}`}>▶</span>
-                        <span className="sm-viewer-node-title">{key}</span>
-                    </div>
-                    {isExpanded && (
-                        <div className="sm-viewer-node-children">
-                            {renderTree(value, nodeId)}
-                        </div>
-                    )}
-                </div>
-            );
-        });
-    };
-
-    if (loading) return <div className="sm-viewer-loading">Loading Study Materials Tree...</div>;
-    if (error) return <div className="sm-viewer-error">{error}</div>;
-    if (!tree) return null;
 
     return (
-        <div className="sm-viewer-wrapper">
-            <h2 className="sm-viewer-title">Browse Study Materials Directory</h2>
-            <div className="sm-viewer-controls">
-                <div className="sm-viewer-subject-filter">
-                    <label>Filter by Subject:</label>
-                    <select 
-                        value={selectedSubject} 
-                        onChange={(e) => handleSubjectSelect(e.target.value)}
-                        className="sm-viewer-select"
-                    >
-                        <option value="">-- View Tree --</option>
-                        {subjects.map(sub => (
-                            <option key={sub} value={sub}>{sub}</option>
-                        ))}
-                    </select>
-                </div>
+        <section className="sm-viewer-section" aria-labelledby="sm-papers-section">
+            <div className="sm-section-header">
+                <FiFileText className="sm-section-icon" />
+                <h2 id="sm-papers-section" className="sm-subtitle">Browse Study Materials Directory</h2>
             </div>
-
-            {selectedSubject ? (
-                <div className="sm-viewer-subject-results">
-                    <h3>Results for: {selectedSubject}</h3>
-                    {subjectFiles && subjectFiles.length > 0 ? (
-                        <div className="sm-viewer-files-list">
-                            {subjectFiles.map((item, idx) => (
-                                <div key={idx} className="sm-viewer-file-item">
-                                    <div className="sm-viewer-file-meta">
-                                        <span className="sm-tag batch">{item.batch}</span>
-                                    </div>
-                                    <div className="sm-viewer-file-urls">
-                                        <a href={item.fileUrl} target="_blank" rel="noopener noreferrer" className="sm-file-btn">
-                                            View Resource Link
-                                        </a>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <p>No study files found for this subject.</p>
-                    )}
-                </div>
-            ) : (
-                <div className="sm-viewer-tree">
-                    {renderTree(tree, "root")}
-                </div>
-            )}
-        </div>
+            
+            <div className="sm-content" style={{ padding: "10px", background: "#fdfbff", borderRadius: "12px", border: "1px solid #e9d5ff" }}>
+                {loading && page === 1 ? (
+                    <p style={{ textAlign: "center", color: "#888", padding: "20px" }}>Loading directory...</p>
+                ) : error ? (
+                    <p style={{ color: "red", textAlign: "center", padding: "20px" }}>{error}</p>
+                ) : universities.length > 0 ? (
+                    <div>
+                        {universities.map(uni => (
+                            <SMDirectoryNode key={uni._id} type="university" data={uni} />
+                        ))}
+                        
+                        {page < totalPages && (
+                            <div style={{ textAlign: "center", marginTop: "20px" }}>
+                                <button 
+                                    onClick={handleLoadMore}
+                                    disabled={loading}
+                                    style={{
+                                        background: loading ? "#f3e8ff" : "#fff",
+                                        color: loading ? "#888" : "#7c3aed",
+                                        border: "1px solid #7c3aed",
+                                        padding: "8px 20px",
+                                        borderRadius: "6px",
+                                        cursor: loading ? "default" : "pointer",
+                                        fontWeight: "600"
+                                    }}
+                                >
+                                    {loading ? "Loading..." : "Load More Universities"}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <p style={{ textAlign: "center", color: "#888", padding: "20px" }}>No study materials found.</p>
+                )
+                }
+            </div>
+        </section>
     );
 }

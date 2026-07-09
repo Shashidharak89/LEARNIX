@@ -96,7 +96,9 @@ export default function SMAdmin() {
     const fetchRecords = async (modelName, pageNum = 1) => {
         setLoading(true);
         try {
-            const res = await fetch(`/api/admin/sm-models?model=${modelName}&page=${pageNum}&limit=15`);
+            const res = await fetch(`/api/admin/sm-models?model=${modelName}&page=${pageNum}&limit=15`, {
+                cache: "no-store"
+            });
             const json = await res.json();
             if (json.success) {
                 if (pageNum === 1) {
@@ -127,7 +129,9 @@ export default function SMAdmin() {
         const refModels = config.fields.filter(f => f.ref).map(f => f.ref);
 
         Promise.all(refModels.map(async (refModel) => {
-            const res = await fetch(`/api/admin/sm-models?model=${refModel}`);
+            const res = await fetch(`/api/admin/sm-models?model=${refModel}`, {
+                cache: "no-store"
+            });
             const json = await res.json();
             if (json.success) {
                 refs[refModel] = json.data;
