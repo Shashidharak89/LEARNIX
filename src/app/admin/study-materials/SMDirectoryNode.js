@@ -10,6 +10,7 @@ export default function SMDirectoryNode({
     parentParams = {},
 }) {
     const [expanded, setExpanded] = useState(false);
+    const [externalExpanded, setExternalExpanded] = useState(false);
     const [children, setChildren] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -83,7 +84,10 @@ export default function SMDirectoryNode({
     let displayName = data.name;
     if (type === "semester") displayName = `Semester ${data.sem}`;
     if (type === "batch") displayName = `Batch ${data.startyear}-${data.endyear}`;
-    if (type === "file") displayName = data.name || "View Study File Resource";
+    if (type === "file") {
+        const raw = data.name || data.fileurl.split("/").pop().split("?")[0];
+        displayName = decodeURIComponent(raw);
+    }
 
     return (
         <div style={{ marginLeft: level > 0 ? "20px" : "0", marginTop: "8px" }}>
@@ -114,15 +118,78 @@ export default function SMDirectoryNode({
                                 <div style={{ padding: "8px", color: "#888", fontSize: "14px" }}>No items found.</div>
                             )}
 
-                            {children.map(child => (
-                                <SMDirectoryNode 
-                                    key={child._id} 
-                                    level={level + 1} 
-                                    type={nextType || "file"} 
-                                    data={child} 
-                                    parentParams={nextParams}
-                                />
-                            ))}
+                            {type === "subject" ? (
+                                <>
+                                    {/* ── Unofficial Resources (External Files Group) ── */}
+                                    {children.some(c => c.type === "external") && (
+                                        <div style={{ marginLeft: "20px", marginTop: "8px", marginBottom: "8px" }}>
+                                            <button
+                                                onClick={() => setExternalExpanded(!externalExpanded)}
+                                                style={{
+                                                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                                                    width: "100%", border: "1px solid #c084fc", background: "#faf5ff",
+                                                    borderRadius: "8px", padding: "8px 12px", cursor: "pointer",
+                                                    color: "#7e22ce", fontWeight: "600", fontSize: "13px"
+                                                }}
+                                            >
+                                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                                    <span style={{ fontSize: "11px", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                                                        External Resources
+                                                    </span>
+                                                    <span style={{
+                                                        background: "#c084fc", color: "#fff", fontSize: "11px",
+                                                        padding: "2px 6px", borderRadius: "12px"
+                                                    }}>
+                                                        {children.filter(c => c.type === "external").length} files
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    {externalExpanded ? (
+                                                        <span style={{ fontSize: "12px" }}>▼</span>
+                                                    ) : (
+                                                        <span style={{ fontSize: "12px" }}>▶</span>
+                                                    )}
+                                                </div>
+                                            </button>
+
+                                            {externalExpanded && (
+                                                <div style={{ borderLeft: "2px dashed #c084fc", marginLeft: "14px", paddingLeft: "10px", marginTop: "5px" }}>
+                                                    {children.filter(c => c.type === "external").map(child => (
+                                                        <SMDirectoryNode
+                                                            key={child._id}
+                                                            level={level + 2}
+                                                            type="file"
+                                                            data={child}
+                                                            parentParams={nextParams}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* ── Official (Default) Files ── */}
+                                    {children.filter(c => c.type !== "external").map(child => (
+                                        <SMDirectoryNode
+                                            key={child._id}
+                                            level={level + 1}
+                                            type="file"
+                                            data={child}
+                                            parentParams={nextParams}
+                                        />
+                                    ))}
+                                </>
+                            ) : (
+                                children.map(child => (
+                                    <SMDirectoryNode
+                                        key={child._id}
+                                        level={level + 1}
+                                        type={nextType || "file"}
+                                        data={child}
+                                        parentParams={nextParams}
+                                    />
+                                ))
+                            )}
 
                             {page < totalPages && (
                                 <button 

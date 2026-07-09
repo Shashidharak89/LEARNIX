@@ -409,7 +409,9 @@ export default function SMAdmin() {
                                                 {activeTab === "SMFiles" && (
                                                     <div className="sm-card-details">
                                                         <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginBottom: "6px" }}>
-                                                            {record.name && <h3 className="sm-record-title" style={{ margin: 0 }}>{record.name}</h3>}
+                                                            <h3 className="sm-record-title" style={{ margin: 0 }}>
+                                                                {record.name || decodeURIComponent(record.fileurl.split("/").pop().split("?")[0])}
+                                                            </h3>
                                                             <span style={{
                                                                 fontSize: "11px",
                                                                 padding: "2px 6px",
