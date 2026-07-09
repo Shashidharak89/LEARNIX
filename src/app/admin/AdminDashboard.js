@@ -383,6 +383,15 @@ export default function AdminDashboard() {
           </div>
           <FiArrowRight size={18} className="adm-quick-btn-arrow" />
         </Link>
+
+        <Link href="/admin/study-materials" className="adm-quick-btn" style={{ background: 'rgba(124, 58, 237, 0.1)', borderColor: 'rgba(124, 58, 237, 0.2)' }}>
+          <span className="adm-quick-btn-icon" style={{ background: '#ede9fe', color: '#7c3aed' }}><FiBook size={20} /></span>
+          <div className="adm-quick-btn-text">
+            <span className="adm-quick-btn-label">Study Materials</span>
+            <span className="adm-quick-btn-sub">Manage Universities, Colleges, Subjects, and Files</span>
+          </div>
+          <FiArrowRight size={18} className="adm-quick-btn-arrow" />
+        </Link>
       </div>
 
       {/* ── Feature cards ── */}

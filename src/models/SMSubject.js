@@ -16,6 +16,11 @@ const SMSubjectSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "SMSemester",
         required: true
+    },
+    batch: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "SMBatch",
+        required: true
     }
 }, { timestamps: true });
 
