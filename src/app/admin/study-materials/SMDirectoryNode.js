@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { FiChevronRight, FiChevronDown, FiFolder, FiFileText } from "react-icons/fi";
+import { FiChevronRight, FiChevronDown, FiFolder, FiFileText, FiDownload } from "react-icons/fi";
 
 export default function SMDirectoryNode({ 
     level = 0, 
@@ -209,34 +209,64 @@ export default function SMDirectoryNode({
                 </>
             ) : (
                 <div style={{ marginTop: "6px", marginBottom: "6px", marginLeft: "20px" }}>
-                    <a 
-                        href={data.fileurl} target="_blank" rel="noopener noreferrer" 
-                        style={{ 
-                            display: "inline-flex", alignItems: "center", gap: "8px", 
-                            textDecoration: "none", color: "#7c3aed", fontWeight: "600", 
-                            padding: "6px 12px", background: "#fdfbff", borderRadius: "6px", 
-                            border: "1px solid #7c3aed", fontSize: "14px", transition: "0.2s" 
+                    <div 
+                        onClick={() => {
+                            const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(data.fileurl)}`;
+                            window.open(viewUrl, "_blank", "noopener,noreferrer");
                         }}
-                        onMouseOver={(e) => { e.currentTarget.style.background = "#7c3aed"; e.currentTarget.style.color = "#fff"; }} 
-                        onMouseOut={(e) => { e.currentTarget.style.background = "#fdfbff"; e.currentTarget.style.color = "#7c3aed"; }}
+                        style={{ 
+                            display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", 
+                            textDecoration: "none", color: "#374151", fontWeight: "500", 
+                            padding: "8px 16px", background: "#fdfbff", borderRadius: "8px", 
+                            border: "1px solid #e5e7eb", fontSize: "14px", transition: "0.2s",
+                            cursor: "pointer", width: "100%", boxSizing: "border-box"
+                        }}
+                        onMouseOver={(e) => { e.currentTarget.style.borderColor = "#7c3aed"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.05)"; }} 
+                        onMouseOut={(e) => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.boxShadow = "none"; }}
                     >
-                        <FiFileText /> {displayName}
-                        {data.type === "external" && (
-                            <span style={{
-                                fontSize: "10px",
-                                padding: "2px 6px",
-                                background: "#fee2e2",
-                                color: "#b91c1c",
-                                borderRadius: "4px",
-                                marginLeft: "6px",
-                                border: "1px solid #fecaca",
-                                fontWeight: "normal",
-                                textTransform: "capitalize"
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", overflow: "hidden" }}>
+                            <FiFileText style={{ flexShrink: 0, color: "#7c3aed" }} /> 
+                            <span style={{ 
+                                textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap",
+                                color: "#4b5563"
                             }}>
-                                {data.type}
+                                {displayName}
                             </span>
-                        )}
-                    </a>
+                            {data.type === "external" && (
+                                <span style={{
+                                    fontSize: "10px",
+                                    padding: "2px 6px",
+                                    background: "#fee2e2",
+                                    color: "#b91c1c",
+                                    borderRadius: "4px",
+                                    marginLeft: "6px",
+                                    border: "1px solid #fecaca",
+                                    fontWeight: "600",
+                                    textTransform: "capitalize",
+                                    flexShrink: 0
+                                }}>
+                                    {data.type}
+                                </span>
+                            )}
+                        </div>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(data.fileurl, "_blank", "noopener,noreferrer");
+                            }}
+                            title="Download File"
+                            style={{
+                                display: "inline-flex", alignItems: "center", justifyContent: "center",
+                                background: "#f3f4f6", border: "1px solid #e5e7eb",
+                                color: "#4b5563", borderRadius: "6px", width: "28px", height: "28px",
+                                cursor: "pointer", transition: "0.2s", flexShrink: 0
+                            }}
+                            onMouseOver={(e) => { e.currentTarget.style.background = "#7c3aed"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = "#7c3aed"; }}
+                            onMouseOut={(e) => { e.currentTarget.style.background = "#f3f4f6"; e.currentTarget.style.color = "#4b5563"; e.currentTarget.style.borderColor = "#e5e7eb"; }}
+                        >
+                            <FiDownload size={14} />
+                        </button>
+                    </div>
                 </div>
             )}
         </div>
