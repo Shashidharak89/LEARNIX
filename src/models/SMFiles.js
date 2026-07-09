@@ -7,6 +7,11 @@ const SMFilesSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "SMSubject",
         required: true
+    },
+    type: {
+        type: String,
+        enum: ["default", "external"],
+        default: "default"
     }
 }, { timestamps: true, strictPopulate: false });
 

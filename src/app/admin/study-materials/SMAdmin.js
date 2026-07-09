@@ -77,7 +77,11 @@ const modelsConfig = {
         fields: [
             { name: "name", type: "text", label: "File Name (Optional)", required: false, placeholder: "e.g. Syllabus Unit 1" },
             { name: "fileurl", type: "text", label: "File URL", required: true, placeholder: "e.g. https://raw.githubusercontent.com/.../file.pdf" },
-            { name: "sub", type: "select", label: "Subject", ref: "SMSubject", required: true }
+            { name: "sub", type: "select", label: "Subject", ref: "SMSubject", required: true },
+            { name: "type", type: "select", label: "File Type", required: true, options: [
+                { value: "default", label: "Default" },
+                { value: "external", label: "External" }
+            ], defaultValue: "default" }
         ]
     }
 };
@@ -144,7 +148,7 @@ export default function SMAdmin() {
         // Reset form data
         const initialForm = {};
         config.fields.forEach(f => {
-            initialForm[f.name] = "";
+            initialForm[f.name] = f.defaultValue !== undefined ? f.defaultValue : "";
         });
         setFormData(initialForm);
         setMessage(null);
@@ -302,7 +306,12 @@ export default function SMAdmin() {
                                             className="sm-input"
                                         >
                                             <option value="">-- Select {field.label || field.name} --</option>
-                                            {references[field.ref] && references[field.ref].map(refDoc => (
+                                            {field.options && field.options.map(opt => (
+                                                <option key={opt.value} value={opt.value}>
+                                                    {opt.label}
+                                                </option>
+                                            ))}
+                                            {!field.options && references[field.ref] && references[field.ref].map(refDoc => (
                                                 <option key={refDoc._id} value={refDoc._id}>
                                                     {field.ref === "SMSemester" ? `Semester ${refDoc.sem}` :
                                                      field.ref === "SMBatch" ? `${refDoc.startyear}-${refDoc.endyear}` :
@@ -399,7 +408,20 @@ export default function SMAdmin() {
 
                                                 {activeTab === "SMFiles" && (
                                                     <div className="sm-card-details">
-                                                        {record.name && <h3 className="sm-record-title">{record.name}</h3>}
+                                                        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginBottom: "6px" }}>
+                                                            {record.name && <h3 className="sm-record-title" style={{ margin: 0 }}>{record.name}</h3>}
+                                                            <span style={{
+                                                                fontSize: "11px",
+                                                                padding: "2px 6px",
+                                                                borderRadius: "4px",
+                                                                background: record.type === "external" ? "#fee2e2" : "#dcfce7",
+                                                                color: record.type === "external" ? "#b91c1c" : "#166534",
+                                                                fontWeight: "600",
+                                                                textTransform: "capitalize"
+                                                            }}>
+                                                                {record.type || "default"}
+                                                            </span>
+                                                        </div>
                                                         <h4 className="sm-record-sub" style={{ marginTop: "4px", fontWeight: "bold" }}>File URL:</h4>
                                                         <a href={record.fileurl} target="_blank" rel="noopener noreferrer" className="sm-file-link" style={{ wordBreak: "break-all", display: "block", marginBottom: "8px" }}>
                                                             {record.fileurl}

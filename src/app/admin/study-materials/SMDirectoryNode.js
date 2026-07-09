@@ -154,6 +154,21 @@ export default function SMDirectoryNode({
                         onMouseOut={(e) => { e.currentTarget.style.background = "#fdfbff"; e.currentTarget.style.color = "#7c3aed"; }}
                     >
                         <FiFileText /> {displayName}
+                        {data.type === "external" && (
+                            <span style={{
+                                fontSize: "10px",
+                                padding: "2px 6px",
+                                background: "#fee2e2",
+                                color: "#b91c1c",
+                                borderRadius: "4px",
+                                marginLeft: "6px",
+                                border: "1px solid #fecaca",
+                                fontWeight: "normal",
+                                textTransform: "capitalize"
+                            }}>
+                                {data.type}
+                            </span>
+                        )}
                     </a>
                 </div>
             )}
