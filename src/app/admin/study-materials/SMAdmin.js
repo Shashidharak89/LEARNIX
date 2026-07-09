@@ -306,7 +306,7 @@ export default function SMAdmin() {
                                                     {field.ref === "SMSemester" ? `Semester ${refDoc.sem}` :
                                                      field.ref === "SMBatch" ? `${refDoc.startyear}-${refDoc.endyear}` :
                                                      field.ref === "SMCollege" ? `${refDoc.name} (${refDoc.university?.name || "No University"})` :
-                                                     field.ref === "SMSubject" ? `${refDoc.name} (${refDoc.college?.name || "College"}, Sem ${refDoc.sem?.sem || "N/A"})` :
+                                                     field.ref === "SMSubject" ? `${refDoc.name} (${refDoc.course?.name || "Course"}, College: ${refDoc.college?.name || "College"}, Sem: ${refDoc.sem?.sem || "N/A"}, Batch: ${refDoc.batch ? refDoc.batch.startyear + "-" + refDoc.batch.endyear : "N/A"})` :
                                                      (refDoc.name || refDoc._id)}
                                                 </option>
                                             ))}

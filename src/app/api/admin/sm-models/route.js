@@ -53,10 +53,18 @@ export async function GET(req) {
         let data;
         let pagination = null;
 
+        // Custom optimal sorting for models
+        let sortQuery = { createdAt: -1 };
+        if (modelName === "SMSemester") {
+            sortQuery = { sem: 1 };
+        } else if (modelName === "SMBatch") {
+            sortQuery = { startyear: -1 };
+        }
+
         if (limit > 0) {
             const skip = (page - 1) * limit;
             const totalRecords = await Model.countDocuments({});
-            data = await query.sort({ createdAt: -1 }).skip(skip).limit(limit);
+            data = await query.sort(sortQuery).skip(skip).limit(limit);
             pagination = {
                 page,
                 limit,
@@ -64,9 +72,7 @@ export async function GET(req) {
                 totalRecords
             };
         } else {
-            // Sort by name if field exists, otherwise sort by createdAt
-            const hasNameField = Model.schema.path("name") !== undefined;
-            data = await query.sort(hasNameField ? { name: 1, createdAt: -1 } : { createdAt: -1 });
+            data = await query.sort(sortQuery);
         }
 
         return NextResponse.json({ success: true, data, pagination }, { status: 200 });
