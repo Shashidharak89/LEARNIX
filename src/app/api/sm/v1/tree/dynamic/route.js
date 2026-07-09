@@ -67,7 +67,7 @@ export async function GET(req) {
                 course: courseId, 
                 sem: semesterId,
                 batch: batchId
-            }).sort({ name: 1 }).lean();
+            }).sort({ createdAt: 1 }).lean();
             
             return NextResponse.json({ success: true, data }, { status: 200 });
         }

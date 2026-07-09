@@ -182,7 +182,7 @@ export async function GET(req) {
                     const semesters = Array.from(crs.semestersMap.values()).map(sm => {
                         const batches = Array.from(sm.batchesMap.values()).map(bt => {
                             const subjects = Array.from(bt.subjectsMap.values());
-                            subjects.sort((a, b) => a.name.localeCompare(b.name));
+                            subjects.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
                             return {
                                 ...bt,
                                 children: subjects

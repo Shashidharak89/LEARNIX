@@ -27,7 +27,7 @@ export async function GET(req) {
         };
 
         const [records, total] = await Promise.all([
-            SMSubject.find(query).sort({ name: 1 }).skip(skip).limit(limit).lean(),
+            SMSubject.find(query).sort({ createdAt: 1 }).skip(skip).limit(limit).lean(),
             SMSubject.countDocuments(query)
         ]);
 
