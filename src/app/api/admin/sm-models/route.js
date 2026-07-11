@@ -55,11 +55,6 @@ export async function GET(req) {
 
         // Custom optimal sorting for models
         let sortQuery = { createdAt: -1 };
-        if (modelName === "SMSemester") {
-            sortQuery = { sem: 1 };
-        } else if (modelName === "SMBatch") {
-            sortQuery = { startyear: -1 };
-        }
 
         if (limit > 0) {
             const skip = (page - 1) * limit;
