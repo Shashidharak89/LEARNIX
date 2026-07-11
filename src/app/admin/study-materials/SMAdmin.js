@@ -194,9 +194,13 @@ export default function SMAdmin() {
                     return;
                 }
                 const cleanUrl = (url) => {
-                    return url.replace(/github\.com/g, 'raw.github.com')
-                              .replace(/\/blob\//g, '/')
-                              .replace(/\/bolb\//g, '/');
+                    if (!url) return url;
+                    let cleaned = url;
+                    if (cleaned.includes("github.com") && !cleaned.includes("raw.github.com")) {
+                        cleaned = cleaned.replace(/github\.com/g, "raw.github.com");
+                    }
+                    return cleaned.replace(/\/blob\//g, "/")
+                                  .replace(/\/bolb\//g, "/");
                 };
                 submitData = activeUrls.map(url => ({
                     name: formData.name || "",

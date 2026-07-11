@@ -91,9 +91,12 @@ export async function POST(req) {
 
         const cleanUrl = (url) => {
             if (!url) return url;
-            return url.replace(/github\.com/g, 'raw.github.com')
-                      .replace(/\/blob\//g, '/')
-                      .replace(/\/bolb\//g, '/');
+            let cleaned = url;
+            if (cleaned.includes("github.com") && !cleaned.includes("raw.github.com")) {
+                cleaned = cleaned.replace(/github\.com/g, "raw.github.com");
+            }
+            return cleaned.replace(/\/blob\//g, "/")
+                          .replace(/\/bolb\//g, "/");
         };
 
         if (modelName === "SMFiles") {
