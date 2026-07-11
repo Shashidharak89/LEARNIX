@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { FiFileText, FiSearch } from "react-icons/fi";
 import SMDirectoryNode from "./SMDirectoryNode";
+import SMAdminSearchResults from "./SMAdminSearchResults";
 import "./SMViewer.css";
 
 export default function SMViewer() {
@@ -26,13 +27,14 @@ export default function SMViewer() {
     }, [searchQuery]);
 
     const fetchData = async (pageNum, queryText, append = false) => {
+        if (queryText.trim()) {
+            setLoading(false);
+            return;
+        }
         setLoading(true);
         setError("");
         try {
             let url = `/api/sm/v1/universities?page=${pageNum}&limit=20`;
-            if (queryText.trim()) {
-                url = `/api/sm/v1/search/tree?q=${encodeURIComponent(queryText)}&page=${pageNum}&limit=20`;
-            }
 
             const res = await fetch(url, { cache: "no-store" });
             const json = await res.json();
@@ -139,7 +141,15 @@ export default function SMViewer() {
             </div>
 
             <div className="sm-content" style={{ padding: "16px", background: "#fdfbff", borderRadius: "12px", border: "1px solid #e9d5ff" }}>
-                {loading && page === 1 ? (
+                {activeQuery.trim() ? (
+                    <SMAdminSearchResults 
+                        searchQuery={activeQuery} 
+                        onClearSearch={() => {
+                            setSearchQuery("");
+                            setActiveQuery("");
+                        }} 
+                    />
+                ) : loading && page === 1 ? (
                     <p style={{ textAlign: "center", color: "#888", padding: "20px" }}>Loading directory...</p>
                 ) : error ? (
                     <p style={{ color: "red", textAlign: "center", padding: "20px" }}>{error}</p>
