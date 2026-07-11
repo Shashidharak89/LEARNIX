@@ -97,6 +97,22 @@ export default function SMAdmin() {
     const [submitLoading, setSubmitLoading] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(null); // stores ID being deleted
     const [message, setMessage] = useState(null);
+    const [fileUrls, setFileUrls] = useState([""]);
+
+    const handleUrlChange = (index, value) => {
+        const newUrls = [...fileUrls];
+        newUrls[index] = value;
+        setFileUrls(newUrls);
+    };
+
+    const addUrlField = () => {
+        setFileUrls([...fileUrls, ""]);
+    };
+
+    const removeUrlField = (index) => {
+        const newUrls = fileUrls.filter((_, i) => i !== index);
+        setFileUrls(newUrls.length > 0 ? newUrls : [""]);
+    };
 
     const fetchRecords = async (modelName, pageNum = 1) => {
         setLoading(true);
@@ -151,6 +167,7 @@ export default function SMAdmin() {
             initialForm[f.name] = f.defaultValue !== undefined ? f.defaultValue : "";
         });
         setFormData(initialForm);
+        setFileUrls([""]);
         setMessage(null);
     }, [activeTab]);
 
@@ -168,6 +185,27 @@ export default function SMAdmin() {
         setMessage(null);
 
         try {
+            let submitData = formData;
+            if (activeTab === "SMFiles") {
+                const activeUrls = fileUrls.map(u => u.trim()).filter(Boolean);
+                if (activeUrls.length === 0) {
+                    setMessage({ type: "error", text: "Please enter at least one File URL." });
+                    setSubmitLoading(false);
+                    return;
+                }
+                const cleanUrl = (url) => {
+                    return url.replace(/github\.com/g, 'raw.github.com')
+                              .replace(/\/blob\//g, '/')
+                              .replace(/\/bolb\//g, '/');
+                };
+                submitData = activeUrls.map(url => ({
+                    name: formData.name || "",
+                    fileurl: cleanUrl(url),
+                    sub: formData.sub,
+                    type: formData.type || "default"
+                }));
+            }
+
             const res = await fetch("/api/admin/sm-models", {
                 method: "POST",
                 headers: {
@@ -175,7 +213,7 @@ export default function SMAdmin() {
                 },
                 body: JSON.stringify({
                     modelName: activeTab,
-                    data: formData
+                    data: submitData
                 })
             });
             const json = await res.json();
@@ -194,6 +232,9 @@ export default function SMAdmin() {
                     }
                 });
                 setFormData(resetForm);
+                if (activeTab === "SMFiles") {
+                    setFileUrls([""]);
+                }
             } else {
                 setMessage({ type: "error", text: json.error || json.message || "Failed to create record." });
             }
@@ -287,7 +328,65 @@ export default function SMAdmin() {
                                         {field.label || field.name} {field.required && <span className="required">*</span>}
                                     </label>
 
-                                    {field.type === "text" || field.type === "number" ? (
+                                    {activeTab === "SMFiles" && field.name === "fileurl" ? (
+                                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                                            {fileUrls.map((url, idx) => (
+                                                <div key={idx} style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                                                    <input
+                                                        type="text"
+                                                        value={url}
+                                                        onChange={(e) => handleUrlChange(idx, e.target.value)}
+                                                        placeholder={field.placeholder}
+                                                        required={idx === 0}
+                                                        className="sm-input"
+                                                        style={{ flex: 1 }}
+                                                    />
+                                                    {fileUrls.length > 1 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeUrlField(idx)}
+                                                            style={{
+                                                                background: "#fee2e2",
+                                                                color: "#ef4444",
+                                                                border: "1px solid #fecaca",
+                                                                borderRadius: "6px",
+                                                                width: "36px",
+                                                                height: "36px",
+                                                                cursor: "pointer",
+                                                                display: "flex",
+                                                                alignItems: "center",
+                                                                justifyContent: "center",
+                                                                flexShrink: 0
+                                                            }}
+                                                            title="Remove URL"
+                                                        >
+                                                            <FiTrash2 size={16} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            ))}
+                                            <button
+                                                type="button"
+                                                onClick={addUrlField}
+                                                style={{
+                                                    alignSelf: "flex-start",
+                                                    background: "#f3e8ff",
+                                                    color: "#7c3aed",
+                                                    border: "1px solid #d8b4fe",
+                                                    borderRadius: "6px",
+                                                    padding: "6px 12px",
+                                                    fontSize: "12px",
+                                                    fontWeight: "600",
+                                                    cursor: "pointer",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: "4px"
+                                                }}
+                                            >
+                                                <FiPlus size={14} /> Add URL Field
+                                            </button>
+                                        </div>
+                                    ) : field.type === "text" || field.type === "number" ? (
                                         <input
                                             type={field.type}
                                             name={field.name}

@@ -88,10 +88,43 @@ export async function POST(req) {
         }
 
         const Model = models[modelName];
-        const newRecord = new Model(data);
-        await newRecord.save();
 
-        return NextResponse.json({ success: true, data: newRecord }, { status: 201 });
+        const cleanUrl = (url) => {
+            if (!url) return url;
+            return url.replace(/github\.com/g, 'raw.github.com')
+                      .replace(/\/blob\//g, '/')
+                      .replace(/\/bolb\//g, '/');
+        };
+
+        if (modelName === "SMFiles") {
+            const cleanRecord = (record) => {
+                const copy = { ...record };
+                if (copy.fileurl) {
+                    copy.fileurl = cleanUrl(copy.fileurl);
+                }
+                return copy;
+            };
+
+            if (Array.isArray(data)) {
+                const cleanedData = data.map(cleanRecord);
+                const newRecords = await Model.insertMany(cleanedData);
+                return NextResponse.json({ success: true, data: newRecords }, { status: 201 });
+            } else {
+                const cleanedRecord = cleanRecord(data);
+                const newRecord = new Model(cleanedRecord);
+                await newRecord.save();
+                return NextResponse.json({ success: true, data: newRecord }, { status: 201 });
+            }
+        }
+
+        if (Array.isArray(data)) {
+            const newRecords = await Model.insertMany(data);
+            return NextResponse.json({ success: true, data: newRecords }, { status: 201 });
+        } else {
+            const newRecord = new Model(data);
+            await newRecord.save();
+            return NextResponse.json({ success: true, data: newRecord }, { status: 201 });
+        }
     } catch (error) {
         console.error("POST SM Model Error:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
