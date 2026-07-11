@@ -11,20 +11,18 @@ export async function GET(req) {
         const semesterId = url.searchParams.get("semesterId");
         const batchId = url.searchParams.get("batchId");
 
-        if (!collegeId || !courseId || !semesterId || !batchId) {
-            return NextResponse.json({ success: false, error: "collegeId, courseId, semesterId, and batchId query parameters are required" }, { status: 400 });
+        if (!batchId) {
+            return NextResponse.json({ success: false, error: "batchId query parameter is required" }, { status: 400 });
         }
 
         const page = parseInt(url.searchParams.get("page")) || 1;
         const limit = parseInt(url.searchParams.get("limit")) || 20;
         const skip = (page - 1) * limit;
 
-        const query = { 
-            college: collegeId, 
-            course: courseId, 
-            sem: semesterId, 
-            batch: batchId 
-        };
+        const query = { batch: batchId };
+        if (collegeId) query.college = collegeId;
+        if (courseId) query.course = courseId;
+        if (semesterId) query.sem = semesterId;
 
         const [records, total] = await Promise.all([
             SMSubject.find(query).sort({ createdAt: 1 }).skip(skip).limit(limit).lean(),

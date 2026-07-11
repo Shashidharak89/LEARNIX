@@ -11,15 +11,23 @@ export async function GET(req) {
         const courseId = url.searchParams.get("courseId");
         const semesterId = url.searchParams.get("semesterId");
 
-        if (!collegeId || !courseId || !semesterId) {
-            return NextResponse.json({ success: false, error: "collegeId, courseId, and semesterId query parameters are required" }, { status: 400 });
+        if (!semesterId) {
+            return NextResponse.json({ success: false, error: "semesterId query parameter is required" }, { status: 400 });
         }
 
         const page = parseInt(url.searchParams.get("page")) || 1;
         const limit = parseInt(url.searchParams.get("limit")) || 20;
         const skip = (page - 1) * limit;
 
-        const subjects = await SMSubject.find({ college: collegeId, course: courseId, sem: semesterId }).select("batch").lean();
+        const subjectQuery = { sem: semesterId };
+        if (collegeId) {
+            subjectQuery.college = collegeId;
+        }
+        if (courseId) {
+            subjectQuery.course = courseId;
+        }
+
+        const subjects = await SMSubject.find(subjectQuery).select("batch").lean();
         const batchIds = [...new Set(subjects.map(s => s.batch?.toString()).filter(Boolean))];
 
         const query = { _id: { $in: batchIds } };

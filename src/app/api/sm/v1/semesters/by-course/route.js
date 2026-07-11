@@ -10,15 +10,20 @@ export async function GET(req) {
         const collegeId = url.searchParams.get("collegeId");
         const courseId = url.searchParams.get("courseId");
 
-        if (!collegeId || !courseId) {
-            return NextResponse.json({ success: false, error: "collegeId and courseId query parameters are required" }, { status: 400 });
+        if (!courseId) {
+            return NextResponse.json({ success: false, error: "courseId query parameter is required" }, { status: 400 });
         }
 
         const page = parseInt(url.searchParams.get("page")) || 1;
         const limit = parseInt(url.searchParams.get("limit")) || 20;
         const skip = (page - 1) * limit;
 
-        const subjects = await SMSubject.find({ college: collegeId, course: courseId }).select("sem").lean();
+        const subjectQuery = { course: courseId };
+        if (collegeId) {
+            subjectQuery.college = collegeId;
+        }
+
+        const subjects = await SMSubject.find(subjectQuery).select("sem").lean();
         const semesterIds = [...new Set(subjects.map(s => s.sem?.toString()).filter(Boolean))];
 
         const query = { _id: { $in: semesterIds } };

@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ChevronDown, ChevronRight, BookOpen, FileText, Download, Eye, FolderOpen, BookMarked, Share2, Search, X } from "lucide-react";
 import materialsData from "./materialsData";
+import SMSearchResults from "./SMSearchResults";
 import "./styles/StudyMaterials.css";
 
 function FilesList({
@@ -346,10 +347,13 @@ export default function StudyMaterials() {
 
         {/* Materials List */}
         <div className="sm-materials-list">
-          {filteredMaterials.length === 0 && searchTerm ? (
-            <div className="sm-no-results">
-              <p>No study materials found for "{searchTerm}"</p>
-            </div>
+          {searchTerm.trim() ? (
+            <SMSearchResults
+              searchQuery={searchTerm}
+              onClearSearch={handleClearSearch}
+              onShareFile={handleShareFile}
+              highlightedFileKey={highlightedFileKey}
+            />
           ) : (
             filteredMaterials.map((sem, semIndex) => (
               <div key={semIndex} className="sm-semester-block">
