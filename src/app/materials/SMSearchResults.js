@@ -1,18 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { 
-    ChevronRight, 
-    ChevronDown, 
-    BookOpen, 
-    FileText, 
-    Download, 
-    FolderOpen, 
-    Folder, 
-    Share2, 
-    GraduationCap, 
-    Calendar, 
-    Users, 
+import {
+    ChevronRight,
+    ChevronDown,
+    BookOpen,
+    FileText,
+    Download,
+    FolderOpen,
+    Folder,
+    Share2,
+    GraduationCap,
+    Calendar,
+    Users,
     Award,
     BookMarked,
     Eye
@@ -25,7 +25,7 @@ const highlightText = (text, keyword) => {
     const parts = String(text).split(regex);
     return (
         <span>
-            {parts.map((part, i) => 
+            {parts.map((part, i) =>
                 regex.test(part) ? (
                     <mark key={i} style={{ background: "#fef08a", color: "#854d0e", padding: "0 2px", borderRadius: "2px", fontWeight: "bold" }}>
                         {part}
@@ -82,7 +82,7 @@ function SMSearchDirectoryNode({
 
             const res = await fetch(endpoint, { cache: "no-store" });
             const json = await res.json();
-            
+
             if (json.success) {
                 if (append) {
                     setChildren(prev => [...prev, ...json.data]);
@@ -232,7 +232,7 @@ function SMSearchDirectoryNode({
 
     return (
         <div className="sm-search-node" style={{ marginLeft: level > 0 ? "16px" : "0" }}>
-            <div 
+            <div
                 onClick={handleToggle}
                 className={`sm-search-node-header ${expanded ? "node-expanded" : ""}`}
             >
@@ -337,7 +337,7 @@ function SMSearchDirectoryNode({
                     )}
 
                     {page < totalPages && (
-                        <button 
+                        <button
                             onClick={handleLoadMore}
                             disabled={loading}
                             style={{
@@ -390,7 +390,7 @@ export default function SMSearchResults({ searchQuery, onClearSearch, onShareFil
                     const existingData = append ? prev[catId].data : [];
                     const newData = [...existingData, ...json.data];
                     const uniqueData = Array.from(new Map(newData.map(item => [item._id, item])).values());
-                    
+
                     return {
                         ...prev,
                         [catId]: {
@@ -447,7 +447,7 @@ export default function SMSearchResults({ searchQuery, onClearSearch, onShareFil
         return (
             <div className="sm-no-results">
                 <p>No study materials matches found for "{searchQuery}"</p>
-                <button 
+                <button
                     onClick={onClearSearch}
                     style={{
                         marginTop: "12px",
