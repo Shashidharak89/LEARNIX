@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import Footer from "../components/Footer";
 import { Navbar } from "../components/Navbar";
 import StudyMaterials from "./StudyMaterials";
+import SMViewer from "../admin/study-materials/SMViewer";
 
 // Its material function
 export default function materials() {
@@ -12,7 +13,7 @@ export default function materials() {
         <div >
             <Navbar />
             <Suspense fallback={<div className="sm-wrapper" />}>
-                <StudyMaterials />
+                <SMViewer />
             </Suspense>
         </div>
     );
