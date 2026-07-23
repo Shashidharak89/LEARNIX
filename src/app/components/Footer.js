@@ -47,12 +47,12 @@ export default function Footer() {
             <div className="learnix-contact-item">
               <FaInstagram className="learnix-contact-icon" />
               <a 
-                href="https://instagram.com/luminous_alpha_" 
+                href="https://www.instagram.com/shashidhara_k89/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="learnix-contact-link"
               >
-                @luminous_alpha_
+                @shashidhara_k89
               </a>
             </div>
           </div>
