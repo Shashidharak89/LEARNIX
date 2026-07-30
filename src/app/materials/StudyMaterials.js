@@ -127,55 +127,95 @@ export default function StudyMaterials() {
   }, [searchTerm, searchParamValue, pathname, router, searchParams, searchParamKey]);
 
   const filteredMaterials = useMemo(() => {
-    if (!searchTerm.trim()) return materialsData;
+    const words = searchTerm.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    if (words.length === 0) return materialsData;
 
-    const term = searchTerm.toLowerCase();
+    return materialsData
+      .map(sem => {
+        const semName = sem.semester.toLowerCase();
 
-    return materialsData.map(sem => {
-      // Check if semester name matches
-      const semMatches = sem.semester.toLowerCase().includes(term);
+        // Filter & score subjects
+        const scoredSubjects = sem.subjects
+          .map(subj => {
+            const subjName = subj.subject.toLowerCase();
 
-      // Filter subjects
-      const filteredSubjects = sem.subjects.map(subj => {
-        const subjMatches = subj.subject.toLowerCase().includes(term);
+            // Filter & score files
+            const scoredFiles = (subj.files || [])
+              .map(file => {
+                const rawFileName = file.name || file.url.split("/").pop().split("?")[0];
+                const fileName = decodeURIComponent(rawFileName).toLowerCase();
+                let score = 0;
+                for (const word of words) {
+                  if (fileName.includes(word)) score += 1;
+                }
+                return { file, score };
+              })
+              .filter(f => f.score > 0)
+              .sort((a, b) => b.score - a.score);
 
-        // Filter files
-        const filteredFiles = (subj.files || []).filter(file => {
-          const rawFileName = file.name || file.url.split("/").pop().split("?")[0];
-          const fileName = decodeURIComponent(rawFileName);
-          return fileName.toLowerCase().includes(term);
-        });
+            const scoredExternalFiles = (subj.externalfiles || [])
+              .map(file => {
+                const rawFileName = file.name || file.url.split("/").pop().split("?")[0];
+                const fileName = decodeURIComponent(rawFileName).toLowerCase();
+                let score = 0;
+                for (const word of words) {
+                  if (fileName.includes(word)) score += 1;
+                }
+                return { file, score };
+              })
+              .filter(f => f.score > 0)
+              .sort((a, b) => b.score - a.score);
 
-        const filteredExternalFiles = (subj.externalfiles || []).filter(file => {
-          const rawFileName = file.name || file.url.split("/").pop().split("?")[0];
-          const fileName = decodeURIComponent(rawFileName);
-          return fileName.toLowerCase().includes(term);
-        });
+            let subjScore = 0;
+            for (const word of words) {
+              if (subjName.includes(word) || semName.includes(word)) subjScore += 1;
+            }
 
-        if (subjMatches || semMatches) {
-          return subj;
+            const topFileScore = Math.max(
+              0,
+              ...scoredFiles.map(f => f.score),
+              ...scoredExternalFiles.map(f => f.score)
+            );
+            const totalScore = subjScore + topFileScore;
+
+            if (totalScore > 0) {
+              return {
+                subj: {
+                  ...subj,
+                  files: scoredFiles.length > 0 ? scoredFiles.map(f => f.file) : subj.files,
+                  externalfiles: scoredExternalFiles.length > 0 ? scoredExternalFiles.map(f => f.file) : subj.externalfiles,
+                },
+                score: totalScore,
+              };
+            }
+
+            return null;
+          })
+          .filter(Boolean)
+          .sort((a, b) => b.score - a.score);
+
+        let semScore = 0;
+        for (const word of words) {
+          if (semName.includes(word)) semScore += 1;
         }
 
-        if (filteredFiles.length > 0 || filteredExternalFiles.length > 0) {
+        if (semScore > 0 || scoredSubjects.length > 0) {
+          const subjects = scoredSubjects.length > 0 ? scoredSubjects.map(s => s.subj) : sem.subjects;
+          const topSubjScore = Math.max(0, ...scoredSubjects.map(s => s.score));
           return {
-            ...subj,
-            files: filteredFiles,
-            externalfiles: filteredExternalFiles,
+            sem: {
+              ...sem,
+              subjects,
+            },
+            score: semScore + topSubjScore,
           };
         }
 
-        return null; // Subject doesn't match and has no matching files
-      }).filter(Boolean); // Remove nulls
-
-      if (semMatches || filteredSubjects.length > 0) {
-        return {
-          ...sem,
-          subjects: filteredSubjects.length > 0 ? filteredSubjects : (semMatches ? sem.subjects : [])
-        };
-      }
-
-      return null;
-    }).filter(Boolean);
+        return null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.score - a.score)
+      .map(item => item.sem);
   }, [searchTerm]);
 
   const parseIndex = (value) => {

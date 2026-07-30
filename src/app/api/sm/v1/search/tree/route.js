@@ -19,7 +19,8 @@ export async function GET(req) {
         const limit = parseInt(url.searchParams.get("limit")) || 20;
         const skip = (page - 1) * limit;
 
-        if (!q.trim()) {
+        const words = q.toLowerCase().trim().split(/\s+/).filter(Boolean);
+        if (words.length === 0) {
             return NextResponse.json({
                 success: true,
                 pagination: { total: 0, page, limit, totalPages: 0 },
@@ -27,21 +28,23 @@ export async function GET(req) {
             }, { status: 200 });
         }
 
-        const regex = { $regex: q, $options: "i" };
+        const uniOrConditions = words.map(w => ({ name: { $regex: w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), $options: "i" } }));
+        const collegeOrConditions = words.map(w => ({ name: { $regex: w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), $options: "i" } }));
+        const courseOrConditions = words.map(w => ({ name: { $regex: w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), $options: "i" } }));
+        const fileOrConditions = [];
+        words.forEach(w => {
+            const esc = w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            fileOrConditions.push({ name: { $regex: esc, $options: "i" } }, { fileurl: { $regex: esc, $options: "i" } });
+        });
 
         // 1. Resolve matching IDs from all levels
         const [uniMatches, collegeMatches, courseMatches, semesters, batches, fileMatches] = await Promise.all([
-            SMUniversity.find({ name: regex }).select("_id").lean(),
-            SMCollege.find({ name: regex }).select("_id").lean(),
-            SMCourse.find({ name: regex }).select("_id").lean(),
+            SMUniversity.find({ $or: uniOrConditions }).select("_id").lean(),
+            SMCollege.find({ $or: collegeOrConditions }).select("_id").lean(),
+            SMCourse.find({ $or: courseOrConditions }).select("_id").lean(),
             SMSemester.find({}).lean(),
             SMBatch.find({}).lean(),
-            SMFiles.find({
-                $or: [
-                    { name: regex },
-                    { fileurl: regex }
-                ]
-            }).select("_id sub").lean()
+            SMFiles.find({ $or: fileOrConditions }).select("_id sub").lean()
         ]);
 
         const uniIds = uniMatches.map(u => u._id);
@@ -50,22 +53,16 @@ export async function GET(req) {
         const fileIds = fileMatches.map(f => f._id);
         const fileParentSubjectIds = fileMatches.map(f => f.sub);
 
-        // Resolve semester IDs matching keyword (e.g. "1st sem" or "1")
+        // Resolve semester IDs matching keyword
         const semIds = semesters.filter(s => {
-            const semName = `Semester ${s.sem}`.toLowerCase();
-            const semShort = `${s.sem} sem`.toLowerCase();
-            const semVal = String(s.sem).toLowerCase();
-            const term = q.toLowerCase();
-            return semName.includes(term) || semShort.includes(term) || semVal.includes(term);
+            const text = `Semester ${s.sem} ${s.sem} sem ${s.sem}`.toLowerCase();
+            return words.some(w => text.includes(w));
         }).map(s => s._id);
 
-        // Resolve batch IDs matching keyword (e.g. "2025" or "2025-2027")
+        // Resolve batch IDs matching keyword
         const batchIds = batches.filter(b => {
-            const batchName = `Batch ${b.startyear}-${b.endyear}`.toLowerCase();
-            const startStr = String(b.startyear);
-            const endStr = String(b.endyear);
-            const term = q.toLowerCase();
-            return batchName.includes(term) || startStr.includes(term) || endStr.includes(term);
+            const text = `Batch ${b.startyear}-${b.endyear} ${b.startyear} ${b.endyear}`.toLowerCase();
+            return words.some(w => text.includes(w));
         }).map(b => b._id);
 
         // Resolve colleges under matching universities
@@ -78,16 +75,14 @@ export async function GET(req) {
         const collegeIdsResolved = collegeMatchesResolved.map(c => c._id);
 
         // 2. Fetch all subjects that are matched or have matched children/parents
-        const matchingSubjects = await SMSubject.find({
-            $or: [
-                { name: regex },
-                { college: { $in: collegeIdsResolved } },
-                { course: { $in: courseIds } },
-                { sem: { $in: semIds } },
-                { batch: { $in: batchIds } },
-                { _id: { $in: fileParentSubjectIds } }
-            ]
-        })
+        const subjectOrConditions = words.map(w => ({ name: { $regex: w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), $options: "i" } }));
+        if (collegeIdsResolved.length > 0) subjectOrConditions.push({ college: { $in: collegeIdsResolved } });
+        if (courseIds.length > 0) subjectOrConditions.push({ course: { $in: courseIds } });
+        if (semIds.length > 0) subjectOrConditions.push({ sem: { $in: semIds } });
+        if (batchIds.length > 0) subjectOrConditions.push({ batch: { $in: batchIds } });
+        if (fileParentSubjectIds.length > 0) subjectOrConditions.push({ _id: { $in: fileParentSubjectIds } });
+
+        const matchingSubjects = await SMSubject.find({ $or: subjectOrConditions })
         .populate({
             path: "college",
             populate: { path: "university" }
@@ -213,7 +208,18 @@ export async function GET(req) {
             };
         });
 
-        universitiesList.sort((a, b) => a.name.localeCompare(b.name));
+        universitiesList.forEach(uni => {
+            let score = 0;
+            const treeText = JSON.stringify(uni).toLowerCase();
+            for (const word of words) {
+                if (treeText.includes(word)) {
+                    score += 1;
+                }
+            }
+            uni.__score = score;
+        });
+
+        universitiesList.sort((a, b) => (b.__score - a.__score) || a.name.localeCompare(b.name));
 
         // 6. Paginate top-level Universities
         const total = universitiesList.length;

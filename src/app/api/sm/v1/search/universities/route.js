@@ -11,18 +11,45 @@ export async function GET(req) {
         const limit = parseInt(url.searchParams.get("limit")) || 20;
         const skip = (page - 1) * limit;
 
-        const query = q ? {
-            $or: [
-                { name: { $regex: q, $options: "i" } },
-                { city: { $regex: q, $options: "i" } },
-                { district: { $regex: q, $options: "i" } }
-            ]
-        } : {};
+        const words = q.toLowerCase().trim().split(/\s+/).filter(Boolean);
+        let query = {};
+        if (words.length > 0) {
+            const orConditions = [];
+            words.forEach(w => {
+                const escaped = w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                orConditions.push(
+                    { name: { $regex: escaped, $options: "i" } },
+                    { city: { $regex: escaped, $options: "i" } },
+                    { district: { $regex: escaped, $options: "i" } }
+                );
+            });
+            query = { $or: orConditions };
+        }
 
-        const [records, total] = await Promise.all([
-            SMUniversity.find(query).sort({ name: 1 }).skip(skip).limit(limit).lean(),
-            SMUniversity.countDocuments(query)
-        ]);
+        const allRecords = await SMUniversity.find(query).lean();
+
+        let scoredRecords = allRecords;
+        if (words.length > 0) {
+            scoredRecords = allRecords
+                .map(r => {
+                    let score = 0;
+                    const text = `${r.name || ""} ${r.city || ""} ${r.district || ""}`.toLowerCase();
+                    for (const word of words) {
+                        if (text.includes(word)) {
+                            score += 1;
+                        }
+                    }
+                    return { r, score };
+                })
+                .filter(item => item.score > 0)
+                .sort((a, b) => b.score - a.score || (a.r.name || "").localeCompare(b.r.name || ""))
+                .map(item => item.r);
+        } else {
+            scoredRecords.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        }
+
+        const total = scoredRecords.length;
+        const records = scoredRecords.slice(skip, skip + limit);
 
         return NextResponse.json({
             success: true,

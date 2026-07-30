@@ -12,21 +12,30 @@ export async function GET(req) {
         const skip = (page - 1) * limit;
 
         const semesters = await SMSemester.find({}).lean();
-        let matchedSemesters = semesters;
+        const words = q.toLowerCase().trim().split(/\s+/).filter(Boolean);
 
-        if (q) {
-            matchedSemesters = semesters.filter(s => {
-                const semName = `Semester ${s.sem}`.toLowerCase();
-                const semShort = `${s.sem} sem`.toLowerCase();
-                const semVal = String(s.sem).toLowerCase();
-                const term = q.toLowerCase();
-                return semName.includes(term) || semShort.includes(term) || semVal.includes(term);
-            });
+        let scoredSemesters = semesters;
+        if (words.length > 0) {
+            scoredSemesters = semesters
+                .map(s => {
+                    const text = `Semester ${s.sem} ${s.sem} sem ${s.sem}`.toLowerCase();
+                    let score = 0;
+                    for (const word of words) {
+                        if (text.includes(word)) {
+                            score += 1;
+                        }
+                    }
+                    return { s, score };
+                })
+                .filter(item => item.score > 0)
+                .sort((a, b) => b.score - a.score || a.s.sem - b.s.sem)
+                .map(item => item.s);
+        } else {
+            scoredSemesters.sort((a, b) => a.sem - b.sem);
         }
 
-        const total = matchedSemesters.length;
-        const sorted = matchedSemesters.sort((a, b) => a.sem - b.sem);
-        const records = sorted.slice(skip, skip + limit);
+        const total = scoredSemesters.length;
+        const records = scoredSemesters.slice(skip, skip + limit);
 
         return NextResponse.json({
             success: true,

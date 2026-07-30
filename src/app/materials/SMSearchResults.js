@@ -20,8 +20,11 @@ import {
 
 const highlightText = (text, keyword) => {
     if (!keyword || !text) return <span>{text}</span>;
-    const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const regex = new RegExp(`(${escaped})`, "gi");
+    const words = String(keyword).toLowerCase().trim().split(/\s+/).filter(Boolean);
+    if (words.length === 0) return <span>{text}</span>;
+
+    const pattern = words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+    const regex = new RegExp(`(${pattern})`, "gi");
     const parts = String(text).split(regex);
     return (
         <span>

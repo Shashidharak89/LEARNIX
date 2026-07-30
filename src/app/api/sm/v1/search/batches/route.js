@@ -12,21 +12,30 @@ export async function GET(req) {
         const skip = (page - 1) * limit;
 
         const batches = await SMBatch.find({}).lean();
-        let matchedBatches = batches;
+        const words = q.toLowerCase().trim().split(/\s+/).filter(Boolean);
 
-        if (q) {
-            matchedBatches = batches.filter(b => {
-                const batchName = `Batch ${b.startyear}-${b.endyear}`.toLowerCase();
-                const startStr = String(b.startyear);
-                const endStr = String(b.endyear);
-                const term = q.toLowerCase();
-                return batchName.includes(term) || startStr.includes(term) || endStr.includes(term);
-            });
+        let scoredBatches = batches;
+        if (words.length > 0) {
+            scoredBatches = batches
+                .map(b => {
+                    const text = `Batch ${b.startyear}-${b.endyear} ${b.startyear} ${b.endyear}`.toLowerCase();
+                    let score = 0;
+                    for (const word of words) {
+                        if (text.includes(word)) {
+                            score += 1;
+                        }
+                    }
+                    return { b, score };
+                })
+                .filter(item => item.score > 0)
+                .sort((a, b) => b.score - a.score || b.b.startyear - a.b.startyear)
+                .map(item => item.b);
+        } else {
+            scoredBatches.sort((a, b) => b.startyear - a.startyear);
         }
 
-        const total = matchedBatches.length;
-        const sorted = matchedBatches.sort((a, b) => b.startyear - a.startyear);
-        const records = sorted.slice(skip, skip + limit);
+        const total = scoredBatches.length;
+        const records = scoredBatches.slice(skip, skip + limit);
 
         return NextResponse.json({
             success: true,
