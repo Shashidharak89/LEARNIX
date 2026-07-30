@@ -3,6 +3,29 @@
 import { useState, useEffect, useCallback } from "react";
 import { FiSearch, FiChevronDown, FiChevronRight, FiFileText, FiExternalLink } from "react-icons/fi";
 
+const highlightText = (text, keyword) => {
+    if (!keyword || !text) return text;
+    const words = String(keyword).toLowerCase().trim().split(/\s+/).filter(Boolean);
+    if (words.length === 0) return text;
+
+    const pattern = words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+    const regex = new RegExp(`(${pattern})`, "gi");
+    const parts = String(text).split(regex);
+    return (
+        <span>
+            {parts.map((part, i) =>
+                regex.test(part) ? (
+                    <mark key={i} style={{ background: "#fef08a", color: "#854d0e", padding: "0 2px", borderRadius: "2px", fontWeight: "bold" }}>
+                        {part}
+                    </mark>
+                ) : (
+                    part
+                )
+            )}
+        </span>
+    );
+};
+
 export default function QPSearch() {
     const [query, setQuery] = useState("");
     const [subjects, setSubjects] = useState([]);
@@ -132,7 +155,7 @@ export default function QPSearch() {
                                                 onMouseOver={(e) => { e.currentTarget.style.background = "#f8faff"; }}
                                                 onMouseOut={(e) => { e.currentTarget.style.background = "#fff"; }}
                                             >
-                                                <span style={{ fontSize: "16px", color: "#333", fontWeight: "600" }}>{sub.name}</span>
+                                                <span style={{ fontSize: "16px", color: "#333", fontWeight: "600" }}>{highlightText(sub.name, query)}</span>
                                                 <FiExternalLink size={20} color="#888" />
                                             </a>
                                         </div>

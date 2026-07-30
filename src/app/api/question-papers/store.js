@@ -177,26 +177,42 @@ export async function getQuestionPaperByTreePath(semester, batch, examType) {
 export async function listQuestionPapers(filters = {}) {
     const papers = await fetchAllPapers();
     const { batch, examType, semester, subject, q } = filters;
+    const words = q ? q.toLowerCase().trim().split(/\s+/).filter(Boolean) : [];
 
-    return papers.filter((paper) => {
-        if (batch && !textIncludes(paper.batch, batch)) return false;
-        if (examType && !textIncludes(paper.examType, examType)) return false;
-        if (semester && String(paper.semester) !== String(semester)) return false;
+    const scored = papers.map((paper) => {
+        if (batch && !textIncludes(paper.batch, batch)) return null;
+        if (examType && !textIncludes(paper.examType, examType)) return null;
+        if (semester && String(paper.semester) !== String(semester)) return null;
         if (subject) {
             const subjectMatch = paper.subjects.some((item) => textIncludes(item.subject, subject));
-            if (!subjectMatch) return false;
-        }
-        if (q) {
-            const matched =
-                textIncludes(paper.batch, q) ||
-                textIncludes(paper.examType, q) ||
-                textIncludes(paper.semesterLabel, q) ||
-                paper.subjects.some((item) => textIncludes(item.subject, q));
-            if (!matched) return false;
+            if (!subjectMatch) return null;
         }
 
-        return true;
-    });
+        let score = 0;
+        if (words.length > 0) {
+            const fullText = [
+                paper.batch,
+                paper.examType,
+                paper.semesterLabel,
+                ...paper.subjects.map(s => s.subject)
+            ].join(" ").toLowerCase();
+
+            for (const word of words) {
+                if (fullText.includes(word)) {
+                    score += 1;
+                }
+            }
+            if (score === 0) return null;
+        }
+
+        return { paper, score };
+    }).filter(Boolean);
+
+    if (words.length > 0) {
+        scored.sort((a, b) => b.score - a.score);
+    }
+
+    return scored.map(item => item.paper);
 }
 
 export async function getQuestionPaperById(id) {

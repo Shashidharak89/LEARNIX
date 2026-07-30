@@ -11,12 +11,38 @@ export async function GET(req) {
         const limit = parseInt(url.searchParams.get("limit")) || 20;
         const skip = (page - 1) * limit;
 
-        const query = q ? { name: { $regex: q, $options: "i" } } : {};
+        const words = q.toLowerCase().trim().split(/\s+/).filter(Boolean);
+        let query = {};
+        if (words.length > 0) {
+            query = {
+                $or: words.map(w => ({ name: { $regex: w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), $options: "i" } }))
+            };
+        }
 
-        const [records, total] = await Promise.all([
-            QPSubjects.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-            QPSubjects.countDocuments(query)
-        ]);
+        const allRecords = await QPSubjects.find(query).lean();
+
+        let scoredRecords = allRecords;
+        if (words.length > 0) {
+            scoredRecords = allRecords
+                .map(r => {
+                    let score = 0;
+                    const text = (r.name || "").toLowerCase();
+                    for (const word of words) {
+                        if (text.includes(word)) {
+                            score += 1;
+                        }
+                    }
+                    return { r, score };
+                })
+                .filter(item => item.score > 0)
+                .sort((a, b) => b.score - a.score || new Date(b.r.createdAt || 0) - new Date(a.r.createdAt || 0))
+                .map(item => item.r);
+        } else {
+            scoredRecords.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        }
+
+        const total = scoredRecords.length;
+        const records = scoredRecords.slice(skip, skip + limit);
 
         return NextResponse.json({
             success: true,
