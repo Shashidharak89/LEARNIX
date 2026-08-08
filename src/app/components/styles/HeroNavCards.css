@@ -20,7 +20,8 @@
   padding: 30px 24px;
   box-sizing: border-box;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 50%, #ffffff 0%, #f9fafb 100%);
+  will-change: background-color;
+  transition: background-color 0.4s ease;
 }
 
 /* Stage Area */

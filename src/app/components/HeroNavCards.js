@@ -148,6 +148,7 @@ const scatteredOffsets = [
 
 export default function HeroNavCards({ loggedIn }) {
   const sectionRef = useRef(null);
+  const viewportRef = useRef(null);
   const featureItemsRef = useRef([]);
   const iconBoxesRef = useRef([]);
   const contentBoxesRef = useRef([]);
@@ -188,7 +189,11 @@ export default function HeroNavCards({ loggedIn }) {
 
       const phaseDuration = 1.0;
 
-      // Initial setup for Finale Grid
+      // Initial setup for Finale Grid & Viewport
+      if (viewportRef.current) {
+        gsap.set(viewportRef.current, { backgroundColor: navItems[0].bg });
+      }
+
       if (finaleRef.current) {
         gsap.set(finaleRef.current, { opacity: 1, visibility: "hidden" });
       }
@@ -229,6 +234,19 @@ export default function HeroNavCards({ loggedIn }) {
 
         const targetIconX = isEven ? "-24vw" : "24vw";
         const initialContentX = isEven ? "50px" : "-50px";
+
+        // Smooth background color transition for active icon color
+        if (viewportRef.current) {
+          masterTl.to(
+            viewportRef.current,
+            {
+              backgroundColor: item.bg,
+              duration: 0.45,
+              ease: "sine.inOut",
+            },
+            startTime
+          );
+        }
 
         // Initial hidden state for stage item, icon, and content container
         gsap.set(itemEl, { opacity: 0, visibility: "hidden" });
@@ -313,6 +331,18 @@ export default function HeroNavCards({ loggedIn }) {
       // Finale Phase Entrance: Scattered Icons Converge + Header Reveal
       const finaleStartTime = spotlightCount * phaseDuration;
 
+      if (viewportRef.current) {
+        masterTl.to(
+          viewportRef.current,
+          {
+            backgroundColor: "#ffffff",
+            duration: 0.45,
+            ease: "sine.inOut",
+          },
+          finaleStartTime
+        );
+      }
+
       masterTl.to(finaleRef.current, { visibility: "visible", duration: 0.01 }, finaleStartTime);
 
       // Step A: Scattered Icons Converge into Grid Positions
@@ -363,7 +393,7 @@ export default function HeroNavCards({ loggedIn }) {
 
   return (
     <section ref={sectionRef} className="lnx-showcase-pinned-section">
-      <div className="lnx-showcase-viewport">
+      <div ref={viewportRef} className="lnx-showcase-viewport">
 
         {/* Feature Showcase Stage Area */}
         <div className="lnx-showcase-stage-area">
