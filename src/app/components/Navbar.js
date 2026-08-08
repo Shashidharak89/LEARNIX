@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import axios from "axios";
 import {
   FiMenu,
@@ -28,6 +29,9 @@ import { Fill } from "./Fill";
 import { verifyTokenAndSyncAuth, signOutFromBrowser } from "@/lib/clientAuth";
 
 export const Navbar = () => {
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
+
   const [isOpen, setIsOpen] = useState(false);
   const [hasUSN, setHasUSN] = useState(false);
   const [userRole, setUserRole] = useState("");
@@ -135,6 +139,11 @@ export const Navbar = () => {
   }, []);
 
   useEffect(() => {
+    if (isHomePage) {
+      setNavHidden(false);
+      return;
+    }
+
     const onScroll = () => {
       const currentY = window.scrollY;
       if (currentY <= 0) {
@@ -152,7 +161,7 @@ export const Navbar = () => {
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [isOpen]);
+  }, [isOpen, isHomePage]);
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -306,7 +315,7 @@ export const Navbar = () => {
   return (
     <>
       {/* Main Navbar */}
-      <nav className={`learnix-navbar-container${navHidden ? " navbar--hidden" : ""}`}>
+      <nav className={`learnix-navbar-container${isHomePage ? " navbar--home-static" : ""}${navHidden ? " navbar--hidden" : ""}`}>
         {/* Logo */}
         <div className="learnix-navbar-brand">
           <Link href="/" className="learnix-logo-link">

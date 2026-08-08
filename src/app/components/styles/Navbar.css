@@ -37,6 +37,15 @@ body {
   transform: translateY(-100%);
 }
 
+/* Home Screen Only: Non-sticky, static position at top of page (scrolls away naturally, never pops up) */
+.learnix-navbar-container.navbar--home-static {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  transform: none !important;
+}
+
 /* Logo Brand Section */
 .learnix-navbar-brand {
   display: flex;

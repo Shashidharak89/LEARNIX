@@ -1,0 +1,96 @@
+/* ScrollToTop.css - Transparent & Realtime Adaptive Floating Scroll To Top Button */
+
+.learnix-scroll-to-top {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(16px) scale(0.85);
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.3s ease,
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
+  padding: 0;
+  outline: none;
+  mix-blend-mode: difference;
+}
+
+.learnix-scroll-to-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.learnix-scroll-to-top:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.25);
+  transform: translateY(-4px) scale(1.08);
+}
+
+.learnix-scroll-to-top:active {
+  transform: translateY(0) scale(0.96);
+}
+
+/* SVG Circular Progress Ring */
+.lnx-scroll-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+
+.lnx-scroll-ring-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.25);
+  stroke-width: 3.5;
+}
+
+.lnx-scroll-ring-indicator {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.12s linear;
+}
+
+/* Central Up Arrow Icon */
+.lnx-scroll-top-icon {
+  font-size: 1.25rem;
+  color: #ffffff;
+  z-index: 2;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.learnix-scroll-to-top:hover .lnx-scroll-top-icon {
+  transform: translateY(-3px);
+}
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+  .learnix-scroll-to-top {
+    bottom: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+  }
+}
