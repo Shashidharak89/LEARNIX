@@ -210,7 +210,8 @@
   overflow: hidden;
   cursor: pointer;
   box-sizing: border-box;
-  transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.18s ease;
+  will-change: transform, opacity, filter;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
 }
 

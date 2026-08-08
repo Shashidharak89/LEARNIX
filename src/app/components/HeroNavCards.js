@@ -134,12 +134,26 @@ const navItems = [
   },
 ];
 
+const scatteredOffsets = [
+  { x: -160, y: -110, scale: 0.5, rotate: -15 }, // 0: Learn (top-left)
+  { x: 0,    y: -150, scale: 0.4, rotate: 10 },  // 1: Search (top-center)
+  { x: 160,  y: -110, scale: 0.5, rotate: 15 },  // 2: Materials (top-right)
+  { x: -180, y: -20,  scale: 0.4, rotate: -12 }, // 3: QP (left)
+  { x: 0,    y: 0,    scale: 0.2, rotate: 0 },   // 4: Tools (center)
+  { x: 180,  y: -20,  scale: 0.4, rotate: 12 },  // 5: Help (right)
+  { x: -140, y: 120,  scale: 0.5, rotate: -10 }, // 6: Upload (bottom-left)
+  { x: 0,    y: 160,  scale: 0.4, rotate: 8 },   // 7: Dashboard (bottom-center)
+  { x: 140,  y: 120,  scale: 0.5, rotate: 10 },  // 8: Updates (bottom-right)
+];
+
 export default function HeroNavCards({ loggedIn }) {
   const sectionRef = useRef(null);
   const featureItemsRef = useRef([]);
   const iconBoxesRef = useRef([]);
   const contentBoxesRef = useRef([]);
   const finaleRef = useRef(null);
+  const finaleHeaderRef = useRef(null);
+  const finaleCardsRef = useRef([]);
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -149,7 +163,7 @@ export default function HeroNavCards({ loggedIn }) {
     if (!section) return;
 
     const spotlightCount = navItems.length;
-    const totalPhases = spotlightCount + 1; // 9 features + 1 Finale All-in-One Grid Phase
+    const totalPhases = spotlightCount + 1.2; // 9 features + 1.2 Finale Convergence Phase
     const pinDistance = totalPhases * 480;
 
     const ctx = gsap.context(() => {
@@ -167,10 +181,28 @@ export default function HeroNavCards({ loggedIn }) {
 
       const phaseDuration = 1.0;
 
-      // Setup initial state for Finale Grid
+      // Setup initial state for Finale Stage & Cards
       if (finaleRef.current) {
-        gsap.set(finaleRef.current, { opacity: 0, visibility: "hidden", scale: 0.92 });
+        gsap.set(finaleRef.current, { opacity: 1, visibility: "hidden" });
       }
+
+      if (finaleHeaderRef.current) {
+        gsap.set(finaleHeaderRef.current, { opacity: 0, y: 25, filter: "blur(6px)" });
+      }
+
+      finaleCardsRef.current.forEach((card, idx) => {
+        if (card) {
+          const offset = scatteredOffsets[idx] || { x: 0, y: 40, scale: 0.5, rotate: 0 };
+          gsap.set(card, {
+            x: offset.x,
+            y: offset.y,
+            scale: offset.scale,
+            rotate: offset.rotate,
+            opacity: 0,
+            filter: "blur(10px)",
+          });
+        }
+      });
 
       // Feature Spotlight Animations (0 to 8)
       navItems.forEach((item, i) => {
@@ -243,19 +275,48 @@ export default function HeroNavCards({ loggedIn }) {
           .to(itemEl, { visibility: "hidden", opacity: 0, duration: 0.01 }, startTime + 0.99);
       });
 
-      // Finale Phase: All-in-One Navigation Grid Card Reveal (at t = 9.0)
+      // Finale Phase Entrance: Scattered Icons Converge + Header Reveal (at t = 9.0)
       const finaleStartTime = spotlightCount * phaseDuration;
-      if (finaleRef.current) {
-        masterTl
-          .to(finaleRef.current, {
-            visibility: "visible",
+
+      masterTl.to(finaleRef.current, { visibility: "visible", duration: 0.01 }, finaleStartTime);
+
+      // Step A: Scattered Icons Converge into Grid Positions
+      finaleCardsRef.current.forEach((card, idx) => {
+        if (card) {
+          masterTl.to(
+            card,
+            {
+              x: 0,
+              y: 0,
+              scale: 1,
+              rotate: 0,
+              opacity: 1,
+              filter: "blur(0px)",
+              duration: 0.45,
+              ease: "back.out(1.2)",
+            },
+            finaleStartTime + 0.02 + (idx % 3) * 0.03
+          );
+        }
+      });
+
+      // Step B: Header Fades In & Slides Up after cards settle
+      if (finaleHeaderRef.current) {
+        masterTl.to(
+          finaleHeaderRef.current,
+          {
             opacity: 1,
-            scale: 1,
-            duration: 0.40,
+            y: 0,
+            filter: "blur(0px)",
+            duration: 0.35,
             ease: "power2.out",
-          }, finaleStartTime)
-          .to(finaleRef.current, { duration: 0.35 }, finaleStartTime + 0.40);
+          },
+          finaleStartTime + 0.32
+        );
       }
+
+      // Step C: Hold plateau
+      masterTl.to(finaleRef.current, { duration: 0.40 }, finaleStartTime + 0.65);
 
       setTimeout(() => {
         ScrollTrigger.refresh();
@@ -337,9 +398,9 @@ export default function HeroNavCards({ loggedIn }) {
             );
           })}
 
-          {/* Finale Stage: All-in-One Navigation Overview Grid */}
+          {/* Finale Stage: Scattered Convergence Grid + Title Reveal */}
           <div ref={finaleRef} className="lnx-finale-grid-stage">
-            <div className="lnx-finale-header">
+            <div ref={finaleHeaderRef} className="lnx-finale-header">
               <h2 className="lnx-finale-title">Explore Learnix Resources</h2>
               <p className="lnx-finale-subtitle">Access all key features & modules in one place</p>
             </div>
@@ -347,11 +408,12 @@ export default function HeroNavCards({ loggedIn }) {
             <nav className="lnx-finale-cards-grid" aria-label="All Features Navigation">
               {/* Top Row: 6 items */}
               <div className="lnx-finale-row top-row">
-                {navItems.slice(0, 6).map(({ href, Icon, label, theme, authRequired }) => {
+                {navItems.slice(0, 6).map(({ href, Icon, label, theme, authRequired }, cardIdx) => {
                   const resolvedHref = authRequired && !loggedIn ? "/login" : href;
                   return (
                     <Link
                       key={label}
+                      ref={(el) => (finaleCardsRef.current[cardIdx] = el)}
                       href={resolvedHref}
                       className={`lnx-card lnx-card--${theme}`}
                     >
@@ -366,11 +428,13 @@ export default function HeroNavCards({ loggedIn }) {
 
               {/* Bottom Row: 3 items centered */}
               <div className="lnx-finale-row bottom-row">
-                {navItems.slice(6, 9).map(({ href, Icon, label, theme, authRequired }) => {
+                {navItems.slice(6, 9).map(({ href, Icon, label, theme, authRequired }, cardIdx) => {
+                  const realIdx = cardIdx + 6;
                   const resolvedHref = authRequired && !loggedIn ? "/login" : href;
                   return (
                     <Link
                       key={label}
+                      ref={(el) => (finaleCardsRef.current[realIdx] = el)}
                       href={resolvedHref}
                       className={`lnx-card lnx-card--${theme}`}
                     >
