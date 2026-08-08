@@ -14,6 +14,7 @@ import {
   FiShield,
   FiFileText,
   FiBell,
+  FiSmartphone,
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import "./styles/HeroSection.css";
@@ -54,24 +55,37 @@ export default function HeroSection() {
                     <div className="learnix-brand-underline"></div>
                   </span>
                 </h1>
+                <div className="learnix-slogan-tag">✨ Keep Learning, Keep Growing!</div>
               </div>
 
               <p className="learnix-hero-subtitle">
-               Learnix is a Learning platform where students can share and explore educational resources, making learning collaborative and accessible.
+                Learnix is a collaborative platform where students share and explore educational resources to achieve academic success together.
               </p>
 
               <ul className="learnix-hero-points">
                 <li>
                   <FiSearch className="learnix-point-icon" />
-                  Search notes, question papers, and topic-wise resources.
+                  <span>
+                    <strong>Search & Explore Resources:</strong> Access notes, topic-wise study materials, and past year question papers for your college courses.
+                  </span>
+                </li>
+                <li>
+                  <HiAcademicCap className="learnix-point-icon" />
+                  <span>
+                    <strong>Academic & Placement Excellence:</strong> Prepare for college exams and campus placements with free, real-time study updates.
+                  </span>
                 </li>
                 <li>
                   <FiUpload className="learnix-point-icon" />
-                  Upload your work and manage subjects/topics in one place.
+                  <span>
+                    <strong>Upload & Centralize Work:</strong> Upload your study materials and manage your subjects and topics all in one place.
+                  </span>
                 </li>
                 <li>
-                  <FiUsers className="learnix-point-icon" />
-                  Get feedback via reviews and improve content quality.
+                  <FiSmartphone className="learnix-point-icon" />
+                  <span>
+                    <strong>Interactive Mobile App:</strong> Download our Play Store app for quiz practice, review feedback, and extra convenient features.
+                  </span>
                 </li>
               </ul>
 

@@ -89,7 +89,7 @@
 
 /* Title Styling */
 .learnix-title-wrapper {
-  margin-bottom: 30px;
+  margin-bottom: 18px;
 }
 
 .learnix-main-title {
@@ -119,22 +119,37 @@
   animation: none;
 }
 
+.learnix-slogan-tag {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 10px;
+  padding: 5px 14px;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  color: #1d4ed8;
+  font-size: 0.92rem;
+  font-weight: 700;
+  border-radius: 20px;
+  border: 1px solid #bfdbfe;
+  letter-spacing: 0.01em;
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.08);
+}
+
 /* Subtitle */
 .learnix-hero-subtitle {
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   color: #4b5563;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   max-width: 600px;
-  line-height: 1.6;
+  line-height: 1.5;
   font-weight: 400;
 }
 
 .learnix-hero-points {
   list-style: none;
   padding: 0;
-  margin: 0 0 24px;
+  margin: 0 0 22px;
   display: grid;
-  gap: 12px;
+  gap: 10px;
   max-width: 650px;
 }
 
@@ -143,13 +158,20 @@
   align-items: flex-start;
   gap: 10px;
   color: #374151;
-  font-weight: 600;
-  line-height: 1.6;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.learnix-hero-points li strong {
+  color: #111827;
+  font-weight: 700;
 }
 
 .learnix-point-icon {
   color: #2563eb;
-  margin-top: 3px;
+  font-size: 1.2rem;
+  margin-top: 2px;
   flex-shrink: 0;
 }
 
