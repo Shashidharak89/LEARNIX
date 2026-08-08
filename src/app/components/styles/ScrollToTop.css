@@ -1,34 +1,34 @@
-/* ScrollToTop.css - Transparent & Realtime Adaptive Floating Scroll To Top Button */
+/* ScrollToTop.css - Sticky Floating Scroll To Top Button */
 
 .learnix-scroll-to-top {
-  position: fixed;
-  bottom: 25px;
-  right: 25px;
-  width: 50px;
-  height: 50px;
+  position: fixed !important;
+  bottom: 28px !important;
+  right: 28px !important;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  border: 1.5px solid #2563eb;
+  color: #2563eb;
   cursor: pointer;
-  z-index: 9999;
+  z-index: 99999 !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 30px rgba(37, 99, 235, 0.25);
   opacity: 0;
   visibility: hidden;
-  transform: translateY(16px) scale(0.85);
-  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-              visibility 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-              background 0.3s ease,
-              border-color 0.3s ease,
-              box-shadow 0.3s ease;
+  transform: translateY(20px) scale(0.85);
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.25s ease,
+              border-color 0.25s ease,
+              box-shadow 0.25s ease;
   padding: 0;
   outline: none;
-  mix-blend-mode: difference;
 }
 
 .learnix-scroll-to-top.is-visible {
@@ -38,14 +38,15 @@
 }
 
 .learnix-scroll-to-top:hover {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.6);
-  box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.25);
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  box-shadow: 0 14px 36px rgba(37, 99, 235, 0.4);
   transform: translateY(-4px) scale(1.08);
 }
 
 .learnix-scroll-to-top:active {
-  transform: translateY(0) scale(0.96);
+  transform: translateY(0) scale(0.95);
 }
 
 /* SVG Circular Progress Ring */
@@ -61,24 +62,28 @@
 
 .lnx-scroll-ring-bg {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.25);
+  stroke: rgba(37, 99, 235, 0.15);
   stroke-width: 3.5;
 }
 
 .lnx-scroll-ring-indicator {
   fill: none;
-  stroke: #ffffff;
+  stroke: #2563eb;
   stroke-width: 3.5;
   stroke-linecap: round;
   transition: stroke-dashoffset 0.12s linear;
 }
 
+.learnix-scroll-to-top:hover .lnx-scroll-ring-indicator {
+  stroke: #ffffff;
+}
+
 /* Central Up Arrow Icon */
 .lnx-scroll-top-icon {
-  font-size: 1.25rem;
-  color: #ffffff;
+  font-size: 1.3rem;
+  color: currentColor;
   z-index: 2;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .learnix-scroll-to-top:hover .lnx-scroll-top-icon {
@@ -88,9 +93,9 @@
 /* Responsive adjustment */
 @media (max-width: 768px) {
   .learnix-scroll-to-top {
-    bottom: 20px;
-    right: 20px;
-    width: 44px;
-    height: 44px;
+    bottom: 20px !important;
+    right: 20px !important;
+    width: 46px;
+    height: 46px;
   }
 }
