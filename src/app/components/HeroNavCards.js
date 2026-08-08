@@ -135,15 +135,15 @@ const navItems = [
 ];
 
 const scatteredOffsets = [
-  { x: -160, y: -110, scale: 0.5, rotate: -15 }, // 0: Learn (top-left)
-  { x: 0,    y: -150, scale: 0.4, rotate: 10 },  // 1: Search (top-center)
-  { x: 160,  y: -110, scale: 0.5, rotate: 15 },  // 2: Materials (top-right)
-  { x: -180, y: -20,  scale: 0.4, rotate: -12 }, // 3: QP (left)
-  { x: 0,    y: 0,    scale: 0.2, rotate: 0 },   // 4: Tools (center)
-  { x: 180,  y: -20,  scale: 0.4, rotate: 12 },  // 5: Help (right)
-  { x: -140, y: 120,  scale: 0.5, rotate: -10 }, // 6: Upload (bottom-left)
-  { x: 0,    y: 160,  scale: 0.4, rotate: 8 },   // 7: Dashboard (bottom-center)
-  { x: 140,  y: 120,  scale: 0.5, rotate: 10 },  // 8: Updates (bottom-right)
+  { x: -160, y: -110, scale: 0.5, rotate: -15 },
+  { x: 0,    y: -150, scale: 0.4, rotate: 10 },
+  { x: 160,  y: -110, scale: 0.5, rotate: 15 },
+  { x: -180, y: -20,  scale: 0.4, rotate: -12 },
+  { x: 0,    y: 0,    scale: 0.2, rotate: 0 },
+  { x: 180,  y: -20,  scale: 0.4, rotate: 12 },
+  { x: -140, y: 120,  scale: 0.5, rotate: -10 },
+  { x: 0,    y: 160,  scale: 0.4, rotate: 8 },
+  { x: 140,  y: 120,  scale: 0.5, rotate: 10 },
 ];
 
 export default function HeroNavCards({ loggedIn }) {
@@ -151,6 +151,13 @@ export default function HeroNavCards({ loggedIn }) {
   const featureItemsRef = useRef([]);
   const iconBoxesRef = useRef([]);
   const contentBoxesRef = useRef([]);
+
+  // Ref arrays for staggered text entrance transitions
+  const badgeRefs = useRef([]);
+  const titleRefs = useRef([]);
+  const descRefs = useRef([]);
+  const ctaRefs = useRef([]);
+
   const finaleRef = useRef(null);
   const finaleHeaderRef = useRef(null);
   const finaleCardsRef = useRef([]);
@@ -163,7 +170,7 @@ export default function HeroNavCards({ loggedIn }) {
     if (!section) return;
 
     const spotlightCount = navItems.length;
-    const totalPhases = spotlightCount + 1.2; // 9 features + 1.2 Finale Convergence Phase
+    const totalPhases = spotlightCount + 1.2;
     const pinDistance = totalPhases * 480;
 
     const ctx = gsap.context(() => {
@@ -181,7 +188,7 @@ export default function HeroNavCards({ loggedIn }) {
 
       const phaseDuration = 1.0;
 
-      // Setup initial state for Finale Stage & Cards
+      // Initial setup for Finale Grid
       if (finaleRef.current) {
         gsap.set(finaleRef.current, { opacity: 1, visibility: "hidden" });
       }
@@ -210,6 +217,11 @@ export default function HeroNavCards({ loggedIn }) {
         const iconBox = iconBoxesRef.current[i];
         const contentBox = contentBoxesRef.current[i];
 
+        const badgeEl = badgeRefs.current[i];
+        const titleEl = titleRefs.current[i];
+        const descEl = descRefs.current[i];
+        const ctaEl = ctaRefs.current[i];
+
         if (!itemEl || !iconBox || !contentBox) return;
 
         const startTime = i * phaseDuration;
@@ -218,10 +230,15 @@ export default function HeroNavCards({ loggedIn }) {
         const targetIconX = isEven ? "-24vw" : "24vw";
         const initialContentX = isEven ? "50px" : "-50px";
 
-        // Initial hidden state
+        // Initial hidden state for stage item, icon, and content container
         gsap.set(itemEl, { opacity: 0, visibility: "hidden" });
         gsap.set(iconBox, { scale: 0.3, x: "0vw", opacity: 0, filter: "blur(12px)" });
         gsap.set(contentBox, { opacity: 0, x: initialContentX, scale: 0.92, filter: "blur(8px)" });
+
+        // Initial state for text elements (staggered entrance)
+        if (badgeEl && titleEl && descEl && ctaEl) {
+          gsap.set([badgeEl, titleEl, descEl, ctaEl], { opacity: 0, y: 16 });
+        }
 
         // Step 1: Big Icon Center Pop-up (Scale up to 1.5 in center)
         masterTl
@@ -235,7 +252,7 @@ export default function HeroNavCards({ loggedIn }) {
             ease: "power2.out",
           }, startTime);
 
-        // Step 2: Icon shrinks & shifts to side, Content details slide in
+        // Step 2: Icon shrinks & shifts to side, Content box slides in
         masterTl
           .to(iconBox, {
             scale: 0.72,
@@ -252,10 +269,28 @@ export default function HeroNavCards({ loggedIn }) {
             ease: "power1.out",
           }, startTime + 0.22);
 
-        // Step 3: Plateau / Hold
+        // Step 3: Staggered Text Entrance (Badge -> Title -> Description -> CTA Button)
+        if (badgeEl && titleEl && descEl && ctaEl) {
+          masterTl
+            .to(badgeEl, { opacity: 1, y: 0, duration: 0.18, ease: "power2.out" }, startTime + 0.24)
+            .to(titleEl, { opacity: 1, y: 0, duration: 0.20, ease: "power2.out" }, startTime + 0.27)
+            .to(descEl,  { opacity: 1, y: 0, duration: 0.20, ease: "power2.out" }, startTime + 0.30)
+            .to(ctaEl,   { opacity: 1, y: 0, duration: 0.20, ease: "power2.out" }, startTime + 0.33);
+        }
+
+        // Step 4: Plateau / Hold
         masterTl.to([iconBox, contentBox], { duration: 0.22 }, startTime + 0.62);
 
-        // Step 4: Fade out before next item
+        // Step 5: Smooth Fade Out before next item
+        if (badgeEl && titleEl && descEl && ctaEl) {
+          masterTl.to([badgeEl, titleEl, descEl, ctaEl], {
+            opacity: 0,
+            y: 10,
+            duration: 0.14,
+            ease: "power1.in",
+          }, startTime + 0.84);
+        }
+
         masterTl
           .to(contentBox, {
             opacity: 0,
@@ -275,7 +310,7 @@ export default function HeroNavCards({ loggedIn }) {
           .to(itemEl, { visibility: "hidden", opacity: 0, duration: 0.01 }, startTime + 0.99);
       });
 
-      // Finale Phase Entrance: Scattered Icons Converge + Header Reveal (at t = 9.0)
+      // Finale Phase Entrance: Scattered Icons Converge + Header Reveal
       const finaleStartTime = spotlightCount * phaseDuration;
 
       masterTl.to(finaleRef.current, { visibility: "visible", duration: 0.01 }, finaleStartTime);
@@ -357,14 +392,14 @@ export default function HeroNavCards({ loggedIn }) {
                   <IconComponent className="lnx-stage-main-icon" />
                 </div>
 
-                {/* Content Details Box */}
+                {/* Content Details Box with Staggered Entrance Elements */}
                 <div
                   ref={(el) => (contentBoxesRef.current[idx] = el)}
                   className={`lnx-stage-content-box ${
                     isEven ? "pos-right" : "pos-left"
                   }`}
                 >
-                  <div className="lnx-feature-badge-row">
+                  <div ref={(el) => (badgeRefs.current[idx] = el)} className="lnx-feature-badge-row">
                     <span
                       className="lnx-feature-badge"
                       style={{
@@ -380,10 +415,15 @@ export default function HeroNavCards({ loggedIn }) {
                     </span>
                   </div>
 
-                  <h3 className="lnx-feature-title">{item.subtitle}</h3>
-                  <p className="lnx-feature-desc">{item.description}</p>
+                  <h3 ref={(el) => (titleRefs.current[idx] = el)} className="lnx-feature-title">
+                    {item.subtitle}
+                  </h3>
+                  <p ref={(el) => (descRefs.current[idx] = el)} className="lnx-feature-desc">
+                    {item.description}
+                  </p>
 
                   <Link
+                    ref={(el) => (ctaRefs.current[idx] = el)}
                     href={resolvedHref}
                     className="lnx-feature-cta-btn"
                     style={{

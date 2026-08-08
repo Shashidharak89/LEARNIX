@@ -6,6 +6,7 @@
   background: #ffffff;
   overflow: hidden;
   border: none !important;
+  font-family: var(--font-geist-sans, 'Geist', 'DM Sans', -apple-system, sans-serif);
 }
 
 .lnx-showcase-viewport {
@@ -90,37 +91,50 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  will-change: transform, opacity;
 }
 
+/* Geist Mono for Technical Badges & Numbers */
 .lnx-feature-badge {
-  font-size: 0.82rem;
-  font-weight: 750;
+  font-family: var(--font-geist-mono, 'Geist Mono', monospace);
+  font-size: 0.78rem;
+  font-weight: 700;
   padding: 5px 14px;
   border-radius: 12px;
   border: 1px solid;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .lnx-feature-step-num {
-  font-size: 0.85rem;
+  font-family: var(--font-geist-mono, 'Geist Mono', monospace);
+  font-size: 0.82rem;
   font-weight: 700;
   color: #94a3b8;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 
+/* Geist Sans for Headings & Body */
 .lnx-feature-title {
-  font-size: 1.65rem;
+  font-family: var(--font-geist-sans, 'Geist', sans-serif);
+  font-size: 1.7rem;
   font-weight: 800;
   color: #0f172a;
   margin: 0 0 12px;
-  line-height: 1.3;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  will-change: transform, opacity;
 }
 
 .lnx-feature-desc {
-  font-size: 1rem;
+  font-family: var(--font-geist-sans, 'Geist', sans-serif);
+  font-size: 0.98rem;
+  font-weight: 450;
   color: #475569;
   line-height: 1.6;
   margin: 0 0 24px;
+  will-change: transform, opacity;
 }
 
 .lnx-feature-cta-btn {
@@ -129,21 +143,24 @@
   gap: 10px;
   padding: 12px 24px;
   color: #ffffff;
+  font-family: var(--font-geist-sans, 'Geist', sans-serif);
   font-weight: 700;
   font-size: 0.94rem;
+  letter-spacing: 0.01em;
   border-radius: 14px;
   text-decoration: none;
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background-color 0.3s ease;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+  will-change: transform, opacity;
 }
 
 .lnx-feature-cta-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
 }
 
 /* ══════════════════════════════════════════════
-   Finale Stage: All-in-One Navigation Grid (Matches Image!)
+   Finale Stage: All-in-One Navigation Grid
 ═══════════════════════════════════════════════ */
 .lnx-finale-grid-stage {
   position: absolute;
@@ -159,18 +176,22 @@
 .lnx-finale-header {
   text-align: center;
   margin-bottom: 28px;
+  will-change: transform, opacity, filter;
 }
 
 .lnx-finale-title {
-  font-size: 2rem;
-  font-weight: 800;
+  font-family: var(--font-geist-sans, 'Geist', sans-serif);
+  font-size: 2.1rem;
+  font-weight: 850;
   color: #0f172a;
   margin: 0 0 8px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
 .lnx-finale-subtitle {
+  font-family: var(--font-geist-sans, 'Geist', sans-serif);
   font-size: 1.05rem;
+  font-weight: 450;
   color: #64748b;
   margin: 0;
 }
@@ -192,7 +213,7 @@
   flex-wrap: wrap;
 }
 
-/* Individual Card Styling (Exact Match with Image) */
+/* Individual Card Styling with Geist Sans */
 .lnx-card {
   position: relative;
   display: flex;
@@ -211,7 +232,7 @@
   cursor: pointer;
   box-sizing: border-box;
   will-change: transform, opacity, filter;
-  transition: border-color 0.22s ease, box-shadow 0.22s ease;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
 }
 
@@ -231,7 +252,7 @@
   border-radius: 12px;
   background: var(--lnx-icon-bg, #eff6ff);
   color: var(--lnx-accent, #2563eb);
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  transition: background 0.22s ease, color 0.22s ease, transform 0.22s ease;
 }
 
 .lnx-card:hover .lnx-icon-wrap {
@@ -246,15 +267,16 @@
   flex-shrink: 0;
 }
 
-/* Card Label */
+/* Card Label with Geist Sans */
 .lnx-label {
-  font-size: 12px;
+  font-family: var(--font-geist-sans, 'Geist', sans-serif);
+  font-size: 12.5px;
   font-weight: 700;
   letter-spacing: 0.01em;
   color: #374151;
-  font-family: "DM Sans", "Manrope", sans-serif;
   text-align: center;
   line-height: 1.25;
+  transition: color 0.2s ease;
 }
 
 .lnx-card:hover .lnx-label {
@@ -319,7 +341,7 @@
 }
 
 /* ══════════════════════════════════════════════
-   Mouse Scroll Indicator
+   Mouse Scroll Indicator with Geist Mono Text
 ═══════════════════════════════════════════════ */
 .lnx-mouse-scroll-indicator {
   display: flex;
@@ -366,10 +388,11 @@
 }
 
 .lnx-mouse-text {
-  font-size: 0.8rem;
+  font-family: var(--font-geist-mono, 'Geist Mono', monospace);
+  font-size: 0.78rem;
   font-weight: 600;
   color: #94a3b8;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
