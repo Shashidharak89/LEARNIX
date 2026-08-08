@@ -42,102 +42,112 @@ export default function HeroSection() {
   });
 
   return (
-    <section className="learnix-hero-main">
-      <div className="learnix-hero-container">
-        <div className="learnix-hero-content">
-          <div className="learnix-hero-layout">
-            <div className="learnix-hero-left">
-              <div className="learnix-title-wrapper">
-                <h1 className="learnix-main-title">
-                  Welcome to{" "}
-                  <span className="learnix-brand-text">
-                    LEARNIX
-                    <div className="learnix-brand-underline"></div>
+    <div className="learnix-hero-root">
+      <section className="learnix-hero-main">
+        <div className="learnix-hero-container">
+          <div className="learnix-hero-content">
+            <div className="learnix-hero-layout">
+              <div className="learnix-hero-left">
+                <div className="learnix-title-wrapper">
+                  <h1 className="learnix-main-title">
+                    Welcome to{" "}
+                    <span className="learnix-brand-text">
+                      LEARNIX
+                      <div className="learnix-brand-underline"></div>
+                    </span>
+                  </h1>
+                  <div className="learnix-slogan-tag">✨ Keep Learning, Keep Growing!</div>
+                </div>
+
+                <p className="learnix-hero-subtitle">
+                  Learnix is a collaborative platform where students share and explore educational resources to achieve academic success together.
+                </p>
+
+                <ul className="learnix-hero-points">
+                  <li>
+                    <FiSearch className="learnix-point-icon" />
+                    <span>
+                      <strong>Search & Explore Resources:</strong> Access notes, topic-wise study materials, and past year question papers for your college courses.
+                    </span>
+                  </li>
+                  <li>
+                    <HiAcademicCap className="learnix-point-icon" />
+                    <span>
+                      <strong>Academic & Placement Excellence:</strong> Prepare for college exams and campus placements with free, real-time study updates.
+                    </span>
+                  </li>
+                  <li>
+                    <FiUpload className="learnix-point-icon" />
+                    <span>
+                      <strong>Upload & Centralize Work:</strong> Upload your study materials and manage your subjects and topics all in one place.
+                    </span>
+                  </li>
+                  <li>
+                    <FiSmartphone className="learnix-point-icon" />
+                    <span>
+                      <strong>Interactive Mobile App:</strong> Download our Play Store app for quiz practice, review feedback, and extra convenient features.
+                    </span>
+                  </li>
+                </ul>
+
+                <div className="learnix-hero-ctas">
+                  <Link href="/works" className="learnix-cta-button">
+                    ✔ Explore Resources
+                    <FiArrowRight className="learnix-button-icon" />
+                  </Link>
+                  <Link href="/learn" className="learnix-cta-secondary">
+                    ✔ Start Learning
+                  </Link>
+                </div>
+
+                <div className="learnix-adsense-note">
+                  <FiShield className="learnix-adsense-icon" />
+                  <span>
+                    We support original & permitted content. See{" "}
+                    <Link href="/terms">Terms</Link>, <Link href="/privacy-policy">Privacy</Link>, or{" "}
+                    <Link href="/report-content">report content</Link>.
                   </span>
-                </h1>
-                <div className="learnix-slogan-tag">✨ Keep Learning, Keep Growing!</div>
+                </div>
               </div>
 
-              <p className="learnix-hero-subtitle">
-                Learnix is a collaborative platform where students share and explore educational resources to achieve academic success together.
-              </p>
-
-              <ul className="learnix-hero-points">
-                <li>
-                  <FiSearch className="learnix-point-icon" />
-                  <span>
-                    <strong>Search & Explore Resources:</strong> Access notes, topic-wise study materials, and past year question papers for your college courses.
-                  </span>
-                </li>
-                <li>
-                  <HiAcademicCap className="learnix-point-icon" />
-                  <span>
-                    <strong>Academic & Placement Excellence:</strong> Prepare for college exams and campus placements with free, real-time study updates.
-                  </span>
-                </li>
-                <li>
-                  <FiUpload className="learnix-point-icon" />
-                  <span>
-                    <strong>Upload & Centralize Work:</strong> Upload your study materials and manage your subjects and topics all in one place.
-                  </span>
-                </li>
-                <li>
-                  <FiSmartphone className="learnix-point-icon" />
-                  <span>
-                    <strong>Interactive Mobile App:</strong> Download our Play Store app for quiz practice, review feedback, and extra convenient features.
-                  </span>
-                </li>
-              </ul>
-
-              <div className="learnix-hero-ctas">
-                <Link href="/works" className="learnix-cta-button">
-                  ✔ Explore Resources
-                  <FiArrowRight className="learnix-button-icon" />
-                </Link>
-                <Link href="/learn" className="learnix-cta-secondary">
-                  ✔ Start Learning
-                </Link>
+              <div className="learnix-hero-right">
+                <TutVideo />
               </div>
-
-              <div className="learnix-adsense-note">
-                <FiShield className="learnix-adsense-icon" />
-                <span>
-                  We support original & permitted content. See{" "}
-                  <Link href="/terms">Terms</Link>, <Link href="/privacy-policy">Privacy</Link>, or{" "}
-                  <Link href="/report-content">report content</Link>.
-                </span>
-              </div>
-            </div>
-
-            <div className="learnix-hero-right">
-              <TutVideo />
             </div>
           </div>
-
-          <HeroNavCards loggedIn={loggedIn} />
-          <RandomQuote/>
-          <PublicQuickText />
-          <DownloadAppBanner />
-          <HomeGroqAskBox />
-          <WhatIsLearnix/>
-          <AutoPlayVideo videoUrl="https://res.cloudinary.com/dsojdpkgh/video/upload/v1766751517/zglomku8o9iuxxv99qwx.mp4" />
-          <WhoIsLearnixFor/>
-          <WhatYouCanLearn/>
-          <AutoPlayVideo videoUrl="https://res.cloudinary.com/dsojdpkgh/video/upload/v1766752160/x0wvwwcpxgnrkwkbye1k.mp4" />
-
-          <HowLearnixWorks/>
-          <SamplePublicContent/>
-          <QuestionPapersBanner/>
-
-          {/* Updates banner placed before 'Why Learnix is trustworthy' */}
-          <UpdatesBanner />
-
-          <WhyLearnixTrustworthy/>
-
-          {/* What's New Component */}
-          <WhatsNew />
         </div>
-      </div>
-    </section>
+      </section>
+
+      {/* Standalone Full-Width Feature Showcase */}
+      <HeroNavCards loggedIn={loggedIn} />
+
+      <section className="learnix-hero-secondary">
+        <div className="learnix-hero-container">
+          <div className="learnix-hero-content">
+            <RandomQuote />
+            <PublicQuickText />
+            <DownloadAppBanner />
+            <HomeGroqAskBox />
+            <WhatIsLearnix />
+            <AutoPlayVideo videoUrl="https://res.cloudinary.com/dsojdpkgh/video/upload/v1766751517/zglomku8o9iuxxv99qwx.mp4" />
+            <WhoIsLearnixFor />
+            <WhatYouCanLearn />
+            <AutoPlayVideo videoUrl="https://res.cloudinary.com/dsojdpkgh/video/upload/v1766752160/x0wvwwcpxgnrkwkbye1k.mp4" />
+
+            <HowLearnixWorks />
+            <SamplePublicContent />
+            <QuestionPapersBanner />
+
+            {/* Updates banner placed before 'Why Learnix is trustworthy' */}
+            <UpdatesBanner />
+
+            <WhyLearnixTrustworthy />
+
+            {/* What's New Component */}
+            <WhatsNew />
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
