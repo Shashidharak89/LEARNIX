@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import Footer from "./components/Footer";
 import Script from "next/script";
+import SmoothScroll from "./components/SmoothScroll";
 
 export const metadata = {
   title: "Learnix",
@@ -78,8 +79,10 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <ThemeProvider>
-          {children}
-          <Footer />
+          <SmoothScroll>
+            {children}
+            <Footer />
+          </SmoothScroll>
         </ThemeProvider>
       </body>
     </html>
