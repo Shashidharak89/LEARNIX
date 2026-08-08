@@ -7,6 +7,7 @@ import {
   FiTrendingUp,
   FiSearch,
   FiTool,
+  FiHelpCircle,
   FiUpload,
   FiFileText,
   FiBell,
@@ -29,6 +30,7 @@ const navItems = [
     label: "Learn",
     subtitle: "Interactive Learning Hub",
     description: "Explore structured subject modules, guided concept cards, and collaborative study materials designed for academic success.",
+    theme: "learn",
     accent: "#4f46e5",
     bg: "#eef2ff",
     badge: "Interactive Hub",
@@ -40,6 +42,7 @@ const navItems = [
     label: "Search",
     subtitle: "Smart Resource Search",
     description: "Instantly search notes, syllabus topics, and past year question papers across all engineering and college courses.",
+    theme: "search",
     accent: "#0284c7",
     bg: "#e0f2fe",
     badge: "Instant Search",
@@ -51,6 +54,7 @@ const navItems = [
     label: "Materials",
     subtitle: "Notes & Reference Guides",
     description: "Access peer-reviewed study notes, lecture summaries, and comprehensive subject reference materials organized by semester.",
+    theme: "materials",
     accent: "#0d9488",
     bg: "#f0fdfa",
     badge: "Verified Notes",
@@ -62,6 +66,7 @@ const navItems = [
     label: "Question Papers",
     subtitle: "Previous Year Exam Papers",
     description: "Practice authentic past exam question papers from top colleges and universities to boost exam confidence and score higher.",
+    theme: "qp",
     accent: "#ea580c",
     bg: "#fff7ed",
     badge: "Past Papers",
@@ -73,9 +78,22 @@ const navItems = [
     label: "Tools",
     subtitle: "Quizzes & Utility Tools",
     description: "Test your knowledge with daily interactive quizzes, practice card decks, and handy student utility tools.",
+    theme: "tools",
     accent: "#475569",
     bg: "#f1f5f9",
     badge: "Practice Tools",
+  },
+  {
+    id: "help",
+    href: "/help",
+    Icon: FiHelpCircle,
+    label: "Help",
+    subtitle: "Support & Help Center",
+    description: "Get quick answers, platform guides, and assistance for all your academic and account questions.",
+    theme: "help",
+    accent: "#e11d48",
+    bg: "#fff1f2",
+    badge: "Support Hub",
   },
   {
     id: "upload",
@@ -84,6 +102,7 @@ const navItems = [
     label: "Upload",
     subtitle: "Collaborative Workspace",
     description: "Upload your study notes, contribute to the community, and manage all your subjects and topics in one place.",
+    theme: "upload",
     authRequired: true,
     accent: "#2563eb",
     bg: "#eff6ff",
@@ -96,6 +115,7 @@ const navItems = [
     label: "Dashboard",
     subtitle: "Progress & Analytics",
     description: "Track your learning milestones, saved study materials, and contribution metrics in your personalized dashboard.",
+    theme: "dashboard",
     accent: "#7c3aed",
     bg: "#f5f3ff",
     badge: "Personalized",
@@ -107,6 +127,7 @@ const navItems = [
     label: "Updates",
     subtitle: "Free Study Updates",
     description: "Stay informed with real-time academic announcements, exam updates, and platform features for free.",
+    theme: "updates",
     accent: "#d97706",
     bg: "#fffbeb",
     badge: "Real-time",
@@ -118,7 +139,7 @@ export default function HeroNavCards({ loggedIn }) {
   const featureItemsRef = useRef([]);
   const iconBoxesRef = useRef([]);
   const contentBoxesRef = useRef([]);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const finaleRef = useRef(null);
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -127,8 +148,9 @@ export default function HeroNavCards({ loggedIn }) {
     const section = sectionRef.current;
     if (!section) return;
 
-    const numFeatures = navItems.length;
-    const pinDistance = numFeatures * 450; // Optimized scroll distance
+    const spotlightCount = navItems.length;
+    const totalPhases = spotlightCount + 1; // 9 features + 1 Finale All-in-One Grid Phase
+    const pinDistance = totalPhases * 480;
 
     const ctx = gsap.context(() => {
       const masterTl = gsap.timeline({
@@ -137,19 +159,20 @@ export default function HeroNavCards({ loggedIn }) {
           start: 'top top',
           end: `+=${pinDistance}`,
           pin: true,
-          pinSpacing: true, // Ensures next component appears immediately below
+          pinSpacing: true,
           scrub: 1,
           invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            const p = self.progress;
-            const idx = Math.min(numFeatures - 1, Math.floor(p * numFeatures));
-            setActiveIndex(idx);
-          },
         },
       });
 
       const phaseDuration = 1.0;
 
+      // Setup initial state for Finale Grid
+      if (finaleRef.current) {
+        gsap.set(finaleRef.current, { opacity: 0, visibility: "hidden", scale: 0.92 });
+      }
+
+      // Feature Spotlight Animations (0 to 8)
       navItems.forEach((item, i) => {
         const itemEl = featureItemsRef.current[i];
         const iconBox = iconBoxesRef.current[i];
@@ -159,21 +182,20 @@ export default function HeroNavCards({ loggedIn }) {
 
         const startTime = i * phaseDuration;
         const isEven = i % 2 === 0;
-        const isLast = i === numFeatures - 1;
 
-        const targetIconX = isEven ? "-22vw" : "22vw";
-        const initialContentX = isEven ? "40px" : "-40px";
+        const targetIconX = isEven ? "-24vw" : "24vw";
+        const initialContentX = isEven ? "50px" : "-50px";
 
-        // Initial hidden state for each feature
+        // Initial hidden state
         gsap.set(itemEl, { opacity: 0, visibility: "hidden" });
-        gsap.set(iconBox, { scale: 0.3, x: "0vw", opacity: 0, filter: "blur(8px)" });
-        gsap.set(contentBox, { opacity: 0, x: initialContentX, scale: 0.94, filter: "blur(6px)" });
+        gsap.set(iconBox, { scale: 0.3, x: "0vw", opacity: 0, filter: "blur(12px)" });
+        gsap.set(contentBox, { opacity: 0, x: initialContentX, scale: 0.92, filter: "blur(8px)" });
 
-        // Step 1: Icon Center Pop-up (Scale 0.3 -> 1.25, opacity 0 -> 1)
+        // Step 1: Big Icon Center Pop-up (Scale up to 1.5 in center)
         masterTl
           .to(itemEl, { visibility: "visible", opacity: 1, duration: 0.12, ease: "none" }, startTime)
           .to(iconBox, {
-            scale: 1.2,
+            scale: 1.5,
             x: "0vw",
             opacity: 1,
             filter: "blur(0px)",
@@ -181,12 +203,12 @@ export default function HeroNavCards({ loggedIn }) {
             ease: "power2.out",
           }, startTime);
 
-        // Step 2: Icon shrinks & shifts to side (LEFT or RIGHT), Content details fade & slide in on opposite side!
+        // Step 2: Icon shrinks & shifts to side, Content details slide in
         masterTl
           .to(iconBox, {
-            scale: 0.65,
+            scale: 0.72,
             x: targetIconX,
-            duration: 0.40,
+            duration: 0.42,
             ease: "power1.inOut",
           }, startTime + 0.20)
           .to(contentBox, {
@@ -194,36 +216,47 @@ export default function HeroNavCards({ loggedIn }) {
             x: "0px",
             scale: 1,
             filter: "blur(0px)",
-            duration: 0.40,
+            duration: 0.42,
             ease: "power1.out",
           }, startTime + 0.22);
 
         // Step 3: Plateau / Hold
-        masterTl.to([iconBox, contentBox], { duration: 0.25 }, startTime + 0.60);
+        masterTl.to([iconBox, contentBox], { duration: 0.22 }, startTime + 0.62);
 
-        // Step 4: Fade out (only for non-last items, so last item smoothly stays until section unpins!)
-        if (!isLast) {
-          masterTl
-            .to(contentBox, {
-              opacity: 0,
-              x: initialContentX,
-              scale: 0.94,
-              filter: "blur(6px)",
-              duration: 0.15,
-              ease: "power1.in",
-            }, startTime + 0.85)
-            .to(iconBox, {
-              opacity: 0,
-              scale: 0.5,
-              filter: "blur(8px)",
-              duration: 0.15,
-              ease: "power1.in",
-            }, startTime + 0.85)
-            .to(itemEl, { visibility: "hidden", opacity: 0, duration: 0.01 }, startTime + 0.99);
-        }
+        // Step 4: Fade out before next item
+        masterTl
+          .to(contentBox, {
+            opacity: 0,
+            x: initialContentX,
+            scale: 0.92,
+            filter: "blur(8px)",
+            duration: 0.16,
+            ease: "power1.in",
+          }, startTime + 0.84)
+          .to(iconBox, {
+            opacity: 0,
+            scale: 0.45,
+            filter: "blur(10px)",
+            duration: 0.16,
+            ease: "power1.in",
+          }, startTime + 0.84)
+          .to(itemEl, { visibility: "hidden", opacity: 0, duration: 0.01 }, startTime + 0.99);
       });
 
-      // Refresh ScrollTrigger after mount for Lenis sync
+      // Finale Phase: All-in-One Navigation Grid Card Reveal (at t = 9.0)
+      const finaleStartTime = spotlightCount * phaseDuration;
+      if (finaleRef.current) {
+        masterTl
+          .to(finaleRef.current, {
+            visibility: "visible",
+            opacity: 1,
+            scale: 1,
+            duration: 0.40,
+            ease: "power2.out",
+          }, finaleStartTime)
+          .to(finaleRef.current, { duration: 0.35 }, finaleStartTime + 0.40);
+      }
+
       setTimeout(() => {
         ScrollTrigger.refresh();
       }, 300);
@@ -232,50 +265,11 @@ export default function HeroNavCards({ loggedIn }) {
     return () => ctx.revert();
   }, []);
 
-  const jumpToFeature = (index) => {
-    if (!sectionRef.current) return;
-    const numFeatures = navItems.length;
-    const pinDistance = numFeatures * 450;
-    const sectionTop = sectionRef.current.offsetTop;
-    const targetScrollY = sectionTop + (index + 0.45) * (pinDistance / numFeatures);
-
-    if (typeof window !== "undefined" && window.lenis) {
-      window.lenis.scrollTo(targetScrollY, { duration: 1.2 });
-    } else {
-      window.scrollTo({ top: targetScrollY, behavior: "smooth" });
-    }
-  };
-
   return (
     <section ref={sectionRef} className="lnx-showcase-pinned-section">
       <div className="lnx-showcase-viewport">
-        
-        {/* Navigation Indicator Bar at Top */}
-        <div className="lnx-showcase-nav-bar">
-          <div className="lnx-showcase-nav-track">
-            {navItems.map((item, idx) => {
-              const isActive = activeIndex === idx;
-              const Icon = item.Icon;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => jumpToFeature(idx)}
-                  className={`lnx-showcase-nav-btn ${isActive ? "is-active" : ""}`}
-                  style={{
-                    "--btn-accent": item.accent,
-                    "--btn-bg": item.bg,
-                  }}
-                  aria-label={`Jump to ${item.label}`}
-                >
-                  <Icon className="lnx-showcase-nav-icon" />
-                  <span className="lnx-showcase-nav-label">{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
-        {/* Center Feature Animation Stage */}
+        {/* Feature Showcase Stage Area */}
         <div className="lnx-showcase-stage-area">
           {navItems.map((item, idx) => {
             const isEven = idx % 2 === 0;
@@ -288,7 +282,7 @@ export default function HeroNavCards({ loggedIn }) {
                 ref={(el) => (featureItemsRef.current[idx] = el)}
                 className="lnx-stage-item"
               >
-                {/* Center Icon Box */}
+                {/* Center Big Icon Box */}
                 <div
                   ref={(el) => (iconBoxesRef.current[idx] = el)}
                   className="lnx-stage-icon-box"
@@ -296,7 +290,7 @@ export default function HeroNavCards({ loggedIn }) {
                     backgroundColor: item.bg,
                     color: item.accent,
                     borderColor: item.accent,
-                    boxShadow: `0 20px 50px ${item.accent}33`,
+                    boxShadow: `0 25px 60px ${item.accent}35`,
                   }}
                 >
                   <IconComponent className="lnx-stage-main-icon" />
@@ -342,30 +336,62 @@ export default function HeroNavCards({ loggedIn }) {
               </div>
             );
           })}
+
+          {/* Finale Stage: All-in-One Navigation Overview Grid */}
+          <div ref={finaleRef} className="lnx-finale-grid-stage">
+            <div className="lnx-finale-header">
+              <h2 className="lnx-finale-title">Explore Learnix Resources</h2>
+              <p className="lnx-finale-subtitle">Access all key features & modules in one place</p>
+            </div>
+
+            <nav className="lnx-finale-cards-grid" aria-label="All Features Navigation">
+              {/* Top Row: 6 items */}
+              <div className="lnx-finale-row top-row">
+                {navItems.slice(0, 6).map(({ href, Icon, label, theme, authRequired }) => {
+                  const resolvedHref = authRequired && !loggedIn ? "/login" : href;
+                  return (
+                    <Link
+                      key={label}
+                      href={resolvedHref}
+                      className={`lnx-card lnx-card--${theme}`}
+                    >
+                      <span className="lnx-icon-wrap" aria-hidden="true">
+                        <Icon className="lnx-icon" />
+                      </span>
+                      <span className="lnx-label">{label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {/* Bottom Row: 3 items centered */}
+              <div className="lnx-finale-row bottom-row">
+                {navItems.slice(6, 9).map(({ href, Icon, label, theme, authRequired }) => {
+                  const resolvedHref = authRequired && !loggedIn ? "/login" : href;
+                  return (
+                    <Link
+                      key={label}
+                      href={resolvedHref}
+                      className={`lnx-card lnx-card--${theme}`}
+                    >
+                      <span className="lnx-icon-wrap" aria-hidden="true">
+                        <Icon className="lnx-icon" />
+                      </span>
+                      <span className="lnx-label">{label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </nav>
+          </div>
         </div>
 
-        {/* Footer Progress Indicator */}
-        <div className="lnx-showcase-footer">
-          <div className="lnx-progress-dots">
-            {navItems.map((item, dotIdx) => (
-              <div
-                key={`dot-${item.id}`}
-                onClick={() => jumpToFeature(dotIdx)}
-                className={`lnx-progress-dot ${dotIdx === activeIndex ? "active" : ""}`}
-                style={{
-                  "--dot-accent": item.accent,
-                }}
-              />
-            ))}
+        {/* Animated Mouse Scroll Indicator */}
+        <div className="lnx-mouse-scroll-indicator">
+          <div className="lnx-mouse-shape">
+            <div className="lnx-mouse-wheel" />
           </div>
-          <div className="lnx-progress-text">
-            <span>
-              Feature <strong>0{activeIndex + 1}</strong> of 0{navItems.length}:{" "}
-              <span style={{ color: navItems[activeIndex]?.accent }}>
-                {navItems[activeIndex]?.label}
-              </span>
-            </span>
-          </div>
+          <span className="lnx-mouse-text">Scroll to explore</span>
         </div>
 
       </div>
