@@ -24,7 +24,7 @@ import { RiGraduationCapLine } from "react-icons/ri";
 import "./styles/DashBoard.css";
 import WhatsNew from "../components/WhatsNew";
 import ProUpgradeOffer from "./ProUpgradeOffer";
-import HeroNavCards from "../components/HeroNavCards";
+import DashboardNavCards from "./DashboardNavCards";
 
 export default function DashBoard() {
   const [usn, setUsn] = useState(null);
@@ -246,7 +246,7 @@ export default function DashBoard() {
       <ProUpgradeOffer isLoggedIn={Boolean(usn)} /> */} 
 
 
-      <HeroNavCards loggedIn={!!usn} />
+      <DashboardNavCards loggedIn={!!usn} />
       {/* What's New banner */}
       <WhatsNew />
 
