@@ -1,11 +1,64 @@
-.pqt-wrap {
-  margin: 0 auto 28px;
+/* PublicQuickText.css - Full Window Pinned Section & Blue/White Puzzle Assembly Theme */
+
+.pqt-pinned-section {
+  position: relative;
   width: 100%;
-  max-width: 980px;
   background: #ffffff;
-  border: 1px solid #dbeafe;
-  border-radius: 14px;
-  padding: 14px;
+  overflow: hidden;
+  border: none !important;
+}
+
+.pqt-viewport {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 32px 24px;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, #f0f7ff 0%, #ffffff 100%);
+}
+
+.pqt-ambient-aura {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 650px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.09) 0%, rgba(255, 255, 255, 0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.pqt-card {
+  position: relative;
+  z-index: 5;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  border: 1.5px solid #dbeafe;
+  border-radius: 24px;
+  padding: 24px 28px;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: 0 20px 50px rgba(37, 99, 235, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-sizing: border-box;
+  will-change: transform, opacity, filter;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.pqt-card:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 24px 60px rgba(37, 99, 235, 0.12);
 }
 
 .pqt-head {
@@ -14,17 +67,18 @@
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 10px;
+  will-change: transform, opacity, filter;
 }
 
 .pqt-title {
   margin: 0;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 1.05rem;
+  font-weight: 750;
   color: #1e40af;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
+  will-change: transform, opacity, filter;
 }
 
 .pqt-chip {
@@ -36,14 +90,15 @@
   background: #fef3c7;
   border: 1px solid #fde68a;
   border-radius: 999px;
-  padding: 4px 8px;
+  padding: 4px 10px;
   font-weight: 700;
+  will-change: transform, opacity, filter;
 }
 
 .pqt-form {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 8px;
+  gap: 10px;
   align-items: end;
 }
 
@@ -53,18 +108,21 @@
   max-height: 180px;
   resize: vertical;
   border: 1.5px solid #bfdbfe;
-  border-radius: 10px;
-  padding: 10px 12px;
+  border-radius: 12px;
+  padding: 12px 14px;
   font-size: 0.92rem;
   color: #1f2937;
   line-height: 1.45;
   background: #f8fbff;
+  box-sizing: border-box;
+  will-change: transform, opacity, filter;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .pqt-textarea:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
   background: #ffffff;
 }
 
@@ -72,15 +130,17 @@
   border: 1px solid #2563eb;
   background: #2563eb;
   color: #ffffff;
-  border-radius: 10px;
-  padding: 10px 14px;
+  border-radius: 12px;
+  padding: 11px 18px;
   font-weight: 700;
-  font-size: 0.86rem;
+  font-size: 0.88rem;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   cursor: pointer;
   height: fit-content;
+  will-change: transform, opacity;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
 
 .pqt-submit:disabled {
@@ -90,32 +150,45 @@
 
 .pqt-submit:hover:not(:disabled) {
   background: #1d4ed8;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+  transform: translateY(-1px);
 }
 
 .pqt-error {
-  margin: 8px 0 0;
-  color: #b91c1c;
+  margin: 4px 0 0;
+  color: #dc2626;
   font-size: 0.82rem;
   font-weight: 600;
 }
 
+.pqt-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, #bfdbfe 0%, #e5e7eb 50%, #bfdbfe 100%);
+  margin: 4px 0 2px;
+  will-change: transform, opacity;
+}
+
 .pqt-list-wrap {
-  margin-top: 12px;
-  border-top: 1px solid #e5e7eb;
-  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .pqt-list-title {
-  margin: 0 0 8px;
+  margin: 0;
   color: #1f2937;
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: 0.92rem;
+  font-weight: 750;
+  will-change: transform, opacity, filter;
 }
 
 .pqt-empty {
   margin: 0;
   color: #6b7280;
   font-size: 0.85rem;
+  padding: 8px 0;
+  will-change: transform, opacity, filter;
 }
 
 .pqt-list {
@@ -124,32 +197,42 @@
 }
 
 .pqt-item {
-  border: 1px solid #e5e7eb;
-  border-left: 3px solid #60a5fa;
-  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  border-left: 3.5px solid #3b82f6;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 10px 14px;
+  will-change: transform, opacity, filter;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.pqt-item:hover {
   background: #ffffff;
-  padding: 9px 10px;
+  border-color: #cbd5e1;
+  border-left-color: #2563eb;
+  transform: translateX(2px);
 }
 
 .pqt-item-text {
   margin: 0;
-  color: #111827;
-  font-size: 0.86rem;
+  color: #0f172a;
+  font-size: 0.87rem;
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
 }
 
 .pqt-item-time {
-  margin-top: 6px;
+  margin-top: 5px;
   display: block;
-  color: #6b7280;
+  color: #64748b;
   font-size: 0.74rem;
   font-weight: 600;
 }
 
 .pqt-more-wrap {
-  margin-top: 10px;
+  margin-top: 4px;
+  will-change: transform, opacity, filter;
 }
 
 .pqt-more-btn {
@@ -160,20 +243,30 @@
   background: #eff6ff;
   color: #1d4ed8;
   border: 1px solid #bfdbfe;
-  border-radius: 9px;
-  padding: 8px 12px;
+  border-radius: 10px;
+  padding: 8px 14px;
   font-size: 0.82rem;
   font-weight: 700;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
 }
 
 .pqt-more-btn:hover {
   background: #dbeafe;
+  border-color: #93c5fd;
+  transform: translateY(-1px);
 }
 
 @media (max-width: 640px) {
-  .pqt-wrap {
-    padding: 12px;
-    border-radius: 12px;
+  .pqt-viewport {
+    padding: 16px 12px;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .pqt-card {
+    padding: 16px;
+    border-radius: 18px;
+    gap: 12px;
   }
 
   .pqt-form {
