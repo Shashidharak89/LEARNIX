@@ -124,10 +124,12 @@ export default function HeroSection() {
       {/* Standalone Full-Window Pinned Quote of the Month */}
       <RandomQuote />
 
+      {/* Standalone Full-Window Pinned Public Quick Text */}
+      <PublicQuickText />
+
       <section className="learnix-hero-secondary">
         <div className="learnix-hero-container">
           <div className="learnix-hero-content">
-            <PublicQuickText />
             <DownloadAppBanner />
             <HomeGroqAskBox />
             <WhatIsLearnix />

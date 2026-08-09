@@ -2,7 +2,16 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { FiClock, FiEdit3, FiChevronDown, FiSend } from "react-icons/fi";
+import {
+  FiClock,
+  FiSend,
+  FiImage,
+  FiSmile,
+  FiMessageCircle,
+  FiChevronRight,
+  FiMoreVertical,
+  FiShield,
+} from "react-icons/fi";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./styles/PublicQuickText.css";
@@ -13,17 +22,35 @@ if (typeof window !== "undefined") {
 
 const HOME_LIMIT = 3;
 
-function formatDateTime(value) {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true,
-  });
+const AVATAR_THEMES = [
+  { bg: "#dbeafe", color: "#1d4ed8", name: "Sanketh", initial: "S" },
+  { bg: "#f3e8ff", color: "#7e22ce", name: "Ananya", initial: "A" },
+  { bg: "#dcfce7", color: "#15803d", name: "Rahul", initial: "R" },
+  { bg: "#fef3c7", color: "#b45309", name: "Kiran", initial: "K" },
+  { bg: "#ffe4e6", color: "#be123c", name: "Priya", initial: "P" },
+];
+
+function getRemainingTime(createdAt) {
+  if (!createdAt) return "24h 00m left";
+  const created = new Date(createdAt).getTime();
+  if (Number.isNaN(created)) return "24h 00m left";
+  const totalDuration = 24 * 60 * 60 * 1000;
+  const remainingMs = Math.max(0, totalDuration - (Date.now() - created));
+  const totalMinutes = Math.floor(remainingMs / (60 * 1000));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${hours}h ${minutes}m left`;
+}
+
+function getTimeAgo(createdAt) {
+  if (!createdAt) return "Just now";
+  const created = new Date(createdAt).getTime();
+  if (Number.isNaN(created)) return "Just now";
+  const diffSec = Math.floor((Date.now() - created) / 1000);
+  if (diffSec < 60) return "Just now";
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
+  return "1d ago";
 }
 
 export default function PublicQuickText() {
@@ -37,14 +64,14 @@ export default function PublicQuickText() {
   const sectionRef = useRef(null);
   const viewportRef = useRef(null);
   const cardRef = useRef(null);
-  const headerTitleRef = useRef(null);
-  const chipRef = useRef(null);
-  const textareaRef = useRef(null);
-  const submitBtnRef = useRef(null);
-  const dividerRef = useRef(null);
-  const listTitleRef = useRef(null);
-  const itemsRef = useRef([]);
-  const moreBtnRef = useRef(null);
+  const headerLeftRef = useRef(null);
+  const headerRightRef = useRef(null);
+  const planeSvgRef = useRef(null);
+  const inputBoxRef = useRef(null);
+  const postsHeaderRef = useRef(null);
+  const viewMoreRef = useRef(null);
+  const postCardsRef = useRef([]);
+  const disclaimerRef = useRef(null);
 
   const fetchLatest = async () => {
     setLoading(true);
@@ -92,136 +119,102 @@ export default function PublicQuickText() {
       });
 
       // Initial state: Card background & Puzzle elements scattered
-      gsap.set(card, { opacity: 0, scale: 0.9, y: 30, filter: "blur(12px)" });
+      gsap.set(card, { opacity: 0, scale: 0.88, y: 40, filter: "blur(14px)" });
 
-      if (headerTitleRef.current) {
-        gsap.set(headerTitleRef.current, { x: -35, y: -30, rotate: -5, opacity: 0, filter: "blur(8px)" });
+      if (headerLeftRef.current) {
+        gsap.set(headerLeftRef.current, { x: -40, y: -30, rotate: -4, opacity: 0, filter: "blur(8px)" });
       }
 
-      if (chipRef.current) {
-        gsap.set(chipRef.current, { x: 35, y: -30, rotate: 5, opacity: 0, filter: "blur(8px)" });
+      if (headerRightRef.current) {
+        gsap.set(headerRightRef.current, { x: 40, y: -30, rotate: 4, opacity: 0, filter: "blur(8px)" });
       }
 
-      if (textareaRef.current) {
-        gsap.set(textareaRef.current, { scale: 0.88, y: 25, opacity: 0, filter: "blur(10px)" });
+      if (planeSvgRef.current) {
+        gsap.set(planeSvgRef.current, { x: 50, y: -40, scale: 0.6, opacity: 0 });
       }
 
-      if (submitBtnRef.current) {
-        gsap.set(submitBtnRef.current, { x: 45, y: 15, rotate: 6, opacity: 0, scale: 0.8 });
+      if (inputBoxRef.current) {
+        gsap.set(inputBoxRef.current, { scale: 0.9, y: 30, opacity: 0, filter: "blur(10px)" });
       }
 
-      if (dividerRef.current) {
-        gsap.set(dividerRef.current, { scaleX: 0, transformOrigin: "left center", opacity: 0 });
+      if (postsHeaderRef.current) {
+        gsap.set(postsHeaderRef.current, { x: -35, y: 20, opacity: 0, filter: "blur(8px)" });
       }
 
-      if (listTitleRef.current) {
-        gsap.set(listTitleRef.current, { x: -30, y: 15, opacity: 0, filter: "blur(6px)" });
+      if (viewMoreRef.current) {
+        gsap.set(viewMoreRef.current, { x: 35, y: 20, opacity: 0, filter: "blur(6px)" });
       }
 
-      const validItems = itemsRef.current.filter(Boolean);
-      validItems.forEach((item, idx) => {
-        const rot = idx % 2 === 0 ? -3 : 3;
-        gsap.set(item, { y: 35, scale: 0.88, rotate: rot, opacity: 0, filter: "blur(8px)" });
+      const validCards = postCardsRef.current.filter(Boolean);
+      validCards.forEach((postCard, idx) => {
+        const rot = idx % 2 === 0 ? -2.5 : 2.5;
+        gsap.set(postCard, { y: 40, scale: 0.88, rotate: rot, opacity: 0, filter: "blur(8px)" });
       });
 
-      if (moreBtnRef.current) {
-        gsap.set(moreBtnRef.current, { y: 25, scale: 0.82, opacity: 0, filter: "blur(6px)" });
+      if (disclaimerRef.current) {
+        gsap.set(disclaimerRef.current, { y: 20, opacity: 0, filter: "blur(6px)" });
       }
 
-      // Step 0: Card container enters (0 -> 0.20)
+      // Step 0: Outer Card container enters (0 -> 0.18)
       masterTl.to(card, {
         opacity: 1,
         scale: 1,
         y: 0,
         filter: "blur(0px)",
-        duration: 0.20,
+        duration: 0.18,
         ease: "power2.out",
       }, 0);
 
-      // Step 1: Header title & 24h chip fly into position (0.15 -> 0.35)
-      if (headerTitleRef.current && chipRef.current) {
-        masterTl.to([headerTitleRef.current, chipRef.current], {
-          x: 0,
-          y: 0,
-          rotate: 0,
-          opacity: 1,
-          filter: "blur(0px)",
-          duration: 0.20,
-          ease: "back.out(1.4)",
-          stagger: 0.05,
-        }, 0.15);
+      // Step 1: Header title + Plane + 24h pill fly into position (0.14 -> 0.34)
+      if (headerLeftRef.current) {
+        masterTl.to(headerLeftRef.current, {
+          x: 0, y: 0, rotate: 0, opacity: 1, filter: "blur(0px)", duration: 0.20, ease: "back.out(1.4)"
+        }, 0.14);
       }
 
-      // Step 2: Textarea expands into place (0.30 -> 0.50)
-      if (textareaRef.current) {
-        masterTl.to(textareaRef.current, {
-          scale: 1,
-          y: 0,
-          opacity: 1,
-          filter: "blur(0px)",
-          duration: 0.20,
-          ease: "power2.out",
+      if (planeSvgRef.current) {
+        masterTl.to(planeSvgRef.current, {
+          x: 0, y: 0, scale: 1, opacity: 1, duration: 0.22, ease: "back.out(1.5)"
+        }, 0.16);
+      }
+
+      if (headerRightRef.current) {
+        masterTl.to(headerRightRef.current, {
+          x: 0, y: 0, rotate: 0, opacity: 1, filter: "blur(0px)", duration: 0.20, ease: "back.out(1.4)"
+        }, 0.18);
+      }
+
+      // Step 2: Input Box expands & settles into place (0.30 -> 0.52)
+      if (inputBoxRef.current) {
+        masterTl.to(inputBoxRef.current, {
+          scale: 1, y: 0, opacity: 1, filter: "blur(0px)", duration: 0.22, ease: "power2.out"
         }, 0.30);
       }
 
-      // Step 3: Post button slides in from side (0.40 -> 0.58)
-      if (submitBtnRef.current) {
-        masterTl.to(submitBtnRef.current, {
-          x: 0,
-          y: 0,
-          rotate: 0,
-          opacity: 1,
-          scale: 1,
-          duration: 0.18,
-          ease: "back.out(1.5)",
-        }, 0.40);
+      // Step 3: Posts Header & View More button slide in (0.48 -> 0.66)
+      if (postsHeaderRef.current) {
+        masterTl.to(postsHeaderRef.current, {
+          x: 0, y: 0, opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power2.out"
+        }, 0.48);
       }
 
-      // Step 4: Divider draws across (0.52 -> 0.68)
-      if (dividerRef.current) {
-        masterTl.to(dividerRef.current, {
-          scaleX: 1,
-          opacity: 1,
-          duration: 0.16,
-          ease: "power2.inOut",
+      if (viewMoreRef.current) {
+        masterTl.to(viewMoreRef.current, {
+          x: 0, y: 0, opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "back.out(1.4)"
         }, 0.52);
       }
 
-      // Step 5: Latest-post heading slides into position (0.55 -> 0.70)
-      if (listTitleRef.current) {
-        masterTl.to(listTitleRef.current, {
-          x: 0,
-          y: 0,
-          opacity: 1,
-          filter: "blur(0px)",
-          duration: 0.16,
-          ease: "power2.out",
-        }, 0.55);
+      // Step 4: Individual Post cards appear with staggered entrance (0.62 -> 0.84)
+      if (validCards.length > 0) {
+        masterTl.to(validCards, {
+          y: 0, scale: 1, rotate: 0, opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "back.out(1.2)", stagger: 0.06
+        }, 0.62);
       }
 
-      // Step 6: Posts appear one-by-one with staggered fade + scale (0.65 -> 0.82)
-      if (validItems.length > 0) {
-        masterTl.to(validItems, {
-          y: 0,
-          scale: 1,
-          rotate: 0,
-          opacity: 1,
-          filter: "blur(0px)",
-          duration: 0.18,
-          ease: "back.out(1.2)",
-          stagger: 0.06,
-        }, 0.65);
-      }
-
-      // Step 7: View More button settles in last (0.80 -> 0.92)
-      if (moreBtnRef.current) {
-        masterTl.to(moreBtnRef.current, {
-          y: 0,
-          scale: 1,
-          opacity: 1,
-          filter: "blur(0px)",
-          duration: 0.14,
-          ease: "back.out(1.4)",
+      // Step 5: Disclaimer settles in at bottom (0.80 -> 0.92)
+      if (disclaimerRef.current) {
+        masterTl.to(disclaimerRef.current, {
+          y: 0, opacity: 1, filter: "blur(0px)", duration: 0.12, ease: "power2.out"
         }, 0.80);
       }
 
@@ -265,7 +258,7 @@ export default function PublicQuickText() {
     }
   };
 
-  itemsRef.current = [];
+  postCardsRef.current = [];
 
   return (
     <section ref={sectionRef} className="pqt-pinned-section" aria-label="Public quick text sharing">
@@ -273,69 +266,174 @@ export default function PublicQuickText() {
         <div className="pqt-ambient-aura" />
 
         <div ref={cardRef} className="pqt-card">
-          <div className="pqt-head">
-            <h3 ref={headerTitleRef} className="pqt-title">
-              <FiEdit3 size={16} /> Write anything (public · 24h)
-            </h3>
-            <span ref={chipRef} className="pqt-chip">
-              <FiClock size={12} /> Auto removes in 24h
-            </span>
+          {/* Top Header Row */}
+          <div className="pqt-header-row">
+            <div ref={headerLeftRef} className="pqt-header-left">
+              <h2 className="pqt-main-title">
+                Share with the world <span className="pqt-sparkle-icon">✦</span>
+              </h2>
+              <p className="pqt-main-subtitle">
+                Write anything publicly. It stays for 24 hours and then disappears.
+              </p>
+            </div>
+
+            {/* Floating Paper Plane Decoration */}
+            <div ref={planeSvgRef} className="pqt-plane-wrap" aria-hidden="true">
+              <svg className="pqt-plane-svg" viewBox="0 0 200 60" fill="none">
+                <path
+                  d="M10 45 C 60 10, 130 60, 180 15"
+                  stroke="#c7d2fe"
+                  strokeWidth="2"
+                  strokeDasharray="4 4"
+                />
+                <path d="M40 25 L43 28 L40 31 L37 28 Z" fill="#ec4899" opacity="0.6" />
+                <path d="M115 15 L118 18 L115 21 L112 18 Z" fill="#8b5cf6" opacity="0.6" />
+                <path d="M160 32 L162 34 L160 36 L158 34 Z" fill="#3b82f6" opacity="0.6" />
+              </svg>
+              <div className="pqt-plane-icon">
+                <FiSend />
+              </div>
+            </div>
+
+            <div ref={headerRightRef} className="pqt-header-right">
+              <div className="pqt-badge-pill">
+                <FiClock size={13} />
+                <span>Auto removes in 24h</span>
+              </div>
+            </div>
           </div>
 
-          <form className="pqt-form" onSubmit={handleSubmit}>
-            <textarea
-              ref={textareaRef}
-              className="pqt-textarea"
-              placeholder="Share any short text publicly..."
-              value={text}
-              maxLength={4000}
-              onChange={(event) => setText(event.target.value)}
-            />
-            <button
-              ref={submitBtnRef}
-              className="pqt-submit"
-              type="submit"
-              disabled={posting || !text.trim()}
-            >
-              <FiSend size={14} /> {posting ? "Posting..." : "Post"}
-            </button>
-          </form>
+          {/* Inner Input Card */}
+          <div ref={inputBoxRef} className="pqt-input-box">
+            <div className="pqt-input-label">
+              <FiSend size={15} style={{ transform: "rotate(-30deg)" }} />
+              <span>Write anything (public · 24h)</span>
+            </div>
 
-          {error && <p className="pqt-error">{error}</p>}
+            <form onSubmit={handleSubmit}>
+              <div className="pqt-textarea-container">
+                <textarea
+                  className="pqt-textarea"
+                  placeholder="Share any short text publicly..."
+                  value={text}
+                  maxLength={4000}
+                  onChange={(event) => setText(event.target.value)}
+                />
 
-          <div ref={dividerRef} className="pqt-divider" />
+                <div className="pqt-textarea-footer">
+                  <div className="pqt-actions-left">
+                    <button type="button" className="pqt-action-icon-btn" title="Add image">
+                      <FiImage size={17} />
+                    </button>
+                    <button type="button" className="pqt-action-icon-btn" title="Add GIF">
+                      <span className="pqt-gif-badge">GIF</span>
+                    </button>
+                    <button type="button" className="pqt-action-icon-btn" title="Add emoji">
+                      <FiSmile size={17} />
+                    </button>
+                  </div>
 
-          <div className="pqt-list-wrap">
-            <h4 ref={listTitleRef} className="pqt-list-title">Latest public posts</h4>
-
-            {loading ? (
-              <p ref={(el) => (itemsRef.current[0] = el)} className="pqt-empty">Loading...</p>
-            ) : records.length === 0 ? (
-              <p ref={(el) => (itemsRef.current[0] = el)} className="pqt-empty">
-                No public texts yet. Be the first one.
-              </p>
-            ) : (
-              <div className="pqt-list">
-                {records.map((item, idx) => (
-                  <article
-                    ref={(el) => (itemsRef.current[idx] = el)}
-                    className="pqt-item"
-                    key={item._id}
-                  >
-                    <p className="pqt-item-text">{item.text}</p>
-                    <time className="pqt-item-time">{formatDateTime(item.createdAt)}</time>
-                  </article>
-                ))}
+                  <div className="pqt-footer-right">
+                    <span className="pqt-char-counter">{text.length} / 4000</span>
+                    <button
+                      className="pqt-submit-btn"
+                      type="submit"
+                      disabled={posting || !text.trim()}
+                    >
+                      <FiSend size={14} />
+                      <span>{posting ? "Posting..." : "Post"}</span>
+                    </button>
+                  </div>
+                </div>
               </div>
-            )}
+            </form>
+            {error && <p className="pqt-error">{error}</p>}
+          </div>
 
-            {hasMore && (
-              <div ref={moreBtnRef} className="pqt-more-wrap">
-                <Link href="/public-texts" className="pqt-more-btn">
-                  <FiChevronDown size={15} /> View More
+          {/* Latest Public Posts Section */}
+          <div className="pqt-posts-section">
+            <div className="pqt-posts-header">
+              <div ref={postsHeaderRef} className="pqt-posts-title-wrap">
+                <h3 className="pqt-posts-heading">
+                  <FiMessageCircle className="pqt-msg-icon" />
+                  <span>Latest public posts</span>
+                </h3>
+                <p className="pqt-posts-subheading">Real thoughts. Real people.</p>
+              </div>
+
+              <div ref={viewMoreRef}>
+                <Link href="/public-texts" className="pqt-view-more-pill">
+                  <span>View More</span>
+                  <FiChevronRight size={14} />
                 </Link>
               </div>
-            )}
+            </div>
+
+            {/* Posts List */}
+            <div className="pqt-posts-list">
+              {loading ? (
+                <div
+                  ref={(el) => (postCardsRef.current[0] = el)}
+                  className="pqt-empty-card"
+                >
+                  Loading posts...
+                </div>
+              ) : records.length === 0 ? (
+                <div
+                  ref={(el) => (postCardsRef.current[0] = el)}
+                  className="pqt-empty-card"
+                >
+                  No public texts yet. Be the first one to post.
+                </div>
+              ) : (
+                records.map((item, idx) => {
+                  const avatar = AVATAR_THEMES[idx % AVATAR_THEMES.length];
+                  return (
+                    <article
+                      ref={(el) => (postCardsRef.current[idx] = el)}
+                      className="pqt-post-card"
+                      key={item._id}
+                    >
+                      <div className="pqt-post-left">
+                        <div
+                          className="pqt-avatar-circle"
+                          style={{ backgroundColor: avatar.bg, color: avatar.color }}
+                        >
+                          {avatar.initial}
+                        </div>
+                        <div className="pqt-post-content">
+                          <div className="pqt-author-row">
+                            <span className="pqt-author-name">{avatar.name}</span>
+                            <span className="pqt-time-ago">{getTimeAgo(item.createdAt)}</span>
+                          </div>
+                          <p className="pqt-post-text">{item.text}</p>
+                        </div>
+                      </div>
+
+                      <div className="pqt-post-right">
+                        <div className="pqt-time-badge">
+                          <FiClock size={12} />
+                          <span>{getRemainingTime(item.createdAt)}</span>
+                        </div>
+                        <button
+                          type="button"
+                          className="pqt-more-options-btn"
+                          aria-label="More options"
+                        >
+                          <FiMoreVertical size={16} />
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })
+              )}
+            </div>
+          </div>
+
+          {/* Footer Disclaimer */}
+          <div ref={disclaimerRef} className="pqt-disclaimer">
+            <FiShield className="pqt-shield-icon" />
+            <span>Be kind. Be real. Be you.</span>
           </div>
         </div>
       </div>
