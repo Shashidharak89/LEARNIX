@@ -15,6 +15,20 @@ export default function SmoothScroll({ children }) {
   const lenisRef = useRef(null);
 
   useEffect(() => {
+    // Only enable smooth scrolling on the home page ('/')
+    const isHomePage = pathname === '/';
+
+    if (!isHomePage) {
+      if (lenisRef.current) {
+        lenisRef.current.destroy();
+        lenisRef.current = null;
+        if (typeof window !== 'undefined') {
+          delete window.lenis;
+        }
+      }
+      return;
+    }
+
     // Respect prefers-reduced-motion settings
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
@@ -46,12 +60,15 @@ export default function SmoothScroll({ children }) {
 
     return () => {
       gsap.ticker.remove(updateLenis);
-      lenisRef.current = null;
+      if (lenisRef.current) {
+        lenisRef.current.destroy();
+        lenisRef.current = null;
+      }
       if (typeof window !== 'undefined') {
         delete window.lenis;
       }
     };
-  }, []);
+  }, [pathname]);
 
   // Handle route changes: scroll to top smoothly and refresh ScrollTrigger
   useEffect(() => {
