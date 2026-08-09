@@ -125,7 +125,7 @@ export default function HeroSection() {
       <RandomQuote />
 
       {/* Standalone Full-Window Pinned Public Quick Text */}
-      <PublicQuickText />
+      {/* <PublicQuickText /> */}
 
       <section className="learnix-hero-secondary">
         <div className="learnix-hero-container">
