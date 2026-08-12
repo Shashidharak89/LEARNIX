@@ -113,6 +113,7 @@ export const GET = async (req) => {
         const user = subject ? await User.findById(subject.userId).lean() : null;
         return {
           ...topic,
+          images: Array.isArray(topic.images) ? topic.images.slice(0, 2) : [],
           subject: subject?.subject ?? null,
           subjectId: subject?._id ?? null,
           userName: user?.name ?? null,

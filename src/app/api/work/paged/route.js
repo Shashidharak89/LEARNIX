@@ -49,6 +49,7 @@ export const GET = async (req) => {
 
         return {
           ...topic,
+          images: Array.isArray(topic.images) ? topic.images.slice(0, 2) : [],
           subject: subject ? subject.subject : null,
           subjectId: subject ? subject._id : null,
           userName: user ? user.name : null,
