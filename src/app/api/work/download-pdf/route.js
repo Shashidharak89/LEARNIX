@@ -20,20 +20,30 @@ export async function POST(req) {
             const imageUrl = images[i];
 
             try {
-                // Optimize for Cloudinary URLs if applicable, requesting JPG
-                let fetchUrl = imageUrl;
-                if (fetchUrl.includes('cloudinary.com') && !fetchUrl.includes('/f_jpg/')) {
-                    fetchUrl = fetchUrl.replace('/upload/', '/upload/f_jpg/');
+                let imageBuffer;
+                let isPng = false;
+
+                if (imageUrl.startsWith("data:")) {
+                    const parts = imageUrl.split(",");
+                    const meta = parts[0] || "";
+                    const base64Data = parts[1] || "";
+                    isPng = meta.includes("image/png");
+                    imageBuffer = Buffer.from(base64Data, "base64");
+                } else {
+                    let fetchUrl = imageUrl;
+                    if (fetchUrl.includes('cloudinary.com') && !fetchUrl.includes('/f_jpg/')) {
+                        fetchUrl = fetchUrl.replace('/upload/', '/upload/f_jpg/');
+                    }
+                    const imageResponse = await fetch(fetchUrl);
+                    if (!imageResponse.ok) continue;
+
+                    imageBuffer = await imageResponse.arrayBuffer();
+                    const contentType = imageResponse.headers.get("content-type") || "";
+                    isPng = contentType.includes("png") || fetchUrl.toLowerCase().includes(".png");
                 }
 
-                const imageResponse = await fetch(fetchUrl);
-                if (!imageResponse.ok) continue;
-
-                const imageBuffer = await imageResponse.arrayBuffer();
-                const contentType = imageResponse.headers.get("content-type") || "";
-
                 let image;
-                if (contentType.includes("png") || fetchUrl.toLowerCase().includes(".png")) {
+                if (isPng) {
                     try {
                         image = await pdfDoc.embedPng(imageBuffer);
                     } catch (e) {

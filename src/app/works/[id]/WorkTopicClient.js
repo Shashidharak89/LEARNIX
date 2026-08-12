@@ -181,86 +181,10 @@ const WorkTopicPageWrapper = () => {
       }
 
       // Dynamically import pdf-lib to reduce initial bundle size
-      const { PDFDocument, rgb, StandardFonts, PageSizes } = await import('pdf-lib');
+      const { PDFDocument, PageSizes } = await import('pdf-lib');
 
-      // 1. Fetch the template PDF from public folder
-      const templateRes = await fetch('/download-resource-template.pdf');
-      if (!templateRes.ok) {
-        throw new Error("Could not fetch PDF template. Make sure download-resource-template.pdf is in the public folder.");
-      }
-      const templateBytes = await templateRes.arrayBuffer();
-
-      // Create a new PDF document to work with
-      const pdfDoc = await PDFDocument.load(templateBytes);
-
-      // Get the first page (template page)
-      const pages = pdfDoc.getPages();
-      const firstPage = pages[0];
-      const { height } = firstPage.getSize();
-
-      // Embed fonts - using standard fonts
-      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-      const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-
-      // Prepare replacement values
-      const replacements = {
-        '[name]': { value: data.user.name, size: 14, bold: true, color: rgb(0, 0, 0) },
-        '[usn]': { value: data.user.usn, size: 12, bold: false, color: rgb(0, 0, 0) },
-        '[date]': { 
-          value: new Date(data.topic.timestamp).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          }), 
-          size: 12, 
-          bold: false, 
-          color: rgb(0, 0, 0) 
-        },
-        '[subjectname]': { value: data.subject.subject, size: 14, bold: true, color: rgb(0, 0, 0) },
-        '[topicname]': { value: data.topic.topic, size: 16, bold: true, color: rgb(0.1, 0.3, 0.6) },
-        '[topicid]': { value: id, size: 10, bold: false, color: rgb(0.4, 0.4, 0.4) },
-      };
-
-      // Common positions for the standard template
-      const placeholderPositions = {
-        '[name]': { x: 180, y: 285, width: 350 },
-        '[usn]': { x: 180, y: 315, width: 350 },
-        '[subjectname]': { x: 180, y: 385, width: 350 },
-        '[topicname]': { x: 180, y: 455, width: 350 },
-        '[date]': { x: 180, y: 515, width: 350 },
-        '[topicid]': { x: 180, y: 675, width: 350 },
-      };
-
-      // For each placeholder, draw a white rectangle to cover it and add the replacement text
-      Object.keys(replacements).forEach((placeholder) => {
-        const position = placeholderPositions[placeholder];
-        const replacement = replacements[placeholder];
-        
-        if (position && replacement) {
-          // Calculate text height based on font size
-          const textHeight = replacement.size + 4;
-          
-          // Draw white rectangle to cover the placeholder
-          firstPage.drawRectangle({
-            x: position.x - 5,
-            y: height - position.y - textHeight,
-            width: position.width,
-            height: textHeight + 2,
-            color: rgb(1, 1, 1),
-            borderColor: rgb(1, 1, 1),
-            borderWidth: 0,
-          });
-
-          // Draw the replacement text
-          firstPage.drawText(replacement.value || "N/A", {
-            x: position.x,
-            y: height - position.y,
-            size: replacement.size,
-            font: replacement.bold ? fontBold : font,
-            color: replacement.color,
-          });
-        }
-      });
+      // Create a brand new PDF document (no template cover page)
+      const pdfDoc = await PDFDocument.create();
 
       // Process and add images starting from page 2
       const validImages = data.topic.images.filter((url) => url && url.trim() !== "");
