@@ -166,7 +166,26 @@ const WorkTopicPageWrapper = () => {
 
   const downloadTopicAsPDF = async (data, options = {}) => {
     const customDownloadLink = data?.topic?.downloadlink?.trim();
-    const isFullDownload = options.allPages || (!options.selectedPages?.length && !options.startPage && !options.endPage);
+    const validImagesList = (data?.topic?.images || []).filter((url) => url && url.trim() !== "");
+    const totalImagesCount = validImagesList.length;
+
+    let isFullDownload = false;
+
+    if (options.allPages || (!options.selectedPages?.length && !options.startPage && !options.endPage)) {
+      isFullDownload = true;
+    } else if (Array.isArray(options.selectedPages) && options.selectedPages.length > 0) {
+      const uniqueSelected = Array.from(new Set(options.selectedPages.map((n) => parseInt(n, 10))))
+        .filter((n) => !Number.isNaN(n) && n >= 1 && n <= totalImagesCount);
+      if (uniqueSelected.length >= totalImagesCount && totalImagesCount > 0) {
+        isFullDownload = true;
+      }
+    } else if (options.startPage && options.endPage) {
+      const s = Math.max(1, Math.min(totalImagesCount, parseInt(options.startPage, 10) || 1));
+      const e = Math.max(s, Math.min(totalImagesCount, parseInt(options.endPage, 10) || totalImagesCount));
+      if (s === 1 && e === totalImagesCount && totalImagesCount > 0) {
+        isFullDownload = true;
+      }
+    }
 
     if (isFullDownload && customDownloadLink) {
       window.open(customDownloadLink, "_blank", "noopener,noreferrer");
