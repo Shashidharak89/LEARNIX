@@ -102,6 +102,7 @@ export const GET = async (req, { params }) => {
         content: topic.content,
         images: topic.images,
         visibility: topicVisibility,
+        downloadlink: topic.downloadlink || "",
         timestamp: topic.timestamp
       },
     });

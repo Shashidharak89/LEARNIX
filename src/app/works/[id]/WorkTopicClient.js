@@ -165,6 +165,14 @@ const WorkTopicPageWrapper = () => {
   };
 
   const downloadTopicAsPDF = async (data, options = {}) => {
+    const customDownloadLink = data?.topic?.downloadlink?.trim();
+    const isFullDownload = options.allPages || (!options.selectedPages?.length && !options.startPage && !options.endPage);
+
+    if (isFullDownload && customDownloadLink) {
+      window.open(customDownloadLink, "_blank", "noopener,noreferrer");
+      return;
+    }
+
     if (!data?.topic?.images || data.topic.images.length === 0) {
       alert("No images available for this topic");
       return;

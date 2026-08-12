@@ -11,6 +11,7 @@ const TopicSchema = new mongoose.Schema({
     enum: ["public", "private", "unlisted"],
     default: "public",
   },
+  downloadlink: { type: String, default: "" },
   timestamp: { type: Date, default: Date.now }
 });
 
