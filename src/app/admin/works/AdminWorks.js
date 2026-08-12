@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { authFetch } from "@/lib/clientAuth";
+import { formatGithubRawUrl } from "@/lib/githubUrlHelper";
 import {
   FiFileText,
   FiLink,
@@ -75,11 +76,12 @@ export default function AdminWorks() {
   };
 
   const handleDownloadLinkChange = (topicId, val) => {
+    const formatted = formatGithubRawUrl(val);
     setEdits((prev) => ({
       ...prev,
       [topicId]: {
         ...prev[topicId],
-        downloadlink: val,
+        downloadlink: formatted,
       },
     }));
   };
@@ -87,10 +89,11 @@ export default function AdminWorks() {
   const handleSave = async (topicId) => {
     const draft = edits[topicId];
     if (!draft) return;
+    const formattedLink = formatGithubRawUrl(draft.downloadlink);
 
     setEdits((prev) => ({
       ...prev,
-      [topicId]: { ...prev[topicId], saving: true },
+      [topicId]: { ...prev[topicId], downloadlink: formattedLink, saving: true },
     }));
 
     try {

@@ -4,6 +4,7 @@ import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
+import { formatGithubRawUrl } from "@/lib/githubUrlHelper";
 
 // GET /api/admin/works?page=1&pageSize=10
 export const GET = async (req) => {
@@ -127,7 +128,7 @@ export const PATCH = async (req) => {
     }
 
     if (downloadlink !== undefined) {
-      topic.downloadlink = typeof downloadlink === "string" ? downloadlink.trim() : "";
+      topic.downloadlink = formatGithubRawUrl(downloadlink);
     }
 
     await topic.save();
