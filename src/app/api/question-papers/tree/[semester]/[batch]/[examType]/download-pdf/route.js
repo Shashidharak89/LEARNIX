@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { PDFDocument } from "pdf-lib";
+import { PDFDocument, PageSizes } from "pdf-lib";
 import { buildQuestionPaperPdfImages, buildQuestionPaperResponse, getQuestionPaperByTreePath } from "../../../../../store";
 
 export async function POST(req, { params }) {
@@ -46,12 +46,26 @@ export async function POST(req, { params }) {
                     image = await pdfDoc.embedJpg(imageBuffer);
                 }
 
-                const page = pdfDoc.addPage([image.width, image.height]);
+                const page = pdfDoc.addPage(PageSizes.A4);
+                const pageWidth = page.getWidth();
+                const pageHeight = page.getHeight();
+                const padding = 10;
+
+                const maxWidth = pageWidth - (padding * 2);
+                const maxHeight = pageHeight - (padding * 2);
+
+                const scale = Math.min(maxWidth / image.width, maxHeight / image.height);
+                const scaledWidth = image.width * scale;
+                const scaledHeight = image.height * scale;
+
+                const x = (pageWidth - scaledWidth) / 2;
+                const y = (pageHeight - scaledHeight) / 2;
+
                 page.drawImage(image, {
-                    x: 0,
-                    y: 0,
-                    width: image.width,
-                    height: image.height,
+                    x,
+                    y,
+                    width: scaledWidth,
+                    height: scaledHeight,
                 });
             } catch (imgError) {
                 console.error(`Error processing image ${i + 1}:`, imgError);

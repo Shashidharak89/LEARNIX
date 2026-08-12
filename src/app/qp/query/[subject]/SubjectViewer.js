@@ -154,6 +154,8 @@ export default function SubjectViewer({ params }) {
       const pdf = new jsPDF("p", "mm", "a4");
       const pw = pdf.internal.pageSize.getWidth();
       const ph = pdf.internal.pageSize.getHeight();
+      const margin = 5; // ~10px padding
+
       for (let i = 0; i < pagesToDownload.length; i++) {
         const res = await fetch(pagesToDownload[i]);
         const blob = await res.blob();
@@ -162,8 +164,29 @@ export default function SubjectViewer({ params }) {
           reader.onloadend = () => resolve(reader.result);
           reader.readAsDataURL(blob);
         });
-        if (i > 0) pdf.addPage();
-        pdf.addImage(b64, "JPEG", 0, 0, pw, ph);
+
+        const img = new Image();
+        img.src = b64;
+        await new Promise((resolve) => {
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+        });
+        const imgW = img.naturalWidth || img.width || 1;
+        const imgH = img.naturalHeight || img.height || 1;
+
+        const maxW = pw - (margin * 2);
+        const maxH = ph - (margin * 2);
+
+        const scale = Math.min(maxW / imgW, maxH / imgH);
+        const drawW = imgW * scale;
+        const drawH = imgH * scale;
+
+        const x = (pw - drawW) / 2;
+        const y = (ph - drawH) / 2;
+
+        if (i > 0) pdf.addPage("a4", "p");
+        const format = b64.includes("image/png") ? "PNG" : "JPEG";
+        pdf.addImage(b64, format, x, y, drawW, drawH);
       }
       pdf.save(`${subject}_All_QP_LEARNIX.pdf`.replace(/\s+/g, "_"));
     } catch {

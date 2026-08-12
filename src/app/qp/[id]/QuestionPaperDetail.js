@@ -178,6 +178,7 @@ const QuestionPaperDetail = ({ id, paperInfo }) => {
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 5; // ~10px padding
 
       for (let i = 0; i < pagesToDownload.length; i++) {
         const imgUrl = pagesToDownload[i];
@@ -191,10 +192,30 @@ const QuestionPaperDetail = ({ id, paperInfo }) => {
           reader.readAsDataURL(blob);
         });
 
-        if (i > 0) pdf.addPage();
+        // Load image to get dimensions
+        const img = new Image();
+        img.src = base64;
+        await new Promise((resolve) => {
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+        });
+        const imgW = img.naturalWidth || img.width || 1;
+        const imgH = img.naturalHeight || img.height || 1;
+
+        const maxW = pageWidth - (margin * 2);
+        const maxH = pageHeight - (margin * 2);
+
+        const scale = Math.min(maxW / imgW, maxH / imgH);
+        const drawW = imgW * scale;
+        const drawH = imgH * scale;
+
+        const x = (pageWidth - drawW) / 2;
+        const y = (pageHeight - drawH) / 2;
+
+        if (i > 0) pdf.addPage('a4', 'p');
         
-        // Add image to PDF
-        pdf.addImage(base64, 'JPEG', 0, 0, pageWidth, pageHeight);
+        const format = base64.includes('image/png') ? 'PNG' : 'JPEG';
+        pdf.addImage(base64, format, x, y, drawW, drawH);
       }
 
       // Download the PDF

@@ -181,7 +181,7 @@ const WorkTopicPageWrapper = () => {
       }
 
       // Dynamically import pdf-lib to reduce initial bundle size
-      const { PDFDocument, rgb, StandardFonts } = await import('pdf-lib');
+      const { PDFDocument, rgb, StandardFonts, PageSizes } = await import('pdf-lib');
 
       // 1. Fetch the template PDF from public folder
       const templateRes = await fetch('/download-resource-template.pdf');
@@ -312,13 +312,13 @@ const WorkTopicPageWrapper = () => {
             }
           }
 
-          const imagePage = pdfDoc.addPage();
+          const imagePage = pdfDoc.addPage(PageSizes.A4);
           const pageWidth = imagePage.getWidth();
           const pageHeight = imagePage.getHeight();
 
           const imgWidth = image.width;
           const imgHeight = image.height;
-          const margin = 20;
+          const margin = 10;
 
           const maxWidth = pageWidth - (2 * margin);
           const maxHeight = pageHeight - (2 * margin);
