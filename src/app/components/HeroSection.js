@@ -33,7 +33,7 @@ import RandomQuote from "../test/RandomQuote";
 import PublicQuickText from "./PublicQuickText";
 import DownloadAppBanner from "./DownloadAppBanner";
 import HomeGroqAskBox from "./HomeGroqAskBox";
-import HeroNavCards from "./HeroNavCards";
+import DashboardNavCards from "../dashboard/DashboardNavCards";
 
 export default function HeroSection() {
   const [loggedIn] = useState(() => {
@@ -118,8 +118,10 @@ export default function HeroSection() {
         </div>
       </section>
 
-      {/* Standalone Full-Width Feature Showcase */}
-      <HeroNavCards loggedIn={loggedIn} />
+      {/* Dashboard Navigation Section */}
+      <section className="learnix-home-nav-cards-wrapper" style={{ padding: "40px 16px 20px 16px", width: "100%", boxSizing: "border-box" }}>
+        <DashboardNavCards loggedIn={loggedIn} />
+      </section>
 
       {/* Standalone Full-Window Pinned Quote of the Month */}
       <RandomQuote />
