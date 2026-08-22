@@ -781,6 +781,12 @@ export default function TextShareTool() {
                   placeholder="Enter code (e.g., abc123)"
                   value={fetchCode}
                   onChange={e => setFetchCode(e.target.value.toLowerCase())}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleFetch();
+                    }
+                  }}
                   maxLength={10}
                 />
                 <button className="tst-btn tst-btn-primary" onClick={handleFetch}>
