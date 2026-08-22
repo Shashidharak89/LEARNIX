@@ -36,33 +36,43 @@ export const GET = async (req) => {
 
     let subjectsWithTopics = [];
     let subjectsCount = 0;
+    let topicsCount = 0;
+    let uploadsCount = 0;
 
-    if (includeUploads) {
-      // Fetch subjects for this user
-      const subjects = await Subject.find({ userId: user._id }).lean();
-      subjectsCount = subjects.length;
+    const subjects = await Subject.find({ userId: user._id }).lean();
+    subjectsCount = subjects.length;
+    const subjectIds = subjects.map((s) => s._id);
 
-      // Fetch topics for each subject
-      subjectsWithTopics = await Promise.all(
-        subjects.map(async (subject) => {
-          const topics = await Topic.find({ subjectId: subject._id }).lean();
-          return {
-            _id: subject._id,
-            subject: subject.subject,
-            visibility: subject.visibility || "public",
-            topics: topics.map(t => ({
-              _id: t._id,
-              topic: t.topic,
-              content: t.content,
-              images: t.images,
-              visibility: t.visibility || "public",
-              timestamp: t.timestamp
-            }))
-          };
-        })
+    if (subjectIds.length > 0) {
+      const topicDocs = await Topic.find({ subjectId: { $in: subjectIds } }).lean();
+      topicsCount = topicDocs.length;
+      uploadsCount = topicDocs.reduce(
+        (sum, t) => sum + (t.images ? t.images.filter((img) => img && String(img).trim() !== "").length : 0),
+        0
       );
-    } else {
-      subjectsCount = await Subject.countDocuments({ userId: user._id });
+
+      if (includeUploads) {
+        const topicsBySubject = {};
+        topicDocs.forEach((t) => {
+          const sId = t.subjectId.toString();
+          if (!topicsBySubject[sId]) topicsBySubject[sId] = [];
+          topicsBySubject[sId].push({
+            _id: t._id,
+            topic: t.topic,
+            content: t.content,
+            images: t.images,
+            visibility: t.visibility || "public",
+            timestamp: t.timestamp,
+          });
+        });
+
+        subjectsWithTopics = subjects.map((s) => ({
+          _id: s._id,
+          subject: s.subject,
+          visibility: s.visibility || "public",
+          topics: topicsBySubject[s._id.toString()] || [],
+        }));
+      }
     }
 
     return NextResponse.json({
@@ -73,6 +83,8 @@ export const GET = async (req) => {
         email: user.email || "",
         subjects: subjectsWithTopics,
         subjectsCount,
+        topicsCount,
+        uploadsCount,
         hasUploadsLoaded: includeUploads,
         createdAt: user.createdAt,
         profileimg: user.profileimg,
