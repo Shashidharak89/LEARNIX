@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { getYouTubeVideoId } from "../../utils/youtube";
 import LinkPreview from "../../components/LinkPreview";
+import FileIcon from "../../components/FileIcon";
 import {
     FiArrowLeft,
     FiChevronDown,
@@ -260,7 +261,8 @@ export default function AdminUpdates() {
                                                         rel="noopener noreferrer"
                                                         className="au-update-file-item"
                                                     >
-                                                        📄 {file.name}
+                                                        <FileIcon filename={file.name || file.url} />
+                                                        <span style={{ marginLeft: "6px" }}>{file.name}</span>
                                                     </a>
                                                 );
                                             })}

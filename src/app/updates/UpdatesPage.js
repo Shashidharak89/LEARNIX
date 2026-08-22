@@ -7,6 +7,7 @@ import { Share2 } from 'lucide-react';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
 import { getYouTubeVideoId } from '../utils/youtube';
 import LinkPreview from '../components/LinkPreview';
+import FileIcon from '../components/FileIcon';
 import './styles/Updates.css';
 
 export default function UpdatesPage() {
@@ -333,7 +334,7 @@ export default function UpdatesPage() {
                           onClick={() => window.open(viewUrl, '_blank', 'noopener,noreferrer')}
                         >
                           <div className="upd-file-card-name" title={`View ${name}`}>
-                            <span className="upd-file-card-icon">📄</span>
+                            <FileIcon filename={name || url} />
                             <span className="upd-file-card-label">{name}</span>
                           </div>
                           <div className="upd-file-card-actions" onClick={(e) => e.stopPropagation()}>

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { FiTrash2, FiEdit2, FiSave, FiX, FiUser, FiClock, FiExternalLink, FiChevronRight, FiAlertCircle, FiAlertTriangle, FiUpload, FiDownload, FiEye } from "react-icons/fi";
 import { getYouTubeVideoId } from '../../utils/youtube';
 import LinkPreview from '../../components/LinkPreview';
+import FileIcon from '../../components/FileIcon';
 import './styles/UpdatesList.css';
 
 export default function UpdatesList({ refreshKey }) {
@@ -495,7 +496,7 @@ export default function UpdatesList({ refreshKey }) {
                         onClick={() => window.open(viewUrl, '_blank', 'noopener,noreferrer')}
                       >
                         <div className="upl-file-card-name" title={`View ${name}`}>
-                          <span className="upl-file-card-icon">📄</span>
+                          <FileIcon filename={name || url} />
                           <span className="upl-file-card-label">{name}</span>
                         </div>
                         <div className="upl-file-card-actions" onClick={(e) => e.stopPropagation()}>

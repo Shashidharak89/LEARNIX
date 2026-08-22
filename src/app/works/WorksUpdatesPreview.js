@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FiChevronRight, FiClock, FiDownload, FiEye, FiExternalLink } from "react-icons/fi";
 import { getYouTubeVideoId } from "../utils/youtube";
 import LinkPreview from "../components/LinkPreview";
+import FileIcon from "../components/FileIcon";
 import "./styles/WorksUpdatesPreview.css";
 
 const formatTime = (isoTime) => {
@@ -84,8 +85,9 @@ export default function WorksUpdatesPreview() {
                           className="wup-file-row"
                           onClick={() => window.open(fileViewUrl, '_blank', 'noopener,noreferrer')}
                         >
-                          <div className="wup-file-name" title={`Open ${fileName}`}>
-                            {fileName}
+                          <div className="wup-file-name" title={`Open ${fileName}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                            <FileIcon filename={fileName || fileUrl} />
+                            <span>{fileName}</span>
                           </div>
                           <div className="wup-file-actions" onClick={(e) => e.stopPropagation()}>
                             <a
