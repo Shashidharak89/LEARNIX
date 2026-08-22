@@ -14,9 +14,23 @@ export async function GET(req) {
     const pageSize = 10;
     const skip = (pageIndex - 1) * pageSize;
 
+    const currentUserId = (url.searchParams.get('currentUserId') || '').trim();
     const query = {};
     if (userId) {
       query.userId = userId;
+      if (currentUserId !== userId) {
+        query.$or = [
+          { visibility: "public" },
+          { visibility: "unlisted" },
+          { visibility: { $exists: false } }
+        ];
+      }
+    } else {
+      query.$or = [
+        { visibility: "public" },
+        { visibility: "unlisted" },
+        { visibility: { $exists: false } }
+      ];
     }
 
     const updates = await Update.find(query)
@@ -40,6 +54,7 @@ export async function GET(req) {
         links: u.links || [],
         files: u.files || [],
         userId: u.userId,
+        visibility: u.visibility || "public",
         createdAt: u.createdAt,
         updatedAt: u.updatedAt,
         usn: user?.usn || null,

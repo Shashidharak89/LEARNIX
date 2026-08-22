@@ -253,7 +253,12 @@ export default function UpdatesPage() {
                       <span>{u.name}</span>
                       <span className="upd-usn">• {u.usn}</span>
                     </div>
-                    <div className="upd-user-title">{u.title}</div>
+                    <div className="upd-user-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <span>{u.title}</span>
+                      <span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: '12px', background: u.visibility === 'private' ? '#fef2f2' : u.visibility === 'unlisted' ? '#fffbe6' : '#eff6ff', color: u.visibility === 'private' ? '#ef4444' : u.visibility === 'unlisted' ? '#d97706' : '#2563eb', fontWeight: 600, border: `1px solid ${u.visibility === 'private' ? '#fecaca' : u.visibility === 'unlisted' ? '#fef08a' : '#bfdbfe'}` }}>
+                        {u.visibility === 'private' ? '🔒 Private' : u.visibility === 'unlisted' ? '🔗 Unlisted' : '🌐 Public'}
+                      </span>
+                    </div>
                   </div>
                   <div className="upd-timestamp">
                     <FiClock className="upd-time-icon" />

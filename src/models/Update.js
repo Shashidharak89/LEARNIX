@@ -13,6 +13,11 @@ const UpdateSchema = new mongoose.Schema({
   links: [{ type: String }],
   files: [FileSchema],
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  visibility: {
+    type: String,
+    enum: ["public", "private", "unlisted"],
+    default: "public",
+  },
 }, {
   timestamps: true,
 });

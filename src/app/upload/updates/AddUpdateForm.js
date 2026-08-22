@@ -1,13 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FiEdit3, FiSend, FiX, FiUser, FiLink, FiAlertCircle, FiCheckCircle, FiImage, FiTrash2, FiUpload } from "react-icons/fi";
+import { FiEdit3, FiSend, FiX, FiUser, FiLink, FiAlertCircle, FiCheckCircle, FiImage, FiTrash2, FiUpload, FiEye } from "react-icons/fi";
 import './styles/AddUpdateForm.css';
 
 export default function AddUpdateForm({ onUpdateAdded }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [linksText, setLinksText] = useState("");
+  const [visibility, setVisibility] = useState("public");
   const [userId, setUserId] = useState(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploadingFiles, setIsUploadingFiles] = useState(false);
@@ -59,7 +60,7 @@ export default function AddUpdateForm({ onUpdateAdded }) {
       const res = await fetch('/api/updates', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: title.trim(), content: content.trim(), links, userId, files: uploadedFiles }),
+        body: JSON.stringify({ title: title.trim(), content: content.trim(), links, userId, files: uploadedFiles, visibility }),
       });
 
       const data = await res.json();
@@ -69,6 +70,7 @@ export default function AddUpdateForm({ onUpdateAdded }) {
         setContent('');
         setLinksText('');
         setUploadedFiles([]);
+        setVisibility('public');
         if (onUpdateAdded) onUpdateAdded();
       } else {
         showToast(data?.error || 'Failed to create update', 'error');
@@ -160,6 +162,24 @@ export default function AddUpdateForm({ onUpdateAdded }) {
                 className="auf-input"
                 required
               />
+            </div>
+
+            {/* Visibility Field */}
+            <div className="auf-field">
+              <label className="auf-label">
+                <FiEye className="auf-label-icon" />
+                <span>Visibility</span>
+              </label>
+              <select
+                value={visibility}
+                onChange={(e) => setVisibility(e.target.value)}
+                className="auf-input"
+                style={{ padding: "10px 14px", cursor: "pointer" }}
+              >
+                <option value="public">🌐 Public (Visible to everyone)</option>
+                <option value="private">🔒 Private (Only visible to you)</option>
+                <option value="unlisted">🔗 Unlisted (Anyone with link)</option>
+              </select>
             </div>
 
             {/* Files / Raw Upload Field */}

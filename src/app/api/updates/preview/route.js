@@ -7,7 +7,13 @@ export async function GET() {
   try {
     await connectDB();
 
-    const updates = await Update.find()
+    const updates = await Update.find({
+      $or: [
+        { visibility: "public" },
+        { visibility: "unlisted" },
+        { visibility: { $exists: false } }
+      ]
+    })
       .sort({ createdAt: -1 })
       .limit(3)
       .lean();
@@ -29,6 +35,7 @@ export async function GET() {
         content: update.content,
         links: update.links || [],
         files: update.files || [],
+        visibility: update.visibility || "public",
         createdAt: update.createdAt,
         userId: update.userId || null,
         name: user?.name || null,

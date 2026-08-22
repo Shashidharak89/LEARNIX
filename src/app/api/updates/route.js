@@ -13,12 +13,25 @@ export async function GET(req) {
 
     const url = new URL(req.url);
     const indexParam = url.searchParams.get('index') || '1';
+    const currentUserId = (url.searchParams.get('userId') || '').trim();
     const pageIndex = Math.max(1, parseInt(indexParam, 10) || 1);
     const rawQuery = (url.searchParams.get('q') || '').trim();
     const pageSize = 10;
     const skip = (pageIndex - 1) * pageSize;
 
-    const updateQuery = {};
+    const visibilityConditions = [
+      { visibility: "public" },
+      { visibility: "unlisted" },
+      { visibility: { $exists: false } }
+    ];
+    if (currentUserId) {
+      visibilityConditions.push({ visibility: "private", userId: currentUserId });
+    }
+
+    const updateQuery = {
+      $or: visibilityConditions
+    };
+
     if (rawQuery) {
       const regex = new RegExp(escapeRegex(rawQuery), 'i');
       const matchedUsers = await User.find(
@@ -27,7 +40,7 @@ export async function GET(req) {
       ).lean();
       const matchedUserIds = matchedUsers.map((u) => u._id);
 
-      updateQuery.$or = [
+      const searchConditions = [
         { title: regex },
         { content: regex },
         { links: { $elemMatch: { $regex: regex } } },
@@ -36,8 +49,14 @@ export async function GET(req) {
       ];
 
       if (matchedUserIds.length > 0) {
-        updateQuery.$or.push({ userId: { $in: matchedUserIds } });
+        searchConditions.push({ userId: { $in: matchedUserIds } });
       }
+
+      updateQuery.$and = [
+        { $or: visibilityConditions },
+        { $or: searchConditions }
+      ];
+      delete updateQuery.$or;
     }
 
     const updates = await Update.find(updateQuery)
@@ -64,6 +83,7 @@ export async function GET(req) {
         links: u.links || [],
         files: u.files || [],
         userId: u.userId,
+        visibility: u.visibility || "public",
         createdAt: u.createdAt,
         updatedAt: u.updatedAt,
         usn: user?.usn || null,
@@ -84,7 +104,7 @@ export async function POST(req) {
     await connectDB();
 
     const body = await req.json();
-    const { title, content, links, userId, files } = body || {};
+    const { title, content, links, userId, files, visibility } = body || {};
 
     if (!title || !content) {
       return NextResponse.json({ error: 'Title and content are required' }, { status: 400 });
@@ -98,12 +118,15 @@ export async function POST(req) {
       }
     }
 
+    const validVisibility = ["public", "private", "unlisted"].includes(visibility) ? visibility : "public";
+
     const updateDoc = new Update({
       title,
       content,
       links: Array.isArray(links) ? links : (links ? [links] : []),
       files: Array.isArray(files) ? files : (files ? [files] : []),
       userId: userId || null,
+      visibility: validVisibility,
     });
 
     await updateDoc.save();
@@ -115,6 +138,7 @@ export async function POST(req) {
       links: updateDoc.links || [],
       files: updateDoc.files || [],
       userId: updateDoc.userId,
+      visibility: updateDoc.visibility || "public",
       createdAt: updateDoc.createdAt,
       updatedAt: updateDoc.updatedAt,
       usn: user?.usn || null,

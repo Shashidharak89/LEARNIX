@@ -185,7 +185,12 @@ export default function AdminUpdates() {
                                 <div className="au-update-header">
                                     <div className="au-update-meta">
                                         <span className="au-update-id">#{item._id?.slice(-6) || idx + 1}</span>
-                                        <h3 className="au-update-title">{item.title}</h3>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                                            <h3 className="au-update-title">{item.title}</h3>
+                                            <span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: '12px', background: item.visibility === 'private' ? '#fef2f2' : item.visibility === 'unlisted' ? '#fffbe6' : '#eff6ff', color: item.visibility === 'private' ? '#ef4444' : item.visibility === 'unlisted' ? '#d97706' : '#2563eb', fontWeight: 600, border: `1px solid ${item.visibility === 'private' ? '#fecaca' : item.visibility === 'unlisted' ? '#fef08a' : '#bfdbfe'}` }}>
+                                                {item.visibility === 'private' ? '🔒 Private' : item.visibility === 'unlisted' ? '🔗 Unlisted' : '🌐 Public'}
+                                            </span>
+                                        </div>
 
                                         {item.name && (
                                             <div className="au-update-user">

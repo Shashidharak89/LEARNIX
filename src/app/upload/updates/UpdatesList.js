@@ -25,6 +25,7 @@ export default function UpdatesList({ refreshKey }) {
   // Modal states
   const [deleteModal, setDeleteModal] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editVisibility, setEditVisibility] = useState("public");
 
   const fetchPage = async (p = 1, append = false, userId = currentUserId) => {
     if (!userId) {
@@ -128,6 +129,7 @@ export default function UpdatesList({ refreshKey }) {
     setEditContent(u.content || "");
     setEditLinksText((u.links || []).join('\n'));
     setEditFiles(Array.isArray(u.files) ? [...u.files] : []);
+    setEditVisibility(u.visibility || "public");
     setEditModalOpen(true);
   };
 
@@ -151,7 +153,8 @@ export default function UpdatesList({ refreshKey }) {
       title: editTitle,
       content: editContent,
       links: parseLinks(editLinksText),
-      files: editFiles
+      files: editFiles,
+      visibility: editVisibility
     };
 
     try {
@@ -168,7 +171,8 @@ export default function UpdatesList({ refreshKey }) {
         title: data.update.title, 
         content: data.update.content, 
         links: data.update.links || [],
-        files: data.update.files || []
+        files: data.update.files || [],
+        visibility: data.update.visibility || "public"
       } : it));
       showToast('Update saved successfully', 'success');
       closeEditWindow();
@@ -337,6 +341,14 @@ export default function UpdatesList({ refreshKey }) {
                 <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="upl-edit-title-input" placeholder="Update title..." />
               </div>
               <div className="upl-edit-field">
+                <label className="upl-edit-label">Visibility</label>
+                <select value={editVisibility} onChange={(e) => setEditVisibility(e.target.value)} className="upl-edit-title-input" style={{ cursor: "pointer" }}>
+                  <option value="public">🌐 Public (Visible to everyone)</option>
+                  <option value="private">🔒 Private (Only visible to you)</option>
+                  <option value="unlisted">🔗 Unlisted (Anyone with link)</option>
+                </select>
+              </div>
+              <div className="upl-edit-field">
                 <label className="upl-edit-label">Content</label>
                 <textarea value={editContent} onChange={(e) => setEditContent(e.target.value)} rows={5} className="upl-edit-textarea" placeholder="Update content..." />
               </div>
@@ -417,7 +429,12 @@ export default function UpdatesList({ refreshKey }) {
                 </div>
                 <div className="upl-user-info">
                   <div className="upl-title-section">
-                    <strong className="upl-user-title">{u.title}</strong>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <strong className="upl-user-title">{u.title}</strong>
+                      <span style={{ fontSize: '0.74rem', padding: '2px 8px', borderRadius: '12px', background: u.visibility === 'private' ? '#fef2f2' : u.visibility === 'unlisted' ? '#fffbe6' : '#eff6ff', color: u.visibility === 'private' ? '#ef4444' : u.visibility === 'unlisted' ? '#d97706' : '#2563eb', fontWeight: 600, border: `1px solid ${u.visibility === 'private' ? '#fecaca' : u.visibility === 'unlisted' ? '#fef08a' : '#bfdbfe'}` }}>
+                        {u.visibility === 'private' ? '🔒 Private' : u.visibility === 'unlisted' ? '🔗 Unlisted' : '🌐 Public'}
+                      </span>
+                    </div>
                     <div className="upl-meta-row">
                       {currentUserId && u.userId && String(currentUserId) === String(u.userId) && (
                         <div className="upl-actions">

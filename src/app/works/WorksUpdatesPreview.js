@@ -61,7 +61,12 @@ export default function WorksUpdatesPreview() {
             return (
               <article key={String(update._id)} className="wup-item">
                 <div className="wup-item-top">
-                  <p className="wup-item-title">{update.title || "Update"}</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                    <p className="wup-item-title">{update.title || "Update"}</p>
+                    <span style={{ fontSize: '0.7rem', padding: '1px 6px', borderRadius: '10px', background: update.visibility === 'private' ? '#fef2f2' : update.visibility === 'unlisted' ? '#fffbe6' : '#eff6ff', color: update.visibility === 'private' ? '#ef4444' : update.visibility === 'unlisted' ? '#d97706' : '#2563eb', fontWeight: 600, border: `1px solid ${update.visibility === 'private' ? '#fecaca' : update.visibility === 'unlisted' ? '#fef08a' : '#bfdbfe'}` }}>
+                      {update.visibility === 'private' ? '🔒 Private' : update.visibility === 'unlisted' ? '🔗 Unlisted' : '🌐 Public'}
+                    </span>
+                  </div>
                   <span className="wup-time">
                     <FiClock />
                     {formatTime(update.createdAt)}
