@@ -30,6 +30,7 @@ import ChangeName from './ChangeName';
 import ChangePassword from './ChangePassword';
 import ProfileImageEditor from './ProfileImageEditor';
 import UserProfileSkeleton from './UserProfileSkeleton';
+import machineLearningSvg from './icons/Mapping for machine learning.svg';
 import './styles/UserProfile.css';
 import { authFetch, signOutFromBrowser } from '@/lib/clientAuth';
 
@@ -611,25 +612,12 @@ export default function UserProfile({ googleClientId = "" }) {
 
               {/* Right Graphic */}
               <div className="up-banner-graphic-right">
-                <svg width="150" height="95" viewBox="0 0 180 110" fill="none">
-                  <ellipse cx="90" cy="100" rx="80" ry="6" fill="#cbd5e1" opacity="0.4"/>
-                  <circle cx="140" cy="50" r="40" fill="#e0eeff" opacity="0.7"/>
-                  <rect x="25" y="78" width="110" height="16" rx="4" fill="#3b82f6"/>
-                  <rect x="30" y="82" width="105" height="8" rx="2" fill="#ffffff"/>
-                  <rect x="25" y="78" width="12" height="16" rx="2" fill="#1d4ed8"/>
-                  <rect x="20" y="60" width="115" height="16" rx="4" fill="#fbbf24"/>
-                  <rect x="25" y="64" width="110" height="8" rx="2" fill="#ffffff"/>
-                  <rect x="20" y="60" width="12" height="16" rx="2" fill="#d97706"/>
-                  <rect x="30" y="42" width="100" height="16" rx="4" fill="#0ea5e9"/>
-                  <rect x="35" y="46" width="95" height="8" rx="2" fill="#ffffff"/>
-                  <rect x="30" y="42" width="12" height="16" rx="2" fill="#0284c7"/>
-                  <rect x="35" y="24" width="90" height="16" rx="4" fill="#60a5fa"/>
-                  <rect x="40" y="28" width="85" height="8" rx="2" fill="#ffffff"/>
-                  <rect x="35" y="24" width="12" height="16" rx="2" fill="#2563eb"/>
-                  <path d="M148 74L152 94H168L172 74H148Z" fill="#ffffff" stroke="#cbd5e1" strokeWidth="2"/>
-                  <path d="M152 74C152 64 158 56 160 56C162 56 168 64 168 74H152Z" fill="#4ade80"/>
-                  <path d="M158 74C158 66 164 60 166 60C168 60 174 66 174 74H158Z" fill="#22c55e" opacity="0.8"/>
-                </svg>
+                <img
+                  src={machineLearningSvg.src || machineLearningSvg}
+                  alt="Machine Learning Mapping"
+                  className="up-banner-ml-img"
+                  style={{ width: "160px", height: "105px", objectFit: "contain" }}
+                />
               </div>
             </div>
 
