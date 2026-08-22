@@ -530,6 +530,112 @@
   gap: 8px;
 }
 
+/* ========== RETRIEVED TEXT TOP ACTION ICON BUTTON COLORS ========== */
+.tst-btn-icon.tst-action-refresh {
+  background: rgba(14, 165, 233, 0.12);
+  color: #0284c7;
+  border: 1px solid rgba(14, 165, 233, 0.25);
+  transition: all 0.2s ease;
+}
+
+.tst-btn-icon.tst-action-refresh:hover:not(:disabled) {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+  transform: translateY(-1px);
+}
+
+.tst-btn-icon.tst-action-copy {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  transition: all 0.2s ease;
+}
+
+.tst-btn-icon.tst-action-copy:hover:not(:disabled) {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+  transform: translateY(-1px);
+}
+
+.tst-btn-icon.tst-action-fullscreen {
+  background: rgba(139, 92, 246, 0.12);
+  color: #7c3aed;
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  transition: all 0.2s ease;
+}
+
+.tst-btn-icon.tst-action-fullscreen:hover:not(:disabled) {
+  background: #7c3aed;
+  color: #ffffff;
+  border-color: #7c3aed;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+  transform: translateY(-1px);
+}
+
+.tst-btn-icon.tst-action-minimize {
+  background: rgba(244, 63, 94, 0.12);
+  color: #e11d48;
+  border: 1px solid rgba(244, 63, 94, 0.25);
+  transition: all 0.2s ease;
+}
+
+.tst-btn-icon.tst-action-minimize:hover:not(:disabled) {
+  background: #e11d48;
+  color: #ffffff;
+  border-color: #e11d48;
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.35);
+  transform: translateY(-1px);
+}
+
+.tst-btn-icon.tst-btn-edit {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  transition: all 0.2s ease;
+}
+
+.tst-btn-icon.tst-btn-edit:hover:not(:disabled) {
+  background: #d97706;
+  color: #ffffff;
+  border-color: #d97706;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35);
+  transform: translateY(-1px);
+}
+
+.tst-btn-icon.tst-btn-save {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  transition: all 0.2s ease;
+}
+
+.tst-btn-icon.tst-btn-save:hover:not(:disabled) {
+  background: #059669;
+  color: #ffffff;
+  border-color: #059669;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
+  transform: translateY(-1px);
+}
+
+.tst-btn-icon.tst-btn-cancel {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  transition: all 0.2s ease;
+}
+
+.tst-btn-icon.tst-btn-cancel:hover:not(:disabled) {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+  transform: translateY(-1px);
+}
+
 /* ========== EDIT MODE TEXTAREA ========== */
 .tst-textarea-editing {
   background: #fff;

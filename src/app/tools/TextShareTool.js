@@ -593,7 +593,7 @@ export default function TextShareTool() {
             </div>
             <div className="tst-fullscreen-header-right">
               <button
-                className="tst-btn tst-btn-icon"
+                className="tst-btn tst-btn-icon tst-action-refresh"
                 onClick={handleRefresh}
                 disabled={refreshing}
                 title="Refresh (Ctrl+R)"
@@ -601,7 +601,7 @@ export default function TextShareTool() {
                 <FiRefreshCw className={refreshing ? 'tst-spin' : ''} />
               </button>
               <button
-                className="tst-btn tst-btn-icon"
+                className="tst-btn tst-btn-icon tst-action-copy"
                 onClick={() => handleCopy(isEditing ? editedText : fetchedText)}
                 title="Copy All (Ctrl+Shift+C)"
               >
@@ -642,7 +642,7 @@ export default function TextShareTool() {
               )}
               
               <button
-                className="tst-btn tst-btn-icon"
+                className="tst-btn tst-btn-icon tst-action-minimize"
                 onClick={() => setIsFullScreen(false)}
                 title="Exit Fullscreen (Esc or Win+Down)"
               >
@@ -807,7 +807,7 @@ export default function TextShareTool() {
                     </div>
                     <div className="tst-fetched-actions">
                       <button
-                        className="tst-btn tst-btn-icon"
+                        className="tst-btn tst-btn-icon tst-action-refresh"
                         onClick={handleRefresh}
                         disabled={refreshing}
                         title="Refresh to get latest text"
@@ -815,14 +815,14 @@ export default function TextShareTool() {
                         <FiRefreshCw className={refreshing ? 'tst-spin' : ''} />
                       </button>
                       <button
-                        className="tst-btn tst-btn-icon"
+                        className="tst-btn tst-btn-icon tst-action-copy"
                         onClick={() => handleCopy(isEditing ? editedText : fetchedText)}
                         title="Copy text"
                       >
                         <FiCopy />
                       </button>
                       <button
-                        className="tst-btn tst-btn-icon"
+                        className="tst-btn tst-btn-icon tst-action-fullscreen"
                         onClick={() => setIsFullScreen(true)}
                         title="Fullscreen"
                       >
