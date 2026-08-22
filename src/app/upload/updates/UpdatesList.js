@@ -5,6 +5,7 @@ import { FiTrash2, FiEdit2, FiSave, FiX, FiUser, FiClock, FiExternalLink, FiChev
 import { getYouTubeVideoId } from '../../utils/youtube';
 import LinkPreview from '../../components/LinkPreview';
 import FileIcon from '../../components/FileIcon';
+import { authFetch } from '@/lib/clientAuth';
 import './styles/UpdatesList.css';
 
 export default function UpdatesList({ refreshKey }) {
@@ -36,11 +37,12 @@ export default function UpdatesList({ refreshKey }) {
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/updates/latest?index=${p}&userId=${encodeURIComponent(userId)}`);
+      const res = await authFetch(`/api/user/updates?index=${p}&limit=10&userId=${encodeURIComponent(userId)}`);
       if (!res.ok) throw new Error('Failed to load updates');
       const data = await res.json();
       const items = data?.updates || [];
-      setHasMore(items.length === 10);
+      const paginationHasMore = data?.pagination?.hasMore !== undefined ? data.pagination.hasMore : items.length === 10;
+      setHasMore(paginationHasMore);
       setUpdates(prev => (append ? [...prev, ...items] : items));
     } catch (err) {
       console.error(err);
