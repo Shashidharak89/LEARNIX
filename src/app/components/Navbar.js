@@ -647,17 +647,6 @@ export const Navbar = () => {
             <span className="learnix-nav-text">About</span>
           </Link>
 
-          <Link
-            href="/support"
-            className="learnix-nav-item"
-            onClick={closeSidebar}
-            tabIndex={isOpen ? 0 : -1}
-          >
-            <span className="learnix-nav-icon">
-              <FiMessageSquare size={18} />
-            </span>
-            <span className="learnix-nav-text">Support</span>
-          </Link>
 
           <Link
             href="/profile"
