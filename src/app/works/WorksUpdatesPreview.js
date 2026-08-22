@@ -79,17 +79,15 @@ export default function WorksUpdatesPreview() {
                       const fileViewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(fileUrl)}`;
 
                       return (
-                        <div key={`${String(update._id)}-file-${fileIndex}`} className="wup-file-row">
-                          <a
-                            href={fileViewUrl}
-                            target="_blank"
-                            rel="noreferrer noopener"
-                            className="wup-file-name"
-                            title={`Open ${fileName}`}
-                          >
+                        <div
+                          key={`${String(update._id)}-file-${fileIndex}`}
+                          className="wup-file-row"
+                          onClick={() => window.open(fileViewUrl, '_blank', 'noopener,noreferrer')}
+                        >
+                          <div className="wup-file-name" title={`Open ${fileName}`}>
                             {fileName}
-                          </a>
-                          <div className="wup-file-actions">
+                          </div>
+                          <div className="wup-file-actions" onClick={(e) => e.stopPropagation()}>
                             <a
                               href={fileViewUrl}
                               target="_blank"

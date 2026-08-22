@@ -250,17 +250,20 @@ export default function AdminUpdates() {
                                     <div className="au-update-files">
                                         <span className="au-update-files-label">Files</span>
                                         <div className="au-update-files-list">
-                                            {item.files.map((file, fileIdx) => (
-                                                <a
-                                                    key={fileIdx}
-                                                    href={file.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="au-update-file-item"
-                                                >
-                                                    📄 {file.name}
-                                                </a>
-                                            ))}
+                                            {item.files.map((file, fileIdx) => {
+                                                const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(file.url)}`;
+                                                return (
+                                                    <a
+                                                        key={fileIdx}
+                                                        href={viewUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="au-update-file-item"
+                                                    >
+                                                        📄 {file.name}
+                                                    </a>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 )}

@@ -1028,6 +1028,7 @@
   border: 1px solid var(--upl-border);
   border-radius: 8px;
   transition: all 220ms var(--upl-ease);
+  cursor: pointer;
 }
 
 .upl-file-card:hover {

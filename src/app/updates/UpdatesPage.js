@@ -327,12 +327,16 @@ export default function UpdatesPage() {
                       }
 
                       return (
-                        <div key={i} className="upd-file-card">
-                          <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-card-name" title={`View ${name}`}>
+                        <div
+                          key={i}
+                          className="upd-file-card"
+                          onClick={() => window.open(viewUrl, '_blank', 'noopener,noreferrer')}
+                        >
+                          <div className="upd-file-card-name" title={`View ${name}`}>
                             <span className="upd-file-card-icon">📄</span>
                             <span className="upd-file-card-label">{name}</span>
-                          </a>
-                          <div className="upd-file-card-actions">
+                          </div>
+                          <div className="upd-file-card-actions" onClick={(e) => e.stopPropagation()}>
                             <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-view" title="View">
                               <FiEye />
                             </a>

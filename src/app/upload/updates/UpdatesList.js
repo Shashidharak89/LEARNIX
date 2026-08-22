@@ -489,12 +489,16 @@ export default function UpdatesList({ refreshKey }) {
                     const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
 
                     return (
-                      <div key={idx} className="upl-file-card">
-                        <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upl-file-card-name" title={`View ${name}`}>
+                      <div
+                        key={idx}
+                        className="upl-file-card"
+                        onClick={() => window.open(viewUrl, '_blank', 'noopener,noreferrer')}
+                      >
+                        <div className="upl-file-card-name" title={`View ${name}`}>
                           <span className="upl-file-card-icon">📄</span>
                           <span className="upl-file-card-label">{name}</span>
-                        </a>
-                        <div className="upl-file-card-actions">
+                        </div>
+                        <div className="upl-file-card-actions" onClick={(e) => e.stopPropagation()}>
                           <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upl-file-action-btn upl-file-action-view" title="View">
                             <FiEye />
                           </a>

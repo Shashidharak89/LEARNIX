@@ -966,6 +966,7 @@
   border: 1px solid var(--upd-border);
   border-radius: 8px;
   transition: all 220ms var(--upd-ease);
+  cursor: pointer;
 }
 
 .upd-file-card:hover {
