@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { FiChevronRight, FiClock, FiDownload, FiEye, FiExternalLink } from "react-icons/fi";
 import { getYouTubeVideoId } from "../utils/youtube";
+import LinkPreview from "../components/LinkPreview";
 import "./styles/WorksUpdatesPreview.css";
 
 const formatTime = (isoTime) => {
@@ -144,12 +145,7 @@ export default function WorksUpdatesPreview() {
                           </Link>
                         );
                       }
-                      const href = /^https?:\/\//i.test(value) ? value : `https://${value}`;
-                      return (
-                        <a key={index} href={href} target="_blank" rel="noreferrer noopener" className="wup-link-item">
-                          Open link <FiExternalLink />
-                        </a>
-                      );
+                      return <LinkPreview key={index} url={value} />;
                     })}
                   </div>
                 ) : null}

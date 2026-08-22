@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { getYouTubeVideoId } from "../../utils/youtube";
+import LinkPreview from "../../components/LinkPreview";
 import {
     FiArrowLeft,
     FiChevronDown,
@@ -239,17 +240,7 @@ export default function AdminUpdates() {
                                                         </div>
                                                     );
                                                 }
-                                                return (
-                                                    <a
-                                                        key={linkIdx}
-                                                        href={raw}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="au-update-link-item"
-                                                    >
-                                                        {raw}
-                                                    </a>
-                                                );
+                                                return <LinkPreview key={linkIdx} url={raw} />;
                                             })}
                                         </div>
                                     </div>

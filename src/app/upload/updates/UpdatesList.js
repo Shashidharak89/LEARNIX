@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import Link from 'next/link';
 import { FiTrash2, FiEdit2, FiSave, FiX, FiUser, FiClock, FiExternalLink, FiChevronRight, FiAlertCircle, FiAlertTriangle, FiUpload, FiDownload, FiEye } from "react-icons/fi";
 import { getYouTubeVideoId } from '../../utils/youtube';
+import LinkPreview from '../../components/LinkPreview';
 import './styles/UpdatesList.css';
 
 export default function UpdatesList({ refreshKey }) {
@@ -474,13 +475,7 @@ export default function UpdatesList({ refreshKey }) {
                         </Link>
                       );
                     }
-                    const hasScheme = /^https?:\/\//i.test(raw) || /^mailto:/i.test(raw);
-                    const href = hasScheme ? raw : `https://${raw}`;
-                    return (
-                      <a key={idx} href={href} target="_blank" rel="noreferrer noopener" className="upl-link upl-link-external">
-                        <span>{raw}</span><FiExternalLink className="upl-link-icon" />
-                      </a>
-                    );
+                    return <LinkPreview key={idx} url={raw} />;
                   })}
                 </div>
               )}

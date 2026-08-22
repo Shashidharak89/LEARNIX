@@ -6,6 +6,7 @@ import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload, FiS
 import { Share2 } from 'lucide-react';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
 import { getYouTubeVideoId } from '../utils/youtube';
+import LinkPreview from '../components/LinkPreview';
 import './styles/Updates.css';
 
 export default function UpdatesPage() {
@@ -305,14 +306,7 @@ export default function UpdatesPage() {
                           </Link>
                         );
                       }
-                      const hasScheme = /^https?:\/\//i.test(raw) || /^mailto:/i.test(raw);
-                      const href = hasScheme ? raw : `https://${raw}`;
-                      return (
-                        <a key={i} href={href} target="_blank" rel="noreferrer noopener" className="upd-link upd-link-external">
-                          <span>{raw}</span>
-                          <FiExternalLink className="upd-link-icon" />
-                        </a>
-                      );
+                      return <LinkPreview key={i} url={raw} />;
                     })}
                   </div>
                 )}
