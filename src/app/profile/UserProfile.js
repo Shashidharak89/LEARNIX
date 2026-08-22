@@ -43,6 +43,7 @@ export default function UserProfile({ googleClientId = "" }) {
   const [quote, setQuote] = useState("");
   const [isLoadingQuote, setIsLoadingQuote] = useState(false);
   const [showResources, setShowResources] = useState(false);
+  const [loadingUploads, setLoadingUploads] = useState(false);
   const [visibleSubjectsCount, setVisibleSubjectsCount] = useState(3);
   const [googleScriptReady, setGoogleScriptReady] = useState(false);
   const [isBindingGoogle, setIsBindingGoogle] = useState(false);
@@ -263,6 +264,40 @@ export default function UserProfile({ googleClientId = "" }) {
     }
   };
 
+  const fetchUserUploads = async () => {
+    if (user?.hasUploadsLoaded || loadingUploads) return;
+    setLoadingUploads(true);
+    try {
+      const usn = localStorage.getItem("usn");
+      if (!usn) return;
+
+      const res = await authFetch(`/api/user?usn=${usn}&includeUploads=true`);
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok && data.user) {
+        setUser((prev) => ({
+          ...prev,
+          subjects: data.user.subjects || [],
+          subjectsCount: data.user.subjectsCount ?? (data.user.subjects?.length || 0),
+          hasUploadsLoaded: true
+        }));
+        setFilteredSubjects(data.user.subjects || []);
+
+        const initialVisible = {};
+        if (data.user.subjects) {
+          data.user.subjects.forEach((subject, index) => {
+            initialVisible[index] = Math.min(TOPICS_PER_LOAD, subject.topics?.length || 0);
+          });
+        }
+        setVisibleTopics(initialVisible);
+      }
+    } catch (err) {
+      console.error("Error fetching user uploads:", err);
+    } finally {
+      setLoadingUploads(false);
+    }
+  };
+
   const loadMoreTopics = useCallback((subjectIndex) => {
     if (isLoadingMore) return;
     
@@ -286,7 +321,13 @@ export default function UserProfile({ googleClientId = "" }) {
   }, [filteredSubjects, visibleTopics, isLoadingMore]);
 
   const handleSearch = (query) => {
-    if (!user || !user.subjects) return;
+    if (!user) return;
+    if (!user.hasUploadsLoaded && query.trim()) {
+      setShowResources(true);
+      fetchUserUploads();
+      return;
+    }
+    if (!user.subjects) return;
     
     if (!query.trim()) {
       setFilteredSubjects(user.subjects);
@@ -515,12 +556,17 @@ export default function UserProfile({ googleClientId = "" }) {
                 <div className="up-show-resources">
                   <button 
                     className="up-show-resources-btn"
-                    onClick={() => setShowResources(true)}
+                    onClick={() => {
+                      setShowResources(true);
+                      if (!user?.hasUploadsLoaded) {
+                        fetchUserUploads();
+                      }
+                    }}
                   >
                     <FiBook className="up-show-resources-icon" />
                     View Uploaded Resources
                     <span className="up-resources-count">
-                      {user.subjects?.length || 0} subjects • {getTotalTopics()} topics
+                      {user.subjectsCount ?? user.subjects?.length ?? 0} subjects
                     </span>
                   </button>
                 </div>
@@ -540,7 +586,12 @@ export default function UserProfile({ googleClientId = "" }) {
                     </button>
                   </div>
 
-                  {!filteredSubjects || filteredSubjects.length === 0 ? (
+                  {loadingUploads ? (
+                    <div className="up-uploads-loading" style={{ textAlign: "center", padding: "32px 16px" }}>
+                      <div className="up-mini-spinner" style={{ margin: "0 auto 12px auto" }}></div>
+                      <p style={{ color: "#6b7280", fontSize: "14px", fontWeight: 500 }}>Loading your uploaded subjects & topics...</p>
+                    </div>
+                  ) : !filteredSubjects || filteredSubjects.length === 0 ? (
                     <div className="up-empty">
                       {searchQuery ? (
                         <>

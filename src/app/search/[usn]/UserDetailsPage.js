@@ -115,7 +115,7 @@ export default function UserDetailsPage({ usn }) {
   const fetchUserDetails = async (usnToSearch) => {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/user?usn=${usnToSearch}`);
+      const res = await axios.get(`/api/user?usn=${usnToSearch}&includeUploads=true`);
       const rawUser = res.data.user;
       setUser(rawUser);
       setMessage("");
