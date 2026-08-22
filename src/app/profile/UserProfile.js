@@ -22,7 +22,8 @@ import {
   FiCamera,
   FiList,
   FiZap,
-  FiTrendingUp
+  FiTrendingUp,
+  FiX
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import ChangeName from './ChangeName';
@@ -405,17 +406,32 @@ export default function UserProfile({ googleClientId = "" }) {
                 <FiSettings />
               </button>
 
-              {/* Settings Dropdown/Panel */}
+              {/* Settings Panel */}
               {showSettings && (
-                <div className="up-settings-panel">
-                  <h2 className="up-settings-title">Account Settings</h2>
-                  <ProfileImageEditor 
-                    profileImage={profileImage} 
-                    setProfileImage={setProfileImage}
-                    usn={localStorage.getItem("usn")}
-                  />
-                  <ChangeName usn={localStorage.getItem("usn")} />
-                  <ChangePassword usn={localStorage.getItem("usn")} />
+                <div className="up-settings-container">
+                  <div className="up-settings-header">
+                    <div className="up-settings-title-group">
+                      <FiSettings className="up-settings-header-icon" />
+                      <h2>Account Settings</h2>
+                    </div>
+                    <button 
+                      onClick={() => setShowSettings(false)} 
+                      className="up-settings-close-btn"
+                      title="Close settings"
+                    >
+                      <FiX />
+                    </button>
+                  </div>
+
+                  <div className="up-settings-grid">
+                    <ProfileImageEditor 
+                      profileImage={profileImage} 
+                      setProfileImage={setProfileImage}
+                      usn={localStorage.getItem("usn")}
+                    />
+                    <ChangeName usn={localStorage.getItem("usn")} />
+                    <ChangePassword usn={localStorage.getItem("usn")} />
+                  </div>
                 </div>
               )}
 
