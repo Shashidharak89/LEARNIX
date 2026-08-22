@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { getYouTubeVideoId } from "../../utils/youtube";
 import {
     FiArrowLeft,
     FiChevronDown,
@@ -219,17 +220,37 @@ export default function AdminUpdates() {
                                     <div className="au-update-links">
                                         <span className="au-update-links-label">Links</span>
                                         <div className="au-update-links-list">
-                                            {item.links.map((link, linkIdx) => (
-                                                <a
-                                                    key={linkIdx}
-                                                    href={link}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="au-update-link-item"
-                                                >
-                                                    {link}
-                                                </a>
-                                            ))}
+                                            {item.links.map((link, linkIdx) => {
+                                                const raw = String(link || '').trim();
+                                                if (!raw) return null;
+                                                const ytId = getYouTubeVideoId(raw);
+                                                if (ytId) {
+                                                    return (
+                                                        <div key={linkIdx} className="au-youtube-embed-wrapper">
+                                                            <iframe
+                                                                className="au-youtube-iframe"
+                                                                src={`https://www.youtube.com/embed/${ytId}`}
+                                                                title="YouTube video player"
+                                                                frameBorder="0"
+                                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                                referrerPolicy="strict-origin-when-cross-origin"
+                                                                allowFullScreen
+                                                            />
+                                                        </div>
+                                                    );
+                                                }
+                                                return (
+                                                    <a
+                                                        key={linkIdx}
+                                                        href={raw}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="au-update-link-item"
+                                                    >
+                                                        {raw}
+                                                    </a>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 )}

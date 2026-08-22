@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { FiChevronRight, FiClock, FiDownload, FiEye, FiExternalLink } from "react-icons/fi";
+import { getYouTubeVideoId } from "../utils/youtube";
 import "./styles/WorksUpdatesPreview.css";
 
 const formatTime = (isoTime) => {
@@ -116,9 +117,25 @@ export default function WorksUpdatesPreview() {
                   </div>
                 ) : update.links?.length ? (
                   <div className="wup-link-row">
-                    {update.links.slice(0, 1).map((rawLink, index) => {
+                    {update.links.map((rawLink, index) => {
                       const value = String(rawLink || "").trim();
                       if (!value) return null;
+                      const ytId = getYouTubeVideoId(value);
+                      if (ytId) {
+                        return (
+                          <div key={index} className="wup-youtube-embed-wrapper">
+                            <iframe
+                              className="wup-youtube-iframe"
+                              src={`https://www.youtube.com/embed/${ytId}`}
+                              title="YouTube video player"
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                              referrerPolicy="strict-origin-when-cross-origin"
+                              allowFullScreen
+                            />
+                          </div>
+                        );
+                      }
                       const internal = value.startsWith("/");
                       if (internal) {
                         return (

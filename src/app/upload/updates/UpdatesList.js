@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import Link from 'next/link';
 import { FiTrash2, FiEdit2, FiSave, FiX, FiUser, FiClock, FiExternalLink, FiChevronRight, FiAlertCircle, FiAlertTriangle, FiUpload, FiDownload, FiEye } from "react-icons/fi";
+import { getYouTubeVideoId } from '../../utils/youtube';
 import './styles/UpdatesList.css';
 
 export default function UpdatesList({ refreshKey }) {
@@ -447,6 +448,24 @@ export default function UpdatesList({ refreshKey }) {
                   {u.links.map((ln, idx) => {
                     const raw = String(ln || '').trim();
                     if (!raw) return null;
+
+                    const ytId = getYouTubeVideoId(raw);
+                    if (ytId) {
+                      return (
+                        <div key={idx} className="upl-youtube-embed-wrapper">
+                          <iframe
+                            className="upl-youtube-iframe"
+                            src={`https://www.youtube.com/embed/${ytId}`}
+                            title="YouTube video player"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            allowFullScreen
+                          />
+                        </div>
+                      );
+                    }
+
                     const internal = raw.startsWith('/');
                     if (internal) {
                       return (

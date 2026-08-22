@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload, FiSearch, FiPlus, FiSettings } from 'react-icons/fi';
 import { Share2 } from 'lucide-react';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
+import { getYouTubeVideoId } from '../utils/youtube';
 import './styles/Updates.css';
 
 export default function UpdatesPage() {
@@ -277,6 +278,24 @@ export default function UpdatesPage() {
                     {u.links.map((l, i) => {
                       const raw = String(l || '').trim();
                       if (!raw) return null;
+
+                      const ytId = getYouTubeVideoId(raw);
+                      if (ytId) {
+                        return (
+                          <div key={i} className="upd-youtube-embed-wrapper">
+                            <iframe
+                              className="upd-youtube-iframe"
+                              src={`https://www.youtube.com/embed/${ytId}`}
+                              title="YouTube video player"
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                              referrerPolicy="strict-origin-when-cross-origin"
+                              allowFullScreen
+                            />
+                          </div>
+                        );
+                      }
+
                       const isInternal = raw.startsWith('/');
                       if (isInternal) {
                         return (
