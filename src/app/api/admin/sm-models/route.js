@@ -9,6 +9,7 @@ import SMSemester from "@/models/SMSemester";
 import SMSubject from "@/models/SMSubject";
 import SMFiles from "@/models/SMFiles";
 import SMBatch from "@/models/SMBatch";
+import { formatGithubRawUrl } from "@/lib/githubUrlHelper";
 
 const models = {
     SMUniversity,
@@ -90,13 +91,7 @@ export async function POST(req) {
         const Model = models[modelName];
 
         const cleanUrl = (url) => {
-            if (!url) return url;
-            let cleaned = url;
-            if (cleaned.includes("github.com") && !cleaned.includes("raw.github.com")) {
-                cleaned = cleaned.replace(/github\.com/g, "raw.github.com");
-            }
-            return cleaned.replace(/\/blob\//g, "/")
-                          .replace(/\/bolb\//g, "/");
+            return formatGithubRawUrl(url);
         };
 
         if (modelName === "SMFiles") {

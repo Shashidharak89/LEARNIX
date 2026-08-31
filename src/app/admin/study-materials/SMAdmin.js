@@ -17,6 +17,7 @@ import {
     FiRefreshCw,
     FiClock
 } from "react-icons/fi";
+import { formatGithubRawUrl } from "@/lib/githubUrlHelper";
 import "./SMAdmin.css";
 
 const modelsConfig = {
@@ -194,13 +195,7 @@ export default function SMAdmin() {
                     return;
                 }
                 const cleanUrl = (url) => {
-                    if (!url) return url;
-                    let cleaned = url;
-                    if (cleaned.includes("github.com") && !cleaned.includes("raw.github.com")) {
-                        cleaned = cleaned.replace(/github\.com/g, "raw.github.com");
-                    }
-                    return cleaned.replace(/\/blob\//g, "/")
-                                  .replace(/\/bolb\//g, "/");
+                    return formatGithubRawUrl(url);
                 };
                 submitData = activeUrls.map(url => ({
                     name: formData.name || "",
