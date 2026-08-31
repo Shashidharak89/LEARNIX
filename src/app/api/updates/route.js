@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Update from "@/models/Update";
 import User from "@/models/User";
+import mongoose from "mongoose";
 
 function escapeRegex(value = "") {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -59,11 +60,30 @@ export async function GET(req) {
       delete updateQuery.$or;
     }
 
-    const updates = await Update.find(updateQuery)
+    const specificId = (url.searchParams.get('id') || url.searchParams.get('updateId') || url.searchParams.get('update') || '').trim();
+
+    let updates = await Update.find(updateQuery)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(pageSize)
       .lean();
+
+    if (pageIndex === 1 && specificId && mongoose.Types.ObjectId.isValid(specificId)) {
+      const alreadyIncluded = updates.some(u => u._id.toString() === specificId);
+      if (!alreadyIncluded) {
+        const specificDoc = await Update.findById(specificId).lean();
+        if (specificDoc) {
+          const isAllowed =
+            specificDoc.visibility === 'public' ||
+            specificDoc.visibility === 'unlisted' ||
+            !specificDoc.visibility ||
+            (currentUserId && specificDoc.userId?.toString() === currentUserId);
+          if (isAllowed) {
+            updates = [specificDoc, ...updates];
+          }
+        }
+      }
+    }
 
     // Collect userIds and fetch user info
     const userIds = updates.map(u => u.userId).filter(Boolean);

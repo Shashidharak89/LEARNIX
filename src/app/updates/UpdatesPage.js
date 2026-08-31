@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
 import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload, FiSearch, FiPlus, FiSettings } from 'react-icons/fi';
 import { Share2 } from 'lucide-react';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
@@ -10,12 +10,13 @@ import LinkPreview from '../components/LinkPreview';
 import FileIcon from '../components/FileIcon';
 import './styles/Updates.css';
 
-export default function UpdatesPage() {
+export default function UpdatesPage({ initialUpdateId }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const params = useParams();
   const keywordFromUrl = (searchParams.get('q') || '').trim();
-  const sharedUpdateId = searchParams.get('update') || null;
+  const sharedUpdateId = initialUpdateId || params?.id || searchParams.get('update') || null;
 
   const [updates, setUpdates] = useState([]);
   const [pageIndex, setPageIndex] = useState(1);
@@ -29,12 +30,15 @@ export default function UpdatesPage() {
   const fetchUpdates = async (index = 1, query = keywordFromUrl) => {
     setLoading(true);
     try {
-      const params = new globalThis.URLSearchParams({ index: String(index) });
+      const urlParams = new globalThis.URLSearchParams({ index: String(index) });
       if (query) {
-        params.set('q', query);
+        urlParams.set('q', query);
+      }
+      if (sharedUpdateId) {
+        urlParams.set('id', sharedUpdateId);
       }
 
-      const res = await fetch(`/api/updates?${params.toString()}`);
+      const res = await fetch(`/api/updates?${urlParams.toString()}`);
       if (!res.ok) throw new Error('Failed to fetch updates');
       const data = await res.json();
       if (Array.isArray(data.updates)) {
@@ -132,8 +136,8 @@ export default function UpdatesPage() {
   };
 
   const handleShareUpdate = (updateId, updateTitle) => {
-    const shareUrl = buildShareUrl({ update: updateId });
-    router.push(buildQueryString({ update: updateId }) ? `${pathname}?${buildQueryString({ update: updateId })}` : pathname);
+    const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/updates/${updateId}`;
+    router.push(`/updates/${updateId}`);
 
     if (navigator.share) {
       navigator
@@ -253,11 +257,8 @@ export default function UpdatesPage() {
                       <span>{u.name}</span>
                       <span className="upd-usn">• {u.usn}</span>
                     </div>
-                    <div className="upd-user-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                    <div className="upd-user-title">
                       <span>{u.title}</span>
-                      <span style={{ fontSize: '0.72rem', padding: '2px 8px', borderRadius: '12px', background: u.visibility === 'private' ? '#fef2f2' : u.visibility === 'unlisted' ? '#fffbe6' : '#eff6ff', color: u.visibility === 'private' ? '#ef4444' : u.visibility === 'unlisted' ? '#d97706' : '#2563eb', fontWeight: 600, border: `1px solid ${u.visibility === 'private' ? '#fecaca' : u.visibility === 'unlisted' ? '#fef08a' : '#bfdbfe'}` }}>
-                        {u.visibility === 'private' ? '🔒 Private' : u.visibility === 'unlisted' ? '🔗 Unlisted' : '🌐 Public'}
-                      </span>
                     </div>
                   </div>
                   <div className="upd-timestamp">
