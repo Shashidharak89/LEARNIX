@@ -96,6 +96,7 @@ const WorkSearchInterface = () => {
     ? searchParams.get('topics').split(',').filter(Boolean)
     : [];
 
+  const [searchInput, setSearchInput] = useState(initialQuery);
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [searchResults, setSearchResults] = useState([]);
   const [displayedTopics, setDisplayedTopics] = useState([]);
@@ -227,7 +228,11 @@ const WorkSearchInterface = () => {
     const activeSubjects = subjectsOverride !== undefined ? subjectsOverride : selectedSubjects;
     const activeTopics   = topicsOverride   !== undefined ? topicsOverride   : selectedTopics;
 
-    if (!query.trim() && activeSubjects.length === 0 && activeTopics.length === 0) {
+    const targetQuery = query !== undefined ? query : searchInput;
+    setSearchQuery(targetQuery);
+    setSearchInput(targetQuery);
+
+    if (!targetQuery.trim() && activeSubjects.length === 0 && activeTopics.length === 0) {
       setSearchResults([]);
       setSearchPage(1);
       setSearchTotalPages(1);
@@ -254,7 +259,7 @@ const WorkSearchInterface = () => {
     try {
       // Build URL with query, subjects, and topics params
       const urlParams = new globalThis.URLSearchParams();
-      if (query.trim()) urlParams.set('q', query);
+      if (targetQuery.trim()) urlParams.set('q', targetQuery);
       if (activeSubjects.length > 0) urlParams.set('subjects', activeSubjects.join(','));
       if (activeTopics.length > 0) urlParams.set('topics', activeTopics.join(','));
       urlParams.set('page', pageNum.toString());
@@ -282,8 +287,8 @@ const WorkSearchInterface = () => {
           setDisplayedTopics(newTopics);
           setSearchTotal(data.totalResults ?? data.total ?? newTopics.length);
           // Auto-load relevant if normal search returned nothing
-          if (newTopics.length === 0 && query.trim()) {
-            fetchRelevant(1, query);
+          if (newTopics.length === 0 && targetQuery.trim()) {
+            fetchRelevant(1, targetQuery);
           }
         } else {
           // Append for subsequent pages (View More)
@@ -705,18 +710,18 @@ const WorkSearchInterface = () => {
             className="ws-search-box"
             onSubmit={(e) => {
               e.preventDefault();
-              handleSearch(searchQuery, 1);
+              handleSearch(searchInput, 1);
             }}
           >
             <input
               type="text"
               placeholder="Search by name, USN, subject, or topic..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
-                  handleSearch(searchQuery, 1);
+                  handleSearch(searchInput, 1);
                 }
               }}
               className="ws-search-input"
@@ -724,7 +729,7 @@ const WorkSearchInterface = () => {
             <button 
               type="submit"
               className="ws-search-btn"
-              onClick={() => handleSearch(searchQuery, 1)}
+              onClick={() => handleSearch(searchInput, 1)}
               aria-label="Search"
             >
               <FiSearch className="ws-search-icon" />
