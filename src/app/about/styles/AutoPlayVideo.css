@@ -21,18 +21,11 @@
   border-radius: 12px;
 }
 
-.video-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #e5e7eb;
-  border-top: 3px solid #3b82f6;
-  border-radius: 50%;
-  animation: video-spin 1s linear infinite;
-}
-
-@keyframes video-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.video-svg-loader {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 14px rgba(4, 124, 255, 0.2));
 }
 
 /* VIDEO HIDDEN WHILE LOADING */
