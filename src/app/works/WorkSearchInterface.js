@@ -8,7 +8,6 @@ import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import SubjectTopicFilter from './SubjectTopicFilter';
 import Ads from '../components/ads/Ads';
 import ImageLoader from '../components/ImageLoader';
-import WorksUpdatesPreview from './WorksUpdatesPreview';
 import './styles/WorkSearchInterface.css';
 import { authFetch } from '@/lib/clientAuth';
 
@@ -731,9 +730,6 @@ const WorkSearchInterface = () => {
       </div>
 
       <div className="ws-content">
-        {!searchQuery && selectedSubjects.length === 0 && selectedTopics.length === 0 && !isLoading && (
-          <WorksUpdatesPreview />
-        )}
 
         {/* Show cached saved topics immediately while loading */}
         {isLoading && cachedSavedTopics.length > 0 && (
