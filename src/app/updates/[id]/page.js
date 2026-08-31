@@ -1,16 +1,16 @@
 import { Suspense } from 'react';
 import { Navbar } from '../../components/Navbar';
-import UpdatesPage from '../UpdatesPage';
+import SingleUpdateView from './SingleUpdateView';
 
 export default async function SingleUpdatePage({ params }) {
   const resolvedParams = await params;
-  const id = resolvedParams?.id;
+  const updateId = resolvedParams?.id;
 
   return (
     <>
       <Navbar />
       <Suspense fallback={null}>
-        <UpdatesPage initialUpdateId={id} />
+        <SingleUpdateView updateId={updateId} />
       </Suspense>
     </>
   );

@@ -137,7 +137,6 @@ export default function UpdatesPage({ initialUpdateId }) {
 
   const handleShareUpdate = (updateId, updateTitle) => {
     const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/updates/${updateId}`;
-    router.push(`/updates/${updateId}`);
 
     if (navigator.share) {
       navigator
