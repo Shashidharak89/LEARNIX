@@ -242,7 +242,7 @@ export default function UpdatesPage({ initialUpdateId }) {
                 key={u._id}
                 ref={sharedUpdateId === u._id ? highlightedCardRef : null}
                 className={`upd-card ${sharedUpdateId === u._id ? 'upd-card-highlighted' : ''}`}
-                style={{ animationDelay: `${idx * 50}ms` }}
+                style={{ animationDelay: `${(idx % 10) * 25}ms` }}
               >
                 <div className="upd-card-header">
                   <img

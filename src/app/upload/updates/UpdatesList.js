@@ -419,7 +419,7 @@ export default function UpdatesList({ refreshKey }) {
           const isRelative = typeof timeData === 'string';
 
           return (
-            <article key={u._id} className="upl-card" style={{ animationDelay: `${idx * 50}ms` }}>
+            <article key={u._id} className="upl-card" style={{ animationDelay: `${(idx % 10) * 25}ms` }}>
               {/* Card Header */}
               <div className="upl-card-header">
                 <div className="upl-avatar-wrapper">
