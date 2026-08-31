@@ -2,7 +2,6 @@
 
 import React, { useRef, useEffect, useState } from "react";
 import { FaVolumeMute, FaVolumeUp } from "react-icons/fa";
-import heroLoaderSvg from "@/animated-icons/herosection-video-loader.svg";
 import "./styles/AutoPlayVideo.css";
 
 const AutoPlayVideo = ({ videoUrl }) => {
@@ -54,11 +53,7 @@ const AutoPlayVideo = ({ videoUrl }) => {
     <div className="video-container">
       {isLoading && (
         <div className="video-loader">
-          <img
-            src={heroLoaderSvg.src || heroLoaderSvg}
-            alt="Loading video..."
-            className="video-svg-loader"
-          />
+          <div className="video-spinner"></div>
         </div>
       )}
 

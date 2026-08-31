@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import heroLoaderSvg from '@/animated-icons/herosection-video-loader.svg';
 import './styles/TutVideo.css';
 
 const TutVideo = () => {
@@ -86,11 +85,7 @@ const TutVideo = () => {
       <div className="tutvideo-wrapper">
         {isLoading && (
           <div className="tutvideo-loader">
-            <img
-              src={heroLoaderSvg.src || heroLoaderSvg}
-              alt="Loading video..."
-              className="tutvideo-svg-loader"
-            />
+            <div className="tutvideo-spinner"></div>
           </div>
         )}
         <video
