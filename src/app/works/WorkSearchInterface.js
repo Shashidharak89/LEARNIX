@@ -701,26 +701,35 @@ const WorkSearchInterface = () => {
     <div className="ws-container">
       <div className="ws-header">
         <div className="ws-search-container">
-          <div className="ws-search-box">
+          <form 
+            className="ws-search-box"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSearch(searchQuery, 1);
+            }}
+          >
             <input
               type="text"
               placeholder="Search by name, USN, subject, or topic..."
               value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                handleSearch(e.target.value, 1);
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSearch(searchQuery, 1);
+                }
               }}
               className="ws-search-input"
             />
             <button 
-              type="button"
+              type="submit"
               className="ws-search-btn"
               onClick={() => handleSearch(searchQuery, 1)}
               aria-label="Search"
             >
               <FiSearch className="ws-search-icon" />
             </button>
-          </div>
+          </form>
         </div>
         <SubjectTopicFilter
           onFilterChange={handleFilterChange}
