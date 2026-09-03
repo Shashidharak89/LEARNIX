@@ -90,44 +90,15 @@ export default function StudyMaterials() {
   const searchParams = useSearchParams();
 
   const searchParamKey = "keyword";
-  const searchParamValue = searchParams.get(searchParamKey) || "";
-  const [searchTerm, setSearchTerm] = useState(searchParamValue);
-  const searchDebounceRef = useRef(null);
+  const activeSearchQuery = searchParams.get(searchParamKey) || "";
+  const [searchInput, setSearchInput] = useState(activeSearchQuery);
 
   useEffect(() => {
-    if (searchParamValue !== searchTerm) {
-      setSearchTerm(searchParamValue);
-    }
-  }, [searchParamValue]);
-
-  useEffect(() => {
-    if (searchTerm === searchParamValue) return;
-
-    if (searchDebounceRef.current) {
-      clearTimeout(searchDebounceRef.current);
-    }
-
-    searchDebounceRef.current = setTimeout(() => {
-      const nextParams = new URLSearchParams(searchParams.toString());
-      if (searchTerm.trim()) {
-        nextParams.set(searchParamKey, searchTerm);
-      } else {
-        nextParams.delete(searchParamKey);
-      }
-      const nextQuery = nextParams.toString();
-      const nextPath = nextQuery ? `${pathname}?${nextQuery}` : pathname;
-      router.replace(nextPath);
-    }, 250);
-
-    return () => {
-      if (searchDebounceRef.current) {
-        clearTimeout(searchDebounceRef.current);
-      }
-    };
-  }, [searchTerm, searchParamValue, pathname, router, searchParams, searchParamKey]);
+    setSearchInput(activeSearchQuery);
+  }, [activeSearchQuery]);
 
   const filteredMaterials = useMemo(() => {
-    const words = searchTerm.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    const words = activeSearchQuery.toLowerCase().trim().split(/\s+/).filter(Boolean);
     if (words.length === 0) return materialsData;
 
     return materialsData
@@ -216,7 +187,7 @@ export default function StudyMaterials() {
       .filter(Boolean)
       .sort((a, b) => b.score - a.score)
       .map(item => item.sem);
-  }, [searchTerm]);
+  }, [activeSearchQuery]);
 
   const parseIndex = (value) => {
     if (value === null) return null;
@@ -259,12 +230,12 @@ export default function StudyMaterials() {
   };
 
   const handleSearchChange = (value) => {
-    setSearchTerm(value);
+    setSearchInput(value);
   };
 
   const handleSearchSubmit = (event) => {
     event.preventDefault();
-    const trimmed = searchTerm.trim();
+    const trimmed = searchInput.trim();
     const nextParams = new URLSearchParams(searchParams.toString());
 
     if (trimmed) {
@@ -278,7 +249,7 @@ export default function StudyMaterials() {
   };
 
   const handleClearSearch = () => {
-    setSearchTerm("");
+    setSearchInput("");
     const nextParams = new URLSearchParams(searchParams.toString());
     nextParams.delete(searchParamKey);
     const nextQuery = nextParams.toString();
@@ -368,16 +339,21 @@ export default function StudyMaterials() {
               <input
                 type="text"
                 className="sm-search-input"
-                placeholder="Search semesters, subjects, or files..."
-                value={searchTerm}
+                placeholder="Search subjects..."
+                value={searchInput}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                aria-label="Search study materials"
+                aria-label="Search subjects"
               />
+              <button
+                type="submit"
+                className="sm-search-icon-btn"
+                title="Search"
+                aria-label="Search subjects"
+              >
+                <Search size={18} />
+              </button>
             </div>
-            <button type="submit" className="sm-search-btn" disabled={!searchTerm.trim()}>
-              Search
-            </button>
-            {searchTerm && (
+            {(searchInput || activeSearchQuery) && (
               <button type="button" className="sm-search-clear-btn" onClick={handleClearSearch}>
                 Clear
               </button>
@@ -387,9 +363,9 @@ export default function StudyMaterials() {
 
         {/* Materials List */}
         <div className="sm-materials-list">
-          {searchTerm.trim() ? (
+          {activeSearchQuery.trim() ? (
             <SMSearchResults
-              searchQuery={searchTerm}
+              searchQuery={activeSearchQuery}
               onClearSearch={handleClearSearch}
               onShareFile={handleShareFile}
               highlightedFileKey={highlightedFileKey}
@@ -399,7 +375,7 @@ export default function StudyMaterials() {
               <div key={semIndex} className="sm-semester-block">
                 {/* Semester Header */}
                 <button
-                  className={`sm-semester-btn ${searchTerm || openSemesterIndex === semIndex ? "sm-semester-open" : ""}`}
+                  className={`sm-semester-btn ${activeSearchQuery || openSemesterIndex === semIndex ? "sm-semester-open" : ""}`}
                   onClick={() => toggleSemester(semIndex)}
                 >
                   <div className="sm-semester-left">
@@ -408,7 +384,7 @@ export default function StudyMaterials() {
                     <span className="sm-subject-count">{sem.subjects.length} subjects</span>
                   </div>
                   <div className="sm-semester-icon">
-                    {searchTerm || openSemesterIndex === semIndex ? (
+                    {activeSearchQuery || openSemesterIndex === semIndex ? (
                       <ChevronDown size={20} />
                     ) : (
                       <ChevronRight size={20} />
@@ -417,13 +393,13 @@ export default function StudyMaterials() {
                 </button>
 
                 {/* Subjects Container */}
-                {(searchTerm || openSemesterIndex === semIndex) && (
+                {(activeSearchQuery || openSemesterIndex === semIndex) && (
                   <div className="sm-subjects-wrapper">
                     {sem.subjects.map((subj, subjIndex) => {
                       const unofficialKey = `${semIndex}-${subjIndex}`;
                       const hasExternalFiles = subj.externalfiles && subj.externalfiles.length > 0;
-                      const isSubjOpen = searchTerm ? true : openSubjectIndex === subjIndex;
-                      const isUnofficialOpen = searchTerm ? true : openUnofficialKey === unofficialKey;
+                      const isSubjOpen = activeSearchQuery ? true : openSubjectIndex === subjIndex;
+                      const isUnofficialOpen = activeSearchQuery ? true : openUnofficialKey === unofficialKey;
 
                       return (
                         <div key={subjIndex} className="sm-subject-block">

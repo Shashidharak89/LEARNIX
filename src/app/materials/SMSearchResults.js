@@ -360,11 +360,6 @@ function SMSearchDirectoryNode({
 
 export default function SMSearchResults({ searchQuery, onClearSearch, onShareFile, highlightedFileKey }) {
     const categories = [
-        { id: "universities", label: "Universities", endpoint: "/api/sm/v1/search/universities", type: "university" },
-        { id: "colleges", label: "Colleges", endpoint: "/api/sm/v1/search/colleges", type: "college" },
-        { id: "courses", label: "Courses", endpoint: "/api/sm/v1/search/courses", type: "course" },
-        { id: "semesters", label: "Semesters", endpoint: "/api/sm/v1/search/semesters", type: "semester" },
-        { id: "batches", label: "Batches", endpoint: "/api/sm/v1/search/batches", type: "batch" },
         { id: "subjects", label: "Subjects", endpoint: "/api/sm/v1/search/subjects", type: "subject" },
     ];
 
@@ -441,7 +436,7 @@ export default function SMSearchResults({ searchQuery, onClearSearch, onShareFil
     if (isLoadingAny) {
         return (
             <div style={{ textAlign: "center", padding: "40px", color: "#6b7280" }}>
-                <p>Searching all categories...</p>
+                <p>Searching subjects...</p>
             </div>
         );
     }

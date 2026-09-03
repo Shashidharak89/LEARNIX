@@ -87,8 +87,33 @@
 }
 
 .sm-search-icon {
-  margin-left: 16px;
+  margin-left: 14px;
   color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.sm-search-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fbbf24;
+  border: none;
+  margin-right: 8px;
+  padding: 8px 10px;
+  color: #111827;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.sm-search-icon-btn:hover {
+  background: #f59e0b;
+  transform: scale(1.05);
+}
+
+.sm-search-icon-btn:active {
+  transform: scale(0.97);
 }
 
 .sm-search-input {
