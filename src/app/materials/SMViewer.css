@@ -55,6 +55,36 @@
     box-shadow: 0 2px 6px rgba(124, 58, 237, 0.25);
 }
 
+/* Tree Node Inline Set Preference Button */
+.sm-tree-pref-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #fdfbff;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.sm-tree-pref-btn:hover {
+    border-color: #c084fc;
+    color: #7c3aed;
+    background: #faf5ff;
+}
+
+.sm-tree-pref-btn.active {
+    background: #f3e8ff;
+    border-color: #c084fc;
+    color: #7c3aed;
+    font-weight: 700;
+}
+
 /* Preference Empty Card */
 .sm-pref-empty-card {
     display: flex;
@@ -104,21 +134,75 @@
     background: #6d28d9;
 }
 
+/* Preference Multi-List Container */
+.sm-pref-list-container {
+    background: #faf5ff;
+    border: 1px solid #e9d5ff;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.04);
+}
+
+.sm-pref-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sm-pref-list-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e1b4b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sm-pref-count-tag {
+    background: #7c3aed;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+}
+
+.sm-pref-add-btn-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #ffffff;
+    color: #7c3aed;
+    border: 1px solid #c084fc;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.sm-pref-add-btn-sm:hover {
+    background: #7c3aed;
+    color: #ffffff;
+}
+
 /* Preference Saved Card */
 .sm-pref-card-container {
     background: #ffffff;
     border: 1px solid #ddd6fe;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.06);
+    box-shadow: 0 2px 6px rgba(124, 58, 237, 0.04);
 }
 
 .sm-pref-card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 18px;
-    background: #faf5ff;
+    padding: 12px 16px;
+    background: #ffffff;
     cursor: pointer;
     user-select: none;
     transition: background 0.2s;
@@ -126,10 +210,11 @@
 }
 
 .sm-pref-card-header:hover {
-    background: #f3e8ff;
+    background: #fdfbff;
 }
 
 .sm-pref-card-header.expanded {
+    background: #fbf7ff;
     border-bottom-color: #e9d5ff;
 }
 
@@ -144,19 +229,20 @@
     flex-shrink: 0;
 }
 
-.sm-pref-tag-badge {
-    background: #7c3aed;
-    color: #fff;
+.sm-pref-type-tag {
+    background: #f3e8ff;
+    color: #7c3aed;
+    border: 1px solid #e9d5ff;
     font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     padding: 2px 8px;
-    border-radius: 10px;
+    border-radius: 8px;
 }
 
 .sm-pref-card-title {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     color: #1e1b4b;
     margin: 0;
@@ -207,7 +293,7 @@
 }
 
 .sm-pref-card-body {
-    padding: 16px;
+    padding: 14px;
     background: #fdfbff;
 }
 
@@ -397,4 +483,313 @@
 
 .sm-pref-save-btn.active:hover {
     background: #6d28d9;
+}
+
+/* ── Tree Node Base Styles ── */
+.sm-tree-node {
+    margin-left: 20px;
+}
+
+.sm-tree-children {
+    border-left: 2px solid #eaeaea;
+    margin-left: 14px;
+    padding-left: 10px;
+    margin-top: 5px;
+}
+
+.sm-tree-ext-group {
+    margin-left: 20px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.sm-tree-ext-children {
+    border-left: 2px dashed #c084fc;
+    margin-left: 14px;
+    padding-left: 10px;
+    margin-top: 5px;
+}
+
+/* ── Responsive: Tablet ≤768px ── */
+@media (max-width: 768px) {
+    .sm-viewer-section {
+        padding: 18px;
+        border-radius: 12px;
+        margin-top: 20px;
+    }
+
+    .sm-subtitle {
+        font-size: 1.15rem;
+    }
+
+    .sm-tree-node {
+        margin-left: 14px;
+    }
+
+    .sm-tree-children {
+        margin-left: 10px;
+        padding-left: 8px;
+    }
+
+    .sm-tree-ext-group {
+        margin-left: 14px;
+    }
+
+    .sm-tree-ext-children {
+        margin-left: 10px;
+        padding-left: 8px;
+    }
+
+    .sm-tree-pref-text {
+        display: none;
+    }
+
+    .sm-tree-pref-btn {
+        padding: 4px 6px;
+        border-radius: 50%;
+    }
+
+    .sm-pref-card-title {
+        font-size: 13px;
+    }
+
+    .sm-pref-card-sub {
+        font-size: 11px;
+    }
+
+    .sm-pref-badge-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+    }
+
+    .sm-pref-list-title {
+        font-size: 14px;
+    }
+
+    .sm-category-pill {
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+
+    .sm-search-container {
+        padding: 12px !important;
+        border-radius: 10px !important;
+    }
+
+    .sm-search-form {
+        gap: 8px !important;
+    }
+}
+
+/* ── Responsive: Mobile ≤550px ── */
+@media (max-width: 550px) {
+    .sm-viewer-section {
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        margin-top: 12px;
+        box-shadow: none;
+        border: 1px solid #ede9fe;
+    }
+
+    .sm-subtitle {
+        font-size: 1rem;
+    }
+
+    .sm-section-icon {
+        font-size: 1.2rem;
+    }
+
+    .sm-section-header {
+        gap: 8px;
+        margin-bottom: 14px;
+    }
+
+    .sm-tree-node {
+        margin-left: 8px;
+    }
+
+    .sm-tree-children {
+        margin-left: 6px;
+        padding-left: 6px;
+    }
+
+    .sm-tree-ext-group {
+        margin-left: 8px;
+    }
+
+    .sm-tree-ext-children {
+        margin-left: 6px;
+        padding-left: 6px;
+    }
+
+    .sm-tree-pref-text {
+        display: none;
+    }
+
+    .sm-tree-pref-btn {
+        padding: 3px 5px;
+    }
+
+    .sm-pref-list-container {
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .sm-pref-list-title {
+        font-size: 13px;
+        gap: 6px;
+    }
+
+    .sm-pref-card-header {
+        padding: 10px 12px;
+    }
+
+    .sm-pref-card-title {
+        font-size: 12px;
+    }
+
+    .sm-pref-card-sub {
+        font-size: 10px;
+    }
+
+    .sm-pref-badge-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 5px;
+    }
+
+    .sm-pref-action-btn {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+
+    .sm-pref-empty-card {
+        padding: 12px 14px;
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .sm-pref-empty-title {
+        font-size: 13px;
+    }
+
+    .sm-pref-empty-sub {
+        font-size: 11px;
+    }
+
+    .sm-pref-add-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .sm-pref-modal {
+        max-width: 100%;
+        border-radius: 12px;
+    }
+
+    .sm-pref-modal-header {
+        padding: 14px 16px;
+    }
+
+    .sm-pref-modal-body {
+        padding: 14px 16px;
+    }
+
+    .sm-pref-modal-footer {
+        padding: 12px 16px;
+    }
+
+    .sm-pref-modal-title {
+        font-size: 15px;
+    }
+
+    .sm-pref-select {
+        font-size: 13px;
+        padding: 8px 10px;
+    }
+
+    .sm-category-pill {
+        padding: 4px 8px;
+        font-size: 11px;
+        gap: 4px;
+    }
+
+    .sm-content {
+        padding: 10px !important;
+    }
+
+    .sm-search-container {
+        padding: 10px !important;
+        border-radius: 8px !important;
+        margin-bottom: 12px !important;
+    }
+
+    .sm-search-btn-text {
+        display: none;
+    }
+
+    .sm-search-scope {
+        margin-top: 10px !important;
+        gap: 6px !important;
+    }
+}
+
+/* ── Responsive: Small Mobile ≤400px ── */
+@media (max-width: 400px) {
+    .sm-viewer-section {
+        padding: 8px;
+        border-radius: 8px;
+        margin-top: 8px;
+    }
+
+    .sm-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .sm-section-icon {
+        font-size: 1rem;
+    }
+
+    .sm-tree-node {
+        margin-left: 5px;
+    }
+
+    .sm-tree-children {
+        margin-left: 4px;
+        padding-left: 4px;
+    }
+
+    .sm-tree-ext-group {
+        margin-left: 5px;
+    }
+
+    .sm-tree-ext-children {
+        margin-left: 4px;
+        padding-left: 4px;
+    }
+
+    .sm-pref-list-container {
+        padding: 8px;
+    }
+
+    .sm-pref-card-header {
+        padding: 8px 10px;
+    }
+
+    .sm-pref-card-title {
+        font-size: 11px;
+    }
+
+    .sm-pref-type-tag {
+        font-size: 9px;
+        padding: 1px 5px;
+    }
+
+    .sm-category-pill {
+        padding: 3px 6px;
+        font-size: 10px;
+    }
 }

@@ -1,80 +1,110 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { FiChevronRight, FiChevronDown, FiBookmark, FiEdit2, FiTrash2, FiBookOpen, FiPlusCircle } from "react-icons/fi";
+import { FiChevronRight, FiChevronDown, FiBookmark, FiPlusCircle, FiTrash2 } from "react-icons/fi";
 import SMDirectoryNode from "@/app/admin/study-materials/SMDirectoryNode";
 import SMPreferenceSelector from "./SMPreferenceSelector";
 
 export default function SMPreferenceCard() {
-    const [preference, setPreference] = useState(null);
+    const [preferences, setPreferences] = useState([]);
+    const [expandedMap, setExpandedMap] = useState({});
     const [isSelectorOpen, setIsSelectorOpen] = useState(false);
-    const [expanded, setExpanded] = useState(false);
-    const [subjects, setSubjects] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
 
-    // Read stored preference on mount
-    useEffect(() => {
+    const loadPreferences = () => {
         if (typeof window !== "undefined") {
-            const stored = localStorage.getItem("sm_user_preference");
-            if (stored) {
-                try {
-                    const parsed = JSON.parse(stored);
-                    setPreference(parsed);
-                } catch (e) {
-                    console.error("Error parsing preference", e);
+            try {
+                const stored = localStorage.getItem("sm_user_preferences");
+                if (stored) {
+                    setPreferences(JSON.parse(stored));
+                } else {
+                    // Migration check from single sm_user_preference
+                    const single = localStorage.getItem("sm_user_preference");
+                    if (single) {
+                        const parsed = JSON.parse(single);
+                        const prefId = `batch_${parsed.batchId}`;
+                        const title = `${parsed.courseName} / Semester ${parsed.sem} / ${parsed.startyear}-${parsed.endyear}`;
+                        const subtitle = `${parsed.collegeName} • ${parsed.universityName}`;
+                        const migrated = [{
+                            id: prefId,
+                            type: "batch",
+                            data: { _id: parsed.batchId, startyear: parsed.startyear, endyear: parsed.endyear },
+                            parentParams: { collegeId: parsed.collegeId, courseId: parsed.courseId, semesterId: parsed.semesterId },
+                            title,
+                            subtitle
+                        }];
+                        localStorage.setItem("sm_user_preferences", JSON.stringify(migrated));
+                        localStorage.removeItem("sm_user_preference");
+                        setPreferences(migrated);
+                    } else {
+                        setPreferences([]);
+                    }
                 }
+            } catch (e) {
+                console.error("Error parsing preferences", e);
             }
         }
+    };
+
+    useEffect(() => {
+        loadPreferences();
+        const handleUpdate = () => loadPreferences();
+        window.addEventListener("sm_preference_updated", handleUpdate);
+        return () => window.removeEventListener("sm_preference_updated", handleUpdate);
     }, []);
 
-    const fetchSubjects = async (pref) => {
-        if (!pref || !pref.batchId) return;
-        setLoading(true);
-        setError("");
-        try {
-            const url = `/api/sm/v1/subjects/by-batch?collegeId=${pref.collegeId}&courseId=${pref.courseId}&semesterId=${pref.semesterId}&batchId=${pref.batchId}&page=1&limit=50`;
-            const res = await fetch(url, { cache: "no-store" });
-            const json = await res.json();
-            if (json.success) {
-                setSubjects(json.data || []);
-            } else {
-                setError(json.error || "Failed to load preference subjects");
-            }
-        } catch (err) {
-            setError(err.message);
-        }
-        setLoading(false);
+    const toggleExpand = (prefId) => {
+        setExpandedMap(prev => ({
+            ...prev,
+            [prefId]: !prev[prefId]
+        }));
     };
 
-    const handleToggleExpand = () => {
-        if (!expanded && subjects.length === 0 && preference) {
-            fetchSubjects(preference);
-        }
-        setExpanded(!expanded);
-    };
-
-    const handleSavePreference = (newPref) => {
-        setPreference(newPref);
-        setSubjects([]);
-        setExpanded(false);
-        setIsSelectorOpen(false);
-    };
-
-    const handleClearPreference = (e) => {
+    const handleRemovePreference = (prefId, e) => {
         e.stopPropagation();
         if (typeof window !== "undefined") {
-            localStorage.removeItem("sm_user_preference");
+            try {
+                const updated = preferences.filter(p => p.id !== prefId);
+                localStorage.setItem("sm_user_preferences", JSON.stringify(updated));
+                setPreferences(updated);
+                window.dispatchEvent(new Event("sm_preference_updated"));
+            } catch (err) {
+                console.error("Failed to remove preference", err);
+            }
         }
-        setPreference(null);
-        setSubjects([]);
-        setExpanded(false);
+    };
+
+    const handleSaveFromModal = (newPref) => {
+        if (typeof window !== "undefined") {
+            try {
+                const prefId = `batch_${newPref.batchId}`;
+                const title = `${newPref.courseName} / Semester ${newPref.sem} / ${newPref.startyear}-${newPref.endyear}`;
+                const subtitle = `${newPref.collegeName} • ${newPref.universityName}`;
+                const item = {
+                    id: prefId,
+                    type: "batch",
+                    data: { _id: newPref.batchId, startyear: newPref.startyear, endyear: newPref.endyear },
+                    parentParams: { collegeId: newPref.collegeId, courseId: newPref.courseId, semesterId: newPref.semesterId },
+                    title,
+                    subtitle
+                };
+
+                let list = JSON.parse(localStorage.getItem("sm_user_preferences") || "[]");
+                if (!list.some(p => p.id === prefId)) {
+                    list.push(item);
+                    localStorage.setItem("sm_user_preferences", JSON.stringify(list));
+                    window.dispatchEvent(new Event("sm_preference_updated"));
+                }
+            } catch (err) {
+                console.error("Failed to save modal preference", err);
+            }
+        }
+        setIsSelectorOpen(false);
     };
 
     return (
         <div style={{ marginBottom: "20px" }}>
-            {/* If no preference is set */}
-            {!preference ? (
+            {/* If no preferences are set */}
+            {preferences.length === 0 ? (
                 <div 
                     onClick={() => setIsSelectorOpen(true)}
                     className="sm-pref-empty-card"
@@ -84,8 +114,10 @@ export default function SMPreferenceCard() {
                             <FiBookmark size={18} color="#7c3aed" />
                         </div>
                         <div>
-                            <span className="sm-pref-empty-title">Your Preference</span>
-                            <p className="sm-pref-empty-sub">Quickly access your Course & Subjects directly</p>
+                            <span className="sm-pref-empty-title">Your Preferences</span>
+                            <p className="sm-pref-empty-sub">
+                                Select preferences below in the directory tree or configure one here
+                            </p>
                         </div>
                     </div>
                     <button type="button" className="sm-pref-add-btn">
@@ -94,105 +126,82 @@ export default function SMPreferenceCard() {
                     </button>
                 </div>
             ) : (
-                /* Preference saved card (Collapsed by default) */
-                <div className="sm-pref-card-container">
-                    <div 
-                        onClick={handleToggleExpand}
-                        className={`sm-pref-card-header ${expanded ? "expanded" : ""}`}
-                    >
-                        <div style={{ display: "flex", alignItems: "center", gap: "12px", overflow: "hidden" }}>
-                            <span style={{ color: "#7c3aed", display: "flex", alignItems: "center" }}>
-                                {expanded ? <FiChevronDown size={20} /> : <FiChevronRight size={20} />}
-                            </span>
-                            <div className="sm-pref-badge-icon">
-                                <FiBookmark size={18} color="#7c3aed" />
-                            </div>
-                            <div style={{ overflow: "hidden" }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                                    <span className="sm-pref-tag-badge">Your Preference</span>
-                                    <h3 className="sm-pref-card-title">
-                                        {preference.courseName} / Semester {preference.sem} / {preference.startyear}-{preference.endyear}
-                                    </h3>
-                                </div>
-                                <p className="sm-pref-card-sub">
-                                    {preference.collegeName} • {preference.universityName}
-                                </p>
-                            </div>
+                /* Multiple Preferences List */
+                <div className="sm-pref-list-container">
+                    <div className="sm-pref-list-header">
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                            <FiBookmark size={18} color="#7c3aed" />
+                            <h3 className="sm-pref-list-title">
+                                Your Preferences 
+                                <span className="sm-pref-count-tag">{preferences.length}</span>
+                            </h3>
                         </div>
-
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }} onClick={(e) => e.stopPropagation()}>
-                            <button
-                                type="button"
-                                onClick={() => setIsSelectorOpen(true)}
-                                className="sm-pref-action-btn edit"
-                                title="Edit Preference"
-                            >
-                                <FiEdit2 size={14} />
-                                Edit
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleClearPreference}
-                                className="sm-pref-action-btn clear"
-                                title="Clear Preference"
-                            >
-                                <FiTrash2 size={14} />
-                            </button>
-                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setIsSelectorOpen(true)}
+                            className="sm-pref-add-btn-sm"
+                        >
+                            <FiPlusCircle size={14} />
+                            Add Preference
+                        </button>
                     </div>
 
-                    {/* Expanded Subject Tree */}
-                    {expanded && (
-                        <div className="sm-pref-card-body">
-                            {loading ? (
-                                <p style={{ textAlign: "center", color: "#888", padding: "16px 0", fontSize: "14px" }}>
-                                    Loading your subjects...
-                                </p>
-                            ) : error ? (
-                                <p style={{ color: "red", textAlign: "center", padding: "16px 0", fontSize: "14px" }}>
-                                    {error}
-                                </p>
-                            ) : subjects.length > 0 ? (
-                                <div>
-                                    <div style={{ 
-                                        display: "flex", alignItems: "center", gap: "6px", 
-                                        fontSize: "12px", fontWeight: "700", color: "#7c3aed", 
-                                        marginBottom: "10px", paddingBottom: "6px", borderBottom: "1px dashed #e9d5ff" 
-                                    }}>
-                                        <FiBookOpen size={14} />
-                                        <span>SUBJECTS ({subjects.length})</span>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "10px" }}>
+                        {preferences.map((pref) => {
+                            const isExpanded = !!expandedMap[pref.id];
+                            return (
+                                <div key={pref.id} className="sm-pref-card-container">
+                                    <div 
+                                        onClick={() => toggleExpand(pref.id)}
+                                        className={`sm-pref-card-header ${isExpanded ? "expanded" : ""}`}
+                                    >
+                                        <div style={{ display: "flex", alignItems: "center", gap: "12px", overflow: "hidden" }}>
+                                            <span style={{ color: "#7c3aed", display: "flex", alignItems: "center" }}>
+                                                {isExpanded ? <FiChevronDown size={20} /> : <FiChevronRight size={20} />}
+                                            </span>
+                                            <div style={{ overflow: "hidden" }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                                                    <span className="sm-pref-type-tag">{pref.type}</span>
+                                                    <h4 className="sm-pref-card-title">{pref.title}</h4>
+                                                </div>
+                                                {pref.subtitle && (
+                                                    <p className="sm-pref-card-sub">{pref.subtitle}</p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={(e) => handleRemovePreference(pref.id, e)}
+                                            className="sm-pref-action-btn clear"
+                                            title="Remove Preference"
+                                        >
+                                            <FiTrash2 size={14} />
+                                        </button>
                                     </div>
-                                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                                        {subjects.map(subj => (
+
+                                    {/* Expanded Tree for this Preference */}
+                                    {isExpanded && (
+                                        <div className="sm-pref-card-body">
                                             <SMDirectoryNode
-                                                key={subj._id}
-                                                type="subject"
-                                                data={subj}
-                                                parentParams={{
-                                                    collegeId: preference.collegeId,
-                                                    courseId: preference.courseId,
-                                                    semesterId: preference.semesterId,
-                                                    batchId: preference.batchId
-                                                }}
+                                                level={0}
+                                                type={pref.type}
+                                                data={pref.data}
+                                                parentParams={pref.parentParams || {}}
                                             />
-                                        ))}
-                                    </div>
+                                        </div>
+                                    )}
                                 </div>
-                            ) : (
-                                <p style={{ textAlign: "center", color: "#888", padding: "16px 0", fontSize: "14px" }}>
-                                    No subjects found for your selected preference.
-                                </p>
-                            )}
-                        </div>
-                    )}
+                            );
+                        })}
+                    </div>
                 </div>
             )}
 
-            {/* Modal for setting or editing preference */}
+            {/* Modal for setting new preference */}
             {isSelectorOpen && (
                 <SMPreferenceSelector
-                    currentPreference={preference}
-                    onSave={handleSavePreference}
+                    onSave={handleSaveFromModal}
                     onClose={() => setIsSelectorOpen(false)}
                 />
             )}

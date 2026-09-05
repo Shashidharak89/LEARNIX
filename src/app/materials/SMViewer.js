@@ -137,7 +137,7 @@ export default function SMViewer() {
             </div>
             
             {/* Search Box & Category Filters */}
-            <div style={{ 
+            <div className="sm-search-container" style={{ 
                 marginBottom: "20px", 
                 background: "#fff",
                 padding: "16px",
@@ -145,7 +145,7 @@ export default function SMViewer() {
                 border: "1px solid #e9d5ff",
                 boxShadow: "0 4px 12px rgba(124, 58, 237, 0.05)"
             }}>
-                <form onSubmit={handleSearchSubmit} style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                <form onSubmit={handleSearchSubmit} className="sm-search-form" style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
                     <div style={{ 
                         position: "relative", 
                         flex: 1, 
@@ -202,7 +202,7 @@ export default function SMViewer() {
                         onMouseOut={(e) => e.currentTarget.style.background = "#7c3aed"}
                     >
                         <FiSearch size={16} />
-                        Search
+                        <span className="sm-search-btn-text">Search</span>
                     </button>
 
                     {(searchInput || activeQuery) && (
@@ -228,13 +228,13 @@ export default function SMViewer() {
                             onMouseOut={(e) => e.currentTarget.style.background = "#fee2e2"}
                         >
                             <FiX size={16} />
-                            Clear
+                            <span className="sm-search-btn-text">Clear</span>
                         </button>
                     )}
                 </form>
 
                 {/* Category Scope Selection Pills */}
-                <div style={{ marginTop: "14px", display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                <div className="sm-search-scope" style={{ marginTop: "14px", display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px", color: "#6b7280", fontWeight: "600" }}>
                         <FiFilter size={14} color="#7c3aed" />
                         <span>Search Scope:</span>

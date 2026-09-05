@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { FiChevronRight, FiChevronDown, FiFolder, FiFileText, FiDownload } from "react-icons/fi";
+import React, { useState, useEffect } from "react";
+import { FiChevronRight, FiChevronDown, FiFolder, FiFileText, FiDownload, FiStar } from "react-icons/fi";
 
 const hasMatchingDescendant = (node, type, query) => {
     if (!query) return false;
@@ -52,6 +52,61 @@ export default function SMDirectoryNode({
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
+
+    const prefId = `${type}_${data._id}`;
+    const [isPreferred, setIsPreferred] = useState(false);
+
+    const checkPreferenceState = () => {
+        if (typeof window !== "undefined") {
+            try {
+                const list = JSON.parse(localStorage.getItem("sm_user_preferences") || "[]");
+                setIsPreferred(list.some(p => p.id === prefId));
+            } catch (e) {
+                setIsPreferred(false);
+            }
+        }
+    };
+
+    useEffect(() => {
+        checkPreferenceState();
+        const handleUpdate = () => checkPreferenceState();
+        window.addEventListener("sm_preference_updated", handleUpdate);
+        return () => window.removeEventListener("sm_preference_updated", handleUpdate);
+    }, [prefId]);
+
+    const handleTogglePreference = (e) => {
+        e.stopPropagation();
+        if (typeof window !== "undefined") {
+            try {
+                let list = JSON.parse(localStorage.getItem("sm_user_preferences") || "[]");
+                const index = list.findIndex(p => p.id === prefId);
+                if (index > -1) {
+                    list.splice(index, 1);
+                } else {
+                    let displayName = data.name;
+                    if (type === "semester") displayName = `Semester ${data.sem}`;
+                    if (type === "batch") displayName = `Batch ${data.startyear}-${data.endyear}`;
+                    
+                    let subtitle = type.toUpperCase();
+                    if (type === "subject") subtitle = "SUBJECT";
+
+                    const newPref = {
+                        id: prefId,
+                        type,
+                        data,
+                        parentParams,
+                        title: displayName,
+                        subtitle
+                    };
+                    list.push(newPref);
+                }
+                localStorage.setItem("sm_user_preferences", JSON.stringify(list));
+                window.dispatchEvent(new Event("sm_preference_updated"));
+            } catch (err) {
+                console.error("Failed to update preference", err);
+            }
+        }
+    };
 
     React.useEffect(() => {
         if (searchActive) {
@@ -170,26 +225,40 @@ export default function SMDirectoryNode({
     };
 
     return (
-        <div style={{ marginLeft: level > 0 ? "20px" : "0", marginTop: "8px" }}>
+        <div className="sm-tree-node" style={{ marginLeft: level > 0 ? undefined : "0", marginTop: "8px" }}>
             {type !== "file" ? (
                 <>
                     <div 
                         onClick={handleToggle}
                         style={{ 
-                            display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", 
+                            display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", cursor: "pointer", 
                             padding: "8px 12px", background: expanded ? "#f5f3ff" : "#fff", 
                             border: "1px solid #eaeaea", borderRadius: "8px", transition: "0.2s",
                             fontWeight: expanded ? "600" : "500", color: "#333",
                             boxShadow: expanded ? "0 2px 8px rgba(124, 58, 237, 0.1)" : "none"
                         }}
                     >
-                        {expanded ? <FiChevronDown color="#7c3aed" /> : <FiChevronRight color="#888" />}
-                        <FiFolder color={expanded ? "#7c3aed" : "#a78bfa"} />
-                        <span>{highlightText(displayName, highlightKeyword)}</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", overflow: "hidden" }}>
+                            {expanded ? <FiChevronDown color="#7c3aed" /> : <FiChevronRight color="#888" />}
+                            <FiFolder color={expanded ? "#7c3aed" : "#a78bfa"} />
+                            <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                {highlightText(displayName, highlightKeyword)}
+                            </span>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={handleTogglePreference}
+                            className={`sm-tree-pref-btn ${isPreferred ? "active" : ""}`}
+                            title={isPreferred ? "Remove from preferences" : "Set as preference"}
+                        >
+                            <FiStar size={13} fill={isPreferred ? "#7c3aed" : "none"} color={isPreferred ? "#7c3aed" : "#9ca3af"} />
+                            <span className="sm-tree-pref-text">{isPreferred ? "Preferred" : "Set Preference"}</span>
+                        </button>
                     </div>
 
                     {expanded && (
-                        <div style={{ borderLeft: "2px solid #eaeaea", marginLeft: "14px", paddingLeft: "10px", marginTop: "5px" }}>
+                        <div className="sm-tree-children">
                             {loading && page === 1 && (
                                 <div style={{ padding: "8px", color: "#888", fontSize: "14px" }}>Loading...</div>
                             )}
@@ -202,7 +271,7 @@ export default function SMDirectoryNode({
                                 <>
                                     {/* ── Unofficial Resources (External Files Group) ── */}
                                     {children.some(c => c.type === "external") && (
-                                        <div style={{ marginLeft: "20px", marginTop: "8px", marginBottom: "8px" }}>
+                                        <div className="sm-tree-ext-group">
                                             <button
                                                 onClick={() => setExternalExpanded(!externalExpanded)}
                                                 style={{
@@ -233,7 +302,7 @@ export default function SMDirectoryNode({
                                             </button>
 
                                             {externalExpanded && (
-                                                <div style={{ borderLeft: "2px dashed #c084fc", marginLeft: "14px", paddingLeft: "10px", marginTop: "5px" }}>
+                                                <div className="sm-tree-ext-children">
                                                     {children.filter(c => c.type === "external").map(child => (
                                                         <SMDirectoryNode
                                                             key={child._id}
