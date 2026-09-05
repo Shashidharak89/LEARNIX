@@ -1,7 +1,7 @@
 import { Navbar } from "@/app/components/Navbar";
 import AdminGuard from "../AdminGuard";
 import SMAdmin from "./SMAdmin";
-import SMViewer from "./SMViewer";
+import SMViewer from "@/app/materials/SMViewer";
 
 export const metadata = {
     title: "Study Materials Management | Learnix Admin",

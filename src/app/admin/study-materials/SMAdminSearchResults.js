@@ -343,15 +343,19 @@ function SMAdminSearchDirectoryNode({
     );
 }
 
-export default function SMAdminSearchResults({ searchQuery, onClearSearch }) {
-    const categories = [
+export default function SMAdminSearchResults({ searchQuery, selectedCategories = ["subjects"], onClearSearch }) {
+    const ALL_CATEGORIES = [
+        { id: "subjects", label: "Subjects", endpoint: "/api/sm/v1/search/subjects", type: "subject" },
         { id: "universities", label: "Universities", endpoint: "/api/sm/v1/search/universities", type: "university" },
         { id: "colleges", label: "Colleges", endpoint: "/api/sm/v1/search/colleges", type: "college" },
         { id: "courses", label: "Courses", endpoint: "/api/sm/v1/search/courses", type: "course" },
         { id: "semesters", label: "Semesters", endpoint: "/api/sm/v1/search/semesters", type: "semester" },
         { id: "batches", label: "Batches", endpoint: "/api/sm/v1/search/batches", type: "batch" },
-        { id: "subjects", label: "Subjects", endpoint: "/api/sm/v1/search/subjects", type: "subject" },
     ];
+
+    const activeCategoriesList = selectedCategories && selectedCategories.length > 0 
+        ? ALL_CATEGORIES.filter(cat => selectedCategories.includes(cat.id))
+        : ALL_CATEGORIES.filter(cat => cat.id === "subjects");
 
     const [state, setState] = useState({
         universities: { data: [], page: 1, totalPages: 1, loading: false, total: 0 },
@@ -369,7 +373,8 @@ export default function SMAdminSearchResults({ searchQuery, onClearSearch }) {
         }));
 
         try {
-            const cat = categories.find(c => c.id === catId);
+            const cat = ALL_CATEGORIES.find(c => c.id === catId);
+            if (!cat) return;
             const res = await fetch(`${cat.endpoint}?q=${encodeURIComponent(searchQuery)}&page=${pageNum}&limit=20`);
             const json = await res.json();
 
@@ -406,12 +411,24 @@ export default function SMAdminSearchResults({ searchQuery, onClearSearch }) {
     };
 
     useEffect(() => {
+        // Reset non-active categories state
+        const initialCategoryState = { data: [], page: 1, totalPages: 1, loading: false, total: 0 };
+        setState(prev => {
+            const nextState = { ...prev };
+            ALL_CATEGORIES.forEach(cat => {
+                if (!activeCategoriesList.some(c => c.id === cat.id)) {
+                    nextState[cat.id] = { ...initialCategoryState };
+                }
+            });
+            return nextState;
+        });
+
         if (searchQuery.trim()) {
-            categories.forEach(cat => {
+            activeCategoriesList.forEach(cat => {
                 fetchCategory(cat.id, 1, false);
             });
         }
-    }, [searchQuery]);
+    }, [searchQuery, JSON.stringify(selectedCategories)]);
 
     const handleLoadMore = (catId) => {
         const current = state[catId];
@@ -420,8 +437,8 @@ export default function SMAdminSearchResults({ searchQuery, onClearSearch }) {
         }
     };
 
-    const hasAnyResults = categories.some(cat => state[cat.id].data.length > 0);
-    const isLoadingAny = categories.some(cat => state[cat.id].loading && state[cat.id].page === 1);
+    const hasAnyResults = activeCategoriesList.some(cat => state[cat.id].data.length > 0);
+    const isLoadingAny = activeCategoriesList.some(cat => state[cat.id].loading && state[cat.id].page === 1);
 
     if (isLoadingAny) {
         return (
@@ -459,7 +476,7 @@ export default function SMAdminSearchResults({ searchQuery, onClearSearch }) {
 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginTop: "10px" }}>
-            {categories.map(cat => {
+            {activeCategoriesList.map(cat => {
                 const catState = state[cat.id];
                 if (catState.data.length === 0) return null;
 
