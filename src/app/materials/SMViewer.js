@@ -5,6 +5,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { FiFileText, FiSearch, FiX, FiCheck, FiFilter } from "react-icons/fi";
 import SMDirectoryNode from "@/app/admin/study-materials/SMDirectoryNode";
 import SMAdminSearchResults from "@/app/admin/study-materials/SMAdminSearchResults";
+import SMPreferenceCard from "./SMPreferenceCard";
 import "./SMViewer.css";
 
 const CATEGORY_OPTIONS = [
@@ -256,6 +257,9 @@ export default function SMViewer() {
                     </div>
                 </div>
             </div>
+
+            {/* Your Preference Card */}
+            <SMPreferenceCard />
 
             <div className="sm-content" style={{ padding: "16px", background: "#fdfbff", borderRadius: "12px", border: "1px solid #e9d5ff" }}>
                 {activeQuery.trim() ? (
