@@ -138,12 +138,12 @@ export default function SMViewer() {
             
             {/* Search Box & Category Filters */}
             <div className="sm-search-container" style={{ 
-                marginBottom: "20px", 
+                marginBottom: "14px", 
                 background: "#fff",
-                padding: "16px",
-                borderRadius: "14px",
-                border: "1px solid #e9d5ff",
-                boxShadow: "0 4px 12px rgba(124, 58, 237, 0.05)"
+                padding: "14px",
+                borderRadius: "12px",
+                border: "1px solid #e0f2fe",
+                boxShadow: "0 2px 8px rgba(14, 165, 233, 0.05)"
             }}>
                 <form onSubmit={handleSearchSubmit} className="sm-search-form" style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
                     <div style={{ 
@@ -156,7 +156,7 @@ export default function SMViewer() {
                         <FiSearch style={{ 
                             position: "absolute", 
                             left: "14px", 
-                            color: "#7c3aed", 
+                            color: "#0ea5e9", 
                             fontSize: "18px" 
                         }} />
                         <input
@@ -166,40 +166,40 @@ export default function SMViewer() {
                             onChange={(e) => setSearchInput(e.target.value)}
                             style={{
                                 width: "100%",
-                                padding: "10px 16px 10px 42px",
+                                padding: "9px 14px 9px 40px",
                                 borderRadius: "8px",
-                                border: "1px solid #d8b4fe",
+                                border: "1px solid #7dd3fc",
                                 outline: "none",
                                 fontSize: "14px",
-                                background: "#fdfbff",
-                                color: "#374151",
+                                background: "#f8fafc",
+                                color: "#1e293b",
                                 transition: "all 0.2s"
                             }}
-                            onFocus={(e) => e.target.style.borderColor = "#7c3aed"}
-                            onBlur={(e) => e.target.style.borderColor = "#d8b4fe"}
+                            onFocus={(e) => e.target.style.borderColor = "#0ea5e9"}
+                            onBlur={(e) => e.target.style.borderColor = "#7dd3fc"}
                         />
                     </div>
                     
                     <button
                         type="submit"
                         style={{
-                            background: "#7c3aed",
+                            background: "#0ea5e9",
                             color: "#ffffff",
                             border: "none",
-                            padding: "0 22px",
-                            height: "42px",
+                            padding: "0 18px",
+                            height: "38px",
                             borderRadius: "8px",
                             cursor: "pointer",
-                            fontSize: "14px",
+                            fontSize: "13px",
                             fontWeight: "600",
                             display: "inline-flex",
                             alignItems: "center",
-                            gap: "8px",
+                            gap: "6px",
                             transition: "0.2s",
-                            boxShadow: "0 2px 8px rgba(124, 58, 237, 0.25)"
+                            boxShadow: "0 1px 6px rgba(14, 165, 233, 0.25)"
                         }}
-                        onMouseOver={(e) => e.currentTarget.style.background = "#6d28d9"}
-                        onMouseOut={(e) => e.currentTarget.style.background = "#7c3aed"}
+                        onMouseOver={(e) => e.currentTarget.style.background = "#0284c7"}
+                        onMouseOut={(e) => e.currentTarget.style.background = "#0ea5e9"}
                     >
                         <FiSearch size={16} />
                         <span className="sm-search-btn-text">Search</span>
@@ -210,22 +210,22 @@ export default function SMViewer() {
                             type="button"
                             onClick={handleClearSearch}
                             style={{
-                                background: "#fee2e2",
+                                background: "#fef2f2",
                                 color: "#b91c1c",
                                 border: "1px solid #fecaca",
-                                padding: "0 18px",
-                                height: "42px",
+                                padding: "0 14px",
+                                height: "38px",
                                 borderRadius: "8px",
                                 cursor: "pointer",
-                                fontSize: "14px",
+                                fontSize: "13px",
                                 fontWeight: "600",
                                 display: "inline-flex",
                                 alignItems: "center",
-                                gap: "6px",
+                                gap: "5px",
                                 transition: "0.2s"
                             }}
-                            onMouseOver={(e) => e.currentTarget.style.background = "#fca5a5"}
-                            onMouseOut={(e) => e.currentTarget.style.background = "#fee2e2"}
+                            onMouseOver={(e) => e.currentTarget.style.background = "#fecaca"}
+                            onMouseOut={(e) => e.currentTarget.style.background = "#fef2f2"}
                         >
                             <FiX size={16} />
                             <span className="sm-search-btn-text">Clear</span>
@@ -234,12 +234,12 @@ export default function SMViewer() {
                 </form>
 
                 {/* Category Scope Selection Pills */}
-                <div className="sm-search-scope" style={{ marginTop: "14px", display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "13px", color: "#6b7280", fontWeight: "600" }}>
-                        <FiFilter size={14} color="#7c3aed" />
-                        <span>Search Scope:</span>
+                <div className="sm-search-scope" style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#64748b", fontWeight: "600", whiteSpace: "nowrap" }}>
+                        <FiFilter size={13} color="#0ea5e9" />
+                        <span>Scope:</span>
                     </div>
-                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
                         {CATEGORY_OPTIONS.map(cat => {
                             const isSelected = selectedCategories.includes(cat.id);
                             return (
@@ -261,7 +261,7 @@ export default function SMViewer() {
             {/* Your Preference Card */}
             <SMPreferenceCard />
 
-            <div className="sm-content" style={{ padding: "16px", background: "#fdfbff", borderRadius: "12px", border: "1px solid #e9d5ff" }}>
+            <div className="sm-content" style={{ padding: "14px", background: "#fafcfe", borderRadius: "10px", border: "1px solid #e0f2fe" }}>
                 {activeQuery.trim() ? (
                     <SMAdminSearchResults 
                         searchQuery={activeQuery}
@@ -290,9 +290,9 @@ export default function SMViewer() {
                                     onClick={handleLoadMore}
                                     disabled={loading}
                                     style={{
-                                        background: loading ? "#f3e8ff" : "#fff",
-                                        color: loading ? "#888" : "#7c3aed",
-                                        border: "1px solid #7c3aed",
+                                        background: loading ? "#f0f9ff" : "#fff",
+                                        color: loading ? "#94a3b8" : "#0ea5e9",
+                                        border: "1px solid #0ea5e9",
                                         padding: "8px 20px",
                                         borderRadius: "6px",
                                         cursor: loading ? "default" : "pointer",

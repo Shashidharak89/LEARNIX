@@ -102,7 +102,7 @@ export default function SMPreferenceCard() {
     };
 
     return (
-        <div style={{ marginBottom: "20px" }}>
+        <div style={{ marginBottom: "14px" }}>
             {/* If no preferences are set */}
             {preferences.length === 0 ? (
                 <div 
@@ -111,7 +111,7 @@ export default function SMPreferenceCard() {
                 >
                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                         <div className="sm-pref-badge-icon">
-                            <FiBookmark size={18} color="#7c3aed" />
+                            <FiBookmark size={16} color="#0ea5e9" />
                         </div>
                         <div>
                             <span className="sm-pref-empty-title">Your Preferences</span>
@@ -130,7 +130,7 @@ export default function SMPreferenceCard() {
                 <div className="sm-pref-list-container">
                     <div className="sm-pref-list-header">
                         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                            <FiBookmark size={18} color="#7c3aed" />
+                            <FiBookmark size={16} color="#0ea5e9" />
                             <h3 className="sm-pref-list-title">
                                 Your Preferences 
                                 <span className="sm-pref-count-tag">{preferences.length}</span>
@@ -156,7 +156,7 @@ export default function SMPreferenceCard() {
                                         className={`sm-pref-card-header ${isExpanded ? "expanded" : ""}`}
                                     >
                                         <div style={{ display: "flex", alignItems: "center", gap: "12px", overflow: "hidden" }}>
-                                            <span style={{ color: "#7c3aed", display: "flex", alignItems: "center" }}>
+                                            <span style={{ color: "#0ea5e9", display: "flex", alignItems: "center" }}>
                                                 {isExpanded ? <FiChevronDown size={20} /> : <FiChevronRight size={20} />}
                                             </span>
                                             <div style={{ overflow: "hidden" }}>
