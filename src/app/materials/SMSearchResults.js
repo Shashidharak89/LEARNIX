@@ -25,11 +25,12 @@ const highlightText = (text, keyword) => {
 
     const pattern = words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
     const regex = new RegExp(`(${pattern})`, "gi");
+    const testRegex = new RegExp(`^(${pattern})$`, "i");
     const parts = String(text).split(regex);
     return (
         <span>
             {parts.map((part, i) =>
-                regex.test(part) ? (
+                testRegex.test(part) ? (
                     <mark key={i} style={{ background: "#fef08a", color: "#854d0e", padding: "0 2px", borderRadius: "2px", fontWeight: "bold" }}>
                         {part}
                     </mark>

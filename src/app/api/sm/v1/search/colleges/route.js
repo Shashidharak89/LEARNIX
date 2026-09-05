@@ -12,7 +12,10 @@ export async function GET(req) {
         const limit = parseInt(url.searchParams.get("limit")) || 20;
         const skip = (page - 1) * limit;
 
-        const words = q.toLowerCase().trim().split(/\s+/).filter(Boolean);
+        const rawQuery = q.trim();
+        const cleanQuery = rawQuery.toLowerCase();
+        const words = cleanQuery.split(/\s+/).filter(Boolean);
+
         let query = {};
         if (words.length > 0) {
             const uniConditions = words.map(w => ({ name: { $regex: w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), $options: "i" } }));
@@ -40,11 +43,19 @@ export async function GET(req) {
             scoredRecords = allRecords
                 .map(r => {
                     let score = 0;
-                    const uniName = r.university?.name || "";
-                    const text = `${r.name || ""} ${r.location || ""} ${uniName}`.toLowerCase();
+                    const collegeName = (r.name || "").toLowerCase();
+                    const location = (r.location || "").toLowerCase();
+                    const uniName = (r.university?.name || "").toLowerCase();
+                    const text = `${collegeName} ${location} ${uniName}`;
+
+                    if (text.includes(cleanQuery)) score += 20;
+                    if (collegeName.startsWith(cleanQuery)) score += 10;
+
                     for (const word of words) {
-                        if (text.includes(word)) {
-                            score += 1;
+                        if (collegeName.includes(word)) {
+                            score += 5;
+                        } else if (location.includes(word) || uniName.includes(word)) {
+                            score += 2;
                         }
                     }
                     return { r, score };

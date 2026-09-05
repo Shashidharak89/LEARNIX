@@ -11,7 +11,10 @@ export async function GET(req) {
         const limit = parseInt(url.searchParams.get("limit")) || 20;
         const skip = (page - 1) * limit;
 
-        const words = q.toLowerCase().trim().split(/\s+/).filter(Boolean);
+        const rawQuery = q.trim();
+        const cleanQuery = rawQuery.toLowerCase();
+        const words = cleanQuery.split(/\s+/).filter(Boolean);
+
         let query = {};
         if (words.length > 0) {
             const orConditions = [];
@@ -33,10 +36,19 @@ export async function GET(req) {
             scoredRecords = allRecords
                 .map(r => {
                     let score = 0;
-                    const text = `${r.name || ""} ${r.city || ""} ${r.district || ""}`.toLowerCase();
+                    const uniName = (r.name || "").toLowerCase();
+                    const city = (r.city || "").toLowerCase();
+                    const district = (r.district || "").toLowerCase();
+                    const text = `${uniName} ${city} ${district}`;
+
+                    if (text.includes(cleanQuery)) score += 20;
+                    if (uniName.startsWith(cleanQuery)) score += 10;
+
                     for (const word of words) {
-                        if (text.includes(word)) {
-                            score += 1;
+                        if (uniName.includes(word)) {
+                            score += 5;
+                        } else if (city.includes(word) || district.includes(word)) {
+                            score += 2;
                         }
                     }
                     return { r, score };

@@ -22,7 +22,9 @@ export async function GET(req) {
         const limit = parseInt(url.searchParams.get("limit")) || 20;
         const skip = (page - 1) * limit;
 
-        const words = q.toLowerCase().trim().split(/\s+/).filter(Boolean);
+        const rawQuery = q.trim();
+        const cleanQuery = rawQuery.toLowerCase();
+        const words = cleanQuery.split(/\s+/).filter(Boolean);
         if (words.length === 0) {
             return NextResponse.json({ success: true, pagination: { total: 0, page, limit, totalPages: 0 }, data: [] }, { status: 200 });
         }
@@ -42,9 +44,14 @@ export async function GET(req) {
             return results.map(r => {
                 let score = 0;
                 const text = fields.map(f => r[f] || "").join(" ").toLowerCase();
+                const primaryName = (r.name || "").toLowerCase();
+
+                if (text.includes(cleanQuery)) score += 20;
+                if (primaryName.startsWith(cleanQuery)) score += 10;
+
                 for (const word of words) {
                     if (text.includes(word)) {
-                        score += 1;
+                        score += 5;
                     }
                 }
                 return { ...r, __type: name, __score: score };
