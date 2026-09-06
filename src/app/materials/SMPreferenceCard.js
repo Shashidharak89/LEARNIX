@@ -188,6 +188,7 @@ export default function SMPreferenceCard() {
                                                 type={pref.type}
                                                 data={pref.data}
                                                 parentParams={pref.parentParams || {}}
+                                                autoExpand={true}
                                             />
                                         </div>
                                     )}

@@ -45,8 +45,9 @@ export default function SMDirectoryNode({
     parentParams = {},
     searchActive = false,
     highlightKeyword = "",
+    autoExpand = false,
 }) {
-    const [expanded, setExpanded] = useState(false);
+    const [expanded, setExpanded] = useState(autoExpand);
     const [externalExpanded, setExternalExpanded] = useState(false);
     const [children, setChildren] = useState(data.children || []);
     const [page, setPage] = useState(1);
@@ -173,6 +174,13 @@ export default function SMDirectoryNode({
         setExpanded(!expanded);
     };
 
+    // Auto-expand: fetch children on mount when autoExpand is true
+    useEffect(() => {
+        if (autoExpand && children.length === 0) {
+            fetchChildren(1);
+        }
+    }, [autoExpand]);
+
     const handleLoadMore = () => {
         if (page < totalPages) {
             const nextPage = page + 1;
@@ -223,6 +231,44 @@ export default function SMDirectoryNode({
             </span>
         );
     };
+
+    // If autoExpand, skip rendering the folder header and show children directly
+    if (autoExpand && type !== "file") {
+        return (
+            <div style={{ marginTop: "4px" }}>
+                {loading && children.length === 0 && (
+                    <div style={{ padding: "8px", color: "#94a3b8", fontSize: "13px" }}>Loading...</div>
+                )}
+                {!loading && children.length === 0 && (
+                    <div style={{ padding: "8px", color: "#94a3b8", fontSize: "13px" }}>No items found.</div>
+                )}
+                {children.map(child => (
+                    <SMDirectoryNode
+                        key={child._id}
+                        level={0}
+                        type={nextType || "file"}
+                        data={child}
+                        parentParams={nextParams}
+                        searchActive={searchActive}
+                        highlightKeyword={highlightKeyword}
+                    />
+                ))}
+                {page < totalPages && (
+                    <button 
+                        onClick={handleLoadMore}
+                        disabled={loading}
+                        style={{
+                            marginTop: "10px", background: "none", border: "none",
+                            color: "#0ea5e9", fontWeight: "600", cursor: "pointer", fontSize: "13px",
+                            textDecoration: "underline"
+                        }}
+                    >
+                        {loading ? "Loading..." : "Load More"}
+                    </button>
+                )}
+            </div>
+        );
+    }
 
     return (
         <div className="sm-tree-node" style={{ marginLeft: level > 0 ? undefined : "0", marginTop: "8px" }}>
