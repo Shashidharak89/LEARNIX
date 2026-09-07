@@ -8,6 +8,7 @@ import AddUpdateForm from '../upload/updates/AddUpdateForm';
 import { getYouTubeVideoId } from '../utils/youtube';
 import LinkPreview from '../components/LinkPreview';
 import FileIcon from '../components/FileIcon';
+import ExpandableDescription from '../components/ExpandableDescription';
 import './styles/Updates.css';
 
 export default function UpdatesPage({ initialUpdateId }) {
@@ -278,7 +279,7 @@ export default function UpdatesPage({ initialUpdateId }) {
                   </button>
                 </div>
 
-                {u.content && <p className="upd-content">{u.content}</p>}
+                <ExpandableDescription content={u.content} className="upd-content" />
 
                 {u.links && u.links.length > 0 && (
                   <div className="upd-links">

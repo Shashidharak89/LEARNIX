@@ -6,6 +6,7 @@ import { getYouTubeVideoId } from '../../utils/youtube';
 import LinkPreview from '../../components/LinkPreview';
 import FileIcon from '../../components/FileIcon';
 import { authFetch } from '@/lib/clientAuth';
+import ExpandableDescription from '../../components/ExpandableDescription';
 import './styles/UpdatesList.css';
 
 export default function UpdatesList({ refreshKey }) {
@@ -461,7 +462,7 @@ export default function UpdatesList({ refreshKey }) {
               </div>
 
               {/* Content */}
-              {u.content && <p className="upl-content">{u.content}</p>}
+              <ExpandableDescription content={u.content} className="upl-content" />
 
               {/* Links */}
               {u.links && u.links.length > 0 && (
