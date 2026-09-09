@@ -2,14 +2,23 @@
 
 import { useState, useEffect } from "react";
 import {
-  FiDownload,
-  FiSmartphone,
+  FiFileText,
+  FiUploadCloud,
 } from "react-icons/fi";
+import { FaGooglePlay } from "react-icons/fa";
+
+import googlePlaySvg from "../../animated-icons/Google Play.svg";
 
 import "./styles/DownloadAppBanner.css";
 
+const FEATURES = [
+  { icon: FiFileText, label: "Notes & papers" },
+  { icon: FiUploadCloud, label: "Instant uploads" },
+];
+
 export default function DownloadAppBanner() {
   const [appInfo, setAppInfo] = useState({ version: "", link: "" });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchAppInfo() {
@@ -19,54 +28,70 @@ export default function DownloadAppBanner() {
         setAppInfo(data);
       } catch (error) {
         console.error("Failed to fetch app info:", error);
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchAppInfo();
   }, []);
 
   return (
+    <section className="lrx-dlb-section" aria-label="Download Learnix Android App">
+      <div className="lrx-dlb-inner">
 
-    <section
-      className="dab-wrap"
-      aria-label="Download Learnix Android App"
-    >
+        <div className="lrx-dlb-content">
+          <span className="lrx-dlb-badge">
+            <FaGooglePlay size={13} aria-hidden="true" />
+            Available on Google Play
+          </span>
 
-      <div className="dab-glow dab-glow-1" />
+          <h3 className="lrx-dlb-title">
+            Take Learnix with you, everywhere
+          </h3>
 
-      <div className="dab-glow dab-glow-2" />
+          <p className="lrx-dlb-subtitle">
+            Install the official Android app for faster access to notes,
+            uploads, question papers, and tools.
+          </p>
 
-      <div className="dab-content">
-
-        <div className="dab-badge">
-          <FiSmartphone size={14} />
-          {" "}
-          Android App
-        </div>
-
-        <h3 className="dab-title">
-          Download LEARNIX on your phone
-        </h3>
-
-        <p className="dab-subtitle">
-          Install the official Android app for faster access
-          to notes, uploads, question papers, tools,
-          and real-time chat.
-        </p>
-
-        <div className="dab-actions">
+          <ul className="lrx-dlb-features">
+            {FEATURES.map(({ icon: Icon, label }) => (
+              <li className="lrx-dlb-feature" key={label}>
+                <Icon size={14} aria-hidden="true" />
+                {label}
+              </li>
+            ))}
+          </ul>
 
           <a
             href={appInfo.link || "#"}
             target="_blank"
             rel="noopener noreferrer"
-            className="dab-download-btn"
+            className="lrx-dlb-cta"
+            aria-disabled={isLoading}
           >
-            <FiDownload size={16} />
-            {" "}
-            {appInfo.version ? `Click to Download (v${appInfo.version})` : "Loading..."}
+            <FaGooglePlay size={17} className="lrx-dlb-cta-icon" aria-hidden="true" />
+            <span className="lrx-dlb-cta-text">
+              <span className="lrx-dlb-cta-text-small">Get it on</span>
+              <span className="lrx-dlb-cta-text-main">
+                {isLoading ? "Preparing…" : `Google Play (v${appInfo.version || "1.0"})`}
+              </span>
+            </span>
           </a>
-
         </div>
+
+        <div className="lrx-dlb-visual" aria-hidden="true">
+          <img
+            src={googlePlaySvg.src || googlePlaySvg}
+            alt="Google Play App"
+            className="lrx-dlb-svg-icon"
+          />
+          <span className="lrx-dlb-visual-tag">
+            <FaGooglePlay size={11} aria-hidden="true" />
+            Google Play
+          </span>
+        </div>
+
       </div>
     </section>
   );

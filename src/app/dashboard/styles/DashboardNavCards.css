@@ -133,6 +133,12 @@
   --dash-lnx-shadow: rgba(13, 148, 136, 0.12);
 }
 
+.dash-lnx-card--works {
+  --dash-lnx-accent: #2563eb;
+  --dash-lnx-icon-bg: #eff6ff;
+  --dash-lnx-shadow: rgba(37, 99, 235, 0.12);
+}
+
 .dash-lnx-card--qp {
   --dash-lnx-accent: #ea580c;
   --dash-lnx-icon-bg: #fff7ed;
@@ -187,6 +193,7 @@
 .dash-lnx-card:nth-child(7) { animation-delay: 0.28s; }
 .dash-lnx-card:nth-child(8) { animation-delay: 0.32s; }
 .dash-lnx-card:nth-child(9) { animation-delay: 0.36s; }
+.dash-lnx-card:nth-child(10) { animation-delay: 0.40s; }
 
 /* ══════════════════════════════════════════════
    Responsive breakpoints

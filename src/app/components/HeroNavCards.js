@@ -12,6 +12,7 @@ import {
   FiFileText,
   FiBell,
   FiArrowRight,
+  FiFolder,
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import { gsap } from "gsap";
@@ -58,6 +59,18 @@ const navItems = [
     accent: "#0d9488",
     bg: "#f0fdfa",
     badge: "Verified Notes",
+  },
+  {
+    id: "works",
+    href: "/works",
+    Icon: FiFolder,
+    label: "Works",
+    subtitle: "Browse Student Works",
+    description: "Explore homework solutions, assignments, and academic projects shared by students across subjects.",
+    theme: "works",
+    accent: "#2563eb",
+    bg: "#eff6ff",
+    badge: "Student Works",
   },
   {
     id: "qp",
@@ -144,6 +157,7 @@ const scatteredOffsets = [
   { x: -140, y: 120,  scale: 0.5, rotate: -10 },
   { x: 0,    y: 160,  scale: 0.4, rotate: 8 },
   { x: 140,  y: 120,  scale: 0.5, rotate: 10 },
+  { x: -80,  y: 140,  scale: 0.4, rotate: -8 },
 ];
 
 export default function HeroNavCards({ loggedIn }) {
@@ -476,9 +490,9 @@ export default function HeroNavCards({ loggedIn }) {
             </div>
 
             <nav className="lnx-finale-cards-grid" aria-label="All Features Navigation">
-              {/* Top Row: 6 items */}
+              {/* Top Row: 5 items */}
               <div className="lnx-finale-row top-row">
-                {navItems.slice(0, 6).map(({ href, Icon, label, theme, authRequired }, cardIdx) => {
+                {navItems.slice(0, 5).map(({ href, Icon, label, theme, authRequired }, cardIdx) => {
                   const resolvedHref = authRequired && !loggedIn ? "/login" : href;
                   return (
                     <Link
@@ -496,10 +510,10 @@ export default function HeroNavCards({ loggedIn }) {
                 })}
               </div>
 
-              {/* Bottom Row: 3 items centered */}
+              {/* Bottom Row: 5 items centered */}
               <div className="lnx-finale-row bottom-row">
-                {navItems.slice(6, 9).map(({ href, Icon, label, theme, authRequired }, cardIdx) => {
-                  const realIdx = cardIdx + 6;
+                {navItems.slice(5, 10).map(({ href, Icon, label, theme, authRequired }, cardIdx) => {
+                  const realIdx = cardIdx + 5;
                   const resolvedHref = authRequired && !loggedIn ? "/login" : href;
                   return (
                     <Link

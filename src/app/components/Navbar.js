@@ -19,10 +19,8 @@ import {
   FiHelpCircle,
   FiTool,
   FiBell,
-  FiCheck,
   FiClipboard,
   FiShield,
-  FiMessageSquare,
 } from "react-icons/fi";
 import "./styles/Navbar.css";
 import { Fill } from "./Fill";
@@ -36,17 +34,6 @@ export const Navbar = () => {
   const [userRole, setUserRole] = useState("");
   const [navHidden, setNavHidden] = useState(false);
   const lastScrollY = useRef(0);
-  
-  // Notification state
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [notifLoading, setNotifLoading] = useState(false);
-  const [notifLoadingMore, setNotifLoadingMore] = useState(false);
-  const [notifPage, setNotifPage] = useState(1);
-  const [hasMoreNotifs, setHasMoreNotifs] = useState(false);
-  const [totalNotifs, setTotalNotifs] = useState(0);
-  const notifRef = useRef(null);
 
   useEffect(() => {
     // verify token and sync local auth state on page load/refresh
@@ -169,123 +156,6 @@ export const Navbar = () => {
     signOutFromBrowser("You have been signed out.");
   };
 
-  // Fetch notifications (with pagination support)
-  const fetchNotifications = async (page = 1, append = false) => {
-    const usn = localStorage.getItem("usn");
-    if (!usn) return;
-    
-    try {
-      if (append) {
-        setNotifLoadingMore(true);
-      } else {
-        setNotifLoading(true);
-      }
-      
-      const res = await fetch(`/api/review/notifications/${usn}?page=${page}&limit=10`);
-      if (res.ok) {
-        const data = await res.json();
-        if (append) {
-          setNotifications(prev => [...prev, ...(data.notifications || [])]);
-        } else {
-          setNotifications(data.notifications || []);
-        }
-        setUnreadCount(data.unreadCount || 0);
-        setHasMoreNotifs(data.hasMore || false);
-        setTotalNotifs(data.total || 0);
-        setNotifPage(page);
-      }
-    } catch (error) {
-      console.error("Failed to fetch notifications:", error);
-    } finally {
-      setNotifLoading(false);
-      setNotifLoadingMore(false);
-    }
-  };
-
-  // Load more notifications
-  const loadMoreNotifications = () => {
-    if (hasMoreNotifs && !notifLoadingMore) {
-      fetchNotifications(notifPage + 1, true);
-    }
-  };
-
-  // Fetch unread count periodically
-  useEffect(() => {
-    if (!hasUSN) return;
-    
-    // Initial fetch
-    fetchNotifications();
-    
-    // Fetch every 30 seconds
-    const interval = setInterval(fetchNotifications, 30000);
-    
-    return () => clearInterval(interval);
-  }, [hasUSN]);
-
-  // Close notifications on click outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (notifRef.current && !notifRef.current.contains(event.target)) {
-        setShowNotifications(false);
-      }
-    };
-    
-    if (showNotifications) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showNotifications]);
-
-  const toggleNotifications = () => {
-    setShowNotifications(!showNotifications);
-    if (!showNotifications) {
-      // Reset to first page and fetch fresh
-      setNotifPage(1);
-      setNotifications([]);
-      fetchNotifications(1, false);
-    }
-  };
-
-  const formatNotifTime = (timestamp) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diff = now - date;
-    
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    
-    if (days > 0) return `${days}d ago`;
-    if (hours > 0) return `${hours}h ago`;
-    if (minutes > 0) return `${minutes}m ago`;
-    return "Just now";
-  };
-
-  const handleMarkAsRead = async (e, reviewId) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    try {
-      const res = await fetch(`/api/review/${reviewId}/read`, {
-        method: "PATCH"
-      });
-      
-      if (res.ok) {
-        // Update local state - mark this notification as read
-        setNotifications(prev => 
-          prev.map(n => n._id === reviewId ? { ...n, isRead: true } : n)
-        );
-        // Decrease unread count
-        setUnreadCount(prev => Math.max(0, prev - 1));
-      }
-    } catch (error) {
-      console.error("Failed to mark as read:", error);
-    }
-  };
-
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === "Escape" && isOpen) {
@@ -324,107 +194,8 @@ export const Navbar = () => {
           </Link>
         </div>
 
-        {/* Right Section - Notification & Menu */}
+        {/* Right Section - Menu Toggle */}
         <div className="learnix-navbar-right">
-          {hasUSN && (
-            <Link
-              href="/chat"
-              className="learnix-chat-btn"
-              aria-label="Open chat"
-              title="Open chat"
-            >
-              <FiMessageSquare size={20} />
-            </Link>
-          )}
-
-          {/* Notification Bell */}
-          {hasUSN && (
-            <div className="learnix-notification-wrapper" ref={notifRef}>
-              <button
-                className="learnix-notification-btn"
-                onClick={toggleNotifications}
-                aria-label="Notifications"
-              >
-                <FiBell size={20} />
-                {unreadCount > 0 && (
-                  <span className="learnix-notification-badge">
-                    {unreadCount > 99 ? "99+" : unreadCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Notification Popup */}
-              {showNotifications && (
-                <div className="learnix-notification-popup">
-                  <div className="learnix-notif-header">
-                    <h4>Notifications</h4>
-                    <span className="learnix-notif-count">{unreadCount} unread</span>
-                  </div>
-                  
-                  <div className="learnix-notif-list">
-                    {notifLoading ? (
-                      <div className="learnix-notif-loading">Loading...</div>
-                    ) : notifications.length === 0 ? (
-                      <div className="learnix-notif-empty">
-                        <FiBell size={32} />
-                        <p>No notifications yet</p>
-                      </div>
-                    ) : (
-                      <>
-                        {notifications.map((notif) => (
-                          <div key={notif._id} className={`learnix-notif-item ${!notif.isRead ? 'learnix-notif-unread' : ''}`}>
-                            <Link
-                              href={`/reviews/${notif.topicId}`}
-                              className="learnix-notif-link-area"
-                              onClick={() => setShowNotifications(false)}
-                            >
-                              <div className="learnix-notif-content">
-                                <p className="learnix-notif-text">
-                                  <strong>{notif.reviewerUsn}</strong> sent a {notif.type} on your topic <strong>{notif.topicName}</strong> of <strong>{notif.subjectName}</strong>
-                                </p>
-                                <span className="learnix-notif-time">{formatNotifTime(notif.timestamp)}</span>
-                              </div>
-                              <span className="learnix-notif-link">Click to view →</span>
-                            </Link>
-                            {!notif.isRead && (
-                              <button
-                                className="learnix-mark-read-btn"
-                                onClick={(e) => handleMarkAsRead(e, notif._id)}
-                                title="Mark as read"
-                              >
-                                <FiCheck size={14} />
-                              </button>
-                            )}
-                          </div>
-                        ))}
-                        
-                        {/* Load More Button */}
-                        {hasMoreNotifs && (
-                          <div className="learnix-notif-load-more">
-                            <button 
-                              onClick={loadMoreNotifications}
-                              disabled={notifLoadingMore}
-                              className="learnix-load-more-btn"
-                            >
-                              {notifLoadingMore ? "Loading..." : `Load More (${notifications.length} of ${totalNotifs})`}
-                            </button>
-                          </div>
-                        )}
-                        
-                        {/* All Loaded Message */}
-                        {!hasMoreNotifs && notifications.length > 0 && (
-                          <div className="learnix-notif-all-loaded">
-                            All {totalNotifs} notifications loaded
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
           {/* Menu Toggle Button */}
           <button
             className="learnix-menu-toggle-btn"

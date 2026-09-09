@@ -1,124 +1,309 @@
-.dab-wrap {
-  position: relative;
-  margin-top: 16px;
-  border-radius: 16px;
+/* ==========================================================================
+   Learnix — Download App Banner
+   Palette: blue / yellow / black / white. No gradients, no heavy shadows.
+   ========================================================================== */
+
+.lrx-dlb-section {
+  --lrx-blue: #1e4fd8;
+  --lrx-blue-dark: #15379e;
+  --lrx-yellow: #ffc93c;
+  --lrx-ink: #14161a;
+  --lrx-gray: #5b6472;
+  --lrx-surface: #f4f6fb;
+  --lrx-border: #e1e5ee;
+  --lrx-white: #ffffff;
+
+  background: var(--lrx-white);
+  border: 1px solid var(--lrx-border);
+  border-radius: 20px;
+  padding: 40px;
   overflow: hidden;
-  border: 1px solid #bae6fd;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 45%, #dbeafe 100%);
-  box-shadow: 0 10px 30px rgba(14, 165, 233, 0.2);
 }
 
-.dab-content {
-  position: relative;
-  z-index: 2;
-  padding: 18px 16px;
-}
-
-.dab-badge {
-  display: inline-flex;
+.lrx-dlb-inner {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
   align-items: center;
-  gap: 6px;
-  border: 1px solid #93c5fd;
-  border-radius: 999px;
-  padding: 5px 10px;
-  background: rgba(255, 255, 255, 0.7);
-  color: #075985;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  gap: 48px;
+  max-width: 980px;
+  margin: 0 auto;
 }
 
-.dab-title {
-  margin: 10px 0 6px;
-  color: #0f172a;
-  font-size: clamp(1.03rem, 2.8vw, 1.35rem);
-  font-weight: 800;
-}
+/* ---------- Content ---------- */
 
-.dab-subtitle {
-  margin: 0;
-  color: #1e3a8a;
-  font-size: 0.94rem;
-  line-height: 1.5;
-}
-
-.dab-actions {
-  margin-top: 14px;
+.lrx-dlb-content {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
 }
 
-.dab-download-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  border: 1px solid #0284c7;
-  background: linear-gradient(135deg, #0ea5e9, #0284c7);
-  color: #ffffff;
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-weight: 700;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  animation: dabPulse 2s ease-in-out infinite;
-}
-
-.dab-download-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(2, 132, 199, 0.35);
-}
-
-.dab-hint {
+.lrx-dlb-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: #334155;
-  font-size: 0.82rem;
+  padding: 5px 12px;
+  background: var(--lrx-surface);
+  border: 1px solid var(--lrx-border);
+  border-radius: 999px;
+  color: var(--lrx-blue-dark);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 12.5px;
   font-weight: 600;
 }
 
-.dab-glow {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(14px);
-  opacity: 0.5;
+.lrx-dlb-title {
+  font-family: "Sora", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 28px;
+  font-weight: 650;
+  line-height: 1.25;
+  color: var(--lrx-ink);
+  margin: 0;
+  max-width: 26ch;
+}
+
+.lrx-dlb-subtitle {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--lrx-gray);
+  margin: 0;
+  max-width: 42ch;
+}
+
+.lrx-dlb-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 4px 0 8px;
+  padding: 0;
+}
+
+.lrx-dlb-feature {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--lrx-border);
+  border-radius: 10px;
+  color: var(--lrx-ink);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.lrx-dlb-feature svg {
+  color: var(--lrx-blue);
+  flex-shrink: 0;
+}
+
+.lrx-dlb-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 13px 22px;
+  background: var(--lrx-blue);
+  color: var(--lrx-white);
+  border-radius: 12px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14.5px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--lrx-blue);
+  transition: background-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.lrx-dlb-cta:hover {
+  background: var(--lrx-blue-dark);
+  border-color: var(--lrx-blue-dark);
+  box-shadow: 0 4px 14px rgba(30, 79, 216, 0.22);
+}
+
+.lrx-dlb-cta:active {
+  transform: translateY(1px);
+}
+
+.lrx-dlb-cta:focus-visible {
+  outline: 2px solid var(--lrx-yellow);
+  outline-offset: 3px;
+}
+
+.lrx-dlb-cta-icon {
+  transition: transform 160ms ease;
+  flex-shrink: 0;
+}
+
+.lrx-dlb-cta:hover .lrx-dlb-cta-icon {
+  transform: scale(1.08);
+}
+
+.lrx-dlb-cta-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.lrx-dlb-cta-text-small {
+  font-size: 10.5px;
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+.lrx-dlb-cta-text-main {
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.lrx-dlb-cta[aria-disabled="true"] {
+  background: var(--lrx-gray);
+  border-color: var(--lrx-gray);
+  cursor: default;
   pointer-events: none;
 }
 
-.dab-glow-1 {
-  width: 180px;
-  height: 180px;
-  background: #22d3ee;
-  top: -60px;
-  right: -50px;
-  animation: dabFloatOne 5s ease-in-out infinite;
+/* ---------- Visual: phone panel + accent shape ---------- */
+
+.lrx-dlb-visual {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 220px;
+  padding-bottom: 26px;
 }
 
-.dab-glow-2 {
+.lrx-dlb-svg-icon {
+  position: relative;
   width: 140px;
-  height: 140px;
-  background: #60a5fa;
-  bottom: -50px;
-  left: -20px;
-  animation: dabFloatTwo 6s ease-in-out infinite;
+  max-width: 100%;
+  height: auto;
+  max-height: 200px;
+  object-fit: contain;
+  display: block;
+  z-index: 2;
+  animation: none !important;
+  transform: none !important;
+  transition: none !important;
 }
 
-@keyframes dabPulse {
-  0%,
-  100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
+.lrx-dlb-visual-tag {
+  position: absolute;
+  bottom: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: var(--lrx-white);
+  border: 1px solid var(--lrx-border);
+  border-radius: 999px;
+  color: var(--lrx-ink);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
 }
 
-@keyframes dabFloatOne {
-  0%,
-  100% { transform: translate(0, 0); }
-  50% { transform: translate(-10px, 12px); }
+.lrx-dlb-visual-tag svg {
+  color: var(--lrx-blue);
 }
 
-@keyframes dabFloatTwo {
-  0%,
-  100% { transform: translate(0, 0); }
-  50% { transform: translate(12px, -8px); }
+/* ---------- One orchestrated entrance ---------- */
+
+.lrx-dlb-badge,
+.lrx-dlb-title,
+.lrx-dlb-subtitle,
+.lrx-dlb-features,
+.lrx-dlb-cta,
+.lrx-dlb-visual {
+  animation: lrx-dlb-rise 550ms ease-out both;
+}
+
+.lrx-dlb-title {
+  animation-delay: 60ms;
+}
+
+.lrx-dlb-subtitle {
+  animation-delay: 110ms;
+}
+
+.lrx-dlb-features {
+  animation-delay: 160ms;
+}
+
+.lrx-dlb-cta {
+  animation-delay: 210ms;
+}
+
+.lrx-dlb-visual {
+  animation-delay: 120ms;
+}
+
+@keyframes lrx-dlb-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .lrx-dlb-phone,
+  .lrx-dlb-badge,
+  .lrx-dlb-title,
+  .lrx-dlb-subtitle,
+  .lrx-dlb-features,
+  .lrx-dlb-cta,
+  .lrx-dlb-visual {
+    animation: none !important;
+  }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 860px) {
+  .lrx-dlb-inner {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .lrx-dlb-visual {
+    order: -1;
+    min-height: 180px;
+  }
+
+  .lrx-dlb-content {
+    align-items: center;
+    text-align: center;
+  }
+
+  .lrx-dlb-title,
+  .lrx-dlb-subtitle {
+    max-width: 100%;
+  }
+
+  .lrx-dlb-features {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .lrx-dlb-section {
+    padding: 28px 20px;
+    border-radius: 16px;
+  }
+
+  .lrx-dlb-title {
+    font-size: 23px;
+  }
+
+  .lrx-dlb-svg-icon {
+    width: 115px;
+    max-height: 160px;
+  }
 }

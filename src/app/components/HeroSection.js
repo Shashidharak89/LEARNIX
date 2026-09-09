@@ -124,7 +124,7 @@ export default function HeroSection() {
       </section>
 
       {/* Standalone Full-Window Pinned Quote of the Month */}
-      <RandomQuote />
+
 
       {/* Standalone Full-Window Pinned Public Quick Text */}
       {/* <PublicQuickText /> */}
@@ -132,7 +132,12 @@ export default function HeroSection() {
       <section className="learnix-hero-secondary">
         <div className="learnix-hero-container">
           <div className="learnix-hero-content">
+            <br />
+            <br />
+            <br />
+            <br />
             <DownloadAppBanner />
+            <RandomQuote />
             <HomeGroqAskBox />
             <WhatIsLearnix />
             <AutoPlayVideo videoUrl="https://res.cloudinary.com/dsojdpkgh/video/upload/v1766751517/zglomku8o9iuxxv99qwx.mp4" />
