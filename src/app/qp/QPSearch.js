@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { FiSearch, FiFileText, FiArrowUpRight, FiInbox, FiStar } from "react-icons/fi";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { FiSearch, FiFileText, FiArrowUpRight, FiInbox, FiStar, FiX } from "react-icons/fi";
 import "./styles/QPSearch.css";
 
 const highlightText = (text, keyword) => {
@@ -28,28 +29,44 @@ const highlightText = (text, keyword) => {
     );
 };
 
-export default function QPSearch() {
-    const [query, setQuery] = useState("");
+function QPSearchContent() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    const urlQuery = searchParams.get("q") || "";
+    const [query, setQuery] = useState(urlQuery);
+    const [activeQuery, setActiveQuery] = useState(urlQuery);
     const [subjects, setSubjects] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [loadingSubjects, setLoadingSubjects] = useState(false);
     const [hasInitialFetched, setHasInitialFetched] = useState(false);
 
-    // Debounced search logic
+    // Initial fetch and sync when URL q parameter is present
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setPage(1);
-            fetchSubjects(1, query, true);
-        }, 400);
-        return () => clearTimeout(timer);
-    }, [query]);
+        const currentUrlQ = searchParams.get("q") || "";
+        setQuery(currentUrlQ);
+        setActiveQuery(currentUrlQ);
+        fetchSubjects(1, currentUrlQ, true);
+    }, [searchParams]);
+
+    const updateUrlQuery = (newQuery) => {
+        const trimmed = newQuery.trim();
+        const params = new URLSearchParams(window.location.search);
+        if (trimmed) {
+            params.set("q", trimmed);
+        } else {
+            params.delete("q");
+        }
+        const newUrl = params.toString() ? `/qp?${params.toString()}` : "/qp";
+        router.replace(newUrl, { scroll: false });
+    };
 
     const fetchSubjects = async (pageNum, searchQuery, isNewSearch = false) => {
         setLoadingSubjects(true);
         try {
-            const endpoint = searchQuery
-                ? `/api/qp/v1/search/subjects?q=${encodeURIComponent(searchQuery)}&page=${pageNum}&limit=20`
+            const endpoint = searchQuery && searchQuery.trim()
+                ? `/api/qp/v1/search/subjects?q=${encodeURIComponent(searchQuery.trim())}&page=${pageNum}&limit=20`
                 : `/api/qp/v1/subjects?page=${pageNum}&limit=20`;
 
             const res = await fetch(endpoint);
@@ -61,7 +78,7 @@ export default function QPSearch() {
                 } else {
                     setSubjects((prev) => [...prev, ...json.data]);
                 }
-                setTotalPages(json.pagination.totalPages);
+                setTotalPages(json.pagination?.totalPages || 1);
             }
         } catch (err) {
             console.error("Error fetching subjects:", err);
@@ -70,11 +87,27 @@ export default function QPSearch() {
         setHasInitialFetched(true);
     };
 
+    const handleSearchSubmit = (e) => {
+        if (e) e.preventDefault();
+        setPage(1);
+        setActiveQuery(query);
+        updateUrlQuery(query);
+        fetchSubjects(1, query, true);
+    };
+
+    const handleClearQuery = () => {
+        setQuery("");
+        setActiveQuery("");
+        setPage(1);
+        updateUrlQuery("");
+        fetchSubjects(1, "", true);
+    };
+
     const handleLoadMore = () => {
         if (page < totalPages) {
             const nextPage = page + 1;
             setPage(nextPage);
-            fetchSubjects(nextPage, query, false);
+            fetchSubjects(nextPage, activeQuery, false);
         }
     };
 
@@ -91,34 +124,57 @@ export default function QPSearch() {
                 </p>
             </header>
 
-            <div className="qp-search-bar">
-                <FiSearch className="qp-search-bar__icon" aria-hidden="true" />
-                <input
-                    type="text"
-                    className="qp-search-bar__input"
-                    placeholder="Search by subject name (e.g., Cloud Computing, Data Structures...)"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    aria-label="Search subjects"
-                />
-            </div>
+            <form onSubmit={handleSearchSubmit} className="qp-search-form">
+                <div className="qp-search-bar">
+                    <FiSearch className="qp-search-bar__icon" aria-hidden="true" />
+                    <input
+                        type="text"
+                        className="qp-search-bar__input"
+                        placeholder="Search by subject name (e.g., Cloud Computing, Data Structures...)"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        aria-label="Search subjects"
+                    />
+                    {query && (
+                        <button
+                            type="button"
+                            onClick={handleClearQuery}
+                            className="qp-search-clear-btn"
+                            aria-label="Clear search"
+                        >
+                            <FiX />
+                        </button>
+                    )}
+                </div>
+                <button
+                    type="submit"
+                    className="qp-search-submit-btn"
+                    aria-label="Submit search"
+                    disabled={loadingSubjects}
+                >
+                    <FiSearch className="qp-submit-btn-icon" aria-hidden="true" />
+                    <span className="qp-submit-btn-text">Search</span>
+                </button>
+            </form>
 
             <div className="qp-results" aria-live="polite">
                 {!hasInitialFetched && loadingSubjects ? (
                     <div className="qp-state qp-state--loading">
                         <span className="qp-spinner" aria-hidden="true" />
-                        <p>Loading latest subjects...</p>
+                        <p>Loading subjects...</p>
                     </div>
                 ) : subjects.length === 0 ? (
                     <div className="qp-state qp-state--empty">
                         <FiInbox className="qp-state__icon" aria-hidden="true" />
                         <p>
-                            No subjects found matching &ldquo;{query}&rdquo;. Try a different keyword.
+                            {activeQuery
+                                ? `No subjects found matching "${activeQuery}". Try a different keyword.`
+                                : "No subjects available."}
                         </p>
                     </div>
                 ) : (
                     <>
-                        <ul className="qp-results-list" key={query}>
+                        <ul className="qp-results-list" key={activeQuery}>
                             {subjects.map((sub) => (
                                 <li className="qp-result-item" key={sub._id}>
                                     <a
@@ -130,7 +186,7 @@ export default function QPSearch() {
                                         <span className="qp-result-tab" aria-hidden="true" />
                                         <FiFileText className="qp-result-icon" aria-hidden="true" />
                                         <span className="qp-result-name">
-                                            {highlightText(sub.name, query)}
+                                            {highlightText(sub.name, activeQuery)}
                                         </span>
                                         <FiArrowUpRight className="qp-result-arrow" aria-hidden="true" />
                                     </a>
@@ -154,5 +210,22 @@ export default function QPSearch() {
                 )}
             </div>
         </section>
+    );
+}
+
+export default function QPSearch() {
+    return (
+        <Suspense
+            fallback={
+                <section className="qp-search-wrap">
+                    <div className="qp-state qp-state--loading">
+                        <span className="qp-spinner" aria-hidden="true" />
+                        <p>Loading subject search...</p>
+                    </div>
+                </section>
+            }
+        >
+            <QPSearchContent />
+        </Suspense>
     );
 }
