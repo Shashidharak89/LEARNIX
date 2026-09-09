@@ -17,6 +17,7 @@ export default function QPSubjectClient() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [expandedImages, setExpandedImages] = useState({});
+    const [downloading, setDownloading] = useState(false);
 
     useEffect(() => {
         if (!id) return;
@@ -30,7 +31,7 @@ export default function QPSubjectClient() {
                 const json = await res.json();
                 
                 if (json.success && json.data) {
-                    // Extract subject name from the first record if available (since we populated subject in earlier steps, but wait, the search API returned subject ID. The images API populates it.)
+                    // Extract subject name from the first record if available
                     if (json.data.length > 0 && json.data[0].subject) {
                         setSubjectName(json.data[0].subject.name || "Question Papers");
                     }
@@ -60,6 +61,63 @@ export default function QPSubjectClient() {
             ...prev,
             [index]: !prev[index]
         }));
+    };
+
+    const handleDownload = async () => {
+        if (!images || images.length === 0) return;
+        setDownloading(true);
+        try {
+            const res = await fetch('/api/work/download-pdf', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    images,
+                    fileName: `${subjectName.replace(/[^a-zA-Z0-9.-]/g, '_')}_Question_Papers`
+                })
+            });
+
+            if (!res.ok) throw new Error("Failed to generate PDF");
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = `${subjectName.replace(/[^a-zA-Z0-9.-]/g, '_')}_Question_Papers.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error("Error generating PDF:", err);
+            alert(err.message || "An error occurred while generating the PDF.");
+        } finally {
+            setDownloading(false);
+        }
+    };
+
+    const handleShare = async () => {
+        const url = window.location.href;
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: `${subjectName} | Question Papers`,
+                    text: `Check out question papers for ${subjectName} on Learnix`,
+                    url: url
+                });
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error("Error sharing", err);
+                }
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(url);
+                alert("Link copied to clipboard!");
+            } catch (err) {
+                alert("Failed to copy link.");
+            }
+        }
     };
 
     if (loading) {
@@ -104,12 +162,26 @@ export default function QPSubjectClient() {
                         <p style={{ color: "#666", fontSize: "14px", marginTop: "5px" }}>Compiled Question Papers</p>
                     </div>
                     
-                    <div className="wtpc-action-buttons-container" style={{ margin: "20px 0", borderBottom: "1px solid #eaeaea", paddingBottom: "20px" }}>
+                    <div className="wtpc-action-buttons-container" style={{ margin: "20px 0", borderBottom: "1px solid #eaeaea", paddingBottom: "20px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
                         <Link href="/qp" className="wtpc-action-btn wtpc-back-btn">
                             <FaArrowLeft />
                             <span className="wtpc-btn-text">Back to Search</span>
                         </Link>
-                        {/* We could add PDF download here if needed */}
+                        <button
+                            onClick={handleDownload}
+                            disabled={downloading}
+                            className="wtpc-action-btn wtpc-download-btn"
+                        >
+                            <FaDownload />
+                            <span className="wtpc-btn-text">{downloading ? "Generating..." : "Download PDF"}</span>
+                        </button>
+                        <button
+                            onClick={handleShare}
+                            className="wtpc-action-btn wtpc-share-btn"
+                        >
+                            <FaShare />
+                            <span className="wtpc-btn-text">Share</span>
+                        </button>
                     </div>
 
                     {/* Images Section */}
