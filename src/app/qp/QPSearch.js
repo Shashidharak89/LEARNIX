@@ -113,49 +113,51 @@ function QPSearchContent() {
 
     return (
         <section className="qp-search-wrap">
-            <header className="qp-search-head">
-                <div className="qp-search-badge">
-                    <FiStar className="qp-badge-icon" aria-hidden="true" />
-                    <span>Instant Subject Finder</span>
-                </div>
-                <h2 className="qp-search-title">Search Subjects</h2>
-                <p className="qp-search-subtitle">
-                    Instantly find and download question papers for any subject.
-                </p>
-            </header>
+            <div className="qp-search-card">
+                <header className="qp-search-head">
+                    <div className="qp-search-badge">
+                        <FiStar className="qp-badge-icon" aria-hidden="true" />
+                        <span>Search Previous Year Question Papers by Subject Name</span>
+                    </div>
+                    <h2 className="qp-search-title">Search Subjects</h2>
+                    <p className="qp-search-subtitle">
+                        Instantly find and download past exam papers for any subject.
+                    </p>
+                </header>
 
-            <form onSubmit={handleSearchSubmit} className="qp-search-form">
-                <div className="qp-search-bar">
-                    <FiSearch className="qp-search-bar__icon" aria-hidden="true" />
-                    <input
-                        type="text"
-                        className="qp-search-bar__input"
-                        placeholder="Search by subject name (e.g., Cloud Computing, Data Structures...)"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        aria-label="Search subjects"
-                    />
-                    {query && (
-                        <button
-                            type="button"
-                            onClick={handleClearQuery}
-                            className="qp-search-clear-btn"
-                            aria-label="Clear search"
-                        >
-                            <FiX />
-                        </button>
-                    )}
-                </div>
-                <button
-                    type="submit"
-                    className="qp-search-submit-btn"
-                    aria-label="Submit search"
-                    disabled={loadingSubjects}
-                >
-                    <FiSearch className="qp-submit-btn-icon" aria-hidden="true" />
-                    <span className="qp-submit-btn-text">Search</span>
-                </button>
-            </form>
+                <form onSubmit={handleSearchSubmit} className="qp-search-form">
+                    <div className="qp-search-bar">
+                        <FiSearch className="qp-search-bar__icon" aria-hidden="true" />
+                        <input
+                            type="text"
+                            className="qp-search-bar__input"
+                            placeholder="Search by subject name (e.g., Cloud Computing, Data Structures...)"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            aria-label="Search subjects"
+                        />
+                        {query && (
+                            <button
+                                type="button"
+                                onClick={handleClearQuery}
+                                className="qp-search-clear-btn"
+                                aria-label="Clear search"
+                            >
+                                <FiX />
+                            </button>
+                        )}
+                    </div>
+                    <button
+                        type="submit"
+                        className="qp-search-submit-btn"
+                        aria-label="Submit search"
+                        disabled={loadingSubjects}
+                    >
+                        <FiSearch className="qp-submit-btn-icon" aria-hidden="true" />
+                        <span className="qp-submit-btn-text">Search</span>
+                    </button>
+                </form>
+            </div>
 
             <div className="qp-results" aria-live="polite">
                 {!hasInitialFetched && loadingSubjects ? (
