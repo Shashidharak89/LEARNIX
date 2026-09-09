@@ -132,6 +132,10 @@ export default function HeroSection() {
       <section className="learnix-hero-secondary">
         <div className="learnix-hero-container">
           <div className="learnix-hero-content">
+            <br />
+            <br />
+            <br />
+            <br />
             <DownloadAppBanner />
             <RandomQuote />
             <HomeGroqAskBox />

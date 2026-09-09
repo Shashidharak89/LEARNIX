@@ -4,16 +4,16 @@ import { useState, useEffect } from "react";
 import {
   FiFileText,
   FiUploadCloud,
-  FiMessageCircle,
 } from "react-icons/fi";
 import { FaGooglePlay } from "react-icons/fa";
+
+import googlePlaySvg from "../../animated-icons/Google Play.svg";
 
 import "./styles/DownloadAppBanner.css";
 
 const FEATURES = [
   { icon: FiFileText, label: "Notes & papers" },
   { icon: FiUploadCloud, label: "Instant uploads" },
-  { icon: FiMessageCircle, label: "Live chat" },
 ];
 
 export default function DownloadAppBanner() {
@@ -51,7 +51,7 @@ export default function DownloadAppBanner() {
 
           <p className="lrx-dlb-subtitle">
             Install the official Android app for faster access to notes,
-            uploads, question papers, tools, and real-time chat.
+            uploads, question papers, and tools.
           </p>
 
           <ul className="lrx-dlb-features">
@@ -81,16 +81,11 @@ export default function DownloadAppBanner() {
         </div>
 
         <div className="lrx-dlb-visual" aria-hidden="true">
-          <div className="lrx-dlb-accent-shape" />
-          <div className="lrx-dlb-phone">
-            <div className="lrx-dlb-phone-notch" />
-            <div className="lrx-dlb-phone-screen">
-              <div className="lrx-dlb-phone-bar lrx-dlb-phone-bar--blue" />
-              <div className="lrx-dlb-phone-bar lrx-dlb-phone-bar--yellow" />
-              <div className="lrx-dlb-phone-bar" />
-              <div className="lrx-dlb-phone-bar lrx-dlb-phone-bar--short" />
-            </div>
-          </div>
+          <img
+            src={googlePlaySvg.src || googlePlaySvg}
+            alt="Google Play App"
+            className="lrx-dlb-svg-icon"
+          />
           <span className="lrx-dlb-visual-tag">
             <FaGooglePlay size={11} aria-hidden="true" />
             Google Play
