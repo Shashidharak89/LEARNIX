@@ -303,6 +303,12 @@
   --lnx-shadow: rgba(13, 148, 136, 0.12);
 }
 
+.lnx-card--works {
+  --lnx-accent: #2563eb;
+  --lnx-icon-bg: #eff6ff;
+  --lnx-shadow: rgba(37, 99, 235, 0.12);
+}
+
 .lnx-card--qp {
   --lnx-accent: #ea580c;
   --lnx-icon-bg: #fff7ed;

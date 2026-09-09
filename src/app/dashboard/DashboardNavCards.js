@@ -10,6 +10,7 @@ import {
   FiUpload,
   FiFileText,
   FiBell,
+  FiFolder,
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import "./styles/DashboardNavCards.css";
@@ -18,6 +19,7 @@ const navItems = [
   { href: "/learn",     Icon: HiAcademicCap, label: "Learn",           theme: "learn" },
   { href: "/search",    Icon: FiSearch,      label: "Search",          theme: "search" },
   { href: "/materials", Icon: FiBookOpen,    label: "Materials",       theme: "materials" },
+  { href: "/works",     Icon: FiFolder,      label: "Works",           theme: "works" },
   { href: "/qp",        Icon: FiFileText,    label: "Question Papers", theme: "qp" },
   { href: "/tools",     Icon: FiTool,        label: "Tools",           theme: "tools" },
   { href: "/help",      Icon: FiHelpCircle,  label: "Help",            theme: "help" },
