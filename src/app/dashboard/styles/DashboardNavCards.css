@@ -28,7 +28,7 @@
   border-radius: 14px;
   text-decoration: none;
   color: #111827;
-  overflow: hidden;
+  overflow: visible;
   cursor: pointer;
   box-sizing: border-box;
   transition:
@@ -36,6 +36,68 @@
     box-shadow 0.22s ease,
     transform 0.18s ease;
   will-change: transform;
+}
+
+/* ── Smooth Hover Popup Tooltip ── */
+.dash-lnx-tooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(8px) scale(0.92);
+  width: 170px;
+  padding: 10px 12px;
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* Tooltip Pointer Arrow */
+.dash-lnx-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0 6px;
+  border-style: solid;
+  border-color: #0f172a transparent transparent transparent;
+}
+
+.dash-lnx-card:hover .dash-lnx-tooltip,
+.dash-lnx-card:focus-visible .dash-lnx-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+
+.dash-lnx-tooltip-title {
+  display: block;
+  font-family: var(--font-geist-mono, 'Geist Mono', monospace);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--dash-lnx-accent, #60a5fa);
+  margin-bottom: 3px;
+}
+
+.dash-lnx-tooltip-desc {
+  display: block;
+  font-size: 11px;
+  line-height: 1.35;
+  color: #e2e8f0;
+  font-weight: 450;
 }
 
 /* Bottom accent bar slides in on hover */
@@ -223,6 +285,13 @@
   .dash-lnx-icon-wrap { width: 38px; height: 38px; }
   .dash-lnx-icon { width: 18px; height: 18px; }
   .dash-lnx-label { font-size: 11px; }
+  .dash-lnx-tooltip {
+    width: 140px;
+    padding: 8px 10px;
+    bottom: calc(100% + 8px);
+  }
+  .dash-lnx-tooltip-title { font-size: 9.5px; }
+  .dash-lnx-tooltip-desc { font-size: 10px; }
 }
 
 /* ≤ 380px → still 3 per row, just smaller */
