@@ -29,7 +29,7 @@ import WhyLearnixTrustworthy from "./home/WhyLearnixTrustworthy";
 import QuestionPapersBanner from "./home/QuestionPapersBanner";
 import AutoPlayVideo from "../about/AutoPlayVideo";
 import UpdatesBanner from './UpdatesBanner';
-import RandomQuote from "../test/RandomQuote";
+import RandomQuote from "./home/RandomQuote";
 import PublicQuickText from "./PublicQuickText";
 import DownloadAppBanner from "./DownloadAppBanner";
 import HomeGroqAskBox from "./HomeGroqAskBox";
@@ -141,8 +141,12 @@ export default function HeroSection() {
             <br />
             <br />
             <DownloadAppBanner />
+            <br />
+            <br />
+            <br />
+            <br />
             <RandomQuote />
-            <HomeGroqAskBox />
+            {/* <HomeGroqAskBox /> */}
             <WhatIsLearnix />
             <AutoPlayVideo videoUrl="https://res.cloudinary.com/dsojdpkgh/video/upload/v1766751517/zglomku8o9iuxxv99qwx.mp4" />
             <WhoIsLearnixFor />
