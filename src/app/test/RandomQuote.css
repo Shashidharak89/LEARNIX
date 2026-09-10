@@ -1,11 +1,13 @@
-/* RandomQuote.css - Simple Red/White Theme Quote Card */
+/* RandomQuote.css - Learnix Brand Theme Quote Card */
 
 .rq-section {
   position: relative;
   width: 100%;
+  max-width: 100vw;
   background: #ffffff;
-  padding: 40px 20px;
+  padding: 36px 16px;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .rq-container {
@@ -18,6 +20,7 @@
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .rq-ambient-aura {
@@ -25,28 +28,31 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 600px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(239, 68, 68, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
+  width: 100%;
+  max-width: 600px;
+  height: 100%;
+  max-height: 400px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
   border-radius: 50%;
   pointer-events: none;
   z-index: 1;
+  overflow: hidden;
 }
 
 /* ── Card Styling ── */
 .rq-card {
   position: relative;
   z-index: 5;
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px);
-  border: 1.5px solid #fee2e2;
-  border-radius: 26px;
-  padding: 2.4rem 2.8rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 2.2rem 2.5rem;
   max-width: 680px;
-  min-height: 240px;
+  min-height: 220px;
   width: 100%;
   margin: 0 auto;
-  box-shadow: 0 20px 60px rgba(220, 38, 38, 0.08);
+  box-shadow: 0 16px 48px rgba(37, 99, 235, 0.06);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -59,8 +65,8 @@
 }
 
 .rq-card:hover {
-  border-color: #fca5a5;
-  box-shadow: 0 25px 70px rgba(220, 38, 38, 0.12);
+  border-color: #bfdbfe;
+  box-shadow: 0 20px 56px rgba(37, 99, 235, 0.12);
 }
 
 /* ── Header ── */
@@ -68,6 +74,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .rq-label-badge {
@@ -76,12 +84,12 @@
   gap: 8px;
 }
 
-.rq-dot-red {
+.rq-dot-brand {
   width: 8px;
   height: 8px;
-  background: #dc2626;
+  background: #2563eb;
   border-radius: 50%;
-  box-shadow: 0 0 8px rgba(220, 38, 38, 0.6);
+  box-shadow: 0 0 8px rgba(37, 99, 235, 0.6);
   animation: rqDotPulse 2s ease-in-out infinite;
 }
 
@@ -102,10 +110,10 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #dc2626;
+  color: #2563eb;
 }
 
-/* Red/White Theme Refresh Button */
+/* Brand Theme Refresh Button */
 .rq-refresh-btn {
   display: inline-flex;
   align-items: center;
@@ -115,17 +123,17 @@
   font-weight: 650;
   padding: 0.42rem 1rem;
   border-radius: 20px;
-  border: 1.5px solid #fecaca;
-  background: #fff5f5;
-  color: #dc2626;
+  border: 1.5px solid #bfdbfe;
+  background: #eff6ff;
+  color: #2563eb;
   cursor: pointer;
   outline: none;
   transition: background 0.22s ease, border-color 0.22s ease, color 0.22s ease, transform 0.18s ease;
 }
 
 .rq-refresh-btn:hover:not(:disabled) {
-  background: #dc2626;
-  border-color: #dc2626;
+  background: #2563eb;
+  border-color: #2563eb;
   color: #ffffff;
   transform: translateY(-1px);
 }
@@ -175,7 +183,7 @@
   font-size: 2.4rem;
   line-height: 0;
   vertical-align: -0.5rem;
-  color: #dc2626;
+  color: #2563eb;
   font-family: Georgia, serif;
   font-weight: 900;
   display: inline-block;
@@ -193,7 +201,7 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   padding-top: 0.95rem;
-  border-top: 1px solid #fee2e2;
+  border-top: 1px solid #f1f5f9;
   will-change: transform, opacity;
 }
 
@@ -204,7 +212,7 @@
 }
 
 .rq-author-star {
-  color: #dc2626;
+  color: #2563eb;
   font-size: 0.85rem;
 }
 
@@ -228,9 +236,9 @@
   font-weight: 650;
   padding: 0.2rem 0.65rem;
   border-radius: 12px;
-  background: #fef2f2;
-  color: #991b1b;
-  border: 1px solid #fecaca;
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
 }
 
 /* ── Red Error Alert Box ── */
@@ -239,7 +247,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  background: #fef2f2;
+  background: #fff1f2;
   border: 1.5px solid #fca5a5;
   border-radius: 14px;
   padding: 0.85rem 1.1rem;
@@ -256,7 +264,7 @@
 
 .rq-error-icon {
   font-size: 1.05rem;
-  color: #dc2626;
+  color: #e11d48;
   flex-shrink: 0;
 }
 
@@ -265,8 +273,8 @@
   font-weight: 700;
   padding: 0.32rem 0.85rem;
   border-radius: 8px;
-  border: 1px solid #dc2626;
-  background: #dc2626;
+  border: 1px solid #e11d48;
+  background: #e11d48;
   color: #ffffff;
   cursor: pointer;
   white-space: nowrap;
@@ -274,7 +282,7 @@
 }
 
 .rq-retry-btn:hover {
-  background: #b91c1c;
+  background: #be123c;
 }
 
 /* ── Skeleton Shimmer State ── */
@@ -284,7 +292,7 @@
 }
 
 .rq-sk {
-  background: linear-gradient(90deg, #fef2f2 25%, #fee2e2 50%, #fef2f2 75%);
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
   background-size: 1000px 100%;
   animation: rq-shimmer 1.4s infinite linear;
   border-radius: 8px;
@@ -304,11 +312,22 @@
 
 /* Responsive */
 @media (max-width: 680px) {
-  .rq-card {
-    padding: 1.6rem 1.3rem;
-    min-height: 210px;
+  .rq-section {
+    padding: 24px 12px;
   }
+
+  .rq-card {
+    padding: 1.5rem 1.2rem;
+    min-height: 200px;
+    border-radius: 18px;
+  }
+
   .rq-content {
-    font-size: 1.08rem;
+    font-size: 1.05rem;
+    line-height: 1.55;
+  }
+
+  .rq-quote-mark {
+    font-size: 2rem;
   }
 }

@@ -41,7 +41,7 @@ export default function RandomQuote() {
           {/* Header */}
           <div className="rq-header">
             <div className="rq-label-badge">
-              <span className="rq-dot-red" />
+              <span className="rq-dot-brand" />
               <span className="rq-label">Quote of the Month</span>
             </div>
             <button

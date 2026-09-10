@@ -3,9 +3,10 @@
 .learnix-scroll-to-top {
   position: fixed !important;
   bottom: 28px !important;
-  right: 28px !important;
+  right: 24px !important;
   width: 52px;
   height: 52px;
+  max-width: calc(100vw - 32px) !important;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(16px) saturate(180%);
@@ -13,7 +14,7 @@
   border: 1.5px solid #2563eb;
   color: #2563eb;
   cursor: pointer;
-  z-index: 99999 !important;
+  z-index: 999999 !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -29,6 +30,7 @@
               box-shadow 0.25s ease;
   padding: 0;
   outline: none;
+  box-sizing: border-box !important;
 }
 
 .learnix-scroll-to-top.is-visible {
@@ -94,8 +96,18 @@
 @media (max-width: 768px) {
   .learnix-scroll-to-top {
     bottom: 20px !important;
-    right: 20px !important;
-    width: 46px;
-    height: 46px;
+    right: 16px !important;
+    width: 44px;
+    height: 44px;
+    max-width: calc(100vw - 24px) !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .learnix-scroll-to-top {
+    bottom: 16px !important;
+    right: 12px !important;
+    width: 40px;
+    height: 40px;
   }
 }
