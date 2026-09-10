@@ -56,36 +56,40 @@ export default function HeroSection() {
                       <div className="learnix-brand-underline"></div>
                     </span>
                   </h1>
-                  <div className="learnix-slogan-tag">✨ Keep Learning, Keep Growing!</div>
+                  <div className="learnix-slogan-tag">✨ Learn Together, Succeed Together</div>
                 </div>
 
                 <p className="learnix-hero-subtitle">
-                  Learnix is a collaborative platform where students share and explore educational resources to achieve academic success together.
+                  Learnix is a platform where students share study materials and help each other do better in college.
                 </p>
+
+                <h4 style={{ fontSize: "1.05rem", fontWeight: "700", color: "#1f2937", marginBottom: "14px" }}>
+                  What you can do on Learnix:
+                </h4>
 
                 <ul className="learnix-hero-points">
                   <li>
                     <FiSearch className="learnix-point-icon" />
                     <span>
-                      <strong>Search & Explore Resources:</strong> Access notes, topic-wise study materials, and past year question papers for your college courses.
+                      <strong>Find Study Material —</strong> Get notes, subject-wise content, and previous year question papers for your courses.
                     </span>
                   </li>
                   <li>
                     <HiAcademicCap className="learnix-point-icon" />
                     <span>
-                      <strong>Academic & Placement Excellence:</strong> Prepare for college exams and campus placements with free, real-time study updates.
+                      <strong>Prepare for Exams & Placements —</strong> Access updated study resources to help you crack exams and ace placements.
                     </span>
                   </li>
                   <li>
                     <FiUpload className="learnix-point-icon" />
                     <span>
-                      <strong>Upload & Centralize Work:</strong> Upload your study materials and manage your subjects and topics all in one place.
+                      <strong>Upload & Organize —</strong> Upload your own notes and materials, and keep everything sorted by subject and topic.
                     </span>
                   </li>
                   <li>
                     <FiSmartphone className="learnix-point-icon" />
                     <span>
-                      <strong>Interactive Mobile App:</strong> Download our Play Store app for quiz practice, review feedback, and extra convenient features.
+                      <strong>Practice on Our App —</strong> Download the Learnix app to take quizzes, get feedback, and study on the go.
                     </span>
                   </li>
                 </ul>
