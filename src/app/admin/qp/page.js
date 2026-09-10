@@ -178,11 +178,11 @@ export default function QPAdminPage() {
                 setPage(1);
                 fetchRecords(activeTab, 1); // refresh
 
-                // Keep references and reset other fields if needed, but a full reset is simpler
+                // Keep select fields and visitLink, only reset URLs/text fields
                 const config = modelsConfig[activeTab];
                 const resetForm = { ...formData };
                 config.fields.forEach(f => {
-                    if (f.type !== "select") {
+                    if (f.type !== "select" && f.name !== "visitLink") {
                         resetForm[f.name] = "";
                     }
                 });
