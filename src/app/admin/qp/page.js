@@ -178,11 +178,11 @@ export default function QPAdminPage() {
                 setPage(1);
                 fetchRecords(activeTab, 1); // refresh
 
-                // Keep references and reset other fields if needed, but a full reset is simpler
+                // Keep select fields and visitLink, only reset URLs/text fields
                 const config = modelsConfig[activeTab];
                 const resetForm = { ...formData };
                 config.fields.forEach(f => {
-                    if (f.type !== "select") {
+                    if (f.type !== "select" && f.name !== "visitLink") {
                         resetForm[f.name] = "";
                     }
                 });
@@ -196,14 +196,45 @@ export default function QPAdminPage() {
         setLoading(false);
     };
 
-    const getReferenceLabel = (refModel, id) => {
-        if (!references[refModel]) return id;
-        const refDoc = references[refModel].find(r => r._id === id);
-        if (!refDoc) return id;
+    const getReferenceLabel = (refModel, val) => {
+        if (val === null || val === undefined) return "N/A";
 
-        if (refModel === "QPBatches") return `${refDoc.startYear}-${refDoc.endYear}`;
-        if (refModel === "QPSemesters") return `Sem ${refDoc.semesterNumber}`;
-        return refDoc.name || id;
+        // If val is a populated object from Mongoose
+        if (typeof val === "object") {
+            if (refModel === "QPBatches") {
+                if (val.startYear && val.endYear) return `${val.startYear}-${val.endYear}`;
+            }
+            if (refModel === "QPSemesters") {
+                if (val.semesterNumber !== undefined) return `Sem ${val.semesterNumber}`;
+            }
+            if (val.name) return String(val.name);
+            if (val.title) return String(val.title);
+            if (val._id) {
+                // If references[refModel] exists, try to find a cleaner label
+                if (references[refModel] && Array.isArray(references[refModel])) {
+                    const refDoc = references[refModel].find(r => String(r._id) === String(val._id));
+                    if (refDoc) {
+                        if (refModel === "QPBatches") return `${refDoc.startYear}-${refDoc.endYear}`;
+                        if (refModel === "QPSemesters") return `Sem ${refDoc.semesterNumber}`;
+                        if (refDoc.name) return String(refDoc.name);
+                    }
+                }
+                return String(val._id);
+            }
+            return "N/A";
+        }
+
+        // If val is an ID string/number
+        if (references[refModel] && Array.isArray(references[refModel])) {
+            const refDoc = references[refModel].find(r => String(r._id) === String(val));
+            if (refDoc) {
+                if (refModel === "QPBatches") return `${refDoc.startYear}-${refDoc.endYear}`;
+                if (refModel === "QPSemesters") return `Sem ${refDoc.semesterNumber}`;
+                return String(refDoc.name || refDoc._id || val);
+            }
+        }
+
+        return String(val);
     };
 
     return (
@@ -286,10 +317,10 @@ export default function QPAdminPage() {
                                             >
                                                 <option value="">-- Select {field.name} --</option>
                                                 {references[field.ref] && references[field.ref].map(refDoc => (
-                                                    <option key={refDoc._id} value={refDoc._id}>
+                                                    <option key={String(refDoc._id)} value={String(refDoc._id)}>
                                                         {field.ref === "QPBatches" ? `${refDoc.startYear}-${refDoc.endYear}` :
                                                             field.ref === "QPSemesters" ? `Semester ${refDoc.semesterNumber}` :
-                                                                (refDoc.name || refDoc._id)}
+                                                                String(refDoc.name || refDoc._id)}
                                                     </option>
                                                 ))}
                                             </select>
@@ -311,8 +342,8 @@ export default function QPAdminPage() {
                                     <p>No records found.</p>
                                 ) : (
                                     records.map((record) => (
-                                        <div key={record._id} className="qp-record-card">
-                                            <div className="qp-record-meta-top">ID: {record._id}</div>
+                                        <div key={String(record._id)} className="qp-record-card">
+                                            <div className="qp-record-meta-top">ID: {String(record._id)}</div>
                                             <div className="qp-record-details">
                                                 {modelsConfig[activeTab].fields.map(f => (
                                                     <div key={f.name} className="qp-record-detail-item">
@@ -321,8 +352,10 @@ export default function QPAdminPage() {
                                                             {f.type === 'select' ?
                                                                 getReferenceLabel(f.ref, record[f.name]) :
                                                                 f.name === 'imageUrls' ?
-                                                                    (record[f.name] && record[f.name].length) + " images" :
-                                                                    String(record[f.name] || 'N/A')
+                                                                    (Array.isArray(record[f.name]) ? record[f.name].length : 0) + " images" :
+                                                                    typeof record[f.name] === 'object' && record[f.name] !== null ?
+                                                                        (record[f.name].name || record[f.name].title || String(record[f.name]._id || 'N/A')) :
+                                                                        String(record[f.name] ?? 'N/A')
                                                             }
                                                         </span>
                                                     </div>

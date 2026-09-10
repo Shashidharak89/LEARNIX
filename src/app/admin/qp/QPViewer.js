@@ -86,8 +86,16 @@ export default function QPViewer() {
                     {data.map((item, idx) => (
                         <div key={`${path}-${idx}`} className="qp-viewer-image-item">
                             <div className="qp-viewer-image-meta">
-                                <span className="qp-tag">{item.batch}</span>
-                                <span className="qp-tag exam">{item.examType}</span>
+                                <span className="qp-tag">
+                                    {typeof item.batch === 'object' && item.batch !== null ?
+                                        (item.batch.startYear ? `${item.batch.startYear}-${item.batch.endYear}` : String(item.batch.name || '')) :
+                                        String(item.batch || 'N/A')}
+                                </span>
+                                <span className="qp-tag exam">
+                                    {typeof item.examType === 'object' && item.examType !== null ?
+                                        String(item.examType.name || '') :
+                                        String(item.examType || 'N/A')}
+                                </span>
                             </div>
                             <div className="qp-viewer-image-urls">
                                 {item.images.map((url, i) => (

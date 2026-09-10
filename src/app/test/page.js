@@ -1,7 +1,7 @@
 import '../globals.css';
 import { Navbar } from '../components/Navbar';
 import ChunkUploader from './ChunkUploader';
-import RandomQuote from './RandomQuote';
+import RandomQuote from '../components/home/RandomQuote';
 import FluxImageGenerator from './FluxImageGenerator';
 import TriggerImageGenerator from './TriggerImageGenerator';
 import HfImageGenerator from './HfImageGenerator';

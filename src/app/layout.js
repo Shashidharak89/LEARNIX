@@ -94,8 +94,8 @@ export default function RootLayout({ children }) {
           <SmoothScroll>
             {children}
             <Footer />
-            <ScrollToTop />
           </SmoothScroll>
+          <ScrollToTop />
         </ThemeProvider>
       </body>
     </html>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { FiRefreshCw, FiAlertCircle } from "react-icons/fi";
-import "./RandomQuote.css";
+import "./styles/RandomQuote.css";
 import { authFetch } from "@/lib/clientAuth";
 
 export default function RandomQuote() {
@@ -41,8 +41,8 @@ export default function RandomQuote() {
           {/* Header */}
           <div className="rq-header">
             <div className="rq-label-badge">
-              <span className="rq-dot-red" />
-              <span className="rq-label">Quote of the Month</span>
+              <span className="rq-dot-brand" />
+              <span className="rq-label">Quote of the Moment</span>
             </div>
             <button
               type="button"
