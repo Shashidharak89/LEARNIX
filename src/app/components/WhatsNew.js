@@ -10,6 +10,12 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Visibility Control for Updates Added",
+      date: "Aug 23, 2026",
+      description:
+        "You can now set visibility for updates! Choose between Public (visible to everyone), Private (only visible to you), or Unlisted (accessible via direct link). Control visibility when creating new updates or editing existing ones in your updates list.",
+    },
+    {
       title: "New Authentication Features",
       date: "Jun 12, 2026",
       description:
