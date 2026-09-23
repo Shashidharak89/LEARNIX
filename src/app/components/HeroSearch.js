@@ -23,12 +23,16 @@ import "./styles/HeroSearch.css";
 const PLACEHOLDERS = [
   "What's on your mind?",
   "Search notes, papers & more…",
-  "Try 'Data Structures'…",
-  "Find study materials…",
-  "Search question papers…",
-  "Looking for updates?",
-  "Try 'Mathematics'…",
-  "Explore student works…",
+  "Try 'Data Structures & Algorithms'…",
+  "Find Nitte question papers…",
+  "Search 'Machine Learning notes'…",
+  "Look for 'Mathematics 3'…",
+  "Type 'Operating Systems'…",
+  "Explore latest updates…",
+  "Search 'Computer Networks'…",
+  "Find lab manuals & study guides…",
+  "Search 'Software Engineering'…",
+  "Looking for placement materials?…",
 ];
 
 // ── Icon map (string → component) ──────────────────────────────────────────
@@ -54,48 +58,43 @@ const CATEGORIES = [
   { key: "questionPapers", label: "Question Papers", icon: FiFileText, href: "/qp", theme: "qp", paramKey: "q" },
 ];
 
-// ── Typing animation hook ──────────────────────────────────────────────────
-function useTypingPlaceholder(captions, typingSpeed = 60, pauseMs = 1800, deleteSpeed = 35) {
-  const [text, setText] = useState("");
-  const [captionIdx, setCaptionIdx] = useState(0);
-  const phase = useRef("typing"); // typing | pausing | deleting
-  const charIdx = useRef(0);
+// ── Typing animation hook (Always keeps typing in an infinite loop) ───────
+function useTypingPlaceholder(captions, typingSpeed = 65, pauseMs = 1600, deleteSpeed = 30) {
+  const [displayedText, setDisplayedText] = useState("");
+  const [index, setIndex] = useState(0);
+  const [subIndex, setSubIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    const caption = captions[captionIdx];
-    let timer;
+    if (!captions || captions.length === 0) return;
 
-    if (phase.current === "typing") {
-      if (charIdx.current < caption.length) {
-        timer = setTimeout(() => {
-          charIdx.current += 1;
-          setText(caption.slice(0, charIdx.current));
-        }, typingSpeed);
-      } else {
-        phase.current = "pausing";
-        timer = setTimeout(() => {
-          phase.current = "deleting";
-          setText(caption); // trigger re-render
-        }, pauseMs);
-      }
-    } else if (phase.current === "deleting") {
-      if (charIdx.current > 0) {
-        timer = setTimeout(() => {
-          charIdx.current -= 1;
-          setText(caption.slice(0, charIdx.current));
-        }, deleteSpeed);
-      } else {
-        phase.current = "typing";
-        setCaptionIdx((prev) => (prev + 1) % captions.length);
-      }
-    } else if (phase.current === "pausing") {
-      // Wait — handled by typing branch
+    const currentCaption = captions[index % captions.length];
+
+    if (!isDeleting && subIndex === currentCaption.length) {
+      // Pause when full text is typed, then switch to deleting
+      const timeout = setTimeout(() => {
+        setIsDeleting(true);
+      }, pauseMs);
+      return () => clearTimeout(timeout);
     }
 
-    return () => clearTimeout(timer);
-  }, [text, captionIdx, captions, typingSpeed, pauseMs, deleteSpeed]);
+    if (isDeleting && subIndex === 0) {
+      // Finished deleting, move to next caption
+      setIsDeleting(false);
+      setIndex((prev) => (prev + 1) % captions.length);
+      return;
+    }
 
-  return text;
+    const timeout = setTimeout(() => {
+      const nextSubIndex = subIndex + (isDeleting ? -1 : 1);
+      setSubIndex(nextSubIndex);
+      setDisplayedText(currentCaption.substring(0, nextSubIndex));
+    }, isDeleting ? deleteSpeed : typingSpeed);
+
+    return () => clearTimeout(timeout);
+  }, [subIndex, index, isDeleting, captions, typingSpeed, pauseMs, deleteSpeed]);
+
+  return displayedText;
 }
 
 // ── Item renderers ─────────────────────────────────────────────────────────
