@@ -261,18 +261,22 @@ export default function HeroSearch() {
 
   return (
     <div className="lnx-search" id="hero-search">
-      {/* ── Initial Title & Subtitle (Hides when user starts typing) ────── */}
+      {/* ── Initial Header Title & Subcaption (Hides when typing) ──────────────── */}
       {query.trim().length === 0 && !hasSearched && (
         <div className="lnx-search-header">
-          <div className="lnx-search-header-badge">
-            <span className="lnx-search-header-badge-dot" />
-            <span>Quick Resource Finder</span>
-          </div>
+          {/* Line 1: Primary prominent headline (First thing user notices) */}
+          <h2 className="lnx-search-main-headline">
+            <span className="lnx-search-headline-sparkle">⚡</span> Quick Resource Finder
+          </h2>
+
+          {/* Line 2: Title */}
           <h3 className="lnx-search-header-title">
-            Search Notes, Papers &amp; Materials on <span className="lnx-search-header-brand">LEARNIX</span>
+            Search Question Papers &amp; Materials on <span className="lnx-search-brand">LEARNIX</span>
           </h3>
-          <p className="lnx-search-header-sub">
-            Type keywords separated by spaces to find relevant resources instantly
+
+          {/* Line 3: Tagline subtext on separate row */}
+          <p className="lnx-search-header-tagline">
+            Type anything you want to explore on Learnix
           </p>
         </div>
       )}

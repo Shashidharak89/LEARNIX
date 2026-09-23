@@ -1,7 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    HeroSearch.css — Learnix hero search bar
    Theme: High-contrast royal blue (#2563eb) matching HeroSection.
-   Hierarchy & UI/UX: Clear typography, high contrast accents, smooth entrance.
+   Header: Prominent "Quick Resource Finder" headline (first focal point),
+           followed by Title on separate row, and Tagline on separate row below.
    Layout: Searchbar max-width 640px centered; Results expand to match HeroSection max-width (1200px).
    Responsive: Compact icon + count badges on small screen, zero horizontal scrolling.
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -34,66 +35,53 @@
 /* ── Initial Header Title & Subcaption (Hides when typing) ──────────────── */
 .lnx-search-header {
     text-align: center;
-    margin-bottom: 18px;
+    margin-bottom: 20px;
+    width: 100%;
     animation: lnxHeaderPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.lnx-search-header-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 5px 14px;
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-    border: 1.5px solid #bfdbfe;
-    border-radius: 20px;
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: #1d4ed8;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
-}
-
-.lnx-search-header-badge-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #2563eb;
-    box-shadow: 0 0 6px rgba(37, 99, 235, 0.8);
-    animation: lnxBadgePulse 2s ease-in-out infinite;
-}
-
-.lnx-search-header-title {
-    font-size: 1.65rem;
+/* Row 1: Primary prominent headline (FIRST thing users notice) */
+.lnx-search-main-headline {
+    font-size: 1.85rem;
     font-weight: 800;
-    color: var(--lnx-ink);
-    margin: 0 0 6px;
+    color: #1e3a8a;
+    margin: 0 0 8px;
     letter-spacing: -0.02em;
-    line-height: 1.25;
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
-.lnx-search-header-brand {
-    color: var(--lnx-blue);
-    position: relative;
+.lnx-search-headline-sparkle {
+    color: #fbbf24;
     display: inline-block;
+    filter: drop-shadow(0 2px 4px rgba(251, 191, 36, 0.4));
+    animation: lnxSparklePulse 2s ease-in-out infinite;
 }
 
-.lnx-search-header-brand::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: var(--lnx-yellow);
-    border-radius: 2px;
+/* Row 2: Title */
+.lnx-search-header-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 6px;
+    line-height: 1.3;
 }
 
-.lnx-search-header-sub {
+.lnx-search-brand {
+    color: var(--lnx-blue);
+    font-weight: 800;
+}
+
+/* Row 3: Tagline subtext on separate row below */
+.lnx-search-header-tagline {
     font-size: 0.94rem;
     font-weight: 500;
-    color: var(--lnx-ink-soft);
+    color: #4b5563;
     margin: 0;
-    max-width: 580px;
+    line-height: 1.35;
 }
 
 /* ── Searchbar Wrapper (Fixed max-width 640px centered) ─────────────────── */
@@ -543,7 +531,7 @@
 @keyframes lnxHeaderPop {
     from {
         opacity: 0;
-        transform: translateY(-10px) scale(0.98);
+        transform: translateY(-8px) scale(0.98);
     }
     to {
         opacity: 1;
@@ -551,14 +539,12 @@
     }
 }
 
-@keyframes lnxBadgePulse {
+@keyframes lnxSparklePulse {
     0%, 100% {
         transform: scale(1);
-        box-shadow: 0 0 4px rgba(37, 99, 235, 0.6);
     }
     50% {
-        transform: scale(1.25);
-        box-shadow: 0 0 10px rgba(37, 99, 235, 0.9);
+        transform: scale(1.2) rotate(10deg);
     }
 }
 
@@ -581,7 +567,7 @@
 
 @media (prefers-reduced-motion: reduce) {
     .lnx-search-header,
-    .lnx-search-header-badge-dot,
+    .lnx-search-headline-sparkle,
     .lnx-search-spinner,
     .lnx-search-results,
     .lnx-search-card {
@@ -602,8 +588,16 @@
         gap: 12px;
     }
 
+    .lnx-search-main-headline {
+        font-size: 1.55rem;
+    }
+
     .lnx-search-header-title {
-        font-size: 1.45rem;
+        font-size: 1.05rem;
+    }
+
+    .lnx-search-header-tagline {
+        font-size: 0.88rem;
     }
 }
 
@@ -613,12 +607,18 @@
         margin-top: 10px;
     }
 
-    .lnx-search-header-title {
-        font-size: 1.3rem;
+    .lnx-search-main-headline {
+        font-size: 1.32rem;
+        margin-bottom: 5px;
     }
 
-    .lnx-search-header-sub {
-        font-size: 0.86rem;
+    .lnx-search-header-title {
+        font-size: 0.95rem;
+        margin-bottom: 4px;
+    }
+
+    .lnx-search-header-tagline {
+        font-size: 0.82rem;
     }
 
     .lnx-search-bar-wrapper {
@@ -658,6 +658,10 @@
     }
 
     .lnx-search-mpill {
+        padding: 7px 14px 7px 99px;
+    }
+
+    .lnx-search-mpill {
         padding: 7px 14px 7px 9px;
     }
 
@@ -673,8 +677,16 @@
 }
 
 @media (max-width: 480px) {
-    .lnx-search-header-title {
+    .lnx-search-main-headline {
         font-size: 1.15rem;
+    }
+
+    .lnx-search-header-title {
+        font-size: 0.88rem;
+    }
+
+    .lnx-search-header-tagline {
+        font-size: 0.76rem;
     }
 
     .lnx-search-bar {
