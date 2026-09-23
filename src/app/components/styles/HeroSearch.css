@@ -1,0 +1,602 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   HeroSearch.css — Unified search bar for the HeroSection
+   Theme: sky-blue (#57ceeb), yellow (#fbbf24), white, black — light mode
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Container ─────────────────────────────────────────────────────────── */
+.hero-search-root {
+  width: 100%;
+  max-width: 100%;
+  margin-top: 18px;
+  position: relative;
+  z-index: 10;
+}
+
+/* ── Search bar wrapper ────────────────────────────────────────────────── */
+.hero-search-bar {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 2px solid #e0e7ef;
+  border-radius: 52px;
+  padding: 4px 5px 4px 20px;
+  box-shadow:
+    0 2px 12px rgba(87, 206, 235, 0.10),
+    0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-search-bar::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  border-radius: 54px;
+  background: linear-gradient(135deg, rgba(87,206,235,0), rgba(251,191,36,0));
+  z-index: -1;
+  transition: background 0.4s ease;
+  pointer-events: none;
+}
+
+.hero-search-bar:focus-within {
+  border-color: #57ceeb;
+  box-shadow:
+    0 4px 20px rgba(87, 206, 235, 0.18),
+    0 2px 8px rgba(87, 206, 235, 0.10);
+}
+
+.hero-search-bar:focus-within::before {
+  background: linear-gradient(135deg, rgba(87,206,235,0.06), rgba(251,191,36,0.04));
+}
+
+/* Sparkle dot on the left */
+.hero-search-sparkle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.hero-search-sparkle-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #57ceeb, #fbbf24);
+  animation: heroSparkPulse 2s ease-in-out infinite;
+}
+
+/* ── Input ──────────────────────────────────────────────────────────────── */
+.hero-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #1f2937;
+  padding: 12px 0;
+  min-width: 0;
+  font-family: inherit;
+}
+
+.hero-search-input::placeholder {
+  color: #9ca3af;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.hero-search-input:focus::placeholder {
+  color: #bfc9d4;
+}
+
+/* ── Search button ─────────────────────────────────────────────────────── */
+.hero-search-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, #57ceeb 0%, #3bb8d9 100%);
+  color: #ffffff;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(87, 206, 235, 0.3);
+}
+
+.hero-search-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.hero-search-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 16px rgba(251, 191, 36, 0.35);
+}
+
+.hero-search-btn:hover::before {
+  opacity: 1;
+}
+
+.hero-search-btn:active {
+  transform: scale(0.96);
+}
+
+.hero-search-btn svg {
+  position: relative;
+  z-index: 1;
+}
+
+/* Loading spinner in button */
+.hero-search-btn-loading {
+  pointer-events: none;
+}
+
+.hero-search-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: heroSpin 0.7s linear infinite;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Results container ─────────────────────────────────────────────────── */
+.hero-search-results {
+  margin-top: 14px;
+  animation: heroSlideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* No results */
+.hero-search-empty {
+  text-align: center;
+  padding: 18px 14px;
+  color: #6b7280;
+  font-size: 0.92rem;
+  font-weight: 500;
+  background: #f9fafb;
+  border-radius: 14px;
+  border: 1.5px dashed #d1d5db;
+}
+
+.hero-search-empty-icon {
+  font-size: 1.6rem;
+  color: #9ca3af;
+  margin-bottom: 6px;
+}
+
+/* ── Desktop grid: 4 columns ───────────────────────────────────────────── */
+.hero-search-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+/* ── Category card ─────────────────────────────────────────────────────── */
+.hero-search-category {
+  background: #ffffff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-search-category::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 14px 14px 0 0;
+  background: linear-gradient(90deg, #57ceeb, #fbbf24);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.hero-search-category:hover {
+  border-color: #57ceeb;
+  box-shadow: 0 4px 16px rgba(87, 206, 235, 0.12);
+}
+
+.hero-search-category:hover::after {
+  opacity: 1;
+}
+
+/* Category header */
+.hero-search-cat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.hero-search-cat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.hero-search-cat-icon--works {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.hero-search-cat-icon--updates {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.hero-search-cat-icon--materials {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.hero-search-cat-icon--qp {
+  background: #fce7f3;
+  color: #db2777;
+}
+
+.hero-search-cat-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.2;
+}
+
+.hero-search-cat-count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+/* Category items list */
+.hero-search-cat-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.hero-search-cat-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 5px 6px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+  cursor: default;
+}
+
+.hero-search-cat-item:hover {
+  background: #f3f4f6;
+}
+
+.hero-search-cat-item-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #57ceeb;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.hero-search-cat-item-text {
+  font-size: 0.8rem;
+  color: #374151;
+  font-weight: 500;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.hero-search-cat-item-meta {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+/* View More link */
+.hero-search-viewmore {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 5px 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #57ceeb;
+  background: #f0faff;
+  border-radius: 20px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.hero-search-viewmore:hover {
+  color: #ffffff;
+  background: linear-gradient(135deg, #57ceeb, #3bb8d9);
+  border-color: #57ceeb;
+  box-shadow: 0 2px 8px rgba(87, 206, 235, 0.25);
+}
+
+.hero-search-viewmore svg {
+  font-size: 0.7rem;
+  transition: transform 0.2s ease;
+}
+
+.hero-search-viewmore:hover svg {
+  transform: translateX(2px);
+}
+
+/* ── Empty category ────────────────────────────────────────────────────── */
+.hero-search-cat-empty {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  font-weight: 500;
+  padding: 4px 0;
+  font-style: italic;
+}
+
+/* ── Page shortcut links ───────────────────────────────────────────────── */
+.hero-search-pages {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hero-search-page-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #f9fafb;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 24px;
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+  transition: all 0.25s ease;
+}
+
+.hero-search-page-link:hover {
+  background: #57ceeb;
+  color: #ffffff;
+  border-color: #57ceeb;
+  box-shadow: 0 2px 10px rgba(87, 206, 235, 0.25);
+  transform: translateY(-1px);
+}
+
+.hero-search-page-link svg {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+/* ── Mobile: horizontal scroll cards ───────────────────────────────────── */
+.hero-search-mobile-scroll {
+  display: none;
+}
+
+.hero-search-mobile-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 200px;
+  padding: 14px 16px;
+  background: #ffffff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 14px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+
+.hero-search-mobile-card:hover {
+  border-color: #57ceeb;
+  box-shadow: 0 4px 14px rgba(87, 206, 235, 0.14);
+  transform: translateY(-2px);
+}
+
+.hero-search-mobile-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.hero-search-mobile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hero-search-mobile-count {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.hero-search-mobile-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.hero-search-mobile-arrow {
+  margin-left: auto;
+  color: #9ca3af;
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+}
+
+.hero-search-mobile-card:hover .hero-search-mobile-arrow {
+  color: #57ceeb;
+}
+
+/* ── Animations ────────────────────────────────────────────────────────── */
+@keyframes heroSparkPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.6; }
+}
+
+@keyframes heroSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes heroSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive: Tablet ────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .hero-search-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
+
+/* ── Responsive: Mobile ────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hero-search-root {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-search-bar {
+    padding: 3px 4px 3px 16px;
+  }
+
+  .hero-search-input {
+    font-size: 0.9rem;
+    padding: 10px 0;
+  }
+
+  .hero-search-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 1.05rem;
+  }
+
+  /* Hide desktop grid, show mobile scroll */
+  .hero-search-grid {
+    display: none;
+  }
+
+  .hero-search-mobile-scroll {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .hero-search-mobile-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hero-search-mobile-card {
+    scroll-snap-align: start;
+    min-width: 180px;
+  }
+
+  .hero-search-pages {
+    gap: 6px;
+  }
+
+  .hero-search-page-link {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+  }
+}
+
+/* ── Responsive: Small Mobile ──────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .hero-search-root {
+    margin-top: 14px;
+  }
+
+  .hero-search-bar {
+    padding: 2px 3px 2px 14px;
+    border-radius: 48px;
+  }
+
+  .hero-search-input {
+    font-size: 0.85rem;
+    padding: 9px 0;
+  }
+
+  .hero-search-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+
+  .hero-search-sparkle {
+    margin-right: 8px;
+  }
+
+  .hero-search-sparkle-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .hero-search-mobile-card {
+    min-width: 160px;
+    padding: 12px 14px;
+  }
+
+  .hero-search-mobile-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 1rem;
+  }
+
+  .hero-search-mobile-count {
+    font-size: 0.88rem;
+  }
+
+  .hero-search-page-link {
+    padding: 5px 10px;
+    font-size: 0.72rem;
+  }
+}

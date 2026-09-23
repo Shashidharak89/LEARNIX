@@ -173,20 +173,25 @@ export default function HeroSearch() {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const inputRef = useRef(null);
 
   const placeholder = useTypingPlaceholder(PLACEHOLDERS);
 
   // ── Search handler ────────────────────────────────────────────────────
-  const doSearch = useCallback(async () => {
-    const q = query.trim();
-    if (!q) return;
+  const doSearch = useCallback(async (customQ) => {
+    const rawTarget = typeof customQ === "string" ? customQ : query;
+    const cleanTarget = rawTarget.trim();
+    // If user clicked search with empty input, fallback to the animated placeholder string
+    const finalQ = cleanTarget || placeholder.replace(/['"…]/g, "").trim();
+    if (!finalQ) return;
 
     setLoading(true);
     setHasSearched(true);
+    setSearchTerm(finalQ);
 
     try {
-      const res = await fetch(`/api/hero-search?q=${encodeURIComponent(q)}`);
+      const res = await fetch(`/api/hero-search?q=${encodeURIComponent(finalQ)}`);
       if (!res.ok) throw new Error("Search failed");
       const data = await res.json();
       setResults(data);
@@ -196,10 +201,11 @@ export default function HeroSearch() {
     } finally {
       setLoading(false);
     }
-  }, [query]);
+  }, [query, placeholder]);
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") doSearch();
+  const handleFormSubmit = (e) => {
+    if (e) e.preventDefault();
+    doSearch();
   };
 
   // ── Check if any results at all ───────────────────────────────────────
@@ -216,8 +222,8 @@ export default function HeroSearch() {
 
   return (
     <div className="hero-search-root" id="hero-search">
-      {/* ── Search bar ─────────────────────────────────────────────────── */}
-      <div className="hero-search-bar">
+      {/* ── Search bar form ─────────────────────────────────────────────── */}
+      <form className="hero-search-bar" onSubmit={handleFormSubmit}>
         <span className="hero-search-sparkle" aria-hidden="true">
           <span className="hero-search-sparkle-dot" />
         </span>
@@ -229,14 +235,13 @@ export default function HeroSearch() {
           placeholder={placeholder}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={handleKeyDown}
           aria-label="Search Learnix"
           id="hero-search-input"
         />
 
         <button
+          type="submit"
           className={`hero-search-btn${loading ? " hero-search-btn-loading" : ""}`}
-          onClick={doSearch}
           aria-label="Search"
           id="hero-search-btn"
           disabled={loading}
@@ -247,7 +252,7 @@ export default function HeroSearch() {
             <FiSearch />
           )}
         </button>
-      </div>
+      </form>
 
       {/* ── Results ────────────────────────────────────────────────────── */}
       {hasSearched && !loading && results && (
@@ -255,7 +260,7 @@ export default function HeroSearch() {
           {isEmpty ? (
             <div className="hero-search-empty">
               <div className="hero-search-empty-icon">🔍</div>
-              No results found for &ldquo;{query.trim()}&rdquo;
+              No results found for &ldquo;{searchTerm}&rdquo;
             </div>
           ) : (
             <>
@@ -289,7 +294,7 @@ export default function HeroSearch() {
                               {items.map((item, idx) => renderItem(item, idx))}
                             </ul>
                             <Link
-                              href={`${cat.href}?${cat.paramKey}=${encodeURIComponent(query.trim())}`}
+                              href={`${cat.href}?${cat.paramKey}=${encodeURIComponent(searchTerm)}`}
                               className="hero-search-viewmore"
                             >
                               View more <FiArrowRight />
@@ -318,7 +323,7 @@ export default function HeroSearch() {
                     return (
                       <Link
                         key={cat.key}
-                        href={`${cat.href}?${cat.paramKey}=${encodeURIComponent(query.trim())}`}
+                        href={`${cat.href}?${cat.paramKey}=${encodeURIComponent(searchTerm)}`}
                         className="hero-search-mobile-card"
                       >
                         <span className={`hero-search-mobile-icon hero-search-cat-icon--${cat.theme}`}>
@@ -347,7 +352,7 @@ export default function HeroSearch() {
                     return (
                       <Link
                         key={page.href}
-                        href={`${page.href}?q=${encodeURIComponent(query.trim())}`}
+                        href={`${page.href}?q=${encodeURIComponent(searchTerm)}`}
                         className="hero-search-page-link"
                       >
                         <IconComp />

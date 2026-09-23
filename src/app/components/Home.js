@@ -30,7 +30,7 @@ export default function Home() {
       <HeroSection />
 
       {/* Search Bar — right after hero */}
-      <section style={{ padding: "0 20px 20px", width: "100%", boxSizing: "border-box", maxWidth: "1200px", margin: "0 auto" }}>
+      <section style={{ padding: "0 24px 24px", width: "100%", boxSizing: "border-box", maxWidth: "100%", margin: "0 auto" }}>
         <HeroSearch />
       </section>
 
