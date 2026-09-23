@@ -10,6 +10,12 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Global Search Option Added on Home Page",
+      date: "Sep 23, 2026",
+      description:
+        "We've added a powerful Global Search bar right on the Home page! Instantly search across Works & Notes, Campus Updates, Study Materials, and Question Papers. Uses space-separated keyword matching, displays matched subjects & notes with single-row responsive cards, and lets you jump directly to relevant resources.",
+    },
+    {
       title: "Visibility Control for Updates Added",
       date: "Aug 23, 2026",
       description:
