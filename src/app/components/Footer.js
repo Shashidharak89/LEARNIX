@@ -47,12 +47,12 @@ export default function Footer() {
             <div className="learnix-contact-item">
               <FaInstagram className="learnix-contact-icon" />
               <a 
-                href="https://www.instagram.com/shashidhara_k89/" 
+                href="https://www.instagram.com/learnix_89/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="learnix-contact-link"
               >
-                @shashidhara_k89
+                @learnix_89
               </a>
             </div>
           </div>
@@ -87,7 +87,7 @@ export default function Footer() {
           <div className="learnix-creator">
             Made with <FaHeart className="learnix-heart-icon" /> by{" "}
             <a 
-              href="https://shashi-k.in" 
+              href="https://shashi-k.tech" 
               target="_blank" 
               rel="noopener noreferrer"
               className="learnix-creator-link"
