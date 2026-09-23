@@ -261,6 +261,22 @@ export default function HeroSearch() {
 
   return (
     <div className="lnx-search" id="hero-search">
+      {/* ── Initial Title & Subtitle (Hides when user starts typing) ────── */}
+      {query.trim().length === 0 && !hasSearched && (
+        <div className="lnx-search-header">
+          <div className="lnx-search-header-badge">
+            <span className="lnx-search-header-badge-dot" />
+            <span>Quick Resource Finder</span>
+          </div>
+          <h3 className="lnx-search-header-title">
+            Search Notes, Papers &amp; Materials on <span className="lnx-search-header-brand">LEARNIX</span>
+          </h3>
+          <p className="lnx-search-header-sub">
+            Type keywords separated by spaces to find relevant resources instantly
+          </p>
+        </div>
+      )}
+
       {/* ── Search bar ──────────────────────────────────────────────────── */}
       <div className="lnx-search-bar-wrapper">
         <form className="lnx-search-bar" onSubmit={handleFormSubmit}>

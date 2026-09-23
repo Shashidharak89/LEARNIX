@@ -1,19 +1,22 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    HeroSearch.css — Learnix hero search bar
-   Theme: clean white surface, sky-blue #57ceeb + yellow #fbbf24 accents, black text
+   Theme: High-contrast royal blue (#2563eb) matching HeroSection.
+   Hierarchy & UI/UX: Clear typography, high contrast accents, smooth entrance.
    Layout: Searchbar max-width 640px centered; Results expand to match HeroSection max-width (1200px).
    Responsive: Compact icon + count badges on small screen, zero horizontal scrolling.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
-    --lnx-blue: #57ceeb;
-    --lnx-blue-dark: #2fb4d6;
+    --lnx-blue: #2563eb;          /* High contrast royal blue from HeroSection */
+    --lnx-blue-dark: #1d4ed8;     /* Deep royal blue for hover/active */
+    --lnx-blue-light: #eff6ff;    /* Soft blue tint background */
+    --lnx-blue-border: #bfdbfe;   /* Crisp blue border tint */
     --lnx-yellow: #fbbf24;
-    --lnx-yellow-dark: #eaa50d;
-    --lnx-ink: #12161c;
-    --lnx-ink-soft: #4b5563;
-    --lnx-muted: #94a0ad;
-    --lnx-line: #e5e7eb;
+    --lnx-yellow-dark: #d97706;
+    --lnx-ink: #111827;           /* High contrast dark text */
+    --lnx-ink-soft: #374151;      /* Medium dark gray text */
+    --lnx-muted: #6b7280;         /* Subtitle / meta gray */
+    --lnx-line: #d1d5db;          /* High contrast border line */
     --lnx-surface: #ffffff;
 }
 
@@ -21,11 +24,76 @@
 .lnx-search {
     width: 100%;
     max-width: 1200px;
-    margin: 20px auto 0;
+    margin: 10px auto 0;
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+/* ── Initial Header Title & Subcaption (Hides when typing) ──────────────── */
+.lnx-search-header {
+    text-align: center;
+    margin-bottom: 18px;
+    animation: lnxHeaderPop 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.lnx-search-header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 14px;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border: 1.5px solid #bfdbfe;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #1d4ed8;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+}
+
+.lnx-search-header-badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #2563eb;
+    box-shadow: 0 0 6px rgba(37, 99, 235, 0.8);
+    animation: lnxBadgePulse 2s ease-in-out infinite;
+}
+
+.lnx-search-header-title {
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: var(--lnx-ink);
+    margin: 0 0 6px;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+}
+
+.lnx-search-header-brand {
+    color: var(--lnx-blue);
+    position: relative;
+    display: inline-block;
+}
+
+.lnx-search-header-brand::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--lnx-yellow);
+    border-radius: 2px;
+}
+
+.lnx-search-header-sub {
+    font-size: 0.94rem;
+    font-weight: 500;
+    color: var(--lnx-ink-soft);
+    margin: 0;
+    max-width: 580px;
 }
 
 /* ── Searchbar Wrapper (Fixed max-width 640px centered) ─────────────────── */
@@ -37,48 +105,55 @@
     margin: 0 auto;
 }
 
-/* ── Pill Bar (Simple, clean, no heavy bg shadow/glow) ───────────────────── */
+/* ── Pill Bar (High contrast royal blue accents) ────────────────────────── */
 .lnx-search-bar {
     position: relative;
     z-index: 1;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     background: var(--lnx-surface);
     border-radius: 999px;
     padding: 6px 6px 6px 20px;
-    box-shadow: 0 2px 10px rgba(18, 22, 28, 0.06);
-    border: 1.5px solid var(--lnx-line);
+    box-shadow:
+        0 2px 4px rgba(37, 99, 235, 0.04),
+        0 10px 24px -8px rgba(37, 99, 235, 0.14);
+    border: 2px solid var(--lnx-blue);
     transition: box-shadow 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
     will-change: transform;
 }
 
 .lnx-search-bar:hover {
-    transform: translateY(-1px);
-    border-color: #d1d5db;
-    box-shadow: 0 4px 16px rgba(18, 22, 28, 0.09);
+    transform: translateY(-1.5px);
+    border-color: var(--lnx-blue-dark);
+    box-shadow:
+        0 4px 8px rgba(37, 99, 235, 0.08),
+        0 14px 30px -8px rgba(37, 99, 235, 0.22);
 }
 
 .lnx-search-bar:focus-within {
-    border-color: var(--lnx-blue);
-    transform: translateY(-1px);
-    box-shadow: 0 0 0 3.5px rgba(87, 206, 235, 0.18), 0 4px 16px rgba(18, 22, 28, 0.08);
+    border-color: var(--lnx-blue-dark);
+    transform: translateY(-1.5px);
+    box-shadow:
+        0 0 0 4px rgba(37, 99, 235, 0.2),
+        0 16px 32px -8px rgba(37, 99, 235, 0.25);
 }
 
-/* Dot indicator */
+/* Live dot indicator */
 .lnx-search-dot-wrap {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    margin-right: 8px;
+    margin-right: 6px;
 }
 
 .lnx-search-dot {
-    width: 7px;
-    height: 7px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: var(--lnx-blue);
+    box-shadow: 0 0 8px rgba(37, 99, 235, 0.6);
 }
 
 /* ── Input ──────────────────────────────────────────────────────────────── */
@@ -89,15 +164,15 @@
     outline: none;
     background: transparent;
     font-family: inherit;
-    font-size: 0.98rem;
-    font-weight: 500;
+    font-size: 1rem;
+    font-weight: 600;
     color: var(--lnx-ink);
     padding: 12px 0;
     caret-color: var(--lnx-blue-dark);
 }
 
 .lnx-search-input::placeholder {
-    color: var(--lnx-muted);
+    color: #9ca3af;
     font-weight: 500;
 }
 
@@ -106,20 +181,20 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: none;
-    background: #f4f5f7;
+    background: #f3f4f6;
     color: var(--lnx-ink-soft);
-    font-size: 1rem;
+    font-size: 1.05rem;
     cursor: pointer;
     flex-shrink: 0;
     transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
 }
 
 .lnx-search-clear:hover {
-    background: #e9ebee;
+    background: #e5e7eb;
     color: var(--lnx-ink);
 }
 
@@ -127,23 +202,23 @@
     transform: scale(0.9);
 }
 
-/* ── Submit Button ──────────────────────────────────────────────────────── */
+/* ── Submit Button (High-Contrast Royal Blue) ───────────────────────────── */
 .lnx-search-submit {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
     flex-shrink: 0;
     border: none;
     border-radius: 50%;
     cursor: pointer;
     background: var(--lnx-blue);
     color: #ffffff;
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     transition: background-color 0.22s ease, transform 0.18s ease, box-shadow 0.22s ease;
-    box-shadow: 0 4px 12px rgba(87, 206, 235, 0.4);
+    box-shadow: 0 6px 16px -3px rgba(37, 99, 235, 0.5);
 }
 
 .lnx-search-submit svg {
@@ -152,9 +227,9 @@
 }
 
 .lnx-search-submit:hover {
-    background: var(--lnx-yellow);
-    box-shadow: 0 4px 14px rgba(251, 191, 36, 0.5);
-    transform: scale(1.05);
+    background: var(--lnx-blue-dark);
+    box-shadow: 0 8px 20px -3px rgba(29, 78, 216, 0.6);
+    transform: scale(1.06);
 }
 
 .lnx-search-submit:active {
@@ -163,11 +238,12 @@
 
 .lnx-search-submit:disabled {
     cursor: default;
+    opacity: 0.8;
 }
 
 .lnx-search-spinner {
-    width: 17px;
-    height: 17px;
+    width: 18px;
+    height: 18px;
     border: 2.5px solid rgba(255, 255, 255, 0.4);
     border-top-color: #fff;
     border-radius: 50%;
@@ -179,7 +255,7 @@
     width: 100%;
     max-width: 1200px;
     margin-top: 22px;
-    animation: lnxRise 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: lnxRise 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .lnx-search-empty {
@@ -187,9 +263,9 @@
     padding: 24px 16px;
     color: var(--lnx-ink-soft);
     font-size: 0.95rem;
-    font-weight: 500;
+    font-weight: 600;
     background: #fafbfc;
-    border: 1.5px dashed var(--lnx-line);
+    border: 2px dashed #d1d5db;
     border-radius: 16px;
     max-width: 640px;
     margin: 0 auto;
@@ -210,9 +286,9 @@
 
 .lnx-search-card {
     background: var(--lnx-surface);
-    border: 1.5px solid var(--lnx-line);
+    border: 2px solid #e5e7eb;
     border-radius: 18px;
-    padding: 16px;
+    padding: 18px 16px;
     position: relative;
     overflow: hidden;
     transition: border-color 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
@@ -230,7 +306,7 @@
     top: 0;
     left: 16px;
     right: 16px;
-    height: 3px;
+    height: 3.5px;
     border-radius: 0 0 4px 4px;
     background: var(--lnx-blue);
     transform: scaleX(0);
@@ -241,7 +317,7 @@
 .lnx-search-card:hover {
     border-color: var(--lnx-blue);
     transform: translateY(-3px);
-    box-shadow: 0 12px 26px -12px rgba(18, 22, 28, 0.12);
+    box-shadow: 0 14px 30px -10px rgba(37, 99, 235, 0.18);
 }
 
 .lnx-search-card:hover::before {
@@ -252,51 +328,51 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 }
 
 .lnx-search-card-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     border-radius: 10px;
-    font-size: 1rem;
+    font-size: 1.1rem;
     flex-shrink: 0;
 }
 
 .lnx-search-card-icon--works {
-    background: rgba(87, 206, 235, 0.14);
-    color: var(--lnx-blue-dark);
+    background: rgba(37, 99, 235, 0.12);
+    color: var(--lnx-blue);
 }
 
 .lnx-search-card-icon--updates {
-    background: rgba(251, 191, 36, 0.16);
+    background: rgba(251, 191, 36, 0.18);
     color: var(--lnx-yellow-dark);
 }
 
 .lnx-search-card-icon--materials {
-    background: #f1f2f4;
+    background: #f3f4f6;
     color: var(--lnx-ink);
 }
 
 .lnx-search-card-icon--qp {
-    background: rgba(87, 206, 235, 0.14);
-    color: var(--lnx-blue-dark);
+    background: rgba(37, 99, 235, 0.12);
+    color: var(--lnx-blue);
 }
 
 .lnx-search-card-title {
-    font-size: 0.88rem;
-    font-weight: 700;
+    font-size: 0.92rem;
+    font-weight: 800;
     color: var(--lnx-ink);
     line-height: 1.2;
 }
 
 .lnx-search-card-count {
-    font-size: 0.74rem;
-    font-weight: 600;
-    color: var(--lnx-muted);
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--lnx-blue-dark);
 }
 
 .lnx-search-card-list {
@@ -305,7 +381,7 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
 }
 
 .lnx-search-card-item-link {
@@ -320,7 +396,7 @@
 }
 
 .lnx-search-card-item-link:hover {
-    background: #f6f8f9;
+    background: #f3f4f6;
 }
 
 .lnx-search-card-item-link:hover .lnx-search-card-item-text {
@@ -328,18 +404,18 @@
 }
 
 .lnx-search-card-item-dot {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
     margin-top: 6px;
     border-radius: 50%;
-    background: var(--lnx-yellow);
+    background: var(--lnx-blue);
     flex-shrink: 0;
 }
 
 .lnx-search-card-item-text {
-    font-size: 0.82rem;
-    font-weight: 500;
-    color: #303740;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: #1f2937;
     line-height: 1.35;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -348,13 +424,14 @@
 }
 
 .lnx-search-card-item-meta {
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     color: var(--lnx-muted);
-    margin-top: 1px;
+    font-weight: 500;
+    margin-top: 2px;
 }
 
 .lnx-search-card-empty {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     color: var(--lnx-muted);
     font-style: italic;
     padding: 6px 0;
@@ -363,16 +440,16 @@
 .lnx-search-viewmore {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    margin-top: 10px;
-    padding: 6px 12px;
-    font-size: 0.76rem;
+    gap: 5px;
+    margin-top: 12px;
+    padding: 7px 14px;
+    font-size: 0.78rem;
     font-weight: 700;
     color: var(--lnx-blue-dark);
-    background: rgba(87, 206, 235, 0.12);
+    background: rgba(37, 99, 235, 0.1);
     border-radius: 20px;
     text-decoration: none;
-    transition: background 0.18s ease, color 0.18s ease;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
 
 .lnx-search-viewmore:hover {
@@ -399,10 +476,10 @@
     gap: 8px;
     padding: 8px 16px 8px 10px;
     background: var(--lnx-surface);
-    border: 1.5px solid var(--lnx-line);
+    border: 2px solid var(--lnx-blue-border);
     border-radius: 999px;
     text-decoration: none;
-    box-shadow: 0 2px 8px rgba(18, 22, 28, 0.04);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
     transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -410,7 +487,7 @@
 .lnx-search-mpill:active {
     border-color: var(--lnx-blue);
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(87, 206, 235, 0.2);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.22);
 }
 
 .lnx-search-mpill-icon {
@@ -432,7 +509,7 @@
 
 /* ── Page shortcut chips ────────────────────────────────────────────────── */
 .lnx-search-pages {
-    margin-top: 16px;
+    margin-top: 18px;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -443,14 +520,14 @@
 .lnx-search-page-link {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
     padding: 8px 16px;
-    background: #fafbfc;
+    background: var(--lnx-surface);
     border: 1.5px solid var(--lnx-line);
     border-radius: 24px;
     text-decoration: none;
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.82rem;
+    font-weight: 700;
     color: var(--lnx-ink-soft);
     transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
@@ -463,6 +540,28 @@
 }
 
 /* ── Keyframes ─────────────────────────────────────────────────────────── */
+@keyframes lnxHeaderPop {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes lnxBadgePulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 4px rgba(37, 99, 235, 0.6);
+    }
+    50% {
+        transform: scale(1.25);
+        box-shadow: 0 0 10px rgba(37, 99, 235, 0.9);
+    }
+}
+
 @keyframes lnxSpin {
     to {
         transform: rotate(360deg);
@@ -472,7 +571,7 @@
 @keyframes lnxRise {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(12px);
     }
     to {
         opacity: 1;
@@ -481,6 +580,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .lnx-search-header,
+    .lnx-search-header-badge-dot,
     .lnx-search-spinner,
     .lnx-search-results,
     .lnx-search-card {
@@ -500,12 +601,24 @@
         grid-template-columns: repeat(2, 1fr);
         gap: 12px;
     }
+
+    .lnx-search-header-title {
+        font-size: 1.45rem;
+    }
 }
 
 /* ── Mobile / Small width screens ───────────────────────────────────────── */
 @media (max-width: 768px) {
     .lnx-search {
-        margin-top: 14px;
+        margin-top: 10px;
+    }
+
+    .lnx-search-header-title {
+        font-size: 1.3rem;
+    }
+
+    .lnx-search-header-sub {
+        font-size: 0.86rem;
     }
 
     .lnx-search-bar-wrapper {
@@ -517,14 +630,14 @@
     }
 
     .lnx-search-input {
-        font-size: 0.92rem;
+        font-size: 0.94rem;
         padding: 10px 0;
     }
 
     .lnx-search-submit {
-        width: 38px;
-        height: 38px;
-        font-size: 1rem;
+        width: 40px;
+        height: 40px;
+        font-size: 1.05rem;
     }
 
     /* Hide desktop list grid on small screen */
@@ -560,24 +673,28 @@
 }
 
 @media (max-width: 480px) {
+    .lnx-search-header-title {
+        font-size: 1.15rem;
+    }
+
     .lnx-search-bar {
         padding: 3px 3px 3px 14px;
     }
 
     .lnx-search-input {
-        font-size: 0.87rem;
+        font-size: 0.88rem;
         padding: 9px 0;
     }
 
     .lnx-search-submit {
-        width: 36px;
-        height: 36px;
-        font-size: 0.95rem;
+        width: 37px;
+        height: 37px;
+        font-size: 0.98rem;
     }
 
     .lnx-search-page-link {
         padding: 6px 12px;
-        font-size: 0.74rem;
+        font-size: 0.76rem;
     }
 
     .lnx-search-mwrap {

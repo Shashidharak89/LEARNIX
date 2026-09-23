@@ -28,23 +28,58 @@ export async function GET(req) {
       });
     }
 
-    const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+    // Split search query into keywords by spaces
+    const tokens = q
+      .split(/\s+/)
+      .map((t) => t.trim())
+      .filter(Boolean);
 
-    // 1. Works (Topic model)
+    if (tokens.length === 0) {
+      return NextResponse.json({
+        works: { count: 0, items: [] },
+        updates: { count: 0, items: [] },
+        materials: { count: 0, items: [] },
+        questionPapers: { count: 0, items: [] },
+        pages: [],
+      });
+    }
+
+    // ── 1. Works (Topic model) ─────────────────────────────────────────────
     let worksItems = [];
     let worksCount = 0;
     try {
       await connectDB();
+      const tokenOrs = tokens.map((token) => {
+        const regex = new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+        return {
+          $or: [{ topic: regex }, { content: regex }, { subjectName: regex }],
+        };
+      });
+
       const queryObj = {
-        $or: [{ topic: regex }, { content: regex }],
+        $or: tokenOrs,
         visibility: { $ne: "private" },
       };
-      const [totalCount, topics] = await Promise.all([
-        Topic.countDocuments(queryObj),
-        Topic.find(queryObj).sort({ timestamp: -1 }).limit(3).lean(),
-      ]);
-      worksCount = totalCount;
-      worksItems = topics.map((t) => ({
+
+      const rawTopics = await Topic.find(queryObj).lean();
+      
+      // Score documents by number of keyword matches
+      const scoredTopics = rawTopics.map((t) => {
+        let score = 0;
+        const textToSearch = `${t.topic || ""} ${t.subjectName || ""} ${t.content || ""}`.toLowerCase();
+        for (const token of tokens) {
+          if (textToSearch.includes(token.toLowerCase())) score += 1;
+        }
+        return { doc: t, score };
+      });
+
+      // Sort by highest keyword matches first, then newest
+      scoredTopics.sort(
+        (a, b) => b.score - a.score || new Date(b.doc.timestamp || 0) - new Date(a.doc.timestamp || 0)
+      );
+
+      worksCount = scoredTopics.length;
+      worksItems = scoredTopics.slice(0, 3).map(({ doc: t }) => ({
         _id: String(t._id),
         topic: t.topic || "Untitled Topic",
         subject: t.subjectName || "",
@@ -53,21 +88,40 @@ export async function GET(req) {
       console.error("HeroSearch Works fetch error:", err);
     }
 
-    // 2. Updates (Update model)
+    // ── 2. Updates (Update model) ──────────────────────────────────────────
     let updatesItems = [];
     let updatesCount = 0;
     try {
       await connectDB();
+      const tokenOrs = tokens.map((token) => {
+        const regex = new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+        return {
+          $or: [{ title: regex }, { content: regex }, { userName: regex }],
+        };
+      });
+
       const queryObj = {
-        $or: [{ title: regex }, { content: regex }],
+        $or: tokenOrs,
         visibility: { $ne: "private" },
       };
-      const [totalCount, updates] = await Promise.all([
-        Update.countDocuments(queryObj),
-        Update.find(queryObj).sort({ createdAt: -1 }).limit(3).lean(),
-      ]);
-      updatesCount = totalCount;
-      updatesItems = updates.map((u) => ({
+
+      const rawUpdates = await Update.find(queryObj).lean();
+
+      const scoredUpdates = rawUpdates.map((u) => {
+        let score = 0;
+        const textToSearch = `${u.title || ""} ${u.content || ""} ${u.userName || ""}`.toLowerCase();
+        for (const token of tokens) {
+          if (textToSearch.includes(token.toLowerCase())) score += 1;
+        }
+        return { doc: u, score };
+      });
+
+      scoredUpdates.sort(
+        (a, b) => b.score - a.score || new Date(b.doc.createdAt || 0) - new Date(a.doc.createdAt || 0)
+      );
+
+      updatesCount = scoredUpdates.length;
+      updatesItems = scoredUpdates.slice(0, 3).map(({ doc: u }) => ({
         _id: String(u._id),
         title: u.title || "Untitled Update",
         userName: u.userName || "",
@@ -76,7 +130,7 @@ export async function GET(req) {
       console.error("HeroSearch Updates fetch error:", err);
     }
 
-    // 3. Materials (materialsData static list)
+    // ── 3. Materials (materialsData static list) ───────────────────────────
     let materialsItems = [];
     let materialsCount = 0;
     try {
@@ -86,33 +140,55 @@ export async function GET(req) {
           if (!sem.subjects) continue;
           for (const sub of sem.subjects) {
             const subName = sub.name || sub.subject || "";
-            const matchesSub = regex.test(subName);
-            const matchingFiles = (sub.files || []).filter((f) => regex.test(f.name || f.url || ""));
+            const fileNames = (sub.files || []).map((f) => f.name || "").join(" ");
+            const combinedText = `${subName} ${sem.semesterLabel || ""} ${fileNames}`.toLowerCase();
 
-            if (matchesSub || matchingFiles.length > 0) {
+            let score = 0;
+            for (const token of tokens) {
+              if (combinedText.includes(token.toLowerCase())) score += 1;
+            }
+
+            if (score > 0) {
               matMatches.push({
-                subject: subName,
-                semester: sem.semesterLabel || `Semester ${sem.semester || ""}`,
-                fileCount: sub.files ? sub.files.length : 0,
+                item: {
+                  subject: subName,
+                  semester: sem.semesterLabel || `Semester ${sem.semester || ""}`,
+                  fileCount: sub.files ? sub.files.length : 0,
+                },
+                score,
               });
             }
           }
         }
       }
+      matMatches.sort((a, b) => b.score - a.score);
       materialsCount = matMatches.length;
-      materialsItems = matMatches.slice(0, 3);
+      materialsItems = matMatches.slice(0, 3).map((m) => m.item);
     } catch (err) {
       console.error("HeroSearch Materials error:", err);
     }
 
-    // 4. Question Papers (listQuestionPapers)
+    // ── 4. Question Papers (listQuestionPapers) ────────────────────────────
     let qpItems = [];
     let qpCount = 0;
     try {
       const qpResults = listQuestionPapers({ q });
       if (Array.isArray(qpResults)) {
+        const scoredQP = qpResults.map((paper) => {
+          let score = 0;
+          const textToSearch = `${paper.semesterLabel || ""} ${paper.batch || ""} ${paper.examType || ""} ${(
+            paper.subjects || []
+          ).join(" ")}`.toLowerCase();
+
+          for (const token of tokens) {
+            if (textToSearch.includes(token.toLowerCase())) score += 1;
+          }
+          return { paper, score };
+        });
+
+        scoredQP.sort((a, b) => b.score - a.score);
         qpCount = qpResults.length;
-        qpItems = qpResults.slice(0, 3).map((paper) => ({
+        qpItems = scoredQP.slice(0, 3).map(({ paper }) => ({
           id: paper.id,
           semesterLabel: paper.semesterLabel || `Semester ${paper.semester}`,
           batch: paper.batch,
@@ -124,11 +200,10 @@ export async function GET(req) {
       console.error("HeroSearch QuestionPapers error:", err);
     }
 
-    // 5. Matching pages/shortcuts
+    // ── 5. Matching pages/shortcuts ─────────────────────────────────────────
     const matchingPages = PAGES.filter((p) => {
-      const qLower = q.toLowerCase();
-      if (p.name.toLowerCase().includes(qLower)) return true;
-      return p.keywords.some((k) => k.includes(qLower) || qLower.includes(k));
+      const pageText = `${p.name} ${p.keywords.join(" ")}`.toLowerCase();
+      return tokens.some((token) => pageText.includes(token.toLowerCase()));
     }).map(({ name, href, icon }) => ({ name, href, icon }));
 
     return NextResponse.json({
