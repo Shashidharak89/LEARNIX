@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
+import { BookOpenText } from "lucide-react";
 import {
   FiSearch,
   FiArrowRight,
@@ -15,9 +16,9 @@ import {
   FiMessageSquare,
   FiUpload,
   FiX,
-  FiZap,
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
+import "./styles/Footer.css";
 import "./styles/HeroSearch.css";
 
 // ── Animated placeholder captions ───────────────────────────────────────────
@@ -98,19 +99,14 @@ function useTypingPlaceholder(captions, typingSpeed = 65, pauseMs = 1600, delete
   return displayedText;
 }
 
-// ── Item renderers ─────────────────────────────────────────────────────────
+// ── Item renderers (Single row layout with ellipsis truncation) ────────────
 
 function renderWorkItem(item) {
   return (
     <li key={item._id} className="lnx-search-card-item">
-      <Link href={`/works/${item._id}`} className="lnx-search-card-item-link">
+      <Link href={`/works/${item._id}`} className="lnx-search-card-item-link" title={item.topic}>
         <span className="lnx-search-card-item-dot" />
-        <div>
-          <div className="lnx-search-card-item-text">{item.topic}</div>
-          {item.subject && (
-            <div className="lnx-search-card-item-meta">{item.subject}</div>
-          )}
-        </div>
+        <span className="lnx-search-card-item-text">{item.topic}</span>
       </Link>
     </li>
   );
@@ -119,14 +115,9 @@ function renderWorkItem(item) {
 function renderUpdateItem(item) {
   return (
     <li key={item._id} className="lnx-search-card-item">
-      <Link href={`/updates/${item._id}`} className="lnx-search-card-item-link">
+      <Link href={`/updates/${item._id}`} className="lnx-search-card-item-link" title={item.title}>
         <span className="lnx-search-card-item-dot" />
-        <div>
-          <div className="lnx-search-card-item-text">{item.title}</div>
-          {item.userName && (
-            <div className="lnx-search-card-item-meta">by {item.userName}</div>
-          )}
-        </div>
+        <span className="lnx-search-card-item-text">{item.title}</span>
       </Link>
     </li>
   );
@@ -135,14 +126,9 @@ function renderUpdateItem(item) {
 function renderMaterialItem(item, idx) {
   return (
     <li key={`mat-${idx}`} className="lnx-search-card-item">
-      <Link href={`/materials?q=${encodeURIComponent(item.subject)}`} className="lnx-search-card-item-link">
+      <Link href={`/materials?q=${encodeURIComponent(item.subject)}`} className="lnx-search-card-item-link" title={`${item.subject} (${item.semester})`}>
         <span className="lnx-search-card-item-dot" />
-        <div>
-          <div className="lnx-search-card-item-text">{item.subject}</div>
-          <div className="lnx-search-card-item-meta">
-            {item.semester} · {item.fileCount} files
-          </div>
-        </div>
+        <span className="lnx-search-card-item-text">{item.subject}</span>
       </Link>
     </li>
   );
@@ -150,18 +136,12 @@ function renderMaterialItem(item, idx) {
 
 function renderQPItem(item) {
   const targetHref = item.id ? `/qp/${item.id}` : `/qp`;
+  const label = item.semesterLabel || `Semester ${item.semester}`;
   return (
     <li key={item.id} className="lnx-search-card-item">
-      <Link href={targetHref} className="lnx-search-card-item-link">
+      <Link href={targetHref} className="lnx-search-card-item-link" title={`${label} - ${item.examType || ""}`}>
         <span className="lnx-search-card-item-dot" />
-        <div>
-          <div className="lnx-search-card-item-text">
-            {item.semesterLabel || `Semester ${item.semester}`}
-          </div>
-          <div className="lnx-search-card-item-meta">
-            {item.batch} · {item.examType} · {item.totalSubjects} subjects
-          </div>
-        </div>
+        <span className="lnx-search-card-item-text">{label}</span>
       </Link>
     </li>
   );
@@ -265,7 +245,7 @@ export default function HeroSearch() {
       {/* ── Header Title & Interactive Help Tooltip (Smooth transition on typing & clearing) ── */}
       <div className={`lnx-search-header ${query.trim().length > 0 || hasSearched ? "lnx-search-header--hidden" : ""}`}>
         <h2 className="lnx-search-main-headline">
-          <FiZap className="lnx-search-headline-sparkle" /> Quick Resource Finder
+          <BookOpenText className="lnx-search-headline-book" size={32} /> Quick Resource Finder
           <div className="lnx-search-info-wrap">
             <button
               type="button"
@@ -357,7 +337,9 @@ export default function HeroSearch() {
                           </span>
                           <div>
                             <div className="lnx-search-card-title">{cat.label}</div>
-                            <div className="lnx-search-card-count">{count} found</div>
+                            <div className="lnx-search-card-count">
+                              {count > 0 ? `${count} found` : "0 matches"}
+                            </div>
                           </div>
                         </div>
 
@@ -374,7 +356,11 @@ export default function HeroSearch() {
                             </Link>
                           </>
                         ) : (
-                          <div className="lnx-search-card-empty">No matches</div>
+                          <div className="lnx-search-card-empty-wrap">
+                            <Link href={cat.href} className="lnx-search-explore-btn">
+                              Explore {cat.label} <FiArrowRight />
+                            </Link>
+                          </div>
                         )}
                       </div>
                     );
@@ -382,32 +368,31 @@ export default function HeroSearch() {
                 </div>
               )}
 
-              {/* Mobile / Small screen wrap pills (icons + count only, zero horizontal scrolling) */}
-              {totalResults > 0 && (
-                <div className="lnx-search-mwrap">
-                  {CATEGORIES.map((cat) => {
-                    const data = results[cat.key];
-                    const count = data?.count || 0;
-                    if (count === 0) return null;
-                    const Icon = cat.icon;
+              {/* Mobile / Small screen wrap pills (icons + count badge or explore action, zero horizontal scrolling) */}
+              <div className="lnx-search-mwrap">
+                {CATEGORIES.map((cat) => {
+                  const data = results[cat.key];
+                  const count = data?.count || 0;
+                  const Icon = cat.icon;
 
-                    return (
-                      <Link
-                        key={cat.key}
-                        href={`${cat.href}?${cat.paramKey}=${encodeURIComponent(searchTerm)}`}
-                        className="lnx-search-mpill"
-                        title={`${cat.label}: ${count} found`}
-                        aria-label={`${cat.label}: ${count} found`}
-                      >
-                        <span className={`lnx-search-mpill-icon lnx-search-card-icon--${cat.theme}`}>
-                          <Icon />
-                        </span>
-                        <span className="lnx-search-mpill-count">{count}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
+                  return (
+                    <Link
+                      key={cat.key}
+                      href={count > 0 ? `${cat.href}?${cat.paramKey}=${encodeURIComponent(searchTerm)}` : cat.href}
+                      className={`lnx-search-mpill ${count === 0 ? "lnx-search-mpill--explore" : ""}`}
+                      title={count > 0 ? `${cat.label}: ${count} found` : `Explore ${cat.label}`}
+                      aria-label={count > 0 ? `${cat.label}: ${count} found` : `Explore ${cat.label}`}
+                    >
+                      <span className={`lnx-search-mpill-icon lnx-search-card-icon--${cat.theme}`}>
+                        <Icon />
+                      </span>
+                      <span className="lnx-search-mpill-count">
+                        {count > 0 ? count : `Explore ${cat.label}`}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
 
               {/* Page shortcut links */}
               {hasPages && (
