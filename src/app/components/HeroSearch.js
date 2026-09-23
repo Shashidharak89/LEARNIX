@@ -14,6 +14,7 @@ import {
   FiHelpCircle,
   FiMessageSquare,
   FiUpload,
+  FiX,
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import "./styles/HeroSearch.css";
@@ -88,7 +89,7 @@ function useTypingPlaceholder(captions, typingSpeed = 60, pauseMs = 1800, delete
         setCaptionIdx((prev) => (prev + 1) % captions.length);
       }
     } else if (phase.current === "pausing") {
-      // Wait — handled by the typing branch
+      // Wait — handled by typing branch
     }
 
     return () => clearTimeout(timer);
@@ -102,13 +103,15 @@ function useTypingPlaceholder(captions, typingSpeed = 60, pauseMs = 1800, delete
 function renderWorkItem(item) {
   return (
     <li key={item._id} className="hero-search-cat-item">
-      <span className="hero-search-cat-item-dot" />
-      <div>
-        <div className="hero-search-cat-item-text">{item.topic}</div>
-        {item.subject && (
-          <div className="hero-search-cat-item-meta">{item.subject}</div>
-        )}
-      </div>
+      <Link href={`/works/${item._id}`} className="hero-search-cat-item-link">
+        <span className="hero-search-cat-item-dot" />
+        <div>
+          <div className="hero-search-cat-item-text">{item.topic}</div>
+          {item.subject && (
+            <div className="hero-search-cat-item-meta">{item.subject}</div>
+          )}
+        </div>
+      </Link>
     </li>
   );
 }
@@ -116,13 +119,15 @@ function renderWorkItem(item) {
 function renderUpdateItem(item) {
   return (
     <li key={item._id} className="hero-search-cat-item">
-      <span className="hero-search-cat-item-dot" />
-      <div>
-        <div className="hero-search-cat-item-text">{item.title}</div>
-        {item.userName && (
-          <div className="hero-search-cat-item-meta">by {item.userName}</div>
-        )}
-      </div>
+      <Link href={`/updates/${item._id}`} className="hero-search-cat-item-link">
+        <span className="hero-search-cat-item-dot" />
+        <div>
+          <div className="hero-search-cat-item-text">{item.title}</div>
+          {item.userName && (
+            <div className="hero-search-cat-item-meta">by {item.userName}</div>
+          )}
+        </div>
+      </Link>
     </li>
   );
 }
@@ -130,29 +135,34 @@ function renderUpdateItem(item) {
 function renderMaterialItem(item, idx) {
   return (
     <li key={`mat-${idx}`} className="hero-search-cat-item">
-      <span className="hero-search-cat-item-dot" />
-      <div>
-        <div className="hero-search-cat-item-text">{item.subject}</div>
-        <div className="hero-search-cat-item-meta">
-          {item.semester} · {item.fileCount} files
+      <Link href={`/materials?q=${encodeURIComponent(item.subject)}`} className="hero-search-cat-item-link">
+        <span className="hero-search-cat-item-dot" />
+        <div>
+          <div className="hero-search-cat-item-text">{item.subject}</div>
+          <div className="hero-search-cat-item-meta">
+            {item.semester} · {item.fileCount} files
+          </div>
         </div>
-      </div>
+      </Link>
     </li>
   );
 }
 
 function renderQPItem(item) {
+  const targetHref = item.id ? `/qp/${item.id}` : `/qp`;
   return (
     <li key={item.id} className="hero-search-cat-item">
-      <span className="hero-search-cat-item-dot" />
-      <div>
-        <div className="hero-search-cat-item-text">
-          {item.semesterLabel || `Semester ${item.semester}`}
+      <Link href={targetHref} className="hero-search-cat-item-link">
+        <span className="hero-search-cat-item-dot" />
+        <div>
+          <div className="hero-search-cat-item-text">
+            {item.semesterLabel || `Semester ${item.semester}`}
+          </div>
+          <div className="hero-search-cat-item-meta">
+            {item.batch} · {item.examType} · {item.totalSubjects} subjects
+          </div>
         </div>
-        <div className="hero-search-cat-item-meta">
-          {item.batch} · {item.examType} · {item.totalSubjects} subjects
-        </div>
-      </div>
+      </Link>
     </li>
   );
 }
@@ -182,13 +192,19 @@ export default function HeroSearch() {
   const doSearch = useCallback(async (customQ) => {
     const rawTarget = typeof customQ === "string" ? customQ : query;
     const cleanTarget = rawTarget.trim();
-    // If user clicked search with empty input, fallback to the animated placeholder string
     const finalQ = cleanTarget || placeholder.replace(/['"…]/g, "").trim();
     if (!finalQ) return;
 
     setLoading(true);
     setHasSearched(true);
     setSearchTerm(finalQ);
+
+    // Update browser URL query parameter
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set("q", finalQ);
+      window.history.pushState({}, "", url.toString());
+    }
 
     try {
       const res = await fetch(`/api/hero-search?q=${encodeURIComponent(finalQ)}`);
@@ -203,9 +219,33 @@ export default function HeroSearch() {
     }
   }, [query, placeholder]);
 
+  // Initial check for URL query parameter
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const qFromUrl = params.get("q");
+    if (qFromUrl) {
+      setQuery(qFromUrl);
+      doSearch(qFromUrl);
+    }
+  }, []);
+
   const handleFormSubmit = (e) => {
     if (e) e.preventDefault();
     doSearch();
+  };
+
+  const handleClear = () => {
+    setQuery("");
+    setResults(null);
+    setHasSearched(false);
+    setSearchTerm("");
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("q");
+      window.history.pushState({}, "", url.toString());
+    }
+    inputRef.current?.focus();
   };
 
   // ── Check if any results at all ───────────────────────────────────────
@@ -238,6 +278,19 @@ export default function HeroSearch() {
           aria-label="Search Learnix"
           id="hero-search-input"
         />
+
+        {/* Clear Cross Icon */}
+        {(query.length > 0 || hasSearched) && (
+          <button
+            type="button"
+            className="hero-search-clear-btn"
+            onClick={handleClear}
+            aria-label="Clear search"
+            id="hero-search-clear-btn"
+          >
+            <FiX />
+          </button>
+        )}
 
         <button
           type="submit"

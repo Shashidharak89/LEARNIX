@@ -94,6 +94,34 @@
   color: #bfc9d4;
 }
 
+/* ── Clear button (X) ─────────────────────────────────────────────────── */
+.hero-search-clear-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 1.1rem;
+  cursor: pointer;
+  margin-right: 6px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.hero-search-clear-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+  transform: scale(1.08);
+}
+
+.hero-search-clear-btn:active {
+  transform: scale(0.92);
+}
+
 /* ── Search button ─────────────────────────────────────────────────────── */
 .hero-search-btn {
   display: flex;
@@ -285,17 +313,30 @@
 }
 
 .hero-search-cat-item {
+  padding: 0;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.hero-search-cat-item-link {
   display: flex;
   align-items: flex-start;
   gap: 6px;
-  padding: 5px 6px;
+  padding: 6px 8px;
   border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  width: 100%;
+  box-sizing: border-box;
   transition: background 0.2s ease;
-  cursor: default;
 }
 
-.hero-search-cat-item:hover {
+.hero-search-cat-item-link:hover {
   background: #f3f4f6;
+}
+
+.hero-search-cat-item-link:hover .hero-search-cat-item-text {
+  color: #2563eb;
 }
 
 .hero-search-cat-item-dot {

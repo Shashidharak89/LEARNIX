@@ -35,20 +35,20 @@ export async function GET(req) {
     let worksCount = 0;
     try {
       await connectDB();
-      const topics = await Topic.find({
+      const queryObj = {
         $or: [{ topic: regex }, { content: regex }],
         visibility: { $ne: "private" },
-      })
-        .sort({ timestamp: -1 })
-        .limit(3)
-        .lean();
-
+      };
+      const [totalCount, topics] = await Promise.all([
+        Topic.countDocuments(queryObj),
+        Topic.find(queryObj).sort({ timestamp: -1 }).limit(3).lean(),
+      ]);
+      worksCount = totalCount;
       worksItems = topics.map((t) => ({
         _id: String(t._id),
         topic: t.topic || "Untitled Topic",
         subject: t.subjectName || "",
       }));
-      worksCount = worksItems.length;
     } catch (err) {
       console.error("HeroSearch Works fetch error:", err);
     }
@@ -58,20 +58,20 @@ export async function GET(req) {
     let updatesCount = 0;
     try {
       await connectDB();
-      const updates = await Update.find({
+      const queryObj = {
         $or: [{ title: regex }, { content: regex }],
         visibility: { $ne: "private" },
-      })
-        .sort({ createdAt: -1 })
-        .limit(3)
-        .lean();
-
+      };
+      const [totalCount, updates] = await Promise.all([
+        Update.countDocuments(queryObj),
+        Update.find(queryObj).sort({ createdAt: -1 }).limit(3).lean(),
+      ]);
+      updatesCount = totalCount;
       updatesItems = updates.map((u) => ({
         _id: String(u._id),
         title: u.title || "Untitled Update",
         userName: u.userName || "",
       }));
-      updatesCount = updatesItems.length;
     } catch (err) {
       console.error("HeroSearch Updates fetch error:", err);
     }
