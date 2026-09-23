@@ -261,25 +261,29 @@ export default function HeroSearch() {
 
   return (
     <div className="lnx-search" id="hero-search">
-      {/* ── Initial Header Title & Subcaption (Hides when typing) ──────────────── */}
-      {query.trim().length === 0 && !hasSearched && (
-        <div className="lnx-search-header">
-          {/* Line 1: Primary prominent headline (First thing user notices) */}
-          <h2 className="lnx-search-main-headline">
-            <span className="lnx-search-headline-sparkle">⚡</span> Quick Resource Finder
-          </h2>
-
-          {/* Line 2: Title */}
-          <h3 className="lnx-search-header-title">
-            Search Question Papers &amp; Materials on <span className="lnx-search-brand">LEARNIX</span>
-          </h3>
-
-          {/* Line 3: Tagline subtext on separate row */}
-          <p className="lnx-search-header-tagline">
-            Type anything you want to explore on Learnix
-          </p>
-        </div>
-      )}
+      {/* ── Header Title & Interactive Help Tooltip (Smooth transition on typing & clearing) ── */}
+      <div className={`lnx-search-header ${query.trim().length > 0 || hasSearched ? "lnx-search-header--hidden" : ""}`}>
+        <h2 className="lnx-search-main-headline">
+          <span className="lnx-search-headline-sparkle">⚡</span> Quick Resource Finder
+          <div className="lnx-search-info-wrap">
+            <button
+              type="button"
+              className="lnx-search-info-btn"
+              aria-label="Search Info & Hints"
+            >
+              <FiHelpCircle className="lnx-info-icon" />
+            </button>
+            <div className="lnx-search-tooltip" role="tooltip">
+              <div className="lnx-search-tooltip-title">
+                Search Question Papers &amp; Materials on <strong>LEARNIX</strong>
+              </div>
+              <p className="lnx-search-tooltip-text">
+                Type anything you want to explore on Learnix. Keywords separated by spaces are matched across all notes, syllabus &amp; papers.
+              </p>
+            </div>
+          </div>
+        </h2>
+      </div>
 
       {/* ── Search bar ──────────────────────────────────────────────────── */}
       <div className="lnx-search-bar-wrapper">
