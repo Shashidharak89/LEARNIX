@@ -1,7 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    HeroSearch.css — Learnix hero search bar
    Theme: High-contrast royal blue (#2563eb) matching HeroSection.
-   Header: Single title "⚡ Quick Resource Finder" with interactive ? help tooltip popover.
+   Header: Title "Quick Resource Finder" with vector FiZap icon.
+           Top popover tooltip above ? icon with zero overlapping elements.
            Smooth CSS transition on typing / clearing.
    Layout: Searchbar max-width 640px centered; Results expand to match HeroSection max-width (1200px).
    Responsive: Compact icon + count badges on small screen, zero horizontal scrolling.
@@ -35,7 +36,7 @@
 /* ── Header Title & Interactive Help Tooltip (Smooth Transition) ───────── */
 .lnx-search-header {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     width: 100%;
     opacity: 1;
     transform: translateY(0);
@@ -58,7 +59,7 @@
     overflow: hidden;
 }
 
-/* Single headline: Quick Resource Finder */
+/* Single headline: Quick Resource Finder with animated FiZap vector icon */
 .lnx-search-main-headline {
     font-size: 1.85rem;
     font-weight: 800;
@@ -75,12 +76,13 @@
 
 .lnx-search-headline-sparkle {
     color: #fbbf24;
+    font-size: 1.7rem;
     display: inline-block;
-    filter: drop-shadow(0 2px 4px rgba(251, 191, 36, 0.4));
-    animation: lnxSparklePulse 2s ease-in-out infinite;
+    filter: drop-shadow(0 2px 6px rgba(251, 191, 36, 0.5));
+    animation: lnxZapPulse 2.2s ease-in-out infinite;
 }
 
-/* Interactive ? button & tooltip popover */
+/* Interactive ? button & TOP tooltip popover */
 .lnx-search-info-wrap {
     position: relative;
     display: inline-flex;
@@ -114,22 +116,22 @@
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-/* Tooltip popover card */
+/* Tooltip popover card — Placed ABOVE the icon with z-index: 100 */
 .lnx-search-tooltip {
     position: absolute;
-    top: 100%;
+    bottom: calc(100% + 12px);
     left: 50%;
-    transform: translateX(-50%) translateY(8px) scale(0.95);
+    transform: translateX(-50%) translateY(-6px) scale(0.95);
     width: 290px;
     padding: 14px 16px;
     background: #ffffff;
     border: 1.5px solid #bfdbfe;
     border-radius: 14px;
-    box-shadow: 0 12px 32px rgba(18, 22, 28, 0.16);
+    box-shadow: 0 14px 36px rgba(18, 22, 28, 0.18), 0 4px 14px rgba(37, 99, 235, 0.12);
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
-    z-index: 25;
+    z-index: 100;
     text-align: left;
     pointer-events: none;
 }
@@ -138,21 +140,23 @@
 .lnx-search-info-wrap:focus-within .lnx-search-tooltip {
     opacity: 1;
     visibility: visible;
-    transform: translateX(-50%) translateY(12px) scale(1);
+    transform: translateX(-50%) translateY(0) scale(1);
     pointer-events: auto;
 }
 
+/* Tooltip pointer arrow pointing DOWN to the icon */
 .lnx-search-tooltip::before {
     content: '';
     position: absolute;
-    top: -6px;
+    bottom: -6px;
     left: 50%;
     transform: translateX(-50%) rotate(45deg);
     width: 10px;
     height: 10px;
     background: #ffffff;
-    border-top: 1.5px solid #bfdbfe;
-    border-left: 1.5px solid #bfdbfe;
+    border-bottom: 1.5px solid #bfdbfe;
+    border-right: 1.5px solid #bfdbfe;
+    z-index: 101;
 }
 
 .lnx-search-tooltip-title {
@@ -630,12 +634,12 @@
 }
 
 /* ── Keyframes ─────────────────────────────────────────────────────────── */
-@keyframes lnxSparklePulse {
+@keyframes lnxZapPulse {
     0%, 100% {
-        transform: scale(1);
+        transform: scale(1) rotate(0deg);
     }
     50% {
-        transform: scale(1.2) rotate(10deg);
+        transform: scale(1.2) rotate(12deg);
     }
 }
 

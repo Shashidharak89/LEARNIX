@@ -15,6 +15,7 @@ import {
   FiMessageSquare,
   FiUpload,
   FiX,
+  FiZap,
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import "./styles/HeroSearch.css";
@@ -264,7 +265,7 @@ export default function HeroSearch() {
       {/* ── Header Title & Interactive Help Tooltip (Smooth transition on typing & clearing) ── */}
       <div className={`lnx-search-header ${query.trim().length > 0 || hasSearched ? "lnx-search-header--hidden" : ""}`}>
         <h2 className="lnx-search-main-headline">
-          <span className="lnx-search-headline-sparkle">⚡</span> Quick Resource Finder
+          <FiZap className="lnx-search-headline-sparkle" /> Quick Resource Finder
           <div className="lnx-search-info-wrap">
             <button
               type="button"
