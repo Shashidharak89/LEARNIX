@@ -102,13 +102,13 @@ function useTypingPlaceholder(captions, typingSpeed = 60, pauseMs = 1800, delete
 
 function renderWorkItem(item) {
   return (
-    <li key={item._id} className="hero-search-cat-item">
-      <Link href={`/works/${item._id}`} className="hero-search-cat-item-link">
-        <span className="hero-search-cat-item-dot" />
+    <li key={item._id} className="lnx-search-card-item">
+      <Link href={`/works/${item._id}`} className="lnx-search-card-item-link">
+        <span className="lnx-search-card-item-dot" />
         <div>
-          <div className="hero-search-cat-item-text">{item.topic}</div>
+          <div className="lnx-search-card-item-text">{item.topic}</div>
           {item.subject && (
-            <div className="hero-search-cat-item-meta">{item.subject}</div>
+            <div className="lnx-search-card-item-meta">{item.subject}</div>
           )}
         </div>
       </Link>
@@ -118,13 +118,13 @@ function renderWorkItem(item) {
 
 function renderUpdateItem(item) {
   return (
-    <li key={item._id} className="hero-search-cat-item">
-      <Link href={`/updates/${item._id}`} className="hero-search-cat-item-link">
-        <span className="hero-search-cat-item-dot" />
+    <li key={item._id} className="lnx-search-card-item">
+      <Link href={`/updates/${item._id}`} className="lnx-search-card-item-link">
+        <span className="lnx-search-card-item-dot" />
         <div>
-          <div className="hero-search-cat-item-text">{item.title}</div>
+          <div className="lnx-search-card-item-text">{item.title}</div>
           {item.userName && (
-            <div className="hero-search-cat-item-meta">by {item.userName}</div>
+            <div className="lnx-search-card-item-meta">by {item.userName}</div>
           )}
         </div>
       </Link>
@@ -134,12 +134,12 @@ function renderUpdateItem(item) {
 
 function renderMaterialItem(item, idx) {
   return (
-    <li key={`mat-${idx}`} className="hero-search-cat-item">
-      <Link href={`/materials?q=${encodeURIComponent(item.subject)}`} className="hero-search-cat-item-link">
-        <span className="hero-search-cat-item-dot" />
+    <li key={`mat-${idx}`} className="lnx-search-card-item">
+      <Link href={`/materials?q=${encodeURIComponent(item.subject)}`} className="lnx-search-card-item-link">
+        <span className="lnx-search-card-item-dot" />
         <div>
-          <div className="hero-search-cat-item-text">{item.subject}</div>
-          <div className="hero-search-cat-item-meta">
+          <div className="lnx-search-card-item-text">{item.subject}</div>
+          <div className="lnx-search-card-item-meta">
             {item.semester} · {item.fileCount} files
           </div>
         </div>
@@ -151,14 +151,14 @@ function renderMaterialItem(item, idx) {
 function renderQPItem(item) {
   const targetHref = item.id ? `/qp/${item.id}` : `/qp`;
   return (
-    <li key={item.id} className="hero-search-cat-item">
-      <Link href={targetHref} className="hero-search-cat-item-link">
-        <span className="hero-search-cat-item-dot" />
+    <li key={item.id} className="lnx-search-card-item">
+      <Link href={targetHref} className="lnx-search-card-item-link">
+        <span className="lnx-search-card-item-dot" />
         <div>
-          <div className="hero-search-cat-item-text">
+          <div className="lnx-search-card-item-text">
             {item.semesterLabel || `Semester ${item.semester}`}
           </div>
-          <div className="hero-search-cat-item-meta">
+          <div className="lnx-search-card-item-meta">
             {item.batch} · {item.examType} · {item.totalSubjects} subjects
           </div>
         </div>
@@ -261,17 +261,17 @@ export default function HeroSearch() {
   const isEmpty = hasSearched && !loading && totalResults === 0 && !hasPages;
 
   return (
-    <div className="hero-search-root" id="hero-search">
+    <div className="lnx-search" id="hero-search">
       {/* ── Search bar form ─────────────────────────────────────────────── */}
-      <form className="hero-search-bar" onSubmit={handleFormSubmit}>
-        <span className="hero-search-sparkle" aria-hidden="true">
-          <span className="hero-search-sparkle-dot" />
+      <form className="lnx-search-bar" onSubmit={handleFormSubmit}>
+        <span className="lnx-search-dot-wrap" aria-hidden="true">
+          <span className="lnx-search-dot" />
         </span>
 
         <input
           ref={inputRef}
           type="text"
-          className="hero-search-input"
+          className="lnx-search-input"
           placeholder={placeholder}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -279,11 +279,11 @@ export default function HeroSearch() {
           id="hero-search-input"
         />
 
-        {/* Clear Cross Icon */}
+        {/* Clear button */}
         {(query.length > 0 || hasSearched) && (
           <button
             type="button"
-            className="hero-search-clear-btn"
+            className="lnx-search-clear"
             onClick={handleClear}
             aria-label="Clear search"
             id="hero-search-clear-btn"
@@ -294,32 +294,28 @@ export default function HeroSearch() {
 
         <button
           type="submit"
-          className={`hero-search-btn${loading ? " hero-search-btn-loading" : ""}`}
+          className="lnx-search-submit"
           aria-label="Search"
           id="hero-search-btn"
           disabled={loading}
         >
-          {loading ? (
-            <span className="hero-search-spinner" />
-          ) : (
-            <FiSearch />
-          )}
+          {loading ? <span className="lnx-search-spinner" /> : <FiSearch />}
         </button>
       </form>
 
       {/* ── Results ────────────────────────────────────────────────────── */}
       {hasSearched && !loading && results && (
-        <div className="hero-search-results">
+        <div className="lnx-search-results">
           {isEmpty ? (
-            <div className="hero-search-empty">
-              <div className="hero-search-empty-icon">🔍</div>
+            <div className="lnx-search-empty">
+              <div className="lnx-search-empty-icon">🔍</div>
               No results found for &ldquo;{searchTerm}&rdquo;
             </div>
           ) : (
             <>
               {/* Desktop grid */}
               {totalResults > 0 && (
-                <div className="hero-search-grid">
+                <div className="lnx-search-grid">
                   {CATEGORIES.map((cat) => {
                     const data = results[cat.key];
                     const items = data?.items || [];
@@ -328,35 +324,31 @@ export default function HeroSearch() {
                     const Icon = cat.icon;
 
                     return (
-                      <div key={cat.key} className="hero-search-category">
-                        <div className="hero-search-cat-header">
-                          <span className={`hero-search-cat-icon hero-search-cat-icon--${cat.theme}`}>
+                      <div key={cat.key} className="lnx-search-card">
+                        <div className="lnx-search-card-head">
+                          <span className={`lnx-search-card-icon lnx-search-card-icon--${cat.theme}`}>
                             <Icon />
                           </span>
                           <div>
-                            <div className="hero-search-cat-title">{cat.label}</div>
-                            <div className="hero-search-cat-count">
-                              {count} found
-                            </div>
+                            <div className="lnx-search-card-title">{cat.label}</div>
+                            <div className="lnx-search-card-count">{count} found</div>
                           </div>
                         </div>
 
                         {count > 0 ? (
                           <>
-                            <ul className="hero-search-cat-list">
+                            <ul className="lnx-search-card-list">
                               {items.map((item, idx) => renderItem(item, idx))}
                             </ul>
                             <Link
                               href={`${cat.href}?${cat.paramKey}=${encodeURIComponent(searchTerm)}`}
-                              className="hero-search-viewmore"
+                              className="lnx-search-viewmore"
                             >
                               View more <FiArrowRight />
                             </Link>
                           </>
                         ) : (
-                          <div className="hero-search-cat-empty">
-                            No matches
-                          </div>
+                          <div className="lnx-search-card-empty">No matches</div>
                         )}
                       </div>
                     );
@@ -366,7 +358,7 @@ export default function HeroSearch() {
 
               {/* Mobile scroll cards */}
               {totalResults > 0 && (
-                <div className="hero-search-mobile-scroll">
+                <div className="lnx-search-mscroll">
                   {CATEGORIES.map((cat) => {
                     const data = results[cat.key];
                     const count = data?.count || 0;
@@ -377,20 +369,16 @@ export default function HeroSearch() {
                       <Link
                         key={cat.key}
                         href={`${cat.href}?${cat.paramKey}=${encodeURIComponent(searchTerm)}`}
-                        className="hero-search-mobile-card"
+                        className="lnx-search-mcard"
                       >
-                        <span className={`hero-search-mobile-icon hero-search-cat-icon--${cat.theme}`}>
+                        <span className={`lnx-search-mcard-icon lnx-search-card-icon--${cat.theme}`}>
                           <Icon />
                         </span>
-                        <span className="hero-search-mobile-info">
-                          <span className="hero-search-mobile-count">
-                            {count} found
-                          </span>
-                          <span className="hero-search-mobile-label">
-                            {cat.label}
-                          </span>
+                        <span className="lnx-search-mcard-info">
+                          <span className="lnx-search-mcard-count">{count} found</span>
+                          <span className="lnx-search-mcard-label">{cat.label}</span>
                         </span>
-                        <FiArrowRight className="hero-search-mobile-arrow" />
+                        <FiArrowRight className="lnx-search-mcard-arrow" />
                       </Link>
                     );
                   })}
@@ -399,14 +387,14 @@ export default function HeroSearch() {
 
               {/* Page shortcut links */}
               {hasPages && (
-                <div className="hero-search-pages">
+                <div className="lnx-search-pages">
                   {results.pages.map((page) => {
                     const IconComp = ICON_MAP[page.icon] || FiSearch;
                     return (
                       <Link
                         key={page.href}
                         href={`${page.href}?q=${encodeURIComponent(searchTerm)}`}
-                        className="hero-search-page-link"
+                        className="lnx-search-page-link"
                       >
                         <IconComp />
                         {page.name}
