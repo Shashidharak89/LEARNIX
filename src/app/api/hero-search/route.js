@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Topic from "@/models/Topic";
 import Update from "@/models/Update";
+import QPSubjects from "@/models/QPSubjects";
 import materialsData from "@/app/materials/materialsData";
 import { listQuestionPapers } from "@/app/api/question-papers/store";
 
@@ -168,34 +169,80 @@ export async function GET(req) {
       console.error("HeroSearch Materials error:", err);
     }
 
-    // ── 4. Question Papers (listQuestionPapers) ────────────────────────────
+    // ── 4. Question Papers (Search Subjects by Name in DB & Papers) ───────────
     let qpItems = [];
     let qpCount = 0;
     try {
-      const qpResults = listQuestionPapers({ q });
-      if (Array.isArray(qpResults)) {
-        const scoredQP = qpResults.map((paper) => {
-          let score = 0;
-          const textToSearch = `${paper.semesterLabel || ""} ${paper.batch || ""} ${paper.examType || ""} ${(
-            paper.subjects || []
-          ).join(" ")}`.toLowerCase();
+      await connectDB();
+      const matchedSubjectsMap = new Map();
 
-          for (const token of tokens) {
-            if (textToSearch.includes(token.toLowerCase())) score += 1;
-          }
-          return { paper, score };
-        });
+      // 4a. Search QPSubjects collection in MongoDB
+      const tokenOrs = tokens.map((token) => ({
+        name: { $regex: token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), $options: "i" },
+      }));
 
-        scoredQP.sort((a, b) => b.score - a.score);
-        qpCount = qpResults.length;
-        qpItems = scoredQP.slice(0, 3).map(({ paper }) => ({
-          id: paper.id,
-          semesterLabel: paper.semesterLabel || `Semester ${paper.semester}`,
-          batch: paper.batch,
-          examType: paper.examType,
-          totalSubjects: paper.totalSubjects || (paper.subjects ? paper.subjects.length : 0),
-        }));
+      const rawDbSubjects = await QPSubjects.find({ $or: tokenOrs }).lean();
+
+      for (const sub of rawDbSubjects) {
+        if (!sub.name) continue;
+        const subName = sub.name.trim();
+        const normKey = subName.toLowerCase();
+        let score = 0;
+        for (const token of tokens) {
+          if (normKey.includes(token.toLowerCase())) score += 1;
+        }
+        if (score > 0) {
+          matchedSubjectsMap.set(normKey, {
+            _id: String(sub._id),
+            name: subName,
+            title: subName,
+            score,
+          });
+        }
       }
+
+      // 4b. Cross-reference with listQuestionPapers for paper subjects
+      const qpResults = await listQuestionPapers({ q });
+      if (Array.isArray(qpResults)) {
+        for (const paper of qpResults) {
+          if (!Array.isArray(paper.subjects)) continue;
+          for (const subItem of paper.subjects) {
+            const subName = String(subItem.subject || "").trim();
+            if (!subName) continue;
+            const normKey = subName.toLowerCase();
+
+            let score = 0;
+            for (const token of tokens) {
+              if (normKey.includes(token.toLowerCase())) score += 1;
+            }
+
+            if (score > 0) {
+              if (!matchedSubjectsMap.has(normKey)) {
+                matchedSubjectsMap.set(normKey, {
+                  _id: paper.id ? `${paper.id}_${normKey}` : null,
+                  name: subName,
+                  title: subName,
+                  score,
+                });
+              } else {
+                const existing = matchedSubjectsMap.get(normKey);
+                existing.score = Math.max(existing.score, score) + 1;
+              }
+            }
+          }
+        }
+      }
+
+      const allMatchedSubjects = Array.from(matchedSubjectsMap.values());
+      allMatchedSubjects.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+
+      // The count is the total number of subjects found matching the query
+      qpCount = allMatchedSubjects.length;
+      qpItems = allMatchedSubjects.slice(0, 3).map((sub) => ({
+        _id: sub._id,
+        name: sub.name,
+        title: sub.name,
+      }));
     } catch (err) {
       console.error("HeroSearch QuestionPapers error:", err);
     }

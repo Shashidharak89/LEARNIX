@@ -134,14 +134,17 @@ function renderMaterialItem(item, idx) {
   );
 }
 
-function renderQPItem(item) {
-  const targetHref = item.id ? `/qp/${item.id}` : `/qp`;
-  const label = item.semesterLabel || `Semester ${item.semester}`;
+function renderQPItem(item, idx) {
+  const subjectName = item.name || item.title || item.subject || "Untitled Subject";
+  const targetHref = item._id && !item._id.includes("_")
+    ? `/qp/${item._id}`
+    : `/qp?q=${encodeURIComponent(subjectName)}`;
+
   return (
-    <li key={item.id} className="lnx-search-card-item">
-      <Link href={targetHref} className="lnx-search-card-item-link" title={`${label} - ${item.examType || ""}`}>
+    <li key={item._id || `qp-${idx}`} className="lnx-search-card-item">
+      <Link href={targetHref} className="lnx-search-card-item-link" title={subjectName}>
         <span className="lnx-search-card-item-dot" />
-        <span className="lnx-search-card-item-text">{label}</span>
+        <span className="lnx-search-card-item-text">{subjectName}</span>
       </Link>
     </li>
   );
