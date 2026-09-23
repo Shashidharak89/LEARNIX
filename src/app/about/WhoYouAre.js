@@ -33,12 +33,12 @@ const WhoYouAre = () => {
         <p className="who-text">
           For more about me and my work, visit my portfolio:{" "}
           <a
-            href="https://www.shashi-k.in/"
+            href="https://shashi-k.tech"
             target="_blank"
             rel="noopener noreferrer"
             className="who-portfolio-link"
           >
-            shashi-k.in <FaExternalLinkAlt className="who-link-icon" />
+            shashi-k.tech <FaExternalLinkAlt className="who-link-icon" />
           </a>
         </p>
       </div>

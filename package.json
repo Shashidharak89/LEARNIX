@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@animateicons/react": "^0.5.0",
     "@gradio/client": "^2.1.0",
     "@huggingface/inference": "^4.13.15",
     "@react-three/drei": "^10.7.7",

@@ -1,0 +1,850 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   HeroSearch.css — Learnix hero search bar
+   Theme: High-contrast royal blue (#2563eb) matching HeroSection.
+   Header: Title "Quick Resource Finder" with animated BookOpenText icon.
+           Top popover tooltip above ? icon with zero overlapping elements.
+           Smooth CSS transition on typing / clearing.
+   Results: Single-row items with responsive font size and title truncation (...).
+            Category cards with 0 matches show an actionable "Explore Category →" button.
+   Layout: Searchbar max-width 640px centered; Results expand to match HeroSection max-width (1200px).
+   Responsive: Compact icon + count/explore badges on small screen, zero horizontal scrolling.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+    --lnx-blue: #2563eb;          /* High contrast royal blue from HeroSection */
+    --lnx-blue-dark: #1d4ed8;     /* Deep royal blue for hover/active */
+    --lnx-blue-light: #eff6ff;    /* Soft blue tint background */
+    --lnx-blue-border: #bfdbfe;   /* Crisp blue border tint */
+    --lnx-yellow: #fbbf24;
+    --lnx-yellow-dark: #d97706;
+    --lnx-ink: #111827;           /* High contrast dark text */
+    --lnx-ink-soft: #374151;      /* Medium dark gray text */
+    --lnx-muted: #6b7280;         /* Subtitle / meta gray */
+    --lnx-line: #d1d5db;          /* High contrast border line */
+    --lnx-surface: #ffffff;
+}
+
+/* ── Container (Spans full HeroSection width up to 1200px) ──────────────── */
+.lnx-search {
+    width: 100%;
+    max-width: 1200px;
+    margin: 10px auto 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ── Header Title & Interactive Help Tooltip (Smooth Transition) ───────── */
+.lnx-search-header {
+    text-align: center;
+    margin-bottom: 24px;
+    width: 100%;
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 120px;
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                margin-bottom 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: visible;
+    pointer-events: auto;
+}
+
+/* Smooth fade out and collapse when user starts typing */
+.lnx-search-header--hidden {
+    opacity: 0;
+    transform: translateY(-14px);
+    max-height: 0;
+    margin-bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* Single headline: Quick Resource Finder with animated BookOpenText icon */
+.lnx-search-main-headline {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #1e3a8a;
+    margin: 0;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+}
+
+.lnx-search-headline-book {
+    color: var(--lnx-blue);
+    display: inline-block;
+    filter: drop-shadow(0 2px 6px rgba(37, 99, 235, 0.35));
+    animation: lnxBookPulse 2.4s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+/* Interactive ? button & TOP tooltip popover */
+.lnx-search-info-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lnx-search-info-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid #bfdbfe;
+    background: #eff6ff;
+    color: var(--lnx-blue);
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.22s ease;
+    padding: 0;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.1);
+}
+
+.lnx-search-info-btn:hover,
+.lnx-search-info-btn:focus {
+    background: var(--lnx-blue);
+    color: #ffffff;
+    border-color: var(--lnx-blue-dark);
+    transform: scale(1.12) rotate(12deg);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* Tooltip popover card — Placed ABOVE the icon with z-index: 100 */
+.lnx-search-tooltip {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-6px) scale(0.95);
+    width: 290px;
+    padding: 14px 16px;
+    background: #ffffff;
+    border: 1.5px solid #bfdbfe;
+    border-radius: 14px;
+    box-shadow: 0 14px 36px rgba(18, 22, 28, 0.18), 0 4px 14px rgba(37, 99, 235, 0.12);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
+    z-index: 100;
+    text-align: left;
+    pointer-events: none;
+}
+
+.lnx-search-info-wrap:hover .lnx-search-tooltip,
+.lnx-search-info-wrap:focus-within .lnx-search-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+/* Tooltip pointer arrow pointing DOWN to the icon */
+.lnx-search-tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 10px;
+    height: 10px;
+    background: #ffffff;
+    border-bottom: 1.5px solid #bfdbfe;
+    border-right: 1.5px solid #bfdbfe;
+    z-index: 101;
+}
+
+.lnx-search-tooltip-title {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 4px;
+    line-height: 1.35;
+}
+
+.lnx-search-tooltip-title strong {
+    color: var(--lnx-blue);
+}
+
+.lnx-search-tooltip-text {
+    font-size: 0.78rem;
+    color: #4b5563;
+    margin: 0;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+/* ── Searchbar Wrapper (Fixed max-width 640px centered) ─────────────────── */
+.lnx-search-bar-wrapper {
+    width: 100%;
+    max-width: 640px;
+    position: relative;
+    z-index: 5;
+    margin: 0 auto;
+}
+
+/* ── Pill Bar (High contrast royal blue accents) ────────────────────────── */
+.lnx-search-bar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--lnx-surface);
+    border-radius: 999px;
+    padding: 6px 6px 6px 20px;
+    box-shadow:
+        0 2px 4px rgba(37, 99, 235, 0.04),
+        0 10px 24px -8px rgba(37, 99, 235, 0.14);
+    border: 2px solid var(--lnx-blue);
+    transition: box-shadow 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
+    will-change: transform;
+}
+
+.lnx-search-bar:hover {
+    transform: translateY(-1.5px);
+    border-color: var(--lnx-blue-dark);
+    box-shadow:
+        0 4px 8px rgba(37, 99, 235, 0.08),
+        0 14px 30px -8px rgba(37, 99, 235, 0.22);
+}
+
+.lnx-search-bar:focus-within {
+    border-color: var(--lnx-blue-dark);
+    transform: translateY(-1.5px);
+    box-shadow:
+        0 0 0 4px rgba(37, 99, 235, 0.2),
+        0 16px 32px -8px rgba(37, 99, 235, 0.25);
+}
+
+/* Live dot indicator */
+.lnx-search-dot-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-right: 6px;
+}
+
+.lnx-search-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--lnx-blue);
+    box-shadow: 0 0 8px rgba(37, 99, 235, 0.6);
+}
+
+/* ── Input ──────────────────────────────────────────────────────────────── */
+.lnx-search-input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--lnx-ink);
+    padding: 12px 0;
+    caret-color: var(--lnx-blue-dark);
+}
+
+.lnx-search-input::placeholder {
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+/* ── Clear Button ───────────────────────────────────────────────────────── */
+.lnx-search-clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: #f3f4f6;
+    color: var(--lnx-ink-soft);
+    font-size: 1.05rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
+}
+
+.lnx-search-clear:hover {
+    background: #e5e7eb;
+    color: var(--lnx-ink);
+    transform: scale(1.08);
+}
+
+.lnx-search-clear:active {
+    transform: scale(0.9);
+}
+
+/* ── Submit Button (High-Contrast Royal Blue) ───────────────────────────── */
+.lnx-search-submit {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    background: var(--lnx-blue);
+    color: #ffffff;
+    font-size: 1.15rem;
+    transition: background-color 0.22s ease, transform 0.18s ease, box-shadow 0.22s ease;
+    box-shadow: 0 6px 16px -3px rgba(37, 99, 235, 0.5);
+}
+
+.lnx-search-submit svg {
+    position: relative;
+    z-index: 1;
+    transition: transform 0.22s ease;
+}
+
+.lnx-search-submit:hover {
+    background: var(--lnx-blue-dark);
+    box-shadow: 0 8px 20px -3px rgba(29, 78, 216, 0.6);
+    transform: scale(1.06);
+}
+
+.lnx-search-submit:hover svg {
+    transform: scale(1.15) rotate(-6deg);
+}
+
+.lnx-search-submit:active {
+    transform: scale(0.95);
+}
+
+.lnx-search-submit:disabled {
+    cursor: default;
+    opacity: 0.8;
+}
+
+.lnx-search-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: lnxSpin 0.7s linear infinite;
+}
+
+/* ── Results Wrapper (Takes same width as HeroSection: max 1200px) ────── */
+.lnx-search-results {
+    width: 100%;
+    max-width: 1200px;
+    margin-top: 22px;
+    animation: lnxRise 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.lnx-search-empty {
+    text-align: center;
+    padding: 24px 16px;
+    color: var(--lnx-ink-soft);
+    font-size: 0.95rem;
+    font-weight: 600;
+    background: #fafbfc;
+    border: 2px dashed #d1d5db;
+    border-radius: 16px;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.lnx-search-empty-icon {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+}
+
+/* ── Desktop Grid (4 equal columns spanning up to 1200px) ───────────────── */
+.lnx-search-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    width: 100%;
+}
+
+.lnx-search-card {
+    background: var(--lnx-surface);
+    border: 2px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 18px 16px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
+    animation: lnxRise 0.32s ease both;
+}
+
+.lnx-search-grid .lnx-search-card:nth-child(1) { animation-delay: 0.02s; }
+.lnx-search-grid .lnx-search-card:nth-child(2) { animation-delay: 0.06s; }
+.lnx-search-grid .lnx-search-card:nth-child(3) { animation-delay: 0.1s; }
+.lnx-search-grid .lnx-search-card:nth-child(4) { animation-delay: 0.14s; }
+
+.lnx-search-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 16px;
+    right: 16px;
+    height: 3.5px;
+    border-radius: 0 0 4px 4px;
+    background: var(--lnx-blue);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
+}
+
+.lnx-search-card:hover {
+    border-color: var(--lnx-blue);
+    transform: translateY(-3px);
+    box-shadow: 0 14px 30px -10px rgba(37, 99, 235, 0.18);
+}
+
+.lnx-search-card:hover::before {
+    transform: scaleX(1);
+}
+
+.lnx-search-card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.lnx-search-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    transition: transform 0.22s ease;
+}
+
+.lnx-search-card:hover .lnx-search-card-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.lnx-search-card-icon--works {
+    background: rgba(37, 99, 235, 0.12);
+    color: var(--lnx-blue);
+}
+
+.lnx-search-card-icon--updates {
+    background: rgba(251, 191, 36, 0.18);
+    color: var(--lnx-yellow-dark);
+}
+
+.lnx-search-card-icon--materials {
+    background: #f3f4f6;
+    color: var(--lnx-ink);
+}
+
+.lnx-search-card-icon--qp {
+    background: rgba(37, 99, 235, 0.12);
+    color: var(--lnx-blue);
+}
+
+.lnx-search-card-title {
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: var(--lnx-ink);
+    line-height: 1.2;
+}
+
+.lnx-search-card-count {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--lnx-blue-dark);
+}
+
+.lnx-search-card-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Single row per item result with title ellipsis truncation */
+.lnx-search-card-item-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 9px;
+    text-decoration: none;
+    color: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+    transition: background 0.16s ease;
+}
+
+.lnx-search-card-item-link:hover {
+    background: #f3f4f6;
+}
+
+.lnx-search-card-item-link:hover .lnx-search-card-item-text {
+    color: var(--lnx-blue-dark);
+}
+
+.lnx-search-card-item-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--lnx-blue);
+    flex-shrink: 0;
+}
+
+.lnx-search-card-item-text {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: #1f2937;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Action button for 0 matches */
+.lnx-search-card-empty-wrap {
+    padding: 8px 0 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.lnx-search-explore-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 14px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #ffffff;
+    background: var(--lnx-blue);
+    border-radius: 20px;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
+    transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.lnx-search-explore-btn:hover {
+    background: var(--lnx-blue-dark);
+    transform: translateY(-1.5px);
+    box-shadow: 0 6px 16px rgba(29, 78, 216, 0.4);
+}
+
+.lnx-search-explore-btn svg {
+    transition: transform 0.18s ease;
+}
+
+.lnx-search-explore-btn:hover svg {
+    transform: translateX(3px);
+}
+
+.lnx-search-viewmore {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 12px;
+    padding: 7px 14px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--lnx-blue-dark);
+    background: rgba(37, 99, 235, 0.1);
+    border-radius: 20px;
+    text-decoration: none;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.lnx-search-viewmore:hover {
+    background: var(--lnx-blue);
+    color: #ffffff;
+}
+
+.lnx-search-viewmore svg {
+    transition: transform 0.18s ease;
+}
+
+.lnx-search-viewmore:hover svg {
+    transform: translateX(3px);
+}
+
+/* ── Mobile / Small screen wrap pills (Icons + count/explore action, zero scroll) ──── */
+.lnx-search-mwrap {
+    display: none;
+}
+
+.lnx-search-mpill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px 8px 10px;
+    background: var(--lnx-surface);
+    border: 2px solid var(--lnx-blue-border);
+    border-radius: 999px;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lnx-search-mpill:hover,
+.lnx-search-mpill:active {
+    border-color: var(--lnx-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.22);
+}
+
+.lnx-search-mpill--explore {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+.lnx-search-mpill-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.lnx-search-mpill-count {
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: var(--lnx-ink);
+}
+
+/* ── Page shortcut chips ────────────────────────────────────────────────── */
+.lnx-search-pages {
+    margin-top: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.lnx-search-page-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    background: var(--lnx-surface);
+    border: 1.5px solid var(--lnx-line);
+    border-radius: 24px;
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--lnx-ink-soft);
+    transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.lnx-search-page-link:hover {
+    background: var(--lnx-blue);
+    border-color: var(--lnx-blue);
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+/* ── Keyframes ─────────────────────────────────────────────────────────── */
+@keyframes lnxBookPulse {
+    0%, 100% {
+        transform: scale(1) rotate(0deg);
+    }
+    30% {
+        transform: scale(1.18) rotate(-6deg);
+    }
+    60% {
+        transform: scale(1.12) rotate(6deg);
+    }
+}
+
+@keyframes lnxSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes lnxRise {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lnx-search-header,
+    .lnx-search-headline-book,
+    .lnx-search-spinner,
+    .lnx-search-results,
+    .lnx-search-card {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .lnx-search-bar,
+    .lnx-search-card,
+    .lnx-search-mpill {
+        transition: none !important;
+    }
+}
+
+/* ── Tablet ─────────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+    .lnx-search-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .lnx-search-main-headline {
+        font-size: 1.55rem;
+    }
+
+    .lnx-search-card-item-text {
+        font-size: 0.8rem;
+    }
+}
+
+/* ── Mobile / Small width screens ───────────────────────────────────────── */
+@media (max-width: 768px) {
+    .lnx-search {
+        margin-top: 10px;
+    }
+
+    .lnx-search-main-headline {
+        font-size: 1.32rem;
+    }
+
+    .lnx-search-tooltip {
+        width: 250px;
+        padding: 12px;
+    }
+
+    .lnx-search-bar-wrapper {
+        max-width: 100%;
+    }
+
+    .lnx-search-bar {
+        padding: 4px 4px 4px 16px;
+    }
+
+    .lnx-search-input {
+        font-size: 0.94rem;
+        padding: 10px 0;
+    }
+
+    .lnx-search-submit {
+        width: 40px;
+        height: 40px;
+        font-size: 1.05rem;
+    }
+
+    /* Hide desktop list grid on small screen */
+    .lnx-search-grid {
+        display: none;
+    }
+
+    /* Show compact wrap pills (icons + count badge), fill next row if no space, zero horizontal scrolling */
+    .lnx-search-mwrap {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        overflow-x: visible;
+        padding: 4px 0;
+    }
+
+    .lnx-search-mpill {
+        padding: 7px 14px 7px 9px;
+    }
+
+    .lnx-search-mpill-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 0.95rem;
+    }
+
+    .lnx-search-mpill-count {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .lnx-search-main-headline {
+        font-size: 1.15rem;
+    }
+
+    .lnx-search-info-btn {
+        width: 24px;
+        height: 24px;
+        font-size: 0.95rem;
+    }
+
+    .lnx-search-bar {
+        padding: 3px 3px 3px 14px;
+    }
+
+    .lnx-search-input {
+        font-size: 0.88rem;
+        padding: 9px 0;
+    }
+
+    .lnx-search-submit {
+        width: 37px;
+        height: 37px;
+        font-size: 0.98rem;
+    }
+
+    .lnx-search-card-item-text {
+        font-size: 0.76rem;
+    }
+
+    .lnx-search-page-link {
+        padding: 6px 12px;
+        font-size: 0.76rem;
+    }
+
+    .lnx-search-mwrap {
+        gap: 8px;
+    }
+
+    .lnx-search-mpill {
+        padding: 6px 12px 6px 8px;
+    }
+
+    .lnx-search-mpill-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 0.9rem;
+    }
+
+    .lnx-search-mpill-count {
+        font-size: 0.85rem;
+    }
+}

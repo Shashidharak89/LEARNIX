@@ -10,6 +10,18 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Global Search Option Added on Home Page",
+      date: "Sep 23, 2026",
+      description:
+        "We've added a powerful Global Search bar right on the Home page! Instantly search across Works & Notes, Campus Updates, Study Materials, and Question Papers. Uses space-separated keyword matching, displays matched subjects & notes with single-row responsive cards, and lets you jump directly to relevant resources.",
+    },
+    {
+      title: "Visibility Control for Updates Added",
+      date: "Aug 23, 2026",
+      description:
+        "You can now set visibility for updates! Choose between Public (visible to everyone), Private (only visible to you), or Unlisted (accessible via direct link). Control visibility when creating new updates or editing existing ones in your updates list.",
+    },
+    {
       title: "New Authentication Features",
       date: "Jun 12, 2026",
       description:
