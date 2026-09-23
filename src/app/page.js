@@ -1,14 +1,14 @@
 "use client";
 
-import HeroSection from "./components/HeroSection";
+import Home from "./components/Home";
 import { Navbar } from "./components/Navbar";
 
-export default function Home() {
+export default function Page() {
 
   return (
     <>
     <Navbar/>
-    <HeroSection/>
+    <Home/>
     </>
   );
 }
