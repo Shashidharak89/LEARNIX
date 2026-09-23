@@ -1,7 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════════════════
    HeroSearch.css — Learnix hero search bar
-   Theme: white surface, sky-blue #57ceeb + yellow #fbbf24 accents, black text
-   No gradients. Motion is GPU-cheap (transform/opacity/box-shadow only).
+   Theme: clean white surface, sky-blue #57ceeb + yellow #fbbf24 accents, black text
+   Layout: Searchbar max-width 640px centered; Results expand to match HeroSection max-width (1200px).
+   Responsive: Compact icon + count badges on small screen, zero horizontal scrolling.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
@@ -12,59 +13,65 @@
     --lnx-ink: #12161c;
     --lnx-ink-soft: #4b5563;
     --lnx-muted: #94a0ad;
-    --lnx-line: #eceff2;
+    --lnx-line: #e5e7eb;
     --lnx-surface: #ffffff;
 }
 
-/* ── Container ─────────────────────────────────────────────────────────── */
+/* ── Container (Spans full HeroSection width up to 1200px) ──────────────── */
 .lnx-search {
     width: 100%;
-    max-width: 640px;
-    margin: 18px auto 0;
+    max-width: 1200px;
+    margin: 20px auto 0;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-/* ── Pill bar ───────────────────────────────────────────────────────────── */
+/* ── Searchbar Wrapper (Fixed max-width 640px centered) ─────────────────── */
+.lnx-search-bar-wrapper {
+    width: 100%;
+    max-width: 640px;
+    position: relative;
+    z-index: 5;
+    margin: 0 auto;
+}
+
+/* ── Pill Bar (Simple, clean, no heavy bg shadow/glow) ───────────────────── */
 .lnx-search-bar {
-    --ring: 0deg;
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     background: var(--lnx-surface);
     border-radius: 999px;
-    padding: 6px 6px 6px 22px;
-    box-shadow:
-        0 1px 0 rgba(255, 255, 255, 1) inset,
-        0 14px 34px -18px rgba(18, 22, 28, 0.22),
-        0 2px 6px rgba(18, 22, 28, 0.05);
-    border: 1px solid var(--lnx-line);
-    transition: box-shadow 0.28s ease, border-color 0.28s ease, transform 0.28s ease;
+    padding: 6px 6px 6px 20px;
+    box-shadow: 0 2px 10px rgba(18, 22, 28, 0.06);
+    border: 1.5px solid var(--lnx-line);
+    transition: box-shadow 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
     will-change: transform;
 }
 
 .lnx-search-bar:hover {
     transform: translateY(-1px);
-    box-shadow:
-        0 1px 0 rgba(255, 255, 255, 1) inset,
-        0 18px 38px -18px rgba(18, 22, 28, 0.26),
-        0 2px 6px rgba(18, 22, 28, 0.06);
+    border-color: #d1d5db;
+    box-shadow: 0 4px 16px rgba(18, 22, 28, 0.09);
 }
 
 .lnx-search-bar:focus-within {
     border-color: var(--lnx-blue);
     transform: translateY(-1px);
-    box-shadow:
-        0 0 0 4px rgba(87, 206, 235, 0.16),
-        0 18px 38px -18px rgba(18, 22, 28, 0.24);
+    box-shadow: 0 0 0 3.5px rgba(87, 206, 235, 0.18), 0 4px 16px rgba(18, 22, 28, 0.08);
 }
 
-/* Live "listening" dot — quiet two-tone pulse, brand colors only */
+/* Dot indicator */
 .lnx-search-dot-wrap {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    margin-right: 10px;
+    margin-right: 8px;
 }
 
 .lnx-search-dot {
@@ -72,7 +79,6 @@
     height: 7px;
     border-radius: 50%;
     background: var(--lnx-blue);
-    animation: lnxDotPulse 2.6s ease-in-out infinite;
 }
 
 /* ── Input ──────────────────────────────────────────────────────────────── */
@@ -83,11 +89,11 @@
     outline: none;
     background: transparent;
     font-family: inherit;
-    font-size: 0.96rem;
+    font-size: 0.98rem;
     font-weight: 500;
     color: var(--lnx-ink);
-    padding: 13px 0;
-    caret-color: var(--lnx-blue);
+    padding: 12px 0;
+    caret-color: var(--lnx-blue-dark);
 }
 
 .lnx-search-input::placeholder {
@@ -95,7 +101,7 @@
     font-weight: 500;
 }
 
-/* ── Clear button ───────────────────────────────────────────────────────── */
+/* ── Clear Button ───────────────────────────────────────────────────────── */
 .lnx-search-clear {
     display: flex;
     align-items: center;
@@ -121,23 +127,23 @@
     transform: scale(0.9);
 }
 
-/* ── Submit button ──────────────────────────────────────────────────────── */
+/* ── Submit Button ──────────────────────────────────────────────────────── */
 .lnx-search-submit {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
     flex-shrink: 0;
     border: none;
     border-radius: 50%;
     cursor: pointer;
     background: var(--lnx-blue);
     color: #ffffff;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     transition: background-color 0.22s ease, transform 0.18s ease, box-shadow 0.22s ease;
-    box-shadow: 0 6px 16px -4px rgba(87, 206, 235, 0.55);
+    box-shadow: 0 4px 12px rgba(87, 206, 235, 0.4);
 }
 
 .lnx-search-submit svg {
@@ -147,36 +153,16 @@
 
 .lnx-search-submit:hover {
     background: var(--lnx-yellow);
-    box-shadow: 0 6px 16px -4px rgba(251, 191, 36, 0.55);
-    transform: scale(1.06);
+    box-shadow: 0 4px 14px rgba(251, 191, 36, 0.5);
+    transform: scale(1.05);
 }
 
 .lnx-search-submit:active {
-    transform: scale(0.96);
+    transform: scale(0.95);
 }
 
 .lnx-search-submit:disabled {
     cursor: default;
-}
-
-/* Quiet breathing ring behind the submit button, draws the eye without noise */
-.lnx-search-submit::before {
-    content: '';
-    position: absolute;
-    inset: -5px;
-    border-radius: 50%;
-    border: 1.5px solid var(--lnx-blue);
-    opacity: 0;
-    animation: lnxRing 2.8s ease-out infinite;
-}
-
-.lnx-search-bar:focus-within .lnx-search-submit::before {
-    animation-play-state: running;
-}
-
-.lnx-search-bar:not(:focus-within) .lnx-search-submit::before {
-    animation-play-state: paused;
-    opacity: 0;
 }
 
 .lnx-search-spinner {
@@ -188,69 +174,63 @@
     animation: lnxSpin 0.7s linear infinite;
 }
 
-/* ── Results wrapper ───────────────────────────────────────────────────── */
+/* ── Results Wrapper (Takes same width as HeroSection: max 1200px) ────── */
 .lnx-search-results {
-    margin-top: 16px;
-    animation: lnxRise 0.3s ease both;
+    width: 100%;
+    max-width: 1200px;
+    margin-top: 22px;
+    animation: lnxRise 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .lnx-search-empty {
     text-align: center;
-    padding: 20px 16px;
+    padding: 24px 16px;
     color: var(--lnx-ink-soft);
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 500;
     background: #fafbfc;
     border: 1.5px dashed var(--lnx-line);
     border-radius: 16px;
+    max-width: 640px;
+    margin: 0 auto;
 }
 
 .lnx-search-empty-icon {
-    font-size: 1.5rem;
-    margin-bottom: 6px;
+    font-size: 1.8rem;
+    margin-bottom: 8px;
 }
 
-/* ── Desktop grid ───────────────────────────────────────────────────────── */
+/* ── Desktop Grid (4 equal columns spanning up to 1200px) ───────────────── */
 .lnx-search-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
+    gap: 16px;
+    width: 100%;
 }
 
 .lnx-search-card {
     background: var(--lnx-surface);
     border: 1.5px solid var(--lnx-line);
-    border-radius: 16px;
-    padding: 14px;
+    border-radius: 18px;
+    padding: 16px;
     position: relative;
     overflow: hidden;
     transition: border-color 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
     animation: lnxRise 0.32s ease both;
 }
 
-.lnx-search-grid .lnx-search-card:nth-child(1) {
-    animation-delay: 0.02s;
-}
-
-.lnx-search-grid .lnx-search-card:nth-child(2) {
-    animation-delay: 0.06s;
-}
-
-.lnx-search-grid .lnx-search-card:nth-child(3) {
-    animation-delay: 0.1s;
-}
-
-.lnx-search-grid .lnx-search-card:nth-child(4) {
-    animation-delay: 0.14s;
-}
+.lnx-search-grid .lnx-search-card:nth-child(1) { animation-delay: 0.02s; }
+.lnx-search-grid .lnx-search-card:nth-child(2) { animation-delay: 0.06s; }
+.lnx-search-grid .lnx-search-card:nth-child(3) { animation-delay: 0.1s; }
+.lnx-search-grid .lnx-search-card:nth-child(4) { animation-delay: 0.14s; }
 
 .lnx-search-card::before {
     content: '';
     position: absolute;
     top: 0;
-    left: 14px;
-    right: 14px;
-    height: 2.5px;
+    left: 16px;
+    right: 16px;
+    height: 3px;
     border-radius: 0 0 4px 4px;
     background: var(--lnx-blue);
     transform: scaleX(0);
@@ -260,8 +240,8 @@
 
 .lnx-search-card:hover {
     border-color: var(--lnx-blue);
-    transform: translateY(-2px);
-    box-shadow: 0 12px 26px -14px rgba(18, 22, 28, 0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 26px -12px rgba(18, 22, 28, 0.12);
 }
 
 .lnx-search-card:hover::before {
@@ -271,18 +251,18 @@
 .lnx-search-card-head {
     display: flex;
     align-items: center;
-    gap: 9px;
-    margin-bottom: 10px;
+    gap: 10px;
+    margin-bottom: 12px;
 }
 
 .lnx-search-card-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 9px;
-    font-size: 0.95rem;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    font-size: 1rem;
     flex-shrink: 0;
 }
 
@@ -307,14 +287,14 @@
 }
 
 .lnx-search-card-title {
-    font-size: 0.82rem;
+    font-size: 0.88rem;
     font-weight: 700;
     color: var(--lnx-ink);
     line-height: 1.2;
 }
 
 .lnx-search-card-count {
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     font-weight: 600;
     color: var(--lnx-muted);
 }
@@ -325,15 +305,15 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 5px;
 }
 
 .lnx-search-card-item-link {
     display: flex;
     align-items: flex-start;
-    gap: 7px;
-    padding: 6px 7px;
-    border-radius: 9px;
+    gap: 8px;
+    padding: 7px 8px;
+    border-radius: 10px;
     text-decoration: none;
     color: inherit;
     transition: background 0.16s ease;
@@ -357,7 +337,7 @@
 }
 
 .lnx-search-card-item-text {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     font-weight: 500;
     color: #303740;
     line-height: 1.35;
@@ -368,28 +348,28 @@
 }
 
 .lnx-search-card-item-meta {
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     color: var(--lnx-muted);
     margin-top: 1px;
 }
 
 .lnx-search-card-empty {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     color: var(--lnx-muted);
     font-style: italic;
-    padding: 4px 0;
+    padding: 6px 0;
 }
 
 .lnx-search-viewmore {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    margin-top: 8px;
-    padding: 5px 11px;
-    font-size: 0.74rem;
+    margin-top: 10px;
+    padding: 6px 12px;
+    font-size: 0.76rem;
     font-weight: 700;
     color: var(--lnx-blue-dark);
-    background: rgba(87, 206, 235, 0.1);
+    background: rgba(87, 206, 235, 0.12);
     border-radius: 20px;
     text-decoration: none;
     transition: background 0.18s ease, color 0.18s ease;
@@ -405,91 +385,71 @@
 }
 
 .lnx-search-viewmore:hover svg {
-    transform: translateX(2px);
+    transform: translateX(3px);
 }
 
-/* ── Mobile scroll cards ────────────────────────────────────────────────── */
-.lnx-search-mscroll {
+/* ── Mobile / Small screen wrap pills (Icons + count only, zero scroll) ──── */
+.lnx-search-mwrap {
     display: none;
 }
 
-.lnx-search-mcard {
-    display: flex;
+.lnx-search-mpill {
+    display: inline-flex;
     align-items: center;
-    gap: 10px;
-    min-width: 190px;
-    flex-shrink: 0;
-    padding: 13px 15px;
+    gap: 8px;
+    padding: 8px 16px 8px 10px;
     background: var(--lnx-surface);
     border: 1.5px solid var(--lnx-line);
-    border-radius: 15px;
+    border-radius: 999px;
     text-decoration: none;
-    transition: border-color 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 2px 8px rgba(18, 22, 28, 0.04);
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.lnx-search-mcard:hover {
+.lnx-search-mpill:hover,
+.lnx-search-mpill:active {
     border-color: var(--lnx-blue);
     transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(87, 206, 235, 0.2);
 }
 
-.lnx-search-mcard-icon {
+.lnx-search-mpill-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    font-size: 1.05rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 1rem;
     flex-shrink: 0;
 }
 
-.lnx-search-mcard-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.lnx-search-mcard-count {
-    font-size: 0.92rem;
-    font-weight: 700;
+.lnx-search-mpill-count {
+    font-size: 0.95rem;
+    font-weight: 800;
     color: var(--lnx-ink);
-}
-
-.lnx-search-mcard-label {
-    font-size: 0.74rem;
-    color: var(--lnx-ink-soft);
-    font-weight: 500;
-}
-
-.lnx-search-mcard-arrow {
-    margin-left: auto;
-    color: var(--lnx-muted);
-    transition: color 0.18s ease, transform 0.18s ease;
-}
-
-.lnx-search-mcard:hover .lnx-search-mcard-arrow {
-    color: var(--lnx-blue-dark);
-    transform: translateX(2px);
 }
 
 /* ── Page shortcut chips ────────────────────────────────────────────────── */
 .lnx-search-pages {
-    margin-top: 12px;
+    margin-top: 16px;
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
     gap: 8px;
+    width: 100%;
 }
 
 .lnx-search-page-link {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 7px 14px;
+    padding: 8px 16px;
     background: #fafbfc;
     border: 1.5px solid var(--lnx-line);
     border-radius: 24px;
     text-decoration: none;
-    font-size: 0.79rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--lnx-ink-soft);
     transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
@@ -499,36 +459,10 @@
     background: var(--lnx-blue);
     border-color: var(--lnx-blue);
     color: #ffffff;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
 }
 
-/* ── Keyframes (transform/opacity/box-shadow only — cheap to animate) ──── */
-@keyframes lnxDotPulse {
-
-    0%,
-    100% {
-        background: var(--lnx-blue);
-        transform: scale(1);
-    }
-
-    50% {
-        background: var(--lnx-yellow);
-        transform: scale(1.3);
-    }
-}
-
-@keyframes lnxRing {
-    0% {
-        transform: scale(0.85);
-        opacity: 0.5;
-    }
-
-    100% {
-        transform: scale(1.35);
-        opacity: 0;
-    }
-}
-
+/* ── Keyframes ─────────────────────────────────────────────────────────── */
 @keyframes lnxSpin {
     to {
         transform: rotate(360deg);
@@ -540,7 +474,6 @@
         opacity: 0;
         transform: translateY(10px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -548,9 +481,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-
-    .lnx-search-dot,
-    .lnx-search-submit::before,
     .lnx-search-spinner,
     .lnx-search-results,
     .lnx-search-card {
@@ -559,7 +489,7 @@
 
     .lnx-search-bar,
     .lnx-search-card,
-    .lnx-search-mcard {
+    .lnx-search-mpill {
         transition: none !important;
     }
 }
@@ -568,81 +498,103 @@
 @media (max-width: 1024px) {
     .lnx-search-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        gap: 12px;
     }
 }
 
-/* ── Mobile ─────────────────────────────────────────────────────────────── */
+/* ── Mobile / Small width screens ───────────────────────────────────────── */
 @media (max-width: 768px) {
-    .lnx-search {
-        max-width: 100%;
-    }
-
-    .lnx-search-bar {
-        padding: 4px 4px 4px 18px;
-    }
-
-    .lnx-search-input {
-        font-size: 0.92rem;
-        padding: 11px 0;
-    }
-
-    .lnx-search-submit {
-        width: 40px;
-        height: 40px;
-        font-size: 1.05rem;
-    }
-
-    .lnx-search-grid {
-        display: none;
-    }
-
-    .lnx-search-mscroll {
-        display: flex;
-        gap: 10px;
-        overflow-x: auto;
-        padding-bottom: 6px;
-        scroll-snap-type: x mandatory;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-    }
-
-    .lnx-search-mscroll::-webkit-scrollbar {
-        display: none;
-    }
-
-    .lnx-search-mcard {
-        scroll-snap-align: start;
-    }
-}
-
-@media (max-width: 480px) {
     .lnx-search {
         margin-top: 14px;
     }
 
+    .lnx-search-bar-wrapper {
+        max-width: 100%;
+    }
+
     .lnx-search-bar {
-        padding: 3px 3px 3px 15px;
+        padding: 4px 4px 4px 16px;
     }
 
     .lnx-search-input {
-        font-size: 0.87rem;
+        font-size: 0.92rem;
         padding: 10px 0;
     }
 
     .lnx-search-submit {
-        width: 37px;
-        height: 37px;
+        width: 38px;
+        height: 38px;
         font-size: 1rem;
+    }
+
+    /* Hide desktop list grid on small screen */
+    .lnx-search-grid {
+        display: none;
+    }
+
+    /* Show compact wrap pills (icons + count badge), fill next row if no space, zero horizontal scrolling */
+    .lnx-search-mwrap {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+        overflow-x: visible;
+        padding: 4px 0;
+    }
+
+    .lnx-search-mpill {
+        padding: 7px 14px 7px 9px;
+    }
+
+    .lnx-search-mpill-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 0.95rem;
+    }
+
+    .lnx-search-mpill-count {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .lnx-search-bar {
+        padding: 3px 3px 3px 14px;
+    }
+
+    .lnx-search-input {
+        font-size: 0.87rem;
+        padding: 9px 0;
+    }
+
+    .lnx-search-submit {
+        width: 36px;
+        height: 36px;
+        font-size: 0.95rem;
     }
 
     .lnx-search-page-link {
         padding: 6px 12px;
-        font-size: 0.73rem;
+        font-size: 0.74rem;
     }
 
-    .lnx-search-mcard {
-        min-width: 165px;
-        padding: 11px 13px;
+    .lnx-search-mwrap {
+        gap: 8px;
+    }
+
+    .lnx-search-mpill {
+        padding: 6px 12px 6px 8px;
+    }
+
+    .lnx-search-mpill-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 0.9rem;
+    }
+
+    .lnx-search-mpill-count {
+        font-size: 0.85rem;
     }
 }

@@ -262,46 +262,48 @@ export default function HeroSearch() {
 
   return (
     <div className="lnx-search" id="hero-search">
-      {/* ── Search bar form ─────────────────────────────────────────────── */}
-      <form className="lnx-search-bar" onSubmit={handleFormSubmit}>
-        <span className="lnx-search-dot-wrap" aria-hidden="true">
-          <span className="lnx-search-dot" />
-        </span>
+      {/* ── Search bar ──────────────────────────────────────────────────── */}
+      <div className="lnx-search-bar-wrapper">
+        <form className="lnx-search-bar" onSubmit={handleFormSubmit}>
+          <span className="lnx-search-dot-wrap" aria-hidden="true">
+            <span className="lnx-search-dot" />
+          </span>
 
-        <input
-          ref={inputRef}
-          type="text"
-          className="lnx-search-input"
-          placeholder={placeholder}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          aria-label="Search Learnix"
-          id="hero-search-input"
-        />
+          <input
+            ref={inputRef}
+            type="text"
+            className="lnx-search-input"
+            placeholder={placeholder}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            aria-label="Search Learnix"
+            id="hero-search-input"
+          />
 
-        {/* Clear button */}
-        {(query.length > 0 || hasSearched) && (
+          {/* Clear button */}
+          {(query.length > 0 || hasSearched) && (
+            <button
+              type="button"
+              className="lnx-search-clear"
+              onClick={handleClear}
+              aria-label="Clear search"
+              id="hero-search-clear-btn"
+            >
+              <FiX />
+            </button>
+          )}
+
           <button
-            type="button"
-            className="lnx-search-clear"
-            onClick={handleClear}
-            aria-label="Clear search"
-            id="hero-search-clear-btn"
+            type="submit"
+            className="lnx-search-submit"
+            aria-label="Search"
+            id="hero-search-btn"
+            disabled={loading}
           >
-            <FiX />
+            {loading ? <span className="lnx-search-spinner" /> : <FiSearch />}
           </button>
-        )}
-
-        <button
-          type="submit"
-          className="lnx-search-submit"
-          aria-label="Search"
-          id="hero-search-btn"
-          disabled={loading}
-        >
-          {loading ? <span className="lnx-search-spinner" /> : <FiSearch />}
-        </button>
-      </form>
+        </form>
+      </div>
 
       {/* ── Results ────────────────────────────────────────────────────── */}
       {hasSearched && !loading && results && (
@@ -356,9 +358,9 @@ export default function HeroSearch() {
                 </div>
               )}
 
-              {/* Mobile scroll cards */}
+              {/* Mobile / Small screen wrap pills (icons + count only, zero horizontal scrolling) */}
               {totalResults > 0 && (
-                <div className="lnx-search-mscroll">
+                <div className="lnx-search-mwrap">
                   {CATEGORIES.map((cat) => {
                     const data = results[cat.key];
                     const count = data?.count || 0;
@@ -369,16 +371,14 @@ export default function HeroSearch() {
                       <Link
                         key={cat.key}
                         href={`${cat.href}?${cat.paramKey}=${encodeURIComponent(searchTerm)}`}
-                        className="lnx-search-mcard"
+                        className="lnx-search-mpill"
+                        title={`${cat.label}: ${count} found`}
+                        aria-label={`${cat.label}: ${count} found`}
                       >
-                        <span className={`lnx-search-mcard-icon lnx-search-card-icon--${cat.theme}`}>
+                        <span className={`lnx-search-mpill-icon lnx-search-card-icon--${cat.theme}`}>
                           <Icon />
                         </span>
-                        <span className="lnx-search-mcard-info">
-                          <span className="lnx-search-mcard-count">{count} found</span>
-                          <span className="lnx-search-mcard-label">{cat.label}</span>
-                        </span>
-                        <FiArrowRight className="lnx-search-mcard-arrow" />
+                        <span className="lnx-search-mpill-count">{count}</span>
                       </Link>
                     );
                   })}
