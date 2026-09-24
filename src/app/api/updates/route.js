@@ -3,6 +3,9 @@ import { connectDB } from "@/lib/db";
 import Update from "@/models/Update";
 import User from "@/models/User";
 import mongoose from "mongoose";
+import redis, { invalidateUpdatesCache } from "@/lib/redis";
+
+const CACHE_TTL_SECONDS = 300; // 5 minutes cache TTL
 
 function escapeRegex(value = "") {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -10,6 +13,28 @@ function escapeRegex(value = "") {
 
 export async function GET(req) {
   try {
+    const url = new URL(req.url);
+    const searchParamsString = url.searchParams.toString() || 'default';
+    const cacheKey = `updates:${searchParamsString}`;
+
+    // Try reading from Redis cache
+    if (redis) {
+      try {
+        const cachedData = await redis.get(cacheKey);
+        if (cachedData) {
+          return NextResponse.json(JSON.parse(cachedData), {
+            status: 200,
+            headers: {
+              "X-Cache": "HIT",
+              "Cache-Control": "public, max-age=300, s-maxage=300",
+            },
+          });
+        }
+      } catch (cacheError) {
+        console.warn("[Redis Cache Read Error]:", cacheError.message);
+      }
+    }
+
     await connectDB();
 
     const url = new URL(req.url);
@@ -112,7 +137,24 @@ export async function GET(req) {
       };
     });
 
-    return NextResponse.json({ updates: enriched }, { status: 200 });
+    const responseData = { updates: enriched };
+
+    // Save to Redis cache for 5 minutes (300 seconds)
+    if (redis) {
+      try {
+        await redis.set(cacheKey, JSON.stringify(responseData), "EX", CACHE_TTL_SECONDS);
+      } catch (cacheSetErr) {
+        console.warn("[Redis Cache Write Error]:", cacheSetErr.message);
+      }
+    }
+
+    return NextResponse.json(responseData, {
+      status: 200,
+      headers: {
+        "X-Cache": "MISS",
+        "Cache-Control": "public, max-age=300, s-maxage=300",
+      },
+    });
   } catch (error) {
     console.error('GET /api/updates error:', error);
     return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
@@ -150,6 +192,9 @@ export async function POST(req) {
     });
 
     await updateDoc.save();
+
+    // Invalidate updates cache on new update creation
+    await invalidateUpdatesCache();
 
     const enriched = {
       _id: updateDoc._id,
@@ -191,9 +236,13 @@ export async function DELETE(req) {
       return NextResponse.json({ error: 'Update not found' }, { status: 404 });
     }
 
+    // Invalidate updates cache on update deletion
+    await invalidateUpdatesCache();
+
     return NextResponse.json({ message: 'Update deleted successfully' }, { status: 200 });
   } catch (error) {
     console.error('DELETE /api/updates error:', error);
     return NextResponse.json({ error: 'Failed to delete update' }, { status: 500 });
   }
 }
+
