@@ -4,6 +4,7 @@ import Update from "@/models/Update";
 import User from "@/models/User";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
 import mongoose from "mongoose";
+import { invalidateUpdatesCache } from "@/lib/redis";
 
 export async function GET(req, { params }) {
   try {
@@ -98,6 +99,8 @@ export async function DELETE(req, { params }) {
     }
 
     await Update.findByIdAndDelete(updateId);
+
+    await invalidateUpdatesCache();
 
     return NextResponse.json({ message: 'Update deleted successfully' }, { status: 200 });
   } catch (error) {

@@ -11,7 +11,7 @@ if (process.env.REDIS_URL) {
         enableOfflineQueue: false,
         retryStrategy(times) {
           if (times > 3) {
-            return null;
+            return null; // Stop retrying after 3 attempts
           }
           return Math.min(times * 100, 2000);
         },
@@ -23,24 +23,31 @@ if (process.env.REDIS_URL) {
     }
     redis = global._redisClient;
   } catch (err) {
-    console.error("[Redis Initialization Error]:", err);
+    console.error("[Redis Initialization Error]: Fallback active -", err.message);
   }
 } else {
-  console.warn("[Redis] REDIS_URL is not configured in environment variables.");
+  console.warn("[Redis Warning]: REDIS_URL is not set in environment variables. Falling back to DB only.");
 }
 
 /**
- * Helper to delete Redis keys matching a pattern.
+ * Helper to delete all Redis keys matching "updates:*".
+ * Logs invalidation details and handles failures gracefully.
  */
 export async function invalidateUpdatesCache() {
-  if (!redis) return;
+  if (!redis) {
+    console.log("[Redis Cache INVALIDATION Skipped]: Redis client not connected.");
+    return;
+  }
   try {
     const keys = await redis.keys("updates:*");
     if (keys && keys.length > 0) {
       await redis.del(...keys);
+      console.log(`[Redis Cache INVALIDATED] Successfully cleared ${keys.length} update cache key(s):`, keys);
+    } else {
+      console.log("[Redis Cache INVALIDATION] No active 'updates:*' cache keys found to clear.");
     }
   } catch (err) {
-    console.error("[Redis Invalidation Error]:", err.message);
+    console.error("[Redis Cache INVALIDATION Error]: Fallback active -", err.message);
   }
 }
 

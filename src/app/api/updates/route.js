@@ -22,6 +22,7 @@ export async function GET(req) {
       try {
         const cachedData = await redis.get(cacheKey);
         if (cachedData) {
+          console.log(`[Redis Cache HIT] Key: "${cacheKey}"`);
           return NextResponse.json(JSON.parse(cachedData), {
             status: 200,
             headers: {
@@ -30,8 +31,9 @@ export async function GET(req) {
             },
           });
         }
+        console.log(`[Redis Cache MISS] Key: "${cacheKey}"`);
       } catch (cacheError) {
-        console.warn("[Redis Cache Read Error]:", cacheError.message);
+        console.warn("[Redis Cache Read Error]: Fallback active -", cacheError.message);
       }
     }
 
@@ -142,8 +144,9 @@ export async function GET(req) {
     if (redis) {
       try {
         await redis.set(cacheKey, JSON.stringify(responseData), "EX", CACHE_TTL_SECONDS);
+        console.log(`[Redis Cache STORED] Key: "${cacheKey}" (TTL: 300s)`);
       } catch (cacheSetErr) {
-        console.warn("[Redis Cache Write Error]:", cacheSetErr.message);
+        console.warn("[Redis Cache Write Error]: Fallback active -", cacheSetErr.message);
       }
     }
 
