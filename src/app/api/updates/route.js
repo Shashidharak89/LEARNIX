@@ -37,7 +37,6 @@ export async function GET(req) {
 
     await connectDB();
 
-    const url = new URL(req.url);
     const indexParam = url.searchParams.get('index') || '1';
     const currentUserId = (url.searchParams.get('userId') || '').trim();
     const pageIndex = Math.max(1, parseInt(indexParam, 10) || 1);
