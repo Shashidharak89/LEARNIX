@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Update from "@/models/Update";
 import cloudinary from "@/lib/cloudinary";
-import { invalidateUpdatesCache } from "@/lib/redis";
 
 export async function POST(req) {
   try {
@@ -62,8 +61,6 @@ export async function POST(req) {
     }
 
     const updated = await Update.findByIdAndUpdate(updateId, { $set: updatedFields }, { new: true }).lean();
-
-    await invalidateUpdatesCache();
 
     return NextResponse.json({ update: updated }, { status: 200 });
   } catch (error) {

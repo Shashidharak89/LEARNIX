@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Update from "@/models/Update";
 import cloudinary from "@/lib/cloudinary";
-import { invalidateUpdatesCache } from "@/lib/redis";
 
 export async function POST(req) {
   try {
@@ -38,8 +37,6 @@ export async function POST(req) {
     }
 
     await Update.findByIdAndDelete(updateId);
-
-    await invalidateUpdatesCache();
 
     return NextResponse.json({ message: 'Update deleted successfully' }, { status: 200 });
   } catch (error) {

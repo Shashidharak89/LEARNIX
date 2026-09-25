@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import cloudinary from "@/lib/cloudinary";
-import { invalidateUpdatesCache } from "@/lib/redis";
 
 export const POST = async (req) => {
   try {
@@ -35,9 +34,6 @@ export const POST = async (req) => {
       );
       stream.end(buffer);
     });
-
-    // Invalidate updates cache on file upload
-    await invalidateUpdatesCache();
 
     return NextResponse.json({
       file: {

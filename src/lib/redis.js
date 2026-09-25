@@ -29,26 +29,4 @@ if (process.env.REDIS_URL) {
   console.warn("[Redis Warning]: REDIS_URL is not set in environment variables. Falling back to DB only.");
 }
 
-/**
- * Helper to delete all Redis keys matching "updates:*".
- * Logs invalidation details and handles failures gracefully.
- */
-export async function invalidateUpdatesCache() {
-  if (!redis) {
-    console.log("[Redis Cache INVALIDATION Skipped]: Redis client not connected.");
-    return;
-  }
-  try {
-    const keys = await redis.keys("updates:*");
-    if (keys && keys.length > 0) {
-      await redis.del(keys);
-      console.log(`[Redis Cache INVALIDATED] Successfully cleared ${keys.length} update cache key(s):`, keys);
-    } else {
-      console.log("[Redis Cache INVALIDATION] No active 'updates:*' cache keys found to clear.");
-    }
-  } catch (err) {
-    console.error("[Redis Cache INVALIDATION Error]: Fallback active -", err.message);
-  }
-}
-
 export default redis;
