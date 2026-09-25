@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
-import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload, FiSearch, FiPlus, FiSettings, FiX } from 'react-icons/fi';
+import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload, FiSearch, FiPlus, FiList } from 'react-icons/fi';
 import { Share2, Bell } from 'lucide-react';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
 import { getYouTubeVideoId } from '../utils/youtube';
@@ -196,7 +196,7 @@ export default function UpdatesPage({ initialUpdateId }) {
                     <span className="upd-action-text">Add Update</span>
                   </button>
                   <Link href="/upload/updates" className="upd-action-btn upd-action-btn-secondary" title="Manage Updates">
-                    <FiSettings className="upd-action-icon" />
+                    <FiList className="upd-action-icon" />
                     <span className="upd-action-text">Manage</span>
                   </Link>
                 </div>

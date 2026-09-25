@@ -31,8 +31,9 @@
   --upd-shadow-md: 0 4px 20px rgba(15, 23, 42, 0.08);
   --upd-shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.10);
   --upd-shadow-blue: 0 8px 28px rgba(11, 116, 255, 0.18);
-  --upd-radius: 14px;
-  --upd-radius-sm: 10px;
+  --upd-radius: 22px;
+  --upd-radius-sm: 16px;
+  --upd-radius-xs: 12px;
   --upd-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --upd-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -69,7 +70,7 @@
 .upd-intro-card {
   background: var(--upd-surface);
   border: 1.5px solid var(--upd-border);
-  border-radius: var(--upd-radius);
+  border-radius: 24px;
   padding: 24px 24px 20px;
   margin-bottom: 28px;
   box-shadow: var(--upd-shadow-sm);
@@ -134,8 +135,8 @@
   justify-content: center;
   gap: 6px;
   height: 38px;
-  padding: 0 16px;
-  border-radius: var(--upd-radius-sm);
+  padding: 0 18px;
+  border-radius: 999px;
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
@@ -273,10 +274,10 @@
 .upd-search-btn {
   height: 44px;
   border: none;
-  border-radius: var(--upd-radius-sm);
+  border-radius: 999px;
   background: var(--upd-blue);
   color: #fff;
-  padding: 0 20px;
+  padding: 0 22px;
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
@@ -306,10 +307,10 @@
 .upd-search-clear-btn {
   height: 44px;
   border: 1.5px solid var(--upd-border);
-  border-radius: var(--upd-radius-sm);
+  border-radius: 999px;
   background: var(--upd-surface);
   color: var(--upd-text-secondary);
-  padding: 0 16px;
+  padding: 0 18px;
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
@@ -341,7 +342,7 @@
 .upd-card {
   background: var(--upd-surface);
   border: 1.5px solid var(--upd-border);
-  border-radius: var(--upd-radius);
+  border-radius: 20px;
   padding: 20px 22px;
   box-shadow: var(--upd-shadow-xs);
   transition: all 300ms var(--upd-ease);
@@ -386,7 +387,7 @@
 .upd-avatar {
   width: 46px;
   height: 46px;
-  border-radius: 12px;
+  border-radius: 50%;
   object-fit: cover;
   border: 2px solid var(--upd-border);
   flex-shrink: 0;
@@ -496,7 +497,7 @@
   justify-content: center;
   width: 34px;
   height: 34px;
-  border-radius: 10px;
+  border-radius: 50%;
   border: 1.5px solid transparent;
   background: var(--upd-blue-tint);
   color: var(--upd-blue);
@@ -684,7 +685,7 @@
   padding: 12px 16px;
   background: var(--upd-blue-light);
   border: 1.5px solid rgba(11, 116, 255, 0.12);
-  border-radius: var(--upd-radius-sm);
+  border-radius: 14px;
   transition: all 250ms var(--upd-ease);
   cursor: pointer;
 }
@@ -739,7 +740,7 @@
   justify-content: center;
   width: 34px;
   height: 34px;
-  border-radius: 9px;
+  border-radius: 50%;
   border: 1.5px solid transparent;
   text-decoration: none;
   font-size: 15px;
@@ -824,7 +825,7 @@
   justify-content: center;
   padding: 56px 24px;
   background: var(--upd-surface);
-  border-radius: var(--upd-radius);
+  border-radius: 20px;
   border: 2px dashed var(--upd-border);
   animation: upd-fadeIn 0.4s var(--upd-ease) both;
 }
@@ -862,7 +863,7 @@
   background: var(--upd-blue);
   color: white;
   border: none;
-  border-radius: var(--upd-radius-sm);
+  border-radius: 999px;
   font-family: inherit;
   font-size: 0.9rem;
   font-weight: 700;
