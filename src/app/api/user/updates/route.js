@@ -4,8 +4,10 @@ import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
 import Update from "@/models/Update";
 import User from "@/models/User";
+import redis from "@/lib/redis";
 
 const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey";
+const CACHE_TTL_SECONDS = 300;
 
 function getUserIdFromAuthHeader(req) {
   const authHeader = req.headers.get("authorization") || "";
@@ -22,8 +24,6 @@ function getUserIdFromAuthHeader(req) {
 
 export async function GET(req) {
   try {
-    await connectDB();
-
     let userId = getUserIdFromAuthHeader(req);
 
     const url = new URL(req.url);
@@ -40,6 +40,30 @@ export async function GET(req) {
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized: Missing or invalid JWT token in Authorization header" }, { status: 401 });
     }
+
+    const searchParamsString = url.searchParams.toString() || 'default';
+    const cacheKey = `updates:user:${userId}:${searchParamsString}`;
+
+    if (redis) {
+      try {
+        const cachedData = await redis.get(cacheKey);
+        if (cachedData) {
+          console.log(`[Redis Cache HIT] Key: "${cacheKey}"`);
+          return NextResponse.json(JSON.parse(cachedData), {
+            status: 200,
+            headers: {
+              "X-Cache": "HIT",
+              "Cache-Control": "public, max-age=300, s-maxage=300",
+            },
+          });
+        }
+        console.log(`[Redis Cache MISS] Key: "${cacheKey}"`);
+      } catch (cacheError) {
+        console.warn("[Redis Cache Read Error]: Fallback active -", cacheError.message);
+      }
+    }
+
+    await connectDB();
 
     const pageIndex = Math.max(1, parseInt(indexParam, 10) || 1);
     const pageSize = Math.max(1, Math.min(50, parseInt(limitParam, 10) || 10));
@@ -75,19 +99,33 @@ export async function GET(req) {
       profileUrl: user?.profileimg || null,
     }));
 
-    return NextResponse.json(
-      {
-        updates: enriched,
-        pagination: {
-          page: pageIndex,
-          pageSize: pageSize,
-          totalCount: totalCount,
-          totalPages: totalPages,
-          hasMore: hasMore,
-        },
+    const responseData = {
+      updates: enriched,
+      pagination: {
+        page: pageIndex,
+        pageSize: pageSize,
+        totalCount: totalCount,
+        totalPages: totalPages,
+        hasMore: hasMore,
       },
-      { status: 200 }
-    );
+    };
+
+    if (redis) {
+      try {
+        await redis.set(cacheKey, JSON.stringify(responseData), "EX", CACHE_TTL_SECONDS);
+        console.log(`[Redis Cache STORED] Key: "${cacheKey}" (TTL: 300s)`);
+      } catch (cacheSetErr) {
+        console.warn("[Redis Cache Write Error]: Fallback active -", cacheSetErr.message);
+      }
+    }
+
+    return NextResponse.json(responseData, {
+      status: 200,
+      headers: {
+        "X-Cache": "MISS",
+        "Cache-Control": "public, max-age=300, s-maxage=300",
+      },
+    });
   } catch (error) {
     console.error("GET /api/user/updates error:", error);
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 });

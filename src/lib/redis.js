@@ -41,7 +41,7 @@ export async function invalidateUpdatesCache() {
   try {
     const keys = await redis.keys("updates:*");
     if (keys && keys.length > 0) {
-      await redis.del(...keys);
+      await redis.del(keys);
       console.log(`[Redis Cache INVALIDATED] Successfully cleared ${keys.length} update cache key(s):`, keys);
     } else {
       console.log("[Redis Cache INVALIDATION] No active 'updates:*' cache keys found to clear.");
