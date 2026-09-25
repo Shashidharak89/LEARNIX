@@ -2,8 +2,8 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
-import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload, FiSearch, FiPlus, FiSettings } from 'react-icons/fi';
-import { Share2 } from 'lucide-react';
+import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload, FiSearch, FiPlus, FiSettings, FiX } from 'react-icons/fi';
+import { Share2, Bell } from 'lucide-react';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
 import { getYouTubeVideoId } from '../utils/youtube';
 import LinkPreview from '../components/LinkPreview';
@@ -185,10 +185,10 @@ export default function UpdatesPage({ initialUpdateId }) {
         <main className="upd-main">
           <div className="upd-intro-card">
             <div className="upd-intro-header">
-              <div>
-                <h1 className="upd-title">Updates</h1>
-                <p className="upd-subtitle">Recent activity: subjects and public topics created by users.</p>
-              </div>
+              <h1 className="upd-title">
+                <Bell className="upd-title-icon" size={24} />
+                UPDATES
+              </h1>
               {isLoggedIn && (
                 <div className="upd-action-buttons">
                   <button type="button" className="upd-action-btn upd-action-btn-primary" onClick={() => setShowAddModal(true)} title="Add Update">
@@ -211,7 +211,7 @@ export default function UpdatesPage({ initialUpdateId }) {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="upd-search-input"
-                  placeholder="Search updates..."
+                  placeholder="Search updates by title, content, or user..."
                   aria-label="Search updates"
                 />
               </div>
@@ -243,19 +243,27 @@ export default function UpdatesPage({ initialUpdateId }) {
                 key={u._id}
                 ref={sharedUpdateId === u._id ? highlightedCardRef : null}
                 className={`upd-card ${sharedUpdateId === u._id ? 'upd-card-highlighted' : ''}`}
-                style={{ animationDelay: `${(idx % 10) * 25}ms` }}
+                style={{ animationDelay: `${(idx % 10) * 40}ms` }}
               >
                 <div className="upd-card-header">
-                  <img
-                    src={u.profileUrl || '/default-profile.png'}
-                    alt={u.name || 'user'}
-                    className="upd-avatar"
-                  />
+                  <Link href={`/search/${u.usn || ''}`}>
+                    <img
+                      src={u.profileUrl || '/default-profile.png'}
+                      alt={u.name || 'user'}
+                      className="upd-avatar"
+                    />
+                  </Link>
                   <div className="upd-user-info">
                     <div className="upd-user-name">
-                      <FiUser className="upd-user-icon" />
-                      <span>{u.name}</span>
-                      <span className="upd-usn">• {u.usn}</span>
+                      <Link href={`/search/${u.usn || ''}`} className="upd-user-name-link">
+                        <FiUser className="upd-user-icon" />
+                        <span>{u.name}</span>
+                      </Link>
+                      {u.usn && (
+                        <Link href={`/search/${u.usn}`} className="upd-usn-link">
+                          • {u.usn}
+                        </Link>
+                      )}
                     </div>
                     <div className="upd-user-title">
                       <span>{u.title}</span>
@@ -275,7 +283,7 @@ export default function UpdatesPage({ initialUpdateId }) {
                       handleShareUpdate(u._id, u.title || 'Update');
                     }}
                   >
-                    <Share2 size={16} />
+                    <Share2 size={15} />
                   </button>
                 </div>
 
@@ -318,9 +326,10 @@ export default function UpdatesPage({ initialUpdateId }) {
                   </div>
                 )}
 
-                {/* Files — clicking anywhere opens Drive viewer */}
+                {/* Files section */}
                 {u.files && u.files.length > 0 && (
                   <div className="upd-files">
+                    <div className="upd-files-label">Attachments</div>
                     {u.files.map((f, i) => {
                       const url = f.url || f;
                       const name = f.name || url.split('/').pop();
