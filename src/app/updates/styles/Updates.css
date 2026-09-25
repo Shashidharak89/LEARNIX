@@ -256,7 +256,7 @@
   height: 44px;
   border-radius: 10px;
   border: none;
-  padding: 0 14px 0 40px;
+  padding: 0 38px 0 40px;
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--upd-text);
@@ -271,20 +271,59 @@
   font-weight: 500;
 }
 
+.upd-search-clear-inline {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: #e2e8f0;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 200ms var(--upd-ease);
+}
+
+.upd-search-clear-inline:hover {
+  background: #cbd5e1;
+  color: var(--upd-text);
+  transform: translateY(-50%) scale(1.1);
+}
+
 .upd-search-btn {
   height: 44px;
   border: none;
   border-radius: 999px;
   background: var(--upd-blue);
   color: #fff;
-  padding: 0 22px;
-  font-size: 0.85rem;
+  padding: 0 20px;
+  font-size: 0.88rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 220ms var(--upd-ease);
   box-shadow: 0 4px 14px rgba(11, 116, 255, 0.22);
   flex-shrink: 0;
   font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.upd-search-btn-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.upd-search-btn-text {
+  display: inline;
 }
 
 .upd-search-btn:hover {
@@ -302,27 +341,6 @@
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
-}
-
-.upd-search-clear-btn {
-  height: 44px;
-  border: 1.5px solid var(--upd-border);
-  border-radius: 999px;
-  background: var(--upd-surface);
-  color: var(--upd-text-secondary);
-  padding: 0 18px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 220ms var(--upd-ease);
-  flex-shrink: 0;
-  font-family: inherit;
-}
-
-.upd-search-clear-btn:hover {
-  border-color: var(--upd-blue);
-  color: var(--upd-blue);
-  background: var(--upd-blue-light);
 }
 
 /* ============================================
@@ -1128,12 +1146,26 @@
   }
 
   .upd-search-form {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
   }
 
   .upd-search-btn {
-    width: 100%;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+  }
+
+  .upd-search-btn-text {
+    display: none;
+  }
+
+  .upd-search-btn-icon {
+    font-size: 18px;
   }
 
   .upd-file-card {

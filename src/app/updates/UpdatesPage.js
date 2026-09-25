@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
-import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload, FiSearch, FiPlus, FiList } from 'react-icons/fi';
+import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload, FiSearch, FiPlus, FiList, FiX } from 'react-icons/fi';
 import { Share2, Bell } from 'lucide-react';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
 import { getYouTubeVideoId } from '../utils/youtube';
@@ -214,11 +214,21 @@ export default function UpdatesPage({ initialUpdateId }) {
                   placeholder="Search updates by title, content, or user..."
                   aria-label="Search updates"
                 />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    className="upd-search-clear-inline"
+                    onClick={handleClearSearch}
+                    aria-label="Clear search"
+                  >
+                    <FiX size={14} />
+                  </button>
+                )}
               </div>
-              <button type="submit" className="upd-search-btn" disabled={!searchQuery.trim()}>Search</button>
-              {keywordFromUrl && (
-                <button type="button" className="upd-search-clear-btn" onClick={handleClearSearch}>Clear</button>
-              )}
+              <button type="submit" className="upd-search-btn" disabled={!searchQuery.trim()}>
+                <FiSearch className="upd-search-btn-icon" />
+                <span className="upd-search-btn-text">Search</span>
+              </button>
             </form>
           </div>
 
