@@ -14,14 +14,21 @@
   --upd-surface: #ffffff;
   --upd-text: #0f172a;
   --upd-text-secondary: #475569;
-  --upd-text-muted: #94a3b8;
+  --upd-text-muted: #64748b;
   --upd-blue: #0b74ff;
   --upd-blue-dark: #0256c9;
   --upd-blue-deeper: #04518a;
   --upd-blue-light: #eff6ff;
   --upd-blue-tint: rgba(11, 116, 255, 0.08);
-  --upd-yellow: #f2c200;
-  --upd-yellow-dark: #b38f00;
+  /* Rich Yellow & Gold Theme Shades */
+  --upd-yellow: #f59e0b;
+  --upd-yellow-bright: #fbbf24;
+  --upd-yellow-dark: #d97706;
+  --upd-yellow-deeper: #b45309;
+  --upd-yellow-light: #fffbeb;
+  --upd-yellow-amber: #fef3c7;
+  --upd-yellow-tint: rgba(245, 158, 11, 0.08);
+  --upd-yellow-border: rgba(245, 158, 11, 0.25);
   --upd-green: #059669;
   --upd-green-light: #ecfdf5;
   --upd-border: #e2e8f0;
@@ -31,6 +38,7 @@
   --upd-shadow-md: 0 4px 20px rgba(15, 23, 42, 0.08);
   --upd-shadow-lg: 0 12px 40px rgba(15, 23, 42, 0.10);
   --upd-shadow-blue: 0 8px 28px rgba(11, 116, 255, 0.18);
+  --upd-shadow-gold: 0 8px 28px rgba(245, 158, 11, 0.24);
   --upd-radius: 22px;
   --upd-radius-sm: 16px;
   --upd-radius-xs: 12px;
@@ -188,21 +196,19 @@
 .upd-search-wrap::before {
   content: '';
   position: absolute;
-  inset: -1px;
+  inset: -1.5px;
   border-radius: 13px;
   background: conic-gradient(
     from var(--upd-search-angle, 0deg),
     transparent 0%,
-    transparent 60%,
-    rgba(11, 116, 255, 0.7) 75%,
-    #0b74ff 80%,
-    rgba(99, 102, 241, 0.8) 85%,
-    transparent 95%,
+    transparent 70%,
+    rgba(11, 116, 255, 0.3) 80%,
+    #0b74ff 90%,
     transparent 100%
   );
   animation: upd-orbitLight 3s linear infinite;
   z-index: 0;
-  opacity: 0.5;
+  opacity: 0.6;
   transition: opacity 0.3s ease;
 }
 
@@ -344,8 +350,9 @@
    Update Card — Premium Design
    ============================================ */
 
+/* Card Base — Clean Standard Design */
 .upd-card {
-  background: var(--upd-surface);
+  background: #ffffff;
   border: 1.5px solid var(--upd-border);
   border-radius: 20px;
   padding: 20px 22px;
@@ -353,24 +360,62 @@
   transition: all 300ms var(--upd-ease);
   animation: upd-cardRise 0.45s var(--upd-ease) both;
   position: relative;
+  overflow: hidden;
 }
 
+/* Separate Card Accents — Standard Solid Contrast */
+.upd-card:nth-child(odd) {
+  border-color: #e2e8f0;
+}
+
+.upd-card:nth-child(odd)::after {
+  background: #0b74ff;
+}
+
+.upd-card:nth-child(even) {
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.upd-card:nth-child(even)::after {
+  background: #f59e0b;
+}
+
+/* Highlighted / Pinned Card — Standard Yellow Accent */
+.upd-card-highlighted {
+  background: #ffffff !important;
+  border: 2px solid #f59e0b !important;
+  box-shadow: 0 8px 28px rgba(245, 158, 11, 0.18) !important;
+}
+
+.upd-card-highlighted::after {
+  background: #f59e0b !important;
+  transform: scaleY(1) !important;
+  width: 4px !important;
+}
+
+/* Card Hover Elevation */
 .upd-card:hover {
-  border-color: var(--upd-blue);
-  box-shadow: var(--upd-shadow-md);
   transform: translateY(-2px);
+  box-shadow: var(--upd-shadow-md);
 }
 
-/* Left accent stripe on hover */
+.upd-card:nth-child(odd):hover {
+  border-color: #0b74ff;
+}
+
+.upd-card:nth-child(even):hover {
+  border-color: #f59e0b;
+}
+
+/* Left accent stripe on hover or active */
 .upd-card::after {
   content: '';
   position: absolute;
   top: 12px;
   bottom: 12px;
-  left: -1px;
-  width: 3px;
+  left: 0;
+  width: 3.5px;
   border-radius: 0 3px 3px 0;
-  background: var(--upd-blue);
   transform: scaleY(0);
   transform-origin: center;
   transition: transform 0.3s var(--upd-ease);
