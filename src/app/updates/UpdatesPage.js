@@ -74,17 +74,23 @@ export default function UpdatesPage({ initialUpdateId }) {
     }
   }, [sharedUpdateId, updates]);
 
-  const formatRelativeTime = (iso) => {
+  const formatExactTimestamp = (iso) => {
     try {
-      const then = new Date(iso);
-      const now = new Date();
-      const diffSec = Math.floor((now - then) / 1000);
-      if (diffSec < 60) return `${diffSec} second${diffSec === 1 ? '' : 's'} ago`;
-      const diffMin = Math.floor(diffSec / 60);
-      if (diffMin < 60) return `${diffMin} minute${diffMin === 1 ? '' : 's'} ago`;
-      const diffHour = Math.floor(diffMin / 60);
-      if (diffHour < 24) return `${diffHour} hour${diffHour === 1 ? '' : 's'} ago`;
-      return then.toLocaleString();
+      const date = new Date(iso);
+      if (isNaN(date.getTime())) return iso;
+
+      const day = date.getDate();
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+      const month = months[date.getMonth()];
+      const year = date.getFullYear();
+
+      let hours = date.getHours();
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+
+      return `${day} ${month} ${year}, ${hours}:${minutes} ${ampm}`;
     } catch (e) {
       return iso;
     }
@@ -264,37 +270,44 @@ export default function UpdatesPage({ initialUpdateId }) {
                     />
                   </Link>
                   <div className="upd-user-info">
-                    <div className="upd-user-name">
-                      <Link href={`/search/${u.usn || ''}`} className="upd-user-name-link">
-                        <FiUser className="upd-user-icon" />
-                        <span>{u.name}</span>
-                      </Link>
-                      {u.usn && (
-                        <Link href={`/search/${u.usn}`} className="upd-usn-link">
-                          • {u.usn}
+                    <div className="upd-user-top-row">
+                      <div className="upd-user-name-usn" title={`${u.name || ''}${u.usn ? ` • ${u.usn}` : ''}`}>
+                        <Link href={`/search/${u.usn || ''}`} className="upd-user-name-link">
+                          <FiUser className="upd-user-icon" />
+                          <span className="upd-user-name-text">{u.name}</span>
                         </Link>
+                        {u.usn && (
+                          <Link href={`/search/${u.usn}`} className="upd-usn-link">
+                            • {u.usn}
+                          </Link>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        className="upd-share-btn"
+                        title="Share update"
+                        aria-label="Share update"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleShareUpdate(u._id, u.title || 'Update');
+                        }}
+                      >
+                        <Share2 size={15} />
+                      </button>
+                    </div>
+
+                    <div className="upd-user-sub-row">
+                      {u.title && (
+                        <div className="upd-user-title">
+                          <span>{u.title}</span>
+                        </div>
                       )}
-                    </div>
-                    <div className="upd-user-title">
-                      <span>{u.title}</span>
+                      <div className="upd-timestamp">
+                        <FiClock className="upd-time-icon" />
+                        <span>{formatExactTimestamp(u.createdAt)}</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="upd-timestamp">
-                    <FiClock className="upd-time-icon" />
-                    {formatRelativeTime(u.createdAt)}
-                  </div>
-                  <button
-                    type="button"
-                    className="upd-share-btn"
-                    title="Share update"
-                    aria-label="Share update"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleShareUpdate(u._id, u.title || 'Update');
-                    }}
-                  >
-                    <Share2 size={15} />
-                  </button>
                 </div>
 
                 <ExpandableDescription content={u.content} className="upd-content" />
