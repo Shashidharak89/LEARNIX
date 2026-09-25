@@ -69,27 +69,14 @@
 
 .upd-intro-card {
   background: var(--upd-surface);
-  border: 1.5px solid var(--upd-border);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 24px;
   padding: 24px 24px 20px;
   margin-bottom: 28px;
-  box-shadow: var(--upd-shadow-sm);
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
   animation: upd-slideDown 0.5s var(--upd-ease) both;
   position: relative;
   overflow: hidden;
-}
-
-/* Subtle top accent bar */
-.upd-intro-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--upd-blue), #6366f1, var(--upd-blue));
-  background-size: 200% 100%;
-  animation: upd-gradientSlide 4s linear infinite;
 }
 
 .upd-intro-header {
@@ -445,9 +432,6 @@
   color: var(--upd-text);
   min-width: 0;
   flex: 1;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .upd-user-name-link {
@@ -458,15 +442,11 @@
   color: inherit;
   transition: color 0.2s ease;
   cursor: pointer;
-  min-width: 0;
-  overflow: hidden;
+  flex-shrink: 0;
   white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .upd-user-name-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -494,7 +474,10 @@
   transition: color 0.2s ease;
   cursor: pointer;
   white-space: nowrap;
-  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
 }
 
 .upd-usn-link:hover {
@@ -1139,6 +1122,19 @@
 
   .upd-timestamp {
     font-size: 0.72rem;
+  }
+
+  .upd-user-name-usn {
+    font-size: 0.82rem;
+    gap: 4px;
+  }
+
+  .upd-user-name-text {
+    font-size: 0.82rem;
+  }
+
+  .upd-usn-link {
+    font-size: 0.76rem;
   }
 
   .upd-user-title {
