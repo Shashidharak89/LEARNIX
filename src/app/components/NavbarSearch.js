@@ -89,7 +89,7 @@ export default function NavbarSearch() {
           ref={inputRef}
           type="text"
           className="lnx-nav-search-input"
-          placeholder="Search materials, papers, updates..."
+          placeholder="Search Learnix..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           aria-label="Search Learnix"
