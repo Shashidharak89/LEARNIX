@@ -117,7 +117,7 @@ export default function NavbarSearch() {
       {/* Mobile Search Toggle Icon (Initially shown on small screens) */}
       <button
         type="button"
-        className="lnx-nav-search-toggle-mobile"
+        className={`lnx-nav-search-toggle-mobile${isMobileInputOpen ? " lnx-nav-search-toggle-mobile--active" : ""}`}
         onClick={() => {
           setIsMobileInputOpen(!isMobileInputOpen);
           setTimeout(() => mobileInputRef.current?.focus(), 100);
@@ -146,22 +146,23 @@ export default function NavbarSearch() {
                 type="button"
                 className="lnx-nav-search-clear-btn"
                 onClick={handleClear}
+                aria-label="Clear search"
               >
                 <FiX size={13} />
               </button>
             )}
-            <button type="submit" className="lnx-nav-search-submit-btn" disabled={loading}>
+            <button type="submit" className="lnx-nav-search-submit-btn" disabled={loading} aria-label="Search">
               {loading ? <span className="lnx-nav-search-spinner" /> : <FiSearch size={13} />}
             </button>
-            <button
-              type="button"
-              className="lnx-nav-search-close-mobile-btn"
-              onClick={() => setIsMobileInputOpen(false)}
-              aria-label="Close search input"
-            >
-              <FiX size={18} />
-            </button>
           </form>
+          <button
+            type="button"
+            className="lnx-nav-search-close-mobile-btn"
+            onClick={() => setIsMobileInputOpen(false)}
+            aria-label="Close search input"
+          >
+            <FiX size={18} />
+          </button>
         </div>
       )}
 
