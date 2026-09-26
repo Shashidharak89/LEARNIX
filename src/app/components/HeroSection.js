@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   FiArrowRight,
@@ -7,17 +8,64 @@ import {
   FiUpload,
   FiShield,
   FiSmartphone,
+  FiFolder,
+  FiBell,
+  FiFileText,
+  FiBookOpen,
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import "./styles/HeroSection.css";
 import TutVideo from "./TutVideo";
 
+/* ── Destinations the Explore button cycles through ────────────────────── */
+const EXPLORE_ITEMS = [
+  { label: "Explore Resources", href: "/works",     Icon: FiFolder   },
+  { label: "Explore Updates",   href: "/updates",   Icon: FiBell     },
+  { label: "Question Papers",   href: "/qp",        Icon: FiFileText },
+  { label: "Study Materials",   href: "/materials", Icon: FiBookOpen },
+];
+
+const CYCLE_MS = 5000; // 5 seconds per item
+
 export default function HeroSection() {
+  const [idx, setIdx]           = useState(0);
+  const [progress, setProgress] = useState(0);     // 0–100
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  // Detect login on client only
+  useEffect(() => {
+    setLoggedIn(Boolean(localStorage.getItem("usn")));
+  }, []);
+
+  // Progress bar + cycle timer
+  useEffect(() => {
+    const startTime = performance.now();
+
+    const raf = (now) => {
+      const elapsed = now - startTime;
+      const pct = Math.min((elapsed / CYCLE_MS) * 100, 100);
+      setProgress(pct);
+
+      if (elapsed < CYCLE_MS) {
+        rafId = requestAnimationFrame(raf);
+      } else {
+        setIdx((prev) => (prev + 1) % EXPLORE_ITEMS.length);
+        setProgress(0);
+      }
+    };
+
+    let rafId = requestAnimationFrame(raf);
+    return () => cancelAnimationFrame(rafId);
+  }, [idx]);
+
+  const current = EXPLORE_ITEMS[idx];
+
   return (
     <section className="learnix-hero-main">
       <div className="learnix-hero-container">
         <div className="learnix-hero-content">
           <div className="learnix-hero-layout">
+            {/* ── Left side ─────────────────────────────────────────────── */}
             <div className="learnix-hero-left">
               <div className="learnix-title-wrapper">
                 <h1 className="learnix-main-title">
@@ -65,26 +113,49 @@ export default function HeroSection() {
                 </li>
               </ul>
 
+              {/* ── CTA Row ────────────────────────────────────────────── */}
               <div className="learnix-hero-ctas">
-                <Link href="/works" className="learnix-cta-button">
-                  ✔ Explore Resources
-                  <FiArrowRight className="learnix-button-icon" />
+
+                {/* Animated rotating Explore button */}
+                <Link href={current.href} className="learnix-cta-button learnix-cta-rotating">
+                  {/* Full-height darker-blue progress fill */}
+                  <span
+                    className="learnix-cta-progress-bar"
+                    style={{ width: `${progress}%` }}
+                    aria-hidden="true"
+                  />
+                  {/* Label */}
+                  <span className="learnix-cta-rotating-inner">
+                    <current.Icon size={17} className="learnix-cta-rotating-icon" />
+                    <span className="learnix-cta-rotating-label">{current.label}</span>
+                    <FiArrowRight className="learnix-button-icon" />
+                  </span>
                 </Link>
-                <Link href="/learn" className="learnix-cta-secondary">
-                  ✔ Start Learning
-                </Link>
+
+                {/* Secondary button: Login/Register if not logged in, Start Learning if logged in */}
+                {loggedIn ? (
+                  <Link href="/learn" className="learnix-cta-secondary">
+                    ✔ Start Learning
+                  </Link>
+                ) : (
+                  <Link href="/login" className="learnix-cta-secondary">
+                    Login / Register
+                  </Link>
+                )}
               </div>
 
               <div className="learnix-adsense-note">
                 <FiShield className="learnix-adsense-icon" />
                 <span>
                   We support original &amp; permitted content. See{" "}
-                  <Link href="/terms">Terms</Link>, <Link href="/privacy-policy">Privacy</Link>, or{" "}
+                  <Link href="/terms">Terms</Link>,{" "}
+                  <Link href="/privacy-policy">Privacy</Link>, or{" "}
                   <Link href="/report-content">report content</Link>.
                 </span>
               </div>
             </div>
 
+            {/* ── Right side ────────────────────────────────────────────── */}
             <div className="learnix-hero-right">
               <TutVideo />
             </div>
