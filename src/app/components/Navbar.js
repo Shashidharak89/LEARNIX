@@ -26,6 +26,8 @@ import "./styles/Navbar.css";
 import { Fill } from "./Fill";
 import { verifyTokenAndSyncAuth, signOutFromBrowser } from "@/lib/clientAuth";
 
+import NavbarSearch from "./NavbarSearch";
+
 export const Navbar = () => {
   const pathname = usePathname();
 
@@ -194,8 +196,11 @@ export const Navbar = () => {
           </Link>
         </div>
 
-        {/* Right Section - Menu Toggle */}
+        {/* Right Section - Search & Menu Toggle */}
         <div className="learnix-navbar-right">
+          {/* Always-Available Navbar Search */}
+          <NavbarSearch />
+
           {/* Menu Toggle Button */}
           <button
             className="learnix-menu-toggle-btn"
