@@ -24,10 +24,18 @@
     --lnx-surface: #ffffff;
 }
 
+/* Explicit box-sizing reset for all HeroSearch components to ensure no extra width padding/border appends */
+.lnx-search,
+.lnx-search *,
+.lnx-search *::before,
+.lnx-search *::after {
+    box-sizing: border-box;
+}
+
 /* ── Container (Spans full HeroSection width up to 1200px) ──────────────── */
 .lnx-search {
     width: 100%;
-    max-width: 1200px;
+    max-width: 100%;
     margin: 10px auto 0;
     position: relative;
     display: flex;
@@ -125,6 +133,8 @@
     left: 50%;
     transform: translateX(-50%) translateY(-6px) scale(0.95);
     width: 290px;
+    max-width: calc(100vw - 32px);
+    box-sizing: border-box;
     padding: 14px 16px;
     background: #ffffff;
     border: 1.5px solid #bfdbfe;
@@ -181,13 +191,14 @@
     font-weight: 500;
 }
 
-/* ── Searchbar Wrapper (Fixed max-width 640px centered) ─────────────────── */
+/* ── Searchbar Wrapper (Max-width 640px centered, 100% on mobile) ────────── */
 .lnx-search-bar-wrapper {
     width: 100%;
     max-width: 640px;
     position: relative;
     z-index: 5;
     margin: 0 auto;
+    box-sizing: border-box;
 }
 
 /* ── Pill Bar (High contrast royal blue accents) ────────────────────────── */
@@ -197,6 +208,9 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     background: var(--lnx-surface);
     border-radius: 999px;
     padding: 6px 6px 6px 20px;
@@ -733,28 +747,54 @@
 @media (max-width: 768px) {
     .lnx-search {
         margin-top: 10px;
+        width: 100%;
+        max-width: 100%;
     }
 
     .lnx-search-main-headline {
         font-size: 1.32rem;
-    }
-
-    .lnx-search-tooltip {
-        width: 250px;
-        padding: 12px;
-    }
-
-    .lnx-search-bar-wrapper {
         max-width: 100%;
     }
 
+    .lnx-search-tooltip {
+        left: auto;
+        right: -8px;
+        transform: translateY(-6px) scale(0.95);
+        width: calc(100vw - 32px);
+        max-width: 280px;
+        padding: 12px 14px;
+        box-sizing: border-box;
+    }
+
+    .lnx-search-info-wrap:hover .lnx-search-tooltip,
+    .lnx-search-info-wrap:focus-within .lnx-search-tooltip {
+        transform: translateY(0) scale(1);
+    }
+
+    .lnx-search-tooltip::before {
+        left: auto;
+        right: 14px;
+        transform: rotate(45deg);
+    }
+
+    .lnx-search-bar-wrapper {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
     .lnx-search-bar {
-        padding: 4px 4px 4px 16px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        padding: 4px 4px 4px 14px;
     }
 
     .lnx-search-input {
         font-size: 0.94rem;
         padding: 10px 0;
+        width: 100%;
+        min-width: 0;
     }
 
     .lnx-search-submit {
@@ -776,12 +816,16 @@
         justify-content: center;
         gap: 10px;
         width: 100%;
-        overflow-x: visible;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
         padding: 4px 0;
     }
 
     .lnx-search-mpill {
         padding: 7px 14px 7px 9px;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .lnx-search-mpill-icon {
@@ -807,12 +851,17 @@
     }
 
     .lnx-search-bar {
-        padding: 3px 3px 3px 14px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        padding: 3px 3px 3px 12px;
     }
 
     .lnx-search-input {
         font-size: 0.88rem;
         padding: 9px 0;
+        width: 100%;
+        min-width: 0;
     }
 
     .lnx-search-submit {
@@ -828,14 +877,19 @@
     .lnx-search-page-link {
         padding: 6px 12px;
         font-size: 0.76rem;
+        max-width: 100%;
+        box-sizing: border-box;
     }
 
     .lnx-search-mwrap {
         gap: 8px;
+        width: 100%;
+        max-width: 100%;
     }
 
     .lnx-search-mpill {
         padding: 6px 12px 6px 8px;
+        max-width: 100%;
     }
 
     .lnx-search-mpill-icon {
