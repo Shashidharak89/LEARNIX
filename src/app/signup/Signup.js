@@ -5,7 +5,7 @@ import Script from "next/script";
 import Image from "next/image";
 import axios from "axios";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FiUser, FiHash, FiArrowRight, FiCheckCircle, FiAlertCircle, FiMail, FiLock } from "react-icons/fi";
 import { verifyTokenAndSyncAuth } from "@/lib/clientAuth";
 import "./styles/Signup.css";
@@ -24,6 +24,32 @@ export default function Signup({ googleClientId = "" }) {
   const googleButtonRef = useRef(null);
   const router = useRouter();
 
+  const searchParams = useSearchParams();
+  const redirectFromQuery = searchParams.get("redirect") || searchParams.get("returnUrl") || searchParams.get("from");
+  const [targetRedirect, setTargetRedirect] = useState("/dashboard");
+
+  useEffect(() => {
+    if (redirectFromQuery) {
+      setTargetRedirect(redirectFromQuery);
+    } else if (typeof window !== "undefined") {
+      const lastPage = sessionStorage.getItem("learnix_last_page");
+      if (lastPage && lastPage !== "/login" && lastPage !== "/signup") {
+        setTargetRedirect(lastPage);
+      } else if (document.referrer) {
+        try {
+          const refUrl = new URL(document.referrer);
+          if (
+            refUrl.origin === window.location.origin &&
+            refUrl.pathname !== "/login" &&
+            refUrl.pathname !== "/signup"
+          ) {
+            setTargetRedirect(refUrl.pathname + refUrl.search);
+          }
+        } catch {}
+      }
+    }
+  }, [redirectFromQuery]);
+
   const saveAuthAndRedirect = useCallback((data) => {
     if (typeof window !== "undefined") {
       if (data.token) {
@@ -33,10 +59,10 @@ export default function Signup({ googleClientId = "" }) {
 
     verifyTokenAndSyncAuth({ redirectOnFailure: false }).finally(() => {
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push(targetRedirect);
       }, 1200);
     });
-  }, [router]);
+  }, [router, targetRedirect]);
 
   const handleGoogleCredential = useCallback(async (response) => {
     const credential = String(response?.credential || "").trim();

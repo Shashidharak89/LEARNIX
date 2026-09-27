@@ -1,8 +1,8 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import axios from "axios";
 import {
   FiMenu,
@@ -25,8 +25,28 @@ import { verifyTokenAndSyncAuth, signOutFromBrowser } from "@/lib/clientAuth";
 
 import NavbarSearch from "./NavbarSearch";
 
-export const Navbar = () => {
+function NavbarSearchParamsWrapper({ children }) {
+  const searchParams = useSearchParams();
+  return children(searchParams);
+}
+
+const NavbarContent = ({ searchParams }) => {
   const pathname = usePathname();
+
+  const getLoginHref = () => {
+    if (!pathname || pathname === "/login" || pathname === "/signup") return "/login";
+    const queryString = searchParams?.toString();
+    const full = pathname + (queryString ? `?${queryString}` : "");
+    return `/login?redirect=${encodeURIComponent(full)}`;
+  };
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && pathname && pathname !== "/login" && pathname !== "/signup") {
+      const queryString = searchParams?.toString();
+      const full = pathname + (queryString ? `?${queryString}` : "");
+      sessionStorage.setItem("learnix_last_page", full);
+    }
+  }, [pathname, searchParams]);
 
   const [isOpen, setIsOpen] = useState(false);
   const [hasUSN, setHasUSN] = useState(false);
@@ -276,7 +296,7 @@ export const Navbar = () => {
 
           {!hasUSN && (
             <Link
-              href="/login"
+              href={getLoginHref()}
               className="learnix-nav-item"
               onClick={closeSidebar}
               tabIndex={isOpen ? 0 : -1}
@@ -386,7 +406,16 @@ export const Navbar = () => {
           )}
         </nav>
       </aside>
-      {/* <Fill/> */}
     </>
+  );
+};
+
+export const Navbar = () => {
+  return (
+    <Suspense fallback={<NavbarContent searchParams={null} />}>
+      <NavbarSearchParamsWrapper>
+        {(searchParams) => <NavbarContent searchParams={searchParams} />}
+      </NavbarSearchParamsWrapper>
+    </Suspense>
   );
 };

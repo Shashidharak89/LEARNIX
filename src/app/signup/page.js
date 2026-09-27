@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Navbar } from "../components/Navbar";
 import Signup from "./Signup";
 
@@ -7,7 +8,9 @@ export default function register() {
   return (
     <div>
       <Navbar />
-      <Signup googleClientId={googleClientId} />
+      <Suspense fallback={null}>
+        <Signup googleClientId={googleClientId} />
+      </Suspense>
     </div>
   );
 }
