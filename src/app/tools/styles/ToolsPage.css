@@ -4,8 +4,9 @@
    ===================================================== */
 
 :root {
+  /* Shared */
   --tool-blue: #0b74ff;
-  --tool-blue-dark: #0050cc;
+  --tool-blue-dark: #04518a;
   --tool-blue-tint: #eff6ff;
   --tool-green: #22c55e;
   --tool-red: #ef4444;
@@ -16,6 +17,7 @@
   --tool-gray-400: #94a3b8;
   --tool-gray-500: #64748b;
   --tool-gray-600: #475569;
+  --tool-gray-700: #334155;
   --tool-gray-800: #1e293b;
   --tool-gray-900: #0f172a;
   --tool-radius-sm: 10px;
@@ -27,6 +29,24 @@
   --tool-shadow-lg: 0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
   --tool-ease: cubic-bezier(0.4, 0, 0.2, 1);
   --tool-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* File Upload (blue theme) */
+  --fud-accent: #0b74ff;
+  --fud-accent-dark: #04518a;
+  --fud-accent-tint: rgba(11,116,255,0.07);
+  --fud-accent-border: rgba(11,116,255,0.18);
+
+  /* Text Share (yellow/orange/skyblue) */
+  --tst-yellow: #f2c200;
+  --tst-yellow-dark: #d4a800;
+  --tst-orange: #ff9500;
+  --tst-orange-dark: #e68600;
+  --tst-skyblue: #87ceeb;
+  --tst-skyblue-dark: #5fb4d9;
+  --tst-accent: #f2c200;
+  --tst-accent-dark: #d4a800;
+  --tst-accent-tint: rgba(242,194,0,0.08);
+  --tst-accent-border: rgba(242,194,0,0.25);
 }
 
 /* ── Page Root ────────────────────────────────────── */
@@ -92,7 +112,7 @@
 
 /* Active drag target */
 .tool-card.tool-dragging {
-  border-color: var(--tool-blue);
+  border-color: var(--fud-accent);
   box-shadow: 0 0 0 3px rgba(11,116,255,0.15), var(--tool-shadow-lg);
   transform: scale(1.005);
 }
@@ -101,6 +121,47 @@
   box-shadow: var(--tool-shadow-lg);
   border-color: var(--tool-gray-300);
 }
+
+/* ── Blue (File Upload / Info) card accent ─────────── */
+.tool-card-blue .tool-card-header:hover { background-color: rgba(11,116,255,0.04); }
+.tool-card-blue.tool-card-expanded .tool-card-header { background-color: rgba(11,116,255,0.04); border-bottom-color: var(--fud-accent-border); }
+.tool-card-blue .tool-card-toggle-icon { background: rgba(11,116,255,0.08); color: var(--fud-accent); }
+.tool-card-blue .tool-card-header:hover .tool-card-toggle-icon { background: var(--fud-accent-tint); color: var(--fud-accent); }
+.tool-card-blue.tool-card-expanded .tool-card-toggle-icon { background: var(--fud-accent); color: #fff; }
+.tool-card-blue .tool-inner-section-icon { color: var(--fud-accent); }
+.tool-card-blue .tool-upload-zone:hover,
+.tool-card-blue .tool-upload-zone.upload-zone-hover { border-color: var(--fud-accent); background: rgba(11,116,255,0.04); }
+.tool-card-blue .tool-upload-zone.upload-zone-has-file { border-color: #22c55e; background: #f0fdf4; }
+.tool-card-blue .tool-upload-zone:hover .tool-upload-zone-icon,
+.tool-card-blue .tool-upload-zone.upload-zone-hover .tool-upload-zone-icon { color: var(--fud-accent); }
+.tool-card-blue .tool-file-id-box { background: rgba(11,116,255,0.06); border-color: var(--fud-accent-border); }
+.tool-card-blue .tool-file-id-label { color: var(--fud-accent-dark); }
+.tool-card-blue .tool-file-id-code { color: var(--fud-accent); }
+.tool-card-blue .tool-code-result { background: rgba(11,116,255,0.05); border-color: var(--fud-accent-border); }
+.tool-card-blue .tool-code-result-label { color: var(--fud-accent-dark); }
+.tool-card-blue .tool-code-value { color: var(--fud-accent); }
+.tool-card-blue .tool-info-step-num { background: var(--fud-accent); }
+.tool-card-blue .tool-feature-icon { color: var(--fud-accent); }
+
+/* ── Yellow/Orange (Text Share) card accent ────────── */
+.tool-card-tst .tool-card-header:hover { background-color: rgba(242,194,0,0.04); }
+.tool-card-tst.tool-card-expanded .tool-card-header { background-color: rgba(242,194,0,0.05); border-bottom-color: var(--tst-accent-border); }
+.tool-card-tst .tool-card-toggle-icon { background: rgba(242,194,0,0.12); color: var(--tst-yellow-dark); }
+.tool-card-tst .tool-card-header:hover .tool-card-toggle-icon { background: rgba(242,194,0,0.2); color: var(--tst-yellow-dark); }
+.tool-card-tst.tool-card-expanded .tool-card-toggle-icon { background: var(--tst-yellow); color: #5a3e00; }
+.tool-card-tst .tool-inner-section-icon { color: var(--tst-orange-dark); }
+.tool-card-tst .tool-card-inline-btn { background: var(--tst-yellow); color: #5a3e00; }
+.tool-card-tst .tool-card-inline-btn:hover:not(:disabled) { background: var(--tst-yellow-dark); }
+.tool-card-tst .tool-text-input:focus { border-color: var(--tst-yellow); box-shadow: 0 0 0 3px rgba(242,194,0,0.18); }
+.tool-card-tst .tool-textarea:focus { border-color: var(--tst-yellow); box-shadow: 0 0 0 3px rgba(242,194,0,0.18); }
+.tool-card-tst .tool-textarea-editing { border-color: var(--tst-orange); }
+.tool-card-tst .tool-code-result { background: rgba(242,194,0,0.07); border-color: rgba(242,194,0,0.22); }
+.tool-card-tst .tool-code-result-label { color: var(--tst-yellow-dark); }
+.tool-card-tst .tool-code-value { color: var(--tst-orange-dark); }
+.tool-card-tst .tool-toggle-btn-active { border-color: var(--tst-skyblue-dark); background: rgba(135,206,235,0.12); color: var(--tst-skyblue-dark); }
+.tool-card-tst .tool-codes-count { background: var(--tst-yellow); color: #5a3e00; }
+.tool-card-tst .tool-info-step-num { background: var(--tst-orange-dark); }
+.tool-card-tst .tool-feature-icon { color: var(--tst-orange-dark); }
 
 /* ── Card Header (Toggle Row) ─────────────────────── */
 .tool-card-header {
@@ -523,6 +584,91 @@
 .tool-btn-pill-danger:hover:not(:disabled) {
   background: #fecaca;
   color: #b91c1c;
+}
+
+/* Colored action icon pills (Text Sharing) */
+.tool-pill-copy {
+  background: rgba(16,185,129,0.12);
+  color: #059669;
+  border: 1px solid rgba(16,185,129,0.25);
+}
+.tool-pill-copy:hover:not(:disabled) {
+  background: #10b981;
+  color: #fff;
+  border-color: #10b981;
+  box-shadow: 0 3px 10px rgba(16,185,129,0.3);
+}
+
+.tool-pill-refresh {
+  background: rgba(14,165,233,0.12);
+  color: #0284c7;
+  border: 1px solid rgba(14,165,233,0.25);
+}
+.tool-pill-refresh:hover:not(:disabled) {
+  background: #0284c7;
+  color: #fff;
+  border-color: #0284c7;
+  box-shadow: 0 3px 10px rgba(2,132,199,0.3);
+}
+
+.tool-pill-fullscreen {
+  background: rgba(139,92,246,0.12);
+  color: #7c3aed;
+  border: 1px solid rgba(139,92,246,0.25);
+}
+.tool-pill-fullscreen:hover:not(:disabled) {
+  background: #7c3aed;
+  color: #fff;
+  border-color: #7c3aed;
+  box-shadow: 0 3px 10px rgba(124,58,237,0.3);
+}
+
+.tool-pill-minimize {
+  background: rgba(244,63,94,0.12);
+  color: #e11d48;
+  border: 1px solid rgba(244,63,94,0.25);
+}
+.tool-pill-minimize:hover:not(:disabled) {
+  background: #e11d48;
+  color: #fff;
+  border-color: #e11d48;
+  box-shadow: 0 3px 10px rgba(225,29,72,0.3);
+}
+
+.tool-pill-edit {
+  background: rgba(245,158,11,0.12);
+  color: #d97706;
+  border: 1px solid rgba(245,158,11,0.25);
+}
+.tool-pill-edit:hover:not(:disabled) {
+  background: #d97706;
+  color: #fff;
+  border-color: #d97706;
+  box-shadow: 0 3px 10px rgba(217,119,6,0.3);
+}
+
+.tool-pill-save {
+  background: rgba(16,185,129,0.12);
+  color: #059669;
+  border: 1px solid rgba(16,185,129,0.25);
+}
+.tool-pill-save:hover:not(:disabled) {
+  background: #059669;
+  color: #fff;
+  border-color: #059669;
+  box-shadow: 0 3px 10px rgba(5,150,105,0.3);
+}
+
+.tool-pill-cancel {
+  background: rgba(239,68,68,0.12);
+  color: #dc2626;
+  border: 1px solid rgba(239,68,68,0.25);
+}
+.tool-pill-cancel:hover:not(:disabled) {
+  background: #dc2626;
+  color: #fff;
+  border-color: #dc2626;
+  box-shadow: 0 3px 10px rgba(220,38,38,0.3);
 }
 
 /* ── File ID Result Box ───────────────────────────── */

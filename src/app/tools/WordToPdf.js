@@ -165,7 +165,7 @@ export default function FileUploadDownload({ globalIsDragging }) {
   ].filter(Boolean).join(" ");
 
   return (
-    <div className={`tool-card ${isExpanded ? "tool-card-expanded" : ""} ${globalIsDragging ? "tool-dragging" : ""}`}>
+    <div className={`tool-card tool-card-blue ${isExpanded ? "tool-card-expanded" : ""} ${globalIsDragging ? "tool-dragging" : ""}`}>
 
       {/* Toast */}
       {toast && (
@@ -278,34 +278,7 @@ export default function FileUploadDownload({ globalIsDragging }) {
             )}
           </div>
 
-          {/* Download by ID section */}
-          <div className="tool-inner-section">
-            <div className="tool-inner-section-header">
-              <FiDownload className="tool-inner-section-icon" />
-              <h3 className="tool-inner-section-title">Download by ID</h3>
-            </div>
-            <input
-              type="text"
-              className="tool-text-input"
-              placeholder="Paste file ID here…"
-              value={downloadId}
-              onChange={(e) => setDownloadId(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") handleDownload(); }}
-            />
-            <div className="tool-btn-actions">
-              <button className="tool-btn tool-btn-primary" onClick={handleDownload} disabled={downloadLoading || !downloadId.trim()}>
-                <FiDownload size={15} />
-                {downloadLoading ? "Downloading…" : "Download"}
-              </button>
-              {downloadId && (
-                <button className="tool-btn tool-btn-ghost" onClick={() => setDownloadId("")}>
-                  Clear
-                </button>
-              )}
-            </div>
-          </div>
 
-          {/* Uploaded files history */}
           {(persistentFileId || allFiles.length > 0) && (
             <div className="tool-inner-section">
               <div className="tool-inner-section-header">

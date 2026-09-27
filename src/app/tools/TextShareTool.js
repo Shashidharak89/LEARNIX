@@ -25,9 +25,9 @@ export default function TextShareTool() {
   const [isEditing, setIsEditing] = useState(false);
   const [currentCode, setCurrentCode] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
   const toastTimeoutRef = useRef(null);
-  const [saving, setSaving] = useState(false);
   const [myCodes, setMyCodes] = useState([]);
   const [showMyCodes, setShowMyCodes] = useState(false);
   const [togglingAccess, setTogglingAccess] = useState(null);
@@ -42,6 +42,7 @@ export default function TextShareTool() {
   const fetchedTextareaRef = useRef(null);
   const fullscreenTextareaRef = useRef(null);
 
+  // ── Storage ────────────────────────────────────────
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -53,6 +54,7 @@ export default function TextShareTool() {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
   }, []);
 
+  // ── Toast ──────────────────────────────────────────
   const showToast = useCallback((message, type = "info") => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     setToast({ message, type });
@@ -70,6 +72,7 @@ export default function TextShareTool() {
     return <FiInfo />;
   };
 
+  // ── localStorage helpers ──────────────────────────
   const saveToStorage = useCallback((codes) => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(codes)); } catch {}
   }, []);
@@ -108,6 +111,7 @@ export default function TextShareTool() {
     return new Date(dateString).toLocaleDateString();
   }
 
+  // ── API actions ────────────────────────────────────
   async function handleGenerate() {
     setCode("");
     if (!text.trim()) { showToast("Please enter some text.", "error"); return; }
@@ -126,18 +130,19 @@ export default function TextShareTool() {
     } catch { showToast("Network error.", "error"); }
   }
 
-  async function handleFetch() {
+  async function handleFetch(codeToFetch) {
+    const target = (codeToFetch || fetchCode).trim();
     setFetchedText(""); setEditedText(""); setIsEditing(false); setFetchedEditAccess(false);
-    if (!fetchCode.trim()) { showToast("Enter a code.", "error"); return; }
+    if (!target) { showToast("Enter a code.", "error"); return; }
     try {
       showToast("Fetching…", "info");
-      const res = await fetch(`/api/textshare?code=${fetchCode.trim()}`);
+      const res = await fetch(`/api/textshare?code=${target}`);
       const data = await res.json();
       if (!res.ok) { showToast(data.error || "Not found.", "error"); return; }
       setFetchedText(data.text);
       setEditedText(data.text);
       setFetchedEditAccess(data.editAccess || false);
-      setCurrentCode(fetchCode.trim());
+      setCurrentCode(target);
       showToast(`Retrieved! ${data.editAccess ? "(Editable)" : "(Read-only)"}`, "success");
     } catch { showToast("Network error.", "error"); }
   }
@@ -145,7 +150,7 @@ export default function TextShareTool() {
   async function handleFetchInline() {
     if (!fetchCode.trim()) { showToast("Enter a code.", "error"); return; }
     setIsExpanded(true);
-    await handleFetch();
+    await handleFetch(fetchCode.trim());
   }
 
   async function handleRefresh() {
@@ -270,7 +275,42 @@ export default function TextShareTool() {
     setDeletingCode(null);
   }
 
-  // ── Fullscreen view ────────────────────────────────
+  // ── Keyboard shortcuts for fullscreen ─────────────
+  useEffect(() => {
+    if (!isFullScreen) return;
+    const onKey = (e) => {
+      // Ctrl+S / Cmd+S — Save
+      if ((e.ctrlKey || e.metaKey) && e.key === "s" && !e.shiftKey) {
+        e.preventDefault();
+        if (fetchedEditAccess && isEditing) handleSaveEdit();
+      }
+      // Ctrl+Shift+C — Copy all
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "C") {
+        e.preventDefault();
+        handleCopy(isEditing ? editedText : fetchedText);
+      }
+      // Ctrl+B — Cancel edit
+      if ((e.ctrlKey || e.metaKey) && e.key === "b" && !e.shiftKey) {
+        e.preventDefault();
+        if (fetchedEditAccess && isEditing) handleCancelEdit();
+      }
+      // Ctrl+R — Refresh
+      if ((e.ctrlKey || e.metaKey) && e.key === "r") {
+        e.preventDefault();
+        handleRefresh();
+      }
+      // Escape — Exit fullscreen
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setIsFullScreen(false);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFullScreen, fetchedEditAccess, isEditing, editedText, fetchedText]);
+
+  // ── Fullscreen view (no Navbar — rendered outside page layout) ──
   if (isFullScreen) {
     return (
       <div className="tst-fullscreen-container">
@@ -281,42 +321,71 @@ export default function TextShareTool() {
             <button className="tool-toast-close" onClick={dismissToast}><FiX /></button>
           </div>
         )}
+
         <div className="tst-fullscreen-header">
           <div className="tst-fullscreen-header-left">
-            <FiMessageSquare style={{ color: "var(--tool-blue)" }} />
-            <span style={{ fontWeight: 700, fontSize: "0.95rem" }}>Text Sharing · {currentCode}</span>
+            <FiMessageSquare style={{ color: "var(--tst-yellow-dark)" }} size={18} />
+            <span>Text Sharing</span>
+            {currentCode && (
+              <code style={{ background: "rgba(242,194,0,0.12)", color: "var(--tst-yellow-dark)", borderRadius: 8, padding: "2px 10px", fontSize: "0.85rem", fontWeight: 700 }}>
+                {currentCode}
+              </code>
+            )}
+            <span className={`tool-access-badge ${fetchedEditAccess ? "tool-badge-editable" : "tool-badge-readonly"}`} style={{ fontSize: "0.72rem" }}>
+              {fetchedEditAccess ? <><FiUnlock size={10} /> Editable</> : <><FiLock size={10} /> Read-only</>}
+            </span>
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
             {fetchedEditAccess && (
               isEditing ? (
                 <>
-                  <button className="tool-btn tool-btn-primary" onClick={handleSaveEdit} disabled={saving}>
-                    <FiSave size={14} /> {saving ? "Saving…" : "Save"}
+                  <button className="tool-btn-pill tool-pill-save" onClick={handleSaveEdit} disabled={saving} title="Ctrl+S">
+                    <FiSave size={13} /> {saving ? "Saving…" : "Save"}
                   </button>
-                  <button className="tool-btn tool-btn-ghost" onClick={handleCancelEdit}>Cancel</button>
+                  <button className="tool-btn-pill tool-pill-cancel" onClick={handleCancelEdit} title="Ctrl+B">
+                    <FiX size={13} /> Cancel
+                  </button>
                 </>
               ) : (
-                <button className="tool-btn tool-btn-ghost" onClick={() => setIsEditing(true)}>
-                  <FiEdit3 size={14} /> Edit
+                <button className="tool-btn-pill tool-pill-edit" onClick={() => setIsEditing(true)}>
+                  <FiEdit3 size={13} /> Edit
                 </button>
               )
             )}
-            <button className="tool-btn tool-btn-ghost" onClick={handleRefresh} disabled={refreshing}>
-              <FiRefreshCw size={14} className={refreshing ? "tst-spin" : ""} />
+            <button className="tool-btn-pill tool-pill-refresh" onClick={handleRefresh} disabled={refreshing} title="Ctrl+R">
+              <FiRefreshCw size={13} className={refreshing ? "tst-spin" : ""} />
             </button>
-            <button className="tool-btn tool-btn-ghost" onClick={() => handleCopy(isEditing ? editedText : fetchedText)}>
-              <FiCopy size={14} />
+            <button className="tool-btn-pill tool-pill-copy" onClick={() => handleCopy(isEditing ? editedText : fetchedText)} title="Ctrl+Shift+C">
+              <FiCopy size={13} /> Copy
             </button>
-            <button className="tool-btn tool-btn-ghost" onClick={() => setIsFullScreen(false)}>
-              <FiMinimize size={14} /> Exit
+            <button className="tool-btn-pill tool-pill-minimize" onClick={() => setIsFullScreen(false)} title="Esc">
+              <FiMinimize size={13} /> Exit
             </button>
           </div>
         </div>
-        <div style={{ flex: 1, padding: 20, display: "flex", flexDirection: "column" }}>
+
+        {/* Keyboard shortcut hints */}
+        <div style={{ padding: "6px 20px", background: "#fffceb", borderBottom: "1px solid rgba(242,194,0,0.2)", display: "flex", gap: 16, flexWrap: "wrap" }}>
+          {[
+            fetchedEditAccess && isEditing && ["Ctrl+S", "Save"],
+            fetchedEditAccess && isEditing && ["Ctrl+B", "Cancel"],
+            fetchedEditAccess && !isEditing && ["E key", "Edit"],
+            ["Ctrl+R", "Refresh"],
+            ["Ctrl+⇧+C", "Copy all"],
+            ["Esc", "Exit"],
+          ].filter(Boolean).map(([k, v]) => (
+            <span key={k} style={{ fontSize: "0.73rem", color: "var(--tst-yellow-dark)" }}>
+              <kbd style={{ background: "rgba(242,194,0,0.15)", borderRadius: 5, padding: "1px 6px", fontFamily: "monospace", fontWeight: 700 }}>{k}</kbd>{" "}
+              <span style={{ color: "var(--tool-gray-500)" }}>{v}</span>
+            </span>
+          ))}
+        </div>
+
+        <div style={{ flex: 1, padding: "16px 20px", display: "flex", flexDirection: "column", overflow: "hidden" }}>
           <textarea
             ref={fullscreenTextareaRef}
             className={`tool-textarea ${isEditing ? "tool-textarea-editing" : "tool-textarea-readonly"}`}
-            style={{ flex: 1, resize: "none", minHeight: "100%" }}
+            style={{ flex: 1, resize: "none", minHeight: "100%", fontSize: "1rem", lineHeight: 1.7 }}
             value={isEditing ? editedText : fetchedText}
             readOnly={!isEditing}
             onChange={e => setEditedText(e.target.value)}
@@ -329,7 +398,7 @@ export default function TextShareTool() {
 
   // ── Normal collapsible card ────────────────────────
   return (
-    <div className={`tool-card ${isExpanded ? "tool-card-expanded" : ""}`}>
+    <div className={`tool-card tool-card-tst ${isExpanded ? "tool-card-expanded" : ""}`}>
 
       {/* Toast */}
       {toast && (
@@ -355,6 +424,7 @@ export default function TextShareTool() {
               <input
                 type="text"
                 className="tool-text-input"
+                style={{ borderColor: "rgba(242,194,0,0.35)" }}
                 placeholder="e.g. mycode123"
                 value={customCodeInput}
                 onChange={e => { setCustomCodeInput(e.target.value.toLowerCase()); setCustomCodeAvailable(null); }}
@@ -371,8 +441,8 @@ export default function TextShareTool() {
               <div style={{ color: "#dc2626", fontSize: "0.82rem", fontWeight: 600, marginBottom: 10 }}>✗ Already taken</div>
             )}
             <button
-              className="tool-btn tool-btn-primary"
-              style={{ width: "100%", justifyContent: "center" }}
+              style={{ background: "var(--tst-yellow)", color: "#5a3e00", width: "100%", justifyContent: "center" }}
+              className="tool-btn"
               onClick={publishWithCustomCode}
               disabled={!customCodeAvailable || publishingCustom}
             >
@@ -403,6 +473,7 @@ export default function TextShareTool() {
           </div>
         </div>
 
+        {/* Inline fetch field */}
         <div
           className="tool-card-header-inline"
           onClick={e => e.stopPropagation()}
@@ -429,7 +500,65 @@ export default function TextShareTool() {
       {isExpanded && (
         <div className="tool-card-body">
 
-          {/* Share text */}
+          {/* ── 1. Fetched text result (shown at top when available) ── */}
+          {fetchedText && (
+            <div className="tool-inner-section" style={{ borderColor: "rgba(242,194,0,0.3)", background: "rgba(242,194,0,0.04)" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, flexWrap: "wrap", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <FiMessageSquare style={{ color: "var(--tst-orange-dark)", fontSize: 16 }} />
+                  <span style={{ fontWeight: 700, fontSize: "0.9rem", color: "var(--tool-gray-900)" }}>
+                    Retrieved
+                    {currentCode && (
+                      <code style={{ marginLeft: 8, background: "rgba(242,194,0,0.15)", color: "var(--tst-yellow-dark)", borderRadius: 7, padding: "1px 8px", fontSize: "0.82rem" }}>
+                        {currentCode}
+                      </code>
+                    )}
+                  </span>
+                  <span className={`tool-access-badge ${fetchedEditAccess ? "tool-badge-editable" : "tool-badge-readonly"}`}>
+                    {fetchedEditAccess ? <><FiUnlock size={11} /> Editable</> : <><FiLock size={11} /> Read-only</>}
+                  </span>
+                </div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <button className="tool-btn-pill tool-pill-refresh" onClick={handleRefresh} disabled={refreshing} title="Refresh">
+                    <FiRefreshCw size={12} className={refreshing ? "tst-spin" : ""} />
+                  </button>
+                  <button className="tool-btn-pill tool-pill-copy" onClick={() => handleCopy(isEditing ? editedText : fetchedText)} title="Copy text">
+                    <FiCopy size={12} /> Copy
+                  </button>
+                  <button className="tool-btn-pill tool-pill-fullscreen" onClick={() => setIsFullScreen(true)} title="Full screen">
+                    <FiMaximize size={12} />
+                  </button>
+                  {fetchedEditAccess && !isEditing && (
+                    <button className="tool-btn-pill tool-pill-edit" onClick={() => setIsEditing(true)}>
+                      <FiEdit3 size={12} /> Edit
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <textarea
+                ref={fetchedTextareaRef}
+                className={`tool-textarea ${isEditing ? "tool-textarea-editing" : "tool-textarea-readonly"}`}
+                value={isEditing ? editedText : fetchedText}
+                readOnly={!isEditing}
+                onChange={e => setEditedText(e.target.value)}
+                rows={5}
+              />
+
+              {fetchedEditAccess && isEditing && (
+                <div className="tool-btn-actions">
+                  <button className="tool-btn-pill tool-pill-save" onClick={handleSaveEdit} disabled={saving}>
+                    <FiSave size={13} /> {saving ? "Saving…" : "Save changes"}
+                  </button>
+                  <button className="tool-btn-pill tool-pill-cancel" onClick={handleCancelEdit}>
+                    <FiX size={13} /> Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── 2. Share text ── */}
           <div className="tool-inner-section">
             <div className="tool-inner-section-header">
               <FiEdit3 className="tool-inner-section-icon" />
@@ -462,7 +591,12 @@ export default function TextShareTool() {
             </div>
 
             <div className="tool-btn-actions">
-              <button className="tool-btn tool-btn-primary" onClick={handleGenerate} disabled={!text.trim()}>
+              <button
+                style={{ background: "var(--tst-yellow)", color: "#5a3e00" }}
+                className="tool-btn"
+                onClick={handleGenerate}
+                disabled={!text.trim()}
+              >
                 <FiSend size={14} /> Generate Code
               </button>
               <button className="tool-btn tool-btn-ghost" onClick={openCustomCodeModal} disabled={!text.trim()}>
@@ -480,7 +614,7 @@ export default function TextShareTool() {
                 <div className="tool-code-result-label">Your Code</div>
                 <div className="tool-code-display">
                   <span className="tool-code-value">{code}</span>
-                  <button className="tool-btn-pill" onClick={() => handleCopy(code)}>
+                  <button className="tool-btn-pill tool-pill-copy" onClick={() => handleCopy(code)}>
                     <FiCopy size={12} /> Copy
                   </button>
                 </div>
@@ -493,85 +627,12 @@ export default function TextShareTool() {
             )}
           </div>
 
-          {/* Retrieve text */}
-          <div className="tool-inner-section">
-            <div className="tool-inner-section-header">
-              <FiCode className="tool-inner-section-icon" />
-              <h3 className="tool-inner-section-title">Retrieve Text</h3>
-            </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              <input
-                className="tool-text-input"
-                type="text"
-                placeholder="Enter code (e.g. abc123)"
-                value={fetchCode}
-                onChange={e => setFetchCode(e.target.value.toLowerCase())}
-                onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); handleFetch(); } }}
-                maxLength={20}
-                style={{ flex: 1 }}
-              />
-              <button className="tool-btn tool-btn-primary" onClick={handleFetch} disabled={!fetchCode.trim()}>
-                <FiShare2 size={14} /> View
-              </button>
-            </div>
-
-            {fetchedText && (
-              <div style={{ marginTop: 14 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, flexWrap: "wrap", gap: 8 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--tool-gray-700)" }}>Retrieved:</span>
-                    <span className={`tool-access-badge ${fetchedEditAccess ? "tool-badge-editable" : "tool-badge-readonly"}`}>
-                      {fetchedEditAccess ? <><FiUnlock size={11} /> Editable</> : <><FiLock size={11} /> Read-only</>}
-                    </span>
-                  </div>
-                  <div style={{ display: "flex", gap: 6 }}>
-                    <button className="tool-btn-pill" onClick={handleRefresh} disabled={refreshing} title="Refresh">
-                      <FiRefreshCw size={12} className={refreshing ? "tst-spin" : ""} />
-                    </button>
-                    <button className="tool-btn-pill" onClick={() => handleCopy(isEditing ? editedText : fetchedText)} title="Copy">
-                      <FiCopy size={12} />
-                    </button>
-                    <button className="tool-btn-pill" onClick={() => setIsFullScreen(true)} title="Fullscreen">
-                      <FiMaximize size={12} />
-                    </button>
-                  </div>
-                </div>
-
-                <textarea
-                  ref={fetchedTextareaRef}
-                  className={`tool-textarea ${isEditing ? "tool-textarea-editing" : "tool-textarea-readonly"}`}
-                  value={isEditing ? editedText : fetchedText}
-                  readOnly={!isEditing}
-                  onChange={e => setEditedText(e.target.value)}
-                  rows={4}
-                />
-
-                {fetchedEditAccess && (
-                  <div className="tool-btn-actions">
-                    {isEditing ? (
-                      <>
-                        <button className="tool-btn tool-btn-primary" onClick={handleSaveEdit} disabled={saving}>
-                          <FiSave size={14} /> {saving ? "Saving…" : "Save"}
-                        </button>
-                        <button className="tool-btn tool-btn-ghost" onClick={handleCancelEdit}>Cancel</button>
-                      </>
-                    ) : (
-                      <button className="tool-btn tool-btn-ghost" onClick={() => setIsEditing(true)}>
-                        <FiEdit3 size={14} /> Edit
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* My codes */}
+          {/* ── 3. My codes ── */}
           {myCodes.length > 0 && (
             <div className="tool-inner-section">
               <button className="tool-my-codes-toggle" onClick={() => setShowMyCodes(v => !v)}>
                 <div className="tool-my-codes-toggle-left">
-                  <FiList style={{ color: "var(--tool-blue)", fontSize: 16 }} />
+                  <FiList style={{ color: "var(--tst-orange-dark)", fontSize: 16 }} />
                   <span style={{ fontWeight: 700, fontSize: "0.9rem" }}>My Codes</span>
                   <span className="tool-codes-count">{myCodes.length}</span>
                 </div>
@@ -584,7 +645,7 @@ export default function TextShareTool() {
                     <div key={item.code} className="tool-file-row">
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                          <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: "0.9rem", color: "var(--tool-blue)" }}>
+                          <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: "0.9rem", color: "var(--tst-orange-dark)" }}>
                             {item.code}
                           </span>
                           <span className={`tool-access-badge ${item.editAccess ? "tool-badge-editable" : "tool-badge-readonly"}`}>
@@ -596,24 +657,34 @@ export default function TextShareTool() {
                         </div>
                       </div>
                       <div className="tool-file-row-actions">
-                        <button className="tool-btn-pill" onClick={() => handleCopy(item.code)} title="Copy code">
+                        <button
+                          className="tool-btn-pill tool-pill-copy"
+                          onClick={() => handleCopy(item.code)}
+                          title="Copy code"
+                        >
                           <FiCopy size={12} />
                         </button>
                         <button
-                          className="tool-btn-pill"
+                          className={`tool-btn-pill ${item.editAccess ? "tool-pill-refresh" : "tool-pill-edit"}`}
                           onClick={() => handleToggleAccess(item.code, item.editAccess)}
                           disabled={togglingAccess === item.code}
-                          title="Toggle access"
+                          title={item.editAccess ? "Make read-only" : "Enable editing"}
                         >
-                          {togglingAccess === item.code ? <FiRefreshCw size={12} className="tst-spin" /> : item.editAccess ? <FiLock size={12} /> : <FiUnlock size={12} />}
+                          {togglingAccess === item.code
+                            ? <FiRefreshCw size={12} className="tst-spin" />
+                            : item.editAccess ? <FiLock size={12} /> : <FiUnlock size={12} />
+                          }
                         </button>
                         <button
-                          className="tool-btn-pill tool-btn-pill-danger"
+                          className="tool-btn-pill tool-pill-cancel"
                           onClick={() => handleDeleteCode(item.code)}
                           disabled={deletingCode === item.code}
                           title="Delete"
                         >
-                          {deletingCode === item.code ? <FiRefreshCw size={12} className="tst-spin" /> : <FiTrash2 size={12} />}
+                          {deletingCode === item.code
+                            ? <FiRefreshCw size={12} className="tst-spin" />
+                            : <FiTrash2 size={12} />
+                          }
                         </button>
                       </div>
                     </div>
@@ -623,7 +694,6 @@ export default function TextShareTool() {
             </div>
           )}
 
-          {/* Notice */}
           <p className="tool-notice-text" style={{ padding: "0 4px", marginTop: 4 }}>
             Texts expire after 24 hours. Do not share sensitive information.
           </p>
