@@ -1,16 +1,41 @@
 // app/tools/ToolsInfo.jsx
 "use client";
-import { FiFile, FiInfo, FiUpload, FiDownload, FiShare2, FiClock, FiShield, FiAlertCircle, FiTool, FiMessageSquare, FiEdit3, FiCode, FiLock, FiUnlock, FiRefreshCw, FiCopy, FiKey } from "react-icons/fi";
+import { useState } from "react";
+import { FiFile, FiInfo, FiUpload, FiDownload, FiShare2, FiClock, FiShield, FiAlertCircle, FiTool, FiMessageSquare, FiEdit3, FiCode, FiLock, FiUnlock, FiRefreshCw, FiCopy, FiKey, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import "./styles/ToolsInfo.css";
+import "./styles/ToolsPage.css";
 
 export default function ToolsInfo() {
-  return (
-    <div className="ti-page-container">
-      <header className="ti-header" aria-hidden={true}>
-        <FiTool className="ti-header-icon" />
-      </header>
+  const [isExpanded, setIsExpanded] = useState(false);
 
-      <main className="ti-main" role="main">
+  return (
+    <div className={`tool-card ${isExpanded ? 'tool-card-expanded' : 'tool-card-collapsed'}`}>
+      <div 
+        className="tool-card-header"
+        onClick={() => setIsExpanded(!isExpanded)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setIsExpanded(!isExpanded);
+          }
+        }}
+      >
+        <div className="tool-card-header-left">
+          <span className="tool-card-toggle-icon">
+            {isExpanded ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
+          </span>
+          <div className="tool-card-title-container">
+            <h2 className="tool-card-title">Tools Information</h2>
+            <span className="tool-card-subtitle">Usage instructions and feature overview</span>
+          </div>
+        </div>
+      </div>
+
+      {isExpanded && (
+        <div className="tool-card-body">
+          <main className="ti-main" role="main">
         {/* Main Title */}
         <section className="ti-card ti-main-intro" aria-labelledby="ti-main-title">
           <h1 id="ti-main-title" className="ti-main-title">Tools Information</h1>
@@ -358,8 +383,9 @@ export default function ToolsInfo() {
             </div>
           </section>
         </div>
-
       </main>
+        </div>
+      )}
     </div>
   );
 }
