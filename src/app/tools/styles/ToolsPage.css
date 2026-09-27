@@ -67,22 +67,48 @@
 
 /* ── Page Header ──────────────────────────────────── */
 .tools-header-banner {
-  padding: 8px 4px 24px;
+  padding: 12px 4px 28px;
+}
+
+.tools-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
 .tools-main-title {
-  font-size: 2.4rem;
+  font-size: 2.6rem;
   font-weight: 800;
-  color: var(--tool-gray-900);
-  margin: 0 0 6px;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
+  background: linear-gradient(135deg, #0f172a 0%, #0b74ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.tools-title-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: rgba(11, 116, 255, 0.08);
+  color: #0b74ff;
+  border: 1px solid rgba(11, 116, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  display: inline-block;
+  backdrop-filter: blur(8px);
 }
 
 .tools-main-subtitle {
-  font-size: 1rem;
-  color: var(--tool-gray-500);
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: var(--tool-gray-600);
   margin: 0;
   font-weight: 400;
+  max-width: 960px;
 }
 
 .tools-cards-list {

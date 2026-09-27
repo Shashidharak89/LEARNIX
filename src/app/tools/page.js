@@ -9,6 +9,7 @@ import "./styles/ToolsPage.css";
 
 export default function Tools() {
   const [globalIsDragging, setGlobalIsDragging] = useState(false);
+  const [droppedFile, setDroppedFile] = useState(null);
   const dragCounterRef = useRef(0);
 
   const handlePageDragEnter = useCallback((e) => {
@@ -35,6 +36,10 @@ export default function Tools() {
     e.preventDefault();
     dragCounterRef.current = 0;
     setGlobalIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const dropped = e.dataTransfer.files[0];
+      setDroppedFile(dropped);
+    }
   }, []);
 
   return (
@@ -63,14 +68,17 @@ export default function Tools() {
 
       <div className="tools-container">
         <header className="tools-header-banner">
-          <h1 className="tools-main-title">Tools</h1>
+          <div className="tools-title-row">
+            <h1 className="tools-main-title">Tools</h1>
+            <span className="tools-title-badge">Workspace</span>
+          </div>
           <p className="tools-main-subtitle">
-            Simple, fast &amp; secure — file sharing and text snippets.
+            Welcome to Learnix Tools — your clean, fast, and privacy-focused workspace for managing files and text snippets. Here you can easily upload documents to get shareable download codes, retrieve files using a code, or temporarily store and collaborate on text snippets with custom access permissions. Everything is designed to work seamlessly in your browser with zero setup required.
           </p>
         </header>
 
         <div className="tools-cards-list">
-          <FileUploadDownload globalIsDragging={globalIsDragging} />
+          <FileUploadDownload globalIsDragging={globalIsDragging} droppedFile={droppedFile} />
           <TextShareTool />
           <ToolsInfo />
         </div>

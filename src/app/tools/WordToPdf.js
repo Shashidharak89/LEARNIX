@@ -7,7 +7,7 @@ import {
 } from "react-icons/fi";
 import "./styles/ToolsPage.css";
 
-export default function FileUploadDownload({ globalIsDragging }) {
+export default function FileUploadDownload({ globalIsDragging, droppedFile }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [file, setFile] = useState(null);
   const [uploadLoading, setUploadLoading] = useState(false);
@@ -28,6 +28,15 @@ export default function FileUploadDownload({ globalIsDragging }) {
       setIsExpanded(true);
     }
   }, [globalIsDragging, isExpanded]);
+
+  // When a file is dropped on the page, set it and expand card without any popup
+  useEffect(() => {
+    if (droppedFile) {
+      setFile(droppedFile);
+      setFileId("");
+      setIsExpanded(true);
+    }
+  }, [droppedFile]);
 
   useEffect(() => {
     const storedFileId = localStorage.getItem("uploadedFileId");
@@ -68,7 +77,7 @@ export default function FileUploadDownload({ globalIsDragging }) {
     if (f) { setFile(f); setFileId(""); }
   }
 
-  // Drop on the card's upload zone
+  // Drop on the card's upload zone — no popup message
   const handleZoneDrop = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -77,9 +86,9 @@ export default function FileUploadDownload({ globalIsDragging }) {
       const dropped = e.dataTransfer.files[0];
       setFile(dropped);
       setFileId("");
-      showToast(`"${dropped.name}" ready to upload!`, "success");
+      setIsExpanded(true);
     }
-  }, [showToast]);
+  }, []);
 
   const handleZoneDragOver = useCallback((e) => {
     e.preventDefault();
