@@ -12,8 +12,15 @@ import "./styles/ToolsPage.css";
 
 const STORAGE_KEY = "textshare_codes";
 
-export default function TextShareTool() {
+export default function TextShareTool({ forceExpandTrigger }) {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    if (forceExpandTrigger) {
+      setIsExpanded(true);
+    }
+  }, [forceExpandTrigger]);
+
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [text, setText] = useState("");
   const [code, setCode] = useState("");

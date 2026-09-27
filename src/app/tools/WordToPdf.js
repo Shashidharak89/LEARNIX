@@ -7,7 +7,7 @@ import {
 } from "react-icons/fi";
 import "./styles/ToolsPage.css";
 
-export default function FileUploadDownload({ globalIsDragging, droppedFile }) {
+export default function FileUploadDownload({ globalIsDragging, droppedFile, forceExpandTrigger }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [file, setFile] = useState(null);
   const [uploadLoading, setUploadLoading] = useState(false);
@@ -28,6 +28,13 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile }) {
       setIsExpanded(true);
     }
   }, [globalIsDragging, isExpanded]);
+
+  // Auto-expand when triggered from header button click
+  useEffect(() => {
+    if (forceExpandTrigger) {
+      setIsExpanded(true);
+    }
+  }, [forceExpandTrigger]);
 
   // When a file is dropped on the page, set it and expand card without any popup
   useEffect(() => {
