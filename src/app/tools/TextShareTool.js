@@ -1,207 +1,149 @@
 // app/tools/TextShareTool.jsx
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { FiCopy, FiSend, FiMessageSquare, FiCode, FiShare2, FiEdit3, FiRefreshCw, FiSave, FiLock, FiUnlock, FiList, FiTrash2, FiChevronDown, FiChevronUp, FiCheckCircle, FiAlertCircle, FiInfo, FiX, FiMaximize, FiMinimize } from "react-icons/fi";
+import {
+  FiCopy, FiSend, FiCode, FiShare2, FiEdit3, FiRefreshCw, FiSave,
+  FiLock, FiUnlock, FiList, FiTrash2, FiChevronDown, FiChevronUp,
+  FiCheckCircle, FiAlertCircle, FiInfo, FiX, FiMaximize, FiMinimize,
+  FiMessageSquare
+} from "react-icons/fi";
 import "./styles/TextShare.css";
 import "./styles/ToolsPage.css";
 
-const STORAGE_KEY = 'textshare_codes';
+const STORAGE_KEY = "textshare_codes";
 
 export default function TextShareTool() {
   const [isExpanded, setIsExpanded] = useState(false);
-  // Full screen state for textarea
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [text, setText] = useState("");
   const [code, setCode] = useState("");
-  const [editAccess, setEditAccess] = useState(false); // Toggle for allowing edit access
+  const [editAccess, setEditAccess] = useState(false);
   const [fetchCode, setFetchCode] = useState("");
   const [fetchedText, setFetchedText] = useState("");
-  const [fetchedEditAccess, setFetchedEditAccess] = useState(false); // Edit access of fetched text
-  const [editedText, setEditedText] = useState(""); // For editing fetched text
-  const [isEditing, setIsEditing] = useState(false); // Edit mode toggle
-  const [currentCode, setCurrentCode] = useState(""); // Store code for refresh/update
+  const [fetchedEditAccess, setFetchedEditAccess] = useState(false);
+  const [editedText, setEditedText] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentCode, setCurrentCode] = useState("");
   const [refreshing, setRefreshing] = useState(false);
-  
-  // Toast notification state
   const [toast, setToast] = useState(null);
   const toastTimeoutRef = useRef(null);
   const [saving, setSaving] = useState(false);
-  const [myCodes, setMyCodes] = useState([]); // User's created codes
-  const [showMyCodes, setShowMyCodes] = useState(false); // Toggle my codes section
-  const [togglingAccess, setTogglingAccess] = useState(null); // Code being toggled
-  const [deletingCode, setDeletingCode] = useState(null); // Code being deleted
-  
-  // Custom code modal state
+  const [myCodes, setMyCodes] = useState([]);
+  const [showMyCodes, setShowMyCodes] = useState(false);
+  const [togglingAccess, setTogglingAccess] = useState(null);
+  const [deletingCode, setDeletingCode] = useState(null);
   const [showCustomCodeModal, setShowCustomCodeModal] = useState(false);
   const [customCodeInput, setCustomCodeInput] = useState("");
-  const [customCodeAvailable, setCustomCodeAvailable] = useState(null); // null = not checked, true = available, false = taken
+  const [customCodeAvailable, setCustomCodeAvailable] = useState(null);
   const [checkingAvailability, setCheckingAvailability] = useState(false);
   const [publishingCustom, setPublishingCustom] = useState(false);
-  
+
   const textareaRef = useRef(null);
   const fetchedTextareaRef = useRef(null);
   const fullscreenTextareaRef = useRef(null);
 
-  // Load codes from localStorage on mount
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        setMyCodes(JSON.parse(stored));
-      }
-    } catch (err) {
-      console.error('Failed to load codes from localStorage:', err);
-    }
+      if (stored) setMyCodes(JSON.parse(stored));
+    } catch {}
   }, []);
 
-  // Cleanup toast timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (toastTimeoutRef.current) {
-        clearTimeout(toastTimeoutRef.current);
-      }
-    };
+  useEffect(() => () => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
   }, []);
 
-  // Show toast notification
   const showToast = useCallback((message, type = "info") => {
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-    }
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     setToast({ message, type });
-    toastTimeoutRef.current = setTimeout(() => {
-      setToast(null);
-    }, 4000);
+    toastTimeoutRef.current = setTimeout(() => setToast(null), 4000);
   }, []);
 
-  // Dismiss toast manually
   const dismissToast = useCallback(() => {
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-    }
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     setToast(null);
   }, []);
 
-  // Save codes to localStorage
-  const saveToStorage = useCallback((codes) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(codes));
-    } catch (err) {
-      console.error('Failed to save codes to localStorage:', err);
-    }
-  }, []);
-
-  // Add a new code to localStorage
-  const addCodeToStorage = useCallback((newCode, hasEditAccess) => {
-    const codeEntry = {
-      code: newCode,
-      editAccess: hasEditAccess,
-      createdAt: new Date().toISOString()
-    };
-    const updatedCodes = [codeEntry, ...myCodes];
-    setMyCodes(updatedCodes);
-    saveToStorage(updatedCodes);
-  }, [myCodes, saveToStorage]);
-
-  // Remove a code from localStorage
-  const removeCodeFromStorage = useCallback((codeToRemove) => {
-    const updatedCodes = myCodes.filter(c => c.code !== codeToRemove);
-    setMyCodes(updatedCodes);
-    saveToStorage(updatedCodes);
-  }, [myCodes, saveToStorage]);
-
-  // Update editAccess for a code in localStorage
-  const updateCodeInStorage = useCallback((codeToUpdate, newEditAccess) => {
-    const updatedCodes = myCodes.map(c => 
-      c.code === codeToUpdate ? { ...c, editAccess: newEditAccess } : c
-    );
-    setMyCodes(updatedCodes);
-    saveToStorage(updatedCodes);
-  }, [myCodes, saveToStorage]);
-
-  // Check if a code was created by this user
-  const isMyCode = useCallback((codeToCheck) => {
-    return myCodes.some(c => c.code === codeToCheck);
-  }, [myCodes]);
-
-  // Auto-expand textarea
-  const autoExpand = (ref) => {
-    if (ref.current) {
-      ref.current.style.height = 'auto';
-      const maxHeight = window.innerHeight * 0.9;
-      const newHeight = Math.min(ref.current.scrollHeight, maxHeight);
-      ref.current.style.height = newHeight + 'px';
-    }
+  const getToastIcon = (type) => {
+    if (type === "success") return <FiCheckCircle />;
+    if (type === "error")   return <FiAlertCircle />;
+    return <FiInfo />;
   };
 
-  useEffect(() => {
-    autoExpand(textareaRef);
-  }, [text]);
+  const saveToStorage = useCallback((codes) => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(codes)); } catch {}
+  }, []);
 
-  useEffect(() => {
-    autoExpand(fetchedTextareaRef);
-  }, [fetchedText, editedText]);
+  const addCodeToStorage = useCallback((newCode, hasEdit) => {
+    const entry = { code: newCode, editAccess: hasEdit, createdAt: new Date().toISOString() };
+    const updated = [entry, ...myCodes];
+    setMyCodes(updated);
+    saveToStorage(updated);
+  }, [myCodes, saveToStorage]);
+
+  const removeCodeFromStorage = useCallback((c) => {
+    const updated = myCodes.filter(x => x.code !== c);
+    setMyCodes(updated);
+    saveToStorage(updated);
+  }, [myCodes, saveToStorage]);
+
+  const updateCodeInStorage = useCallback((c, newAccess) => {
+    const updated = myCodes.map(x => x.code === c ? { ...x, editAccess: newAccess } : x);
+    setMyCodes(updated);
+    saveToStorage(updated);
+  }, [myCodes, saveToStorage]);
+
+  const handleCopy = (t) => {
+    navigator.clipboard.writeText(t);
+    showToast("Copied to clipboard!", "success");
+  };
+
+  function formatTimeAgo(dateString) {
+    const diff = Date.now() - new Date(dateString).getTime();
+    const m = Math.floor(diff / 60000);
+    const h = Math.floor(diff / 3600000);
+    if (m < 1) return "Just now";
+    if (m < 60) return `${m}m ago`;
+    if (h < 24) return `${h}h ago`;
+    return new Date(dateString).toLocaleDateString();
+  }
 
   async function handleGenerate() {
     setCode("");
-    if (!text.trim()) {
-      showToast("Please enter some text.", "error");
-      return;
-    }
+    if (!text.trim()) { showToast("Please enter some text.", "error"); return; }
     try {
-      showToast("Generating code...", "info");
+      showToast("Generating code…", "info");
       const res = await fetch("/api/textshare", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, editAccess }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        showToast(data.error || "Failed to generate code.", "error");
-        return;
-      }
+      if (!res.ok) { showToast(data.error || "Failed.", "error"); return; }
       setCode(data.code);
       addCodeToStorage(data.code, editAccess);
-      const accessMsg = editAccess ? "Anyone can view AND edit!" : "View-only access.";
-      showToast(`Code generated! ${accessMsg}`, "success");
-    } catch (err) {
-      showToast("Network error. Try again.", "error");
-    }
+      showToast(`Code generated! ${editAccess ? "Editable." : "View-only."}`, "success");
+    } catch { showToast("Network error.", "error"); }
   }
 
   async function handleFetch() {
-    setFetchedText("");
-    setEditedText("");
-    setIsEditing(false);
-    setFetchedEditAccess(false);
-    if (!fetchCode.trim()) {
-      showToast("Please enter a code.", "error");
-      return;
-    }
+    setFetchedText(""); setEditedText(""); setIsEditing(false); setFetchedEditAccess(false);
+    if (!fetchCode.trim()) { showToast("Enter a code.", "error"); return; }
     try {
-      showToast("Fetching text...", "info");
+      showToast("Fetching…", "info");
       const res = await fetch(`/api/textshare?code=${fetchCode.trim()}`);
       const data = await res.json();
-      if (!res.ok) {
-        showToast(data.error || "Text not found.", "error");
-        return;
-      }
+      if (!res.ok) { showToast(data.error || "Not found.", "error"); return; }
       setFetchedText(data.text);
       setEditedText(data.text);
       setFetchedEditAccess(data.editAccess || false);
       setCurrentCode(fetchCode.trim());
-      const accessMsg = data.editAccess ? "(Editable)" : "(Read-only)";
-      showToast(`Text retrieved! ${accessMsg}`, "success");
-    } catch (err) {
-      showToast("Network error. Try again.", "error");
-    }
+      showToast(`Retrieved! ${data.editAccess ? "(Editable)" : "(Read-only)"}`, "success");
+    } catch { showToast("Network error.", "error"); }
   }
 
   async function handleFetchInline() {
-    if (!fetchCode.trim()) {
-      showToast("Please enter a code.", "error");
-      return;
-    }
+    if (!fetchCode.trim()) { showToast("Enter a code.", "error"); return; }
     setIsExpanded(true);
     await handleFetch();
   }
@@ -209,32 +151,21 @@ export default function TextShareTool() {
   async function handleRefresh() {
     if (!currentCode) return;
     setRefreshing(true);
-    showToast("Refreshing...", "info");
+    showToast("Refreshing…", "info");
     try {
       const res = await fetch(`/api/textshare?code=${currentCode}`);
       const data = await res.json();
-      if (!res.ok) {
-        showToast(data.error || "Failed to refresh.", "error");
-        setRefreshing(false);
-        return;
-      }
-      setFetchedText(data.text);
-      setEditedText(data.text);
-      setFetchedEditAccess(data.editAccess || false);
-      showToast("Text refreshed successfully!", "success");
-    } catch (err) {
-      showToast("Network error. Try again.", "error");
-    }
+      if (!res.ok) { showToast(data.error || "Failed.", "error"); setRefreshing(false); return; }
+      setFetchedText(data.text); setEditedText(data.text); setFetchedEditAccess(data.editAccess || false);
+      showToast("Refreshed!", "success");
+    } catch { showToast("Network error.", "error"); }
     setRefreshing(false);
   }
 
   async function handleSaveEdit() {
-    if (!currentCode || !editedText.trim()) {
-      showToast("Cannot save empty text.", "error");
-      return;
-    }
+    if (!currentCode || !editedText.trim()) { showToast("Cannot save empty text.", "error"); return; }
     setSaving(true);
-    showToast("Saving changes...", "info");
+    showToast("Saving…", "info");
     try {
       const res = await fetch("/api/textshare", {
         method: "PUT",
@@ -242,269 +173,170 @@ export default function TextShareTool() {
         body: JSON.stringify({ code: currentCode, text: editedText }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        showToast(data.error || "Failed to save.", "error");
-        setSaving(false);
-        return;
-      }
+      if (!res.ok) { showToast(data.error || "Failed.", "error"); setSaving(false); return; }
       setFetchedText(data.text);
-      // Keep edit mode ON after saving (removed setIsEditing(false))
-      showToast("Changes saved successfully!", "success");
-    } catch (err) {
-      showToast("Network error. Try again.", "error");
-    }
+      showToast("Saved!", "success");
+    } catch { showToast("Network error.", "error"); }
     setSaving(false);
   }
 
   function handleCancelEdit() {
-    setEditedText(fetchedText);
-    setIsEditing(false);
+    setEditedText(fetchedText); setIsEditing(false);
     showToast("Edit cancelled.", "info");
   }
 
-  // Open custom code modal
   function openCustomCodeModal() {
-    if (!text.trim()) {
-      showToast("Please enter some text first.", "error");
-      return;
-    }
-    setCustomCodeInput("");
-    setCustomCodeAvailable(null);
-    setShowCustomCodeModal(true);
+    if (!text.trim()) { showToast("Enter text first.", "error"); return; }
+    setCustomCodeInput(""); setCustomCodeAvailable(null); setShowCustomCodeModal(true);
   }
 
-  // Close custom code modal
   function closeCustomCodeModal() {
-    setShowCustomCodeModal(false);
-    setCustomCodeInput("");
-    setCustomCodeAvailable(null);
+    setShowCustomCodeModal(false); setCustomCodeInput(""); setCustomCodeAvailable(null);
   }
 
-  // Check if custom code is available
   async function checkCodeAvailability() {
-    const cleanCode = customCodeInput.toLowerCase().trim();
-    if (!cleanCode) {
-      showToast("Please enter a code.", "error");
-      return;
-    }
-    if (cleanCode.length < 3) {
-      showToast("Code must be at least 3 characters.", "error");
-      return;
-    }
-    if (!/^[a-z0-9]+$/.test(cleanCode)) {
-      showToast("Only lowercase letters and numbers allowed.", "error");
-      return;
-    }
-    
+    const clean = customCodeInput.toLowerCase().trim();
+    if (!clean) { showToast("Enter a code.", "error"); return; }
+    if (clean.length < 3) { showToast("At least 3 characters.", "error"); return; }
+    if (!/^[a-z0-9]+$/.test(clean)) { showToast("Lowercase letters & numbers only.", "error"); return; }
     setCheckingAvailability(true);
     try {
       const res = await fetch("/api/textshare", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ customCode: cleanCode, checkOnly: true }),
+        body: JSON.stringify({ customCode: clean, checkOnly: true }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        showToast(data.error || "Failed to check availability.", "error");
-        setCustomCodeAvailable(null);
-      } else {
+      if (!res.ok) { showToast(data.error || "Failed.", "error"); setCustomCodeAvailable(null); }
+      else {
         setCustomCodeAvailable(data.available);
-        if (data.available) {
-          showToast(`"${cleanCode}" is available!`, "success");
-        } else {
-          showToast(`"${cleanCode}" is already taken.`, "error");
-        }
+        showToast(data.available ? `"${clean}" is available!` : `"${clean}" is taken.`, data.available ? "success" : "error");
       }
-    } catch (err) {
-      showToast("Network error. Try again.", "error");
-      setCustomCodeAvailable(null);
-    }
+    } catch { showToast("Network error.", "error"); setCustomCodeAvailable(null); }
     setCheckingAvailability(false);
   }
 
-  // Publish with custom code
   async function publishWithCustomCode() {
     if (!customCodeAvailable) return;
-    
-    const cleanCode = customCodeInput.toLowerCase().trim();
+    const clean = customCodeInput.toLowerCase().trim();
     setPublishingCustom(true);
-    showToast("Publishing with custom code...", "info");
-    
+    showToast("Publishing…", "info");
     try {
       const res = await fetch("/api/textshare", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, editAccess, customCode: cleanCode }),
+        body: JSON.stringify({ text, editAccess, customCode: clean }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        showToast(data.error || "Failed to publish.", "error");
-        setPublishingCustom(false);
-        return;
-      }
+      if (!res.ok) { showToast(data.error || "Failed.", "error"); setPublishingCustom(false); return; }
       setCode(data.code);
       addCodeToStorage(data.code, editAccess);
       closeCustomCodeModal();
-      const accessMsg = editAccess ? "Anyone can view AND edit!" : "View-only access.";
-      showToast(`Published with code "${data.code}"! ${accessMsg}`, "success");
-    } catch (err) {
-      showToast("Network error. Try again.", "error");
-    }
+      showToast(`Published as "${data.code}"!`, "success");
+    } catch { showToast("Network error.", "error"); }
     setPublishingCustom(false);
   }
 
-  // Toggle edit access for a code (admin action)
-  async function handleToggleAccess(codeToToggle, currentAccess) {
-    setTogglingAccess(codeToToggle);
-    showToast("Updating access...", "info");
+  async function handleToggleAccess(c, current) {
+    setTogglingAccess(c);
+    showToast("Updating…", "info");
     try {
       const res = await fetch("/api/textshare", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          code: codeToToggle, 
-          editAccess: !currentAccess,
-          updateAccessOnly: true 
-        }),
+        body: JSON.stringify({ code: c, editAccess: !current, updateAccessOnly: true }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        showToast(data.error || "Failed to update access.", "error");
-        setTogglingAccess(null);
-        return;
-      }
-      updateCodeInStorage(codeToToggle, !currentAccess);
-      showToast(`Access ${!currentAccess ? 'enabled' : 'disabled'} for ${codeToToggle}`, "success");
-    } catch (err) {
-      showToast("Network error. Try again.", "error");
-    }
+      if (!res.ok) { showToast(data.error || "Failed.", "error"); setTogglingAccess(null); return; }
+      updateCodeInStorage(c, !current);
+      showToast(`Access ${!current ? "enabled" : "disabled"} for ${c}`, "success");
+    } catch { showToast("Network error.", "error"); }
     setTogglingAccess(null);
   }
 
-  // Delete a code (admin action)
-  async function handleDeleteCode(codeToDelete) {
-    if (!window.confirm(`Delete code "${codeToDelete}"? This cannot be undone.`)) return;
-    
-    setDeletingCode(codeToDelete);
-    showToast("Deleting...", "info");
+  async function handleDeleteCode(c) {
+    if (!window.confirm(`Delete code "${c}"?`)) return;
+    setDeletingCode(c);
+    showToast("Deleting…", "info");
     try {
-      const res = await fetch(`/api/textshare?code=${codeToDelete}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`/api/textshare?code=${c}`, { method: "DELETE" });
       const data = await res.json();
-      if (!res.ok) {
-        showToast(data.error || "Failed to delete.", "error");
-        setDeletingCode(null);
-        return;
-      }
-      removeCodeFromStorage(codeToDelete);
-      if (currentCode === codeToDelete) {
-        setFetchedText("");
-        setEditedText("");
-        setCurrentCode("");
-        setFetchCode("");
-      }
-      if (code === codeToDelete) {
-        setCode("");
-      }
-      showToast("Deleted successfully!", "success");
-    } catch (err) {
-      showToast("Network error. Try again.", "error");
-    }
+      if (!res.ok) { showToast(data.error || "Failed.", "error"); setDeletingCode(null); return; }
+      removeCodeFromStorage(c);
+      if (currentCode === c) { setFetchedText(""); setEditedText(""); setCurrentCode(""); setFetchCode(""); }
+      if (code === c) setCode("");
+      showToast("Deleted!", "success");
+    } catch { showToast("Network error.", "error"); }
     setDeletingCode(null);
   }
 
-  // Format time ago
-  function formatTimeAgo(dateString) {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    return date.toLocaleDateString();
+  // ── Fullscreen view ────────────────────────────────
+  if (isFullScreen) {
+    return (
+      <div className="tst-fullscreen-container">
+        {toast && (
+          <div className={`tool-toast tool-toast-${toast.type}`}>
+            <span className="tool-toast-icon">{getToastIcon(toast.type)}</span>
+            <span>{toast.message}</span>
+            <button className="tool-toast-close" onClick={dismissToast}><FiX /></button>
+          </div>
+        )}
+        <div className="tst-fullscreen-header">
+          <div className="tst-fullscreen-header-left">
+            <FiMessageSquare style={{ color: "var(--tool-blue)" }} />
+            <span style={{ fontWeight: 700, fontSize: "0.95rem" }}>Text Sharing · {currentCode}</span>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            {fetchedEditAccess && (
+              isEditing ? (
+                <>
+                  <button className="tool-btn tool-btn-primary" onClick={handleSaveEdit} disabled={saving}>
+                    <FiSave size={14} /> {saving ? "Saving…" : "Save"}
+                  </button>
+                  <button className="tool-btn tool-btn-ghost" onClick={handleCancelEdit}>Cancel</button>
+                </>
+              ) : (
+                <button className="tool-btn tool-btn-ghost" onClick={() => setIsEditing(true)}>
+                  <FiEdit3 size={14} /> Edit
+                </button>
+              )
+            )}
+            <button className="tool-btn tool-btn-ghost" onClick={handleRefresh} disabled={refreshing}>
+              <FiRefreshCw size={14} className={refreshing ? "tst-spin" : ""} />
+            </button>
+            <button className="tool-btn tool-btn-ghost" onClick={() => handleCopy(isEditing ? editedText : fetchedText)}>
+              <FiCopy size={14} />
+            </button>
+            <button className="tool-btn tool-btn-ghost" onClick={() => setIsFullScreen(false)}>
+              <FiMinimize size={14} /> Exit
+            </button>
+          </div>
+        </div>
+        <div style={{ flex: 1, padding: 20, display: "flex", flexDirection: "column" }}>
+          <textarea
+            ref={fullscreenTextareaRef}
+            className={`tool-textarea ${isEditing ? "tool-textarea-editing" : "tool-textarea-readonly"}`}
+            style={{ flex: 1, resize: "none", minHeight: "100%" }}
+            value={isEditing ? editedText : fetchedText}
+            readOnly={!isEditing}
+            onChange={e => setEditedText(e.target.value)}
+            autoFocus
+          />
+        </div>
+      </div>
+    );
   }
 
-  // Get toast icon based on type
-  const getToastIcon = (type) => {
-    switch (type) {
-      case 'success':
-        return <FiCheckCircle />;
-      case 'error':
-        return <FiAlertCircle />;
-      default:
-        return <FiInfo />;
-    }
-  };
-
-  // Copy text to clipboard
-  const handleCopy = (textToCopy) => {
-    navigator.clipboard.writeText(textToCopy);
-    showToast("Copied to clipboard!", "success");
-  };
-
-  // Keyboard shortcuts handler
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      // Only work when fullscreen is active
-      if (!isFullScreen) return;
-
-      // Ctrl+S or Cmd+S - Save changes
-      if ((e.ctrlKey || e.metaKey) && e.key === 's' && !e.shiftKey) {
-        e.preventDefault();
-        if (fetchedEditAccess && isEditing) {
-          handleSaveEdit();
-        }
-      }
-
-      // Ctrl+Shift+C - Copy all text
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'C') {
-        e.preventDefault();
-        handleCopy(isEditing ? editedText : fetchedText);
-      }
-
-      // Ctrl+B - Cancel changes (only in edit mode)
-      if ((e.ctrlKey || e.metaKey) && e.key === 'b' && !e.shiftKey) {
-        e.preventDefault();
-        if (fetchedEditAccess && isEditing) {
-          handleCancelEdit();
-        }
-      }
-
-      // Ctrl+R - Refresh
-      if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-        e.preventDefault();
-        handleRefresh();
-      }
-
-      // Windows Key + Down Arrow or Escape - Exit fullscreen
-      if ((e.metaKey && e.key === 'ArrowDown') || e.key === 'Escape') {
-        e.preventDefault();
-        setIsFullScreen(false);
-      }
-    };
-
-    if (isFullScreen) {
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [isFullScreen, fetchedEditAccess, isEditing, editedText, fetchedText]);
-
+  // ── Normal collapsible card ────────────────────────
   return (
-    <div className="tst-page-container">
-      {/* Toast Notification - visible in both normal and fullscreen mode */}
-      {toast && !isFullScreen && (
-        <div className={`tst-toast tst-toast-${toast.type}`}>
-          <div className="tst-toast-icon">
-            {getToastIcon(toast.type)}
-          </div>
-          <span className="tst-toast-message">{toast.message}</span>
-          <button className="tst-toast-close" onClick={dismissToast}>
-            <FiX />
-          </button>
+    <div className={`tool-card ${isExpanded ? "tool-card-expanded" : ""}`}>
+
+      {/* Toast */}
+      {toast && (
+        <div className={`tool-toast tool-toast-${toast.type}`}>
+          <span className="tool-toast-icon">{getToastIcon(toast.type)}</span>
+          <span>{toast.message}</span>
+          <button className="tool-toast-close" onClick={dismissToast}><FiX /></button>
         </div>
       )}
 
@@ -513,509 +345,289 @@ export default function TextShareTool() {
         <div className="tst-modal-overlay" onClick={closeCustomCodeModal}>
           <div className="tst-modal" onClick={e => e.stopPropagation()}>
             <div className="tst-modal-header">
-              <h3 className="tst-modal-title">
-                <FiCode /> Create Custom Code
-              </h3>
-              <button className="tst-modal-close" onClick={closeCustomCodeModal}>
-                <FiX />
+              <h3 className="tst-modal-title">Custom Code</h3>
+              <button className="tool-btn-pill" onClick={closeCustomCodeModal}><FiX /></button>
+            </div>
+            <p style={{ fontSize: "0.82rem", color: "var(--tool-gray-500)", margin: "0 0 14px" }}>
+              Choose a memorable code for your text snippet.
+            </p>
+            <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+              <input
+                type="text"
+                className="tool-text-input"
+                placeholder="e.g. mycode123"
+                value={customCodeInput}
+                onChange={e => { setCustomCodeInput(e.target.value.toLowerCase()); setCustomCodeAvailable(null); }}
+                maxLength={20}
+              />
+              <button className="tool-btn tool-btn-ghost" onClick={checkCodeAvailability} disabled={checkingAvailability}>
+                {checkingAvailability ? "Checking…" : "Check"}
               </button>
             </div>
-            
-            <div className="tst-modal-body">
-              <p className="tst-modal-desc">
-                Choose your own memorable code instead of a random one.
-              </p>
-              
-              <div className="tst-modal-input-group">
-                <input
-                  type="text"
-                  className="tst-modal-input"
-                  placeholder="Enter custom code (e.g., learnix)"
-                  value={customCodeInput}
-                  onChange={e => {
-                    setCustomCodeInput(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''));
-                    setCustomCodeAvailable(null); // Reset availability when input changes
-                  }}
-                  maxLength={20}
-                />
-                <span className="tst-modal-input-hint">
-                  3-20 characters • Letters and numbers only
-                </span>
-              </div>
+            {customCodeAvailable === true && (
+              <div style={{ color: "#16a34a", fontSize: "0.82rem", fontWeight: 600, marginBottom: 10 }}>✓ Available!</div>
+            )}
+            {customCodeAvailable === false && (
+              <div style={{ color: "#dc2626", fontSize: "0.82rem", fontWeight: 600, marginBottom: 10 }}>✗ Already taken</div>
+            )}
+            <button
+              className="tool-btn tool-btn-primary"
+              style={{ width: "100%", justifyContent: "center" }}
+              onClick={publishWithCustomCode}
+              disabled={!customCodeAvailable || publishingCustom}
+            >
+              <FiSend size={14} /> {publishingCustom ? "Publishing…" : "Publish with this code"}
+            </button>
+          </div>
+        </div>
+      )}
 
-              {customCodeAvailable !== null && (
-                <div className={`tst-availability-status ${customCodeAvailable ? 'tst-available' : 'tst-taken'}`}>
-                  {customCodeAvailable ? (
-                    <><FiCheckCircle /> Code is available!</>
-                  ) : (
-                    <><FiAlertCircle /> Code is already taken</>
-                  )}
+      {/* ── Header Row ── */}
+      <div
+        className="tool-card-header"
+        onClick={() => setIsExpanded(v => !v)}
+        role="button"
+        tabIndex={0}
+        aria-expanded={isExpanded}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setIsExpanded(v => !v); }
+        }}
+      >
+        <div className="tool-card-header-left">
+          <span className="tool-card-toggle-icon">
+            {isExpanded ? <FiChevronUp size={18} /> : <FiChevronDown size={18} />}
+          </span>
+          <div className="tool-card-title-container">
+            <h2 className="tool-card-title">Text Sharing</h2>
+            <span className="tool-card-subtitle">Share text snippets — or enter a code to fetch</span>
+          </div>
+        </div>
+
+        <div
+          className="tool-card-header-inline"
+          onClick={e => e.stopPropagation()}
+        >
+          <input
+            type="text"
+            placeholder="Enter code to fetch text"
+            value={fetchCode}
+            onChange={e => setFetchCode(e.target.value.toLowerCase())}
+            className="tool-card-inline-input"
+            onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); handleFetchInline(); } }}
+          />
+          <button
+            className="tool-card-inline-btn"
+            onClick={handleFetchInline}
+            disabled={!fetchCode.trim()}
+          >
+            <FiShare2 size={14} /> Fetch
+          </button>
+        </div>
+      </div>
+
+      {/* ── Expanded Body ── */}
+      {isExpanded && (
+        <div className="tool-card-body">
+
+          {/* Share text */}
+          <div className="tool-inner-section">
+            <div className="tool-inner-section-header">
+              <FiEdit3 className="tool-inner-section-icon" />
+              <h3 className="tool-inner-section-title">Share Text</h3>
+            </div>
+            <p style={{ fontSize: "0.8rem", color: "var(--tool-gray-500)", margin: "0 0 10px" }}>
+              Enter any text and generate a shareable code.
+            </p>
+            <textarea
+              ref={textareaRef}
+              className="tool-textarea"
+              placeholder="Type or paste your text here…"
+              value={text}
+              onChange={e => setText(e.target.value)}
+              rows={4}
+            />
+
+            <div className="tool-toggle-row">
+              <button
+                type="button"
+                className={`tool-toggle-btn ${editAccess ? "tool-toggle-btn-active" : ""}`}
+                onClick={() => setEditAccess(v => !v)}
+              >
+                {editAccess ? <FiUnlock size={13} /> : <FiLock size={13} />}
+                Edit Access: {editAccess ? "ON" : "OFF"}
+              </button>
+              <span className="tool-toggle-hint">
+                {editAccess ? "Anyone with code can edit" : "View-only for recipients"}
+              </span>
+            </div>
+
+            <div className="tool-btn-actions">
+              <button className="tool-btn tool-btn-primary" onClick={handleGenerate} disabled={!text.trim()}>
+                <FiSend size={14} /> Generate Code
+              </button>
+              <button className="tool-btn tool-btn-ghost" onClick={openCustomCodeModal} disabled={!text.trim()}>
+                <FiCode size={14} /> Custom Code
+              </button>
+              {text && (
+                <button className="tool-btn tool-btn-ghost" onClick={() => { setText(""); setCode(""); }}>
+                  Clear
+                </button>
+              )}
+            </div>
+
+            {code && (
+              <div className="tool-code-result">
+                <div className="tool-code-result-label">Your Code</div>
+                <div className="tool-code-display">
+                  <span className="tool-code-value">{code}</span>
+                  <button className="tool-btn-pill" onClick={() => handleCopy(code)}>
+                    <FiCopy size={12} /> Copy
+                  </button>
+                </div>
+                <div style={{ marginTop: 8 }}>
+                  <span className={`tool-access-badge ${editAccess ? "tool-badge-editable" : "tool-badge-readonly"}`}>
+                    {editAccess ? <><FiUnlock size={11} /> Editable</> : <><FiLock size={11} /> Read-only</>}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Retrieve text */}
+          <div className="tool-inner-section">
+            <div className="tool-inner-section-header">
+              <FiCode className="tool-inner-section-icon" />
+              <h3 className="tool-inner-section-title">Retrieve Text</h3>
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <input
+                className="tool-text-input"
+                type="text"
+                placeholder="Enter code (e.g. abc123)"
+                value={fetchCode}
+                onChange={e => setFetchCode(e.target.value.toLowerCase())}
+                onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); handleFetch(); } }}
+                maxLength={20}
+                style={{ flex: 1 }}
+              />
+              <button className="tool-btn tool-btn-primary" onClick={handleFetch} disabled={!fetchCode.trim()}>
+                <FiShare2 size={14} /> View
+              </button>
+            </div>
+
+            {fetchedText && (
+              <div style={{ marginTop: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8, flexWrap: "wrap", gap: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--tool-gray-700)" }}>Retrieved:</span>
+                    <span className={`tool-access-badge ${fetchedEditAccess ? "tool-badge-editable" : "tool-badge-readonly"}`}>
+                      {fetchedEditAccess ? <><FiUnlock size={11} /> Editable</> : <><FiLock size={11} /> Read-only</>}
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <button className="tool-btn-pill" onClick={handleRefresh} disabled={refreshing} title="Refresh">
+                      <FiRefreshCw size={12} className={refreshing ? "tst-spin" : ""} />
+                    </button>
+                    <button className="tool-btn-pill" onClick={() => handleCopy(isEditing ? editedText : fetchedText)} title="Copy">
+                      <FiCopy size={12} />
+                    </button>
+                    <button className="tool-btn-pill" onClick={() => setIsFullScreen(true)} title="Fullscreen">
+                      <FiMaximize size={12} />
+                    </button>
+                  </div>
+                </div>
+
+                <textarea
+                  ref={fetchedTextareaRef}
+                  className={`tool-textarea ${isEditing ? "tool-textarea-editing" : "tool-textarea-readonly"}`}
+                  value={isEditing ? editedText : fetchedText}
+                  readOnly={!isEditing}
+                  onChange={e => setEditedText(e.target.value)}
+                  rows={4}
+                />
+
+                {fetchedEditAccess && (
+                  <div className="tool-btn-actions">
+                    {isEditing ? (
+                      <>
+                        <button className="tool-btn tool-btn-primary" onClick={handleSaveEdit} disabled={saving}>
+                          <FiSave size={14} /> {saving ? "Saving…" : "Save"}
+                        </button>
+                        <button className="tool-btn tool-btn-ghost" onClick={handleCancelEdit}>Cancel</button>
+                      </>
+                    ) : (
+                      <button className="tool-btn tool-btn-ghost" onClick={() => setIsEditing(true)}>
+                        <FiEdit3 size={14} /> Edit
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* My codes */}
+          {myCodes.length > 0 && (
+            <div className="tool-inner-section">
+              <button className="tool-my-codes-toggle" onClick={() => setShowMyCodes(v => !v)}>
+                <div className="tool-my-codes-toggle-left">
+                  <FiList style={{ color: "var(--tool-blue)", fontSize: 16 }} />
+                  <span style={{ fontWeight: 700, fontSize: "0.9rem" }}>My Codes</span>
+                  <span className="tool-codes-count">{myCodes.length}</span>
+                </div>
+                {showMyCodes ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
+              </button>
+
+              {showMyCodes && (
+                <div style={{ marginTop: 12 }}>
+                  {myCodes.map(item => (
+                    <div key={item.code} className="tool-file-row">
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                          <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: "0.9rem", color: "var(--tool-blue)" }}>
+                            {item.code}
+                          </span>
+                          <span className={`tool-access-badge ${item.editAccess ? "tool-badge-editable" : "tool-badge-readonly"}`}>
+                            {item.editAccess ? <><FiUnlock size={10} /> Edit</> : <><FiLock size={10} /> View</>}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: "0.73rem", color: "var(--tool-gray-400)", marginTop: 2 }}>
+                          {formatTimeAgo(item.createdAt)}
+                        </div>
+                      </div>
+                      <div className="tool-file-row-actions">
+                        <button className="tool-btn-pill" onClick={() => handleCopy(item.code)} title="Copy code">
+                          <FiCopy size={12} />
+                        </button>
+                        <button
+                          className="tool-btn-pill"
+                          onClick={() => handleToggleAccess(item.code, item.editAccess)}
+                          disabled={togglingAccess === item.code}
+                          title="Toggle access"
+                        >
+                          {togglingAccess === item.code ? <FiRefreshCw size={12} className="tst-spin" /> : item.editAccess ? <FiLock size={12} /> : <FiUnlock size={12} />}
+                        </button>
+                        <button
+                          className="tool-btn-pill tool-btn-pill-danger"
+                          onClick={() => handleDeleteCode(item.code)}
+                          disabled={deletingCode === item.code}
+                          title="Delete"
+                        >
+                          {deletingCode === item.code ? <FiRefreshCw size={12} className="tst-spin" /> : <FiTrash2 size={12} />}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
-            
-            <div className="tst-modal-footer">
-              {customCodeAvailable ? (
-                <button 
-                  className="tst-btn tst-btn-primary tst-btn-full"
-                  onClick={publishWithCustomCode}
-                  disabled={publishingCustom}
-                >
-                  <FiSend /> {publishingCustom ? 'Publishing...' : 'Publish with This Code'}
-                </button>
-              ) : (
-                <button 
-                  className="tst-btn tst-btn-primary tst-btn-full"
-                  onClick={checkCodeAvailability}
-                  disabled={checkingAvailability || !customCodeInput.trim() || customCodeInput.length < 3}
-                >
-                  <FiRefreshCw className={checkingAvailability ? 'tst-spin' : ''} />
-                  {checkingAvailability ? 'Checking...' : 'Check Availability'}
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Fullscreen Overlay */}
-      {isFullScreen && (
-        <div className="tst-fullscreen-overlay">
-          {/* Fullscreen Toast - positioned above content */}
-          {toast && (
-            <div className={`tst-toast tst-toast-${toast.type} tst-toast-fullscreen`}>
-              <div className="tst-toast-icon">
-                {getToastIcon(toast.type)}
-              </div>
-              <span className="tst-toast-message">{toast.message}</span>
-              <button className="tst-toast-close" onClick={dismissToast}>
-                <FiX />
-              </button>
-            </div>
           )}
 
-          {/* Fullscreen Header */}
-          <div className="tst-fullscreen-header">
-            <div className="tst-fullscreen-header-left">
-              <div className="tst-fullscreen-code">
-                <span className="tst-fullscreen-code-label">Code:</span>
-                <span className="tst-fullscreen-code-value">{currentCode}</span>
-              </div>
-            </div>
-            <div className="tst-fullscreen-header-right">
-              <button
-                className="tst-btn tst-btn-icon tst-action-refresh"
-                onClick={handleRefresh}
-                disabled={refreshing}
-                title="Refresh (Ctrl+R)"
-              >
-                <FiRefreshCw className={refreshing ? 'tst-spin' : ''} />
-              </button>
-              <button
-                className="tst-btn tst-btn-icon tst-action-copy"
-                onClick={() => handleCopy(isEditing ? editedText : fetchedText)}
-                title="Copy All (Ctrl+Shift+C)"
-              >
-                <FiCopy />
-              </button>
-              
-              {/* Edit/Save/Cancel buttons - only show if has edit access */}
-              {fetchedEditAccess && (
-                <>
-                  {isEditing ? (
-                    <>
-                      <button 
-                        className="tst-btn tst-btn-icon tst-btn-save" 
-                        onClick={handleSaveEdit}
-                        disabled={saving}
-                        title="Save Changes (Ctrl+S)"
-                      >
-                        <FiSave />
-                      </button>
-                      <button 
-                        className="tst-btn tst-btn-icon tst-btn-cancel" 
-                        onClick={handleCancelEdit}
-                        title="Cancel Changes (Ctrl+B)"
-                      >
-                        <FiX />
-                      </button>
-                    </>
-                  ) : (
-                    <button 
-                      className="tst-btn tst-btn-icon tst-btn-edit" 
-                      onClick={() => setIsEditing(true)}
-                      title="Edit Text"
-                    >
-                      <FiEdit3 />
-                    </button>
-                  )}
-                </>
-              )}
-              
-              <button
-                className="tst-btn tst-btn-icon tst-action-minimize"
-                onClick={() => setIsFullScreen(false)}
-                title="Exit Fullscreen (Esc or Win+Down)"
-              >
-                <FiMinimize />
-              </button>
-            </div>
-          </div>
-
-          {/* Fullscreen Content */}
-          <div className="tst-fullscreen-content">
-            {isEditing ? (
-              <textarea
-                ref={fullscreenTextareaRef}
-                className="tst-textarea tst-textarea-editing tst-textarea-fullscreen"
-                value={editedText}
-                onChange={e => setEditedText(e.target.value)}
-                autoFocus
-              />
-            ) : (
-              <textarea
-                ref={fullscreenTextareaRef}
-                className="tst-textarea tst-textarea-readonly tst-textarea-fullscreen"
-                value={fetchedText}
-                readOnly
-                autoFocus
-              />
-            )}
-          </div>
+          {/* Notice */}
+          <p className="tool-notice-text" style={{ padding: "0 4px", marginTop: 4 }}>
+            Texts expire after 24 hours. Do not share sensitive information.
+          </p>
         </div>
-      )}
-
-      {/* Normal View - hidden when fullscreen is active */}
-      {!isFullScreen && (
-        <>
-          {/* Collapsed Header / Always Visible Row */}
-          <div 
-            className="tool-card-header"
-            onClick={() => setIsExpanded(!isExpanded)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setIsExpanded(!isExpanded);
-              }
-            }}
-          >
-            <div className="tool-card-header-left">
-              <span className="tool-card-toggle-icon">
-                {isExpanded ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
-              </span>
-              <div className="tool-card-title-container">
-                <h2 className="tool-card-title">Text Sharing</h2>
-                <span className="tool-card-subtitle">Share text snippets or enter code to fetch</span>
-              </div>
-            </div>
-
-            <div 
-              className="tool-card-header-inline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <input
-                type="text"
-                placeholder="Enter code to fetch text"
-                value={fetchCode}
-                onChange={(e) => setFetchCode(e.target.value.toLowerCase())}
-                className="tool-card-inline-input"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleFetchInline();
-                  }
-                }}
-              />
-              <button 
-                className="tool-card-inline-btn"
-                onClick={handleFetchInline}
-                disabled={!fetchCode.trim()}
-              >
-                <FiSend size={15} />
-                <span>Fetch Text</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Expanded Body */}
-          {isExpanded && (
-            <div className="tool-card-body">
-              <main className="tst-main" role="main">
-                {/* Share Text Section */}
-                <section className="tst-card" aria-labelledby="tst-share">
-                  <div className="tst-section-header">
-                    <FiEdit3 className="tst-section-icon" />
-                    <h3 id="tst-share" className="tst-subtitle">Share Text</h3>
-                  </div>
-                  <p className="tst-plain">Enter any text below and generate a unique code to share it with anyone.</p>
-                  
-                  <div className="tst-textarea-wrapper">
-                    <textarea
-                      ref={textareaRef}
-                      className="tst-textarea"
-                      placeholder="Type or paste any text here..."
-                      value={text}
-                      onChange={e => setText(e.target.value)}
-                      rows={4}
-                    />
-                  </div>
-
-                  {/* Edit Access Toggle */}
-                  <div className="tst-toggle-wrapper">
-                    <button
-                      type="button"
-                      className={`tst-toggle-btn ${editAccess ? 'tst-toggle-active' : ''}`}
-                      onClick={() => setEditAccess(!editAccess)}
-                    >
-                      {editAccess ? <FiUnlock /> : <FiLock />}
-                      <span>{editAccess ? 'Edit Access: ON' : 'Edit Access: OFF'}</span>
-                    </button>
-                    <span className="tst-toggle-hint">
-                      {editAccess 
-                        ? 'Anyone with the code can edit the text' 
-                        : 'Anyone with the code can only view the text'}
-                    </span>
-                  </div>
-                  
-                  <div className="tst-actions">
-                    <button className="tst-btn tst-btn-primary" onClick={handleGenerate}>
-                      <FiSend /> Generate Code
-                    </button>
-                    <button className="tst-btn tst-btn-secondary" onClick={openCustomCodeModal}>
-                      <FiCode /> Custom Code
-                    </button>
-                    {text && (
-                      <button
-                        className="tst-btn tst-btn-ghost"
-                        onClick={() => setText("")}
-                      >
-                        Clear
-                      </button>
-                    )}
-                  </div>
-
-                  {code && (
-                    <div className="tst-result-box">
-                      <div className="tst-result-label">Your Code:</div>
-                      <div className="tst-code-display">
-                        <span className="tst-code">{code}</span>
-                        <button
-                          className="tst-btn tst-btn-icon"
-                          onClick={() => handleCopy(code)}
-                          title="Copy code"
-                        >
-                          <FiCopy />
-                        </button>
-                      </div>
-                      <div className="tst-access-badge">
-                        {editAccess ? (
-                          <span className="tst-badge tst-badge-editable"><FiUnlock /> Editable</span>
-                        ) : (
-                          <span className="tst-badge tst-badge-readonly"><FiLock /> Read-only</span>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </section>
-
-                {/* Retrieve Text Section */}
-                <section className="tst-card" aria-labelledby="tst-retrieve">
-                  <div className="tst-section-header">
-                    <FiCode className="tst-section-icon" />
-                    <h3 id="tst-retrieve" className="tst-subtitle">Retrieve Text</h3>
-                  </div>
-                  <p className="tst-plain">Enter a code to view the shared text.</p>
-                  
-                  <div className="tst-input-group">
-                    <input
-                      className="tst-input"
-                      type="text"
-                      placeholder="Enter code (e.g., abc123)"
-                      value={fetchCode}
-                      onChange={e => setFetchCode(e.target.value.toLowerCase())}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleFetch();
-                        }
-                      }}
-                      maxLength={10}
-                    />
-                    <button className="tst-btn tst-btn-primary" onClick={handleFetch}>
-                      <FiShare2 /> View Text
-                    </button>
-                  </div>
-
-                  {fetchedText && (
-                    <div className="tst-fetched-container">
-                      <div className="tst-fetched-header">
-                        <div className="tst-fetched-title-row">
-                          <span className="tst-fetched-label">Retrieved Text:</span>
-                          {fetchedEditAccess ? (
-                            <span className="tst-badge tst-badge-editable"><FiUnlock /> Editable</span>
-                          ) : (
-                            <span className="tst-badge tst-badge-readonly"><FiLock /> Read-only</span>
-                          )}
-                        </div>
-                        <div className="tst-fetched-actions">
-                          <button
-                            className="tst-btn tst-btn-icon tst-action-refresh"
-                            onClick={handleRefresh}
-                            disabled={refreshing}
-                            title="Refresh to get latest text"
-                          >
-                            <FiRefreshCw className={refreshing ? 'tst-spin' : ''} />
-                          </button>
-                          <button
-                            className="tst-btn tst-btn-icon tst-action-copy"
-                            onClick={() => handleCopy(isEditing ? editedText : fetchedText)}
-                            title="Copy text"
-                          >
-                            <FiCopy />
-                          </button>
-                          <button
-                            className="tst-btn tst-btn-icon tst-action-fullscreen"
-                            onClick={() => setIsFullScreen(true)}
-                            title="Fullscreen"
-                          >
-                            <FiMaximize />
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="tst-textarea-wrapper">
-                        {isEditing ? (
-                          <textarea
-                            ref={fetchedTextareaRef}
-                            className="tst-textarea tst-textarea-editing"
-                            value={editedText}
-                            onChange={e => setEditedText(e.target.value)}
-                            rows={4}
-                          />
-                        ) : (
-                          <textarea
-                            ref={fetchedTextareaRef}
-                            className="tst-textarea tst-textarea-readonly"
-                            value={fetchedText}
-                            readOnly
-                            rows={4}
-                          />
-                        )}
-                      </div>
-
-                      {/* Edit/Save Actions */}
-                      {fetchedEditAccess && (
-                        <div className="tst-edit-actions">
-                          {isEditing ? (
-                            <>
-                              <button 
-                                className="tst-btn tst-btn-primary" 
-                                onClick={handleSaveEdit}
-                                disabled={saving}
-                              >
-                                <FiSave /> {saving ? 'Saving...' : 'Save Changes'}
-                              </button>
-                              <button 
-                                className="tst-btn tst-btn-ghost" 
-                                onClick={handleCancelEdit}
-                              >
-                                Cancel
-                              </button>
-                            </>
-                          ) : (
-                            <button 
-                              className="tst-btn tst-btn-secondary" 
-                              onClick={() => setIsEditing(true)}
-                            >
-                              <FiEdit3 /> Edit Text
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </section>
-
-                {/* My Codes Section */}
-                {myCodes.length > 0 && (
-                  <section className="tst-card tst-my-codes-card">
-                    <button 
-                      className="tst-my-codes-toggle"
-                      onClick={() => setShowMyCodes(!showMyCodes)}
-                    >
-                      <div className="tst-my-codes-toggle-left">
-                        <FiList className="tst-section-icon" />
-                        <h3 className="tst-subtitle">My Codes</h3>
-                        <span className="tst-codes-count">{myCodes.length}</span>
-                      </div>
-                      {showMyCodes ? <FiChevronUp /> : <FiChevronDown />}
-                    </button>
-                    
-                    {showMyCodes && (
-                      <div className="tst-my-codes-list">
-                        {myCodes.map((item) => (
-                          <div key={item.code} className="tst-code-item">
-                            <div className="tst-code-item-left">
-                              <span className="tst-code-item-code">{item.code}</span>
-                              <span className={`tst-badge ${item.editAccess ? 'tst-badge-editable' : 'tst-badge-readonly'}`}>
-                                {item.editAccess ? <><FiUnlock /> Editable</> : <><FiLock /> Read-only</>}
-                              </span>
-                              <span className="tst-code-item-time">{formatTimeAgo(item.createdAt)}</span>
-                            </div>
-                            <div className="tst-code-item-actions">
-                              <button
-                                className="tst-btn tst-btn-icon"
-                                onClick={() => handleCopy(item.code)}
-                                title="Copy code"
-                              >
-                                <FiCopy />
-                              </button>
-                              <button
-                                className={`tst-btn tst-btn-icon ${item.editAccess ? 'tst-btn-unlock' : 'tst-btn-lock'}`}
-                                onClick={() => handleToggleAccess(item.code, item.editAccess)}
-                                disabled={togglingAccess === item.code}
-                                title={item.editAccess ? 'Disable edit access' : 'Enable edit access'}
-                              >
-                                {togglingAccess === item.code ? (
-                                  <FiRefreshCw className="tst-spin" />
-                                ) : item.editAccess ? (
-                                  <FiLock />
-                                ) : (
-                                  <FiUnlock />
-                                )}
-                              </button>
-                              <button
-                                className="tst-btn tst-btn-icon tst-btn-danger"
-                                onClick={() => handleDeleteCode(item.code)}
-                                disabled={deletingCode === item.code}
-                                title="Delete"
-                              >
-                                {deletingCode === item.code ? (
-                                  <FiRefreshCw className="tst-spin" />
-                                ) : (
-                                  <FiTrash2 />
-                                )}
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </section>
-                )}
-
-                {/* Notice Card */}
-                <section className="tst-card tst-notice-card">
-                  <p className="tst-notice">
-                    <strong>Note:</strong> Texts are automatically deleted after 24 hours. Only share text that you're comfortable making accessible to anyone with the code.
-                  </p>
-                </section>
-              </main>
-            </div>
-          )}
-        </>
       )}
     </div>
   );
