@@ -76,11 +76,11 @@ const FEATURES = [
     id: "content-moderation",
     icon: <FiFileText size={22} />,
     title: "Content Moderation",
-    desc: "Review, approve, hide or remove uploaded works, topics and subject content across the platform.",
+    desc: "Review, approve, hide or remove resources, topics and subject content across the platform.",
     iconBg: "#fef3c7",
     iconColor: "#f59e0b",
     privileges: [
-      { label: "View all topics & works", admin: "full", superadmin: "full" },
+      { label: "View all topics & resources", admin: "full", superadmin: "full" },
       { label: "Edit topic content", admin: "full", superadmin: "full" },
       { label: "Hide / unpublish content", admin: "full", superadmin: "full" },
       { label: "Delete topics permanently", admin: "limited", superadmin: "full" },

@@ -19,7 +19,7 @@ const navItems = [
   { href: "/learn",     Icon: HiAcademicCap, label: "Learn",           theme: "learn",     title: "Interactive Hub", description: "Explore study modules, concept cards & daily quizzes." },
   { href: "/search",    Icon: FiSearch,      label: "Search",          theme: "search",    title: "Instant Search",  description: "Search notes, topics & past papers for your courses." },
   { href: "/materials", Icon: FiBookOpen,    label: "Materials",       theme: "materials", title: "Study Notes",     description: "Access peer-reviewed notes, summaries & guides." },
-  { href: "/works",     Icon: FiFolder,      label: "Works",           theme: "works",     title: "Student Works",   description: "Browse homework solutions & student projects." },
+  { href: "/works",     Icon: FiFolder,      label: "Resources",       theme: "works",     title: "Academic Resources", description: "Browse homework solutions, notes & academic projects." },
   { href: "/qp",        Icon: FiFileText,    label: "Question Papers", theme: "qp",        title: "Past Papers",     description: "Practice authentic past exam papers for top marks." },
   { href: "/tools",     Icon: FiTool,        label: "Tools",           theme: "tools",     title: "Practice Tools",  description: "Use document converters, quizzes & utility tools." },
   { href: "/help",      Icon: FiHelpCircle,  label: "Help",            theme: "help",      title: "Help Center",     description: "Get quick assistance, guides & platform support." },

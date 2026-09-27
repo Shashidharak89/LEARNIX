@@ -26,7 +26,7 @@ export default function HelpSubjectsPage() {
             intro="In Learnix, a Subject is like a folder for a course or module. Inside a Subject you will find multiple Topics (each topic contains the actual uploaded pages/files)."
             items={[
               "Subjects group related Topics under one course name",
-              "You can browse Subjects in Study Materials and Uploaded Works",
+              "You can browse Subjects in Study Materials and Resources",
               "Subjects help search results stay organized"
             ]}
             imageAlt="Subjects overview"

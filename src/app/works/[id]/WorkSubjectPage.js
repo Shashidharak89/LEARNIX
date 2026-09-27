@@ -47,7 +47,7 @@ const WorkSubjectPage = ({ data, loading, error, onShare }) => {
           <h2>Error Loading Subject</h2>
           <p>{error}</p>
           <Link href="/works" className="wsp-back-link">
-            <FaArrowLeft /> Back to Works
+            <FaArrowLeft /> Back to Resources
           </Link>
         </div>
       </div>

@@ -317,7 +317,7 @@ const NavbarContent = ({ searchParams }) => {
             <span className="learnix-nav-icon">
               <FiFolder size={18} />
             </span>
-            <span className="learnix-nav-text">Uploaded Works</span>
+            <span className="learnix-nav-text">Resources</span>
           </Link>
 
           <Link

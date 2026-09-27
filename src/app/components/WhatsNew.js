@@ -121,7 +121,7 @@ export default function WhatsNew() {
       title: "Save Topics for Instant Access",
       date: "Feb 22, 2026",
       description:
-        "Bookmark your favorite topics and access them instantly without any server delay! Save any topic from the Uploaded Works page using the 3-dot menu or from individual topic pages. Your saved topics are stored locally and load immediately when you revisit. Use the new filter icon to view only your saved topics. Perfect for quick revision and easy access to frequently referenced materials!",
+        "Bookmark your favorite topics and access them instantly without any server delay! Save any topic from the Resources page using the 3-dot menu or from individual topic pages. Your saved topics are stored locally and load immediately when you revisit. Use the new filter icon to view only your saved topics. Perfect for quick revision and easy access to frequently referenced materials!",
     },
     {
       title: "Personal Review/Comment on Topics",
@@ -130,10 +130,10 @@ export default function WhatsNew() {
         "Share private feedback directly with content uploaders! Leave personalized reviews on any topic - choose from Feedback, Suggestion, Mistake, or Appreciation types. Your reviews are private and visible only to you and the uploader. Uploaders receive instant notifications via the bell icon and can view all feedback in a dedicated management page. Features include reply threads, copy text, mark as read, and delete options through a convenient 3-dot menu. Perfect for constructive feedback and improving study materials!",
     },
     {
-      title: "Search Filter in Uploaded Works",
+      title: "Search Filter in Resources",
       date: "Feb 11, 2026",
       description:
-        "Filter study materials by subject and topic in the Uploaded Works section! Scroll through subjects horizontally and select multiple subjects to view content from all of them together (OR logic). Then drill down by selecting multiple topics to narrow your search. Works seamlessly with the search bar for powerful content discovery. Find exactly what you're looking for with ease!",
+        "Filter study materials by subject and topic in the Resources section! Scroll through subjects horizontally and select multiple subjects to view content from all of them together (OR logic). Then drill down by selecting multiple topics to narrow your search. Works seamlessly with the search bar for powerful content discovery. Find exactly what you're looking for with ease!",
     },
     {
       title: "Page Number Toggle for Topic Images",
