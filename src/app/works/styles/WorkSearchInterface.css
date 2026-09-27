@@ -766,14 +766,14 @@
   width: 100%;
 }
 
-/* Topic Cards */
+/* Topic Cards (Apple UI Design System) */
 .ws-topic-card {
   background: #ffffff;
-  border: 2px solid #f3f4f6;
-  border-radius: 16px;
+  border: 1.5px solid rgba(226, 232, 240, 0.8);
+  border-radius: 24px;
   padding: 24px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 30px -4px rgba(15, 23, 42, 0.04), 0 2px 8px -2px rgba(15, 23, 42, 0.02);
   position: relative;
   overflow: hidden;
   width: 100%;
@@ -787,13 +787,13 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: #3b82f6;
+  background: linear-gradient(90deg, #0b74ff, #2563eb, #38bdf8);
 }
 
 .ws-topic-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-  border-color: #fbbf24;
+  transform: translateY(-4px) scale(1.006);
+  box-shadow: 0 16px 36px -6px rgba(11, 116, 255, 0.12), 0 4px 12px rgba(0, 0, 0, 0.03);
+  border-color: rgba(11, 116, 255, 0.3);
 }
 
 .ws-card-header {
@@ -817,13 +817,14 @@
 }
 
 .ws-topic-link:hover {
-  transform: translateX(5px);
+  transform: translateX(3px);
 }
 
 .ws-topic-title {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 1.25rem;
-  font-weight: 600;
-  color: #3b82f6;
+  font-weight: 700;
+  color: #0b74ff;
   margin-bottom: 8px;
   line-height: 1.3;
   transition: all 0.2s ease;
@@ -833,8 +834,8 @@
 }
 
 .ws-topic-link:hover .ws-topic-title {
-  color: #1d4ed8;
-  text-shadow: 0 2px 4px rgba(29, 78, 216, 0.1);
+  color: #0056b3;
+  text-shadow: 0 2px 4px rgba(11, 116, 255, 0.1);
 }
 
 .ws-user-link {
@@ -848,16 +849,16 @@
 }
 
 .ws-user-name {
-  font-size: 1rem;
-  font-weight: 500;
-  color: #1f2937;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
   margin-bottom: 12px;
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .ws-user-link:hover .ws-user-name {
-  color: #fbbf24;
+  color: #0b74ff;
 }
 
 .ws-topic-meta {
@@ -868,15 +869,16 @@
 }
 
 .ws-meta-item {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.85rem;
-  color: #6b7280;
-  background: #f8fafc;
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #1e40af;
+  background: #eff6ff;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  border: 1px solid rgba(11, 116, 255, 0.14);
   flex-shrink: 0;
 }
 
@@ -893,9 +895,9 @@
 }
 
 .ws-action-btn {
-  padding: 8px;
-  border: none;
-  border-radius: 8px;
+  padding: 9px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -903,46 +905,63 @@
   justify-content: center;
   flex-shrink: 0;
   font-size: 16px;
+  background: #ffffff;
+  color: #475569;
+}
+
+.ws-action-btn:hover {
+  border-color: #0b74ff;
+  color: #0b74ff;
+  background: #f0f7ff;
+  transform: translateY(-1px);
 }
 
 .ws-download-btn {
-  background: #fbbf24;
-  color: #000000;
+  background: linear-gradient(135deg, #0b74ff, #2563eb);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(11, 116, 255, 0.22);
 }
 
 .ws-download-btn:hover:not(:disabled) {
-  background: #f59e0b;
-  transform: scale(1.05);
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(11, 116, 255, 0.35);
 }
 
 .ws-download-btn:disabled {
-  background: #e5e7eb;
-  color: #9ca3af;
+  background: #e2e8f0;
+  color: #94a3b8;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .ws-share-btn {
-  background: #3b82f6;
-  color: #ffffff;
+  background: #ffffff;
+  color: #0b74ff;
+  border: 1.5px solid #dbeafe;
 }
 
 .ws-share-btn:hover {
-  background: #2563eb;
-  transform: scale(1.05);
+  background: #eff6ff;
+  border-color: #0b74ff;
+  transform: translateY(-1px);
 }
 
 /* Save Button */
 .ws-save-btn {
   background: #ffffff;
-  color: #6b7280;
-  border: 2px solid #e5e7eb;
+  color: #64748b;
+  border: 1.5px solid #e2e8f0;
 }
 
 .ws-save-btn:hover {
   border-color: #8b5cf6;
   color: #8b5cf6;
   background: #f5f3ff;
-  transform: scale(1.05);
+  transform: translateY(-1px);
 }
 
 .ws-save-btn.ws-saved {
@@ -963,15 +982,15 @@
 
 .ws-more-btn {
   background: #ffffff;
-  color: #6b7280;
-  border: 2px solid #e5e7eb;
+  color: #64748b;
+  border: 1.5px solid #e2e8f0;
 }
 
 .ws-more-btn:hover {
-  border-color: #3b82f6;
-  color: #3b82f6;
+  border-color: #0b74ff;
+  color: #0b74ff;
   background: #eff6ff;
-  transform: scale(1.05);
+  transform: translateY(-1px);
 }
 
 /* Dropdown Menu */
@@ -980,14 +999,16 @@
   top: 100%;
   right: 0;
   margin-top: 8px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(226, 232, 240, 0.8);
+  border-radius: 18px;
+  box-shadow: 0 12px 36px -4px rgba(15, 23, 42, 0.12), 0 4px 12px rgba(0, 0, 0, 0.04);
   z-index: 100;
-  min-width: 150px;
+  min-width: 170px;
   overflow: hidden;
-  animation: ws-dropdown-fade 0.2s ease-out;
+  animation: ws-dropdown-fade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes ws-dropdown-fade {
@@ -1011,18 +1032,18 @@
   background: transparent;
   cursor: pointer;
   font-size: 0.9rem;
-  color: #374151;
+  color: #334155;
   transition: all 0.2s ease;
   text-align: left;
 }
 
 .ws-menu-item:hover {
-  background: #f3f4f6;
-  color: #3b82f6;
+  background: #eff6ff;
+  color: #0b74ff;
 }
 
 .ws-menu-item:not(:last-child) {
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .ws-menu-icon {
@@ -1032,8 +1053,8 @@
 
 /* Saved Card Styling */
 .ws-topic-card.ws-saved-card {
-  border-color: #8b5cf6;
-  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.3);
+  box-shadow: 0 8px 30px -4px rgba(139, 92, 246, 0.12);
   position: relative;
 }
 
@@ -1043,17 +1064,18 @@
 
 .ws-saved-badge {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 14px;
+  right: 14px;
   background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
   color: #ffffff;
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 12px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 9999px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   z-index: 10;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
 }
 
 /* Saved Section Title */
@@ -1074,7 +1096,7 @@
 }
 
 .ws-topic-content {
-  color: #4b5563;
+  color: #475569;
   margin-bottom: 16px;
   line-height: 1.6;
   font-size: 0.95rem;
@@ -1096,19 +1118,19 @@
 
 .ws-image-container {
   position: relative;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  background: #f9fafb;
-  border: 2px solid #e2e8f0;
-  transition: all 0.3s ease;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   aspect-ratio: 1;
   width: 100%;
 }
 
 .ws-image-container:hover {
   transform: scale(1.02);
-  border-color: #3b82f6;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #0b74ff;
+  box-shadow: 0 6px 18px rgba(11, 116, 255, 0.12);
 }
 
 .ws-image-link {
