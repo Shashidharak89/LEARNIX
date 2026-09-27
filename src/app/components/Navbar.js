@@ -9,14 +9,11 @@ import {
   FiX,
   FiHome,
   FiLogIn,
-  FiSearch,
   FiUpload,
   FiUser,
   FiLogOut,
-  FiMessageCircle,
   FiBookOpen,
   FiFolder,
-  FiHelpCircle,
   FiTool,
   FiBell,
   FiClipboard,
@@ -292,30 +289,6 @@ export const Navbar = () => {
           )}
 
           <Link
-            href="/search"
-            className="learnix-nav-item"
-            onClick={closeSidebar}
-            tabIndex={isOpen ? 0 : -1}
-          >
-            <span className="learnix-nav-icon">
-              <FiSearch size={18} />
-            </span>
-            <span className="learnix-nav-text">Search</span>
-          </Link>
-
-          <Link
-            href="/learn"
-            className="learnix-nav-item"
-            onClick={closeSidebar}
-            tabIndex={isOpen ? 0 : -1}
-          >
-            <span className="learnix-nav-icon">
-              <FiBookOpen size={18} />
-            </span>
-            <span className="learnix-nav-text">Learn</span>
-          </Link>
-
-          <Link
             href="/works"
             className="learnix-nav-item"
             onClick={closeSidebar}
@@ -337,18 +310,6 @@ export const Navbar = () => {
               <FiBell size={18} />
             </span>
             <span className="learnix-nav-text">Updates</span>
-          </Link>
-
-          <Link
-            href="/upload"
-            className="learnix-nav-item"
-            onClick={closeSidebar}
-            tabIndex={isOpen ? 0 : -1}
-          >
-            <span className="learnix-nav-icon">
-              <FiUpload size={18} />
-            </span>
-            <span className="learnix-nav-text">Upload</span>
           </Link>
 
           <Link
@@ -388,41 +349,16 @@ export const Navbar = () => {
           </Link>
 
           <Link
-            href="/feedback"
+            href="/upload"
             className="learnix-nav-item"
             onClick={closeSidebar}
             tabIndex={isOpen ? 0 : -1}
           >
             <span className="learnix-nav-icon">
-              <FiMessageCircle size={18} />
+              <FiUpload size={18} />
             </span>
-            <span className="learnix-nav-text">Feedback</span>
+            <span className="learnix-nav-text">Upload</span>
           </Link>
-
-          <Link
-            href="/help"
-            className="learnix-nav-item"
-            onClick={closeSidebar}
-            tabIndex={isOpen ? 0 : -1}
-          >
-            <span className="learnix-nav-icon">
-              <FiHelpCircle size={18} />
-            </span>
-            <span className="learnix-nav-text">Help</span>
-          </Link>
-
-          <Link
-            href="/about"
-            className="learnix-nav-item"
-            onClick={closeSidebar}
-            tabIndex={isOpen ? 0 : -1}
-          >
-            <span className="learnix-nav-icon">
-              <FiBookOpen size={18} />
-            </span>
-            <span className="learnix-nav-text">About</span>
-          </Link>
-
 
           <Link
             href="/profile"
