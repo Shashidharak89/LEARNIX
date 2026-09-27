@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiBook, FiShare2, FiMoreVertical, FiExternalLink, FiFilter, FiCheck, FiZap } from 'react-icons/fi';
+import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiBook, FiShare2, FiMoreVertical, FiExternalLink, FiFilter, FiCheck, FiZap, FiX, FiUpload, FiFolder } from 'react-icons/fi';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import SubjectTopicFilter from './SubjectTopicFilter';
 import Ads from '../components/ads/Ads';
@@ -221,6 +221,19 @@ const WorkSearchInterface = () => {
     } finally {
       if (reset) setIsLoading(false);
     }
+  };
+
+  const handleClearSearch = () => {
+    setSearchInput('');
+    setSearchQuery('');
+    setSearchResults([]);
+    setSearchPage(1);
+    setSearchTotalPages(1);
+    setSearchTotal(0);
+    setShowRelevant(false);
+    setRelevantResults([]);
+    fetchPagedTopics(1, true);
+    window.history.replaceState({}, '', pathname);
   };
 
   const handleSearch = async (query, pageNum = 1, subjectsOverride, topicsOverride) => {
@@ -704,18 +717,39 @@ const WorkSearchInterface = () => {
 
   return (
     <div className="ws-container">
-      <div className="ws-header">
-        <div className="ws-search-container">
-          <form 
-            className="ws-search-box"
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSearch(searchInput, 1);
-            }}
-          >
+      {/* Apple-vibe Intro Card */}
+      <div className="res-intro-card">
+        <div className="res-intro-header">
+          <div className="res-title-wrap">
+            <FiFolder className="res-title-icon" />
+            <h1 className="res-intro-title">Resources</h1>
+          </div>
+          <p className="res-intro-subtitle">
+            Explore notes, materials, and more for your studies.
+          </p>
+        </div>
+        <div className="res-intro-actions">
+          <Link href="/upload" className="res-upload-btn" title="Upload new resource">
+            <FiUpload className="res-upload-btn-icon" />
+            <span>Upload</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* Updates-Style Searchbar with Inline Clear Button */}
+      <div className="res-search-container">
+        <form 
+          className="res-search-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSearch(searchInput, 1);
+          }}
+        >
+          <div className="res-search-wrap">
+            <FiSearch className="res-search-icon" />
             <input
               type="text"
-              placeholder="Search by name, USN, subject, or topic..."
+              placeholder="Search notes, materials, USN, subject, or topic..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => {
@@ -724,18 +758,33 @@ const WorkSearchInterface = () => {
                   handleSearch(searchInput, 1);
                 }
               }}
-              className="ws-search-input"
+              className="res-search-input"
+              aria-label="Search resources"
             />
-            <button 
-              type="submit"
-              className="ws-search-btn"
-              onClick={() => handleSearch(searchInput, 1)}
-              aria-label="Search"
-            >
-              <FiSearch className="ws-search-icon" />
-            </button>
-          </form>
-        </div>
+            {searchInput && (
+              <button
+                type="button"
+                className="res-search-clear-inline"
+                onClick={handleClearSearch}
+                aria-label="Clear search"
+              >
+                <FiX size={16} />
+              </button>
+            )}
+          </div>
+          <button 
+            type="submit"
+            className="res-search-submit-btn"
+            disabled={!searchInput.trim()}
+            aria-label="Search resources"
+          >
+            <FiSearch className="res-search-btn-icon" />
+            <span>Search</span>
+          </button>
+        </form>
+      </div>
+
+      <div className="ws-header">
         <SubjectTopicFilter
           onFilterChange={handleFilterChange}
           initialSubjects={initialSubjects}
