@@ -271,22 +271,25 @@ export default function SMDirectoryNode({
     }
 
     return (
-        <div className="sm-tree-node" style={{ marginLeft: level > 0 ? undefined : "0", marginTop: "8px" }}>
+        <div className="sm-tree-node" style={{ marginLeft: level > 0 ? undefined : "0", marginTop: "10px" }}>
             {type !== "file" ? (
                 <>
                     <div 
                         onClick={handleToggle}
                         style={{ 
-                            display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", cursor: "pointer", 
-                            padding: "8px 12px", background: expanded ? "#f0f9ff" : "#fff", 
-                            border: "1px solid #e0f2fe", borderRadius: "8px", transition: "0.2s",
+                            display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", cursor: "pointer", 
+                            padding: "14px 18px", minHeight: "56px", background: expanded ? "#f0f9ff" : "#ffffff", 
+                            border: expanded ? "1.5px solid #7dd3fc" : "1px solid #e0f2fe", 
+                            borderRadius: "14px", 
+                            transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
                             fontWeight: expanded ? "600" : "500", color: "#1e293b",
-                            boxShadow: expanded ? "0 2px 8px rgba(14, 165, 233, 0.08)" : "none"
+                            boxShadow: expanded ? "0 4px 16px rgba(14, 165, 233, 0.12)" : "0 2px 6px rgba(15, 23, 42, 0.02)",
+                            fontSize: "15px"
                         }}
                     >
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", overflow: "hidden" }}>
-                            {expanded ? <FiChevronDown color="#0ea5e9" /> : <FiChevronRight color="#94a3b8" />}
-                            <FiFolder color={expanded ? "#0ea5e9" : "#7dd3fc"} />
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px", overflow: "hidden" }}>
+                            {expanded ? <FiChevronDown size={18} color="#0ea5e9" /> : <FiChevronRight size={18} color="#94a3b8" />}
+                            <FiFolder size={20} color={expanded ? "#0ea5e9" : "#7dd3fc"} />
                             <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                                 {highlightText(displayName, highlightKeyword)}
                             </span>
@@ -297,58 +300,68 @@ export default function SMDirectoryNode({
                             onClick={handleTogglePreference}
                             className={`sm-tree-pref-btn ${isPreferred ? "active" : ""}`}
                             title={isPreferred ? "Remove from preferences" : "Set as preference"}
+                            style={{
+                                padding: "6px 12px",
+                                borderRadius: "10px",
+                                fontSize: "12px",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "5px"
+                            }}
                         >
-                            <FiStar size={13} fill={isPreferred ? "#f59e0b" : "none"} color={isPreferred ? "#f59e0b" : "#9ca3af"} />
+                            <FiStar size={14} fill={isPreferred ? "#f59e0b" : "none"} color={isPreferred ? "#f59e0b" : "#9ca3af"} />
                             <span className="sm-tree-pref-text">{isPreferred ? "Preferred" : "Set Preference"}</span>
                         </button>
                     </div>
 
                     {expanded && (
-                        <div className="sm-tree-children">
+                        <div className="sm-tree-children" style={{ marginLeft: level > 0 ? "16px" : "8px", marginTop: "6px" }}>
                             {loading && page === 1 && (
-                                <div style={{ padding: "8px", color: "#888", fontSize: "14px" }}>Loading...</div>
+                                <div style={{ padding: "12px", color: "#64748b", fontSize: "14px" }}>Loading...</div>
                             )}
                             
                             {!loading && children.length === 0 && (
-                                <div style={{ padding: "8px", color: "#888", fontSize: "14px" }}>No items found.</div>
+                                <div style={{ padding: "12px", color: "#64748b", fontSize: "14px" }}>No items found.</div>
                             )}
 
                             {type === "subject" ? (
                                 <>
                                     {/* ── Unofficial Resources (External Files Group) ── */}
                                     {children.some(c => c.type === "external") && (
-                                        <div className="sm-tree-ext-group">
+                                        <div className="sm-tree-ext-group" style={{ marginTop: "10px", marginBottom: "10px" }}>
                                             <button
                                                 onClick={() => setExternalExpanded(!externalExpanded)}
                                                 style={{
                                                     display: "flex", alignItems: "center", justifyContent: "space-between",
-                                                    width: "100%", border: "1px solid #fbbf24", background: "#fffbeb",
-                                                    borderRadius: "8px", padding: "8px 12px", cursor: "pointer",
-                                                    color: "#92400e", fontWeight: "600", fontSize: "13px"
+                                                    width: "100%", border: "1.5px solid #fbbf24", background: "#fffbeb",
+                                                    borderRadius: "14px", padding: "14px 18px", minHeight: "52px", cursor: "pointer",
+                                                    color: "#92400e", fontWeight: "600", fontSize: "14px",
+                                                    transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+                                                    boxShadow: "0 2px 8px rgba(251, 191, 36, 0.12)"
                                                 }}
                                             >
-                                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                                    <span style={{ fontSize: "11px", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                                                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                                    <span style={{ fontSize: "12px", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                                                         External Resources
                                                     </span>
                                                     <span style={{
-                                                        background: "#fbbf24", color: "#fff", fontSize: "11px",
-                                                        padding: "2px 6px", borderRadius: "12px"
+                                                        background: "#fbbf24", color: "#78350f", fontSize: "11px", fontWeight: "700",
+                                                        padding: "4px 10px", borderRadius: "9999px"
                                                     }}>
                                                         {children.filter(c => c.type === "external").length} files
                                                     </span>
                                                 </div>
                                                 <div>
                                                     {externalExpanded ? (
-                                                        <span style={{ fontSize: "12px" }}>▼</span>
+                                                        <span style={{ fontSize: "13px" }}>▼</span>
                                                     ) : (
-                                                        <span style={{ fontSize: "12px" }}>▶</span>
+                                                        <span style={{ fontSize: "13px" }}>▶</span>
                                                     )}
                                                 </div>
                                             </button>
 
                                             {externalExpanded && (
-                                                <div className="sm-tree-ext-children">
+                                                <div className="sm-tree-ext-children" style={{ marginLeft: "12px", marginTop: "6px" }}>
                                                     {children.filter(c => c.type === "external").map(child => (
                                                         <SMDirectoryNode
                                                             key={child._id}
@@ -397,9 +410,9 @@ export default function SMDirectoryNode({
                                     onClick={handleLoadMore}
                                     disabled={loading}
                                     style={{
-                                        marginTop: "10px", marginLeft: "20px", background: "none", border: "none",
-                                        color: "#0ea5e9", fontWeight: "600", cursor: "pointer", fontSize: "14px",
-                                        textDecoration: "underline"
+                                        marginTop: "12px", marginLeft: "16px", background: "#f0f9ff", border: "1px solid #7dd3fc",
+                                        color: "#0ea5e9", fontWeight: "600", cursor: "pointer", fontSize: "13px",
+                                        padding: "8px 16px", borderRadius: "10px", transition: "all 0.2s ease"
                                     }}
                                 >
                                     {loading ? "Loading..." : "Load More"}
@@ -409,7 +422,7 @@ export default function SMDirectoryNode({
                     )}
                 </>
             ) : (
-                <div style={{ marginTop: "6px", marginBottom: "6px", marginLeft: "20px" }}>
+                <div style={{ marginTop: "8px", marginBottom: "8px", marginLeft: level > 0 ? "16px" : "0" }}>
                     <div 
                         onClick={() => {
                             const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(data.fileurl)}`;
@@ -417,29 +430,38 @@ export default function SMDirectoryNode({
                         }}
                         style={{ 
                             display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", 
-                            textDecoration: "none", color: "#374151", fontWeight: "500", 
-                            padding: "8px 16px", background: "#f8fafc", borderRadius: "8px", 
-                            border: "1px solid #e5e7eb", fontSize: "14px", transition: "0.2s",
-                            cursor: "pointer", width: "100%", boxSizing: "border-box"
+                            textDecoration: "none", color: "#1e293b", fontWeight: "500", 
+                            padding: "14px 18px", minHeight: "54px", background: "#ffffff", borderRadius: "14px", 
+                            border: "1px solid #e2e8f0", fontSize: "15px", transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+                            cursor: "pointer", width: "100%", boxSizing: "border-box",
+                            boxShadow: "0 2px 6px rgba(15, 23, 42, 0.02)"
                         }}
-                        onMouseOver={(e) => { e.currentTarget.style.borderColor = "#0ea5e9"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(14, 165, 233, 0.08)"; }} 
-                        onMouseOut={(e) => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.boxShadow = "none"; }}
+                        onMouseOver={(e) => { 
+                            e.currentTarget.style.borderColor = "#0ea5e9"; 
+                            e.currentTarget.style.background = "#f0f9ff";
+                            e.currentTarget.style.boxShadow = "0 4px 14px rgba(14, 165, 233, 0.12)"; 
+                        }} 
+                        onMouseOut={(e) => { 
+                            e.currentTarget.style.borderColor = "#e2e8f0"; 
+                            e.currentTarget.style.background = "#ffffff";
+                            e.currentTarget.style.boxShadow = "0 2px 6px rgba(15, 23, 42, 0.02)"; 
+                        }}
                     >
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px", overflow: "hidden" }}>
-                            <FiFileText style={{ flexShrink: 0, color: "#0ea5e9" }} /> 
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px", overflow: "hidden" }}>
+                            <FiFileText size={20} style={{ flexShrink: 0, color: "#0ea5e9" }} /> 
                             <span style={{ 
                                 textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap",
-                                color: "#4b5563"
+                                color: "#334155"
                             }}>
                                 {highlightText(displayName, highlightKeyword)}
                             </span>
                             {data.type === "external" && (
                                 <span style={{
-                                    fontSize: "10px",
-                                    padding: "2px 6px",
+                                    fontSize: "11px",
+                                    padding: "3px 8px",
                                     background: "#fee2e2",
                                     color: "#b91c1c",
-                                    borderRadius: "4px",
+                                    borderRadius: "9999px",
                                     marginLeft: "6px",
                                     border: "1px solid #fecaca",
                                     fontWeight: "600",
@@ -458,14 +480,14 @@ export default function SMDirectoryNode({
                             title="Download File"
                             style={{
                                 display: "inline-flex", alignItems: "center", justifyContent: "center",
-                                background: "#f3f4f6", border: "1px solid #e5e7eb",
-                                color: "#4b5563", borderRadius: "6px", width: "28px", height: "28px",
-                                cursor: "pointer", transition: "0.2s", flexShrink: 0
+                                background: "#f1f5f9", border: "1px solid #cbd5e1",
+                                color: "#475569", borderRadius: "10px", width: "38px", height: "38px",
+                                cursor: "pointer", transition: "all 0.2s ease", flexShrink: 0
                             }}
                             onMouseOver={(e) => { e.currentTarget.style.background = "#0ea5e9"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = "#0ea5e9"; }}
-                            onMouseOut={(e) => { e.currentTarget.style.background = "#f3f4f6"; e.currentTarget.style.color = "#4b5563"; e.currentTarget.style.borderColor = "#e5e7eb"; }}
+                            onMouseOut={(e) => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "#cbd5e1"; }}
                         >
-                            <FiDownload size={14} />
+                            <FiDownload size={16} />
                         </button>
                     </div>
                 </div>

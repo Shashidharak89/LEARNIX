@@ -138,14 +138,14 @@ export default function SMViewer() {
             
             {/* Search Box & Category Filters */}
             <div className="sm-search-container" style={{ 
-                marginBottom: "14px", 
-                background: "#fff",
-                padding: "14px",
-                borderRadius: "12px",
+                marginBottom: "16px", 
+                background: "#ffffff",
+                padding: "18px 20px",
+                borderRadius: "18px",
                 border: "1px solid #e0f2fe",
-                boxShadow: "0 2px 8px rgba(14, 165, 233, 0.05)"
+                boxShadow: "0 4px 16px rgba(14, 165, 233, 0.06)"
             }}>
-                <form onSubmit={handleSearchSubmit} className="sm-search-form" style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                <form onSubmit={handleSearchSubmit} className="sm-search-form" style={{ display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" }}>
                     <div style={{ 
                         position: "relative", 
                         flex: 1, 
@@ -155,9 +155,9 @@ export default function SMViewer() {
                     }}>
                         <FiSearch style={{ 
                             position: "absolute", 
-                            left: "14px", 
+                            left: "16px", 
                             color: "#0ea5e9", 
-                            fontSize: "18px" 
+                            fontSize: "19px" 
                         }} />
                         <input
                             type="text"
@@ -166,17 +166,25 @@ export default function SMViewer() {
                             onChange={(e) => setSearchInput(e.target.value)}
                             style={{
                                 width: "100%",
-                                padding: "9px 14px 9px 40px",
-                                borderRadius: "8px",
-                                border: "1px solid #7dd3fc",
+                                padding: "12px 16px 12px 46px",
+                                borderRadius: "12px",
+                                border: "1.5px solid #7dd3fc",
                                 outline: "none",
-                                fontSize: "14px",
+                                fontSize: "15px",
                                 background: "#f8fafc",
                                 color: "#1e293b",
-                                transition: "all 0.2s"
+                                transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)"
                             }}
-                            onFocus={(e) => e.target.style.borderColor = "#0ea5e9"}
-                            onBlur={(e) => e.target.style.borderColor = "#7dd3fc"}
+                            onFocus={(e) => {
+                                e.target.style.borderColor = "#0ea5e9";
+                                e.target.style.background = "#ffffff";
+                                e.target.style.boxShadow = "0 0 0 4px rgba(14, 165, 233, 0.12)";
+                            }}
+                            onBlur={(e) => {
+                                e.target.style.borderColor = "#7dd3fc";
+                                e.target.style.background = "#f8fafc";
+                                e.target.style.boxShadow = "none";
+                            }}
                         />
                     </div>
                     
@@ -186,22 +194,28 @@ export default function SMViewer() {
                             background: "#0ea5e9",
                             color: "#ffffff",
                             border: "none",
-                            padding: "0 18px",
-                            height: "38px",
-                            borderRadius: "8px",
+                            padding: "0 22px",
+                            height: "46px",
+                            borderRadius: "12px",
                             cursor: "pointer",
-                            fontSize: "13px",
+                            fontSize: "14px",
                             fontWeight: "600",
                             display: "inline-flex",
                             alignItems: "center",
-                            gap: "6px",
-                            transition: "0.2s",
-                            boxShadow: "0 1px 6px rgba(14, 165, 233, 0.25)"
+                            gap: "8px",
+                            transition: "all 0.2s ease",
+                            boxShadow: "0 2px 8px rgba(14, 165, 233, 0.25)"
                         }}
-                        onMouseOver={(e) => e.currentTarget.style.background = "#0284c7"}
-                        onMouseOut={(e) => e.currentTarget.style.background = "#0ea5e9"}
+                        onMouseOver={(e) => {
+                            e.currentTarget.style.background = "#0284c7";
+                            e.currentTarget.style.transform = "translateY(-1px)";
+                        }}
+                        onMouseOut={(e) => {
+                            e.currentTarget.style.background = "#0ea5e9";
+                            e.currentTarget.style.transform = "none";
+                        }}
                     >
-                        <FiSearch size={16} />
+                        <FiSearch size={17} />
                         <span className="sm-search-btn-text">Search</span>
                     </button>
 
@@ -213,33 +227,33 @@ export default function SMViewer() {
                                 background: "#fef2f2",
                                 color: "#b91c1c",
                                 border: "1px solid #fecaca",
-                                padding: "0 14px",
-                                height: "38px",
-                                borderRadius: "8px",
+                                padding: "0 18px",
+                                height: "46px",
+                                borderRadius: "12px",
                                 cursor: "pointer",
-                                fontSize: "13px",
+                                fontSize: "14px",
                                 fontWeight: "600",
                                 display: "inline-flex",
                                 alignItems: "center",
-                                gap: "5px",
-                                transition: "0.2s"
+                                gap: "6px",
+                                transition: "all 0.2s ease"
                             }}
                             onMouseOver={(e) => e.currentTarget.style.background = "#fecaca"}
                             onMouseOut={(e) => e.currentTarget.style.background = "#fef2f2"}
                         >
-                            <FiX size={16} />
+                            <FiX size={17} />
                             <span className="sm-search-btn-text">Clear</span>
                         </button>
                     )}
                 </form>
 
                 {/* Category Scope Selection Pills */}
-                <div className="sm-search-scope" style={{ marginTop: "10px", display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "12px", color: "#64748b", fontWeight: "600", whiteSpace: "nowrap" }}>
-                        <FiFilter size={13} color="#0ea5e9" />
+                <div className="sm-search-scope" style={{ marginTop: "14px", display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "#64748b", fontWeight: "600", whiteSpace: "nowrap" }}>
+                        <FiFilter size={14} color="#0ea5e9" />
                         <span>Scope:</span>
                     </div>
-                    <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                         {CATEGORY_OPTIONS.map(cat => {
                             const isSelected = selectedCategories.includes(cat.id);
                             return (
@@ -249,7 +263,7 @@ export default function SMViewer() {
                                     onClick={() => toggleCategory(cat.id)}
                                     className={`sm-category-pill ${isSelected ? "active" : ""}`}
                                 >
-                                    {isSelected && <FiCheck size={12} />}
+                                    {isSelected && <FiCheck size={13} />}
                                     {cat.label}
                                 </button>
                             );
@@ -261,7 +275,7 @@ export default function SMViewer() {
             {/* Your Preference Card */}
             <SMPreferenceCard />
 
-            <div className="sm-content" style={{ padding: "14px", background: "#fafcfe", borderRadius: "10px", border: "1px solid #e0f2fe" }}>
+            <div className="sm-content" style={{ padding: "20px", background: "#fafcfe", borderRadius: "18px", border: "1px solid #e0f2fe", boxShadow: "0 2px 10px rgba(14, 165, 233, 0.03)" }}>
                 {activeQuery.trim() ? (
                     <SMAdminSearchResults 
                         searchQuery={activeQuery}
@@ -269,9 +283,9 @@ export default function SMViewer() {
                         onClearSearch={handleClearSearch} 
                     />
                 ) : loading && page === 1 ? (
-                    <p style={{ textAlign: "center", color: "#888", padding: "20px" }}>Loading directory...</p>
+                    <p style={{ textAlign: "center", color: "#64748b", padding: "24px", fontSize: "15px" }}>Loading directory...</p>
                 ) : error ? (
-                    <p style={{ color: "red", textAlign: "center", padding: "20px" }}>{error}</p>
+                    <p style={{ color: "#ef4444", textAlign: "center", padding: "24px", fontSize: "15px" }}>{error}</p>
                 ) : universities.length > 0 ? (
                     <div>
                         {universities.map(uni => (
@@ -285,18 +299,21 @@ export default function SMViewer() {
                         ))}
                         
                         {page < totalPages && (
-                            <div style={{ textAlign: "center", marginTop: "20px" }}>
+                            <div style={{ textAlign: "center", marginTop: "24px" }}>
                                 <button 
                                     onClick={handleLoadMore}
                                     disabled={loading}
                                     style={{
-                                        background: loading ? "#f0f9ff" : "#fff",
+                                        background: loading ? "#f0f9ff" : "#ffffff",
                                         color: loading ? "#94a3b8" : "#0ea5e9",
-                                        border: "1px solid #0ea5e9",
-                                        padding: "8px 20px",
-                                        borderRadius: "6px",
+                                        border: "1.5px solid #0ea5e9",
+                                        padding: "12px 28px",
+                                        borderRadius: "12px",
                                         cursor: loading ? "default" : "pointer",
-                                        fontWeight: "600"
+                                        fontWeight: "600",
+                                        fontSize: "14px",
+                                        boxShadow: "0 2px 8px rgba(14, 165, 233, 0.1)",
+                                        transition: "all 0.2s ease"
                                     }}
                                 >
                                     {loading ? "Loading..." : "Load More"}
@@ -305,7 +322,7 @@ export default function SMViewer() {
                         )}
                     </div>
                 ) : (
-                    <p style={{ textAlign: "center", color: "#888", padding: "20px" }}>No study materials found matching "{activeQuery}".</p>
+                    <p style={{ textAlign: "center", color: "#64748b", padding: "24px", fontSize: "15px" }}>No study materials found matching "{activeQuery}".</p>
                 )}
             </div>
         </section>

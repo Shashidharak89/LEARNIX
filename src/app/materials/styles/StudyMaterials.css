@@ -208,21 +208,23 @@
 .sm-materials-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
-/* Semester Block */
+/* Semester Block (Apple UI Design System) */
 .sm-semester-block {
   background: #ffffff;
-  border: 2px solid #e5e7eb;
-  border-radius: 14px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 24px;
   overflow: hidden;
   animation: sm-slide-in 0.4s ease-out;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 6px 24px -4px rgba(15, 23, 42, 0.04), 0 2px 6px -2px rgba(15, 23, 42, 0.02);
 }
 
 .sm-semester-block:hover {
-  border-color: #d1d5db;
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 30px -4px rgba(15, 23, 42, 0.07);
 }
 
 .sm-semester-btn {
@@ -230,26 +232,28 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 18px 20px;
+  padding: 22px 24px;
+  min-height: 64px;
   background: #ffffff;
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
 }
 
 .sm-semester-btn:hover {
-  background: #f9fafb;
+  background: #f8fafc;
 }
 
 .sm-semester-btn.sm-semester-open {
   background: #eff6ff;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 1.5px solid #dbeafe;
 }
 
 .sm-semester-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   flex: 1;
 }
 
@@ -259,24 +263,25 @@
 }
 
 .sm-semester-name {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
   color: #111827;
 }
 
 .sm-subject-count {
-  padding: 4px 10px;
+  padding: 5px 14px;
   font-size: 12px;
   font-weight: 600;
-  color: #6b7280;
-  background: #f3f4f6;
-  border-radius: 6px;
+  color: #475569;
+  background: #f1f5f9;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
 }
 
 .sm-semester-icon {
   display: flex;
   align-items: center;
-  color: #6b7280;
+  color: #64748b;
   transition: transform 0.2s ease;
 }
 
@@ -286,19 +291,21 @@
 
 /* Subjects Wrapper */
 .sm-subjects-wrapper {
-  padding: 12px;
-  background: #f9fafb;
+  padding: 16px;
+  background: #f8fafc;
   animation: sm-expand 0.3s ease-out;
+  border-radius: 0 0 24px 24px;
 }
 
 /* Subject Block */
 .sm-subject-block {
   background: #ffffff;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
-  margin-bottom: 10px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 18px;
+  margin-bottom: 12px;
   overflow: hidden;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
 .sm-subject-block:last-child {
@@ -307,6 +314,7 @@
 
 .sm-subject-block:hover {
   border-color: #cbd5e1;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
 .sm-subject-btn {
@@ -314,26 +322,28 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 14px 16px;
+  padding: 18px 22px;
+  min-height: 56px;
   background: #ffffff;
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
 }
 
 .sm-subject-btn:hover {
-  background: #f9fafb;
+  background: #f8fafc;
 }
 
 .sm-subject-btn.sm-subject-open {
   background: #fef3c7;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 1.5px solid #fde68a;
 }
 
 .sm-subject-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex: 1;
 }
 
@@ -343,24 +353,25 @@
 }
 
 .sm-subject-name {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   color: #111827;
 }
 
 .sm-file-count {
-  padding: 3px 8px;
+  padding: 4px 12px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   color: #92400e;
   background: #fde68a;
-  border-radius: 5px;
+  border-radius: 9999px;
+  border: 1px solid #f59e0b;
 }
 
 .sm-subject-icon {
   display: flex;
   align-items: center;
-  color: #6b7280;
+  color: #64748b;
   transition: transform 0.2s ease;
 }
 
@@ -370,23 +381,25 @@
 
 /* Files List */
 .sm-files-list {
-  padding: 12px;
+  padding: 14px;
   background: #fffbeb;
   animation: sm-expand 0.3s ease-out;
+  border-radius: 0 0 18px 18px;
 }
 
-/* File Card */
+/* File Card (Apple UI Design) */
 .sm-file-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
   background: #ffffff;
-  border: 2px solid #e5e7eb;
-  border-radius: 10px;
-  margin-bottom: 8px;
-  transition: all 0.2s ease;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 16px;
+  margin-bottom: 10px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   animation: sm-fade-in 0.3s ease-out;
   overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
 }
 
 .sm-file-card:last-child {
@@ -396,12 +409,13 @@
 .sm-file-card:hover {
   border-color: #1e40af;
   transform: translateX(4px);
+  box-shadow: 0 4px 14px rgba(30, 64, 175, 0.08);
 }
 
 .sm-file-card.sm-file-card-highlighted {
   border-color: #059669;
   background: #ecfdf5;
-  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15);
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.18);
 }
 
 .sm-file-card.sm-file-card-highlighted .sm-file-link {
@@ -413,33 +427,35 @@
   align-items: center;
   flex: 1;
   min-width: 0;
-  padding: 12px 14px;
+  padding: 16px 20px;
+  min-height: 56px;
   text-decoration: none;
   color: inherit;
   transition: background 0.2s ease;
+  box-sizing: border-box;
 }
 
 .sm-file-link:hover {
-  background: #f9fafb;
+  background: #f8fafc;
 }
 
 .sm-file-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex: 1;
   min-width: 0;
 }
 
 .sm-file-icon {
-  font-size: 18px;
+  font-size: 20px;
   flex-shrink: 0;
 }
 
 .sm-file-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: #374151;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -448,19 +464,19 @@
 .sm-file-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-shrink: 0;
-  padding-right: 14px;
+  padding-right: 16px;
 }
 
 .sm-action-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  border: 2px solid transparent;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1.5px solid transparent;
   text-decoration: none;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -469,6 +485,7 @@
 .sm-view-btn {
   background: #eff6ff;
   color: #1e40af;
+  border-color: #dbeafe;
 }
 
 .sm-view-btn:hover {
@@ -481,6 +498,7 @@
 .sm-share-btn {
   background: #eef2ff;
   color: #4338ca;
+  border-color: #e0e7ff;
 }
 
 .sm-share-btn:hover {
@@ -493,6 +511,7 @@
 .sm-download-btn {
   background: #fef3c7;
   color: #d97706;
+  border-color: #fde68a;
 }
 
 .sm-download-btn:hover {
