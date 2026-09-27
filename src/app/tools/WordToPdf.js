@@ -115,15 +115,15 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
     setUploadZoneHover(false);
   }, []);
 
-  // Check custom code availability live
-  const handleCheckCustomCode = async (val) => {
-    const clean = val.toLowerCase().trim();
-    setCustomCodeInput(clean);
+  // Check custom code availability on button click
+  const handleCheckAvailability = async () => {
+    const clean = customCodeInput.toLowerCase().trim();
     if (!clean) {
-      setCustomCodeAvailable(null);
+      showToast("Enter a custom code to check.", "error");
       return;
     }
     if (!/^[a-z0-9_-]{3,20}$/.test(clean)) {
+      showToast("Code must be 3-20 letters, numbers, or hyphens.", "error");
       setCustomCodeAvailable(false);
       return;
     }
@@ -134,8 +134,15 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
       fd.append("checkOnly", "true");
       const res = await fetch("/api/file/upload", { method: "POST", body: fd });
       const data = await res.json();
-      setCustomCodeAvailable(data.available === true);
+      if (data.available === true) {
+        setCustomCodeAvailable(true);
+        showToast(`Code "${clean}" is available!`, "success");
+      } else {
+        setCustomCodeAvailable(false);
+        showToast(data.error || `Code "${clean}" is taken or invalid.`, "error");
+      }
     } catch {
+      showToast("Failed to check code availability.", "error");
       setCustomCodeAvailable(null);
     } finally {
       setCheckingCustomCode(false);
@@ -144,8 +151,8 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
 
   async function handleUpload() {
     if (!file) { showToast("Please choose a file.", "error"); return; }
-    if (showCustomCodeInput && customCodeInput.trim() && customCodeAvailable === false) {
-      showToast("Custom code is invalid or taken. Choose another.", "error");
+    if (showCustomCodeInput && customCodeInput.trim() && customCodeAvailable !== true) {
+      showToast("Please click 'Check availability' and verify custom code first.", "error");
       return;
     }
 
@@ -417,12 +424,24 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
                       type="text"
                       placeholder="Enter custom code (e.g. mypdf1)"
                       value={customCodeInput}
-                      onChange={(e) => handleCheckCustomCode(e.target.value)}
+                      onChange={(e) => {
+                        setCustomCodeInput(e.target.value.toLowerCase().trim());
+                        setCustomCodeAvailable(null);
+                      }}
                       className="tool-text-input"
-                      style={{ maxWidth: 260, fontSize: "0.85rem", padding: "8px 12px" }}
+                      style={{ maxWidth: 220, fontSize: "0.85rem", padding: "8px 12px" }}
                       maxLength={20}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleCheckAvailability(); } }}
                     />
-                    {checkingCustomCode && <span className="tool-spinner" style={{ width: 16, height: 16 }}></span>}
+                    <button
+                      type="button"
+                      className="tool-btn-pill"
+                      onClick={handleCheckAvailability}
+                      disabled={checkingCustomCode || !customCodeInput.trim()}
+                      style={{ fontSize: "0.8rem", height: 34, padding: "0 12px" }}
+                    >
+                      {checkingCustomCode ? "Checking…" : "Check availability"}
+                    </button>
                     {customCodeAvailable === true && (
                       <span style={{ color: "#16a34a", fontSize: "0.8rem", display: "inline-flex", alignItems: "center", gap: 4, fontWeight: 600 }}>
                         <FiCheckCircle size={14} /> Available
@@ -445,7 +464,11 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
               <button
                 className="tool-btn tool-btn-primary"
                 onClick={handleUpload}
-                disabled={uploadLoading || !file || (showCustomCodeInput && customCodeInput.trim() && customCodeAvailable === false)}
+                disabled={
+                  uploadLoading ||
+                  !file ||
+                  (showCustomCodeInput && customCodeInput.trim() && customCodeAvailable !== true)
+                }
               >
                 <FiUpload size={15} />
                 {uploadLoading ? "Uploading…" : "Upload"}

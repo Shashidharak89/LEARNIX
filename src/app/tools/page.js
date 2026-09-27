@@ -70,20 +70,6 @@ export default function Tools() {
     >
       <Navbar />
 
-      {/* Full-page drag hint overlay */}
-      {globalIsDragging && (
-        <div className="tool-card-drag-overlay" style={{ position: "fixed", zIndex: 50, inset: 0, pointerEvents: "none" }}>
-          <div className="tool-drag-drop-hint">
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="16 16 12 12 8 16" /><line x1="12" y1="12" x2="12" y2="21" />
-              <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
-            </svg>
-            <p className="tool-drag-drop-hint-text">Drop file to upload</p>
-            <p className="tool-drag-drop-hint-sub">File Upload will open automatically</p>
-          </div>
-        </div>
-      )}
-
       <div className="tools-container">
         {/* Intro / Header Card — Centered design */}
         <div className="tools-intro-card">
