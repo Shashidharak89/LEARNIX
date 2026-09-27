@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import {
   FiUpload, FiDownload, FiTrash2, FiCopy, FiFile, FiList,
   FiCheckCircle, FiAlertCircle, FiInfo, FiX, FiChevronDown, FiChevronUp,
-  FiEye, FiClock
+  FiEye, FiClock, FiCode, FiEdit3
 } from "react-icons/fi";
 import FileIcon from "../components/FileIcon";
 import "./styles/ToolsPage.css";
@@ -23,6 +23,12 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
   const [toast, setToast] = useState(null);
   const toastTimeoutRef = useRef(null);
   const [fetchedFile, setFetchedFile] = useState(null);
+
+  // Custom Code State
+  const [showCustomCodeInput, setShowCustomCodeInput] = useState(false);
+  const [customCodeInput, setCustomCodeInput] = useState("");
+  const [customCodeAvailable, setCustomCodeAvailable] = useState(null);
+  const [checkingCustomCode, setCheckingCustomCode] = useState(false);
 
   // Auto-expand when page receives a drag (globalIsDragging prop from page.js)
   useEffect(() => {
@@ -109,13 +115,49 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
     setUploadZoneHover(false);
   }, []);
 
+  // Check custom code availability live
+  const handleCheckCustomCode = async (val) => {
+    const clean = val.toLowerCase().trim();
+    setCustomCodeInput(clean);
+    if (!clean) {
+      setCustomCodeAvailable(null);
+      return;
+    }
+    if (!/^[a-z0-9_-]{3,20}$/.test(clean)) {
+      setCustomCodeAvailable(false);
+      return;
+    }
+    setCheckingCustomCode(true);
+    try {
+      const fd = new FormData();
+      fd.append("customCode", clean);
+      fd.append("checkOnly", "true");
+      const res = await fetch("/api/file/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      setCustomCodeAvailable(data.available === true);
+    } catch {
+      setCustomCodeAvailable(null);
+    } finally {
+      setCheckingCustomCode(false);
+    }
+  };
+
   async function handleUpload() {
     if (!file) { showToast("Please choose a file.", "error"); return; }
+    if (showCustomCodeInput && customCodeInput.trim() && customCodeAvailable === false) {
+      showToast("Custom code is invalid or taken. Choose another.", "error");
+      return;
+    }
+
     setUploadLoading(true);
     showToast("Uploading…", "info");
     try {
       const fd = new FormData();
       fd.append("file", file, file.name);
+      if (showCustomCodeInput && customCodeInput.trim()) {
+        fd.append("customCode", customCodeInput.trim());
+      }
+
       const res = await fetch("/api/file/upload", { method: "POST", body: fd });
       const data = await res.json();
       if (!res.ok) { showToast(data.error || "Upload failed", "error"); return; }
@@ -130,7 +172,7 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
       const updated = [{ fileid: data.fileId, originalName: file.name }, ...userFiles];
       localStorage.setItem("userUploadedFiles", JSON.stringify(updated));
       setAllFiles(updated);
-      showToast(`Upload complete! ID: ${data.fileId}`, "success");
+      showToast(`Upload complete! Code: ${data.fileId}`, "success");
     } catch {
       showToast("Network error. Try again.", "error");
     } finally {
@@ -163,7 +205,7 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
 
   function copyToClipboard(text) {
     navigator.clipboard.writeText(text);
-    showToast("Copied to clipboard!", "success");
+    showToast("Copied code to clipboard!", "success");
   }
 
   function removeFile(id) {
@@ -255,9 +297,29 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
                 </button>
               </div>
 
-              <div className="upd-file-card" style={{ cursor: "default" }}>
+              {/* Click anywhere on the card to navigate/open preview file */}
+              <div
+                className="upd-file-card"
+                onClick={() => window.open(fetchedFile.viewUrl, "_blank", "noopener,noreferrer")}
+                title="Click anywhere to view file preview"
+              >
                 <div className="upd-file-card-name">
-                  <FileIcon filename={fetchedFile.fileName} />
+                  {fetchedFile.isImage ? (
+                    <img
+                      src={fetchedFile.cloudinaryUrl}
+                      alt={fetchedFile.fileName}
+                      style={{
+                        width: "32px",
+                        height: "32px",
+                        borderRadius: "6px",
+                        objectFit: "cover",
+                        border: "1px solid rgba(0,0,0,0.1)",
+                        flexShrink: 0
+                      }}
+                    />
+                  ) : (
+                    <FileIcon filename={fetchedFile.fileName} />
+                  )}
                   <div style={{ display: "flex", flexDirection: "column", minWidth: 0, gap: 2 }}>
                     <span className="upd-file-card-label" title={fetchedFile.fileName}>
                       {fetchedFile.fileName}
@@ -275,29 +337,25 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
                 </div>
 
                 <div className="upd-file-card-actions" onClick={(e) => e.stopPropagation()}>
-                  {fetchedFile.viewUrl && (
-                    <a
-                      href={fetchedFile.viewUrl}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="upd-file-action-btn upd-file-action-view"
-                      title="View File"
-                    >
-                      <FiEye size={15} />
-                    </a>
-                  )}
-                  {fetchedFile.downloadUrl && (
-                    <a
-                      href={fetchedFile.downloadUrl}
-                      download={fetchedFile.fileName}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="upd-file-action-btn upd-file-action-download"
-                      title="Download File"
-                    >
-                      <FiDownload size={15} />
-                    </a>
-                  )}
+                  <a
+                    href={fetchedFile.viewUrl}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="upd-file-action-btn upd-file-action-view"
+                    title="View File"
+                  >
+                    <FiEye size={15} />
+                  </a>
+                  <a
+                    href={fetchedFile.downloadUrl}
+                    download={fetchedFile.fileName}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="upd-file-action-btn upd-file-action-download"
+                    title="Download File"
+                  >
+                    <FiDownload size={15} />
+                  </a>
                   <button
                     className="tool-btn-pill"
                     onClick={() => copyToClipboard(fetchedFile.fileid)}
@@ -335,13 +393,60 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
               ) : (
                 <>
                   <p className="tool-upload-zone-label">Click to choose or drag &amp; drop</p>
-                  <p className="tool-upload-zone-hint">Supports all file types · Up to 100 MB</p>
+                  <p className="tool-upload-zone-hint">Supports all file types · Up to 100 MB · Auto-deletes in 24h</p>
                 </>
               )}
             </div>
 
-            <div className="tool-btn-actions">
-              <button className="tool-btn tool-btn-primary" onClick={handleUpload} disabled={uploadLoading || !file}>
+            {/* Custom code option toggle */}
+            <div style={{ marginTop: 12 }}>
+              <button
+                type="button"
+                className="tool-btn-pill"
+                onClick={() => setShowCustomCodeInput(v => !v)}
+                style={{ fontSize: "0.8rem" }}
+              >
+                <FiCode size={13} />
+                {showCustomCodeInput ? "Use auto-generated code" : "Use custom code"}
+              </button>
+
+              {showCustomCodeInput && (
+                <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 4 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <input
+                      type="text"
+                      placeholder="Enter custom code (e.g. mypdf1)"
+                      value={customCodeInput}
+                      onChange={(e) => handleCheckCustomCode(e.target.value)}
+                      className="tool-text-input"
+                      style={{ maxWidth: 260, fontSize: "0.85rem", padding: "8px 12px" }}
+                      maxLength={20}
+                    />
+                    {checkingCustomCode && <span className="tool-spinner" style={{ width: 16, height: 16 }}></span>}
+                    {customCodeAvailable === true && (
+                      <span style={{ color: "#16a34a", fontSize: "0.8rem", display: "inline-flex", alignItems: "center", gap: 4, fontWeight: 600 }}>
+                        <FiCheckCircle size={14} /> Available
+                      </span>
+                    )}
+                    {customCodeAvailable === false && (
+                      <span style={{ color: "#dc2626", fontSize: "0.8rem", display: "inline-flex", alignItems: "center", gap: 4, fontWeight: 600 }}>
+                        <FiAlertCircle size={14} /> Taken or invalid
+                      </span>
+                    )}
+                  </div>
+                  <span style={{ fontSize: "0.72rem", color: "var(--tool-gray-500)" }}>
+                    3-20 letters, numbers, hyphens or underscores
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="tool-btn-actions" style={{ marginTop: 14 }}>
+              <button
+                className="tool-btn tool-btn-primary"
+                onClick={handleUpload}
+                disabled={uploadLoading || !file || (showCustomCodeInput && customCodeInput.trim() && customCodeAvailable === false)}
+              >
                 <FiUpload size={15} />
                 {uploadLoading ? "Uploading…" : "Upload"}
               </button>
@@ -354,7 +459,7 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
 
             {fileId && (
               <div className="tool-file-id-box">
-                <span className="tool-file-id-label">File ID</span>
+                <span className="tool-file-id-label">File Code</span>
                 <code className="tool-file-id-code">{fileId}</code>
                 <button className="tool-btn-pill" onClick={() => copyToClipboard(fileId)}>
                   <FiCopy size={12} /> Copy
@@ -362,7 +467,6 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
               </div>
             )}
           </div>
-
 
           {(persistentFileId || allFiles.length > 0) && (
             <div className="tool-inner-section">
@@ -372,24 +476,36 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
               </div>
 
               {persistentFileId && (
-                <div className="tool-file-row" style={{ marginBottom: 10 }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="tool-file-row-name">{persistentFileName}</div>
-                    <div className="tool-file-row-sub">Last uploaded</div>
+                <div
+                  className="upd-file-card"
+                  onClick={() => handleFetchFile(persistentFileId)}
+                  style={{ marginBottom: 10, cursor: "pointer" }}
+                >
+                  <div className="upd-file-card-name">
+                    <FileIcon filename={persistentFileName} />
+                    <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+                      <span className="upd-file-card-label">{persistentFileName}</span>
+                      <span style={{ fontSize: "0.72rem", color: "var(--tool-gray-500)" }}>
+                        Code: <strong style={{ color: "var(--tool-blue)" }}>{persistentFileId}</strong> · Last uploaded
+                      </span>
+                    </div>
                   </div>
-                  <div className="tool-file-row-actions">
-                    <button className="tool-btn-pill" onClick={() => downloadFile(persistentFileId)} disabled={downloadLoading}>
-                      <FiDownload size={12} /> Download
+                  <div className="upd-file-card-actions" onClick={(e) => e.stopPropagation()}>
+                    <button className="tool-btn-pill" onClick={() => handleFetchFile(persistentFileId)}>
+                      <FiEye size={12} /> Preview
                     </button>
                     <button className="tool-btn-pill" onClick={() => copyToClipboard(persistentFileId)}>
-                      <FiCopy size={12} /> Copy ID
+                      <FiCopy size={12} /> Copy Code
                     </button>
-                    <button className="tool-btn-pill tool-btn-pill-danger" onClick={() => {
-                      localStorage.removeItem("uploadedFileId");
-                      localStorage.removeItem("uploadedFileName");
-                      setPersistentFileId("");
-                      setPersistentFileName("");
-                    }}>
+                    <button
+                      className="tool-btn-pill tool-btn-pill-danger"
+                      onClick={() => {
+                        localStorage.removeItem("uploadedFileId");
+                        localStorage.removeItem("uploadedFileName");
+                        setPersistentFileId("");
+                        setPersistentFileName("");
+                      }}
+                    >
                       <FiTrash2 size={12} />
                     </button>
                   </div>
@@ -406,23 +522,33 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
               </button>
 
               {showAll && (
-                <div style={{ marginTop: 10 }}>
+                <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 8 }}>
                   {allFiles.length === 0 ? (
                     <p style={{ fontSize: "0.82rem", color: "var(--tool-gray-500)", textAlign: "center", padding: "12px 0" }}>
                       No files uploaded yet.
                     </p>
                   ) : allFiles.map(f => (
-                    <div key={f.fileid} className="tool-file-row">
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div className="tool-file-row-name">{f.originalName}</div>
-                        <div className="tool-file-row-sub" style={{ fontFamily: "monospace", fontSize: "0.72rem" }}>{f.fileid}</div>
+                    <div
+                      key={f.fileid}
+                      className="upd-file-card"
+                      onClick={() => handleFetchFile(f.fileid)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <div className="upd-file-card-name">
+                        <FileIcon filename={f.originalName} />
+                        <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+                          <span className="upd-file-card-label">{f.originalName}</span>
+                          <span style={{ fontSize: "0.72rem", color: "var(--tool-gray-500)", fontFamily: "monospace" }}>
+                            Code: {f.fileid}
+                          </span>
+                        </div>
                       </div>
-                      <div className="tool-file-row-actions">
-                        <button className="tool-btn-pill" onClick={() => downloadFile(f.fileid)} disabled={downloadLoading}>
-                          <FiDownload size={12} />
+                      <div className="upd-file-card-actions" onClick={(e) => e.stopPropagation()}>
+                        <button className="tool-btn-pill" onClick={() => handleFetchFile(f.fileid)}>
+                          <FiEye size={12} /> Preview
                         </button>
                         <button className="tool-btn-pill" onClick={() => copyToClipboard(f.fileid)}>
-                          <FiCopy size={12} />
+                          <FiCopy size={12} /> Copy Code
                         </button>
                         <button className="tool-btn-pill tool-btn-pill-danger" onClick={() => removeFile(f.fileid)}>
                           <FiTrash2 size={12} />
@@ -434,6 +560,7 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
               )}
             </div>
           )}
+
         </div>
       )}
     </div>

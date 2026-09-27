@@ -12,7 +12,7 @@ export async function GET(req, { params }) {
     cleanupExpiredFiles().catch(() => {});
 
     const { id } = await params;
-    const cleanId = String(id || "").trim();
+    const cleanId = String(id || "").trim().toLowerCase();
 
     // Find file in database by fileid
     const fileDoc = await File.findOne({ fileid: cleanId });
@@ -41,8 +41,18 @@ export async function GET(req, { params }) {
       downloadUrl = downloadUrl.replace("/upload/", "/upload/fl_attachment/");
     }
 
-    // Google Docs Viewer URL for view action
-    const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(fileDoc.cloudinaryUrl)}`;
+    // Determine categorization by extension/MIME
+    const nameLower = String(fileDoc.originalName || "").toLowerCase();
+    const isImage = (fileDoc.mimeType || "").startsWith("image/") ||
+      /\.(jpg|jpeg|png|gif|webp|svg|bmp|tiff)$/i.test(nameLower);
+    const isPdf = (fileDoc.mimeType === "application/pdf") || /\.pdf$/i.test(nameLower);
+    const isOfficeDoc = /\.(docx?|pptx?|xlsx?|odt|rtf|csv|txt)$/i.test(nameLower);
+
+    // If it's an image, video, audio or PDF, open directly. Otherwise use Google Docs Viewer.
+    let viewUrl = fileDoc.cloudinaryUrl;
+    if (!isImage && !isPdf && isOfficeDoc) {
+      viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(fileDoc.cloudinaryUrl)}`;
+    }
 
     return NextResponse.json({
       success: true,
@@ -50,6 +60,9 @@ export async function GET(req, { params }) {
       fileName: fileDoc.originalName,
       mimeType: fileDoc.mimeType,
       size: fileDoc.size,
+      isImage,
+      isPdf,
+      isOfficeDoc,
       cloudinaryUrl: fileDoc.cloudinaryUrl,
       downloadUrl: downloadUrl,
       viewUrl: viewUrl,
