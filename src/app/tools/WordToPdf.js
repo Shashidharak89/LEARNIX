@@ -1,10 +1,11 @@
-// app/components/WordToPdf.jsx
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   FiUpload, FiDownload, FiTrash2, FiCopy, FiFile, FiList,
-  FiCheckCircle, FiAlertCircle, FiInfo, FiX, FiChevronDown, FiChevronUp
+  FiCheckCircle, FiAlertCircle, FiInfo, FiX, FiChevronDown, FiChevronUp,
+  FiEye, FiClock
 } from "react-icons/fi";
+import FileIcon from "../components/FileIcon";
 import "./styles/ToolsPage.css";
 
 export default function FileUploadDownload({ globalIsDragging, droppedFile, forceExpandTrigger }) {
@@ -21,6 +22,7 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
   const [uploadZoneHover, setUploadZoneHover] = useState(false);
   const [toast, setToast] = useState(null);
   const toastTimeoutRef = useRef(null);
+  const [fetchedFile, setFetchedFile] = useState(null);
 
   // Auto-expand when page receives a drag (globalIsDragging prop from page.js)
   useEffect(() => {
@@ -136,31 +138,27 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
     }
   }
 
-  async function downloadFile(id) {
+  async function handleFetchFile(idToFetch) {
+    const targetId = (idToFetch || downloadId).trim();
+    if (!targetId) { showToast("Enter a file code.", "error"); return; }
     setDownloadLoading(true);
-    showToast("Fetching download link…", "info");
+    showToast("Fetching file preview…", "info");
     try {
-      const res = await fetch(`/api/file/download/${id}`);
+      const res = await fetch(`/api/file/download/${targetId}`);
       const data = await res.json();
-      if (!res.ok) { showToast(data.error || "Failed to fetch link", "error"); return; }
-      const a = document.createElement("a");
-      a.href = data.downloadUrl;
-      a.download = data.fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      showToast("Download started!", "success");
+      if (!res.ok) {
+        showToast(data.error || "File not found or expired.", "error");
+        return;
+      }
+      setFetchedFile(data);
+      setIsExpanded(true);
+      setDownloadId("");
+      showToast("File found! Preview ready below.", "success");
     } catch {
-      showToast("Download failed. Try again.", "error");
+      showToast("Failed to fetch file. Try again.", "error");
     } finally {
       setDownloadLoading(false);
     }
-  }
-
-  async function handleDownload() {
-    if (!downloadId.trim()) { showToast("Enter a file ID.", "error"); return; }
-    downloadFile(downloadId.trim());
-    setDownloadId("");
   }
 
   function copyToClipboard(text) {
@@ -224,15 +222,15 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
             value={downloadId}
             onChange={(e) => setDownloadId(e.target.value)}
             className="tool-card-inline-input"
-            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleDownload(); } }}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleFetchFile(); } }}
           />
           <button
             className="tool-card-inline-btn"
-            onClick={handleDownload}
+            onClick={() => handleFetchFile()}
             disabled={downloadLoading || !downloadId.trim()}
           >
             <FiDownload size={14} />
-            {downloadLoading ? "Downloading…" : "Download"}
+            {downloadLoading ? "Fetching…" : "Fetch"}
           </button>
         </div>
       </div>
@@ -240,6 +238,77 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
       {/* ── Expanded Body ── */}
       {isExpanded && (
         <div className="tool-card-body">
+
+          {/* Fetched File Preview Card — rendered when a code is fetched */}
+          {fetchedFile && (
+            <div className="tool-inner-section tool-fetched-preview-box">
+              <div className="tool-inner-section-header" style={{ marginBottom: 12 }}>
+                <FiEye className="tool-inner-section-icon" />
+                <h3 className="tool-inner-section-title">Retrieved File Preview</h3>
+                <button
+                  className="tool-toast-close"
+                  style={{ marginLeft: "auto", background: "rgba(0,0,0,0.06)", color: "var(--tool-gray-700)" }}
+                  onClick={() => setFetchedFile(null)}
+                  title="Close Preview"
+                >
+                  <FiX size={14} />
+                </button>
+              </div>
+
+              <div className="upd-file-card" style={{ cursor: "default" }}>
+                <div className="upd-file-card-name">
+                  <FileIcon filename={fetchedFile.fileName} />
+                  <div style={{ display: "flex", flexDirection: "column", minWidth: 0, gap: 2 }}>
+                    <span className="upd-file-card-label" title={fetchedFile.fileName}>
+                      {fetchedFile.fileName}
+                    </span>
+                    <span style={{ fontSize: "0.74rem", color: "var(--tool-gray-500)", display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                      <span>Code: <strong style={{ color: "var(--tool-blue)", fontFamily: "monospace" }}>{fetchedFile.fileid}</strong></span>
+                      {fetchedFile.size && (
+                        <span>· {Math.round(fetchedFile.size / 1024)} KB</span>
+                      )}
+                      <span style={{ color: "#d97706", display: "inline-flex", alignItems: "center", gap: 3 }}>
+                        <FiClock size={11} /> Auto-deletes in 24h
+                      </span>
+                    </span>
+                  </div>
+                </div>
+
+                <div className="upd-file-card-actions" onClick={(e) => e.stopPropagation()}>
+                  {fetchedFile.viewUrl && (
+                    <a
+                      href={fetchedFile.viewUrl}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="upd-file-action-btn upd-file-action-view"
+                      title="View File"
+                    >
+                      <FiEye size={15} />
+                    </a>
+                  )}
+                  {fetchedFile.downloadUrl && (
+                    <a
+                      href={fetchedFile.downloadUrl}
+                      download={fetchedFile.fileName}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="upd-file-action-btn upd-file-action-download"
+                      title="Download File"
+                    >
+                      <FiDownload size={15} />
+                    </a>
+                  )}
+                  <button
+                    className="tool-btn-pill"
+                    onClick={() => copyToClipboard(fetchedFile.fileid)}
+                    title="Copy Code"
+                  >
+                    <FiCopy size={12} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Upload section */}
           <div className="tool-inner-section">

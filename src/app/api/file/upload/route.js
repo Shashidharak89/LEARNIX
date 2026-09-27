@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import cloudinary from "../../../../lib/cloudinary.js";
 import { connectDB } from "../../../../lib/db.js";
 import File from "../../../../models/File.js";
+import { cleanupExpiredFiles } from "../../../../lib/fileCleanup.js";
 
 // Function to generate a unique 4-character alphanumeric fileid in format cncc (c=char, n=number)
 const generateFileId = () => {
@@ -22,6 +23,7 @@ const generateFileId = () => {
 export async function POST(req) {
   try {
     await connectDB();
+    cleanupExpiredFiles().catch(() => {});
 
     const formData = await req.formData();
     const file = formData.get("file");

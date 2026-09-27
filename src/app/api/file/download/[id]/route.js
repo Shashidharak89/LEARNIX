@@ -2,24 +2,58 @@ import { NextResponse } from "next/server";
 import cloudinary from "../../../../../lib/cloudinary.js";
 import { connectDB } from "../../../../../lib/db.js";
 import File from "../../../../../models/File.js";
+import { cleanupExpiredFiles } from "../../../../../lib/fileCleanup.js";
 
 export async function GET(req, { params }) {
   try {
     await connectDB();
+    
+    // Asynchronously trigger cleanup of files > 24 hours old
+    cleanupExpiredFiles().catch(() => {});
 
     const { id } = await params;
+    const cleanId = String(id || "").trim();
 
     // Find file in database by fileid
-    const fileDoc = await File.findOne({ fileid: id });
+    const fileDoc = await File.findOne({ fileid: cleanId });
     if (!fileDoc) {
-      return NextResponse.json({ error: "File not found" }, { status: 404 });
+      return NextResponse.json({ error: "File not found or expired" }, { status: 404 });
     }
 
-    // Return the direct Cloudinary URL as download URL
+    // Double check 24-hour expiration (86400000 ms)
+    const isExpired = Date.now() - new Date(fileDoc.createdAt).getTime() > 24 * 60 * 60 * 1000;
+    if (isExpired) {
+      if (fileDoc.publicId) {
+        try {
+          await cloudinary.uploader.destroy(fileDoc.publicId, { resource_type: "raw" });
+          await cloudinary.uploader.destroy(fileDoc.publicId, { resource_type: "image" });
+          await cloudinary.uploader.destroy(fileDoc.publicId, { resource_type: "video" });
+          await cloudinary.uploader.destroy(fileDoc.publicId, { resource_type: "auto" });
+        } catch {}
+      }
+      await File.deleteOne({ _id: fileDoc._id });
+      return NextResponse.json({ error: "This file has expired after 24 hours and is no longer available." }, { status: 410 });
+    }
+
+    // Direct download URL via Cloudinary fl_attachment transformation
+    let downloadUrl = fileDoc.cloudinaryUrl;
+    if (typeof downloadUrl === "string" && downloadUrl.includes("res.cloudinary.com")) {
+      downloadUrl = downloadUrl.replace("/upload/", "/upload/fl_attachment/");
+    }
+
+    // Google Docs Viewer URL for view action
+    const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(fileDoc.cloudinaryUrl)}`;
+
     return NextResponse.json({
       success: true,
-      downloadUrl: fileDoc.cloudinaryUrl,
-      fileName: fileDoc.originalName
+      fileid: fileDoc.fileid,
+      fileName: fileDoc.originalName,
+      mimeType: fileDoc.mimeType,
+      size: fileDoc.size,
+      cloudinaryUrl: fileDoc.cloudinaryUrl,
+      downloadUrl: downloadUrl,
+      viewUrl: viewUrl,
+      createdAt: fileDoc.createdAt
     });
 
   } catch (error) {

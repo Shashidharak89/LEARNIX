@@ -8,7 +8,7 @@ const FileSchema = new mongoose.Schema({
   cloudinaryUrl: { type: String, required: true },
   publicId: { type: String, required: true },
   uploadedBy: { type: String, default: "anonymous" },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now, expires: 86400 } // 24 hours TTL auto-deletion
 });
 
 export default mongoose.models.File || mongoose.model("File", FileSchema);
