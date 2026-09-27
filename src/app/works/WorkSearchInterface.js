@@ -779,7 +779,7 @@ const WorkSearchInterface = () => {
             aria-label="Search resources"
           >
             <FiSearch className="res-search-btn-icon" />
-            <span>Search</span>
+            <span className="res-search-btn-text">Search</span>
           </button>
         </form>
       </div>

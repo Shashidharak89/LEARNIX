@@ -10,24 +10,36 @@
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Outfit", "Inter", sans-serif;
 }
 
-/* APPLE-VIBE INTRO CARD WITH BLUE THEME */
+/* APPLE-VIBE INTRO CARD WITH BLUE THEME (CENTERED & RESPONSIVE CLAMP) */
 .res-intro-card {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto 24px auto;
   background: #ffffff;
   border-radius: 24px;
-  padding: 24px 32px;
-  border: 1px solid rgba(11, 116, 255, 0.16);
-  box-shadow: 0 10px 30px -4px rgba(11, 116, 255, 0.07), 0 2px 8px rgba(0, 0, 0, 0.02);
+  padding: 26px 20px 22px;
+  border: 1.5px solid rgba(11, 116, 255, 0.18);
+  box-shadow: 0 8px 30px -4px rgba(11, 116, 255, 0.08), 0 2px 8px -2px rgba(15, 23, 42, 0.03);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
+  justify-content: center;
+  text-align: center;
   position: relative;
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+  animation: resSlideDown 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes resSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .res-intro-card::before {
@@ -43,43 +55,56 @@
 .res-intro-header {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 4px;
-  text-align: left;
+  text-align: center;
+  width: 100%;
 }
 
 .res-title-wrap {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: 12px;
 }
 
 .res-title-icon {
-  font-size: 2.2rem;
+  font-size: clamp(2rem, 5.5vw, 3.4rem);
   color: #0b74ff;
+  filter: drop-shadow(0 2px 6px rgba(11, 116, 255, 0.25));
+  flex-shrink: 0;
 }
 
 .res-intro-title {
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: clamp(2rem, 5.5vw, 3.2rem);
+  font-family: 'Outfit', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: clamp(1.8rem, 5.5vw, 3.6rem);
   font-weight: 900;
   color: #0b74ff;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
   margin: 0;
   line-height: 1.1;
+  text-shadow: 0 2px 10px rgba(11, 116, 255, 0.15);
 }
 
 .res-intro-subtitle {
-  font-size: clamp(0.9rem, 2.2vw, 1.08rem);
+  font-size: clamp(0.62rem, 2.5vw, 1.05rem);
   font-weight: 500;
   color: #475569;
-  margin: 4px 0 0 0;
+  margin: 6px 0 16px 0;
   white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
 }
 
 .res-intro-actions {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
+  margin-top: 2px;
 }
 
 .res-upload-btn {
@@ -90,8 +115,8 @@
   background: linear-gradient(135deg, #0b74ff, #2563eb);
   color: #ffffff !important;
   font-weight: 600;
-  font-size: 0.95rem;
-  padding: 10px 22px;
+  font-size: clamp(0.85rem, 2vw, 0.98rem);
+  padding: 10px 24px;
   border-radius: 14px;
   text-decoration: none;
   box-shadow: 0 4px 14px rgba(11, 116, 255, 0.3);
@@ -219,25 +244,46 @@
 
 @media (max-width: 768px) {
   .res-intro-card {
-    padding: 18px 20px;
+    padding: 20px 14px 18px;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
   .res-intro-subtitle {
-    white-space: normal;
+    white-space: nowrap;
   }
   .res-intro-actions {
     width: 100%;
-    justify-content: flex-start;
+    justify-content: center;
   }
   .res-upload-btn {
-    width: 100%;
+    width: auto;
+    min-width: 140px;
   }
+}
+
+@media (max-width: 640px) {
   .res-search-form {
-    flex-direction: column;
+    flex-direction: row;
+    gap: 8px;
+  }
+  .res-search-btn-text {
+    display: none;
   }
   .res-search-submit-btn {
-    width: 100%;
+    padding: 12px 14px;
+    border-radius: 16px;
+    min-width: 46px;
+    flex-shrink: 0;
+  }
+  .res-search-input {
+    padding: 10px 38px 10px 36px;
+    font-size: 0.88rem;
+  }
+  .res-search-icon {
+    left: 10px;
+    font-size: 1rem;
   }
 }
 
