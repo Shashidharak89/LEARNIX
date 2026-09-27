@@ -49,7 +49,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #0b74ff, #2563eb, #38bdf8);
+  background: #0b74ff;
 }
 
 .res-intro-header {
@@ -112,7 +112,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: linear-gradient(135deg, #0b74ff, #2563eb);
+  background: #0b74ff;
   color: #ffffff !important;
   font-weight: 600;
   font-size: clamp(0.85rem, 2vw, 0.98rem);
@@ -126,7 +126,7 @@
 .res-upload-btn:hover {
   transform: translateY(-2px) scale(1.03);
   box-shadow: 0 6px 20px rgba(11, 116, 255, 0.42);
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  background: #0056b3;
   color: #ffffff !important;
 }
 
@@ -787,7 +787,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #0b74ff, #2563eb, #38bdf8);
+  background: #0b74ff;
 }
 
 .ws-topic-card:hover {
@@ -917,18 +917,19 @@
 }
 
 .ws-download-btn {
-  background: linear-gradient(135deg, #0b74ff, #2563eb);
-  color: #ffffff;
-  border: none;
+  background: #f2c200;
+  color: #000000;
+  border: 1.5px solid #d4a800;
   border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(11, 116, 255, 0.22);
+  box-shadow: 0 3px 10px rgba(242, 194, 0, 0.28);
 }
 
 .ws-download-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: #ffffff;
+  background: #d4a800;
+  color: #000000;
+  border-color: #b45309;
   transform: translateY(-1px);
-  box-shadow: 0 5px 15px rgba(11, 116, 255, 0.35);
+  box-shadow: 0 5px 15px rgba(242, 194, 0, 0.42);
 }
 
 .ws-download-btn:disabled {
@@ -1059,14 +1060,14 @@
 }
 
 .ws-topic-card.ws-saved-card::before {
-  background: linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%);
+  background: #8b5cf6;
 }
 
 .ws-saved-badge {
   position: absolute;
   top: 14px;
   right: 14px;
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  background: #8b5cf6;
   color: #ffffff;
   font-size: 0.68rem;
   font-weight: 700;
