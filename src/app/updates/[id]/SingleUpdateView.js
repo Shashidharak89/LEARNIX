@@ -16,7 +16,7 @@ import {
   FiChevronRight,
 } from "react-icons/fi";
 import { authFetch } from "@/lib/clientAuth";
-import { getYouTubeVideoId } from "../../utils/youtube";
+import { getYouTubeVideoId, groupConsecutiveLinks } from "../../utils/youtube";
 import LinkPreview from "../../components/LinkPreview";
 import FileIcon from "../../components/FileIcon";
 import "./styles/SingleUpdateView.css";
@@ -302,17 +302,33 @@ export default function SingleUpdateView({ updateId }) {
           {/* Embedded YouTube / Links */}
           {update.links && update.links.length > 0 && (
             <div className="suv-links-container">
-              {update.links.map((linkUrl, index) => {
-                const raw = String(linkUrl || "").trim();
-                if (!raw) return null;
-
-                const ytId = getYouTubeVideoId(raw);
-                if (ytId) {
+              {groupConsecutiveLinks(update.links).map((group, groupIdx) => {
+                if (group.type === "youtube-group") {
+                  if (group.items.length === 2) {
+                    return (
+                      <div key={groupIdx} className="suv-youtube-grid-2">
+                        {group.items.map((item, itemIdx) => (
+                          <div key={itemIdx} className="suv-youtube-wrapper suv-youtube-grid-item">
+                            <iframe
+                              className="suv-youtube-iframe"
+                              src={`https://www.youtube.com/embed/${item.ytId}`}
+                              title="YouTube video player"
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                              referrerPolicy="strict-origin-when-cross-origin"
+                              allowFullScreen
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  }
+                  const item = group.items[0];
                   return (
-                    <div key={index} className="suv-youtube-wrapper">
+                    <div key={groupIdx} className="suv-youtube-wrapper">
                       <iframe
                         className="suv-youtube-iframe"
-                        src={`https://www.youtube.com/embed/${ytId}`}
+                        src={`https://www.youtube.com/embed/${item.ytId}`}
                         title="YouTube video player"
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -323,16 +339,16 @@ export default function SingleUpdateView({ updateId }) {
                   );
                 }
 
-                if (raw.startsWith("/")) {
+                if (group.type === "internal") {
                   return (
-                    <Link key={index} href={raw} className="suv-action-btn-secondary">
+                    <Link key={groupIdx} href={group.raw} className="suv-action-btn-secondary">
                       <span>Visit Link</span>
                       <FiChevronRight />
                     </Link>
                   );
                 }
 
-                return <LinkPreview key={index} url={raw} />;
+                return <LinkPreview key={groupIdx} url={group.raw} />;
               })}
             </div>
           )}

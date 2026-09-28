@@ -646,6 +646,22 @@
   width: 100%;
 }
 
+/* YouTube 2-in-a-row Grid for consecutive videos on large screens */
+.upd-youtube-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  width: 100%;
+  margin: 6px 0;
+}
+
+@media (min-width: 640px) {
+  .upd-youtube-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
 /* YouTube Responsive Embed */
 .upd-youtube-embed-wrapper {
   position: relative;
@@ -659,6 +675,11 @@
   background: #000;
   margin: 4px 0;
   transition: transform 0.3s var(--upd-ease), box-shadow 0.3s var(--upd-ease);
+}
+
+.upd-youtube-embed-wrapper.upd-youtube-grid-item {
+  max-width: 100%;
+  margin: 0;
 }
 
 .upd-youtube-embed-wrapper:hover {

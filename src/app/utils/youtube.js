@@ -85,3 +85,51 @@ export function getYouTubeThumbnailUrl(urlOrId, quality = 'maxresdefault') {
   if (!videoId) return null;
   return `https://img.youtube.com/vi/${videoId}/${quality}.jpg`;
 }
+
+/**
+ * Groups consecutive YouTube links into pairs (up to 2 in a row) for responsive multi-column layouts,
+ * while leaving non-YouTube links (internal/external) as single items.
+ *
+ * @param {Array<string>} links
+ * @returns {Array<Object>}
+ */
+export function groupConsecutiveLinks(links) {
+  if (!links || !Array.isArray(links) || !links.length) return [];
+  const result = [];
+  let currentYtPair = [];
+
+  const flushYtPair = () => {
+    if (currentYtPair.length > 0) {
+      result.push({
+        type: 'youtube-group',
+        items: currentYtPair,
+      });
+      currentYtPair = [];
+    }
+  };
+
+  links.forEach((l) => {
+    const raw = String(l || '').trim();
+    if (!raw) return;
+
+    const ytId = getYouTubeVideoId(raw);
+    if (ytId) {
+      currentYtPair.push({ raw, ytId });
+      if (currentYtPair.length === 2) {
+        flushYtPair();
+      }
+    } else {
+      flushYtPair();
+      const isInternal = raw.startsWith('/');
+      if (isInternal) {
+        result.push({ type: 'internal', raw });
+      } else {
+        result.push({ type: 'preview', raw });
+      }
+    }
+  });
+
+  flushYtPair();
+  return result;
+}
+

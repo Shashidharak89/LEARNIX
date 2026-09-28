@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigat
 import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload, FiSearch, FiPlus, FiList, FiX } from 'react-icons/fi';
 import { Share2, Bell } from 'lucide-react';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
-import { getYouTubeVideoId } from '../utils/youtube';
+import { getYouTubeVideoId, groupConsecutiveLinks } from '../utils/youtube';
 import LinkPreview from '../components/LinkPreview';
 import FileIcon from '../components/FileIcon';
 import ExpandableDescription from '../components/ExpandableDescription';
@@ -314,17 +314,33 @@ export default function UpdatesPage({ initialUpdateId }) {
 
                 {u.links && u.links.length > 0 && (
                   <div className="upd-links">
-                    {u.links.map((l, i) => {
-                      const raw = String(l || '').trim();
-                      if (!raw) return null;
-
-                      const ytId = getYouTubeVideoId(raw);
-                      if (ytId) {
+                    {groupConsecutiveLinks(u.links).map((group, groupIdx) => {
+                      if (group.type === 'youtube-group') {
+                        if (group.items.length === 2) {
+                          return (
+                            <div key={groupIdx} className="upd-youtube-grid-2">
+                              {group.items.map((item, itemIdx) => (
+                                <div key={itemIdx} className="upd-youtube-embed-wrapper upd-youtube-grid-item">
+                                  <iframe
+                                    className="upd-youtube-iframe"
+                                    src={`https://www.youtube.com/embed/${item.ytId}`}
+                                    title="YouTube video player"
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    referrerPolicy="strict-origin-when-cross-origin"
+                                    allowFullScreen
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        }
+                        const item = group.items[0];
                         return (
-                          <div key={i} className="upd-youtube-embed-wrapper">
+                          <div key={groupIdx} className="upd-youtube-embed-wrapper">
                             <iframe
                               className="upd-youtube-iframe"
-                              src={`https://www.youtube.com/embed/${ytId}`}
+                              src={`https://www.youtube.com/embed/${item.ytId}`}
                               title="YouTube video player"
                               frameBorder="0"
                               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -335,16 +351,15 @@ export default function UpdatesPage({ initialUpdateId }) {
                         );
                       }
 
-                      const isInternal = raw.startsWith('/');
-                      if (isInternal) {
+                      if (group.type === 'internal') {
                         return (
-                          <Link key={i} href={raw} className="upd-link upd-link-internal">
+                          <Link key={groupIdx} href={group.raw} className="upd-link upd-link-internal">
                             <span>Visit</span>
                             <FiChevronRight className="upd-link-icon" />
                           </Link>
                         );
                       }
-                      return <LinkPreview key={i} url={raw} />;
+                      return <LinkPreview key={groupIdx} url={group.raw} />;
                     })}
                   </div>
                 )}
