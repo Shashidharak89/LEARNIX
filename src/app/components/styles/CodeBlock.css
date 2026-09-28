@@ -1,12 +1,12 @@
-/* CodeBlock.css — Fenced Code Container & Syntax Highlighting */
+/* CodeBlock.css — Light Theme Fenced Code Container & Syntax Highlighting */
 
 .code-block-container {
   margin: 14px 0;
-  border-radius: 12px;
+  border-radius: 10px;
   overflow: hidden;
-  background: #0f172a;
-  border: 1px solid #1e293b;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.2);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   width: 100%;
   box-sizing: border-box;
@@ -17,9 +17,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #1e293b;
+  background: #f1f5f9;
   padding: 8px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid #e2e8f0;
   user-select: none;
 }
 
@@ -29,22 +29,22 @@
   gap: 6px;
   font-size: 12px;
   font-weight: 700;
-  color: #38bdf8;
+  color: #0284c7;
   text-transform: lowercase;
   letter-spacing: 0.5px;
 }
 
 .code-block-lang-icon {
-  color: #38bdf8;
+  color: #0284c7;
 }
 
 .code-block-copy-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #cbd5e1;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #ffffff;
+  color: #475569;
+  border: 1px solid #cbd5e1;
   padding: 4px 10px;
   border-radius: 6px;
   font-size: 12px;
@@ -85,33 +85,42 @@
 }
 
 .code-block-code {
-  color: #f1f5f9;
+  color: #1e293b;
   font-family: inherit;
 }
 
-/* Syntax Highlighting Tokens */
+/* Light Theme Syntax Highlighting Tokens */
 .token-keyword {
-  color: #c084fc;
+  color: #7c3aed;
   font-weight: 600;
 }
 
 .token-string {
-  color: #34d399;
+  color: #059669;
 }
 
 .token-number {
-  color: #fb923c;
+  color: #d97706;
 }
 
 .token-function {
-  color: #facc15;
+  color: #2563eb;
 }
 
 .token-boolean {
-  color: #38bdf8;
+  color: #0284c7;
 }
 
 .token-comment {
-  color: #94a3b8;
+  color: #64748b;
   font-style: italic;
+}
+
+.token-tag {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.token-attr {
+  color: #0284c7;
 }
