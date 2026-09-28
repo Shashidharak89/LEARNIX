@@ -1,0 +1,117 @@
+/* CodeBlock.css — Fenced Code Container & Syntax Highlighting */
+
+.code-block-container {
+  margin: 14px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.2);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Header bar displaying language & Copy button */
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1e293b;
+  padding: 8px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  user-select: none;
+}
+
+.code-block-lang {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #38bdf8;
+  text-transform: lowercase;
+  letter-spacing: 0.5px;
+}
+
+.code-block-lang-icon {
+  color: #38bdf8;
+}
+
+.code-block-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.code-block-copy-btn:hover {
+  background: #0b74ff;
+  color: #ffffff;
+  border-color: #0b74ff;
+}
+
+.code-block-copy-btn.copied {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+}
+
+/* Code Content */
+.code-block-content {
+  padding: 14px 16px;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.code-block-pre {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 13.5px;
+  line-height: 1.6;
+  white-space: pre;
+  word-break: normal;
+  tab-size: 2;
+}
+
+.code-block-code {
+  color: #f1f5f9;
+  font-family: inherit;
+}
+
+/* Syntax Highlighting Tokens */
+.token-keyword {
+  color: #c084fc;
+  font-weight: 600;
+}
+
+.token-string {
+  color: #34d399;
+}
+
+.token-number {
+  color: #fb923c;
+}
+
+.token-function {
+  color: #facc15;
+}
+
+.token-boolean {
+  color: #38bdf8;
+}
+
+.token-comment {
+  color: #94a3b8;
+  font-style: italic;
+}

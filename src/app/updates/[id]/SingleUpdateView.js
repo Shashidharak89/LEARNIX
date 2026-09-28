@@ -20,6 +20,7 @@ import { getYouTubeVideoId, groupConsecutiveLinks } from "../../utils/youtube";
 import LinkPreview from "../../components/LinkPreview";
 import YouTubeEmbed from "../../components/YouTubeEmbed";
 import FileIcon from "../../components/FileIcon";
+import MarkdownRenderer from "../../components/MarkdownRenderer";
 import "./styles/SingleUpdateView.css";
 
 const DEFAULT_PROFILE_IMAGE =
@@ -298,7 +299,7 @@ export default function SingleUpdateView({ updateId }) {
 
           {/* Title & Body Content */}
           <h1 className="suv-title">{update.title || "Update"}</h1>
-          {update.content && <p className="suv-content-text">{update.content}</p>}
+          {update.content && <MarkdownRenderer content={update.content} className="suv-content-text" />}
 
           {/* Embedded YouTube / Links */}
           {update.links && update.links.length > 0 && (

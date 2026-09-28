@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from 'react';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import MarkdownRenderer from './MarkdownRenderer';
 import './styles/ExpandableDescription.css';
 
 export default function ExpandableDescription({ content, className = "" }) {
@@ -45,7 +46,7 @@ export default function ExpandableDescription({ content, className = "" }) {
           position: 'relative',
         }}
       >
-        {content}
+        <MarkdownRenderer content={content} />
       </div>
 
       {isOverflowing && !isExpanded && (
