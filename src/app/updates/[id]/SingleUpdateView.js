@@ -18,6 +18,7 @@ import {
 import { authFetch } from "@/lib/clientAuth";
 import { getYouTubeVideoId, groupConsecutiveLinks } from "../../utils/youtube";
 import LinkPreview from "../../components/LinkPreview";
+import YouTubeEmbed from "../../components/YouTubeEmbed";
 import FileIcon from "../../components/FileIcon";
 import "./styles/SingleUpdateView.css";
 
@@ -308,34 +309,24 @@ export default function SingleUpdateView({ updateId }) {
                     return (
                       <div key={groupIdx} className="suv-youtube-grid-2">
                         {group.items.map((item, itemIdx) => (
-                          <div key={itemIdx} className="suv-youtube-wrapper suv-youtube-grid-item">
-                            <iframe
-                              className="suv-youtube-iframe"
-                              src={`https://www.youtube.com/embed/${item.ytId}`}
-                              title="YouTube video player"
-                              frameBorder="0"
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                              referrerPolicy="strict-origin-when-cross-origin"
-                              allowFullScreen
-                            />
-                          </div>
+                          <YouTubeEmbed
+                            key={itemIdx}
+                            ytId={item.ytId}
+                            wrapperClass="suv-youtube-wrapper suv-youtube-grid-item"
+                            iframeClass="suv-youtube-iframe"
+                          />
                         ))}
                       </div>
                     );
                   }
                   const item = group.items[0];
                   return (
-                    <div key={groupIdx} className="suv-youtube-wrapper">
-                      <iframe
-                        className="suv-youtube-iframe"
-                        src={`https://www.youtube.com/embed/${item.ytId}`}
-                        title="YouTube video player"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerPolicy="strict-origin-when-cross-origin"
-                        allowFullScreen
-                      />
-                    </div>
+                    <YouTubeEmbed
+                      key={groupIdx}
+                      ytId={item.ytId}
+                      wrapperClass="suv-youtube-wrapper"
+                      iframeClass="suv-youtube-iframe"
+                    />
                   );
                 }
 

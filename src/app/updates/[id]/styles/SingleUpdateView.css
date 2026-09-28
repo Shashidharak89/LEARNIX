@@ -254,8 +254,9 @@
   height: 0;
   overflow: hidden;
   border-radius: 12px;
-  background: #000000;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  background: #f8fafc;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
 }
 
 .suv-youtube-wrapper.suv-youtube-grid-item {

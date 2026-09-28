@@ -7,6 +7,7 @@ import { Share2, Bell } from 'lucide-react';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
 import { getYouTubeVideoId, groupConsecutiveLinks } from '../utils/youtube';
 import LinkPreview from '../components/LinkPreview';
+import YouTubeEmbed from '../components/YouTubeEmbed';
 import FileIcon from '../components/FileIcon';
 import ExpandableDescription from '../components/ExpandableDescription';
 import './styles/Updates.css';
@@ -320,34 +321,24 @@ export default function UpdatesPage({ initialUpdateId }) {
                           return (
                             <div key={groupIdx} className="upd-youtube-grid-2">
                               {group.items.map((item, itemIdx) => (
-                                <div key={itemIdx} className="upd-youtube-embed-wrapper upd-youtube-grid-item">
-                                  <iframe
-                                    className="upd-youtube-iframe"
-                                    src={`https://www.youtube.com/embed/${item.ytId}`}
-                                    title="YouTube video player"
-                                    frameBorder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                    referrerPolicy="strict-origin-when-cross-origin"
-                                    allowFullScreen
-                                  />
-                                </div>
+                                <YouTubeEmbed
+                                  key={itemIdx}
+                                  ytId={item.ytId}
+                                  wrapperClass="upd-youtube-embed-wrapper upd-youtube-grid-item"
+                                  iframeClass="upd-youtube-iframe"
+                                />
                               ))}
                             </div>
                           );
                         }
                         const item = group.items[0];
                         return (
-                          <div key={groupIdx} className="upd-youtube-embed-wrapper">
-                            <iframe
-                              className="upd-youtube-iframe"
-                              src={`https://www.youtube.com/embed/${item.ytId}`}
-                              title="YouTube video player"
-                              frameBorder="0"
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                              referrerPolicy="strict-origin-when-cross-origin"
-                              allowFullScreen
-                            />
-                          </div>
+                          <YouTubeEmbed
+                            key={groupIdx}
+                            ytId={item.ytId}
+                            wrapperClass="upd-youtube-embed-wrapper"
+                            iframeClass="upd-youtube-iframe"
+                          />
                         );
                       }
 

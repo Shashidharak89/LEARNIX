@@ -672,7 +672,7 @@
   overflow: hidden;
   box-shadow: var(--upd-shadow-md);
   border: 1.5px solid var(--upd-border);
-  background: #000;
+  background: #f8fafc;
   margin: 4px 0;
   transition: transform 0.3s var(--upd-ease), box-shadow 0.3s var(--upd-ease);
 }

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { FiTrash2, FiEdit2, FiSave, FiX, FiUser, FiClock, FiExternalLink, FiChevronRight, FiAlertCircle, FiAlertTriangle, FiUpload, FiDownload, FiEye } from "react-icons/fi";
 import { getYouTubeVideoId, groupConsecutiveLinks } from '../../utils/youtube';
 import LinkPreview from '../../components/LinkPreview';
+import YouTubeEmbed from '../../components/YouTubeEmbed';
 import FileIcon from '../../components/FileIcon';
 import { authFetch } from '@/lib/clientAuth';
 import ExpandableDescription from '../../components/ExpandableDescription';
@@ -473,34 +474,24 @@ export default function UpdatesList({ refreshKey }) {
                         return (
                           <div key={groupIdx} className="upl-youtube-grid-2">
                             {group.items.map((item, itemIdx) => (
-                              <div key={itemIdx} className="upl-youtube-embed-wrapper upl-youtube-grid-item">
-                                <iframe
-                                  className="upl-youtube-iframe"
-                                  src={`https://www.youtube.com/embed/${item.ytId}`}
-                                  title="YouTube video player"
-                                  frameBorder="0"
-                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                  referrerPolicy="strict-origin-when-cross-origin"
-                                  allowFullScreen
-                                />
-                              </div>
+                              <YouTubeEmbed
+                                key={itemIdx}
+                                ytId={item.ytId}
+                                wrapperClass="upl-youtube-embed-wrapper upl-youtube-grid-item"
+                                iframeClass="upl-youtube-iframe"
+                              />
                             ))}
                           </div>
                         );
                       }
                       const item = group.items[0];
                       return (
-                        <div key={groupIdx} className="upl-youtube-embed-wrapper">
-                          <iframe
-                            className="upl-youtube-iframe"
-                            src={`https://www.youtube.com/embed/${item.ytId}`}
-                            title="YouTube video player"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            referrerPolicy="strict-origin-when-cross-origin"
-                            allowFullScreen
-                          />
-                        </div>
+                        <YouTubeEmbed
+                          key={groupIdx}
+                          ytId={item.ytId}
+                          wrapperClass="upl-youtube-embed-wrapper"
+                          iframeClass="upl-youtube-iframe"
+                        />
                       );
                     }
 

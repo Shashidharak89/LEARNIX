@@ -497,9 +497,9 @@
   aspect-ratio: 16 / 9;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: #000000;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #f8fafc;
   margin: 4px 0;
 }
 
