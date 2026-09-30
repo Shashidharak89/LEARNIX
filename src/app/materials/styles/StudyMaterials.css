@@ -694,7 +694,13 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .sm-wrapper {
-    padding: 16px;
+    padding: 12px 6px;
+  }
+
+  .sm-container {
+    width: 98%;
+    max-width: 98%;
+    margin: 0 auto;
   }
 
   .sm-title {
