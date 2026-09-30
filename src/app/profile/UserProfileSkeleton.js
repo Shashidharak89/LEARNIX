@@ -3,14 +3,14 @@
 import { useState, useEffect } from "react";
 import { 
   FiBook, 
-  FiImage, 
-  FiClock, 
-  FiUpload,
-  FiGrid,
-  FiCalendar,
+  FiList,
+  FiCloud,
+  FiZap,
+  FiTrendingUp,
   FiUser,
-  FiSearch,
-  FiSettings
+  FiSettings,
+  FiCalendar,
+  FiChevronRight
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import './styles/UserProfileSkeleton.css';
@@ -30,10 +30,11 @@ export default function UserProfileSkeleton() {
       const data = await response.json();
       if (data && data[0] && data[0].q) {
         setQuote(data[0].q);
+      } else {
+        setQuote("Loading your personalized learning experience...");
       }
     } catch (error) {
-      console.error('Error fetching quote:', error);
-      setQuote("Loading your experience...");
+      setQuote("Loading your personalized learning experience...");
     } finally {
       setIsLoadingQuote(false);
     }
@@ -42,195 +43,135 @@ export default function UserProfileSkeleton() {
   return (
     <div className="ups-container">
       <div className="ups-wrapper">
-        <div className="ups-card">
-          {/* Settings Button Skeleton */}
-          <div className="ups-settings-btn">
-            <FiSettings className="ups-shimmer" />
+        {/* Page Header & Breadcrumb Skeleton */}
+        <div className="ups-page-header">
+          <div className="ups-page-title-skeleton ups-shimmer" />
+          <div className="ups-breadcrumb-skeleton ups-shimmer" />
+        </div>
+
+        {/* Main Profile Card Skeleton */}
+        <div className="ups-main-card">
+          <div className="ups-card-accent-blue" />
+          <div className="ups-card-accent-yellow">
+            <div className="ups-card-dots" />
+          </div>
+          <div className="ups-card-dots-left" />
+
+          {/* Settings Gear Button Skeleton */}
+          <div className="ups-settings-gear-btn">
+            <FiSettings className="ups-spin-icon" />
           </div>
 
-          {/* Header Skeleton */}
-          <div className="ups-header">
-            <div className="ups-avatar-container">
-              <div className="ups-avatar-skeleton ups-shimmer">
+          <div className="ups-main-card-body">
+            {/* Left Profile Info Skeleton */}
+            <div className="ups-profile-left">
+              <div className="ups-avatar-wrapper ups-shimmer">
                 <FiUser className="ups-avatar-icon" />
               </div>
-            </div>
-            <div className="ups-user-info">
-              <div className="ups-name-section">
-                <div className="ups-user-name-skeleton ups-shimmer"></div>
-                <div className="ups-user-usn-skeleton ups-shimmer"></div>
-              </div>
-              <div className="ups-stats">
-                <div className="ups-stat">
-                  <div className="ups-stat-number-skeleton ups-shimmer"></div>
-                  <span className="ups-stat-label">Subjects</span>
-                </div>
-                <div className="ups-stat">
-                  <div className="ups-stat-number-skeleton ups-shimmer"></div>
-                  <span className="ups-stat-label">Topics</span>
-                </div>
-                <div className="ups-stat">
-                  <div className="ups-stat-number-skeleton ups-shimmer"></div>
-                  <span className="ups-stat-label">Uploads</span>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Meta Skeleton */}
-          <div className="ups-meta">
-            <div className="ups-meta-item">
-              <HiAcademicCap className="ups-meta-icon" />
-              <div className="ups-meta-text-skeleton ups-shimmer"></div>
-            </div>
-            <div className="ups-meta-item">
-              <FiCalendar className="ups-meta-icon" />
-              <div className="ups-meta-text-skeleton ups-shimmer"></div>
-            </div>
-          </div>
+              <div className="ups-user-details">
+                <div className="ups-name-skeleton ups-shimmer" />
+                <div className="ups-usn-skeleton ups-shimmer" />
 
-          {/* Search Skeleton */}
-          <div className="ups-search">
-            <FiSearch className="ups-search-icon" />
-            <div className="ups-search-skeleton ups-shimmer"></div>
-          </div>
+                <div className="ups-quote-container">
+                  {isLoadingQuote ? (
+                    <div className="ups-quote-skeleton ups-shimmer" />
+                  ) : (
+                    <p className="ups-quote-text">{quote}</p>
+                  )}
+                </div>
 
-          {/* Quote Section */}
-          <div className="ups-quote-section">
-            {isLoadingQuote ? (
-              <div className="ups-quote-skeleton ups-shimmer"></div>
-            ) : (
-              <p className="ups-quote">{quote}</p>
-            )}
-          </div>
-
-          {/* Content Skeleton */}
-          <div className="ups-content">
-            <div className="ups-subjects">
-              {/* Subject Card 1 */}
-              <div className="ups-subject-card">
-                <div className="ups-subject-header">
-                  <div className="ups-subject-title">
-                    <FiBook className="ups-subject-icon" />
-                    <div className="ups-subject-name-skeleton ups-shimmer"></div>
+                <div className="ups-meta-list">
+                  <div className="ups-meta-pill-skeleton ups-shimmer">
+                    <HiAcademicCap className="ups-meta-icon" />
+                    <div className="ups-pill-line" />
                   </div>
-                  <div className="ups-subject-badge-skeleton ups-shimmer"></div>
-                </div>
-                <div className="ups-topics">
-                  {/* Topic 1 */}
-                  <div className="ups-topic-card">
-                    <div className="ups-topic-header">
-                      <div className="ups-topic-info">
-                        <div className="ups-topic-title-skeleton ups-shimmer"></div>
-                        <div className="ups-topic-meta">
-                          <div className="ups-topic-date">
-                            <FiClock className="ups-meta-icon" />
-                            <div className="ups-topic-date-skeleton ups-shimmer"></div>
-                          </div>
-                          <div className="ups-topic-uploads">
-                            <FiUpload className="ups-meta-icon" />
-                            <div className="ups-topic-uploads-skeleton ups-shimmer"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="ups-uploads">
-                      <div className="ups-view-uploads-skeleton ups-shimmer">
-                        <FiGrid />
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Topic 2 */}
-                  <div className="ups-topic-card">
-                    <div className="ups-topic-header">
-                      <div className="ups-topic-info">
-                        <div className="ups-topic-title-skeleton ups-shimmer"></div>
-                        <div className="ups-topic-meta">
-                          <div className="ups-topic-date">
-                            <FiClock className="ups-meta-icon" />
-                            <div className="ups-topic-date-skeleton ups-shimmer"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Subject Card 2 */}
-              <div className="ups-subject-card">
-                <div className="ups-subject-header">
-                  <div className="ups-subject-title">
-                    <FiBook className="ups-subject-icon" />
-                    <div className="ups-subject-name-skeleton ups-shimmer"></div>
-                  </div>
-                  <div className="ups-subject-badge-skeleton ups-shimmer"></div>
-                </div>
-                <div className="ups-topics">
-                  <div className="ups-topic-card">
-                    <div className="ups-topic-header">
-                      <div className="ups-topic-info">
-                        <div className="ups-topic-title-skeleton ups-shimmer"></div>
-                        <div className="ups-topic-meta">
-                          <div className="ups-topic-date">
-                            <FiClock className="ups-meta-icon" />
-                            <div className="ups-topic-date-skeleton ups-shimmer"></div>
-                          </div>
-                          <div className="ups-topic-uploads">
-                            <FiUpload className="ups-meta-icon" />
-                            <div className="ups-topic-uploads-skeleton ups-shimmer"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="ups-uploads">
-                      <div className="ups-view-uploads-skeleton ups-shimmer">
-                        <FiGrid />
-                      </div>
-                      <div className="ups-uploads-grid">
-                        {[1, 2, 3, 4].map((index) => (
-                          <div key={index} className="ups-upload-item">
-                            <div className="ups-upload-wrapper">
-                              <div className="ups-upload-skeleton ups-shimmer">
-                                <FiImage className="ups-upload-icon" />
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Subject Card 3 */}
-              <div className="ups-subject-card">
-                <div className="ups-subject-header">
-                  <div className="ups-subject-title">
-                    <FiBook className="ups-subject-icon" />
-                    <div className="ups-subject-name-skeleton ups-shimmer"></div>
-                  </div>
-                  <div className="ups-subject-badge-skeleton ups-shimmer"></div>
-                </div>
-                <div className="ups-topics">
-                  <div className="ups-topic-card">
-                    <div className="ups-topic-header">
-                      <div className="ups-topic-info">
-                        <div className="ups-topic-title-skeleton ups-shimmer"></div>
-                        <div className="ups-topic-meta">
-                          <div className="ups-topic-date">
-                            <FiClock className="ups-meta-icon" />
-                            <div className="ups-topic-date-skeleton ups-shimmer"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                  <div className="ups-meta-pill-skeleton ups-shimmer">
+                    <FiCalendar className="ups-meta-icon" />
+                    <div className="ups-pill-line" />
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* Right 5 Stat Cards Grid Skeleton */}
+            <div className="ups-stats-grid">
+              <div className="ups-stat-card is-subjects">
+                <div className="ups-stat-icon-wrapper">
+                  <FiBook />
+                </div>
+                <div className="ups-stat-val-skeleton ups-shimmer" />
+                <div className="ups-stat-label">Subjects</div>
+              </div>
+
+              <div className="ups-stat-card is-topics">
+                <div className="ups-stat-icon-wrapper">
+                  <FiList />
+                </div>
+                <div className="ups-stat-val-skeleton ups-shimmer" />
+                <div className="ups-stat-label">Topics</div>
+              </div>
+
+              <div className="ups-stat-card is-uploads">
+                <div className="ups-stat-icon-wrapper">
+                  <FiCloud />
+                </div>
+                <div className="ups-stat-val-skeleton ups-shimmer" />
+                <div className="ups-stat-label">Uploads</div>
+              </div>
+
+              <div className="ups-stat-card is-streak">
+                <div className="ups-stat-icon-wrapper">
+                  <FiZap />
+                </div>
+                <div className="ups-stat-val-skeleton ups-shimmer" />
+                <div className="ups-stat-label">Streak</div>
+              </div>
+
+              <div className="ups-stat-card is-highest-streak">
+                <div className="ups-stat-icon-wrapper">
+                  <FiTrendingUp />
+                </div>
+                <div className="ups-stat-val-skeleton ups-shimmer" />
+                <div className="ups-stat-label">Highest streak</div>
+              </div>
+            </div>
           </div>
+        </div>
+
+        {/* Resources Banner Card Skeleton */}
+        <div className="ups-resources-banner-card">
+          <div className="ups-banner-center">
+            <div className="ups-banner-heading-skeleton ups-shimmer" />
+            <div className="ups-banner-subtext-skeleton ups-shimmer" />
+            <div className="ups-banner-btn-skeleton ups-shimmer">
+              <span style={{ opacity: 0 }}>View Resources</span>
+              <FiChevronRight style={{ opacity: 0.5 }} />
+            </div>
+          </div>
+        </div>
+
+        {/* Subjects & Topics List Skeleton */}
+        <div className="ups-subjects-section">
+          {[1, 2].map((idx) => (
+            <div key={idx} className="ups-subject-card">
+              <div className="ups-subject-header">
+                <div className="ups-subject-title">
+                  <FiBook className="ups-subject-icon" />
+                  <div className="ups-subj-name-skeleton ups-shimmer" />
+                </div>
+                <div className="ups-subj-badge-skeleton ups-shimmer" />
+              </div>
+              <div className="ups-topics-list">
+                {[1, 2].map((tIdx) => (
+                  <div key={tIdx} className="ups-topic-item">
+                    <div className="ups-topic-name-skeleton ups-shimmer" />
+                    <div className="ups-topic-meta-skeleton ups-shimmer" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

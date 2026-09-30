@@ -1,4 +1,4 @@
-/* UserProfileSkeleton.css */
+/* UserProfileSkeleton.css - Modern Apple-Style Shimmer Loader */
 
 * {
   box-sizing: border-box;
@@ -6,725 +6,491 @@
 
 .ups-container {
   min-height: 100vh;
-  background-color: #ffffff;
-  padding: 1rem;
+  background-color: #f8fafc;
+  padding: 1.5rem 1rem 3rem 1rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   line-height: 1.6;
 }
 
 .ups-wrapper {
-  max-width: 1200px;
+  max-width: 1140px;
   margin: 0 auto;
-  animation: upsFadeIn 0.6s ease-out;
+  animation: upsFadeIn 0.4s ease-out;
 }
 
-.ups-card {
-  background: #ffffff;
-  border: 2px solid #007bff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1);
+@keyframes upsFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Shimmer Animation Effect */
+.ups-shimmer {
   position: relative;
-  animation: upsSlideIn 0.6s ease-out;
   overflow: hidden;
+  background-color: #e2e8f0;
 }
 
-/* Settings Button Skeleton */
-.ups-settings-btn {
+.ups-shimmer::after {
+  content: "";
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 40px;
-  height: 40px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.5) 20%,
+    rgba(255, 255, 255, 0.8) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: upsShimmer 1.8s infinite ease-in-out;
+}
+
+@keyframes upsShimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Page Header & Breadcrumb Skeleton */
+.ups-page-header {
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ups-page-title-skeleton {
+  width: 180px;
+  height: 28px;
+  border-radius: 8px;
+}
+
+.ups-breadcrumb-skeleton {
+  width: 120px;
+  height: 16px;
+  border-radius: 6px;
+}
+
+/* Main Profile Card Skeleton */
+.ups-main-card {
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
+  margin-bottom: 1.5rem;
+  padding: 2.25rem 2.25rem;
+}
+
+.ups-card-accent-blue {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 90px;
+  height: 60px;
+  background: #007bff;
+  border-bottom-right-radius: 60px;
+  border-top-left-radius: 20px;
+  z-index: 1;
+}
+
+.ups-card-accent-yellow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 140px;
+  height: 110px;
+  background: linear-gradient(135deg, #ffc107 0%, #f59e0b 100%);
+  border-bottom-left-radius: 110px;
+  border-top-right-radius: 20px;
+  z-index: 1;
+}
+
+.ups-card-dots {
+  width: 50px;
+  height: 50px;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.7) 2px, transparent 2px);
+  background-size: 8px 8px;
+  margin: 16px 20px 0 auto;
+}
+
+.ups-card-dots-left {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 44px;
+  height: 44px;
+  background-image: radial-gradient(#3b82f6 2px, transparent 2px);
+  background-size: 8px 8px;
+  opacity: 0.35;
+  z-index: 1;
+}
+
+.ups-settings-gear-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 10;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background-color: #e6f0fa;
-  border: 2px solid #ffffff;
+  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.95);
+  color: #94a3b8;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.15rem;
+}
+
+.ups-spin-icon {
+  animation: upsSpin 4s linear infinite;
+}
+
+@keyframes upsSpin {
+  100% { transform: rotate(360deg); }
+}
+
+.ups-main-card-body {
+  position: relative;
   z-index: 2;
-}
-
-.ups-settings-btn svg {
-  color: #007bff;
-  font-size: 1rem;
-  animation: upsRotate 2s ease-in-out infinite;
-}
-
-/* Header Skeleton */
-.ups-header {
-  background-color: #007bff;
-  color: #ffffff;
-  padding: 1.5rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
-  position: relative;
-  overflow: hidden;
+  justify-content: space-between;
+  gap: 2rem;
 }
 
-.ups-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  animation: upsHeaderShimmer 2s infinite;
+/* Left Profile Info Skeleton */
+.ups-profile-left {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  flex: 1;
+  min-width: 0;
 }
 
-.ups-avatar-container {
-  width: 64px;
-  height: 64px;
+.ups-avatar-wrapper {
+  width: 124px;
+  height: 124px;
   border-radius: 50%;
-  overflow: hidden;
-  border: 2px solid #ffffff;
+  border: 4px solid #ffffff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.ups-avatar-skeleton {
-  width: 100%;
-  height: 100%;
-  background-color: #e6f0fa;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .ups-avatar-icon {
-  color: #007bff;
-  font-size: 1.5rem;
-  animation: upsPulse 1.5s ease-in-out infinite;
+  font-size: 2.8rem;
+  color: #94a3b8;
 }
 
-.ups-user-info {
-  flex: 1;
-}
-
-.ups-name-section {
-  margin-bottom: 1rem;
+.ups-user-details {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
 }
 
-.ups-user-name-skeleton {
+.ups-name-skeleton {
+  width: 220px;
   height: 28px;
-  width: 180px;
-  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.ups-usn-skeleton {
+  width: 100px;
+  height: 18px;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+}
+
+.ups-quote-container {
+  margin-bottom: 0.85rem;
+}
+
+.ups-quote-skeleton {
+  width: 320px;
+  max-width: 100%;
+  height: 20px;
   border-radius: 6px;
 }
 
-.ups-user-usn-skeleton {
-  height: 20px;
-  width: 80px;
-  background-color: #ffcc00;
-  border-radius: 16px;
+.ups-quote-text {
+  font-size: 0.875rem;
+  font-style: italic;
+  color: #64748b;
+  margin: 0;
+  max-width: 360px;
 }
 
-.ups-stats {
+.ups-meta-list {
   display: flex;
-  gap: 1.5rem;
+  align-items: center;
+  gap: 1.25rem;
 }
 
-.ups-stat {
+.ups-meta-pill-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 4px 12px;
+  border-radius: 16px;
+  height: 26px;
+  width: 110px;
+}
+
+.ups-meta-icon {
+  color: #94a3b8;
+}
+
+.ups-pill-line {
+  flex: 1;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+/* Right 5 Stat Cards Grid Skeleton */
+.ups-stats-grid {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.ups-stat-card {
+  width: 105px;
+  height: 105px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 0.85rem 0.6rem;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
 }
 
-.ups-stat-number-skeleton {
-  height: 24px;
-  width: 40px;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+.ups-stat-icon-wrapper {
+  font-size: 1.15rem;
+  margin-bottom: 0.35rem;
+  color: #007bff;
+}
+
+.ups-stat-card.is-subjects .ups-stat-icon-wrapper { color: #007bff; }
+.ups-stat-card.is-topics .ups-stat-icon-wrapper { color: #8b5cf6; }
+.ups-stat-card.is-uploads .ups-stat-icon-wrapper { color: #10b981; }
+.ups-stat-card.is-streak .ups-stat-icon-wrapper { color: #f59e0b; }
+.ups-stat-card.is-highest-streak .ups-stat-icon-wrapper { color: #ef4444; }
+
+.ups-stat-val-skeleton {
+  width: 36px;
+  height: 22px;
+  border-radius: 6px;
   margin-bottom: 0.25rem;
 }
 
 .ups-stat-label {
-  font-size: 0.8rem;
-  color: #e6f0fa;
-  text-transform: uppercase;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+  text-align: center;
+  white-space: nowrap;
 }
 
-/* Meta Skeleton */
-.ups-meta {
-  background-color: #f8f9fa;
-  padding: 1rem 1.5rem;
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.ups-meta-item {
+/* Resources Banner Card Skeleton */
+.ups-resources-banner-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 1.75rem 2.25rem;
+  margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #333333;
-  font-size: 0.9rem;
+  justify-content: center;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
 }
 
-.ups-meta-icon {
-  color: #007bff;
-  font-size: 1.1rem;
-  animation: upsBounce 2s ease-in-out infinite;
-}
-
-.ups-meta-text-skeleton {
-  height: 16px;
-  width: 120px;
-  background-color: #e6f0fa;
-  border-radius: 4px;
-}
-
-/* Search Skeleton */
-.ups-search {
-  padding: 1rem 1.5rem;
-  background-color: #ffffff;
-  position: relative;
-}
-
-.ups-search-icon {
-  position: absolute;
-  left: 2rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #007bff;
-  font-size: 1rem;
-  animation: upsFloat 2s ease-in-out infinite;
-  z-index: 2;
-}
-
-.ups-search-skeleton {
+.ups-banner-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
   width: 100%;
-  height: 42px;
-  background-color: #f8f9fa;
-  border: 2px solid #007bff;
+}
+
+.ups-banner-heading-skeleton {
+  width: 260px;
+  height: 24px;
+  border-radius: 8px;
+}
+
+.ups-banner-subtext-skeleton {
+  width: 180px;
+  height: 16px;
+  border-radius: 6px;
+}
+
+.ups-banner-btn-skeleton {
+  width: 170px;
+  height: 40px;
   border-radius: 20px;
-  padding-left: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.3rem;
 }
 
-/* Quote Section */
-.ups-quote-section {
-  padding: 1rem 1.5rem;
-  background-color: #ffffff;
-  border-top: 1px solid #e6f0fa;
-  border-bottom: 1px solid #e6f0fa;
-}
-
-.ups-quote-skeleton {
-  height: 20px;
-  width: 85%;
-  background-color: #f8f9fa;
-  border-radius: 4px;
-  margin: 0 auto;
-}
-
-.ups-quote {
-  text-align: center;
-  color: #333333;
-  font-style: italic;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  margin: 0;
-  animation: upsTextFade 0.6s ease-in;
-}
-
-/* Content Skeleton */
-.ups-content {
-  padding: 1.5rem;
-}
-
-.ups-subjects {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: 1fr;
+/* Subjects Section Skeleton */
+.ups-subjects-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 .ups-subject-card {
   background: #ffffff;
-  border: 2px solid #ffcc00;
-  border-radius: 8px;
-  overflow: hidden;
-  position: relative;
-}
-
-.ups-subject-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 204, 0, 0.1),
-    transparent
-  );
-  animation: upsCardShimmer 2.5s infinite;
-  z-index: 1;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
 }
 
 .ups-subject-header {
-  background-color: #ffcc00;
-  padding: 1rem;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  position: relative;
-  z-index: 2;
+  justify-content: space-between;
+  margin-bottom: 1rem;
 }
 
 .ups-subject-title {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
 }
 
 .ups-subject-icon {
-  color: #000000;
-  font-size: 1.1rem;
-  animation: upsWiggle 3s ease-in-out infinite;
+  font-size: 1.2rem;
+  color: #007bff;
 }
 
-.ups-subject-name-skeleton {
-  height: 20px;
-  width: 140px;
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
+.ups-subj-name-skeleton {
+  width: 180px;
+  height: 22px;
+  border-radius: 6px;
 }
 
-.ups-subject-badge-skeleton {
-  height: 20px;
+.ups-subj-badge-skeleton {
   width: 70px;
-  background-color: #ffffff;
-  border-radius: 16px;
+  height: 22px;
+  border-radius: 12px;
 }
 
-.ups-topics {
-  padding: 1rem;
+.ups-topics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.ups-topic-card {
-  background: #ffffff;
-  border: 1px solid #e6f0fa;
-  border-radius: 6px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  position: relative;
-  overflow: hidden;
+.ups-topic-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.ups-topic-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(0, 123, 255, 0.05),
-    transparent
-  );
-  animation: upsTopicShimmer 3s infinite;
-}
-
-.ups-topic-header {
-  margin-bottom: 0.75rem;
-  position: relative;
-  z-index: 2;
-}
-
-.ups-topic-info {
-  width: 100%;
-}
-
-.ups-topic-title-skeleton {
-  height: 18px;
+.ups-topic-name-skeleton {
   width: 160px;
-  background-color: #e6f0fa;
-  border-radius: 4px;
-  margin-bottom: 0.5rem;
-}
-
-.ups-topic-meta {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-.ups-topic-date,
-.ups-topic-uploads {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.85rem;
-  color: #333333;
-}
-
-.ups-topic-date .ups-meta-icon {
-  color: #007bff;
-}
-
-.ups-topic-uploads .ups-meta-icon {
-  color: #ffcc00;
-}
-
-.ups-topic-date-skeleton,
-.ups-topic-uploads-skeleton {
-  height: 14px;
-  width: 80px;
-  background-color: #e6f0fa;
-  border-radius: 4px;
-}
-
-.ups-uploads {
-  margin-top: 0.75rem;
-  position: relative;
-  z-index: 2;
-}
-
-.ups-view-uploads-skeleton {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #f8f9fa;
-  border: 2px solid #007bff;
-  border-radius: 20px;
-  color: #007bff;
-  font-size: 0.85rem;
-  width: fit-content;
-  margin-bottom: 0.75rem;
-}
-
-.ups-uploads-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 0.75rem;
-  animation: upsGridFade 0.8s ease-out;
-}
-
-.ups-upload-item {
-  border: 1px solid #e6f0fa;
+  height: 18px;
   border-radius: 6px;
-  overflow: hidden;
-  position: relative;
 }
 
-.ups-upload-wrapper {
-  width: 100%;
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #ffffff;
+.ups-topic-meta-skeleton {
+  width: 90px;
+  height: 14px;
+  border-radius: 4px;
 }
 
-.ups-upload-skeleton {
-  width: 100%;
-  height: 100%;
-  background-color: #f8f9fa;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.ups-upload-skeleton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(0, 123, 255, 0.1),
-    transparent
-  );
-  animation: upsUploadShimmer 2s infinite;
-}
-
-.ups-upload-icon {
-  color: #007bff;
-  font-size: 1.25rem;
-  z-index: 2;
-  animation: upsPulse 2s ease-in-out infinite;
-}
-
-/* Shimmer Effect */
-.ups-shimmer {
-  position: relative;
-  overflow: hidden;
-}
-
-.ups-shimmer::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.4),
-    transparent
-  );
-  animation: upsShimmer 2s infinite;
-}
-
-/* Animations */
-@keyframes upsFadeIn {
-  from { 
-    opacity: 0; 
-  }
-  to { 
-    opacity: 1; 
-  }
-}
-
-@keyframes upsSlideIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(20px); 
-  }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
-  }
-}
-
-@keyframes upsShimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-@keyframes upsHeaderShimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-@keyframes upsCardShimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-@keyframes upsTopicShimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-@keyframes upsUploadShimmer {
-  0% {
-    left: -100%;
-  }
-  100% {
-    left: 100%;
-  }
-}
-
-@keyframes upsPulse {
-  0%, 100% { 
-    opacity: 1; 
-    transform: scale(1); 
-  }
-  50% { 
-    opacity: 0.7; 
-    transform: scale(1.05); 
-  }
-}
-
-@keyframes upsBounce {
-  0%, 100% { 
-    transform: translateY(0); 
-  }
-  50% { 
-    transform: translateY(-3px); 
-  }
-}
-
-@keyframes upsFloat {
-  0%, 100% { 
-    transform: translateY(-50%); 
-  }
-  50% { 
-    transform: translateY(-55%); 
-  }
-}
-
-@keyframes upsRotate {
-  0%, 100% { 
-    transform: rotate(0deg); 
-  }
-  50% { 
-    transform: rotate(180deg); 
-  }
-}
-
-@keyframes upsWiggle {
-  0%, 100% { 
-    transform: rotate(0deg); 
-  }
-  25% { 
-    transform: rotate(-5deg); 
-  }
-  75% { 
-    transform: rotate(5deg); 
-  }
-}
-
-@keyframes upsTextFade {
-  from { 
-    opacity: 0; 
-    transform: translateY(10px); 
-  }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
-  }
-}
-
-@keyframes upsGridFade {
-  from { 
-    opacity: 0; 
-  }
-  to { 
-    opacity: 1; 
-  }
-}
-
-/* Responsive Design */
-@media (min-width: 768px) {
-  .ups-container {
-    padding: 1.5rem;
-  }
-  
-  .ups-subjects {
-    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  }
-  
-  .ups-header {
-    padding: 2rem;
-  }
-  
-  .ups-user-name-skeleton {
-    height: 32px;
-    width: 200px;
-  }
-  
-  .ups-stats {
-    gap: 2rem;
-  }
-  
-  .ups-avatar-container {
-    width: 80px;
-    height: 80px;
-  }
-
-  .ups-avatar-icon {
-    font-size: 2rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .ups-subjects {
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  }
-  
-  .ups-content {
-    padding: 2rem;
-  }
-  
-  .ups-topics {
-    padding: 1.5rem;
-  }
-}
-
-@media (max-width: 767px) {
-  .ups-container {
-    padding: 0.75rem;
-  }
-  
-  .ups-header {
+/* Responsive Breakpoints */
+@media (max-width: 1024px) {
+  .ups-main-card-body {
     flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .ups-profile-left {
+    width: 100%;
+  }
+
+  .ups-stats-grid {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 768px) {
+  .ups-main-card {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .ups-profile-left {
+    flex-direction: column;
+    align-items: center;
     text-align: center;
     gap: 1rem;
   }
-  
-  .ups-user-name-skeleton {
-    height: 24px;
-    width: 150px;
+
+  .ups-avatar-wrapper {
+    width: 100px;
+    height: 100px;
+  }
+
+  .ups-name-skeleton {
+    margin: 0 auto 0.5rem auto;
+  }
+
+  .ups-usn-skeleton {
+    margin: 0 auto 0.75rem auto;
+  }
+
+  .ups-quote-skeleton {
     margin: 0 auto;
   }
-  
-  .ups-stats {
-    gap: 1rem;
+
+  .ups-meta-list {
+    justify-content: center;
   }
 
-  .ups-uploads-grid {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  .ups-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
   }
 
-  .ups-quote {
-    font-size: 0.8rem;
+  .ups-stat-card {
+    width: 100%;
+    height: 98px;
   }
 }
 
-/* Reduced Motion Support */
-@media (prefers-reduced-motion: reduce) {
-  .ups-shimmer::before,
-  .ups-subject-card::before,
-  .ups-topic-card::before,
-  .ups-upload-skeleton::before,
-  .ups-header::before {
-    animation: none;
+@media (max-width: 480px) {
+  .ups-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
-  
-  .ups-avatar-icon,
-  .ups-meta-icon,
-  .ups-search-icon,
-  .ups-upload-icon,
-  .ups-subject-icon {
-    animation: none;
-  }
-  
-  .ups-card {
-    animation: none;
-  }
-  
-  .ups-wrapper {
-    animation: none;
+
+  .ups-stat-card:last-child {
+    grid-column: span 2;
   }
 }

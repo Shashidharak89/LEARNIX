@@ -23,7 +23,11 @@ import {
   FiList,
   FiZap,
   FiTrendingUp,
-  FiX
+  FiX,
+  FiHelpCircle,
+  FiUserPlus,
+  FiLock,
+  FiUser
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import ChangeName from './ChangeName';
@@ -188,10 +192,11 @@ export default function UserProfile({ googleClientId = "" }) {
     setLoading(true);
     setHasError(false);
     try {
-      const usn = localStorage.getItem("usn");
+      const usn = typeof window !== 'undefined' ? localStorage.getItem("usn") : null;
       if (!usn) {
-        setMessage("Please login to view your profile.");
-        setHasError(true);
+        setUser(null);
+        setHasError(false);
+        setMessage("Guest Mode");
         setLoading(false);
         return;
       }
@@ -200,7 +205,10 @@ export default function UserProfile({ googleClientId = "" }) {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         if (res.status === 401 || res.status === 403) {
-          signOutFromBrowser("Your session expired. Please login again.");
+          setUser(null);
+          setHasError(false);
+          setMessage("Guest Mode");
+          setLoading(false);
           return;
         }
         throw new Error(data?.error || "Failed to fetch user profile");
@@ -379,15 +387,15 @@ export default function UserProfile({ googleClientId = "" }) {
       <div className="up-wrapper">
         {/* Page Header & Breadcrumb */}
         <div className="up-page-header">
-          <h1 className="up-page-title">My Account</h1>
+          <h1 className="up-page-title">{user ? "My Account" : "Guest Profile"}</h1>
           <div className="up-breadcrumb">
             <Link href="/" className="up-breadcrumb-link">Home</Link>
             <span className="up-breadcrumb-sep">&gt;</span>
-            <span className="up-breadcrumb-current">My Account</span>
+            <span className="up-breadcrumb-current">{user ? "My Account" : "Guest Profile"}</span>
           </div>
         </div>
 
-        {user && (
+        {user ? (
           <>
             {/* Top Main Profile Card */}
             <div className="up-main-card">
@@ -785,6 +793,153 @@ export default function UserProfile({ googleClientId = "" }) {
                 )}
               </div>
             )}
+          </>
+        ) : (
+          <>
+            {/* Guest / Logged Out Profile Card */}
+            <div className="up-main-card is-guest">
+              <div className="up-card-accent-blue" />
+              <div className="up-card-accent-yellow">
+                <div className="up-card-dots" />
+              </div>
+              <div className="up-card-dots-left" />
+
+              <div className="up-main-card-body">
+                {/* Left Profile Info */}
+                <div className="up-profile-left">
+                  <div className="up-avatar-wrapper is-guest-avatar">
+                    <div className="up-guest-avatar-circle">
+                      <span className="up-guest-avatar-qm">?</span>
+                    </div>
+                  </div>
+
+                  <div className="up-user-details">
+                    <div className="up-guest-badge">
+                      <FiHelpCircle className="up-guest-badge-icon" /> Guest Profile
+                    </div>
+                    <h2 className="up-user-fullname">Guest Student</h2>
+                    <div className="up-user-usn">USN: ???</div>
+
+                    <p className="up-user-quote">
+                      {quote ? quote : "Unlock your full academic potential! Log in or sign up to access study materials, track daily streaks, and save resources."}
+                    </p>
+
+                    <div className="up-meta-list">
+                      <div className="up-meta-pill">
+                        <HiAcademicCap className="up-meta-icon" />
+                        <span>Student Mode</span>
+                      </div>
+                      <div className="up-meta-pill">
+                        <FiUser className="up-meta-icon" />
+                        <span>Not Logged In</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right 5 Stat Cards Grid with Question Marks */}
+                <div className="up-stats-grid">
+                  <div className="up-stat-card is-subjects is-guest-stat">
+                    <div className="up-stat-icon-wrapper">
+                      <FiBook />
+                    </div>
+                    <div className="up-stat-value up-qm-glow">?</div>
+                    <div className="up-stat-label">Subjects</div>
+                  </div>
+
+                  <div className="up-stat-card is-topics is-guest-stat">
+                    <div className="up-stat-icon-wrapper">
+                      <FiList />
+                    </div>
+                    <div className="up-stat-value up-qm-glow">?</div>
+                    <div className="up-stat-label">Topics</div>
+                  </div>
+
+                  <div className="up-stat-card is-uploads is-guest-stat">
+                    <div className="up-stat-icon-wrapper">
+                      <FiCloud />
+                    </div>
+                    <div className="up-stat-value up-qm-glow">?</div>
+                    <div className="up-stat-label">Uploads</div>
+                  </div>
+
+                  <div className="up-stat-card is-streak is-guest-stat">
+                    <div className="up-stat-icon-wrapper">
+                      <FiZap />
+                    </div>
+                    <div className="up-stat-value up-qm-glow">?</div>
+                    <div className="up-stat-label">Streak</div>
+                  </div>
+
+                  <div className="up-stat-card is-highest-streak is-guest-stat">
+                    <div className="up-stat-icon-wrapper">
+                      <FiTrendingUp />
+                    </div>
+                    <div className="up-stat-value up-qm-glow">?</div>
+                    <div className="up-stat-label">Highest streak</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Login / Register Now Callout Box */}
+              <div className="up-guest-cta-box">
+                <div className="up-guest-cta-content">
+                  <div className="up-guest-cta-icon-wrap">
+                    <FiLock />
+                  </div>
+                  <div className="up-guest-cta-text">
+                    <h3 className="up-guest-cta-title">Ready to unlock your profile?</h3>
+                    <p className="up-guest-cta-subtitle">
+                      Sign in or create a Learnix account to view your uploaded resources, track daily learning streaks, and manage settings.
+                    </p>
+                  </div>
+                </div>
+                <div className="up-guest-cta-actions">
+                  <Link href="/login" className="up-guest-btn-login">
+                    <FiLogIn /> Login Now
+                  </Link>
+                  <Link href="/signup" className="up-guest-btn-signup">
+                    <FiUserPlus /> Register Now
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Resources Banner Card for Guest */}
+            <div className="up-resources-banner-card is-guest-banner">
+              <div className="up-banner-graphic-left">
+                <svg width="105" height="90" viewBox="0 0 120 100" fill="none">
+                  <ellipse cx="60" cy="90" rx="50" ry="6" fill="#cbd5e1" opacity="0.5"/>
+                  <path d="M15 30C15 26.6863 17.6863 24 21 24H42L50 32H99C102.314 32 105 34.6863 105 38V80C105 83.3137 102.314 86 99 86H21C17.6863 86 15 83.3137 15 80V30Z" fill="#2563eb" opacity="0.85"/>
+                  <rect x="35" y="16" width="30" height="40" rx="4" fill="#ffffff" stroke="#cbd5e1" strokeWidth="2"/>
+                  <line x1="41" y1="26" x2="57" y2="26" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round"/>
+                  <line x1="41" y1="32" x2="53" y2="32" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round"/>
+                  <path d="M12 40C12 36.6863 14.6863 34 18 34H102C105.314 34 108 36.6863 108 40V82C108 85.3137 105.314 88 102 88H18C14.6863 88 12 85.3137 12 82V40Z" fill="#007bff"/>
+                  <circle cx="60" cy="62" r="16" fill="#ffffff"/>
+                  <text x="60" y="68" textAnchor="middle" fill="#007bff" fontSize="18" fontWeight="bold">?</text>
+                </svg>
+              </div>
+
+              <div className="up-banner-center">
+                <h3 className="up-banner-heading">Explore Resources & Study Materials</h3>
+                <p className="up-banner-subtext">
+                  Browse question papers, subject topics, and study notes on Learnix
+                </p>
+
+                <Link href="/works" className="up-banner-action-btn">
+                  Browse All Resources <FiChevronRight />
+                </Link>
+              </div>
+
+              <div className="up-banner-graphic-right">
+                <img
+                  src={machineLearningSvg.src || machineLearningSvg}
+                  alt="Machine Learning Mapping"
+                  className="up-banner-ml-img"
+                  style={{ width: "160px", height: "105px", objectFit: "contain" }}
+                />
+              </div>
+            </div>
           </>
         )}
       </div>
