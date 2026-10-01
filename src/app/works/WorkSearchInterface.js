@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiBook, FiShare2, FiMoreVertical, FiExternalLink, FiFilter, FiCheck, FiZap, FiX, FiUpload, FiFolder } from 'react-icons/fi';
+import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiBook, FiShare2, FiMoreVertical, FiExternalLink, FiFilter, FiCheck, FiZap, FiX, FiUpload, FiFolder, FiPlus } from 'react-icons/fi';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import SubjectTopicFilter from './SubjectTopicFilter';
 import Ads from '../components/ads/Ads';
@@ -133,6 +133,14 @@ const WorkSearchInterface = () => {
   const [isLoadingRelevant, setIsLoadingRelevant] = useState(false);
   const [isLoadingMoreRelevant, setIsLoadingMoreRelevant] = useState(false);
   const [showRelevant, setShowRelevant] = useState(false);
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsLoggedIn(!!(localStorage.getItem('token') || localStorage.getItem('usn')));
+    }
+  }, []);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -717,27 +725,25 @@ const WorkSearchInterface = () => {
 
   return (
     <div className="ws-container">
-      {/* Apple-vibe Intro Card */}
+      {/* Integrated Header Card (Updates Page Style) */}
       <div className="res-intro-card">
         <div className="res-intro-header">
-          <div className="res-title-wrap">
+          <h1 className="res-intro-title">
             <FiFolder className="res-title-icon" />
-            <h1 className="res-intro-title">Resources</h1>
-          </div>
-          <p className="res-intro-subtitle">
-            Explore notes, materials, and more for your studies.
-          </p>
-        </div>
-        <div className="res-intro-actions">
-          <Link href="/upload" className="res-upload-btn" title="Upload new resource">
-            <FiUpload className="res-upload-btn-icon" />
-            <span>Upload</span>
-          </Link>
-        </div>
-      </div>
+            RESOURCES
+          </h1>
 
-      {/* Updates-Style Searchbar with Inline Clear Button */}
-      <div className="res-search-container">
+          {isLoggedIn && (
+            <div className="res-intro-actions">
+              <Link href="/upload" className="res-upload-btn" title="Upload new resource">
+                <FiPlus className="res-upload-btn-icon" />
+                <span className="res-upload-btn-text">Upload Resource</span>
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Searchbar inside the same card */}
         <form 
           className="res-search-form"
           onSubmit={(e) => {
@@ -768,7 +774,7 @@ const WorkSearchInterface = () => {
                 onClick={handleClearSearch}
                 aria-label="Clear search"
               >
-                <FiX size={16} />
+                <FiX size={14} />
               </button>
             )}
           </div>
