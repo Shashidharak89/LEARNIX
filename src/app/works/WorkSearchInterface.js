@@ -730,7 +730,7 @@ const WorkSearchInterface = () => {
         <div className="res-intro-header">
           <h1 className="res-intro-title">
             <FiFolder className="res-title-icon" />
-            RESOURCES
+            Resources
           </h1>
 
           {isLoggedIn && (

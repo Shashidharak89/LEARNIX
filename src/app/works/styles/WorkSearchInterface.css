@@ -49,7 +49,7 @@
 .res-intro-title {
   font-size: 1.75rem;
   font-weight: 800;
-  color: #0f172a;
+  color: #0b74ff;
   margin: 0;
   line-height: 1.15;
   letter-spacing: -0.02em;
@@ -287,6 +287,15 @@
 }
 
 @media (max-width: 640px) {
+  .res-upload-btn-text {
+    display: none;
+  }
+  .res-upload-btn {
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+  }
   .res-search-form {
     flex-direction: row;
     gap: 8px;
