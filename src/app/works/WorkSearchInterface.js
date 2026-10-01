@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiBook, FiShare2, FiMoreVertical, FiExternalLink, FiFilter, FiCheck, FiZap, FiX, FiUpload, FiFolder, FiPlus } from 'react-icons/fi';
+import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiBook, FiShare2, FiMoreVertical, FiExternalLink, FiFilter, FiCheck, FiZap, FiX, FiUpload, FiFolder, FiPlus, FiChevronRight } from 'react-icons/fi';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import SubjectTopicFilter from './SubjectTopicFilter';
 import Ads from '../components/ads/Ads';
@@ -133,6 +133,7 @@ const WorkSearchInterface = () => {
   const [isLoadingRelevant, setIsLoadingRelevant] = useState(false);
   const [isLoadingMoreRelevant, setIsLoadingMoreRelevant] = useState(false);
   const [showRelevant, setShowRelevant] = useState(false);
+  const [expandingTopic, setExpandingTopic] = useState({});
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -196,6 +197,7 @@ const WorkSearchInterface = () => {
   const fetchPagedTopics = async (pageToFetch = 1, reset = false) => {
     // Only show the full-page skeleton when doing an initial/reset load.
     if (reset) setIsLoading(true);
+    else setIsLoadingMore(true);
     try {
       // Use oldest API when sortOrder is 'oldest', otherwise use default (latest first)
       const apiEndpoint = sortOrder === 'oldest' ? '/api/work/oldest/paged' : '/api/work/paged';
@@ -228,6 +230,7 @@ const WorkSearchInterface = () => {
       console.error('Error fetching paged topics:', error);
     } finally {
       if (reset) setIsLoading(false);
+      else setIsLoadingMore(false);
     }
   };
 
@@ -331,6 +334,7 @@ const WorkSearchInterface = () => {
 
   const loadMoreTopics = useCallback(() => {
     if (isLoadingMore || !hasMore) return;
+    setIsLoadingMore(true);
     fetchPagedTopics(page + 1);
   }, [hasMore, isLoadingMore, page]);
 
@@ -450,7 +454,15 @@ const WorkSearchInterface = () => {
   }, [selectedSubjects, selectedTopics, sortOrder, showSavedOnly, savedTopicIds]);
 
   const toggleImageExpansion = (topicKey) => {
-    setExpandedImages(prev => ({ ...prev, [topicKey]: !prev[topicKey] }));
+    if (!expandedImages[topicKey]) {
+      setExpandingTopic(prev => ({ ...prev, [topicKey]: true }));
+      setTimeout(() => {
+        setExpandedImages(prev => ({ ...prev, [topicKey]: true }));
+        setExpandingTopic(prev => ({ ...prev, [topicKey]: false }));
+      }, 250);
+    } else {
+      setExpandedImages(prev => ({ ...prev, [topicKey]: false }));
+    }
   };
 
   const downloadTopicAsPDF = async (topic, index) => {
@@ -711,10 +723,26 @@ const WorkSearchInterface = () => {
               ))}
             </div>
             {validImages.length > 2 && (
-              <button onClick={() => toggleImageExpansion(topicKey)} className="ws-view-more-btn">
-                <FiEye />
-                {isExpanded ? 'Show Less' : `View More (${validImages.length - 2} more)`}
-                <FiChevronDown className={`ws-chevron ${isExpanded ? 'ws-rotated' : ''}`} />
+              <button
+                onClick={() => toggleImageExpansion(topicKey)}
+                className={`ws-view-more-btn ${expandingTopic[topicKey] ? 'is-expanding' : ''}`}
+                disabled={expandingTopic[topicKey]}
+              >
+                {expandingTopic[topicKey] ? (
+                  <span className="ws-mini-spinner" />
+                ) : isExpanded ? (
+                  <>
+                    <FiEye />
+                    <span>Show Less</span>
+                    <FiChevronDown className="ws-chevron ws-rotated" />
+                  </>
+                ) : (
+                  <>
+                    <FiEye />
+                    <span>View More ({validImages.length - 2} more)</span>
+                    <FiChevronDown className="ws-chevron" />
+                  </>
+                )}
               </button>
             )}
           </div>
@@ -870,15 +898,19 @@ const WorkSearchInterface = () => {
               <div className="ws-load-more-section">
                 <button
                   onClick={loadMoreTopics}
-                  className="ws-load-more-btn"
+                  className={`ws-load-more-btn ${isLoadingMore ? 'is-loading' : ''}`}
                   disabled={isLoadingMore}
                 >
                   {isLoadingMore ? (
-                    <span className="ws-load-more-dots">
-                      <span /><span /><span />
-                    </span>
+                    <>
+                      <span className="ws-spinner" />
+                      <span>Loading...</span>
+                    </>
                   ) : (
-                    'View More'
+                    <>
+                      <span>View More</span>
+                      <FiChevronRight className="ws-btn-icon" />
+                    </>
                   )}
                 </button>
               </div>
@@ -900,15 +932,19 @@ const WorkSearchInterface = () => {
                   <div className="ws-load-more-section">
                     <button
                       onClick={() => handleSearch(searchQuery, searchPage + 1)}
-                      className="ws-load-more-btn"
+                      className={`ws-load-more-btn ${isLoadingMore ? 'is-loading' : ''}`}
                       disabled={isLoadingMore}
                     >
                       {isLoadingMore ? (
-                        <span className="ws-load-more-dots">
-                          <span /><span /><span />
-                        </span>
+                        <>
+                          <span className="ws-spinner" />
+                          <span>Loading...</span>
+                        </>
                       ) : (
-                        'View More'
+                        <>
+                          <span>View More</span>
+                          <FiChevronRight className="ws-btn-icon" />
+                        </>
                       )}
                     </button>
                   </div>
@@ -965,13 +1001,21 @@ const WorkSearchInterface = () => {
                     {relevantPage < relevantTotalPages && (
                       <div className="ws-load-more-section">
                         <button
-                          className="ws-load-more-btn ws-relevant-more-btn"
+                          className={`ws-load-more-btn ws-relevant-more-btn ${isLoadingMoreRelevant ? 'is-loading' : ''}`}
                           onClick={() => fetchRelevant(relevantPage + 1)}
                           disabled={isLoadingMoreRelevant}
                         >
                           {isLoadingMoreRelevant ? (
-                            <span className="ws-load-more-dots"><span /><span /><span /></span>
-                          ) : 'View More Relevant'}
+                            <>
+                              <span className="ws-spinner" />
+                              <span>Loading...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>View More Relevant</span>
+                              <FiChevronRight className="ws-btn-icon" />
+                            </>
+                          )}
                         </button>
                       </div>
                     )}
@@ -1016,13 +1060,21 @@ const WorkSearchInterface = () => {
                 {relevantPage < relevantTotalPages && (
                   <div className="ws-load-more-section">
                     <button
-                      className="ws-load-more-btn ws-relevant-more-btn"
+                      className={`ws-load-more-btn ws-relevant-more-btn ${isLoadingMoreRelevant ? 'is-loading' : ''}`}
                       onClick={() => fetchRelevant(relevantPage + 1)}
                       disabled={isLoadingMoreRelevant}
                     >
                       {isLoadingMoreRelevant ? (
-                        <span className="ws-load-more-dots"><span /><span /><span /></span>
-                      ) : 'View More Relevant'}
+                        <>
+                          <span className="ws-spinner" />
+                          <span>Loading...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>View More Relevant</span>
+                          <FiChevronRight className="ws-btn-icon" />
+                        </>
+                      )}
                     </button>
                   </div>
                 )}
