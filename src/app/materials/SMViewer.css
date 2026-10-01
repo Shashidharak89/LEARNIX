@@ -536,9 +536,12 @@
 /* ── Responsive: Tablet ≤768px ── */
 @media (max-width: 768px) {
     .sm-viewer-section {
-        padding: 18px;
-        border-radius: 12px;
-        margin-top: 20px;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 10px 4px !important;
+        margin-top: 10px !important;
+        border-radius: 14px !important;
+        box-sizing: border-box !important;
     }
 
     .sm-subtitle {
@@ -550,22 +553,71 @@
         font-size: 1.2rem;
     }
 
-    .sm-tree-node {
-        margin-left: 14px;
+    .sm-section-header {
+        gap: 8px !important;
+        margin-bottom: 12px !important;
+        padding: 0 4px !important;
     }
 
-    .sm-tree-children {
-        margin-left: 10px;
-        padding-left: 8px;
+    .sm-search-container {
+        padding: 10px 8px !important;
+        border-radius: 12px !important;
+        margin-bottom: 10px !important;
     }
 
-    .sm-tree-ext-group {
-        margin-left: 14px;
+    .sm-search-form {
+        gap: 8px !important;
     }
 
-    .sm-tree-ext-children {
-        margin-left: 10px;
-        padding-left: 8px;
+    /* Content wrapper: maximize width, eliminate extra side padding */
+    .sm-content {
+        width: 100% !important;
+        padding: 6px 2px !important;
+        border-radius: 12px !important;
+        box-sizing: border-box !important;
+    }
+
+    .sm-pref-card-body {
+        padding: 6px 2px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Stretched Cards: acquire maximum width */
+    .sm-tree-card,
+    .sm-tree-ext-btn,
+    .sm-tree-file-card,
+    .sm-admin-search-card,
+    .sm-admin-search-file-card {
+        width: 100% !important;
+        min-height: 46px !important;
+        padding: 10px 10px !important;
+        border-radius: 10px !important;
+        box-sizing: border-box !important;
+    }
+
+    .sm-tree-node,
+    .sm-tree-ext-group,
+    .sm-tree-file-item,
+    .sm-admin-search-node,
+    .sm-admin-search-file {
+        margin-left: 0 !important;
+        margin-top: 3px !important;
+        margin-bottom: 3px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* When user expands it: exactly 3% (3 from 100) horizontal shift, and 3px vertical gap below parent */
+    .sm-tree-children,
+    .sm-tree-ext-children,
+    .sm-admin-search-children {
+        margin-left: 3% !important;
+        padding-left: 3px !important;
+        margin-top: 3px !important;
+        margin-bottom: 3px !important;
+        border-left: 2px solid #7dd3fc !important;
+        width: 97% !important;
+        box-sizing: border-box !important;
     }
 
     .sm-tree-pref-text {
@@ -599,26 +651,17 @@
         padding: 3px 8px;
         font-size: 11px;
     }
-
-    .sm-search-container {
-        padding: 12px !important;
-        border-radius: 10px !important;
-    }
-
-    .sm-search-form {
-        gap: 8px !important;
-    }
 }
 
 /* ── Responsive: Mobile ≤550px ── */
 @media (max-width: 550px) {
     .sm-viewer-section {
-        width: 100%;
-        padding: 10px;
-        border-radius: 10px;
-        margin-top: 10px;
-        box-shadow: none;
-        border: 1px solid #e0f2fe;
+        width: 100% !important;
+        padding: 6px 2px !important;
+        border-radius: 10px !important;
+        margin-top: 8px !important;
+        box-shadow: none !important;
+        border: 1px solid #e0f2fe !important;
     }
 
     .sm-subtitle {
@@ -632,26 +675,39 @@
     }
 
     .sm-section-header {
-        gap: 8px;
-        margin-bottom: 12px;
+        gap: 6px !important;
+        margin-bottom: 10px !important;
+        padding: 0 2px !important;
     }
 
-    .sm-tree-node {
-        margin-left: 8px;
+    .sm-content {
+        padding: 4px 1px !important;
+        border-radius: 8px !important;
     }
 
-    .sm-tree-children {
-        margin-left: 6px;
-        padding-left: 6px;
+    .sm-tree-card,
+    .sm-tree-ext-btn,
+    .sm-tree-file-card {
+        padding: 9px 8px !important;
+        min-height: 44px !important;
     }
 
-    .sm-tree-ext-group {
-        margin-left: 8px;
+    .sm-tree-node,
+    .sm-tree-ext-group,
+    .sm-tree-file-item {
+        margin-left: 0 !important;
+        margin-top: 3px !important;
+        margin-bottom: 3px !important;
+        width: 100% !important;
     }
 
+    .sm-tree-children,
     .sm-tree-ext-children {
-        margin-left: 6px;
-        padding-left: 6px;
+        margin-left: 3% !important;
+        padding-left: 3px !important;
+        margin-top: 3px !important;
+        margin-bottom: 3px !important;
+        width: 97% !important;
     }
 
     .sm-tree-pref-text {
@@ -663,7 +719,7 @@
     }
 
     .sm-pref-list-container {
-        padding: 8px 10px;
+        padding: 6px 6px;
         border-radius: 8px;
     }
 
@@ -673,7 +729,7 @@
     }
 
     .sm-pref-card-header {
-        padding: 8px 10px;
+        padding: 8px 8px;
     }
 
     .sm-pref-card-title {
@@ -696,9 +752,9 @@
     }
 
     .sm-pref-empty-card {
-        padding: 10px 12px;
+        padding: 8px 10px;
         flex-direction: column;
-        gap: 8px;
+        gap: 6px;
         text-align: center;
         border-radius: 8px;
     }
@@ -722,15 +778,15 @@
     }
 
     .sm-pref-modal-header {
-        padding: 14px 16px;
+        padding: 12px 14px;
     }
 
     .sm-pref-modal-body {
-        padding: 14px 16px;
+        padding: 12px 14px;
     }
 
     .sm-pref-modal-footer {
-        padding: 12px 16px;
+        padding: 10px 14px;
     }
 
     .sm-pref-modal-title {
@@ -748,14 +804,10 @@
         gap: 3px;
     }
 
-    .sm-content {
-        padding: 10px !important;
-    }
-
     .sm-search-container {
-        padding: 10px !important;
+        padding: 8px 6px !important;
         border-radius: 8px !important;
-        margin-bottom: 10px !important;
+        margin-bottom: 8px !important;
     }
 
     .sm-search-btn-text {
@@ -763,17 +815,17 @@
     }
 
     .sm-search-scope {
-        margin-top: 8px !important;
-        gap: 6px !important;
+        margin-top: 6px !important;
+        gap: 4px !important;
     }
 }
 
 /* ── Responsive: Small Mobile ≤400px ── */
 @media (max-width: 400px) {
     .sm-viewer-section {
-        padding: 8px;
-        border-radius: 8px;
-        margin-top: 8px;
+        padding: 4px 1px !important;
+        border-radius: 6px !important;
+        margin-top: 6px !important;
     }
 
     .sm-subtitle {
@@ -785,30 +837,40 @@
         padding: 4px;
     }
 
-    .sm-tree-node {
-        margin-left: 5px;
+    .sm-content {
+        padding: 2px 0 !important;
     }
 
-    .sm-tree-children {
-        margin-left: 4px;
-        padding-left: 4px;
+    .sm-tree-card,
+    .sm-tree-ext-btn,
+    .sm-tree-file-card {
+        padding: 8px 6px !important;
     }
 
-    .sm-tree-ext-group {
-        margin-left: 5px;
+    .sm-tree-node,
+    .sm-tree-ext-group,
+    .sm-tree-file-item {
+        margin-left: 0 !important;
+        margin-top: 3px !important;
+        margin-bottom: 3px !important;
+        width: 100% !important;
     }
 
+    .sm-tree-children,
     .sm-tree-ext-children {
-        margin-left: 4px;
-        padding-left: 4px;
+        margin-left: 3% !important;
+        padding-left: 2px !important;
+        margin-top: 3px !important;
+        margin-bottom: 3px !important;
+        width: 97% !important;
     }
 
     .sm-pref-list-container {
-        padding: 6px 8px;
+        padding: 4px 4px;
     }
 
     .sm-pref-card-header {
-        padding: 6px 8px;
+        padding: 6px 6px;
     }
 
     .sm-pref-card-title {

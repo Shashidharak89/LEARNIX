@@ -276,6 +276,7 @@ export default function SMDirectoryNode({
                 <>
                     <div 
                         onClick={handleToggle}
+                        className="sm-tree-card"
                         style={{ 
                             display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", cursor: "pointer", 
                             padding: "14px 18px", minHeight: "56px", background: expanded ? "#f0f9ff" : "#ffffff", 
@@ -331,6 +332,7 @@ export default function SMDirectoryNode({
                                         <div className="sm-tree-ext-group" style={{ marginTop: "10px", marginBottom: "10px" }}>
                                             <button
                                                 onClick={() => setExternalExpanded(!externalExpanded)}
+                                                className="sm-tree-ext-btn"
                                                 style={{
                                                     display: "flex", alignItems: "center", justifyContent: "space-between",
                                                     width: "100%", border: "1.5px solid #fbbf24", background: "#fffbeb",
@@ -422,12 +424,13 @@ export default function SMDirectoryNode({
                     )}
                 </>
             ) : (
-                <div style={{ marginTop: "8px", marginBottom: "8px", marginLeft: level > 0 ? "16px" : "0" }}>
+                <div className="sm-tree-file-item" style={{ marginTop: "8px", marginBottom: "8px", marginLeft: level > 0 ? "16px" : "0" }}>
                     <div 
                         onClick={() => {
                             const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(data.fileurl)}`;
                             window.open(viewUrl, "_blank", "noopener,noreferrer");
                         }}
+                        className="sm-tree-file-card"
                         style={{ 
                             display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", 
                             textDecoration: "none", color: "#1e293b", fontWeight: "500", 

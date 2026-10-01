@@ -694,46 +694,87 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .sm-wrapper {
-    padding: 12px 6px;
+    padding: 6px 2px !important;
   }
 
   .sm-container {
-    width: 98%;
-    max-width: 98%;
-    margin: 0 auto;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
   }
 
   .sm-title {
-    font-size: 26px;
+    font-size: 24px;
   }
 
   .sm-subtitle {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .sm-header-icon {
-    width: 48px;
-    height: 48px;
+    width: 42px;
+    height: 42px;
+  }
+
+  .sm-semester-block {
+    border-radius: 12px !important;
+    margin-bottom: 6px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .sm-semester-btn {
-    padding: 16px;
+    padding: 12px 10px !important;
+    min-height: 48px !important;
   }
 
   .sm-semester-name {
-    font-size: 16px;
+    font-size: 15px;
+  }
+
+  .sm-subjects-wrapper {
+    padding: 4px 1% 4px 3% !important;
+    margin-left: 0 !important;
+    margin-top: 3px !important;
+    border-radius: 0 0 12px 12px !important;
+  }
+
+  .sm-subject-block {
+    border-radius: 10px !important;
+    margin-bottom: 4px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .sm-subject-btn {
-    padding: 12px 14px;
+    padding: 10px 8px !important;
+    min-height: 44px !important;
   }
 
   .sm-subject-name {
     font-size: 14px;
   }
 
+  .sm-subject-content {
+    padding: 4px 1% 4px 3% !important;
+    margin-left: 0 !important;
+    margin-top: 3px !important;
+  }
+
+  .sm-files-list,
+  .sm-unofficial-files-list {
+    padding: 4px 2px !important;
+    margin-top: 3px !important;
+  }
+
   .sm-file-card {
-    padding: 10px 12px;
+    padding: 8px 8px !important;
+    border-radius: 10px !important;
+    margin-bottom: 4px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .sm-file-name {
@@ -741,8 +782,25 @@
   }
 
   .sm-action-btn {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .sm-search-node {
+    margin-left: 0 !important;
+    margin-top: 3px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .sm-search-node-children,
+  .sm-search-ext-children {
+    margin-left: 3% !important;
+    padding-left: 3px !important;
+    margin-top: 3px !important;
+    margin-bottom: 3px !important;
+    width: 97% !important;
+    box-sizing: border-box !important;
   }
 }
 

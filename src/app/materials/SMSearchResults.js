@@ -293,7 +293,7 @@ function SMSearchDirectoryNode({
                                     </button>
 
                                     {externalExpanded && (
-                                        <div style={{ borderLeft: "2px dashed #c084fc", marginLeft: "10px", paddingLeft: "8px", marginTop: "4px" }}>
+                                        <div className="sm-search-ext-children" style={{ borderLeft: "2px dashed #c084fc", marginLeft: "10px", paddingLeft: "8px", marginTop: "4px" }}>
                                             {children.filter(c => c.type === "external").map(child => (
                                                 <SMSearchDirectoryNode
                                                     key={child._id}
