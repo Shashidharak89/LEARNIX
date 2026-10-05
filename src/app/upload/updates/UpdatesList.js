@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import Link from 'next/link';
-import { FiTrash2, FiEdit2, FiSave, FiX, FiUser, FiClock, FiExternalLink, FiChevronRight, FiAlertCircle, FiAlertTriangle, FiUpload, FiDownload, FiEye, FiGlobe, FiLock, FiLink2, FiChevronDown, FiCheck } from "react-icons/fi";
+import { FiTrash2, FiEdit2, FiSave, FiX, FiUser, FiClock, FiExternalLink, FiChevronRight, FiAlertCircle, FiAlertTriangle, FiUpload, FiDownload, FiEye, FiGlobe, FiLock, FiLink2, FiChevronDown, FiCheck, FiCheckCircle, FiInfo } from "react-icons/fi";
 import { getYouTubeVideoId, groupConsecutiveLinks } from '../../utils/youtube';
 import LinkPreview from '../../components/LinkPreview';
 import YouTubeEmbed from '../../components/YouTubeEmbed';
@@ -175,9 +175,11 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
     return text.split(/[,\n]+/).map(s => s.trim()).filter(Boolean);
   };
 
+  const toastTimeoutRef = useRef(null);
   const showToast = (message, type = 'info') => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     setToast({ message, type });
-    setTimeout(() => setToast(null), type === 'error' ? 3000 : 2000);
+    toastTimeoutRef.current = setTimeout(() => setToast(null), 3500);
   };
 
   const openEditWindow = (u) => {
@@ -331,7 +333,7 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
       let data;
       try { data = await res.json(); } catch (e) { data = null; }
       if (!res.ok) throw new Error(data?.error || `Delete failed (status ${res.status})`);
-      showToast('Update deleted', 'success');
+      showToast('Update deleted successfully', 'success');
     } catch (err) {
       console.error('Delete error', err);
       showToast('Failed to delete update', 'error');
@@ -377,11 +379,27 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
         )}
       </div>
 
-      {/* Toast */}
+      {/* Floating Screen-Bottom Toast Notification */}
       {toast && (
-        <div className={`upl-toast upl-toast-${toast.type}`}>
-          <FiAlertCircle className="upl-toast-icon" />
-          <span>{toast.message}</span>
+        <div className={`upl-toast upl-toast-${toast.type || 'info'}`} role="status" aria-live="polite">
+          <div className="upl-toast-icon-box">
+            {toast.type === 'success' ? (
+              <FiCheckCircle className="upl-toast-icon" />
+            ) : toast.type === 'error' ? (
+              <FiAlertCircle className="upl-toast-icon" />
+            ) : (
+              <FiInfo className="upl-toast-icon" />
+            )}
+          </div>
+          <span className="upl-toast-text">{toast.message}</span>
+          <button
+            type="button"
+            className="upl-toast-close"
+            onClick={() => setToast(null)}
+            aria-label="Dismiss message"
+          >
+            <FiX />
+          </button>
         </div>
       )}
 

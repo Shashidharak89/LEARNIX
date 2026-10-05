@@ -22,7 +22,8 @@ import {
   FiExternalLink,
   FiCheck,
   FiPaperclip,
-  FiPlus
+  FiPlus,
+  FiInfo
 } from "react-icons/fi";
 import "./styles/AddUpdateForm.css";
 
@@ -89,9 +90,11 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
     })();
   }, []);
 
+  const toastTimeoutRef = useRef(null);
   const showToast = (msg, type = "info") => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     setToast({ message: msg, type });
-    setTimeout(() => setToast(null), 3500);
+    toastTimeoutRef.current = setTimeout(() => setToast(null), 3500);
   };
 
   const parseLinks = (text) => {
@@ -275,15 +278,27 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
         )}
       </div>
 
-      {/* Toast Notification */}
+      {/* Floating Screen-Bottom Toast Notification */}
       {toast && (
-        <div className={`auf-toast auf-toast-${toast.type}`}>
-          {toast.type === "success" ? (
-            <FiCheckCircle className="auf-toast-icon" />
-          ) : (
-            <FiAlertCircle className="auf-toast-icon" />
-          )}
-          <span>{toast.message}</span>
+        <div className={`auf-toast auf-toast-${toast.type || "info"}`} role="status" aria-live="polite">
+          <div className="auf-toast-icon-box">
+            {toast.type === "success" ? (
+              <FiCheckCircle className="auf-toast-icon" />
+            ) : toast.type === "error" ? (
+              <FiAlertCircle className="auf-toast-icon" />
+            ) : (
+              <FiInfo className="auf-toast-icon" />
+            )}
+          </div>
+          <span className="auf-toast-text">{toast.message}</span>
+          <button
+            type="button"
+            className="auf-toast-close"
+            onClick={() => setToast(null)}
+            aria-label="Dismiss message"
+          >
+            <FiX />
+          </button>
         </div>
       )}
 

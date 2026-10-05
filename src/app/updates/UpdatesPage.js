@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
-import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload, FiSearch, FiPlus, FiList, FiX } from 'react-icons/fi';
+import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload, FiSearch, FiPlus, FiList, FiX, FiCheckCircle, FiAlertCircle, FiInfo } from 'react-icons/fi';
 import { Share2, Bell } from 'lucide-react';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
 import { getYouTubeVideoId, groupConsecutiveLinks } from '../utils/youtube';
@@ -27,7 +27,15 @@ export default function UpdatesPage({ initialUpdateId }) {
   const [searchQuery, setSearchQuery] = useState(keywordFromUrl);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [toast, setToast] = useState(null);
+  const toastTimeoutRef = useRef(null);
   const highlightedCardRef = useRef(null);
+
+  const showToast = (message, type = 'info') => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    setToast({ message, type });
+    toastTimeoutRef.current = setTimeout(() => setToast(null), 3500);
+  };
 
   const fetchUpdates = async (index = 1, query = keywordFromUrl) => {
     setLoading(true);
@@ -157,8 +165,8 @@ export default function UpdatesPage({ initialUpdateId }) {
     } else {
       navigator.clipboard
         .writeText(shareUrl)
-        .then(() => alert("Link copied to clipboard!"))
-        .catch(() => alert("Failed to copy link"));
+        .then(() => showToast("Link copied to clipboard!", "success"))
+        .catch(() => showToast("Failed to copy link", "error"));
     }
   };
 
@@ -442,6 +450,7 @@ export default function UpdatesPage({ initialUpdateId }) {
                 onUpdateAdded={() => {
                   setShowAddModal(false);
                   fetchUpdates(1, keywordFromUrl);
+                  showToast("Update added successfully", "success");
                 }}
                 onCancel={() => {
                   setShowAddModal(false);
@@ -449,6 +458,30 @@ export default function UpdatesPage({ initialUpdateId }) {
               />
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Floating Screen-Bottom Toast Notification */}
+      {toast && (
+        <div className={`upd-screen-toast upd-screen-toast-${toast.type || 'info'}`} role="status" aria-live="polite">
+          <div className="upd-screen-toast-icon-box">
+            {toast.type === "success" ? (
+              <FiCheckCircle className="upd-screen-toast-icon" />
+            ) : toast.type === "error" ? (
+              <FiAlertCircle className="upd-screen-toast-icon" />
+            ) : (
+              <FiInfo className="upd-screen-toast-icon" />
+            )}
+          </div>
+          <span className="upd-screen-toast-text">{toast.message}</span>
+          <button
+            type="button"
+            className="upd-screen-toast-close"
+            onClick={() => setToast(null)}
+            aria-label="Dismiss message"
+          >
+            <FiX />
+          </button>
         </div>
       )}
     </>

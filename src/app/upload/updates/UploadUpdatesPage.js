@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
-import { FiPlus, FiX, FiSearch, FiExternalLink } from "react-icons/fi";
+import { FiPlus, FiX, FiSearch, FiExternalLink, FiCheckCircle, FiAlertCircle, FiInfo } from "react-icons/fi";
 import { Bell } from "lucide-react";
 import AddUpdateForm from "./AddUpdateForm";
 import UpdatesList from "./UpdatesList";
@@ -12,10 +12,19 @@ export default function UploadUpdatesPage() {
   const [isAddExpanded, setIsAddExpanded] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
+  const [toast, setToast] = useState(null);
+  const toastTimeoutRef = useRef(null);
+
+  const showToast = (message, type = "info") => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    setToast({ message, type });
+    toastTimeoutRef.current = setTimeout(() => setToast(null), 3500);
+  };
 
   const handleUpdateAdded = () => {
     setRefreshKey((k) => k + 1);
     setIsAddExpanded(false);
+    showToast("Update added successfully", "success");
   };
 
   const handleSearchSubmit = (e) => {
@@ -111,6 +120,30 @@ export default function UploadUpdatesPage() {
           onClearSearch={handleClearSearch}
         />
       </main>
+
+      {/* Floating Screen-Bottom Toast Notification */}
+      {toast && (
+        <div className={`upl-toast upl-toast-${toast.type || "info"}`} role="status" aria-live="polite">
+          <div className="upl-toast-icon-box">
+            {toast.type === "success" ? (
+              <FiCheckCircle className="upl-toast-icon" />
+            ) : toast.type === "error" ? (
+              <FiAlertCircle className="upl-toast-icon" />
+            ) : (
+              <FiInfo className="upl-toast-icon" />
+            )}
+          </div>
+          <span className="upl-toast-text">{toast.message}</span>
+          <button
+            type="button"
+            className="upl-toast-close"
+            onClick={() => setToast(null)}
+            aria-label="Dismiss message"
+          >
+            <FiX />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
