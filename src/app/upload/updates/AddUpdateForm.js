@@ -1,8 +1,57 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { FiEdit3, FiSend, FiX, FiUser, FiLink, FiAlertCircle, FiCheckCircle, FiImage, FiTrash2, FiUpload, FiEye } from "react-icons/fi";
-import './styles/AddUpdateForm.css';
+import {
+  FiEdit3,
+  FiSend,
+  FiX,
+  FiUser,
+  FiLink,
+  FiAlertCircle,
+  FiCheckCircle,
+  FiImage,
+  FiTrash2,
+  FiUploadCloud,
+  FiEye,
+  FiGlobe,
+  FiLock,
+  FiLink2,
+  FiFileText,
+  FiFile,
+  FiFilm,
+  FiExternalLink,
+  FiCheck,
+  FiPaperclip,
+  FiPlus
+} from "react-icons/fi";
+import "./styles/AddUpdateForm.css";
+
+const formatBytes = (bytes) => {
+  if (!bytes || bytes === 0) return null;
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
+};
+
+const getFileCategory = (file) => {
+  const name = file.name || "";
+  const ext = name.split(".").pop()?.toLowerCase();
+  const resType = file.resourceType;
+  if (resType === "image" || ["jpg", "jpeg", "png", "gif", "webp", "svg", "avif"].includes(ext)) {
+    return "image";
+  }
+  if (["mp4", "mov", "webm", "mkv", "avi"].includes(ext) || resType === "video") {
+    return "video";
+  }
+  if (["pdf", "doc", "docx", "txt", "rtf", "odt", "md"].includes(ext)) {
+    return "doc";
+  }
+  if (["xls", "xlsx", "csv"].includes(ext)) {
+    return "sheet";
+  }
+  return "file";
+};
 
 export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
   const [title, setTitle] = useState("");
@@ -10,15 +59,22 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
   const [linksText, setLinksText] = useState("");
   const [visibility, setVisibility] = useState("public");
   const [userId, setUserId] = useState(null);
+  const [userUsn, setUserUsn] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploadingFiles, setIsUploadingFiles] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
+
+  const fileInputRef = useRef(null);
+  const dragCounter = useRef(0);
   const router = useRouter();
 
   useEffect(() => {
-    const usn = typeof window !== 'undefined' ? localStorage.getItem('usn') : null;
+    const usn = typeof window !== "undefined" ? localStorage.getItem("usn") : null;
     if (!usn) return;
+    setUserUsn(usn);
 
     (async () => {
       try {
@@ -28,12 +84,12 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
           if (data?.userId) setUserId(data.userId);
         }
       } catch (err) {
-        console.error('Failed to resolve user id', err);
+        console.error("Failed to resolve user id", err);
       }
     })();
   }, []);
 
-  const showToast = (msg, type = 'info') => {
+  const showToast = (msg, type = "info") => {
     setToast({ message: msg, type });
     setTimeout(() => setToast(null), 3500);
   };
@@ -42,72 +98,95 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
     if (!text) return [];
     return text
       .split(/[,\n]+/)
-      .map(s => s.trim())
+      .map((s) => s.trim())
       .filter(Boolean);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!title.trim() || !content.trim()) {
-      showToast('Please enter title and content', 'error');
-      return;
-    }
+  const uploadFilesBatch = async (files) => {
+    if (!files || !files.length) return;
 
-    setLoading(true);
-    const links = parseLinks(linksText);
+    // Filter large files (>50MB)
+    const validFiles = [];
+    for (const f of files) {
+      if (f.size > 50 * 1024 * 1024) {
+        showToast(`"${f.name}" exceeds the 50MB limit`, "error");
+      } else {
+        validFiles.push(f);
+      }
+    }
+    if (!validFiles.length) return;
+
+    setIsUploadingFiles(true);
+    setUploadStatus({ current: 1, total: validFiles.length, filename: validFiles[0]?.name });
 
     try {
-      const res = await fetch('/api/updates', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: title.trim(), content: content.trim(), links, userId, files: uploadedFiles, visibility }),
-      });
+      for (let i = 0; i < validFiles.length; i++) {
+        const f = validFiles[i];
+        setUploadStatus({ current: i + 1, total: validFiles.length, filename: f.name });
+        const fd = new FormData();
+        fd.append("file", f);
+        if (userId) fd.append("userId", userId);
 
-      const data = await res.json();
-      if (res.ok) {
-        showToast('Update created successfully', 'success');
-        setTitle('');
-        setContent('');
-        setLinksText('');
-        setUploadedFiles([]);
-        setVisibility('public');
-        if (onUpdateAdded) onUpdateAdded();
-      } else {
-        showToast(data?.error || 'Failed to create update', 'error');
+        const res = await fetch("/api/updates/upload", { method: "POST", body: fd });
+        const data = await res.json();
+
+        if (res.ok && data?.file) {
+          setUploadedFiles((prev) => [...prev, { ...data.file, size: f.size }]);
+        } else {
+          showToast(data?.error || `Failed to upload ${f.name}`, "error");
+        }
       }
+      showToast(`Uploaded ${validFiles.length} file${validFiles.length > 1 ? "s" : ""} successfully`, "success");
     } catch (err) {
-      console.error(err);
-      showToast('Network error', 'error');
+      console.error("File upload error", err);
+      showToast("File upload failed. Please try again.", "error");
     } finally {
-      setLoading(false);
+      setIsUploadingFiles(false);
+      setUploadStatus(null);
     }
   };
 
-  const handleFilesSelected = async (e) => {
+  const handleFilesSelected = (e) => {
     const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-    setIsUploadingFiles(true);
-    try {
-      for (let i = 0; i < files.length; i++) {
-        const f = files[i];
-        const fd = new FormData();
-        fd.append('file', f);
-        if (userId) fd.append('userId', userId);
-        const res = await fetch('/api/updates/upload', { method: 'POST', body: fd });
-        const data = await res.json();
-        if (res.ok && data?.file) {
-          setUploadedFiles((p) => [...p, data.file]);
-        } else {
-          showToast(data?.error || `Failed to upload ${f.name}`, 'error');
-        }
-      }
-    } catch (err) {
-      console.error('File upload error', err);
-      showToast('File upload failed', 'error');
-    } finally {
-      setIsUploadingFiles(false);
-      // clear file input
-      e.target.value = null;
+    if (files.length) {
+      uploadFilesBatch(files);
+    }
+    e.target.value = "";
+  };
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current += 1;
+    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounter.current -= 1;
+    if (dragCounter.current <= 0) {
+      setIsDragging(false);
+      dragCounter.current = 0;
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = "copy";
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    dragCounter.current = 0;
+    if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+      uploadFilesBatch(Array.from(e.dataTransfer.files));
+      e.dataTransfer.clearData();
     }
   };
 
@@ -116,38 +195,78 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
   };
 
   const handleClear = () => {
-    setTitle('');
-    setContent('');
-    setLinksText('');
+    setTitle("");
+    setContent("");
+    setLinksText("");
+    setUploadedFiles([]);
+    setVisibility("public");
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!title.trim() || !content.trim()) {
+      showToast("Please enter title and content", "error");
+      return;
+    }
+
+    if (isUploadingFiles) {
+      showToast("Please wait until files finish uploading", "info");
+      return;
+    }
+
+    setLoading(true);
+    const links = parseLinks(linksText);
+
+    try {
+      const res = await fetch("/api/updates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: title.trim(),
+          content: content.trim(),
+          links,
+          userId,
+          files: uploadedFiles,
+          visibility
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        showToast("Update created successfully", "success");
+        handleClear();
+        if (onUpdateAdded) onUpdateAdded();
+      } else {
+        showToast(data?.error || "Failed to create update", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Network error occurred", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const linksCount = parseLinks(linksText).length;
 
   return (
     <div className="auf-container">
       {/* Header */}
-      <div className="auf-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div className="auf-header-icon">
+      <div className="auf-header">
+        <div className="auf-header-left">
+          <div className="auf-header-icon-box">
             <FiEdit3 />
           </div>
-          <h3 className="auf-header-title">Create Update</h3>
+          <div>
+            <h3 className="auf-header-title">Create Campus Update</h3>
+            <p className="auf-header-subtitle">Publish announcements, notes, or resources for your campus</p>
+          </div>
         </div>
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
             className="auf-close-header-btn"
-            style={{
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              color: '#64748b',
-              fontSize: '18px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '6px',
-              borderRadius: '8px'
-            }}
             title="Collapse Form"
             aria-label="Close add update form"
           >
@@ -159,7 +278,7 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
       {/* Toast Notification */}
       {toast && (
         <div className={`auf-toast auf-toast-${toast.type}`}>
-          {toast.type === 'success' ? (
+          {toast.type === "success" ? (
             <FiCheckCircle className="auf-toast-icon" />
           ) : (
             <FiAlertCircle className="auf-toast-icon" />
@@ -171,157 +290,327 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
       {/* Form Card */}
       <div className="auf-card">
         <form onSubmit={handleSubmit} className="auf-form">
-          <div className="auf-form-grid">
-            {/* Title Field */}
-            <div className="auf-field">
+          {/* Section 1: Title Field */}
+          <div className="auf-field">
+            <div className="auf-label-row">
               <label className="auf-label">
                 <FiEdit3 className="auf-label-icon" />
                 <span>Title</span>
                 <span className="auf-required">*</span>
               </label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter update title..."
-                className="auf-input"
-                required
-              />
+              <span className="auf-char-count">{title.length} characters</span>
             </div>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Schedule for Mid-Term Exams & Revision Materials"
+              className="auf-input"
+              required
+            />
+          </div>
 
-            {/* Visibility Field */}
-            <div className="auf-field">
+          {/* Section 2: Visibility Selector (Apple-style Segmented Pills) */}
+          <div className="auf-field">
+            <div className="auf-label-row">
               <label className="auf-label">
                 <FiEye className="auf-label-icon" />
-                <span>Visibility</span>
+                <span>Visibility Level</span>
               </label>
-              <select
-                value={visibility}
-                onChange={(e) => setVisibility(e.target.value)}
-                className="auf-input"
-                style={{ padding: "10px 14px", cursor: "pointer" }}
+            </div>
+            <div className="auf-vis-segmented">
+              <button
+                type="button"
+                className={`auf-vis-option ${visibility === "public" ? "active auf-vis-public" : ""}`}
+                onClick={() => setVisibility("public")}
               >
-                <option value="public">🌐 Public (Visible to everyone)</option>
-                <option value="private">🔒 Private (Only visible to you)</option>
-                <option value="unlisted">🔗 Unlisted (Anyone with link)</option>
-              </select>
-            </div>
-
-            {/* Files / Raw Upload Field */}
-            <div className="auf-field">
-              <label className="auf-label">
-                <FiImage className="auf-label-icon" />
-                <span>Files (optional)</span>
-              </label>
-              <div className="auf-file-row">
-                <label className="auf-file-btn">
-                  <FiUpload />
-                  <span>Upload files</span>
-                  <input type="file" multiple onChange={handleFilesSelected} className="auf-hidden-input" />
-                </label>
-                {isUploadingFiles && <span className="auf-file-uploading">Uploading…</span>}
-              </div>
-
-              {uploadedFiles.length > 0 && (
-                <div className="auf-uploaded-files">
-                  {uploadedFiles.map((f, i) => (
-                    <div key={i} className="auf-uploaded-file">
-                      <a href={f.url} target="_blank" rel="noreferrer noopener" className="auf-uploaded-link">
-                        <span className="auf-file-name">{f.name || f.url}</span>
-                      </a>
-                      <button type="button" className="auf-file-remove" onClick={() => removeUploadedFile(i)}>
-                        <FiTrash2 />
-                      </button>
-                    </div>
-                  ))}
+                <div className="auf-vis-icon-circle">
+                  <FiGlobe />
                 </div>
-              )}
-            </div>
+                <div className="auf-vis-text-box">
+                  <span className="auf-vis-title">Public</span>
+                  <span className="auf-vis-desc">Campus feed</span>
+                </div>
+                {visibility === "public" && <FiCheck className="auf-vis-check" />}
+              </button>
 
-            {/* Content Field */}
-            <div className="auf-field">
+              <button
+                type="button"
+                className={`auf-vis-option ${visibility === "unlisted" ? "active auf-vis-unlisted" : ""}`}
+                onClick={() => setVisibility("unlisted")}
+              >
+                <div className="auf-vis-icon-circle">
+                  <FiLink2 />
+                </div>
+                <div className="auf-vis-text-box">
+                  <span className="auf-vis-title">Unlisted</span>
+                  <span className="auf-vis-desc">Anyone with link</span>
+                </div>
+                {visibility === "unlisted" && <FiCheck className="auf-vis-check" />}
+              </button>
+
+              <button
+                type="button"
+                className={`auf-vis-option ${visibility === "private" ? "active auf-vis-private" : ""}`}
+                onClick={() => setVisibility("private")}
+              >
+                <div className="auf-vis-icon-circle">
+                  <FiLock />
+                </div>
+                <div className="auf-vis-text-box">
+                  <span className="auf-vis-title">Private</span>
+                  <span className="auf-vis-desc">Only you</span>
+                </div>
+                {visibility === "private" && <FiCheck className="auf-vis-check" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Section 3: Content Field */}
+          <div className="auf-field">
+            <div className="auf-label-row">
               <label className="auf-label">
                 <FiEdit3 className="auf-label-icon" />
                 <span>Content</span>
                 <span className="auf-required">*</span>
               </label>
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Write your update content here..."
-                rows={4}
-                className="auf-textarea"
-                required
-              />
-              <div className="auf-hint">
-                Share information, announcements, or resources with the community
-              </div>
+              <span className="auf-char-count">{content.length} characters</span>
             </div>
-
-            {/* Links Field */}
-            <div className="auf-field">
-              <label className="auf-label">
-                <FiLink className="auf-label-icon" />
-                <span>Links (optional)</span>
-              </label>
-              <textarea
-                value={linksText}
-                onChange={(e) => setLinksText(e.target.value)}
-                placeholder="/internal/path or https://external-link.com&#10;Separate multiple links with commas or new lines"
-                rows={4}
-                className="auf-textarea auf-textarea-links"
-              />
-              <div className="auf-hint">
-                Add internal paths (starting with /) or external URLs
-              </div>
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Write update details, notes, links, or instructions..."
+              rows={5}
+              className="auf-textarea"
+              required
+            />
+            <div className="auf-hint">
+              Markdown formatting and multi-line breaks are supported
             </div>
           </div>
 
-          {/* Action Bar */}
+          {/* Section 4: Links Field */}
+          <div className="auf-field">
+            <div className="auf-label-row">
+              <label className="auf-label">
+                <FiLink className="auf-label-icon" />
+                <span>Links & References (optional)</span>
+              </label>
+              {linksCount > 0 && (
+                <span className="auf-badge-count">{linksCount} {linksCount === 1 ? "link" : "links"}</span>
+              )}
+            </div>
+            <textarea
+              value={linksText}
+              onChange={(e) => setLinksText(e.target.value)}
+              placeholder="/pyqs/cs or https://drive.google.com/... (one per line or separated by commas)"
+              rows={2}
+              className="auf-textarea auf-textarea-links"
+            />
+            <div className="auf-hint">
+              Add internal links (starting with /) or external URLs (https://)
+            </div>
+          </div>
+
+          {/* Section 5: File Upload Section (LAST FIELD - Redesigned with Apple Theme + Drag & Drop) */}
+          <div className="auf-field auf-file-upload-section">
+            <div className="auf-label-row">
+              <label className="auf-label">
+                <FiUploadCloud className="auf-label-icon" />
+                <span>Attachments & Media (optional)</span>
+              </label>
+              {uploadedFiles.length > 0 && (
+                <span className="auf-badge-count auf-badge-files">
+                  {uploadedFiles.length} {uploadedFiles.length === 1 ? "file" : "files"}
+                </span>
+              )}
+            </div>
+
+            {/* Apple Theme Drag & Drop Dropzone */}
+            <div
+              className={`auf-dropzone ${isDragging ? "auf-dropzone-dragging" : ""} ${
+                isUploadingFiles ? "auf-dropzone-uploading" : ""
+              }`}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  fileInputRef.current?.click();
+                }
+              }}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                onChange={handleFilesSelected}
+                className="auf-hidden-input"
+                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip"
+              />
+
+              <div className="auf-dropzone-icon-box">
+                <FiUploadCloud className="auf-dropzone-icon" />
+              </div>
+
+              <div className="auf-dropzone-text-group">
+                <p className="auf-dropzone-title">
+                  {isDragging ? (
+                    <span className="auf-dropzone-highlight">Drop files here to attach</span>
+                  ) : (
+                    <>
+                      Drag & drop files here, or <span className="auf-dropzone-browse">browse</span>
+                    </>
+                  )}
+                </p>
+                <p className="auf-dropzone-sub">
+                  Supports images, documents, PDFs, and spreadsheets up to 50MB each
+                </p>
+              </div>
+            </div>
+
+            {/* Uploading progress notification card */}
+            {isUploadingFiles && uploadStatus && (
+              <div className="auf-uploading-banner">
+                <div className="auf-uploading-left">
+                  <span className="auf-spinner auf-spinner-blue"></span>
+                  <div className="auf-uploading-info">
+                    <span className="auf-uploading-text">
+                      Uploading {uploadStatus.current} of {uploadStatus.total}...
+                    </span>
+                    <span className="auf-uploading-filename">{uploadStatus.filename}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Uploaded Files Gallery */}
+            {uploadedFiles.length > 0 && (
+              <div className="auf-files-grid">
+                {uploadedFiles.map((f, i) => {
+                  const cat = getFileCategory(f);
+                  const isImg = cat === "image";
+
+                  return (
+                    <div key={i} className="auf-file-card">
+                      <div className="auf-file-preview">
+                        {isImg ? (
+                          <img src={f.url} alt={f.name || "upload"} className="auf-file-img" />
+                        ) : cat === "video" ? (
+                          <div className="auf-file-icon-box auf-file-icon-video">
+                            <FiFilm />
+                          </div>
+                        ) : cat === "doc" ? (
+                          <div className="auf-file-icon-box auf-file-icon-doc">
+                            <FiFileText />
+                          </div>
+                        ) : (
+                          <div className="auf-file-icon-box auf-file-icon-generic">
+                            <FiFile />
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="auf-file-meta">
+                        <span className="auf-file-title" title={f.name || f.url}>
+                          {f.name || "Attached File"}
+                        </span>
+                        <div className="auf-file-sub-info">
+                          <span className="auf-file-ext-pill">
+                            {(f.name?.split(".").pop() || f.resourceType || "file").toUpperCase()}
+                          </span>
+                          {f.size ? (
+                            <span className="auf-file-size">{formatBytes(f.size)}</span>
+                          ) : null}
+                        </div>
+                      </div>
+
+                      <div className="auf-file-card-actions">
+                        <a
+                          href={f.url}
+                          target="_blank"
+                          rel="noreferrer noopener"
+                          className="auf-file-action-btn auf-file-action-view"
+                          title="View / Preview file"
+                          aria-label="View file"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <FiExternalLink />
+                        </a>
+                        <button
+                          type="button"
+                          className="auf-file-action-btn auf-file-action-remove"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeUploadedFile(i);
+                          }}
+                          title="Remove file"
+                          aria-label="Remove file"
+                        >
+                          <FiTrash2 />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Form Actions Footer */}
           <div className="auf-actions">
             <div className="auf-user-status">
-              <FiUser className="auf-status-icon" />
-              <span className={userId ? 'auf-status-active' : 'auf-status-inactive'}>
-                {userId ? 'Signed in' : 'Not signed in'}
-              </span>
+              <div className="auf-status-avatar">
+                <FiUser />
+              </div>
+              <div className="auf-status-text">
+                <span className="auf-status-label">Posting as</span>
+                <span className={userId ? "auf-status-active" : "auf-status-inactive"}>
+                  {userUsn ? userUsn : userId ? "Authenticated User" : "Anonymous"}
+                </span>
+              </div>
             </div>
 
             <div className="auf-buttons">
               {onCancel ? (
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={onCancel}
                   className="auf-btn auf-btn-clear"
-                  disabled={loading}
+                  disabled={loading || isUploadingFiles}
                 >
                   <FiX />
                   <span>Cancel</span>
                 </button>
               ) : (
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={handleClear}
                   className="auf-btn auf-btn-clear"
-                  disabled={loading}
+                  disabled={loading || isUploadingFiles}
                 >
                   <FiX />
                   <span>Clear</span>
                 </button>
               )}
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="auf-btn auf-btn-submit"
-                disabled={loading}
+                disabled={loading || isUploadingFiles}
               >
                 {loading ? (
                   <>
                     <span className="auf-spinner"></span>
-                    <span>Saving...</span>
+                    <span>Creating...</span>
                   </>
                 ) : (
                   <>
                     <FiSend />
-                    <span>Create Update</span>
+                    <span>Publish Update</span>
                   </>
                 )}
               </button>

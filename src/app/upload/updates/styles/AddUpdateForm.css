@@ -1,22 +1,25 @@
 /* styles/AddUpdateForm.css
-   Colors: Sky Blue (#38bdf8) and Yellowish Orange (#fb923c)
-   Full-width responsive form design
+   Apple Theme Design for Learnix Updates Form
 */
 
 :root {
   --auf-bg: #ffffff;
   --auf-text: #0f172a;
-  --auf-text-light: rgba(15, 23, 42, 0.6);
-  --auf-sky-blue: #38bdf8;
-  --auf-sky-blue-dark: #0284c7;
-  --auf-orange: #fb923c;
-  --auf-orange-dark: #f97316;
-  --auf-border: rgba(15, 23, 42, 0.08);
+  --auf-text-muted: #64748b;
+  --auf-text-light: #94a3b8;
+  --auf-apple-blue: #0b74ff;
+  --auf-apple-blue-hover: #0056cc;
+  --auf-apple-blue-light: rgba(11, 116, 255, 0.08);
+  --auf-apple-blue-glow: rgba(11, 116, 255, 0.22);
+  --auf-border: #e2e8f0;
+  --auf-border-hover: #cbd5e1;
+  --auf-radius-card: 22px;
+  --auf-radius-input: 14px;
+  --auf-radius-pill: 999px;
   --auf-shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
-  --auf-shadow-md: 0 4px 16px rgba(15, 23, 42, 0.06);
-  --auf-shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.08);
-  --auf-radius: 10px;
-  --auf-ease: cubic-bezier(0.2, 0.9, 0.3, 1);
+  --auf-shadow-card: 0 10px 30px -4px rgba(15, 23, 42, 0.06), 0 0 1px 1px rgba(15, 23, 42, 0.04);
+  --auf-shadow-dropdown: 0 20px 48px -8px rgba(15, 23, 42, 0.16);
+  --auf-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ============================================
@@ -25,9 +28,8 @@
 
 .auf-container {
   width: 100%;
-  max-width: 100%;
-  margin: 20px 0;
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  margin: 10px 0 24px 0;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Inter, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -39,23 +41,70 @@
 .auf-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-  animation: auf-fade-in 420ms var(--auf-ease) both;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 14px;
+  padding: 0 4px;
+  animation: auf-fade-in 340ms var(--auf-ease) both;
 }
 
-.auf-header-icon {
-  color: var(--auf-sky-blue);
-  font-size: 28px;
-  animation: auf-icon-pop 420ms var(--auf-ease) both;
+.auf-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.auf-header-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--auf-apple-blue-light);
+  color: var(--auf-apple-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(11, 116, 255, 0.15);
 }
 
 .auf-header-title {
   color: var(--auf-text);
-  font-size: 22px;
+  font-size: 1.15rem;
   font-weight: 700;
+  letter-spacing: -0.015em;
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.25;
+}
+
+.auf-header-subtitle {
+  color: var(--auf-text-muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+  margin: 2px 0 0 0;
+}
+
+.auf-close-header-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(15, 23, 42, 0.04);
+  color: var(--auf-text-muted);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 180ms var(--auf-ease);
+  flex-shrink: 0;
+}
+
+.auf-close-header-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  transform: scale(1.05);
 }
 
 /* ============================================
@@ -66,12 +115,12 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 16px;
-  border-radius: 8px;
+  padding: 12px 18px;
+  border-radius: 14px;
   margin-bottom: 16px;
   font-size: 14px;
-  font-weight: 500;
-  animation: auf-slide-down 320ms var(--auf-ease) both;
+  font-weight: 600;
+  animation: auf-slide-down 280ms var(--auf-ease) both;
 }
 
 .auf-toast-icon {
@@ -80,29 +129,29 @@
 }
 
 .auf-toast-info {
-  background: rgba(56, 189, 248, 0.12);
-  color: var(--auf-sky-blue-dark);
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  background: rgba(11, 116, 255, 0.08);
+  color: #0056cc;
+  border: 1px solid rgba(11, 116, 255, 0.2);
 }
 
 .auf-toast-info .auf-toast-icon {
-  color: var(--auf-sky-blue);
+  color: #0b74ff;
 }
 
 .auf-toast-success {
-  background: rgba(56, 189, 248, 0.12);
-  color: var(--auf-sky-blue-dark);
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  background: rgba(16, 185, 129, 0.1);
+  color: #047857;
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .auf-toast-success .auf-toast-icon {
-  color: var(--auf-sky-blue);
+  color: #10b981;
 }
 
 .auf-toast-error {
-  background: rgba(239, 68, 68, 0.12);
+  background: rgba(239, 68, 68, 0.1);
   color: #dc2626;
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.22);
 }
 
 .auf-toast-error .auf-toast-icon {
@@ -110,119 +159,136 @@
 }
 
 /* ============================================
-   Form Card
+   Form Card (Apple Container)
    ============================================ */
 
 .auf-card {
-  background: #fff;
-  border: 1px solid var(--auf-border);
-  border-radius: var(--auf-radius);
-  padding: 24px;
-  box-shadow: var(--auf-shadow-sm);
-  animation: auf-card-appear 420ms var(--auf-ease) both;
-  animation-delay: 100ms;
+  background: var(--auf-bg);
+  border: 1.5px solid var(--auf-border);
+  border-radius: var(--auf-radius-card);
+  padding: 24px 28px;
+  box-shadow: var(--auf-shadow-card);
+  animation: auf-card-appear 360ms var(--auf-ease) both;
+  transition: border-color 200ms ease;
 }
 
-/* ============================================
-   Form
-   ============================================ */
+.auf-card:hover {
+  border-color: #cbd5e1;
+}
 
 .auf-form {
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 /* ============================================
    Form Fields
    ============================================ */
 
-.auf-form-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-}
-
-@media (min-width: 769px) {
-  .auf-form-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-  }
-}
-
 .auf-field {
-  /* Default margin preserved for non-grid usage, but reset in grid */
-  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.auf-form-grid .auf-field {
-  margin-bottom: 0;
+.auf-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .auf-label {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 600;
+  gap: 7px;
+  font-size: 0.88rem;
+  font-weight: 700;
   color: var(--auf-text);
-  margin-bottom: 8px;
+  letter-spacing: -0.01em;
 }
 
 .auf-label-icon {
-  font-size: 16px;
-  color: var(--auf-sky-blue);
+  font-size: 15px;
+  color: var(--auf-apple-blue);
 }
 
 .auf-required {
   color: #ef4444;
   font-size: 14px;
-  margin-left: 2px;
 }
 
-/* Input Styles */
+.auf-char-count {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--auf-text-light);
+}
+
+.auf-badge-count {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(11, 116, 255, 0.08);
+  color: var(--auf-apple-blue);
+  border: 1px solid rgba(11, 116, 255, 0.2);
+}
+
+.auf-badge-files {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+/* Inputs & Textareas */
 .auf-input {
   width: 100%;
-  padding: 12px 14px;
-  border: 2px solid var(--auf-border);
-  border-radius: 8px;
+  padding: 12px 16px;
+  border: 1.5px solid var(--auf-border);
+  border-radius: var(--auf-radius-input);
   font-family: inherit;
-  font-size: 15px;
+  font-size: 0.94rem;
   color: var(--auf-text);
-  transition: all 220ms var(--auf-ease);
+  background: #f8fafc;
+  transition: all 200ms var(--auf-ease);
   box-sizing: border-box;
-  background: #fff;
 }
 
 .auf-input:focus {
   outline: none;
-  border-color: var(--auf-sky-blue);
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+  background: #ffffff;
+  border-color: var(--auf-apple-blue);
+  box-shadow: 0 0 0 4px var(--auf-apple-blue-glow);
 }
 
 .auf-input::placeholder {
   color: var(--auf-text-light);
 }
 
-/* Textarea Styles */
 .auf-textarea {
   width: 100%;
-  padding: 12px 14px;
-  border: 2px solid var(--auf-border);
-  border-radius: 8px;
+  padding: 13px 16px;
+  border: 1.5px solid var(--auf-border);
+  border-radius: var(--auf-radius-input);
   font-family: inherit;
-  font-size: 15px;
+  font-size: 0.94rem;
   line-height: 1.6;
   color: var(--auf-text);
+  background: #f8fafc;
   resize: vertical;
-  transition: all 220ms var(--auf-ease);
+  transition: all 200ms var(--auf-ease);
   box-sizing: border-box;
-  background: #fff;
-  min-height: 120px;
+  min-height: 110px;
 }
 
 .auf-textarea:focus {
   outline: none;
-  border-color: var(--auf-sky-blue);
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+  background: #ffffff;
+  border-color: var(--auf-apple-blue);
+  box-shadow: 0 0 0 4px var(--auf-apple-blue-glow);
 }
 
 .auf-textarea::placeholder {
@@ -230,21 +296,420 @@
 }
 
 .auf-textarea-links {
-  min-height: 90px;
+  min-height: 70px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.88rem;
 }
 
-/* Field Hint */
 .auf-hint {
-  font-size: 13px;
-  color: var(--auf-text-light);
-  margin-top: 6px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  font-size: 12.5px;
+  color: var(--auf-text-muted);
+  line-height: 1.4;
+  margin-top: 1px;
 }
 
 /* ============================================
-   Action Bar
+   Visibility Selector — Apple Segmented Cards
+   ============================================ */
+
+.auf-vis-segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.auf-vis-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--auf-border);
+  border-radius: var(--auf-radius-input);
+  background: #f8fafc;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: all 200ms var(--auf-ease);
+}
+
+.auf-vis-option:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+.auf-vis-icon-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  background: rgba(15, 23, 42, 0.05);
+  color: var(--auf-text-muted);
+  transition: all 200ms ease;
+}
+
+.auf-vis-text-box {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.auf-vis-title {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--auf-text);
+  line-height: 1.2;
+}
+
+.auf-vis-desc {
+  font-size: 0.72rem;
+  color: var(--auf-text-muted);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.auf-vis-check {
+  font-size: 14px;
+  color: var(--auf-apple-blue);
+  flex-shrink: 0;
+}
+
+/* Active Segmented Pill States */
+.auf-vis-option.active {
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.auf-vis-option.active.auf-vis-public {
+  border-color: var(--auf-apple-blue);
+}
+
+.auf-vis-option.active.auf-vis-public .auf-vis-icon-circle {
+  background: var(--auf-apple-blue-light);
+  color: var(--auf-apple-blue);
+}
+
+.auf-vis-option.active.auf-vis-unlisted {
+  border-color: #f59e0b;
+}
+
+.auf-vis-option.active.auf-vis-unlisted .auf-vis-icon-circle {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+}
+
+.auf-vis-option.active.auf-vis-unlisted .auf-vis-check {
+  color: #d97706;
+}
+
+.auf-vis-option.active.auf-vis-private {
+  border-color: #ef4444;
+}
+
+.auf-vis-option.active.auf-vis-private .auf-vis-icon-circle {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.auf-vis-option.active.auf-vis-private .auf-vis-check {
+  color: #ef4444;
+}
+
+/* ============================================
+   File Upload Section (Last Field) — Apple Theme Dropzone
+   ============================================ */
+
+.auf-file-upload-section {
+  padding-top: 4px;
+}
+
+.auf-dropzone {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: var(--auf-radius-input);
+  cursor: pointer;
+  transition: all 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  outline: none;
+}
+
+.auf-dropzone:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  transform: translateY(-1px);
+}
+
+.auf-dropzone:focus-visible {
+  border-color: var(--auf-apple-blue);
+  box-shadow: 0 0 0 4px var(--auf-apple-blue-glow);
+}
+
+/* Dragging Active State */
+.auf-dropzone-dragging {
+  background: rgba(11, 116, 255, 0.05) !important;
+  border-color: var(--auf-apple-blue) !important;
+  border-style: solid !important;
+  transform: scale(1.008);
+  box-shadow: 0 10px 24px -4px var(--auf-apple-blue-glow);
+}
+
+.auf-dropzone-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: var(--auf-apple-blue);
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  transition: transform 200ms ease;
+}
+
+.auf-dropzone:hover .auf-dropzone-icon-box {
+  transform: scale(1.06);
+}
+
+.auf-dropzone-text-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.auf-dropzone-title {
+  margin: 0;
+  font-size: 0.94rem;
+  font-weight: 600;
+  color: var(--auf-text);
+  line-height: 1.3;
+}
+
+.auf-dropzone-browse {
+  color: var(--auf-apple-blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 700;
+}
+
+.auf-dropzone-highlight {
+  color: var(--auf-apple-blue);
+  font-weight: 700;
+}
+
+.auf-dropzone-sub {
+  margin: 3px 0 0 0;
+  font-size: 0.78rem;
+  color: var(--auf-text-muted);
+}
+
+.auf-hidden-input {
+  display: none;
+}
+
+/* Uploading Progress Banner */
+.auf-uploading-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--auf-apple-blue-light);
+  border: 1px solid rgba(11, 116, 255, 0.2);
+  border-radius: 12px;
+  margin-top: 10px;
+  animation: auf-fade-in 200ms ease both;
+}
+
+.auf-uploading-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.auf-uploading-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.auf-uploading-text {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--auf-apple-blue);
+  white-space: nowrap;
+}
+
+.auf-uploading-filename {
+  font-size: 0.78rem;
+  color: var(--auf-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+/* Uploaded Files Gallery Grid */
+.auf-files-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+  animation: auf-fade-in 300ms var(--auf-ease) both;
+}
+
+.auf-file-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1.5px solid var(--auf-border);
+  border-radius: 14px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+  transition: all 200ms var(--auf-ease);
+}
+
+.auf-file-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  transform: translateY(-1px);
+}
+
+.auf-file-preview {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f1f5f9;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auf-file-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.auf-file-icon-box {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.auf-file-icon-doc {
+  background: rgba(11, 116, 255, 0.1);
+  color: var(--auf-apple-blue);
+}
+
+.auf-file-icon-video {
+  background: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
+}
+
+.auf-file-icon-generic {
+  background: rgba(100, 116, 139, 0.1);
+  color: #64748b;
+}
+
+.auf-file-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.auf-file-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--auf-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.auf-file-sub-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+}
+
+.auf-file-ext-pill {
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(15, 23, 42, 0.06);
+  color: var(--auf-text-muted);
+  letter-spacing: 0.02em;
+}
+
+.auf-file-size {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--auf-text-light);
+}
+
+.auf-file-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.auf-file-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(15, 23, 42, 0.04);
+  color: var(--auf-text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 180ms ease;
+  text-decoration: none;
+}
+
+.auf-file-action-btn:hover {
+  background: rgba(15, 23, 42, 0.08);
+  color: var(--auf-text);
+}
+
+.auf-file-action-remove:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+/* ============================================
+   Action Bar & Footer
    ============================================ */
 
 .auf-actions {
@@ -252,37 +717,56 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding-top: 20px;
+  padding-top: 18px;
   border-top: 1px solid var(--auf-border);
-  margin-top: 24px;
+  margin-top: 6px;
 }
 
-/* User Status */
 .auf-user-status {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
+  gap: 10px;
 }
 
-.auf-status-icon {
-  font-size: 16px;
-  color: var(--auf-sky-blue);
+.auf-status-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(11, 116, 255, 0.08);
+  color: var(--auf-apple-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.auf-status-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.auf-status-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--auf-text-light);
 }
 
 .auf-status-active {
-  color: var(--auf-sky-blue-dark);
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--auf-apple-blue);
 }
 
 .auf-status-inactive {
-  color: var(--auf-text-light);
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--auf-text-muted);
 }
 
-/* Buttons Container */
 .auf-buttons {
   display: flex;
+  align-items: center;
   gap: 10px;
 }
 
@@ -292,61 +776,69 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 11px 20px;
+  padding: 10px 22px;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   font-family: inherit;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 0.92rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 220ms var(--auf-ease);
+  transition: all 200ms var(--auf-ease);
   white-space: nowrap;
 }
 
 .auf-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
-/* Clear Button */
 .auf-btn-clear {
-  background: rgba(15, 23, 42, 0.06);
+  background: rgba(15, 23, 42, 0.05);
   color: var(--auf-text);
   border: 1px solid var(--auf-border);
 }
 
 .auf-btn-clear:hover:not(:disabled) {
-  background: rgba(15, 23, 42, 0.12);
+  background: rgba(15, 23, 42, 0.09);
+  border-color: #cbd5e1;
 }
 
 .auf-btn-clear:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
-/* Submit Button */
+/* Apple Primary Button */
 .auf-btn-submit {
-  background: linear-gradient(135deg, var(--auf-orange) 0%, var(--auf-orange-dark) 100%);
+  background: linear-gradient(135deg, #0b74ff 0%, #0056cc 100%);
   color: white;
-  box-shadow: var(--auf-shadow-sm);
+  box-shadow: 0 4px 14px rgba(11, 116, 255, 0.35);
 }
 
 .auf-btn-submit:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: var(--auf-shadow-md);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 20px rgba(11, 116, 255, 0.45);
 }
 
 .auf-btn-submit:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
-/* Loading Spinner */
+/* Spinners */
 .auf-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
   border-top-color: white;
   border-radius: 50%;
   animation: auf-spin 600ms linear infinite;
+  display: inline-block;
+}
+
+.auf-spinner-blue {
+  border-color: rgba(11, 116, 255, 0.25);
+  border-top-color: var(--auf-apple-blue);
 }
 
 /* ============================================
@@ -362,21 +854,10 @@
   }
 }
 
-@keyframes auf-icon-pop {
-  from {
-    transform: scale(0.95) translateY(6px);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1) translateY(0);
-    opacity: 1;
-  }
-}
-
 @keyframes auf-card-appear {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -387,7 +868,7 @@
 @keyframes auf-slide-down {
   from {
     opacity: 0;
-    transform: translateY(-12px);
+    transform: translateY(-10px);
   }
   to {
     opacity: 1;
@@ -402,356 +883,59 @@
 }
 
 /* ============================================
-   Responsive Styles
+   Responsive Design
    ============================================ */
 
-/* Very small screens */
-@media (max-width: 500px) {
-  .auf-header {
-    gap: 10px;
+@media (max-width: 640px) {
+  .auf-card {
+    padding: 18px 16px;
+    border-radius: 18px;
   }
 
-  .auf-header-icon {
-    font-size: 24px;
+  .auf-vis-segmented {
+    grid-template-columns: 1fr;
+    gap: 8px;
   }
 
-  .auf-header-title {
+  .auf-dropzone {
+    padding: 16px 16px;
+    gap: 12px;
+  }
+
+  .auf-dropzone-icon-box {
+    width: 40px;
+    height: 40px;
     font-size: 18px;
   }
 
-  .auf-card {
-    padding: 16px;
-    border-radius: 8px;
+  .auf-dropzone-title {
+    font-size: 0.86rem;
   }
 
-  .auf-form-grid {
-    gap: 16px;
+  .auf-dropzone-sub {
+    font-size: 0.72rem;
   }
 
-  .auf-label {
-    font-size: 13px;
-  }
-
-  .auf-label-icon {
-    font-size: 14px;
-  }
-
-  .auf-input {
-    padding: 10px 12px;
-    font-size: 14px;
-  }
-
-  .auf-textarea {
-    padding: 10px 12px;
-    font-size: 14px;
-    min-height: 100px;
-  }
-
-  .auf-textarea-links {
-    min-height: 80px;
-  }
-
-  .auf-hint {
-    font-size: 12px;
+  .auf-files-grid {
+    grid-template-columns: 1fr;
   }
 
   .auf-actions {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-    padding-top: 16px;
-    margin-top: 20px;
-  }
-
-  .auf-user-status {
-    order: 2;
-    justify-content: center;
-  }
-
-  .auf-buttons {
-    order: 1;
     flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .auf-buttons {
+    flex-direction: column-reverse;
+    width: 100%;
   }
 
   .auf-btn {
     width: 100%;
-    padding: 10px 16px;
-    font-size: 14px;
-  }
-}
-
-/* Small screens */
-@media (min-width: 501px) and (max-width: 768px) {
-  .auf-card {
-    padding: 20px;
-  }
-
-  .auf-actions {
-    flex-wrap: wrap;
   }
 
   .auf-user-status {
-    width: 100%;
     justify-content: center;
-    order: 2;
-  }
-
-  .auf-buttons {
-    width: 100%;
-    justify-content: center;
-    order: 1;
-  }
-}
-
-/* Medium screens */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .auf-card {
-    padding: 22px;
-  }
-}
-
-/* Large screens */
-@media (min-width: 1200px) {
-  .auf-card {
-    padding: 28px 32px;
-  }
-
-  .auf-input,
-  .auf-textarea {
-    font-size: 16px;
-  }
-}
-
-/* ============================================
-   Accessibility & Performance
-   ============================================ */
-
-/* Focus states */
-.auf-input:focus,
-.auf-textarea:focus,
-.auf-btn:focus {
-  outline: 3px solid rgba(56, 189, 248, 0.3);
-  outline-offset: 2px;
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* High contrast mode */
-@media (prefers-contrast: high) {
-  .auf-card {
-    border-width: 2px;
-    border-color: #000;
-  }
-
-  .auf-input,
-  .auf-textarea,
-  .auf-btn {
-    border: 2px solid;
-  }
-}
-
-/* Print styles */
-@media print {
-  .auf-container {
-    background: white;
-  }
-
-  .auf-card {
-    box-shadow: none;
-    border: 1px solid #ccc;
-  }
-
-  .auf-toast,
-  .auf-buttons {
-    display: none;
-  }
-}
-
-/* ============================================
-   File Upload Section
-   ============================================ */
-
-.auf-file-section {
-  margin-bottom: 24px;
-}
-
-.auf-file-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-/* Upload Button (label acting as button) */
-.auf-file-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  background: rgba(56, 189, 248, 0.08);
-  border: 2px dashed rgba(56, 189, 248, 0.4);
-  border-radius: 8px;
-  color: var(--auf-sky-blue-dark);
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 220ms var(--auf-ease);
-  user-select: none;
-}
-
-.auf-file-btn:hover {
-  background: rgba(56, 189, 248, 0.14);
-  border-color: var(--auf-sky-blue);
-  transform: translateY(-1px);
-}
-
-.auf-file-btn:active {
-  transform: scale(0.98);
-}
-
-.auf-file-btn svg {
-  font-size: 16px;
-  color: var(--auf-sky-blue);
-  flex-shrink: 0;
-}
-
-/* Hidden native file input */
-.auf-hidden-input {
-  display: none;
-}
-
-/* Uploading indicator */
-.auf-file-uploading {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--auf-sky-blue-dark);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  animation: auf-fade-in 200ms var(--auf-ease) both;
-}
-
-.auf-file-uploading::before {
-  content: '';
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border: 2px solid rgba(56, 189, 248, 0.3);
-  border-top-color: var(--auf-sky-blue);
-  border-radius: 50%;
-  animation: auf-spin 600ms linear infinite;
-  flex-shrink: 0;
-}
-
-/* Uploaded Files List */
-.auf-uploaded-files {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  animation: auf-fade-in 300ms var(--auf-ease) both;
-}
-
-.auf-uploaded-file {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px 14px;
-  background: rgba(56, 189, 248, 0.05);
-  border: 1px solid rgba(56, 189, 248, 0.15);
-  border-radius: 8px;
-  transition: background 200ms var(--auf-ease);
-}
-
-.auf-uploaded-file:hover {
-  background: rgba(56, 189, 248, 0.09);
-}
-
-.auf-uploaded-link {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  min-width: 0;
-  flex: 1;
-}
-
-.auf-uploaded-link::before {
-  content: '📎';
-  font-size: 14px;
-  flex-shrink: 0;
-}
-
-.auf-file-name {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--auf-sky-blue-dark);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-}
-
-.auf-uploaded-link:hover .auf-file-name {
-  text-decoration: underline;
-}
-
-/* Remove File Button */
-.auf-file-remove {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  color: var(--auf-text-light);
-  cursor: pointer;
-  transition: all 200ms var(--auf-ease);
-  flex-shrink: 0;
-  padding: 0;
-}
-
-.auf-file-remove:hover {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-}
-
-.auf-file-remove:active {
-  transform: scale(0.92);
-}
-
-.auf-file-remove svg {
-  font-size: 14px;
-}
-
-/* ============================================
-   File Upload Responsive
-   ============================================ */
-
-@media (max-width: 500px) {
-  .auf-file-btn {
-    padding: 9px 14px;
-    font-size: 13px;
-  }
-
-  .auf-uploaded-file {
-    padding: 9px 12px;
-  }
-
-  .auf-file-name {
-    font-size: 12px;
   }
 }
