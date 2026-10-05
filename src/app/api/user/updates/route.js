@@ -30,6 +30,7 @@ export async function GET(req) {
     const indexParam = url.searchParams.get("index") || url.searchParams.get("page") || "1";
     const limitParam = url.searchParams.get("limit") || url.searchParams.get("pageSize") || "10";
     const queryUserIdParam = (url.searchParams.get("userId") || "").trim();
+    const rawQuery = (url.searchParams.get("q") || "").trim();
 
     if (!userId && queryUserIdParam) {
       if (mongoose.Types.ObjectId.isValid(queryUserIdParam)) {
@@ -47,6 +48,18 @@ export async function GET(req) {
 
     // Fetch ALL updates for this user regardless of visibility (public, private, unlisted)
     const filter = { userId: userId };
+
+    if (rawQuery) {
+      const escaped = rawQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(escaped, "i");
+      filter.$or = [
+        { title: regex },
+        { content: regex },
+        { links: { $elemMatch: { $regex: regex } } },
+        { "files.name": regex },
+        { "files.url": regex }
+      ];
+    }
 
     const totalCount = await Update.countDocuments(filter);
     const totalPages = Math.ceil(totalCount / pageSize);

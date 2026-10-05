@@ -10,7 +10,7 @@ import { authFetch } from '@/lib/clientAuth';
 import ExpandableDescription from '../../components/ExpandableDescription';
 import './styles/UpdatesList.css';
 
-export default function UpdatesList({ refreshKey }) {
+export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearch }) {
   const [updates, setUpdates] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -31,7 +31,7 @@ export default function UpdatesList({ refreshKey }) {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editVisibility, setEditVisibility] = useState("public");
 
-  const fetchPage = async (p = 1, append = false, userId = currentUserId) => {
+  const fetchPage = async (p = 1, append = false, userId = currentUserId, query = searchQuery) => {
     if (!userId) {
       setUpdates([]);
       setHasMore(false);
@@ -40,7 +40,15 @@ export default function UpdatesList({ refreshKey }) {
 
     setLoading(true);
     try {
-      const res = await authFetch(`/api/user/updates?index=${p}&limit=10&userId=${encodeURIComponent(userId)}`);
+      const urlParams = new URLSearchParams({
+        index: String(p),
+        limit: '10',
+        userId: encodeURIComponent(userId)
+      });
+      if (query && query.trim()) {
+        urlParams.set('q', query.trim());
+      }
+      const res = await authFetch(`/api/user/updates?${urlParams.toString()}`);
       if (!res.ok) throw new Error('Failed to load updates');
       const data = await res.json();
       const items = data?.updates || [];
@@ -71,7 +79,7 @@ export default function UpdatesList({ refreshKey }) {
           if (d?.userId) {
             setCurrentUserId(d.userId);
             setPage(1);
-            fetchPage(1, false, d.userId);
+            fetchPage(1, false, d.userId, searchQuery);
           }
         }
       } catch (e) {
@@ -83,15 +91,22 @@ export default function UpdatesList({ refreshKey }) {
   useEffect(() => {
     if (refreshKey > 0 && currentUserId) {
       setPage(1);
-      fetchPage(1, false, currentUserId);
+      fetchPage(1, false, currentUserId, searchQuery);
     }
   }, [refreshKey]);
+
+  useEffect(() => {
+    if (currentUserId) {
+      setPage(1);
+      fetchPage(1, false, currentUserId, searchQuery);
+    }
+  }, [searchQuery]);
 
   const loadMore = () => {
     if (!currentUserId) return;
     const next = page + 1;
     setPage(next);
-    fetchPage(next, true);
+    fetchPage(next, true, currentUserId, searchQuery);
   };
 
   const getRelativeTime = (iso) => {
@@ -309,7 +324,20 @@ export default function UpdatesList({ refreshKey }) {
     <section className="upl-container">
       <div className="upl-header-section">
         <div className="upl-header-icon"><FiClock /></div>
-        <h4 className="upl-section-title">Recent Updates</h4>
+        <h4 className="upl-section-title">
+          {searchQuery ? `Search Results for "${searchQuery}"` : "Recent Updates"}
+        </h4>
+        {searchQuery && onClearSearch && (
+          <button
+            type="button"
+            onClick={onClearSearch}
+            className="upl-clear-search-badge"
+            title="Clear search filter"
+          >
+            <span>Clear filter</span>
+            <FiX size={14} />
+          </button>
+        )}
       </div>
 
       {/* Toast */}
@@ -511,7 +539,20 @@ export default function UpdatesList({ refreshKey }) {
       {updates.length === 0 && !loading && (
         <div className="upl-empty-state">
           <FiClock className="upl-empty-icon" />
-          <p className="upl-empty-text">No updates yet.</p>
+          <p className="upl-empty-text">
+            {searchQuery
+              ? `No updates found in your account matching "${searchQuery}".`
+              : "No updates yet."}
+          </p>
+          {searchQuery && onClearSearch && (
+            <button
+              type="button"
+              onClick={onClearSearch}
+              className="upl-empty-clear-btn"
+            >
+              Show all updates
+            </button>
+          )}
         </div>
       )}
 

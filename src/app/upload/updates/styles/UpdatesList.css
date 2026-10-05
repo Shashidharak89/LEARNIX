@@ -57,6 +57,49 @@
   line-height: 1.2;
 }
 
+.upl-clear-search-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 180ms var(--upl-ease);
+  font-family: inherit;
+}
+
+.upl-clear-search-badge:hover {
+  background: #ef4444;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.upl-empty-clear-btn {
+  margin-top: 14px;
+  padding: 9px 18px;
+  background: var(--upl-sky-blue);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 200ms var(--upl-ease);
+  font-family: inherit;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.25);
+}
+
+.upl-empty-clear-btn:hover {
+  background: var(--upl-sky-blue-dark);
+  transform: translateY(-1px);
+}
+
 /* ============================================
    Toast Notification
    ============================================ */

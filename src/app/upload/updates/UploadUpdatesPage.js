@@ -1,25 +1,116 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { Navbar } from '../../components/Navbar';
-import AddUpdateForm from './AddUpdateForm';
-import UpdatesList from './UpdatesList';
+import { FiPlus, FiX, FiSearch, FiExternalLink } from "react-icons/fi";
+import { Bell } from "lucide-react";
+import AddUpdateForm from "./AddUpdateForm";
+import UpdatesList from "./UpdatesList";
+import "./styles/UploadUpdatesPage.css";
 
 export default function UploadUpdatesPage() {
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isAddExpanded, setIsAddExpanded] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [appliedSearch, setAppliedSearch] = useState("");
 
   const handleUpdateAdded = () => {
-    setRefreshKey(k => k + 1);
+    setRefreshKey((k) => k + 1);
+    setIsAddExpanded(false);
   };
-  return (
-    <>
-      <div className="upload-updates-page" style={{ width: '94%', maxWidth: '1400px', margin: '28px auto', boxSizing: 'border-box' }}>
-        <main>
-          <AddUpdateForm onUpdateAdded={handleUpdateAdded} />
 
-          <UpdatesList refreshKey={refreshKey} />
-        </main>
-      </div>
-    </>
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setAppliedSearch(searchInput.trim());
+  };
+
+  const handleClearSearch = () => {
+    setSearchInput("");
+    setAppliedSearch("");
+  };
+
+  const handleInputChange = (e) => {
+    const val = e.target.value;
+    setSearchInput(val);
+    if (!val.trim() && appliedSearch) {
+      setAppliedSearch("");
+    }
+  };
+
+  return (
+    <div className="upload-updates-page">
+      <main>
+        {/* Intro / Header Card (Matches /updates design with Searchbar & Add button) */}
+        <div className="upd-intro-card">
+          <div className="upd-intro-header">
+            <h1 className="upd-title">
+              <Bell className="upd-title-icon" size={24} />
+              MY UPDATES
+            </h1>
+            <div className="upd-action-buttons">
+              <button
+                type="button"
+                className={`upd-action-btn ${isAddExpanded ? "upd-action-btn-expanded" : "upd-action-btn-primary"}`}
+                onClick={() => setIsAddExpanded(!isAddExpanded)}
+                title={isAddExpanded ? "Close Add Update form" : "Add new update"}
+                aria-expanded={isAddExpanded}
+              >
+                {isAddExpanded ? <FiX className="upd-action-icon" /> : <FiPlus className="upd-action-icon" />}
+                <span className="upd-action-text">{isAddExpanded ? "Close Form" : "Add Update"}</span>
+              </button>
+              <Link href="/updates" className="upd-action-btn upd-action-btn-secondary" title="View Campus Feed">
+                <FiExternalLink className="upd-action-icon" />
+                <span className="upd-action-text">Campus Feed</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Search Bar with orbiting light animation (Exact design from /updates) */}
+          <form className="upd-search-form" onSubmit={handleSearchSubmit}>
+            <div className="upd-search-wrap">
+              <FiSearch className="upd-search-icon" />
+              <input
+                type="text"
+                value={searchInput}
+                onChange={handleInputChange}
+                className="upd-search-input"
+                placeholder="Search updates from your account by title, content, or files..."
+                aria-label="Search updates from your account"
+              />
+              {searchInput && (
+                <button
+                  type="button"
+                  className="upd-search-clear-inline"
+                  onClick={handleClearSearch}
+                  aria-label="Clear search"
+                >
+                  <FiX size={14} />
+                </button>
+              )}
+            </div>
+            <button type="submit" className="upd-search-btn" disabled={!searchInput.trim()}>
+              <FiSearch className="upd-search-btn-icon" />
+              <span className="upd-search-btn-text">Search</span>
+            </button>
+          </form>
+        </div>
+
+        {/* Collapsible Add Update Form Card */}
+        {isAddExpanded && (
+          <div className="upd-collapsible-wrapper">
+            <AddUpdateForm
+              onUpdateAdded={handleUpdateAdded}
+              onCancel={() => setIsAddExpanded(false)}
+            />
+          </div>
+        )}
+
+        {/* Updates List with authenticated search query */}
+        <UpdatesList
+          refreshKey={refreshKey}
+          searchQuery={appliedSearch}
+          onClearSearch={handleClearSearch}
+        />
+      </main>
+    </div>
   );
 }

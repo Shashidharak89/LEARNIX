@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { FiEdit3, FiSend, FiX, FiUser, FiLink, FiAlertCircle, FiCheckCircle, FiImage, FiTrash2, FiUpload, FiEye } from "react-icons/fi";
 import './styles/AddUpdateForm.css';
 
-export default function AddUpdateForm({ onUpdateAdded }) {
+export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [linksText, setLinksText] = useState("");
@@ -124,11 +124,36 @@ export default function AddUpdateForm({ onUpdateAdded }) {
   return (
     <div className="auf-container">
       {/* Header */}
-      <div className="auf-header">
-        <div className="auf-header-icon">
-          <FiEdit3 />
+      <div className="auf-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div className="auf-header-icon">
+            <FiEdit3 />
+          </div>
+          <h3 className="auf-header-title">Create Update</h3>
         </div>
-        <h3 className="auf-header-title">Create Update</h3>
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="auf-close-header-btn"
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              color: '#64748b',
+              fontSize: '18px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '6px',
+              borderRadius: '8px'
+            }}
+            title="Collapse Form"
+            aria-label="Close add update form"
+          >
+            <FiX />
+          </button>
+        )}
       </div>
 
       {/* Toast Notification */}
@@ -262,15 +287,27 @@ export default function AddUpdateForm({ onUpdateAdded }) {
             </div>
 
             <div className="auf-buttons">
-              <button 
-                type="button" 
-                onClick={handleClear}
-                className="auf-btn auf-btn-clear"
-                disabled={loading}
-              >
-                <FiX />
-                <span>Clear</span>
-              </button>
+              {onCancel ? (
+                <button 
+                  type="button" 
+                  onClick={onCancel}
+                  className="auf-btn auf-btn-clear"
+                  disabled={loading}
+                >
+                  <FiX />
+                  <span>Cancel</span>
+                </button>
+              ) : (
+                <button 
+                  type="button" 
+                  onClick={handleClear}
+                  className="auf-btn auf-btn-clear"
+                  disabled={loading}
+                >
+                  <FiX />
+                  <span>Clear</span>
+                </button>
+              )}
               <button 
                 type="submit" 
                 className="auf-btn auf-btn-submit"

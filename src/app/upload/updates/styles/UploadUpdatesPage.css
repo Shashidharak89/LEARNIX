@@ -1,0 +1,410 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   UploadUpdatesPage.css — My Updates Management Header & Searchbar
+   Matches the design of Campus Updates Page (/updates)
+   Features:
+     ● Orbiting light searchbar border animation
+     ● Collapsible Add Update Form with smooth entrance
+     ● Responsive header controls
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --upd-blue: #0b74ff;
+  --upd-blue-dark: #0256c9;
+  --upd-blue-tint: rgba(11, 116, 255, 0.08);
+  --upd-shadow-blue: 0 8px 28px rgba(11, 116, 255, 0.18);
+  --upd-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.upload-updates-page {
+  width: 92%;
+  max-width: 1200px;
+  margin: 28px auto 56px;
+  box-sizing: border-box;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================
+   Intro / Header Card (Matches /updates)
+   ============================================ */
+
+.upd-intro-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 24px;
+  padding: 24px 24px 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+  animation: upd-slideDown 0.4s var(--upd-ease) both;
+  position: relative;
+  overflow: hidden;
+}
+
+.upd-intro-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.upd-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.upd-title-icon {
+  display: inline-flex;
+  color: var(--upd-blue);
+  margin-right: 6px;
+  vertical-align: middle;
+  animation: upd-bellRing 2.5s ease-in-out infinite;
+}
+
+/* Action buttons */
+.upd-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.upd-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 220ms var(--upd-ease);
+  border: none;
+  font-family: inherit;
+}
+
+.upd-action-btn-primary {
+  background: var(--upd-blue);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(11, 116, 255, 0.25);
+}
+
+.upd-action-btn-primary:hover {
+  background: var(--upd-blue-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--upd-shadow-blue);
+}
+
+.upd-action-btn-primary:active {
+  transform: scale(0.97);
+}
+
+.upd-action-btn-expanded {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1.5px solid #cbd5e1;
+}
+
+.upd-action-btn-expanded:hover {
+  background: #fee2e2;
+  color: #ef4444;
+  border-color: #fca5a5;
+  transform: translateY(-1px);
+}
+
+.upd-action-btn-secondary {
+  background: var(--upd-blue-tint);
+  color: var(--upd-blue);
+  border: 1.5px solid rgba(11, 116, 255, 0.2);
+}
+
+.upd-action-btn-secondary:hover {
+  background: rgba(11, 116, 255, 0.14);
+  border-color: var(--upd-blue);
+  transform: translateY(-1px);
+}
+
+.upd-action-icon {
+  font-size: 15px;
+}
+
+/* ============================================
+   Search Bar — Orbiting Glow Effect (Exact match with /updates)
+   ============================================ */
+
+.upd-search-form {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.upd-search-wrap {
+  position: relative;
+  flex: 1;
+  border-radius: 12px;
+  padding: 2px;
+  background: #e2e8f0;
+  transition: background 0.3s ease;
+}
+
+/* Orbiting light effect — conic gradient that rotates */
+.upd-search-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 13px;
+  background: conic-gradient(
+    from var(--upd-search-angle, 0deg),
+    transparent 0%,
+    transparent 70%,
+    rgba(11, 116, 255, 0.3) 80%,
+    #0b74ff 90%,
+    transparent 100%
+  );
+  animation: upd-orbitLight 3s linear infinite;
+  z-index: 0;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.upd-search-wrap:focus-within::before {
+  opacity: 1;
+}
+
+/* Inner background to mask the gradient behind input */
+.upd-search-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 10px;
+  background: #ffffff;
+  z-index: 0;
+}
+
+.upd-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--upd-blue);
+  font-size: 16px;
+  z-index: 2;
+  transition: transform 0.25s var(--upd-ease);
+}
+
+.upd-search-wrap:focus-within .upd-search-icon {
+  transform: translateY(-50%) scale(1.15);
+  color: var(--upd-blue-dark);
+}
+
+.upd-search-input {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 44px;
+  border-radius: 10px;
+  border: none;
+  padding: 0 38px 0 40px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+  background: transparent;
+  outline: none;
+  font-family: inherit;
+  caret-color: var(--upd-blue);
+  box-sizing: border-box;
+}
+
+.upd-search-input::placeholder {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.upd-search-clear-inline {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: #e2e8f0;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 200ms var(--upd-ease);
+}
+
+.upd-search-clear-inline:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.upd-search-btn {
+  height: 44px;
+  border: none;
+  border-radius: 999px;
+  background: var(--upd-blue);
+  color: #fff;
+  padding: 0 20px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 220ms var(--upd-ease);
+  box-shadow: 0 4px 14px rgba(11, 116, 255, 0.22);
+  flex-shrink: 0;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.upd-search-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.upd-search-btn-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.upd-search-btn-text {
+  display: inline;
+}
+
+.upd-search-btn:hover:not(:disabled) {
+  background: var(--upd-blue-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--upd-shadow-blue);
+}
+
+.upd-search-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* ============================================
+   Collapsible Add Update Form Container
+   ============================================ */
+
+.upd-collapsible-wrapper {
+  margin-bottom: 24px;
+  animation: upd-slideDown 0.32s var(--upd-ease) both;
+}
+
+/* ============================================
+   Keyframes & Properties
+   ============================================ */
+
+@property --upd-search-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes upd-orbitLight {
+  to {
+    --upd-search-angle: 360deg;
+  }
+}
+
+@supports not (background: paint(something)) {
+  @keyframes upd-orbitLight {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .upd-search-wrap::before {
+    inset: -2px;
+    animation: upd-orbitLight 3s linear infinite;
+    transform-origin: center;
+  }
+}
+
+@keyframes upd-bellRing {
+  0%, 100% { transform: rotate(0); }
+  10%, 30% { transform: rotate(14deg); }
+  20%, 40% { transform: rotate(-14deg); }
+  50% { transform: rotate(0); }
+}
+
+@keyframes upd-slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   Responsive Styles
+   ============================================ */
+
+@media (max-width: 640px) {
+  .upload-updates-page {
+    width: 94%;
+    margin: 16px auto 40px;
+  }
+
+  .upd-intro-card {
+    padding: 18px 16px 16px;
+    border-radius: 18px;
+    margin-bottom: 18px;
+  }
+
+  .upd-intro-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .upd-title {
+    font-size: 1.5rem;
+  }
+
+  .upd-action-buttons {
+    width: 100%;
+  }
+
+  .upd-action-btn {
+    flex: 1;
+    font-size: 0.8rem;
+    padding: 0 12px;
+  }
+
+  .upd-search-form {
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .upd-search-btn-text {
+    display: none;
+  }
+
+  .upd-search-btn {
+    padding: 0 14px;
+  }
+}
