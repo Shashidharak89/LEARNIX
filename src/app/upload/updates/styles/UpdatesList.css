@@ -422,6 +422,7 @@
 
 .upl-card {
   position: relative;
+  z-index: 1;
   background: #ffffff;
   border: 1.5px solid #e2e8f0;
   border-radius: 22px;
@@ -433,9 +434,17 @@
 }
 
 .upl-card:hover {
+  z-index: 2;
   transform: translateY(-2px);
   box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.08);
   border-color: #cbd5e1;
+}
+
+/* Card elevation when visibility popover is open — overrides priority over all neighboring cards */
+.upl-card.upl-card-active-menu,
+.upl-card.upl-card-active-menu:hover {
+  z-index: 1000 !important;
+  position: relative;
 }
 
 /* Subtle left accent stripe on hover */
@@ -634,6 +643,7 @@
 .upl-vis-container {
   position: relative;
   display: inline-block;
+  z-index: 100;
 }
 
 .upl-vis-badge {
@@ -708,14 +718,14 @@
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
-  z-index: 100;
+  z-index: 9999;
   width: 270px;
-  background: rgba(255, 255, 255, 0.97);
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(15, 23, 42, 0.1);
   border-radius: 18px;
-  box-shadow: 0 20px 48px -8px rgba(15, 23, 42, 0.18), 0 0 1px 1px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 20px 48px -8px rgba(15, 23, 42, 0.22), 0 0 1px 1px rgba(15, 23, 42, 0.08);
   padding: 8px;
   animation: upl-dropdownAppear 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }

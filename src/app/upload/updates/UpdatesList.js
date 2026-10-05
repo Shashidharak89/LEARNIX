@@ -47,7 +47,7 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
 
     // Optimistic UI update
     setUpdates((prev) =>
-      prev.map((u) => (u._id === updateId ? { ...u, visibility: newVisibility } : u))
+      prev.map((u) => (String(u._id) === String(updateId) ? { ...u, visibility: newVisibility } : u))
     );
 
     try {
@@ -605,9 +605,17 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
         {updates.map((u, idx) => {
           const timeData = getRelativeTime(u.createdAt);
           const isRelative = typeof timeData === 'string';
+          const isMenuOpen = openVisibilityMenuId !== null && String(openVisibilityMenuId) === String(u._id);
 
           return (
-            <article key={u._id} className="upl-card" style={{ animationDelay: `${(idx % 10) * 25}ms` }}>
+            <article
+              key={u._id}
+              className={`upl-card ${isMenuOpen ? 'upl-card-active-menu' : ''}`}
+              style={{
+                animationDelay: `${(idx % 10) * 25}ms`,
+                zIndex: isMenuOpen ? 1000 : 1
+              }}
+            >
               {/* Card Header */}
               <div className="upl-card-header">
                 <div className="upl-avatar-wrapper">
@@ -649,12 +657,12 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setOpenVisibilityMenuId(openVisibilityMenuId === u._id ? null : u._id);
+                          setOpenVisibilityMenuId(isMenuOpen ? null : String(u._id));
                         }}
                         className={`upl-vis-badge upl-vis-badge-${u.visibility || 'public'}`}
                         title="Click to change visibility"
                         aria-haspopup="true"
-                        aria-expanded={openVisibilityMenuId === u._id}
+                        aria-expanded={isMenuOpen}
                       >
                         {u.visibility === 'private' ? (
                           <FiLock className="upl-vis-badge-icon" />
@@ -666,11 +674,11 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                         <span className="upl-vis-badge-text">
                           {u.visibility === 'private' ? 'Private' : u.visibility === 'unlisted' ? 'Unlisted' : 'Public'}
                         </span>
-                        <FiChevronDown className={`upl-vis-badge-arrow ${openVisibilityMenuId === u._id ? 'upl-vis-badge-arrow-open' : ''}`} />
+                        <FiChevronDown className={`upl-vis-badge-arrow ${isMenuOpen ? 'upl-vis-badge-arrow-open' : ''}`} />
                       </button>
 
                       {/* Dropdown Menu */}
-                      {openVisibilityMenuId === u._id && (
+                      {isMenuOpen && (
                         <div className="upl-vis-dropdown" onClick={(e) => e.stopPropagation()}>
                           <div className="upl-vis-dropdown-header">
                             <span>Change Visibility</span>
