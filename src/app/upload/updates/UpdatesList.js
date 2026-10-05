@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import Link from 'next/link';
-import { FiTrash2, FiEdit2, FiSave, FiX, FiUser, FiClock, FiExternalLink, FiChevronRight, FiAlertCircle, FiAlertTriangle, FiUpload, FiDownload, FiEye } from "react-icons/fi";
+import { FiTrash2, FiEdit2, FiSave, FiX, FiUser, FiClock, FiExternalLink, FiChevronRight, FiAlertCircle, FiAlertTriangle, FiUpload, FiDownload, FiEye, FiGlobe, FiLock, FiLink2, FiChevronDown, FiCheck } from "react-icons/fi";
 import { getYouTubeVideoId, groupConsecutiveLinks } from '../../utils/youtube';
 import LinkPreview from '../../components/LinkPreview';
 import YouTubeEmbed from '../../components/YouTubeEmbed';
@@ -30,6 +30,43 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
   const [deleteModal, setDeleteModal] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editVisibility, setEditVisibility] = useState("public");
+  const [openVisibilityMenuId, setOpenVisibilityMenuId] = useState(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (!e.target.closest('.upl-vis-container')) {
+        setOpenVisibilityMenuId(null);
+      }
+    };
+    document.addEventListener('click', handleOutsideClick);
+    return () => document.removeEventListener('click', handleOutsideClick);
+  }, []);
+
+  const handleUpdateVisibility = async (updateId, newVisibility) => {
+    setOpenVisibilityMenuId(null);
+
+    // Optimistic UI update
+    setUpdates((prev) =>
+      prev.map((u) => (u._id === updateId ? { ...u, visibility: newVisibility } : u))
+    );
+
+    try {
+      const res = await authFetch('/api/updates/visibility', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ updateId, visibility: newVisibility })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Failed to update visibility');
+      showToast(`Visibility updated to ${newVisibility}`, 'success');
+    } catch (err) {
+      console.error('Visibility update error:', err);
+      showToast('Failed to change visibility', 'error');
+      if (currentUserId) {
+        fetchPage(page, false, currentUserId, searchQuery);
+      }
+    }
+  };
 
   const fetchPage = async (p = 1, append = false, userId = currentUserId, query = searchQuery) => {
     if (!userId) {
@@ -421,9 +458,9 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                   onChange={(e) => setEditVisibility(e.target.value)}
                   className="upl-edit-select"
                 >
-                  <option value="public">🌐 Public (Visible to everyone)</option>
-                  <option value="private">🔒 Private (Only visible to you)</option>
-                  <option value="unlisted">🔗 Unlisted (Anyone with link)</option>
+                  <option value="public">Public (Visible to everyone)</option>
+                  <option value="private">Private (Only visible to you)</option>
+                  <option value="unlisted">Unlisted (Anyone with link)</option>
                 </select>
               </div>
               <div className="upl-edit-field">
@@ -581,31 +618,129 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                   )}
                 </div>
                 <div className="upl-user-info">
-                  <div className="upl-title-section">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                      <strong className="upl-user-title">{u.title}</strong>
-                      <span style={{ fontSize: '0.74rem', padding: '2px 8px', borderRadius: '12px', background: u.visibility === 'private' ? '#fef2f2' : u.visibility === 'unlisted' ? '#fffbe6' : '#eff6ff', color: u.visibility === 'private' ? '#ef4444' : u.visibility === 'unlisted' ? '#d97706' : '#2563eb', fontWeight: 600, border: `1px solid ${u.visibility === 'private' ? '#fecaca' : u.visibility === 'unlisted' ? '#fef08a' : '#bfdbfe'}` }}>
-                        {u.visibility === 'private' ? '🔒 Private' : u.visibility === 'unlisted' ? '🔗 Unlisted' : '🌐 Public'}
-                      </span>
+                  <div className="upl-user-top-row">
+                    <div className="upl-user-name-usn" title={`${u.name || ''}${u.usn ? ` • ${u.usn}` : ''}`}>
+                      <Link href={`/search/${u.usn || ''}`} className="upl-user-name-link">
+                        <FiUser className="upl-user-icon" />
+                        <span className="upl-user-name-text">{u.name || 'User'}</span>
+                      </Link>
+                      {u.usn && (
+                        <Link href={`/search/${u.usn}`} className="upl-usn-link">
+                          • {u.usn}
+                        </Link>
+                      )}
                     </div>
-                    <div className="upl-meta-row">
-                      {currentUserId && u.userId && String(currentUserId) === String(u.userId) && (
-                        <div className="upl-actions">
-                          <button onClick={() => openEditWindow(u)} className="upl-action-btn upl-action-edit" title="Edit" aria-label="Edit update"><FiEdit2 /></button>
-                          <button onClick={() => openDeleteModal(String(u._id), u.title)} className="upl-action-btn upl-action-delete" title="Delete" aria-label="Delete update"><FiTrash2 /></button>
+                    {currentUserId && u.userId && String(currentUserId) === String(u.userId) && (
+                      <div className="upl-actions">
+                        <button onClick={() => openEditWindow(u)} className="upl-action-btn upl-action-edit" title="Edit update" aria-label="Edit update"><FiEdit2 /></button>
+                        <button onClick={() => openDeleteModal(String(u._id), u.title)} className="upl-action-btn upl-action-delete" title="Delete update" aria-label="Delete update"><FiTrash2 /></button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="upl-user-sub-row">
+                    {u.title && (
+                      <strong className="upl-user-title">{u.title}</strong>
+                    )}
+
+                    {/* Interactive Visibility Switcher with Apple-style dropdown */}
+                    <div className="upl-vis-container">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenVisibilityMenuId(openVisibilityMenuId === u._id ? null : u._id);
+                        }}
+                        className={`upl-vis-badge upl-vis-badge-${u.visibility || 'public'}`}
+                        title="Click to change visibility"
+                        aria-haspopup="true"
+                        aria-expanded={openVisibilityMenuId === u._id}
+                      >
+                        {u.visibility === 'private' ? (
+                          <FiLock className="upl-vis-badge-icon" />
+                        ) : u.visibility === 'unlisted' ? (
+                          <FiLink2 className="upl-vis-badge-icon" />
+                        ) : (
+                          <FiGlobe className="upl-vis-badge-icon" />
+                        )}
+                        <span className="upl-vis-badge-text">
+                          {u.visibility === 'private' ? 'Private' : u.visibility === 'unlisted' ? 'Unlisted' : 'Public'}
+                        </span>
+                        <FiChevronDown className={`upl-vis-badge-arrow ${openVisibilityMenuId === u._id ? 'upl-vis-badge-arrow-open' : ''}`} />
+                      </button>
+
+                      {/* Dropdown Menu */}
+                      {openVisibilityMenuId === u._id && (
+                        <div className="upl-vis-dropdown" onClick={(e) => e.stopPropagation()}>
+                          <div className="upl-vis-dropdown-header">
+                            <span>Change Visibility</span>
+                          </div>
+                          <div className="upl-vis-dropdown-list">
+                            <button
+                              type="button"
+                              className={`upl-vis-dropdown-item ${(!u.visibility || u.visibility === 'public') ? 'active' : ''}`}
+                              onClick={() => handleUpdateVisibility(u._id, 'public')}
+                            >
+                              <div className="upl-vis-item-icon-box upl-vis-icon-public">
+                                <FiGlobe />
+                              </div>
+                              <div className="upl-vis-item-info">
+                                <span className="upl-vis-item-title">Public</span>
+                                <span className="upl-vis-item-desc">Visible to everyone on campus</span>
+                              </div>
+                              {(!u.visibility || u.visibility === 'public') && (
+                                <FiCheck className="upl-vis-item-check" />
+                              )}
+                            </button>
+
+                            <button
+                              type="button"
+                              className={`upl-vis-dropdown-item ${u.visibility === 'unlisted' ? 'active' : ''}`}
+                              onClick={() => handleUpdateVisibility(u._id, 'unlisted')}
+                            >
+                              <div className="upl-vis-item-icon-box upl-vis-icon-unlisted">
+                                <FiLink2 />
+                              </div>
+                              <div className="upl-vis-item-info">
+                                <span className="upl-vis-item-title">Unlisted</span>
+                                <span className="upl-vis-item-desc">Anyone with link can view</span>
+                              </div>
+                              {u.visibility === 'unlisted' && (
+                                <FiCheck className="upl-vis-item-check" />
+                              )}
+                            </button>
+
+                            <button
+                              type="button"
+                              className={`upl-vis-dropdown-item ${u.visibility === 'private' ? 'active' : ''}`}
+                              onClick={() => handleUpdateVisibility(u._id, 'private')}
+                            >
+                              <div className="upl-vis-item-icon-box upl-vis-icon-private">
+                                <FiLock />
+                              </div>
+                              <div className="upl-vis-item-info">
+                                <span className="upl-vis-item-title">Private</span>
+                                <span className="upl-vis-item-desc">Only visible to you</span>
+                              </div>
+                              {u.visibility === 'private' && (
+                                <FiCheck className="upl-vis-item-check" />
+                              )}
+                            </button>
+                          </div>
                         </div>
                       )}
-                      <div className="upl-timestamp">
-                        <FiClock className="upl-time-icon" />
-                        {isRelative ? (
-                          <span className="upl-time-relative">{timeData}</span>
-                        ) : (
-                          <div className="upl-time-absolute">
-                            <span className="upl-time-date">{timeData.date}</span>
-                            <span className="upl-time-clock">{timeData.time}</span>
-                          </div>
-                        )}
-                      </div>
+                    </div>
+
+                    <div className="upl-timestamp">
+                      <FiClock className="upl-time-icon" />
+                      {isRelative ? (
+                        <span className="upl-time-relative">{timeData}</span>
+                      ) : (
+                        <div className="upl-time-absolute">
+                          <span className="upl-time-date">{timeData.date}</span>
+                          <span className="upl-time-clock">{timeData.time}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
