@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "node ./scripts/suppress-baseline-warning.js"
   },
   "dependencies": {
     "@animateicons/react": "^0.5.0",
@@ -62,6 +63,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "baseline-browser-mapping": "^2.11.27",
     "eslint": "^9",
     "eslint-config-next": "^16.0.7",
     "tailwindcss": "^4"
