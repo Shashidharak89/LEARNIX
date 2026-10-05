@@ -24,6 +24,7 @@ export default function UpdatesList({ refreshKey }) {
   const [editLinksText, setEditLinksText] = useState("");
   const [editFiles, setEditFiles] = useState([]);
   const [editIsUploading, setEditIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   
   // Modal states
   const [deleteModal, setDeleteModal] = useState(null);
@@ -151,10 +152,16 @@ export default function UpdatesList({ refreshKey }) {
       return;
     }
 
+    if (!editTitle.trim()) {
+      showToast('Please provide a title', 'error');
+      return;
+    }
+
+    setIsSaving(true);
     const payload = {
       updateId,
       userId: currentUserId,
-      title: editTitle,
+      title: editTitle.trim(),
       content: editContent,
       links: parseLinks(editLinksText),
       files: editFiles,
@@ -183,6 +190,8 @@ export default function UpdatesList({ refreshKey }) {
     } catch (err) {
       console.error('Edit error', err);
       showToast('Failed to save update', 'error');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -316,16 +325,33 @@ export default function UpdatesList({ refreshKey }) {
         <div className="upl-modal-overlay" onClick={closeDeleteModal}>
           <div className="upl-modal" onClick={(e) => e.stopPropagation()}>
             <div className="upl-modal-header">
-              <FiAlertTriangle className="upl-modal-icon upl-modal-icon-danger" />
-              <h3 className="upl-modal-title">Delete Update</h3>
+              <div className="upl-modal-header-left">
+                <FiAlertTriangle className="upl-modal-icon upl-modal-icon-danger" />
+                <h3 className="upl-modal-title">Delete Update</h3>
+              </div>
+              <button
+                type="button"
+                onClick={closeDeleteModal}
+                className="upl-modal-close-btn"
+                title="Close"
+                aria-label="Close delete modal"
+              >
+                <FiX />
+              </button>
             </div>
             <div className="upl-modal-body">
               <p className="upl-modal-text">Are you sure you want to delete <strong>"{deleteModal.title}"</strong>?</p>
               <p className="upl-modal-subtext">This action cannot be undone.</p>
             </div>
             <div className="upl-modal-actions">
-              <button onClick={closeDeleteModal} className="upl-modal-btn upl-modal-btn-cancel"><FiX /><span>Cancel</span></button>
-              <button onClick={confirmDelete} className="upl-modal-btn upl-modal-btn-danger"><FiTrash2 /><span>Delete</span></button>
+              <button type="button" onClick={closeDeleteModal} className="upl-modal-btn upl-modal-btn-cancel">
+                <FiX />
+                <span>Cancel</span>
+              </button>
+              <button type="button" onClick={confirmDelete} className="upl-modal-btn upl-modal-btn-danger">
+                <FiTrash2 />
+                <span>Delete</span>
+              </button>
             </div>
           </div>
         </div>
@@ -336,17 +362,37 @@ export default function UpdatesList({ refreshKey }) {
         <div className="upl-modal-overlay" onClick={closeEditWindow}>
           <div className="upl-modal upl-modal-large" onClick={(e) => e.stopPropagation()}>
             <div className="upl-modal-header">
-              <FiEdit2 className="upl-modal-icon upl-modal-icon-primary" />
-              <h3 className="upl-modal-title">Edit Update</h3>
+              <div className="upl-modal-header-left">
+                <FiEdit2 className="upl-modal-icon upl-modal-icon-primary" />
+                <h3 className="upl-modal-title">Edit Update</h3>
+              </div>
+              <button
+                type="button"
+                onClick={closeEditWindow}
+                className="upl-modal-close-btn"
+                title="Close"
+                aria-label="Close edit modal"
+              >
+                <FiX />
+              </button>
             </div>
             <div className="upl-modal-body">
               <div className="upl-edit-field">
                 <label className="upl-edit-label">Title</label>
-                <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="upl-edit-title-input" placeholder="Update title..." />
+                <input
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="upl-edit-title-input"
+                  placeholder="Update title..."
+                />
               </div>
               <div className="upl-edit-field">
                 <label className="upl-edit-label">Visibility</label>
-                <select value={editVisibility} onChange={(e) => setEditVisibility(e.target.value)} className="upl-edit-title-input" style={{ cursor: "pointer" }}>
+                <select
+                  value={editVisibility}
+                  onChange={(e) => setEditVisibility(e.target.value)}
+                  className="upl-edit-select"
+                >
                   <option value="public">🌐 Public (Visible to everyone)</option>
                   <option value="private">🔒 Private (Only visible to you)</option>
                   <option value="unlisted">🔗 Unlisted (Anyone with link)</option>
@@ -354,14 +400,33 @@ export default function UpdatesList({ refreshKey }) {
               </div>
               <div className="upl-edit-field">
                 <label className="upl-edit-label">Content</label>
-                <textarea value={editContent} onChange={(e) => setEditContent(e.target.value)} rows={5} className="upl-edit-textarea" placeholder="Update content..." />
+                <textarea
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                  rows={5}
+                  className="upl-edit-textarea"
+                  placeholder="Update content..."
+                />
               </div>
               <div className="upl-edit-field">
                 <label className="upl-edit-label">Links (one per line)</label>
-                <textarea value={editLinksText} onChange={(e) => setEditLinksText(e.target.value)} rows={3} className="upl-edit-textarea" placeholder="/internal-link or https://external-link.com" />
+                <textarea
+                  value={editLinksText}
+                  onChange={(e) => setEditLinksText(e.target.value)}
+                  rows={3}
+                  className="upl-edit-textarea"
+                  placeholder="/internal-link or https://external-link.com"
+                />
               </div>
               <div className="upl-edit-field">
-                <label className="upl-edit-label">Files (optional)</label>
+                <label className="upl-edit-label">
+                  <span>Files (optional)</span>
+                  {editFiles && editFiles.length > 0 && (
+                    <span className="upl-edit-file-count">
+                      {editFiles.length} {editFiles.length === 1 ? 'file' : 'files'} attached
+                    </span>
+                  )}
+                </label>
                 <div className="upl-edit-files-row">
                   <label className="upl-file-btn">
                     <FiUpload />
@@ -372,28 +437,71 @@ export default function UpdatesList({ refreshKey }) {
                 </div>
                 {editFiles && editFiles.length > 0 && (
                   <div className="upl-edit-files-list">
-                    {editFiles.map((f, i) => (
-                      <div key={i} className="upl-edit-file-item">
-                        <a
-                          href={`https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(f.url)}`}
-                          className="upl-edit-file-link"
-                          target="_blank"
-                          rel="noreferrer noopener"
-                        >
-                          {f.name || f.url.split('/').pop()}
-                        </a>
-                        <button type="button" className="upl-edit-file-remove" onClick={() => removeEditFile(i)} title="Remove file">
-                          <FiTrash2 />
-                        </button>
-                      </div>
-                    ))}
+                    {editFiles.map((f, i) => {
+                      const url = f.url || f;
+                      const name = f.name || (typeof url === 'string' ? url.split('/').pop() : 'Attachment');
+                      const viewUrl = typeof url === 'string' && url.startsWith('http')
+                        ? `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`
+                        : url;
+
+                      return (
+                        <div key={i} className="upl-edit-file-item">
+                          <div className="upl-edit-file-info">
+                            <FileIcon filename={name} />
+                            <a
+                              href={viewUrl}
+                              className="upl-edit-file-link"
+                              target="_blank"
+                              rel="noreferrer noopener"
+                              title={name}
+                            >
+                              {name}
+                            </a>
+                          </div>
+                          <button
+                            type="button"
+                            className="upl-edit-file-remove"
+                            onClick={() => removeEditFile(i)}
+                            title={`Remove ${name}`}
+                            aria-label={`Remove ${name}`}
+                          >
+                            <FiTrash2 />
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
             </div>
             <div className="upl-modal-actions">
-              <button onClick={closeEditWindow} className="upl-modal-btn upl-modal-btn-cancel"><FiX /><span>Cancel</span></button>
-              <button onClick={() => saveEdit(editingId)} className="upl-modal-btn upl-modal-btn-primary"><FiSave /><span>Save Changes</span></button>
+              <button
+                type="button"
+                onClick={closeEditWindow}
+                className="upl-modal-btn upl-modal-btn-cancel"
+                disabled={isSaving}
+              >
+                <FiX />
+                <span>Cancel</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => saveEdit(editingId)}
+                className="upl-modal-btn upl-modal-btn-primary"
+                disabled={isSaving || editIsUploading}
+              >
+                {isSaving ? (
+                  <>
+                    <span className="upl-spinner"></span>
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <>
+                    <FiSave />
+                    <span>Save Changes</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
