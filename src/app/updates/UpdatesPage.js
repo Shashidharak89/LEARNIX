@@ -196,18 +196,33 @@ export default function UpdatesPage({ initialUpdateId }) {
                 <Bell className="upd-title-icon" size={24} />
                 UPDATES
               </h1>
-              {isLoggedIn && (
-                <div className="upd-action-buttons">
-                  <button type="button" className="upd-action-btn upd-action-btn-primary" onClick={() => setShowAddModal(true)} title="Add Update">
-                    <FiPlus className="upd-action-icon" />
-                    <span className="upd-action-text">Add Update</span>
-                  </button>
-                  <Link href="/upload/updates" className="upd-action-btn upd-action-btn-secondary" title="Manage Updates">
-                    <FiList className="upd-action-icon" />
-                    <span className="upd-action-text">Manage</span>
-                  </Link>
-                </div>
-              )}
+              <div className="upd-action-buttons">
+                <button
+                  type="button"
+                  className="upd-action-btn upd-action-btn-primary"
+                  onClick={() => {
+                    if (!isLoggedIn) {
+                      router.push('/login?redirect=/updates');
+                      return;
+                    }
+                    setShowAddModal(true);
+                  }}
+                  title="Add Update"
+                  aria-label="Add Update"
+                >
+                  <FiPlus className="upd-action-icon" />
+                  <span className="upd-action-text">Add Update</span>
+                </button>
+                <Link
+                  href="/upload/updates"
+                  className="upd-action-btn upd-action-btn-secondary"
+                  title="Manage Updates"
+                  aria-label="Manage Updates"
+                >
+                  <FiList className="upd-action-icon" />
+                  <span className="upd-action-text">Manage</span>
+                </Link>
+              </div>
             </div>
 
             <form className="upd-search-form" onSubmit={handleSearchSubmit}>
@@ -423,7 +438,15 @@ export default function UpdatesPage({ initialUpdateId }) {
               fetchUpdates(1, keywordFromUrl);
             }}>✕</button>
             <div className="upd-modal-scroll-area">
-               <AddUpdateForm />
+              <AddUpdateForm
+                onUpdateAdded={() => {
+                  setShowAddModal(false);
+                  fetchUpdates(1, keywordFromUrl);
+                }}
+                onCancel={() => {
+                  setShowAddModal(false);
+                }}
+              />
             </div>
           </div>
         </div>

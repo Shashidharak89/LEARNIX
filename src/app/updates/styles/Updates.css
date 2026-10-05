@@ -91,8 +91,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 12px;
+  flex-wrap: nowrap;
+  width: 100%;
 }
 
 .upd-title {
@@ -181,11 +182,15 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  width: 100%;
+  flex-direction: row;
+  flex-wrap: nowrap;
 }
 
 .upd-search-wrap {
   position: relative;
   flex: 1;
+  min-width: 0;
   border-radius: 12px;
   padding: 2px;
   background: var(--upd-border);
@@ -1148,17 +1153,31 @@
 }
 
 /* ============================================
-   Responsive — Very Small Screens
+   Responsive — Small & Mobile Screens
    ============================================ */
 
-@media (max-width: 500px) {
+@media (max-width: 640px) {
+  .upd-intro-header {
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+
   .upd-action-text {
-    display: none;
+    display: none !important;
   }
 
   .upd-action-btn {
     padding: 0;
     width: 38px;
+    min-width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .upd-action-icon {
+    font-size: 17px;
   }
 
   .upd-main {
@@ -1168,16 +1187,24 @@
 
   .upd-intro-card {
     padding: 18px 16px 16px;
-    border-radius: 12px;
+    border-radius: 18px;
   }
 
   .upd-title {
     font-size: 1.25rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .upd-title-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 4px;
   }
 
   .upd-card {
     padding: 14px 16px;
-    border-radius: 12px;
+    border-radius: 14px;
   }
 
   .upd-avatar {
@@ -1225,6 +1252,14 @@
     flex-direction: row;
     align-items: center;
     gap: 8px;
+    flex-wrap: nowrap;
+    margin-top: 14px;
+    width: 100%;
+  }
+
+  .upd-search-wrap {
+    flex: 1;
+    min-width: 0;
   }
 
   .upd-search-btn {
@@ -1234,10 +1269,11 @@
     padding: 0;
     border-radius: 50%;
     justify-content: center;
+    flex-shrink: 0;
   }
 
   .upd-search-btn-text {
-    display: none;
+    display: none !important;
   }
 
   .upd-search-btn-icon {
@@ -1259,8 +1295,8 @@
   }
 }
 
-/* Small screens */
-@media (min-width: 501px) and (max-width: 768px) {
+/* Small tablets */
+@media (min-width: 641px) and (max-width: 768px) {
   .upd-main {
     width: 96%;
     padding: 20px 8px 0;
