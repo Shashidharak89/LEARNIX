@@ -2,32 +2,30 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
-  FiArrowLeft,
   FiClock,
   FiUser,
-  FiShare2,
-  FiLock,
   FiEye,
   FiDownload,
   FiAlertCircle,
   FiCheck,
   FiChevronRight,
+  FiLock,
 } from "react-icons/fi";
+import { Share2 } from "lucide-react";
 import { authFetch } from "@/lib/clientAuth";
-import { getYouTubeVideoId, groupConsecutiveLinks } from "../../utils/youtube";
+import { groupConsecutiveLinks } from "../../utils/youtube";
 import LinkPreview from "../../components/LinkPreview";
 import YouTubeEmbed from "../../components/YouTubeEmbed";
 import FileIcon from "../../components/FileIcon";
-import MarkdownRenderer from "../../components/MarkdownRenderer";
+import ExpandableDescription from "../../components/ExpandableDescription";
+import "../styles/Updates.css";
 import "./styles/SingleUpdateView.css";
 
 const DEFAULT_PROFILE_IMAGE =
   "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp";
 
 export default function SingleUpdateView({ updateId }) {
-  const router = useRouter();
   const [update, setUpdate] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorStatus, setErrorStatus] = useState(null); // 403, 404, 500
@@ -78,17 +76,36 @@ export default function SingleUpdateView({ updateId }) {
     fetchSingleUpdate();
   }, [updateId]);
 
-  const formatRelativeTime = (iso) => {
+  const formatExactTimestamp = (iso) => {
     try {
-      const then = new Date(iso);
-      const now = new Date();
-      const diffSec = Math.floor((now - then) / 1000);
-      if (diffSec < 60) return `${diffSec}s ago`;
-      const diffMin = Math.floor(diffSec / 60);
-      if (diffMin < 60) return `${diffMin}m ago`;
-      const diffHour = Math.floor(diffMin / 60);
-      if (diffHour < 24) return `${diffHour}h ago`;
-      return then.toLocaleDateString();
+      const date = new Date(iso);
+      if (isNaN(date.getTime())) return iso;
+
+      const day = date.getDate();
+      const months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "June",
+        "July",
+        "Aug",
+        "Sept",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      const month = months[date.getMonth()];
+      const year = date.getFullYear();
+
+      let hours = date.getHours();
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      const ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+
+      return `${day} ${month} ${year}, ${hours}:${minutes} ${ampm}`;
     } catch {
       return iso;
     }
@@ -115,27 +132,68 @@ export default function SingleUpdateView({ updateId }) {
     }
   };
 
-  // Skeleton Loader
+  // Skeleton Loader (Without navigation header bar)
   if (loading) {
     return (
       <div className="suv-container">
         <main className="suv-main">
-          <div className="suv-header-bar">
-            <div style={{ width: 140, height: 36, background: "#e2e8f0", borderRadius: 8 }} />
-          </div>
-          <div className="suv-card" style={{ opacity: 0.7 }}>
-            <div className="suv-author-section">
-              <div className="suv-author-info">
-                <div style={{ width: 52, height: 52, borderRadius: "50%", background: "#cbd5e1" }} />
-                <div className="suv-author-details">
-                  <div style={{ width: 140, height: 18, background: "#cbd5e1", borderRadius: 4 }} />
-                  <div style={{ width: 90, height: 14, background: "#e2e8f0", borderRadius: 4, marginTop: 4 }} />
-                </div>
+          <div className="upd-card suv-card" style={{ opacity: 0.75 }}>
+            <div className="upd-card-header">
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "50%",
+                  background: "#e2e8f0",
+                }}
+              />
+              <div style={{ flex: 1 }}>
+                <div
+                  style={{
+                    width: 140,
+                    height: 16,
+                    background: "#cbd5e1",
+                    borderRadius: 4,
+                    marginBottom: 8,
+                  }}
+                />
+                <div
+                  style={{
+                    width: 90,
+                    height: 12,
+                    background: "#e2e8f0",
+                    borderRadius: 4,
+                  }}
+                />
               </div>
             </div>
-            <div style={{ width: "70%", height: 26, background: "#cbd5e1", borderRadius: 6, marginBottom: 16 }} />
-            <div style={{ width: "100%", height: 16, background: "#e2e8f0", borderRadius: 4, marginBottom: 8 }} />
-            <div style={{ width: "85%", height: 16, background: "#e2e8f0", borderRadius: 4, marginBottom: 24 }} />
+            <div
+              style={{
+                width: "70%",
+                height: 22,
+                background: "#cbd5e1",
+                borderRadius: 6,
+                margin: "16px 0 12px",
+              }}
+            />
+            <div
+              style={{
+                width: "100%",
+                height: 14,
+                background: "#e2e8f0",
+                borderRadius: 4,
+                marginBottom: 8,
+              }}
+            />
+            <div
+              style={{
+                width: "85%",
+                height: 14,
+                background: "#e2e8f0",
+                borderRadius: 4,
+                marginBottom: 20,
+              }}
+            />
           </div>
         </main>
       </div>
@@ -147,11 +205,6 @@ export default function SingleUpdateView({ updateId }) {
     return (
       <div className="suv-container">
         <main className="suv-main">
-          <div className="suv-header-bar">
-            <Link href="/updates" className="suv-back-btn">
-              <FiArrowLeft /> Back to Updates
-            </Link>
-          </div>
           <div className="suv-state-card">
             <div className="suv-state-icon-box private">
               <FiLock size={36} />
@@ -179,11 +232,6 @@ export default function SingleUpdateView({ updateId }) {
     return (
       <div className="suv-container">
         <main className="suv-main">
-          <div className="suv-header-bar">
-            <Link href="/updates" className="suv-back-btn">
-              <FiArrowLeft /> Back to Updates
-            </Link>
-          </div>
           <div className="suv-state-card">
             <div className="suv-state-icon-box notfound">
               <FiAlertCircle size={36} />
@@ -211,45 +259,38 @@ export default function SingleUpdateView({ updateId }) {
   return (
     <div className="suv-container">
       <main className="suv-main">
-        {/* Top Header & Breadcrumbs */}
-        <div className="suv-header-bar">
-          <Link href="/updates" className="suv-back-btn">
-            <FiArrowLeft /> Back to Updates
-          </Link>
-          <div className="suv-breadcrumbs">
-            <Link href="/" className="suv-breadcrumb-link">
-              Home
+        {/* Main Update Card styled exactly like the Updates page card */}
+        <div className="upd-card suv-card">
+          {/* Card Header */}
+          <div className="upd-card-header">
+            <Link href={profileLink}>
+              <img
+                src={update.profileUrl || DEFAULT_PROFILE_IMAGE}
+                alt={update.name || "user"}
+                className="upd-avatar"
+                onError={(e) => {
+                  e.target.src = DEFAULT_PROFILE_IMAGE;
+                }}
+              />
             </Link>
-            <span>/</span>
-            <Link href="/updates" className="suv-breadcrumb-link">
-              Updates
-            </Link>
-            <span>/</span>
-            <span className="suv-breadcrumb-current">{update.title || "Update"}</span>
-          </div>
-        </div>
-
-        {/* Update Card */}
-        <div className="suv-card">
-          {/* Author Section */}
-          <div className="suv-author-section">
-            <div className="suv-author-info">
-              <Link href={profileLink} className="suv-author-avatar-link" title="View Profile">
-                <img
-                  src={update.profileUrl || DEFAULT_PROFILE_IMAGE}
-                  alt={update.name || "Author"}
-                  className="suv-author-avatar"
-                  onError={(e) => {
-                    e.target.src = DEFAULT_PROFILE_IMAGE;
-                  }}
-                />
-              </Link>
-              <div className="suv-author-details">
-                <div className="suv-author-name-row">
-                  <Link href={profileLink} className="suv-author-name">
-                    {update.name || "User"}
+            <div className="upd-user-info">
+              <div className="upd-user-top-row">
+                <div
+                  className="upd-user-name-usn"
+                  title={`${update.name || ""}${update.usn ? ` • ${update.usn}` : ""}`}
+                >
+                  <Link href={profileLink} className="upd-user-name-link">
+                    <FiUser className="upd-user-icon" />
+                    <span className="upd-user-name-text">{update.name || "User"}</span>
                   </Link>
-                  {update.usn && <span className="suv-usn-badge">• {update.usn}</span>}
+                  {update.usn && (
+                    <Link
+                      href={`/search/${encodeURIComponent(update.usn)}`}
+                      className="upd-usn-link"
+                    >
+                      • {update.usn}
+                    </Link>
+                  )}
                   {update.isOwner && <span className="suv-owner-pill">Your Update</span>}
                   {update.isOwner && update.visibility && (
                     <span
@@ -284,37 +325,48 @@ export default function SingleUpdateView({ updateId }) {
                     </span>
                   )}
                 </div>
-                <div className="suv-time-meta">
-                  <FiClock size={13} />
-                  <span>{formatRelativeTime(update.createdAt)}</span>
+                <button
+                  type="button"
+                  className="upd-share-btn"
+                  title="Share update"
+                  aria-label="Share update"
+                  onClick={handleShare}
+                >
+                  <Share2 size={15} />
+                </button>
+              </div>
+
+              <div className="upd-user-sub-row">
+                {update.title && (
+                  <div className="upd-user-title">
+                    <span>{update.title}</span>
+                  </div>
+                )}
+                <div className="upd-timestamp">
+                  <FiClock className="upd-time-icon" />
+                  <span>{formatExactTimestamp(update.createdAt)}</span>
                 </div>
               </div>
             </div>
-
-            <button type="button" className="suv-share-btn-top" onClick={handleShare}>
-              <FiShare2 size={15} />
-              <span>Share</span>
-            </button>
           </div>
 
-          {/* Title & Body Content */}
-          <h1 className="suv-title">{update.title || "Update"}</h1>
-          {update.content && <MarkdownRenderer content={update.content} className="suv-content-text" />}
+          {/* Description with "Read More" button if it has plenty of description */}
+          <ExpandableDescription content={update.content} className="upd-content" />
 
           {/* Embedded YouTube / Links */}
           {update.links && update.links.length > 0 && (
-            <div className="suv-links-container">
+            <div className="upd-links">
               {groupConsecutiveLinks(update.links).map((group, groupIdx) => {
                 if (group.type === "youtube-group") {
                   if (group.items.length === 2) {
                     return (
-                      <div key={groupIdx} className="suv-youtube-grid-2">
+                      <div key={groupIdx} className="upd-youtube-grid-2">
                         {group.items.map((item, itemIdx) => (
                           <YouTubeEmbed
                             key={itemIdx}
                             ytId={item.ytId}
-                            wrapperClass="suv-youtube-wrapper suv-youtube-grid-item"
-                            iframeClass="suv-youtube-iframe"
+                            wrapperClass="upd-youtube-embed-wrapper upd-youtube-grid-item"
+                            iframeClass="upd-youtube-iframe"
                           />
                         ))}
                       </div>
@@ -325,17 +377,17 @@ export default function SingleUpdateView({ updateId }) {
                     <YouTubeEmbed
                       key={groupIdx}
                       ytId={item.ytId}
-                      wrapperClass="suv-youtube-wrapper"
-                      iframeClass="suv-youtube-iframe"
+                      wrapperClass="upd-youtube-embed-wrapper"
+                      iframeClass="upd-youtube-iframe"
                     />
                   );
                 }
 
                 if (group.type === "internal") {
                   return (
-                    <Link key={groupIdx} href={group.raw} className="suv-action-btn-secondary">
-                      <span>Visit Link</span>
-                      <FiChevronRight />
+                    <Link key={groupIdx} href={group.raw} className="upd-link upd-link-internal">
+                      <span>Visit</span>
+                      <FiChevronRight className="upd-link-icon" />
                     </Link>
                   );
                 }
@@ -345,16 +397,20 @@ export default function SingleUpdateView({ updateId }) {
             </div>
           )}
 
-          {/* Attached Files */}
+          {/* Files section — identical organization, layout, and styling as Updates page */}
           {update.files && update.files.length > 0 && (
-            <div className="suv-files-container">
+            <div className="upd-files">
+              <div className="upd-files-label">Attachments</div>
               {update.files.map((fileItem, index) => {
                 const url = fileItem.url || fileItem;
-                const name = fileItem.name || url.split("/").pop();
+                const name =
+                  fileItem.name ||
+                  (typeof url === "string" ? url.split("/").pop() : "Attachment");
                 const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(
                   url
                 )}`;
 
+                // If Cloudinary PDF, transform link for direct download
                 let downloadUrl = url;
                 const isPdf = typeof url === "string" && url.toLowerCase().endsWith(".pdf");
                 if (isPdf && url.includes("res.cloudinary.com")) {
@@ -380,7 +436,7 @@ export default function SingleUpdateView({ updateId }) {
                         target="_blank"
                         rel="noreferrer noopener"
                         className="upd-file-action-btn upd-file-action-view"
-                        title="View File"
+                        title="View"
                       >
                         <FiEye />
                       </a>
@@ -390,7 +446,7 @@ export default function SingleUpdateView({ updateId }) {
                         target={isPdf ? undefined : "_blank"}
                         rel="noreferrer noopener"
                         className="upd-file-action-btn upd-file-action-download"
-                        title="Download File"
+                        title="Download"
                       >
                         <FiDownload />
                       </a>
@@ -400,21 +456,6 @@ export default function SingleUpdateView({ updateId }) {
               })}
             </div>
           )}
-
-          {/* Action Bar */}
-          <div className="suv-action-bar">
-            <button type="button" className="suv-action-btn-primary" onClick={handleShare}>
-              <FiShare2 size={16} /> Share Update
-            </button>
-            {update.usn && (
-              <Link href={profileLink} className="suv-action-btn-secondary">
-                <FiUser size={16} /> View Author Profile
-              </Link>
-            )}
-            <Link href="/updates" className="suv-action-btn-secondary">
-              Explore All Updates
-            </Link>
-          </div>
         </div>
       </main>
 
