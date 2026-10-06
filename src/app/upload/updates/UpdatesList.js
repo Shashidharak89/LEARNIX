@@ -283,7 +283,8 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
         const uploadResult = await uploadFileViaWebSocket(f, {
           userId: currentUserId,
           token,
-          onProgress: ({ percent, currentChunk, totalChunks }) => {
+          onProgress: ({ percent, currentChunk, totalChunks, statusText }) => {
+            const formattedStatus = statusText || `${percent}% uploaded`;
             setEditUploadStatus({
               current: i + 1,
               total: files.length,
@@ -291,7 +292,7 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
               percent,
               chunkIndex: currentChunk,
               totalChunks,
-              statusText: `Uploading chunk ${currentChunk}/${totalChunks} (${percent}%)`
+              statusText: formattedStatus
             });
           },
           onStatus: (statusText) => {
@@ -591,7 +592,7 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                         File {editUploadStatus.current}/{editUploadStatus.total}: <strong>{editUploadStatus.filename}</strong>
                       </span>
                       <span className="upl-ws-progress-tag">
-                        ⚡ WS: {editUploadStatus.percent || 0}%
+                        ⚡ {editUploadStatus.percent || 0}% uploaded
                       </span>
                     </div>
                     <div className="upl-ws-progress-track">
@@ -601,7 +602,12 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                       ></div>
                     </div>
                     <div className="upl-ws-progress-footer">
-                      <span>{editUploadStatus.statusText || 'Uploading chunks…'}</span>
+                      <span className="upl-ws-progress-status-text">
+                        <strong>{editUploadStatus.percent || 0}% uploaded</strong>
+                        {editUploadStatus.statusText && !editUploadStatus.statusText.includes(`${editUploadStatus.percent || 0}% uploaded`) && (
+                          <span> • {editUploadStatus.statusText}</span>
+                        )}
+                      </span>
                       {editUploadStatus.totalChunks > 1 && (
                         <span>Chunk {editUploadStatus.chunkIndex || 1} of {editUploadStatus.totalChunks}</span>
                       )}

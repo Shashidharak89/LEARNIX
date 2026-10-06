@@ -1858,6 +1858,20 @@
   font-size: 11px;
   color: #64748b;
   font-weight: 500;
+  gap: 8px;
+}
+
+.upl-ws-progress-status-text {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #0284c7;
+}
+
+.upl-ws-progress-status-text strong {
+  font-weight: 700;
+  color: #0284c7;
+  font-variant-numeric: tabular-nums;
 }
 
 .upl-edit-files-list {

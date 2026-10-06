@@ -149,7 +149,8 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
         const uploadResult = await uploadFileViaWebSocket(f, {
           userId,
           token,
-          onProgress: ({ percent, currentChunk, totalChunks }) => {
+          onProgress: ({ percent, currentChunk, totalChunks, statusText }) => {
+            const formattedStatus = statusText || `${percent}% uploaded`;
             setUploadStatus({
               current: i + 1,
               total: validFiles.length,
@@ -157,7 +158,7 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
               percent,
               chunkIndex: currentChunk,
               totalChunks,
-              statusText: `Uploading chunk ${currentChunk}/${totalChunks} (${percent}%)`
+              statusText: formattedStatus
             });
           },
           onStatus: (statusText) => {
@@ -584,7 +585,7 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
                     </div>
                   </div>
                   <div className="auf-uploading-right">
-                    <span className="auf-uploading-percent">{uploadStatus.percent || 0}%</span>
+                    <span className="auf-uploading-percent">{uploadStatus.percent || 0}% uploaded</span>
                     <span className="auf-uploading-tag">⚡ WebSocket Chunks</span>
                   </div>
                 </div>
@@ -597,9 +598,16 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
                 </div>
 
                 <div className="auf-progress-sub">
-                  <span>{uploadStatus.statusText || "Uploading chunks..."}</span>
+                  <span className="auf-progress-status-highlight">
+                    <strong>{uploadStatus.percent || 0}% uploaded</strong>
+                    {uploadStatus.statusText && !uploadStatus.statusText.includes(`${uploadStatus.percent || 0}% uploaded`) && (
+                      <span className="auf-status-detail"> • {uploadStatus.statusText}</span>
+                    )}
+                  </span>
                   {uploadStatus.totalChunks > 1 && (
-                    <span>Chunk {uploadStatus.chunkIndex || 1} of {uploadStatus.totalChunks}</span>
+                    <span className="auf-progress-chunks">
+                      Chunk {uploadStatus.chunkIndex || 1} of {uploadStatus.totalChunks}
+                    </span>
                   )}
                 </div>
               </div>
