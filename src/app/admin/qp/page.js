@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Navbar } from "@/app/components/Navbar";
 import QPViewer from "./QPViewer";
 import Link from "next/link";
@@ -64,6 +64,17 @@ const modelsConfig = {
     }
 };
 
+const apiMap = {
+    QPUniversities: "/api/qp/v1/universities",
+    QPColleges: "/api/qp/v1/colleges",
+    QPSemesters: "/api/qp/v1/semesters",
+    QPCourse: "/api/qp/v1/courses",
+    QPSubjects: "/api/qp/v1/subjects",
+    QPBatches: "/api/qp/v1/batches",
+    QPExamType: "/api/qp/v1/examtypes",
+    QPImages: "/api/qp/v1/images"
+};
+
 export default function QPAdminPage() {
     const [activeTab, setActiveTab] = useState("QPUniversities");
     const [formData, setFormData] = useState({});
@@ -74,53 +85,72 @@ export default function QPAdminPage() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState(null);
 
-    // Fetch records for the active tab
+    // Auth & Permission states
+    const [token, setToken] = useState("");
+    const [userRole, setUserRole] = useState(null);
+
+    // Edit and action states
+    const [editingRecord, setEditingRecord] = useState(null);
+    const [actionLoadingId, setActionLoadingId] = useState(null);
+
+    // Load auth token & role from localStorage
     useEffect(() => {
-        if (activeTab === "Viewer") return;
-        setPage(1);
-        setRecords([]);
-        fetchRecords(activeTab, 1);
-    }, [activeTab]);
+        if (typeof window !== "undefined") {
+            const tok = localStorage.getItem("token") || "";
+            const role = localStorage.getItem("role") || "";
+            setToken(tok);
+            setUserRole(role);
+        }
+    }, []);
 
-    // Fetch references (e.g. for dropdowns)
-    useEffect(() => {
-        if (activeTab === "Viewer") return;
+    const getAuthToken = useCallback(() => {
+        if (token) return token;
+        if (typeof window !== "undefined") {
+            return localStorage.getItem("token") || "";
+        }
+        return "";
+    }, [token]);
 
-        const refs = {};
-        const config = modelsConfig[activeTab];
-        const refModels = config.fields.filter(f => f.ref).map(f => f.ref);
+    const isAdmin = userRole === "admin" || userRole === "superadmin";
 
-        Promise.all(refModels.map(async (refModel) => {
-            const res = await fetch(`/api/admin/qp-models?model=${refModel}`);
-            const json = await res.json();
-            if (json.success) {
-                refs[refModel] = json.data;
-            }
-        })).then(() => {
-            setReferences(refs);
-        });
-
-        // Reset form
+    // Reset form fields for a given model
+    const resetFormFields = useCallback((modelName) => {
+        const config = modelsConfig[modelName];
+        if (!config) return;
         const initialForm = {};
         config.fields.forEach(f => {
             initialForm[f.name] = f.default !== undefined ? f.default : (f.type === "checkbox" ? false : "");
         });
         setFormData(initialForm);
-        setMessage(null);
-    }, [activeTab]);
+        setEditingRecord(null);
+    }, []);
 
-    const apiMap = {
-        QPUniversities: "/api/qp/v1/universities",
-        QPColleges: "/api/qp/v1/colleges",
-        QPSemesters: "/api/qp/v1/semesters",
-        QPCourse: "/api/qp/v1/courses",
-        QPSubjects: "/api/qp/v1/subjects",
-        QPBatches: "/api/qp/v1/batches",
-        QPExamType: "/api/qp/v1/examtypes",
-        QPImages: "/api/qp/v1/images"
-    };
+    // Fetch references (e.g. for dropdowns)
+    const fetchReferences = useCallback(async (modelName) => {
+        if (modelName === "Viewer") return;
+        const config = modelsConfig[modelName];
+        if (!config) return;
+        const refModels = config.fields.filter(f => f.ref).map(f => f.ref);
+        if (refModels.length === 0) return;
 
-    const fetchRecords = async (modelName, pageNum = 1) => {
+        const refs = {};
+        await Promise.all(refModels.map(async (refModel) => {
+            try {
+                const res = await fetch(`/api/admin/qp-models?model=${refModel}`);
+                const json = await res.json();
+                if (json.success) {
+                    refs[refModel] = json.data;
+                }
+            } catch (err) {
+                console.error(`Failed to fetch references for ${refModel}:`, err);
+            }
+        }));
+        setReferences(prev => ({ ...prev, ...refs }));
+    }, []);
+
+    // Fetch records for the active tab (Latest records retrieval)
+    const fetchRecords = useCallback(async (modelName, pageNum = 1) => {
+        if (modelName === "Viewer") return;
         setLoading(true);
         try {
             const endpoint = apiMap[modelName];
@@ -128,17 +158,28 @@ export default function QPAdminPage() {
             const json = await res.json();
             if (json.success) {
                 if (pageNum === 1) {
-                    setRecords(json.data);
+                    setRecords(json.data || []);
                 } else {
-                    setRecords(prev => [...prev, ...json.data]);
+                    setRecords(prev => [...prev, ...(json.data || [])]);
                 }
                 setTotalPages(json.pagination?.totalPages || 1);
             }
         } catch (error) {
-            console.error(error);
+            console.error("Error fetching records:", error);
         }
         setLoading(false);
-    };
+    }, []);
+
+    // Handle tab change
+    useEffect(() => {
+        if (activeTab === "Viewer") return;
+        setPage(1);
+        setRecords([]);
+        resetFormFields(activeTab);
+        setMessage(null);
+        fetchRecords(activeTab, 1);
+        fetchReferences(activeTab);
+    }, [activeTab, fetchRecords, fetchReferences, resetFormFields]);
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -148,52 +189,201 @@ export default function QPAdminPage() {
         }));
     };
 
+    // Pre-populate form when user clicks "Edit"
+    const handleStartEdit = (record) => {
+        setEditingRecord(record);
+        const config = modelsConfig[activeTab];
+        const populated = {};
+        config.fields.forEach(f => {
+            const val = record[f.name];
+            if (f.name === "imageUrls") {
+                populated[f.name] = Array.isArray(val) ? val.join(", ") : (val || "");
+            } else if (f.type === "select") {
+                if (val && typeof val === "object") {
+                    populated[f.name] = String(val._id || "");
+                } else {
+                    populated[f.name] = val !== undefined && val !== null ? String(val) : "";
+                }
+            } else if (f.type === "checkbox") {
+                populated[f.name] = Boolean(val);
+            } else {
+                populated[f.name] = val !== undefined && val !== null ? val : "";
+            }
+        });
+        setFormData(populated);
+        setMessage({
+            type: "info",
+            text: `Editing ${activeTab.replace("QP", "")} (ID: ${record._id}). Modify the fields and click "Update Record".`
+        });
+        if (typeof window !== "undefined") {
+            window.scrollTo({ top: 180, behavior: "smooth" });
+        }
+    };
+
+    // Cancel edit mode
+    const handleCancelEdit = () => {
+        resetFormFields(activeTab);
+        setMessage(null);
+    };
+
+    // Submit handler: Supports both Create (POST) and Update (PUT)
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setMessage(null);
 
+        const currentToken = getAuthToken();
+        if (!currentToken) {
+            setMessage({
+                type: "error",
+                text: "Authentication required. Please log in with an Admin or Super Admin account."
+            });
+            setLoading(false);
+            return;
+        }
+
         let payload = { ...formData };
 
         if (activeTab === "QPImages") {
-            const imageUrlsList = payload.imageUrls ? payload.imageUrls.split(',').map(s => s.trim()).filter(Boolean) : [];
+            const imageUrlsList = payload.imageUrls
+                ? payload.imageUrls.split(',').map(s => s.trim()).filter(Boolean)
+                : [];
             payload.imageUrls = imageUrlsList;
         }
 
         try {
-            const res = await fetch("/api/admin/qp-models", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    modelName: activeTab,
-                    data: payload
-                })
-            });
-            const json = await res.json();
-
-            if (json.success) {
-                setMessage({ type: "success", text: "Record added successfully!" });
-                setPage(1);
-                fetchRecords(activeTab, 1); // refresh
-
-                // Keep select fields and visitLink, only reset URLs/text fields
-                const config = modelsConfig[activeTab];
-                const resetForm = { ...formData };
-                config.fields.forEach(f => {
-                    if (f.type !== "select" && f.name !== "visitLink") {
-                        resetForm[f.name] = "";
-                    }
+            if (editingRecord) {
+                // UPDATE RECORD (PUT)
+                const res = await fetch("/api/admin/qp-models", {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify({
+                        modelName: activeTab,
+                        id: editingRecord._id,
+                        data: payload
+                    })
                 });
-                setFormData(resetForm);
+                const json = await res.json();
+
+                if (json.success) {
+                    setMessage({
+                        type: "success",
+                        text: `${activeTab.replace("QP", "")} updated successfully!`
+                    });
+                    resetFormFields(activeTab);
+                    setPage(1);
+                    fetchRecords(activeTab, 1);
+                    fetchReferences(activeTab);
+                } else {
+                    setMessage({
+                        type: "error",
+                        text: json.error || json.message || "Failed to update record"
+                    });
+                }
             } else {
-                setMessage({ type: "error", text: json.error || json.message });
+                // CREATE NEW RECORD (POST)
+                const res = await fetch("/api/admin/qp-models", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify({
+                        modelName: activeTab,
+                        data: payload
+                    })
+                });
+                const json = await res.json();
+
+                if (json.success) {
+                    setMessage({
+                        type: "success",
+                        text: `${activeTab.replace("QP", "")} added successfully!`
+                    });
+                    setPage(1);
+                    fetchRecords(activeTab, 1);
+                    fetchReferences(activeTab);
+
+                    // Keep select fields and visitLink for quick repetitive entries
+                    const config = modelsConfig[activeTab];
+                    const resetForm = { ...formData };
+                    config.fields.forEach(f => {
+                        if (f.type !== "select" && f.name !== "visitLink") {
+                            resetForm[f.name] = "";
+                        }
+                    });
+                    setFormData(resetForm);
+                } else {
+                    setMessage({
+                        type: "error",
+                        text: json.error || json.message || "Failed to save record"
+                    });
+                }
             }
         } catch (error) {
             setMessage({ type: "error", text: error.message });
         }
         setLoading(false);
+    };
+
+    // Delete handler (DELETE)
+    const handleDelete = async (record) => {
+        const currentToken = getAuthToken();
+        if (!currentToken) {
+            setMessage({
+                type: "error",
+                text: "Authentication required. Please log in with an Admin or Super Admin account to delete records."
+            });
+            return;
+        }
+
+        const modelLabel = activeTab.replace("QP", "");
+        const confirmed = window.confirm(
+            `Are you sure you want to delete this ${modelLabel} (ID: ${record._id})? This action cannot be undone.`
+        );
+        if (!confirmed) return;
+
+        setActionLoadingId(String(record._id));
+        try {
+            const res = await fetch(`/api/admin/qp-models?model=${activeTab}&id=${record._id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${currentToken}`
+                },
+                body: JSON.stringify({
+                    modelName: activeTab,
+                    id: record._id
+                })
+            });
+            const json = await res.json();
+
+            if (json.success) {
+                setMessage({
+                    type: "success",
+                    text: `${modelLabel} deleted successfully!`
+                });
+
+                if (editingRecord && String(editingRecord._id) === String(record._id)) {
+                    handleCancelEdit();
+                }
+
+                // Remove immediately from existing list
+                setRecords(prev => prev.filter(r => String(r._id) !== String(record._id)));
+                fetchReferences(activeTab);
+            } else {
+                setMessage({
+                    type: "error",
+                    text: json.error || json.message || "Failed to delete record"
+                });
+            }
+        } catch (error) {
+            setMessage({ type: "error", text: error.message });
+        }
+        setActionLoadingId(null);
     };
 
     const getReferenceLabel = (refModel, val) => {
@@ -210,7 +400,6 @@ export default function QPAdminPage() {
             if (val.name) return String(val.name);
             if (val.title) return String(val.title);
             if (val._id) {
-                // If references[refModel] exists, try to find a cleaner label
                 if (references[refModel] && Array.isArray(references[refModel])) {
                     const refDoc = references[refModel].find(r => String(r._id) === String(val._id));
                     if (refDoc) {
@@ -243,8 +432,27 @@ export default function QPAdminPage() {
             <div className="qp-admin-content">
                 <header className="qp-admin-header">
                     <h1>QP Admin Dashboard</h1>
-                    <p>Manage Universities, Colleges, Semesters, Subjects, and Questions</p>
+                    <p>Manage Universities, Colleges, Semesters, ExamType, Batches, Subjects, Courses, and Images</p>
                 </header>
+
+                {/* Auth status indicator */}
+                <div className="qp-admin-auth-bar">
+                    <div>
+                        <strong>Security & Permissions: </strong>
+                        <span>Create, Edit, and Delete actions require an authenticated Admin / Super Admin token.</span>
+                    </div>
+                    <div>
+                        {isAdmin ? (
+                            <span className={`qp-auth-badge ${userRole}`}>
+                                🛡️ Role: {userRole}
+                            </span>
+                        ) : (
+                            <span className="qp-auth-badge unauthorized">
+                                ⚠️ Non-Admin ({userRole || "Guest"})
+                            </span>
+                        )}
+                    </div>
+                </div>
 
                 <div className="qp-admin-tabs">
                     {Object.keys(modelsConfig).map(model => (
@@ -276,13 +484,34 @@ export default function QPAdminPage() {
                     <QPViewer />
                 ) : (
                     <div className="qp-admin-main">
+                        {/* Form Section */}
                         <div className="qp-admin-form-section">
-                            <h2>Create New {activeTab.replace("QP", "")}</h2>
+                            <h2>
+                                <span>{editingRecord ? `Edit ${activeTab.replace("QP", "")}` : `Create New ${activeTab.replace("QP", "")}`}</span>
+                                {editingRecord && (
+                                    <span className="qp-editing-badge">Editing Mode</span>
+                                )}
+                            </h2>
+
+                            {editingRecord && (
+                                <div className="qp-editing-banner">
+                                    <span>Currently editing record <code>{editingRecord._id}</code></span>
+                                    <button
+                                        type="button"
+                                        onClick={handleCancelEdit}
+                                        style={{ background: "transparent", border: "none", color: "#1e40af", cursor: "pointer", fontWeight: 700 }}
+                                    >
+                                        ✕ Cancel
+                                    </button>
+                                </div>
+                            )}
+
                             {message && (
                                 <div className={`qp-admin-alert ${message.type}`}>
                                     {message.text}
                                 </div>
                             )}
+
                             <form onSubmit={handleSubmit} className="qp-admin-form">
                                 {modelsConfig[activeTab].fields.map((field) => (
                                     <div key={field.name} className="qp-form-group">
@@ -294,18 +523,20 @@ export default function QPAdminPage() {
                                             <input
                                                 type={field.type}
                                                 name={field.name}
-                                                value={formData[field.name] || ""}
+                                                value={formData[field.name] ?? ""}
                                                 onChange={handleInputChange}
                                                 required={field.required}
                                                 className="qp-input"
+                                                disabled={loading}
                                             />
                                         ) : field.type === "checkbox" ? (
                                             <input
                                                 type="checkbox"
                                                 name={field.name}
-                                                checked={formData[field.name] || false}
+                                                checked={Boolean(formData[field.name])}
                                                 onChange={handleInputChange}
                                                 className="qp-checkbox"
+                                                disabled={loading}
                                             />
                                         ) : field.type === "select" ? (
                                             <select
@@ -314,6 +545,7 @@ export default function QPAdminPage() {
                                                 onChange={handleInputChange}
                                                 required={field.required}
                                                 className="qp-input"
+                                                disabled={loading}
                                             >
                                                 <option value="">-- Select {field.name} --</option>
                                                 {references[field.ref] && references[field.ref].map(refDoc => (
@@ -327,48 +559,106 @@ export default function QPAdminPage() {
                                         ) : null}
                                     </div>
                                 ))}
-                                <button type="submit" disabled={loading} className="qp-submit-btn">
-                                    {loading ? "Saving..." : "Save Record"}
-                                </button>
+
+                                <div className="qp-form-buttons">
+                                    <button type="submit" disabled={loading} className="qp-submit-btn">
+                                        {loading
+                                            ? (editingRecord ? "Updating..." : "Saving...")
+                                            : (editingRecord ? "Update Record" : "Save Record")}
+                                    </button>
+
+                                    {editingRecord && (
+                                        <button
+                                            type="button"
+                                            onClick={handleCancelEdit}
+                                            className="qp-cancel-btn"
+                                            disabled={loading}
+                                        >
+                                            Cancel
+                                        </button>
+                                    )}
+                                </div>
                             </form>
                         </div>
 
+                        {/* List Section (Latest records retrieval with Edit & Delete options) */}
                         <div className="qp-admin-list-section">
-                            <h2>Existing {activeTab.replace("QP", "")} Records</h2>
+                            <h2>
+                                <span>Existing {activeTab.replace("QP", "")} Records</span>
+                                <span style={{ fontSize: "0.85rem", color: "#6b7280", fontWeight: 400 }}>
+                                    {records.length} displayed
+                                </span>
+                            </h2>
+
                             <div className="qp-records-list">
                                 {loading && records.length === 0 ? (
-                                    <p>Loading...</p>
+                                    <p>Loading latest records...</p>
                                 ) : records.length === 0 ? (
                                     <p>No records found.</p>
                                 ) : (
-                                    records.map((record) => (
-                                        <div key={String(record._id)} className="qp-record-card">
-                                            <div className="qp-record-meta-top">ID: {String(record._id)}</div>
-                                            <div className="qp-record-details">
-                                                {modelsConfig[activeTab].fields.map(f => (
-                                                    <div key={f.name} className="qp-record-detail-item">
-                                                        <span className="qp-record-detail-label">{f.name}: </span>
-                                                        <span className="qp-record-detail-value">
-                                                            {f.type === 'select' ?
-                                                                getReferenceLabel(f.ref, record[f.name]) :
-                                                                f.name === 'imageUrls' ?
-                                                                    (Array.isArray(record[f.name]) ? record[f.name].length : 0) + " images" :
-                                                                    typeof record[f.name] === 'object' && record[f.name] !== null ?
-                                                                        (record[f.name].name || record[f.name].title || String(record[f.name]._id || 'N/A')) :
-                                                                        String(record[f.name] ?? 'N/A')
-                                                            }
-                                                        </span>
-                                                    </div>
-                                                ))}
+                                    records.map((record) => {
+                                        const isBeingEdited = editingRecord && String(editingRecord._id) === String(record._id);
+                                        const isDeleting = actionLoadingId === String(record._id);
+
+                                        return (
+                                            <div
+                                                key={String(record._id)}
+                                                className={`qp-record-card ${isBeingEdited ? "editing" : ""}`}
+                                            >
+                                                <div className="qp-record-header-row">
+                                                    <div className="qp-record-meta-top">ID: {String(record._id)}</div>
+                                                    {isBeingEdited && (
+                                                        <span className="qp-editing-tag">Active Edit</span>
+                                                    )}
+                                                </div>
+
+                                                <div className="qp-record-details">
+                                                    {modelsConfig[activeTab].fields.map(f => (
+                                                        <div key={f.name} className="qp-record-detail-item">
+                                                            <span className="qp-record-detail-label">{f.name}: </span>
+                                                            <span className="qp-record-detail-value">
+                                                                {f.type === 'select' ?
+                                                                    getReferenceLabel(f.ref, record[f.name]) :
+                                                                    f.name === 'imageUrls' ?
+                                                                        (Array.isArray(record[f.name]) ? record[f.name].length : 0) + " images" :
+                                                                        typeof record[f.name] === 'object' && record[f.name] !== null ?
+                                                                            (record[f.name].name || record[f.name].title || String(record[f.name]._id || 'N/A')) :
+                                                                            String(record[f.name] ?? 'N/A')
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                <div className="qp-record-actions">
+                                                    <button
+                                                        type="button"
+                                                        className="qp-btn-edit"
+                                                        onClick={() => handleStartEdit(record)}
+                                                        disabled={loading || isDeleting}
+                                                        title="Edit this record"
+                                                    >
+                                                        ✏️ Edit
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="qp-btn-delete"
+                                                        onClick={() => handleDelete(record)}
+                                                        disabled={loading || isDeleting}
+                                                        title="Delete this record"
+                                                    >
+                                                        {isDeleting ? "Deleting..." : "🗑️ Delete"}
+                                                    </button>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))
+                                        );
+                                    })
                                 )}
-                                
+
                                 {page < totalPages && (
                                     <div style={{ textAlign: "center", marginTop: "20px" }}>
-                                        <button 
-                                            className="qp-submit-btn" 
+                                        <button
+                                            className="qp-submit-btn"
                                             style={{ backgroundColor: "#6b7280", width: "auto", display: "inline-block", padding: "10px 20px" }}
                                             onClick={() => {
                                                 const nextPage = page + 1;

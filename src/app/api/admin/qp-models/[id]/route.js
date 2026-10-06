@@ -21,7 +21,6 @@ const models = {
     QPCourse
 };
 
-// Helper to verify that the request includes a valid Bearer token for an admin or superadmin
 async function checkAdminAuth(req) {
     const auth = await resolveAuthenticatedUser(req, { withMeta: true });
     
@@ -60,88 +59,48 @@ async function checkAdminAuth(req) {
     return { authorized: true, user: caller };
 }
 
-// GET: Fetch records for a model or a specific record by ID
-export async function GET(req) {
+// GET /api/admin/qp-models/[id]?model=...
+export async function GET(req, { params }) {
     try {
         await connectDB();
+        const { id } = await params;
         const url = new URL(req.url);
         const modelName = url.searchParams.get("model");
-        const id = url.searchParams.get("id");
-        
-        if (!modelName || !models[modelName]) {
-            return NextResponse.json({ success: false, message: "Invalid model name" }, { status: 400 });
-        }
-
-        const Model = models[modelName];
-
-        if (id) {
-            const record = await Model.findById(id);
-            if (!record) {
-                return NextResponse.json({ success: false, message: "Record not found" }, { status: 404 });
-            }
-            return NextResponse.json({ success: true, data: record }, { status: 200 });
-        }
-
-        const data = await Model.find({}).sort({ createdAt: -1 });
-        return NextResponse.json({ success: true, data }, { status: 200 });
-    } catch (error) {
-        console.error("GET QP Model Error:", error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-    }
-}
-
-// POST: Create a new record (Admin / Super Admin only)
-export async function POST(req) {
-    try {
-        await connectDB();
-        const auth = await checkAdminAuth(req);
-        if (!auth.authorized) return auth.response;
-
-        const body = await req.json();
-        const { modelName, data } = body;
 
         if (!modelName || !models[modelName]) {
             return NextResponse.json({ success: false, message: "Invalid model name" }, { status: 400 });
         }
 
         const Model = models[modelName];
-        const newRecord = new Model(data);
-        await newRecord.save();
+        const record = await Model.findById(id);
 
-        return NextResponse.json({
-            success: true,
-            message: `${modelName.replace("QP", "")} created successfully`,
-            data: newRecord
-        }, { status: 201 });
+        if (!record) {
+            return NextResponse.json({ success: false, message: "Record not found" }, { status: 404 });
+        }
+
+        return NextResponse.json({ success: true, data: record }, { status: 200 });
     } catch (error) {
-        console.error("POST QP Model Error:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
 
-// PUT: Update an existing record (Admin / Super Admin only)
-export async function PUT(req) {
+// PUT /api/admin/qp-models/[id]?model=...
+export async function PUT(req, { params }) {
     try {
         await connectDB();
         const auth = await checkAdminAuth(req);
         if (!auth.authorized) return auth.response;
 
+        const { id } = await params;
         const url = new URL(req.url);
         const body = await req.json().catch(() => ({}));
-
         const modelName = body.modelName || url.searchParams.get("model");
-        const id = body.id || url.searchParams.get("id");
         const data = body.data || body;
 
         if (!modelName || !models[modelName]) {
             return NextResponse.json({ success: false, message: "Invalid model name" }, { status: 400 });
         }
 
-        if (!id) {
-            return NextResponse.json({ success: false, message: "Record ID is required" }, { status: 400 });
-        }
-
-        // Clean up data to avoid mutating system fields
         const updateData = { ...data };
         delete updateData._id;
         delete updateData.id;
@@ -163,39 +122,32 @@ export async function PUT(req) {
             data: updatedRecord
         }, { status: 200 });
     } catch (error) {
-        console.error("PUT QP Model Error:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
 
-// DELETE: Delete an existing record (Admin / Super Admin only)
-export async function DELETE(req) {
+// DELETE /api/admin/qp-models/[id]?model=...
+export async function DELETE(req, { params }) {
     try {
         await connectDB();
         const auth = await checkAdminAuth(req);
         if (!auth.authorized) return auth.response;
 
+        const { id } = await params;
         const url = new URL(req.url);
         let modelName = url.searchParams.get("model");
-        let id = url.searchParams.get("id");
 
-        // Fallback: check JSON body if not present in searchParams
-        if (!modelName || !id) {
+        if (!modelName) {
             try {
                 const body = await req.json();
-                modelName = modelName || body.modelName;
-                id = id || body.id;
+                modelName = body.modelName;
             } catch {
-                // No body provided
+                // Ignore missing or invalid JSON body
             }
         }
 
         if (!modelName || !models[modelName]) {
             return NextResponse.json({ success: false, message: "Invalid model name" }, { status: 400 });
-        }
-
-        if (!id) {
-            return NextResponse.json({ success: false, message: "Record ID is required" }, { status: 400 });
         }
 
         const Model = models[modelName];
@@ -211,7 +163,6 @@ export async function DELETE(req) {
             data: deletedRecord
         }, { status: 200 });
     } catch (error) {
-        console.error("DELETE QP Model Error:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
