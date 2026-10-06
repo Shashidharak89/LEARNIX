@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import cloudinary from "@/lib/cloudinary";
+import { uploadBufferToCloudinary } from "@/lib/cloudinaryUploadHelper";
+
+export const maxDuration = 60; // Allow 60s for large file uploads on serverless platforms
+export const dynamic = "force-dynamic";
 
 export const POST = async (req) => {
   try {
@@ -20,19 +23,9 @@ export const POST = async (req) => {
 
     const folder = userId ? `updates/${userId}` : `updates`;
 
-    const uploadResult = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        {
-          folder,
-          resource_type: "auto",  // handles images, videos, PDFs, raw files — everything
-          public_id: `${Date.now()}_${sanitizedName}`,
-        },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
-      );
-      stream.end(buffer);
+    const uploadResult = await uploadBufferToCloudinary(buffer, {
+      folder,
+      filename: file.name || sanitizedName,
     });
 
     return NextResponse.json({

@@ -1,6 +1,6 @@
 import { WebSocketServer } from "ws";
 import jwt from "jsonwebtoken";
-import cloudinary from "@/lib/cloudinary";
+import { uploadBufferToCloudinary } from "./cloudinaryUploadHelper.js";
 
 const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey@learnix";
 const WS_DEFAULT_PORT = Number(process.env.WS_PORT) || 5001;
@@ -180,19 +180,9 @@ export function getOrStartWsServer(desiredPort = WS_DEFAULT_PORT) {
               const folder = session.userId ? `updates/${session.userId}` : "updates";
               const sanitizedName = (session.filename || `upload-${Date.now()}`).replace(/[^a-zA-Z0-9._-]/g, "_");
 
-              const uploadResult = await new Promise((resolve, reject) => {
-                const stream = cloudinary.uploader.upload_stream(
-                  {
-                    folder,
-                    resource_type: "auto",
-                    public_id: `${Date.now()}_${sanitizedName}`
-                  },
-                  (error, result) => {
-                    if (error) reject(error);
-                    else resolve(result);
-                  }
-                );
-                stream.end(finalBuffer);
+              const uploadResult = await uploadBufferToCloudinary(finalBuffer, {
+                folder,
+                filename: session.filename || sanitizedName
               });
 
               activeUploads.delete(uploadId);
