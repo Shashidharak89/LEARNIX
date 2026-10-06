@@ -342,8 +342,28 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
     }
   };
 
-  const removeEditFile = (idx) => {
+  const removeEditFile = async (idx) => {
+    const fileToRemove = editFiles[idx];
     setEditFiles((p) => p.filter((_, i) => i !== idx));
+
+    if (fileToRemove?.publicId) {
+      const origUpdate = updates.find((u) => String(u._id) === editingId);
+      const isOriginal = origUpdate?.files?.some((f) => f.publicId === fileToRemove.publicId);
+      if (!isOriginal) {
+        try {
+          await fetch('/api/updates/upload', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              publicId: fileToRemove.publicId,
+              resourceType: fileToRemove.resourceType || 'auto',
+            }),
+          });
+        } catch (err) {
+          console.error('Failed to delete uncommitted edit file from Cloudinary:', err);
+        }
+      }
+    }
   };
 
   const openDeleteModal = (updateId, title) => {

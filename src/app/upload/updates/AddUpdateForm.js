@@ -225,11 +225,62 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
     }
   };
 
-  const removeUploadedFile = (idx) => {
-    setUploadedFiles((p) => p.filter((_, i) => i !== idx));
+  const deleteFromCloudinary = async (fileObj) => {
+    if (!fileObj?.publicId) return;
+    try {
+      await fetch("/api/updates/upload", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          publicId: fileObj.publicId,
+          resourceType: fileObj.resourceType || "auto",
+        }),
+      });
+    } catch (err) {
+      console.error("Cloudinary delete error:", err);
+    }
+  };
+
+  const removeUploadedFile = async (fileToRemove, idx) => {
+    const target = fileToRemove || uploadedFiles[idx];
+    if (!target) return;
+
+    // Remove from UI state immediately
+    setUploadedFiles((p) =>
+      p.filter((item, i) => (target.publicId ? item.publicId !== target.publicId : i !== idx))
+    );
+
+    if (target.publicId) {
+      showToast(`Deleting "${target.name || "file"}" from Cloudinary...`, "info");
+      try {
+        const res = await fetch("/api/updates/upload", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            publicId: target.publicId,
+            resourceType: target.resourceType || "auto",
+          }),
+        });
+
+        if (res.ok) {
+          showToast(`"${target.name || "File"}" deleted from Cloudinary`, "success");
+        } else {
+          showToast(`Removed from form, but failed to delete from Cloudinary`, "warning");
+        }
+      } catch (err) {
+        console.error("Error deleting from Cloudinary:", err);
+        showToast("Error deleting file from Cloudinary", "error");
+      }
+    }
   };
 
   const handleClear = () => {
+    if (uploadedFiles.length > 0) {
+      uploadedFiles.forEach((f) => {
+        if (f.publicId) deleteFromCloudinary(f);
+      });
+      showToast("Cleared form and removed uploaded files from Cloudinary", "info");
+    }
     setTitle("");
     setContent("");
     setLinksText("");
@@ -612,10 +663,10 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
                           className="auf-file-action-btn auf-file-action-remove"
                           onClick={(e) => {
                             e.stopPropagation();
-                            removeUploadedFile(i);
+                            removeUploadedFile(f, i);
                           }}
-                          title="Remove file"
-                          aria-label="Remove file"
+                          title="Delete file from Cloudinary"
+                          aria-label="Delete file from Cloudinary"
                         >
                           <FiTrash2 />
                         </button>
@@ -645,7 +696,14 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
               {onCancel ? (
                 <button
                   type="button"
-                  onClick={onCancel}
+                  onClick={() => {
+                    if (uploadedFiles.length > 0) {
+                      uploadedFiles.forEach((fileItem) => {
+                        if (fileItem.publicId) deleteFromCloudinary(fileItem);
+                      });
+                    }
+                    onCancel();
+                  }}
                   className="auf-btn auf-btn-clear"
                   disabled={loading || isUploadingFiles}
                 >
