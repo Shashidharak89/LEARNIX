@@ -5,6 +5,12 @@ process.env.BROWSERSLIST_IGNORE_OLD_DATA = "true";
 const nextConfig = {
   reactStrictMode: true,
 
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '50mb',
+    },
+  },
+
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "learnix.dev" },
