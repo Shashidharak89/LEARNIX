@@ -1,76 +1,49 @@
 /**
- * Client-side WebSocket Chunk Uploader for Updates
- * Uploads files chunk-by-chunk over an authenticated WebSocket connection,
- * reporting real-time granular progress (e.g. 20% uploaded, 35% uploaded, ... 100% uploaded)
- * for informative UI progressbars.
+ * Client-side Direct Cloudinary Resumable Chunk Uploader for Updates
+ * 
+ * Features:
+ * - Zero binary payload transferred through application server (0 bytes RAM/disk usage on server).
+ * - Authenticated WebSocket handshake to receive signed Cloudinary upload credentials.
+ * - Slices file in browser into smaller chunks and posts directly to Cloudinary's chunk upload REST endpoint.
+ * - Automatic chunk retry (up to 3 retries per chunk with backoff).
+ * - Real-time progress updates sent over WebSocket and UI callback.
+ * - Server complete/abort signaling for database workflow integration.
+ * - Supports very large files, cancellation, and resilient network fallback.
  */
 
-function arrayBufferToBase64(buffer) {
-  let binary = "";
-  const bytes = new Uint8Array(buffer);
-  const len = bytes.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return window.btoa(binary);
-}
-
-function readSliceAsBase64(blob) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const base64 = arrayBufferToBase64(reader.result);
-        resolve(base64);
-      } catch (err) {
-        reject(err);
-      }
-    };
-    reader.onerror = () => reject(reader.error);
-    reader.readAsArrayBuffer(blob);
-  });
-}
-
-/**
- * Uploads a file via WebSocket in chunks with progress reporting and authentication.
- * Dynamically paces and sizes chunks so users clearly see live progress (e.g., 20% uploaded, 35% uploaded... 100% uploaded).
- * Falls back to XMLHttpRequest progress upload if WebSocket is unavailable.
- */
 export async function uploadFileViaWebSocket(file, options = {}) {
   const {
     userId = "",
     token = (typeof window !== "undefined" ? localStorage.getItem("token") || "" : ""),
-    chunkSize: customChunkSize,
+    chunkSize = 2 * 1024 * 1024, // 2MB chunk size for Cloudinary direct resumable upload
     onProgress = () => {},
     onStatus = () => {},
   } = options;
 
-  // Determine granular chunk size so users see informed progress (20% uploaded, 35% uploaded, ... 100%)
-  let chunkSize = customChunkSize;
-  if (!chunkSize) {
-    if (file.size <= 256 * 1024) {
-      chunkSize = 16 * 1024; // 16 KB (e.g. 100KB file = 7 chunks)
-    } else if (file.size <= 1024 * 1024) {
-      chunkSize = 32 * 1024; // 32 KB (e.g. 500KB file = 16 chunks)
-    } else if (file.size <= 8 * 1024 * 1024) {
-      chunkSize = 64 * 1024; // 64 KB
-    } else {
-      chunkSize = 128 * 1024; // 128 KB
-    }
-  }
-
   let ws = null;
+  let currentXhr = null;
+  let isAborted = false;
+
+  const cryptoObj = typeof window !== "undefined" ? window.crypto : null;
+  const uploadId = (cryptoObj && cryptoObj.randomUUID)
+    ? cryptoObj.randomUUID()
+    : `up-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+
+  const abortUpload = () => {
+    isAborted = true;
+    if (currentXhr) {
+      try { currentXhr.abort(); } catch { /* ignore */ }
+    }
+    if (ws && ws.readyState === 1) {
+      try {
+        ws.send(JSON.stringify({ type: "abort", uploadId }));
+      } catch { /* ignore */ }
+      try { ws.close(); } catch { /* ignore */ }
+    }
+  };
 
   try {
     onStatus("Connecting to upload server via WebSocket...");
-    onProgress({
-      percent: 0,
-      currentChunk: 0,
-      totalChunks: Math.max(1, Math.ceil(file.size / chunkSize)),
-      filename: file.name,
-      size: file.size,
-      statusText: "0% uploaded"
-    });
 
     // 1. Fetch WebSocket server coordinates from API
     const infoRes = await fetch("/api/updates/upload/ws-info");
@@ -81,10 +54,8 @@ export async function uploadFileViaWebSocket(file, options = {}) {
     const protocol = isSecure ? "wss:" : "ws:";
     const hostname = window.location.hostname || "localhost";
 
-    // Auth header is passed via query param and subprotocol
     const queryAuth = token ? `?token=${encodeURIComponent(token)}` : "";
     const wsUrl = `${protocol}//${hostname}:${port}${queryAuth}`;
-
     const protocols = token ? ["bearer", token] : [];
 
     // 2. Establish WebSocket connection
@@ -98,11 +69,7 @@ export async function uploadFileViaWebSocket(file, options = {}) {
       }
 
       const connectionTimeout = setTimeout(() => {
-        try {
-          socket.close();
-        } catch {
-          // Ignore close error on timeout
-        }
+        try { socket.close(); } catch (_e) {}
         reject(new Error("WebSocket connection timed out"));
       }, 7000);
 
@@ -117,227 +84,339 @@ export async function uploadFileViaWebSocket(file, options = {}) {
       };
     });
 
-    onStatus("WebSocket connected. Starting chunk upload...");
+    onStatus("WebSocket connected. Requesting Cloudinary upload signature...");
 
-    // 3. Prepare chunking
-    const totalChunks = Math.max(1, Math.ceil(file.size / chunkSize));
-    const cryptoObj = typeof window !== "undefined" ? window.crypto : null;
-    const uploadId = (cryptoObj && cryptoObj.randomUUID)
-      ? cryptoObj.randomUUID()
-      : `up-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-
-    return await new Promise((resolve, reject) => {
-      let isReady = false;
-      let currentChunkIdx = 0;
-
-      const handleMessage = async (event) => {
+    // 3. Request signed Cloudinary credentials over WebSocket
+    const credentials = await new Promise((resolve, reject) => {
+      const handleMessage = (event) => {
         let msg;
-        try {
-          msg = JSON.parse(event.data);
-        } catch {
-          return;
+        try { msg = JSON.parse(event.data); } catch { return; }
+
+        if (msg.type === "error" && (!msg.uploadId || msg.uploadId === uploadId)) {
+          return reject(new Error(msg.message || "Upload authorization error"));
         }
 
-        if (msg.type === "error") {
-          ws.close();
-          return reject(new Error(msg.message || "WebSocket upload error"));
-        }
-
-        if (msg.type === "ready") {
-          isReady = true;
-          sendNextChunk();
-          return;
-        }
-
-        if (msg.type === "progress") {
-          const percent = msg.percent !== undefined
-            ? msg.percent
-            : Math.min(100, Math.round(((msg.chunkIndex + 1) / totalChunks) * 100));
-
-          const statusText = `${percent}% uploaded`;
-
-          onProgress({
-            percent,
-            currentChunk: msg.chunkIndex + 1,
-            totalChunks,
-            filename: file.name,
-            size: file.size,
-            statusText
-          });
-
-          onStatus(statusText);
-
-          currentChunkIdx = msg.chunkIndex + 1;
-          if (currentChunkIdx < totalChunks) {
-            // Smooth pacing (25ms) so users clearly see the percentage progression
-            setTimeout(() => {
-              sendNextChunk();
-            }, 25);
-          }
-          return;
-        }
-
-        if (msg.type === "processing") {
-          onProgress({
-            percent: 100,
-            currentChunk: totalChunks,
-            totalChunks,
-            filename: file.name,
-            size: file.size,
-            statusText: "100% uploaded • Processing on Cloudinary..."
-          });
-          onStatus("100% uploaded • Processing on Cloudinary...");
-          return;
-        }
-
-        if (msg.type === "complete") {
-          onProgress({
-            percent: 100,
-            currentChunk: totalChunks,
-            totalChunks,
-            filename: file.name,
-            size: file.size,
-            statusText: "100% uploaded"
-          });
-          onStatus("100% uploaded");
-          try {
-            ws.close();
-          } catch {
-            // Ignore close error on completion
-          }
-          return resolve({ file: msg.file });
+        if (msg.type === "ready" && msg.uploadId === uploadId) {
+          ws.removeEventListener("message", handleMessage);
+          resolve(msg.credentials);
         }
       };
 
-      const sendNextChunk = async () => {
-        if (!isReady || currentChunkIdx >= totalChunks) return;
+      ws.addEventListener("message", handleMessage);
 
-        const start = currentChunkIdx * chunkSize;
-        const end = Math.min(start + chunkSize, file.size);
-        const chunkBlob = file.slice(start, end);
-
-        try {
-          const base64Data = await readSliceAsBase64(chunkBlob);
-          ws.send(JSON.stringify({
-            type: "chunk",
-            uploadId,
-            chunkIndex: currentChunkIdx,
-            data: base64Data
-          }));
-        } catch (err) {
-          try { ws.close(); } catch { /* ignore close error */ }
-          reject(new Error(`Failed to read file chunk: ${err.message}`));
-        }
-      };
-
-      ws.onmessage = handleMessage;
-      ws.onerror = () => {
-        reject(new Error("WebSocket communication error"));
-      };
-      ws.onclose = (event) => {
-        if (!event.wasClean && currentChunkIdx < totalChunks) {
-          reject(new Error(`WebSocket connection closed unexpectedly (code: ${event.code})`));
-        }
-      };
-
-      // Send Init message
+      // Send Init message to server
       ws.send(JSON.stringify({
         type: "init",
         uploadId,
         filename: file.name,
         fileSize: file.size,
-        totalChunks,
-        chunkSize,
         userId
       }));
     });
 
-  } catch (wsError) {
-    console.warn("[WS Upload] WebSocket failed, falling back to HTTP upload:", wsError?.message);
-    if (ws) {
-      try {
-        ws.close();
-      } catch {
-        // Ignore close error on fallback
+    onStatus("Upload credentials generated. Direct Cloudinary upload starting...");
+
+    // 4. Perform Direct Chunked Upload from Browser to Cloudinary
+    const effectiveChunkSize = file.size <= 1024 * 1024 ? 512 * 1024 : chunkSize;
+    const totalChunks = Math.max(1, Math.ceil(file.size / effectiveChunkSize));
+    let finalCloudinaryResponse = null;
+
+    for (let chunkIdx = 0; chunkIdx < totalChunks; chunkIdx++) {
+      if (isAborted) {
+        throw new Error("Upload cancelled by user");
+      }
+
+      const start = chunkIdx * effectiveChunkSize;
+      const end = Math.min(start + effectiveChunkSize, file.size);
+      const chunkBlob = file.slice(start, end);
+
+      // Chunk Retry Loop (up to 3 attempts with backoff)
+      let chunkSuccess = false;
+      let lastChunkErr = null;
+
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        if (isAborted) break;
+
+        try {
+          const res = await new Promise((resolveChunk, rejectChunk) => {
+            const XHRConstructor = typeof window !== "undefined" && window.XMLHttpRequest
+              ? window.XMLHttpRequest
+              : globalThis.XMLHttpRequest;
+
+            if (!XHRConstructor) {
+              return rejectChunk(new Error("XMLHttpRequest not available in environment"));
+            }
+
+            const xhr = new XHRConstructor();
+            currentXhr = xhr;
+
+            xhr.open("POST", credentials.uploadUrl);
+
+            // Cloudinary direct resumable chunk headers
+            xhr.setRequestHeader("X-Unique-Upload-Id", uploadId);
+            xhr.setRequestHeader("Content-Range", `bytes ${start}-${end - 1}/${file.size}`);
+
+            const fd = new FormData();
+            fd.append("file", chunkBlob);
+            fd.append("api_key", credentials.apiKey);
+            fd.append("timestamp", String(credentials.timestamp));
+            fd.append("signature", credentials.signature);
+            fd.append("folder", credentials.folder);
+            fd.append("public_id", credentials.publicId);
+
+            xhr.upload.onprogress = (evt) => {
+              if (evt.lengthComputable) {
+                const totalUploadedSoFar = start + evt.loaded;
+                const percent = Math.min(99, Math.round((totalUploadedSoFar / file.size) * 100));
+
+                onProgress({
+                  percent,
+                  currentChunk: chunkIdx + 1,
+                  totalChunks,
+                  filename: file.name,
+                  size: file.size,
+                  statusText: `${percent}% uploaded`
+                });
+
+                // Send real-time progress update to server over WebSocket
+                if (ws && ws.readyState === 1) {
+                  try {
+                    ws.send(JSON.stringify({
+                      type: "progress",
+                      uploadId,
+                      bytesUploaded: totalUploadedSoFar,
+                      totalBytes: file.size,
+                      percent
+                    }));
+                  } catch (_e) {}
+                }
+              }
+            };
+
+            xhr.onload = () => {
+              currentXhr = null;
+              try {
+                const data = JSON.parse(xhr.responseText);
+                if (xhr.status >= 200 && xhr.status < 300) {
+                  resolveChunk(data);
+                } else {
+                  rejectChunk(new Error(data?.error?.message || `Cloudinary returned HTTP ${xhr.status}`));
+                }
+              } catch (e) {
+                rejectChunk(new Error(`Cloudinary response parse failed: ${xhr.statusText}`));
+              }
+            };
+
+            xhr.onerror = () => {
+              currentXhr = null;
+              rejectChunk(new Error("Network error during direct Cloudinary upload"));
+            };
+
+            xhr.onabort = () => {
+              currentXhr = null;
+              rejectChunk(new Error("Chunk upload aborted"));
+            };
+
+            xhr.send(fd);
+          });
+
+          chunkSuccess = true;
+          if (chunkIdx === totalChunks - 1) {
+            finalCloudinaryResponse = res;
+          }
+          break; // Chunk succeeded, exit retry loop
+        } catch (err) {
+          lastChunkErr = err;
+          if (attempt < 3 && !isAborted) {
+            onStatus(`Chunk ${chunkIdx + 1} failed. Retrying (${attempt + 1}/3)...`);
+            await new Promise(r => setTimeout(r, attempt * 500));
+          }
+        }
+      }
+
+      if (!chunkSuccess) {
+        throw new Error(lastChunkErr?.message || `Failed to upload chunk ${chunkIdx + 1} after 3 retries`);
       }
     }
 
-    onStatus("Falling back to HTTP upload...");
+    if (!finalCloudinaryResponse || !finalCloudinaryResponse.secure_url) {
+      throw new Error("Direct Cloudinary upload finished but invalid response received");
+    }
+
+    // 5. Complete Upload & Register Metadata with Server via WebSocket
+    const fileResult = {
+      url: finalCloudinaryResponse.secure_url,
+      publicId: finalCloudinaryResponse.public_id,
+      name: file.name,
+      resourceType: finalCloudinaryResponse.resource_type,
+      size: finalCloudinaryResponse.bytes || file.size
+    };
+
     onProgress({
-      percent: 10,
-      currentChunk: 1,
-      totalChunks: 1,
+      percent: 100,
+      currentChunk: totalChunks,
+      totalChunks,
       filename: file.name,
       size: file.size,
-      statusText: "10% uploaded"
+      statusText: "100% uploaded"
     });
 
-    // Fallback: standard HTTP multipart upload with XMLHttpRequest progress reporting
-    const fd = new FormData();
-    fd.append("file", file);
-    const XHRConstructor = typeof window !== "undefined" && window.XMLHttpRequest ? window.XMLHttpRequest : globalThis.XMLHttpRequest;
-    if (!XHRConstructor) {
-      const res = await fetch("/api/updates/upload", {
-        method: "POST",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        body: fd
-      });
-      const data = await res.json();
-      if (res.ok && data?.file) {
-        onProgress({ percent: 100, currentChunk: 1, totalChunks: 1, filename: file.name, size: file.size, statusText: "100% uploaded" });
-        return { file: data.file };
-      }
-      throw new Error(data?.error || `Upload failed for ${file.name}`);
+    if (ws && ws.readyState === 1) {
+      ws.send(JSON.stringify({
+        type: "complete",
+        uploadId,
+        file: fileResult
+      }));
     }
 
-    const uploadResult = await new Promise((resolveHttp, rejectHttp) => {
-      const xhr = new XHRConstructor();
-      xhr.open("POST", "/api/updates/upload");
-      if (token) {
-        xhr.setRequestHeader("Authorization", `Bearer ${token}`);
-      }
+    try { ws.close(); } catch { /* ignore */ }
 
-      xhr.upload.onprogress = (evt) => {
-        if (evt.lengthComputable) {
-          const percent = Math.min(99, Math.round((evt.loaded / evt.total) * 100));
-          onProgress({
-            percent,
-            currentChunk: 1,
-            totalChunks: 1,
-            filename: file.name,
-            size: file.size,
-            statusText: `${percent}% uploaded`
-          });
-          onStatus(`${percent}% uploaded`);
-        }
-      };
+    return { file: fileResult, abort: abortUpload };
 
-      xhr.onload = () => {
-        try {
-          const data = JSON.parse(xhr.responseText);
-          if (xhr.status >= 200 && xhr.status < 300 && data?.file) {
-            onProgress({
-              percent: 100,
-              currentChunk: 1,
-              totalChunks: 1,
-              filename: file.name,
-              size: file.size,
-              statusText: "100% uploaded"
-            });
-            onStatus("100% uploaded");
-            resolveHttp({ file: data.file });
-          } else {
-            rejectHttp(new Error(data?.error || `Upload failed for ${file.name}`));
-          }
-        } catch {
-          rejectHttp(new Error(`Upload failed: ${xhr.statusText}`));
-        }
-      };
+  } catch (wsError) {
+    if (isAborted) {
+      throw wsError;
+    }
 
-      xhr.onerror = () => rejectHttp(new Error("Network error during fallback upload"));
-      xhr.send(fd);
+    console.warn("[WS Upload] WebSocket connection unavailable. Using direct browser-to-Cloudinary HTTP fallback:", wsError?.message);
+
+    if (ws) {
+      try { ws.close(); } catch { /* ignore */ }
+    }
+
+    // Fallback: Fetch signed credentials via API and upload directly to Cloudinary from browser
+    onStatus("Fetching direct upload credentials...");
+    const sigRes = await fetch("/api/updates/upload/signature", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify({ filename: file.name })
     });
 
-    return uploadResult;
+    const sigData = await sigRes.json();
+    if (!sigRes.ok || !sigData?.credentials) {
+      throw new Error(sigData?.error || "Failed to fetch direct upload credentials");
+    }
+
+    const credentials = sigData.credentials;
+    onStatus("Direct Cloudinary upload starting...");
+
+    const effectiveChunkSize = file.size <= 1024 * 1024 ? 512 * 1024 : chunkSize;
+    const totalChunks = Math.max(1, Math.ceil(file.size / effectiveChunkSize));
+    let finalCloudinaryResponse = null;
+
+    for (let chunkIdx = 0; chunkIdx < totalChunks; chunkIdx++) {
+      if (isAborted) throw new Error("Upload cancelled by user");
+
+      const start = chunkIdx * effectiveChunkSize;
+      const end = Math.min(start + effectiveChunkSize, file.size);
+      const chunkBlob = file.slice(start, end);
+
+      let chunkSuccess = false;
+      let lastChunkErr = null;
+
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        if (isAborted) break;
+
+        try {
+          const res = await new Promise((resolveChunk, rejectChunk) => {
+            const XHRConstructor = typeof window !== "undefined" && window.XMLHttpRequest
+              ? window.XMLHttpRequest
+              : globalThis.XMLHttpRequest;
+
+            const xhr = new XHRConstructor();
+            currentXhr = xhr;
+
+            xhr.open("POST", credentials.uploadUrl);
+            xhr.setRequestHeader("X-Unique-Upload-Id", uploadId);
+            xhr.setRequestHeader("Content-Range", `bytes ${start}-${end - 1}/${file.size}`);
+
+            const fd = new FormData();
+            fd.append("file", chunkBlob);
+            fd.append("api_key", credentials.apiKey);
+            fd.append("timestamp", String(credentials.timestamp));
+            fd.append("signature", credentials.signature);
+            fd.append("folder", credentials.folder);
+            fd.append("public_id", credentials.publicId);
+
+            xhr.upload.onprogress = (evt) => {
+              if (evt.lengthComputable) {
+                const totalUploadedSoFar = start + evt.loaded;
+                const percent = Math.min(99, Math.round((totalUploadedSoFar / file.size) * 100));
+
+                onProgress({
+                  percent,
+                  currentChunk: chunkIdx + 1,
+                  totalChunks,
+                  filename: file.name,
+                  size: file.size,
+                  statusText: `${percent}% uploaded`
+                });
+              }
+            };
+
+            xhr.onload = () => {
+              currentXhr = null;
+              try {
+                const data = JSON.parse(xhr.responseText);
+                if (xhr.status >= 200 && xhr.status < 300) {
+                  resolveChunk(data);
+                } else {
+                  rejectChunk(new Error(data?.error?.message || `HTTP ${xhr.status}`));
+                }
+              } catch (e) {
+                rejectChunk(new Error("Response parse failed"));
+              }
+            };
+
+            xhr.onerror = () => {
+              currentXhr = null;
+              rejectChunk(new Error("Network error"));
+            };
+
+            xhr.onabort = () => {
+              currentXhr = null;
+              rejectChunk(new Error("Aborted"));
+            };
+
+            xhr.send(fd);
+          });
+
+          chunkSuccess = true;
+          if (chunkIdx === totalChunks - 1) finalCloudinaryResponse = res;
+          break;
+        } catch (err) {
+          lastChunkErr = err;
+          if (attempt < 3 && !isAborted) {
+            await new Promise(r => setTimeout(r, attempt * 500));
+          }
+        }
+      }
+
+      if (!chunkSuccess) {
+        throw new Error(lastChunkErr?.message || `Failed to upload chunk ${chunkIdx + 1}`);
+      }
+    }
+
+    const fileResult = {
+      url: finalCloudinaryResponse.secure_url,
+      publicId: finalCloudinaryResponse.public_id,
+      name: file.name,
+      resourceType: finalCloudinaryResponse.resource_type,
+      size: finalCloudinaryResponse.bytes || file.size
+    };
+
+    onProgress({
+      percent: 100,
+      currentChunk: totalChunks,
+      totalChunks,
+      filename: file.name,
+      size: file.size,
+      statusText: "100% uploaded"
+    });
+
+    return { file: fileResult, abort: abortUpload };
   }
 }
