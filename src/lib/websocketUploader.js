@@ -15,7 +15,7 @@ export async function uploadFileViaWebSocket(file, options = {}) {
   const {
     userId = "",
     token = (typeof window !== "undefined" ? localStorage.getItem("token") || "" : ""),
-    chunkSize = 2 * 1024 * 1024, // 2MB chunk size for Cloudinary direct resumable upload
+    chunkSize = 6 * 1024 * 1024, // 6MB chunk size for Cloudinary direct resumable upload (Cloudinary requires min 5MB chunks)
     onProgress = () => {},
     onStatus = () => {},
   } = options;
@@ -117,7 +117,11 @@ export async function uploadFileViaWebSocket(file, options = {}) {
     onStatus("Upload credentials generated. Direct Cloudinary upload starting...");
 
     // 4. Perform Direct Chunked Upload from Browser to Cloudinary
-    const effectiveChunkSize = file.size <= 1024 * 1024 ? 512 * 1024 : chunkSize;
+    // Cloudinary requires minimum 5MB (5,242,880 bytes) per chunk for resumable upload (except final chunk or file <= 5MB)
+    const CLOUDINARY_MIN_CHUNK = 5 * 1024 * 1024;
+    const effectiveChunkSize = file.size <= CLOUDINARY_MIN_CHUNK
+      ? file.size
+      : Math.max(CLOUDINARY_MIN_CHUNK, chunkSize);
     const totalChunks = Math.max(1, Math.ceil(file.size / effectiveChunkSize));
     let finalCloudinaryResponse = null;
 
@@ -303,7 +307,10 @@ export async function uploadFileViaWebSocket(file, options = {}) {
     const credentials = sigData.credentials;
     onStatus("Direct Cloudinary upload starting...");
 
-    const effectiveChunkSize = file.size <= 1024 * 1024 ? 512 * 1024 : chunkSize;
+    const CLOUDINARY_MIN_CHUNK = 5 * 1024 * 1024;
+    const effectiveChunkSize = file.size <= CLOUDINARY_MIN_CHUNK
+      ? file.size
+      : Math.max(CLOUDINARY_MIN_CHUNK, chunkSize);
     const totalChunks = Math.max(1, Math.ceil(file.size / effectiveChunkSize));
     let finalCloudinaryResponse = null;
 

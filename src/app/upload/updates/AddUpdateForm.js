@@ -109,11 +109,11 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
   const uploadFilesBatch = async (files) => {
     if (!files || !files.length) return;
 
-    // Filter large files (>50MB)
+    // Filter large files (>500MB)
     const validFiles = [];
     for (const f of files) {
-      if (f.size > 50 * 1024 * 1024) {
-        showToast(`"${f.name}" exceeds the 50MB limit`, "error");
+      if (f.size > 500 * 1024 * 1024) {
+        showToast(`"${f.name}" exceeds the 500MB limit`, "error");
       } else {
         validFiles.push(f);
       }
@@ -567,7 +567,7 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
                   )}
                 </p>
                 <p className="auf-dropzone-sub">
-                  Supports images, documents, PDFs, and spreadsheets up to 50MB each
+                  Supports images, documents, PDFs, videos, and large archives up to 500MB each
                 </p>
               </div>
             </div>
