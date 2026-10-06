@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "ws": "node scripts/ws-server.js",
     "postinstall": "node ./scripts/suppress-baseline-warning.js"
   },
   "dependencies": {
@@ -58,7 +59,8 @@
     "three": "^0.182.0",
     "video.js": "^8.23.4",
     "videojs-contrib-ads": "^7.5.2",
-    "videojs-ima": "^2.5.0"
+    "videojs-ima": "^2.5.0",
+    "ws": "^8.22.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

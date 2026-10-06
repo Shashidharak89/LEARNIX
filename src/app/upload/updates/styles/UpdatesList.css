@@ -1794,6 +1794,72 @@
   flex-shrink: 0;
 }
 
+/* Real-time WebSocket Chunk Upload Progressbar for Edit Modal */
+.upl-ws-progress-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(224, 242, 254, 0.5);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-top: 8px;
+  margin-bottom: 6px;
+  animation: upl-slide-down 200ms ease both;
+}
+
+.upl-ws-progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.upl-ws-progress-filename {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--upl-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 250px;
+}
+
+.upl-ws-progress-tag {
+  font-size: 12px;
+  font-weight: 700;
+  color: #0284c7;
+  background: #ffffff;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  flex-shrink: 0;
+}
+
+.upl-ws-progress-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(56, 189, 248, 0.2);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.upl-ws-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #0284c7);
+  border-radius: 9999px;
+  transition: width 180ms ease-out;
+}
+
+.upl-ws-progress-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+}
+
 .upl-edit-files-list {
   display: flex;
   flex-direction: column;

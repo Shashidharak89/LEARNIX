@@ -7,6 +7,7 @@ import LinkPreview from '../../components/LinkPreview';
 import YouTubeEmbed from '../../components/YouTubeEmbed';
 import FileIcon from '../../components/FileIcon';
 import { authFetch } from '@/lib/clientAuth';
+import { uploadFileViaWebSocket } from '@/lib/websocketUploader';
 import ExpandableDescription from '../../components/ExpandableDescription';
 import './styles/UpdatesList.css';
 
@@ -24,6 +25,7 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
   const [editLinksText, setEditLinksText] = useState("");
   const [editFiles, setEditFiles] = useState([]);
   const [editIsUploading, setEditIsUploading] = useState(false);
+  const [editUploadStatus, setEditUploadStatus] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   
   // Modal states
@@ -77,7 +79,7 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
 
     setLoading(true);
     try {
-      const urlParams = new URLSearchParams({
+      const urlParams = new globalThis.URLSearchParams({
         index: String(p),
         limit: '10',
         userId: encodeURIComponent(userId)
@@ -253,48 +255,90 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
     setEditIsUploading(true);
+    setEditUploadStatus({
+      current: 1,
+      total: files.length,
+      filename: files[0]?.name,
+      percent: 0,
+      chunkIndex: 1,
+      totalChunks: 1,
+      statusText: "Connecting to WebSocket..."
+    });
+
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+
     try {
       for (let i = 0; i < files.length; i++) {
         const f = files[i];
-        const fd = new FormData();
-        fd.append('file', f);
-        if (currentUserId) fd.append('userId', currentUserId);
-        const res = await fetch('/api/updates/upload', { method: 'POST', body: fd });
-        const data = await res.json();
-        if (res.ok && data?.file) {
+        setEditUploadStatus({
+          current: i + 1,
+          total: files.length,
+          filename: f.name,
+          percent: 0,
+          chunkIndex: 1,
+          totalChunks: 1,
+          statusText: "Connecting to WebSocket..."
+        });
+
+        const uploadResult = await uploadFileViaWebSocket(f, {
+          userId: currentUserId,
+          token,
+          onProgress: ({ percent, currentChunk, totalChunks }) => {
+            setEditUploadStatus({
+              current: i + 1,
+              total: files.length,
+              filename: f.name,
+              percent,
+              chunkIndex: currentChunk,
+              totalChunks,
+              statusText: `Uploading chunk ${currentChunk}/${totalChunks} (${percent}%)`
+            });
+          },
+          onStatus: (statusText) => {
+            setEditUploadStatus(prev => prev ? ({ ...prev, statusText }) : null);
+          }
+        });
+
+        const uploadedFile = uploadResult?.file;
+        if (uploadedFile) {
           if (editingId && currentUserId) {
             try {
               const addRes = await fetch('/api/updates/files/add', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ updateId: editingId, userId: currentUserId, file: data.file }),
+                headers: {
+                  'Content-Type': 'application/json',
+                  ...(token ? { Authorization: `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify({ updateId: editingId, userId: currentUserId, file: uploadedFile }),
               });
               const addData = await addRes.json();
               if (addRes.ok && addData?.update) {
-                setEditFiles(Array.isArray(addData.update.files) ? addData.update.files : (editFiles) => [...editFiles, data.file]);
+                setEditFiles(Array.isArray(addData.update.files) ? addData.update.files : (prev) => [...prev, uploadedFile]);
                 setUpdates((prev) => prev.map(u => u._id === addData.update._id ? ({ ...u, files: addData.update.files || [] }) : u));
               } else {
-                setEditFiles((p) => [...p, data.file]);
+                setEditFiles((p) => [...p, uploadedFile]);
                 showToast(addData?.error || `Failed to attach ${f.name} to update`, 'error');
               }
             } catch (err) {
               console.error('Failed to add file to update', err);
-              setEditFiles((p) => [...p, data.file]);
+              setEditFiles((p) => [...p, uploadedFile]);
               showToast('Failed to persist file to update', 'error');
             }
           } else {
-            setEditFiles((p) => [...p, data.file]);
+            setEditFiles((p) => [...p, uploadedFile]);
           }
         } else {
-          showToast(data?.error || `Failed to upload ${f.name}`, 'error');
+          showToast(`Failed to upload ${f.name}`, 'error');
         }
       }
+      showToast(`Uploaded ${files.length} file${files.length > 1 ? 's' : ''} successfully via WebSocket`, 'success');
     } catch (err) {
       console.error('Edit file upload error', err);
-      showToast('File upload failed', 'error');
+      showToast(err.message || 'File upload failed', 'error');
     } finally {
       setEditIsUploading(false);
-      e.target.value = null;
+      setEditUploadStatus(null);
+      if (e?.target) e.target.value = null;
     }
   };
 
@@ -516,8 +560,34 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                     <span>Add files</span>
                     <input type="file" multiple onChange={handleEditFilesSelected} className="upl-hidden-input" />
                   </label>
-                  {editIsUploading && <span className="upl-file-uploading">Uploading…</span>}
+                  {editIsUploading && !editUploadStatus && <span className="upl-file-uploading">Uploading…</span>}
                 </div>
+
+                {/* Real-time WebSocket Chunk Upload Progressbar */}
+                {editIsUploading && editUploadStatus && (
+                  <div className="upl-ws-progress-box">
+                    <div className="upl-ws-progress-header">
+                      <span className="upl-ws-progress-filename">
+                        File {editUploadStatus.current}/{editUploadStatus.total}: <strong>{editUploadStatus.filename}</strong>
+                      </span>
+                      <span className="upl-ws-progress-tag">
+                        ⚡ WS: {editUploadStatus.percent || 0}%
+                      </span>
+                    </div>
+                    <div className="upl-ws-progress-track">
+                      <div
+                        className="upl-ws-progress-fill"
+                        style={{ width: `${Math.max(2, editUploadStatus.percent || 0)}%` }}
+                      ></div>
+                    </div>
+                    <div className="upl-ws-progress-footer">
+                      <span>{editUploadStatus.statusText || 'Uploading chunks…'}</span>
+                      {editUploadStatus.totalChunks > 1 && (
+                        <span>Chunk {editUploadStatus.chunkIndex || 1} of {editUploadStatus.totalChunks}</span>
+                      )}
+                    </div>
+                  </div>
+                )}
                 {editFiles && editFiles.length > 0 && (
                   <div className="upl-edit-files-list">
                     {editFiles.map((f, i) => {

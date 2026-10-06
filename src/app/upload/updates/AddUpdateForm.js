@@ -25,6 +25,7 @@ import {
   FiPlus,
   FiInfo
 } from "react-icons/fi";
+import { uploadFileViaWebSocket } from "@/lib/websocketUploader";
 import "./styles/AddUpdateForm.css";
 
 const formatBytes = (bytes) => {
@@ -120,29 +121,60 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
     if (!validFiles.length) return;
 
     setIsUploadingFiles(true);
-    setUploadStatus({ current: 1, total: validFiles.length, filename: validFiles[0]?.name });
+    setUploadStatus({
+      current: 1,
+      total: validFiles.length,
+      filename: validFiles[0]?.name,
+      percent: 0,
+      chunkIndex: 1,
+      totalChunks: 1,
+      statusText: "Connecting to WebSocket server..."
+    });
+
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
 
     try {
       for (let i = 0; i < validFiles.length; i++) {
         const f = validFiles[i];
-        setUploadStatus({ current: i + 1, total: validFiles.length, filename: f.name });
-        const fd = new FormData();
-        fd.append("file", f);
-        if (userId) fd.append("userId", userId);
+        setUploadStatus({
+          current: i + 1,
+          total: validFiles.length,
+          filename: f.name,
+          percent: 0,
+          chunkIndex: 1,
+          totalChunks: 1,
+          statusText: "Connecting to WebSocket..."
+        });
 
-        const res = await fetch("/api/updates/upload", { method: "POST", body: fd });
-        const data = await res.json();
+        const uploadResult = await uploadFileViaWebSocket(f, {
+          userId,
+          token,
+          onProgress: ({ percent, currentChunk, totalChunks }) => {
+            setUploadStatus({
+              current: i + 1,
+              total: validFiles.length,
+              filename: f.name,
+              percent,
+              chunkIndex: currentChunk,
+              totalChunks,
+              statusText: `Uploading chunk ${currentChunk}/${totalChunks} (${percent}%)`
+            });
+          },
+          onStatus: (statusText) => {
+            setUploadStatus(prev => prev ? ({ ...prev, statusText }) : null);
+          }
+        });
 
-        if (res.ok && data?.file) {
-          setUploadedFiles((prev) => [...prev, { ...data.file, size: f.size }]);
+        if (uploadResult?.file) {
+          setUploadedFiles((prev) => [...prev, { ...uploadResult.file, size: f.size }]);
         } else {
-          showToast(data?.error || `Failed to upload ${f.name}`, "error");
+          showToast(`Failed to upload ${f.name}`, "error");
         }
       }
-      showToast(`Uploaded ${validFiles.length} file${validFiles.length > 1 ? "s" : ""} successfully`, "success");
+      showToast(`Uploaded ${validFiles.length} file${validFiles.length > 1 ? "s" : ""} successfully via WebSocket`, "success");
     } catch (err) {
       console.error("File upload error", err);
-      showToast("File upload failed. Please try again.", "error");
+      showToast(err.message || "File upload failed. Please try again.", "error");
     } finally {
       setIsUploadingFiles(false);
       setUploadStatus(null);
@@ -488,17 +520,36 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
               </div>
             </div>
 
-            {/* Uploading progress notification card */}
+            {/* Uploading progress notification card with real-time WebSocket progressbar */}
             {isUploadingFiles && uploadStatus && (
               <div className="auf-uploading-banner">
-                <div className="auf-uploading-left">
-                  <span className="auf-spinner auf-spinner-blue"></span>
-                  <div className="auf-uploading-info">
-                    <span className="auf-uploading-text">
-                      Uploading {uploadStatus.current} of {uploadStatus.total}...
-                    </span>
-                    <span className="auf-uploading-filename">{uploadStatus.filename}</span>
+                <div className="auf-uploading-header">
+                  <div className="auf-uploading-left">
+                    <span className="auf-spinner auf-spinner-blue"></span>
+                    <div className="auf-uploading-info">
+                      <span className="auf-uploading-text">
+                        File {uploadStatus.current} of {uploadStatus.total}: <strong className="auf-uploading-filename">{uploadStatus.filename}</strong>
+                      </span>
+                    </div>
                   </div>
+                  <div className="auf-uploading-right">
+                    <span className="auf-uploading-percent">{uploadStatus.percent || 0}%</span>
+                    <span className="auf-uploading-tag">⚡ WebSocket Chunks</span>
+                  </div>
+                </div>
+
+                <div className="auf-progress-track">
+                  <div
+                    className="auf-progress-fill"
+                    style={{ width: `${Math.max(2, uploadStatus.percent || 0)}%` }}
+                  ></div>
+                </div>
+
+                <div className="auf-progress-sub">
+                  <span>{uploadStatus.statusText || "Uploading chunks..."}</span>
+                  {uploadStatus.totalChunks > 1 && (
+                    <span>Chunk {uploadStatus.chunkIndex || 1} of {uploadStatus.totalChunks}</span>
+                  )}
                 </div>
               </div>
             )}
