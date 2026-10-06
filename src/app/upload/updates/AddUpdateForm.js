@@ -572,21 +572,25 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
               </div>
             </div>
 
-            {/* Uploading progress notification card with real-time WebSocket progressbar */}
+            {/* Uploading progress notification card */}
             {isUploadingFiles && uploadStatus && (
               <div className="auf-uploading-banner">
                 <div className="auf-uploading-header">
                   <div className="auf-uploading-left">
                     <span className="auf-spinner auf-spinner-blue"></span>
                     <div className="auf-uploading-info">
-                      <span className="auf-uploading-text">
-                        File {uploadStatus.current} of {uploadStatus.total}: <strong className="auf-uploading-filename">{uploadStatus.filename}</strong>
+                      <span className="auf-uploading-filename-title" title={uploadStatus.filename}>
+                        {uploadStatus.filename}
                       </span>
+                      {uploadStatus.total > 1 && (
+                        <span className="auf-uploading-file-count">
+                          (File {uploadStatus.current} of {uploadStatus.total})
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="auf-uploading-right">
                     <span className="auf-uploading-percent">{uploadStatus.percent || 0}% uploaded</span>
-                    <span className="auf-uploading-tag">⚡ WebSocket Chunks</span>
                   </div>
                 </div>
 
@@ -597,19 +601,11 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
                   ></div>
                 </div>
 
-                <div className="auf-progress-sub">
-                  <span className="auf-progress-status-highlight">
-                    <strong>{uploadStatus.percent || 0}% uploaded</strong>
-                    {uploadStatus.statusText && !uploadStatus.statusText.includes(`${uploadStatus.percent || 0}% uploaded`) && (
-                      <span className="auf-status-detail"> • {uploadStatus.statusText}</span>
-                    )}
-                  </span>
-                  {uploadStatus.totalChunks > 1 && (
-                    <span className="auf-progress-chunks">
-                      Chunk {uploadStatus.chunkIndex || 1} of {uploadStatus.totalChunks}
-                    </span>
-                  )}
-                </div>
+                {uploadStatus.statusText && !uploadStatus.statusText.includes(`${uploadStatus.percent || 0}% uploaded`) && (
+                  <div className="auf-progress-sub">
+                    <span className="auf-status-detail">{uploadStatus.statusText}</span>
+                  </div>
+                )}
               </div>
             )}
 

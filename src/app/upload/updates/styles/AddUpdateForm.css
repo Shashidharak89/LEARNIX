@@ -584,14 +584,14 @@
 .auf-uploading-banner {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 12px 16px;
-  background: var(--auf-apple-blue-light);
-  border: 1px solid rgba(11, 116, 255, 0.25);
-  border-radius: 12px;
-  margin-top: 10px;
+  gap: 10px;
+  padding: 14px 18px;
+  background: #f0f7ff;
+  border: 1.5px solid rgba(11, 116, 255, 0.22);
+  border-radius: 14px;
+  margin-top: 12px;
   animation: auf-fade-in 200ms ease both;
-  box-shadow: 0 2px 8px rgba(11, 116, 255, 0.08);
+  box-shadow: 0 4px 14px rgba(11, 116, 255, 0.06);
 }
 
 .auf-uploading-header {
@@ -608,6 +608,30 @@
   min-width: 0;
 }
 
+.auf-uploading-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.auf-uploading-filename-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+
+.auf-uploading-file-count {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--auf-apple-blue);
+  white-space: nowrap;
+}
+
 .auf-uploading-right {
   display: flex;
   align-items: center;
@@ -616,50 +640,22 @@
 }
 
 .auf-uploading-percent {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 800;
   color: var(--auf-apple-blue);
   font-variant-numeric: tabular-nums;
-}
-
-.auf-uploading-tag {
-  font-size: 0.72rem;
-  font-weight: 700;
   background: #ffffff;
-  color: var(--auf-apple-blue);
   border: 1px solid rgba(11, 116, 255, 0.2);
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 9999px;
-  letter-spacing: 0.02em;
-}
-
-.auf-uploading-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
-.auf-uploading-text {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--auf-apple-blue);
-  white-space: nowrap;
-}
-
-.auf-uploading-filename {
-  font-size: 0.78rem;
-  color: var(--auf-text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 260px;
+  letter-spacing: -0.01em;
+  box-shadow: 0 1px 4px rgba(11, 116, 255, 0.08);
 }
 
 .auf-progress-track {
   width: 100%;
-  height: 7px;
-  background: rgba(11, 116, 255, 0.15);
+  height: 8px;
+  background: rgba(11, 116, 255, 0.12);
   border-radius: 9999px;
   overflow: hidden;
   position: relative;
@@ -670,17 +666,21 @@
   background: linear-gradient(90deg, #0b74ff, #38bdf8);
   border-radius: 9999px;
   transition: width 200ms ease-out;
-  box-shadow: 0 0 8px rgba(11, 116, 255, 0.4);
+  box-shadow: 0 0 10px rgba(11, 116, 255, 0.35);
 }
 
 .auf-progress-sub {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   color: var(--auf-text-muted);
   font-weight: 500;
-  gap: 8px;
+}
+
+.auf-status-detail {
+  font-weight: 500;
+  color: var(--auf-text-muted);
+  font-size: 0.75rem;
 }
 
 .auf-progress-status-highlight {

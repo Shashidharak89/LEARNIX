@@ -584,15 +584,16 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                   {editIsUploading && !editUploadStatus && <span className="upl-file-uploading">Uploading…</span>}
                 </div>
 
-                {/* Real-time WebSocket Chunk Upload Progressbar */}
+                {/* Upload Progressbar */}
                 {editIsUploading && editUploadStatus && (
                   <div className="upl-ws-progress-box">
                     <div className="upl-ws-progress-header">
-                      <span className="upl-ws-progress-filename">
-                        File {editUploadStatus.current}/{editUploadStatus.total}: <strong>{editUploadStatus.filename}</strong>
+                      <span className="upl-ws-progress-filename" title={editUploadStatus.filename}>
+                        <strong>{editUploadStatus.filename}</strong>
+                        {editUploadStatus.total > 1 && ` (File ${editUploadStatus.current}/${editUploadStatus.total})`}
                       </span>
                       <span className="upl-ws-progress-tag">
-                        ⚡ {editUploadStatus.percent || 0}% uploaded
+                        {editUploadStatus.percent || 0}% uploaded
                       </span>
                     </div>
                     <div className="upl-ws-progress-track">
@@ -601,17 +602,13 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                         style={{ width: `${Math.max(2, editUploadStatus.percent || 0)}%` }}
                       ></div>
                     </div>
-                    <div className="upl-ws-progress-footer">
-                      <span className="upl-ws-progress-status-text">
-                        <strong>{editUploadStatus.percent || 0}% uploaded</strong>
-                        {editUploadStatus.statusText && !editUploadStatus.statusText.includes(`${editUploadStatus.percent || 0}% uploaded`) && (
-                          <span> • {editUploadStatus.statusText}</span>
-                        )}
-                      </span>
-                      {editUploadStatus.totalChunks > 1 && (
-                        <span>Chunk {editUploadStatus.chunkIndex || 1} of {editUploadStatus.totalChunks}</span>
-                      )}
-                    </div>
+                    {editUploadStatus.statusText && !editUploadStatus.statusText.includes(`${editUploadStatus.percent || 0}% uploaded`) && (
+                      <div className="upl-ws-progress-footer">
+                        <span className="upl-ws-progress-status-text">
+                          {editUploadStatus.statusText}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 )}
                 {editFiles && editFiles.length > 0 && (
