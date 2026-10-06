@@ -313,27 +313,24 @@ export async function uploadFileViaWebSocket(file, options = {}) {
       };
 
       xhr.onload = () => {
-        let data = null;
         try {
-          data = JSON.parse(xhr.responseText);
+          const data = JSON.parse(xhr.responseText);
+          if (xhr.status >= 200 && xhr.status < 300 && data?.file) {
+            onProgress({
+              percent: 100,
+              currentChunk: 1,
+              totalChunks: 1,
+              filename: file.name,
+              size: file.size,
+              statusText: "100% uploaded"
+            });
+            onStatus("100% uploaded");
+            resolveHttp({ file: data.file });
+          } else {
+            rejectHttp(new Error(data?.error || `Upload failed for ${file.name}`));
+          }
         } catch {
-          // Non-JSON or HTML response from server/proxy
-        }
-
-        if (xhr.status >= 200 && xhr.status < 300 && data?.file) {
-          onProgress({
-            percent: 100,
-            currentChunk: 1,
-            totalChunks: 1,
-            filename: file.name,
-            size: file.size,
-            statusText: "100% uploaded"
-          });
-          onStatus("100% uploaded");
-          resolveHttp({ file: data.file });
-        } else {
-          const detail = data?.error || (xhr.status ? `Upload failed (Status ${xhr.status})` : `Upload failed for ${file.name}`);
-          rejectHttp(new Error(detail));
+          rejectHttp(new Error(`Upload failed: ${xhr.statusText}`));
         }
       };
 

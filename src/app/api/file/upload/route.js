@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
+import cloudinary from "../../../../lib/cloudinary.js";
 import { connectDB } from "../../../../lib/db.js";
 import File from "../../../../models/File.js";
 import { cleanupExpiredFiles } from "../../../../lib/fileCleanup.js";
-import { uploadBufferToCloudinary } from "../../../../lib/cloudinaryUploadHelper.js";
-
-export const maxDuration = 60; // Allow 60s for large file uploads on serverless platforms
-export const dynamic = "force-dynamic";
 
 // Function to generate a unique 4-character alphanumeric fileid in format cncc (c=char, n=number)
 const generateFileId = () => {
@@ -59,10 +56,25 @@ export async function POST(req) {
     // Convert file to buffer
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    // Upload to Cloudinary using uploadBufferToCloudinary for large file safety
-    const uploadResult = await uploadBufferToCloudinary(buffer, {
-      folder: "uploaded_files",
-      filename: file.name
+    // Upload to Cloudinary using upload_stream
+    const uploadResult = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: "auto",
+          folder: "uploaded_files",
+          public_id: `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`
+        },
+        (error, result) => {
+          if (error) {
+            console.error("Cloudinary upload error:", error);
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        }
+      );
+
+      uploadStream.end(buffer);
     });
 
     // Save file info to database
