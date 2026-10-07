@@ -25,6 +25,7 @@ import {
   FiXCircle,
   FiUpload,
   FiBook,
+  FiTool,
 } from "react-icons/fi";
 import { MdAdminPanelSettings, MdOutlineSupervisorAccount } from "react-icons/md";
 import "./styles/AdminDashboard.css";
@@ -397,6 +398,15 @@ export default function AdminDashboard() {
           <div className="adm-quick-btn-text">
             <span className="adm-quick-btn-label">Resource Management</span>
             <span className="adm-quick-btn-sub">Subjects, Topics, Moderation &amp; Transfers</span>
+          </div>
+          <FiArrowRight size={18} className="adm-quick-btn-arrow" />
+        </Link>
+
+        <Link href="/admin/tools" className="adm-quick-btn" style={{ background: 'rgba(245, 158, 11, 0.1)', borderColor: 'rgba(245, 158, 11, 0.2)' }}>
+          <span className="adm-quick-btn-icon" style={{ background: '#fef3c7', color: '#d97706' }}><FiTool size={20} /></span>
+          <div className="adm-quick-btn-text">
+            <span className="adm-quick-btn-label">Tools Management</span>
+            <span className="adm-quick-btn-sub">Shared Files, Texts &amp; Codes</span>
           </div>
           <FiArrowRight size={18} className="adm-quick-btn-arrow" />
         </Link>
