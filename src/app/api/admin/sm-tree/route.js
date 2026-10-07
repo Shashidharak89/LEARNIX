@@ -3,16 +3,20 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import SMFiles from "@/models/SMFiles";
-import SMSubject from "@/models/SMSubject";
-import SMCollege from "@/models/SMCollege";
-import SMUniversity from "@/models/SMUniversity";
-import SMCourse from "@/models/SMCourse";
-import SMSemester from "@/models/SMSemester";
-import SMBatch from "@/models/SMBatch";
+import "@/models/SMSubject";
+import "@/models/SMCollege";
+import "@/models/SMUniversity";
+import "@/models/SMCourse";
+import "@/models/SMSemester";
+import "@/models/SMBatch";
+import { verifyAdminOrSuperAdmin } from "@/lib/adminAuth";
 
-export async function GET() {
+export async function GET(req) {
     try {
         await connectDB();
+
+        const authCheck = await verifyAdminOrSuperAdmin(req);
+        if (!authCheck.authorized) return authCheck.response;
         
         const smFiles = await SMFiles.find()
             .populate({

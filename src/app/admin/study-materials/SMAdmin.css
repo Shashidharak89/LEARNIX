@@ -388,6 +388,31 @@
     gap: 8px;
 }
 
+.sm-edit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: #4f46e5;
+    border: 1px solid #e0e7ff;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sm-edit-btn:hover:not(:disabled) {
+    background: #eef2ff;
+    color: #3730a3;
+    border-color: #c7d2fe;
+}
+
+.sm-edit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .sm-delete-btn {
     display: flex;
     align-items: center;
@@ -410,6 +435,25 @@
 .sm-delete-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+/* SweetAlert customization */
+.sm-swal-popup {
+    border-radius: 16px !important;
+    font-family: inherit !important;
+    padding: 24px !important;
+}
+
+.sm-swal-confirm {
+    border-radius: 8px !important;
+    padding: 10px 20px !important;
+    font-weight: 600 !important;
+}
+
+.sm-swal-cancel {
+    border-radius: 8px !important;
+    padding: 10px 20px !important;
+    font-weight: 600 !important;
 }
 
 /* View More */

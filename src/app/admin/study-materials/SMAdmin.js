@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { 
     FiTrash2, 
+    FiEdit2,
     FiPlus, 
     FiBookOpen, 
     FiMapPin, 
@@ -17,7 +18,10 @@ import {
     FiRefreshCw,
     FiClock
 } from "react-icons/fi";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
 import { formatGithubRawUrl } from "@/lib/githubUrlHelper";
+import { authFetch } from "@/lib/clientAuth";
 import "./SMAdmin.css";
 
 const modelsConfig = {
@@ -87,6 +91,16 @@ const modelsConfig = {
     }
 };
 
+const escapeHtml = (str) => {
+    if (str === null || str === undefined) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+};
+
 export default function SMAdmin() {
     const [activeTab, setActiveTab] = useState("SMUniversity");
     const [formData, setFormData] = useState({});
@@ -115,34 +129,37 @@ export default function SMAdmin() {
         setFileUrls(newUrls.length > 0 ? newUrls : [""]);
     };
 
-    const fetchRecords = async (modelName, pageNum = 1) => {
+    const fetchRecords = useCallback(async (modelName, pageNum = 1) => {
         setLoading(true);
         try {
-            const res = await fetch(`/api/admin/sm-models?model=${modelName}&page=${pageNum}&limit=15`, {
+            const res = await authFetch(`/api/admin/sm-models?model=${modelName}&page=${pageNum}&limit=15`, {
                 cache: "no-store"
             });
             const json = await res.json();
             if (json.success) {
                 if (pageNum === 1) {
-                    setRecords(json.data);
+                    setRecords(json.data || []);
                 } else {
-                    setRecords(prev => [...prev, ...json.data]);
+                    setRecords(prev => [...prev, ...(json.data || [])]);
                 }
                 setTotalPages(json.pagination?.totalPages || 1);
+            } else {
+                setMessage({ type: "error", text: json.message || json.error || "Failed to load records." });
             }
         } catch (error) {
             console.error("Error fetching records:", error);
             setMessage({ type: "error", text: "Failed to load records." });
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
-    };
+    }, []);
 
     // Fetch records for the active tab
     useEffect(() => {
         setPage(1);
         setRecords([]);
         fetchRecords(activeTab, 1);
-    }, [activeTab]);
+    }, [activeTab, fetchRecords]);
 
     // Fetch references (e.g. for dropdowns)
     useEffect(() => {
@@ -150,17 +167,21 @@ export default function SMAdmin() {
         const config = modelsConfig[activeTab];
         const refModels = config.fields.filter(f => f.ref).map(f => f.ref);
 
-        Promise.all(refModels.map(async (refModel) => {
-            const res = await fetch(`/api/admin/sm-models?model=${refModel}`, {
-                cache: "no-store"
+        if (refModels.length > 0) {
+            Promise.all(refModels.map(async (refModel) => {
+                const res = await authFetch(`/api/admin/sm-models?model=${refModel}`, {
+                    cache: "no-store"
+                });
+                const json = await res.json();
+                if (json.success) {
+                    refs[refModel] = json.data;
+                }
+            })).then(() => {
+                setReferences(refs);
+            }).catch(err => {
+                console.error("Error fetching references:", err);
             });
-            const json = await res.json();
-            if (json.success) {
-                refs[refModel] = json.data;
-            }
-        })).then(() => {
-            setReferences(refs);
-        });
+        }
 
         // Reset form data
         const initialForm = {};
@@ -190,7 +211,11 @@ export default function SMAdmin() {
             if (activeTab === "SMFiles") {
                 const activeUrls = fileUrls.map(u => u.trim()).filter(Boolean);
                 if (activeUrls.length === 0) {
-                    setMessage({ type: "error", text: "Please enter at least one File URL." });
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Missing File URL",
+                        text: "Please enter at least one valid File URL."
+                    });
                     setSubmitLoading(false);
                     return;
                 }
@@ -205,7 +230,7 @@ export default function SMAdmin() {
                 }));
             }
 
-            const res = await fetch("/api/admin/sm-models", {
+            const res = await authFetch("/api/admin/sm-models", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -218,6 +243,14 @@ export default function SMAdmin() {
             const json = await res.json();
 
             if (json.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Success!",
+                    text: `${modelsConfig[activeTab].label.slice(0, -1)} added successfully!`,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+
                 setMessage({ type: "success", text: "Record added successfully!" });
                 setPage(1);
                 fetchRecords(activeTab, 1); // refresh
@@ -235,36 +268,264 @@ export default function SMAdmin() {
                     setFileUrls([""]);
                 }
             } else {
-                setMessage({ type: "error", text: json.error || json.message || "Failed to create record." });
+                const errMsg = json.error || json.message || "Failed to create record.";
+                Swal.fire({
+                    icon: "error",
+                    title: "Failed to Add",
+                    text: errMsg
+                });
+                setMessage({ type: "error", text: errMsg });
             }
         } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: error.message || "An unexpected error occurred."
+            });
             setMessage({ type: "error", text: error.message || "An unexpected error occurred." });
+        } finally {
+            setSubmitLoading(false);
         }
-        setSubmitLoading(false);
     };
 
+    // ── Edit Record using SweetAlert2 popup ──
+    const handleEdit = async (record) => {
+        const config = modelsConfig[activeTab];
+        if (!config) return;
+
+        // Ensure all required references are loaded
+        const refModels = config.fields.filter(f => f.ref).map(f => f.ref);
+        const currentRefs = { ...references };
+
+        for (const refModel of refModels) {
+            if (!currentRefs[refModel] || currentRefs[refModel].length === 0) {
+                try {
+                    const res = await authFetch(`/api/admin/sm-models?model=${refModel}`, { cache: "no-store" });
+                    const json = await res.json();
+                    if (json.success) {
+                        currentRefs[refModel] = json.data;
+                    }
+                } catch (e) {
+                    console.error(`Failed to load ${refModel} references:`, e);
+                }
+            }
+        }
+
+        // Build HTML form fields dynamically
+        let formHtml = `<div style="display: flex; flex-direction: column; gap: 14px; text-align: left; font-family: inherit;">`;
+
+        config.fields.forEach((field) => {
+            const fieldId = `swal-edit-${field.name}`;
+            const fieldLabel = field.label || field.name;
+
+            let currentValue = "";
+            if (field.ref) {
+                const refVal = record[field.name];
+                currentValue = refVal?._id ? String(refVal._id) : (refVal ? String(refVal) : "");
+            } else {
+                currentValue = record[field.name] !== undefined && record[field.name] !== null ? String(record[field.name]) : "";
+            }
+
+            formHtml += `
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">
+                        ${escapeHtml(fieldLabel)} ${field.required ? '<span style="color: #ef4444;">*</span>' : ''}
+                    </label>
+            `;
+
+            if (field.type === "select") {
+                formHtml += `
+                    <select id="${fieldId}" style="width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; outline: none; background: #ffffff; color: #0f172a;">
+                        <option value="">-- Select ${escapeHtml(fieldLabel)} --</option>
+                `;
+
+                if (field.options) {
+                    field.options.forEach(opt => {
+                        const isSelected = String(opt.value) === String(currentValue);
+                        formHtml += `<option value="${escapeHtml(opt.value)}" ${isSelected ? 'selected' : ''}>${escapeHtml(opt.label)}</option>`;
+                    });
+                } else if (field.ref && currentRefs[field.ref]) {
+                    currentRefs[field.ref].forEach(refDoc => {
+                        const isSelected = String(refDoc._id) === String(currentValue);
+                        let label = refDoc.name || refDoc._id;
+                        if (field.ref === "SMSemester") label = `Semester ${refDoc.sem}`;
+                        else if (field.ref === "SMBatch") label = `Batch ${refDoc.startyear}-${refDoc.endyear}`;
+                        else if (field.ref === "SMCollege") label = `${refDoc.name} (${refDoc.university?.name || "No University"})`;
+                        else if (field.ref === "SMSubject") label = `${refDoc.name} (${refDoc.course?.name || "Course"}, College: ${refDoc.college?.name || "College"}, Sem: ${refDoc.sem?.sem || "N/A"})`;
+
+                        formHtml += `<option value="${refDoc._id}" ${isSelected ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+                    });
+                }
+
+                formHtml += `</select>`;
+            } else {
+                const inputType = field.type === "number" ? "number" : "text";
+                formHtml += `
+                    <input 
+                        type="${inputType}" 
+                        id="${fieldId}" 
+                        value="${escapeHtml(currentValue)}" 
+                        placeholder="${escapeHtml(field.placeholder || '')}" 
+                        style="width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; outline: none; background: #ffffff; color: #0f172a;"
+                    />
+                `;
+            }
+
+            formHtml += `</div>`;
+        });
+
+        formHtml += `</div>`;
+
+        const result = await Swal.fire({
+            title: `Edit ${config.label.slice(0, -1)}`,
+            html: formHtml,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: "Update Record",
+            cancelButtonText: "Cancel",
+            confirmButtonColor: "#4f46e5",
+            cancelButtonColor: "#64748b",
+            width: "560px",
+            customClass: {
+                popup: 'sm-swal-popup',
+                confirmButton: 'sm-swal-confirm',
+                cancelButton: 'sm-swal-cancel'
+            },
+            preConfirm: () => {
+                const updatedData = {};
+                for (const field of config.fields) {
+                    const el = document.getElementById(`swal-edit-${field.name}`);
+                    if (!el) continue;
+                    let val = el.value.trim();
+
+                    if (field.required && !val) {
+                        Swal.showValidationMessage(`${field.label || field.name} is required.`);
+                        return false;
+                    }
+
+                    if (field.type === "number") {
+                        val = Number(val);
+                        if (isNaN(val)) {
+                            Swal.showValidationMessage(`${field.label || field.name} must be a valid number.`);
+                            return false;
+                        }
+                    }
+
+                    updatedData[field.name] = val;
+                }
+                return updatedData;
+            }
+        });
+
+        if (result.isConfirmed && result.value) {
+            Swal.fire({
+                title: "Updating...",
+                text: "Please wait while the record is being saved.",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                const res = await authFetch("/api/admin/sm-models", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        modelName: activeTab,
+                        id: record._id,
+                        data: result.value
+                    })
+                });
+
+                const json = await res.json();
+                if (json.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Updated!",
+                        text: `${config.label.slice(0, -1)} updated successfully!`,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                    // Update record locally
+                    setRecords(prev => prev.map(r => r._id === record._id ? json.data : r));
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Update Failed",
+                        text: json.error || json.message || "Failed to update record."
+                    });
+                }
+            } catch (err) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: err.message || "An unexpected error occurred."
+                });
+            }
+        }
+    };
+
+    // ── Delete Record using SweetAlert2 popup ──
     const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to delete this record? This action cannot be undone.")) return;
+        const result = await Swal.fire({
+            title: "Delete Record?",
+            text: "Are you sure you want to delete this record? This action cannot be undone.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ef4444",
+            cancelButtonColor: "#64748b",
+            confirmButtonText: "Yes, delete it",
+            cancelButtonText: "Cancel",
+            customClass: {
+                popup: 'sm-swal-popup',
+                confirmButton: 'sm-swal-confirm',
+                cancelButton: 'sm-swal-cancel'
+            }
+        });
+
+        if (!result.isConfirmed) return;
+
         setDeleteLoading(id);
         setMessage(null);
 
         try {
-            const res = await fetch(`/api/admin/sm-models?model=${activeTab}&id=${id}`, {
+            const res = await authFetch(`/api/admin/sm-models?model=${activeTab}&id=${id}`, {
                 method: "DELETE"
             });
             const json = await res.json();
 
             if (json.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Deleted!",
+                    text: "Record deleted successfully.",
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+
                 setMessage({ type: "success", text: "Record deleted successfully." });
-                // Filter out deleted record locally to avoid full reload
                 setRecords(prev => prev.filter(r => r._id !== id));
             } else {
-                setMessage({ type: "error", text: json.error || json.message || "Failed to delete record." });
+                const errMsg = json.error || json.message || "Failed to delete record.";
+                Swal.fire({
+                    icon: "error",
+                    title: "Failed to Delete",
+                    text: errMsg
+                });
+                setMessage({ type: "error", text: errMsg });
             }
         } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: error.message || "Failed to delete record."
+            });
             setMessage({ type: "error", text: error.message || "Failed to delete record." });
+        } finally {
+            setDeleteLoading(null);
         }
-        setDeleteLoading(null);
     };
 
     return (
@@ -284,7 +545,7 @@ export default function SMAdmin() {
                         <span>Study Materials Management</span>
                     </div>
                     <h1>Study Materials Control Panel</h1>
-                    <p>Manage universities, colleges, courses, semesters, batches, subjects, and resource file URLs.</p>
+                    <p>Manage universities, colleges, courses, semesters, batches, subjects, and resource file URLs with full edit and delete controls.</p>
                 </header>
 
                 {/* Tab Navigation */}
@@ -414,7 +675,7 @@ export default function SMAdmin() {
                                                     {field.ref === "SMSemester" ? `Semester ${refDoc.sem}` :
                                                      field.ref === "SMBatch" ? `${refDoc.startyear}-${refDoc.endyear}` :
                                                      field.ref === "SMCollege" ? `${refDoc.name} (${refDoc.university?.name || "No University"})` :
-                                                     field.ref === "SMSubject" ? `${refDoc.name} (${refDoc.course?.name || "Course"}, College: ${refDoc.college?.name || "College"}, Sem: ${refDoc.sem?.sem || "N/A"}, Batch: ${refDoc.batch ? refDoc.batch.startyear + "-" + refDoc.batch.endyear : "N/A"})` :
+                                                     field.ref === "SMSubject" ? `${refDoc.name} (${refDoc.course?.name || "Course"}, College: ${refDoc.college?.name || "College"}, Sem: ${refDoc.sem?.sem || "N/A"})` :
                                                      (refDoc.name || refDoc._id)}
                                                 </option>
                                             ))}
@@ -541,6 +802,13 @@ export default function SMAdmin() {
                                             </div>
 
                                             <div className="sm-card-actions">
+                                                <button 
+                                                    onClick={() => handleEdit(record)} 
+                                                    className="sm-edit-btn"
+                                                    title="Edit Record"
+                                                >
+                                                    <FiEdit2 />
+                                                </button>
                                                 <button 
                                                     onClick={() => handleDelete(record._id)} 
                                                     disabled={deleteLoading === record._id}
