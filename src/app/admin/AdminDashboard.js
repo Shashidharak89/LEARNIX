@@ -392,11 +392,11 @@ export default function AdminDashboard() {
           <FiArrowRight size={18} className="adm-quick-btn-arrow" />
         </Link>
 
-        <Link href="/admin/works" className="adm-quick-btn" style={{ background: 'rgba(99, 102, 241, 0.1)', borderColor: 'rgba(99, 102, 241, 0.2)' }}>
+        <Link href="/admin/resources" className="adm-quick-btn" style={{ background: 'rgba(99, 102, 241, 0.1)', borderColor: 'rgba(99, 102, 241, 0.2)' }}>
           <span className="adm-quick-btn-icon" style={{ background: '#e0e7ff', color: '#4f46e5' }}><FiFileText size={20} /></span>
           <div className="adm-quick-btn-text">
-            <span className="adm-quick-btn-label">Works Management</span>
-            <span className="adm-quick-btn-sub">Manage Work Visibilities &amp; Download Links</span>
+            <span className="adm-quick-btn-label">Resource Management</span>
+            <span className="adm-quick-btn-sub">Subjects, Topics, Moderation &amp; Transfers</span>
           </div>
           <FiArrowRight size={18} className="adm-quick-btn-arrow" />
         </Link>
