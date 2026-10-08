@@ -9,7 +9,6 @@ import {
   FiEyeOff,
   FiClock,
   FiChevronRight,
-  FiChevronLeft,
   FiChevronDown,
   FiSearch,
   FiSettings,
@@ -63,6 +62,7 @@ export default function UserProfile({ googleClientId = "" }) {
     totalRecords: 0,
   });
   const [loadingSubjects, setLoadingSubjects] = useState(false);
+  const [loadingMoreSubjects, setLoadingMoreSubjects] = useState(false);
   const [subjectsError, setSubjectsError] = useState("");
 
   // Topics under subject state
@@ -219,14 +219,19 @@ export default function UserProfile({ googleClientId = "" }) {
     }
   };
 
-  // Fetch paginated subjects using auth header
+  // Fetch paginated subjects using auth header, supporting append
   const fetchUserSubjects = useCallback(async ({
     page = 1,
     size = 10,
     search = "",
-    order = "asc"
+    order = "asc",
+    append = false
   } = {}) => {
-    setLoadingSubjects(true);
+    if (append) {
+      setLoadingMoreSubjects(true);
+    } else {
+      setLoadingSubjects(true);
+    }
     setSubjectsError("");
     try {
       const query = typeof window !== 'undefined' 
@@ -245,7 +250,13 @@ export default function UserProfile({ googleClientId = "" }) {
         throw new Error(data?.error || "Failed to fetch subjects");
       }
 
-      setSubjectsData(data.subjects || []);
+      const newSubjects = data.subjects || [];
+      if (append) {
+        setSubjectsData((prev) => [...prev, ...newSubjects]);
+      } else {
+        setSubjectsData(newSubjects);
+      }
+      setSubjectsPage(page);
       if (data.pagination) {
         setSubjectsPagination(data.pagination);
       }
@@ -254,6 +265,7 @@ export default function UserProfile({ googleClientId = "" }) {
       setSubjectsError(err.message || "Failed to load uploaded resources");
     } finally {
       setLoadingSubjects(false);
+      setLoadingMoreSubjects(false);
     }
   }, []);
 
@@ -289,6 +301,18 @@ export default function UserProfile({ googleClientId = "" }) {
     }
   };
 
+  const loadMoreSubjects = () => {
+    if (loadingMoreSubjects || subjectsPagination.page >= subjectsPagination.totalPages) return;
+    const nextPage = subjectsPagination.page + 1;
+    fetchUserSubjects({
+      page: nextPage,
+      size: subjectsSize,
+      search: subjectsSearch,
+      order: subjectsOrder,
+      append: true,
+    });
+  };
+
   const handleSearchChange = (val) => {
     setSearchInput(val);
     if (searchDebounceRef.current) {
@@ -302,6 +326,7 @@ export default function UserProfile({ googleClientId = "" }) {
         size: subjectsSize,
         search: val,
         order: subjectsOrder,
+        append: false,
       });
     }, 350);
   };
@@ -315,6 +340,20 @@ export default function UserProfile({ googleClientId = "" }) {
       size: subjectsSize,
       search: "",
       order: subjectsOrder,
+      append: false,
+    });
+  };
+
+  const handleSortToggle = () => {
+    const newOrder = subjectsOrder === "asc" ? "desc" : "asc";
+    setSubjectsOrder(newOrder);
+    setSubjectsPage(1);
+    fetchUserSubjects({
+      page: 1,
+      size: subjectsSize,
+      search: subjectsSearch,
+      order: newOrder,
+      append: false,
     });
   };
 
@@ -621,17 +660,7 @@ export default function UserProfile({ googleClientId = "" }) {
                     <button
                       type="button"
                       className="up-sort-btn"
-                      onClick={() => {
-                        const newOrder = subjectsOrder === "asc" ? "desc" : "asc";
-                        setSubjectsOrder(newOrder);
-                        setSubjectsPage(1);
-                        fetchUserSubjects({
-                          page: 1,
-                          size: subjectsSize,
-                          search: subjectsSearch,
-                          order: newOrder,
-                        });
-                      }}
+                      onClick={handleSortToggle}
                       title={`Current sort: ${subjectsOrder === "asc" ? "A to Z" : "Z to A"}`}
                     >
                       {subjectsOrder === "asc" ? (
@@ -772,85 +801,39 @@ export default function UserProfile({ googleClientId = "" }) {
                       })}
                     </div>
 
-                    {/* Pagination Controls */}
-                    {subjectsPagination.totalPages > 1 && (
-                      <div className="up-pagination-container">
-                        <div className="up-pagination-info">
-                          Showing {(subjectsPagination.page - 1) * subjectsPagination.size + 1} -{" "}
-                          {Math.min(
-                            subjectsPagination.page * subjectsPagination.size,
-                            subjectsPagination.totalRecords
-                          )}{" "}
-                          of {subjectsPagination.totalRecords} subjects
-                        </div>
-
-                        <div className="up-pagination-controls">
-                          <button
-                            type="button"
-                            className="up-pagination-btn"
-                            disabled={subjectsPagination.page <= 1}
-                            onClick={() => {
-                              const newPage = subjectsPagination.page - 1;
-                              setSubjectsPage(newPage);
-                              fetchUserSubjects({
-                                page: newPage,
-                                size: subjectsSize,
-                                search: subjectsSearch,
-                                order: subjectsOrder,
-                              });
-                            }}
-                          >
-                            <FiChevronLeft /> Prev
-                          </button>
-
-                          <div className="up-pagination-pages">
-                            {Array.from(
-                              { length: subjectsPagination.totalPages },
-                              (_, i) => i + 1
-                            ).map((p) => (
-                              <button
-                                key={p}
-                                type="button"
-                                className={`up-pagination-page-btn ${
-                                  p === subjectsPagination.page ? "is-active" : ""
-                                }`}
-                                onClick={() => {
-                                  if (p !== subjectsPagination.page) {
-                                    setSubjectsPage(p);
-                                    fetchUserSubjects({
-                                      page: p,
-                                      size: subjectsSize,
-                                      search: subjectsSearch,
-                                      order: subjectsOrder,
-                                    });
-                                  }
-                                }}
-                              >
-                                {p}
-                              </button>
-                            ))}
-                          </div>
-
-                          <button
-                            type="button"
-                            className="up-pagination-btn"
-                            disabled={subjectsPagination.page >= subjectsPagination.totalPages}
-                            onClick={() => {
-                              const newPage = subjectsPagination.page + 1;
-                              setSubjectsPage(newPage);
-                              fetchUserSubjects({
-                                page: newPage,
-                                size: subjectsSize,
-                                search: subjectsSearch,
-                                order: subjectsOrder,
-                              });
-                            }}
-                          >
-                            Next <FiChevronRight />
-                          </button>
-                        </div>
+                    {/* View More Button (appends next page) */}
+                    {subjectsPagination.page < subjectsPagination.totalPages && (
+                      <div className="up-view-more-container">
+                        <button
+                          type="button"
+                          className="up-view-more-btn"
+                          onClick={loadMoreSubjects}
+                          disabled={loadingMoreSubjects}
+                        >
+                          {loadingMoreSubjects ? (
+                            <>
+                              <div className="up-mini-spinner" />
+                              <span>Loading more subjects...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>View More</span>
+                              <FiChevronDown className="up-view-more-icon" />
+                            </>
+                          )}
+                        </button>
+                        <p className="up-view-more-info">
+                          Showing {subjectsData.length} of {subjectsPagination.totalRecords} subjects
+                        </p>
                       </div>
                     )}
+
+                    {subjectsPagination.totalRecords > subjectsSize &&
+                      subjectsPagination.page >= subjectsPagination.totalPages && (
+                        <div className="up-view-more-completed">
+                          <p>All {subjectsPagination.totalRecords} subjects loaded</p>
+                        </div>
+                      )}
                   </>
                 )}
               </div>

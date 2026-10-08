@@ -839,89 +839,75 @@
   overflow: hidden;
 }
 
-/* Pagination Controls */
-.up-pagination-container {
+/* View More / Load More Button */
+.up-view-more-container {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #e2e8f0;
-  flex-wrap: wrap;
-  gap: 1rem;
+  border-top: 1px solid #f1f5f9;
+  gap: 0.75rem;
 }
 
-.up-pagination-info {
-  font-size: 0.88rem;
+.up-view-more-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2.25rem;
+  background: #ffffff;
+  border: 1.5px solid #007bff;
+  border-radius: 30px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #007bff;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 123, 255, 0.08);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.up-view-more-btn:hover:not(:disabled) {
+  background: #007bff;
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.up-view-more-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.up-view-more-icon {
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
+}
+
+.up-view-more-btn:hover .up-view-more-icon {
+  transform: translateY(2px);
+}
+
+.up-view-more-info {
+  font-size: 0.85rem;
   color: #64748b;
+  font-weight: 500;
+  margin: 0;
+}
+
+.up-view-more-completed {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #f1f5f9;
+  color: #94a3b8;
+  font-size: 0.85rem;
   font-weight: 500;
 }
 
-.up-pagination-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.up-pagination-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.5rem 0.9rem;
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #334155;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.up-pagination-btn:hover:not(:disabled) {
-  background: #f8fafc;
-  border-color: #007bff;
-  color: #007bff;
-}
-
-.up-pagination-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.up-pagination-pages {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.up-pagination-page-btn {
-  min-width: 36px;
-  height: 36px;
-  padding: 0 0.5rem;
-  border-radius: 10px;
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  color: #334155;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s ease;
-}
-
-.up-pagination-page-btn:hover:not(.is-active) {
-  background: #f1f5f9;
-  border-color: #94a3b8;
-}
-
-.up-pagination-page-btn.is-active {
-  background: #007bff;
-  border-color: #007bff;
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.25);
+.up-view-more-completed p {
+  margin: 0;
 }
 
 .up-error-box {
