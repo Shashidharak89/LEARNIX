@@ -6,15 +6,13 @@ import Script from "next/script";
 import {
   FiCalendar,
   FiBook,
-  FiImage,
   FiEyeOff,
   FiClock,
   FiChevronRight,
+  FiChevronLeft,
+  FiChevronDown,
   FiSearch,
   FiSettings,
-  FiUpload,
-  FiCloud,
-  FiGrid,
   FiLogIn,
   FiAlertCircle,
   FiMail,
@@ -27,7 +25,10 @@ import {
   FiHelpCircle,
   FiUserPlus,
   FiLock,
-  FiUser
+  FiUser,
+  FiExternalLink,
+  FiArrowUp,
+  FiArrowDown
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import ChangeName from './ChangeName';
@@ -36,34 +37,46 @@ import ProfileImageEditor from './ProfileImageEditor';
 import UserProfileSkeleton from './UserProfileSkeleton';
 import machineLearningSvg from './icons/Mapping for machine learning.svg';
 import './styles/UserProfile.css';
-import { authFetch, signOutFromBrowser } from '@/lib/clientAuth';
+import { authFetch } from '@/lib/clientAuth';
 
 export default function UserProfile({ googleClientId = "" }) {
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState("");
   const [hasError, setHasError] = useState(false);
-  const [expandedUploads, setExpandedUploads] = useState({});
   const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filteredSubjects, setFilteredSubjects] = useState([]);
-  const [visibleTopics, setVisibleTopics] = useState({});
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [loadedImages, setLoadedImages] = useState(new Set());
   const [profileImage, setProfileImage] = useState("https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp");
   const [quote, setQuote] = useState("");
-  const [isLoadingQuote, setIsLoadingQuote] = useState(false);
   const [showResources, setShowResources] = useState(false);
-  const [loadingUploads, setLoadingUploads] = useState(false);
-  const [visibleSubjectsCount, setVisibleSubjectsCount] = useState(3);
+
+  // Paginated resources state
+  const [subjectsPage, setSubjectsPage] = useState(1);
+  const [subjectsSize] = useState(10);
+  const [subjectsSearch, setSubjectsSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [subjectsOrder, setSubjectsOrder] = useState("asc");
+  const [subjectsData, setSubjectsData] = useState([]);
+  const [subjectsPagination, setSubjectsPagination] = useState({
+    page: 1,
+    size: 10,
+    totalPages: 1,
+    totalRecords: 0,
+  });
+  const [loadingSubjects, setLoadingSubjects] = useState(false);
+  const [subjectsError, setSubjectsError] = useState("");
+
+  // Topics under subject state
+  const [expandedSubjectIds, setExpandedSubjectIds] = useState({});
+  const [subjectTopicsMap, setSubjectTopicsMap] = useState({});
+  const [loadingTopicsMap, setLoadingTopicsMap] = useState({});
+
+  // Google bind state
   const [googleScriptReady, setGoogleScriptReady] = useState(false);
   const [isBindingGoogle, setIsBindingGoogle] = useState(false);
   const [googleBindMessage, setGoogleBindMessage] = useState("");
   const [googleBindError, setGoogleBindError] = useState(false);
   const googleButtonRef = useRef(null);
-
-  const TOPICS_PER_LOAD = 5;
-  const SUBJECTS_PER_LOAD = 3;
+  const searchDebounceRef = useRef(null);
 
   useEffect(() => {
     fetchUserProfile();
@@ -90,31 +103,6 @@ export default function UserProfile({ googleClientId = "" }) {
       if (intervalId) clearInterval(intervalId);
     };
   }, []);
-
-  useEffect(() => {
-    if (user && user.hasUploadsLoaded) {
-      handleSearch(searchQuery);
-    }
-  }, [user, searchQuery]);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !isLoadingMore) {
-            const subjectIndex = parseInt(entry.target.dataset.subjectIndex);
-            loadMoreTopics(subjectIndex);
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: '100px' }
-    );
-
-    const sentinels = document.querySelectorAll('.up-scroll-sentinel');
-    sentinels.forEach((sentinel) => observer.observe(sentinel));
-
-    return () => observer.disconnect();
-  }, [filteredSubjects, visibleTopics, isLoadingMore]);
 
   const handleGoogleCredential = useCallback(async (response) => {
     const credential = String(response?.credential || "").trim();
@@ -174,7 +162,6 @@ export default function UserProfile({ googleClientId = "" }) {
 
   const fetchQuote = async () => {
     try {
-      setIsLoadingQuote(true);
       const response = await fetch('https://zenquotes.io/api/random');
       const data = await response.json();
       if (data && data[0] && data[0].q) {
@@ -183,8 +170,6 @@ export default function UserProfile({ googleClientId = "" }) {
     } catch (error) {
       console.error('Error fetching quote:', error);
       setQuote("Every journey begins with a single step.");
-    } finally {
-      setIsLoadingQuote(false);
     }
   };
 
@@ -218,14 +203,6 @@ export default function UserProfile({ googleClientId = "" }) {
       setProfileImage(data.user.profileimg || "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp");
       setMessage("");
       setHasError(false);
-
-      const initialVisible = {};
-      if (data.user.subjects) {
-        data.user.subjects.forEach((subject, index) => {
-          initialVisible[index] = Math.min(TOPICS_PER_LOAD, subject.topics?.length || 0);
-        });
-      }
-      setVisibleTopics(initialVisible);
     } catch (err) {
       console.error(err);
       setHasError(true);
@@ -233,8 +210,6 @@ export default function UserProfile({ googleClientId = "" }) {
         setMessage("Profile not found! Something went wrong, please login again.");
       } else if (err.response?.status === 401 || err.response?.status === 403) {
         setMessage("Authentication failed! Please login again.");
-      } else if (err.code === 'NETWORK_ERROR' || !err.response) {
-        setMessage("Network error occurred! Please check your connection and login again.");
       } else {
         setMessage("Something went wrong! Please login again.");
       }
@@ -244,104 +219,103 @@ export default function UserProfile({ googleClientId = "" }) {
     }
   };
 
-  const fetchUserUploads = async () => {
-    if (user?.hasUploadsLoaded || loadingUploads) return;
-    setLoadingUploads(true);
+  // Fetch paginated subjects using auth header
+  const fetchUserSubjects = useCallback(async ({
+    page = 1,
+    size = 10,
+    search = "",
+    order = "asc"
+  } = {}) => {
+    setLoadingSubjects(true);
+    setSubjectsError("");
     try {
-      const usn = localStorage.getItem("usn");
-      if (!usn) return;
+      const query = typeof window !== 'undefined' 
+        ? new window.URLSearchParams({
+            page: String(page),
+            size: String(size),
+            search: String(search),
+            order: String(order),
+          })
+        : { toString: () => `page=${page}&size=${size}&search=${encodeURIComponent(search)}&order=${order}` };
 
-      const res = await authFetch(`/api/user?usn=${usn}&includeUploads=true`);
+      const res = await authFetch(`/api/user/subjects?${query.toString()}`);
       const data = await res.json().catch(() => ({}));
 
-      if (res.ok && data.user) {
-        setUser((prev) => ({
-          ...prev,
-          subjects: data.user.subjects || [],
-          subjectsCount: data.user.subjectsCount ?? (data.user.subjects?.length || 0),
-          topicsCount: data.user.topicsCount,
-          uploadsCount: data.user.uploadsCount,
-          hasUploadsLoaded: true
-        }));
-        setFilteredSubjects(data.user.subjects || []);
+      if (!res.ok) {
+        throw new Error(data?.error || "Failed to fetch subjects");
+      }
 
-        const initialVisible = {};
-        if (data.user.subjects) {
-          data.user.subjects.forEach((subject, index) => {
-            initialVisible[index] = Math.min(TOPICS_PER_LOAD, subject.topics?.length || 0);
-          });
-        }
-        setVisibleTopics(initialVisible);
+      setSubjectsData(data.subjects || []);
+      if (data.pagination) {
+        setSubjectsPagination(data.pagination);
       }
     } catch (err) {
-      console.error("Error fetching user uploads:", err);
+      console.error("Error fetching subjects:", err);
+      setSubjectsError(err.message || "Failed to load uploaded resources");
     } finally {
-      setLoadingUploads(false);
+      setLoadingSubjects(false);
+    }
+  }, []);
+
+  // Request topics under a specific subject using auth header
+  const toggleSubjectTopics = async (subjectId) => {
+    const isCurrentlyExpanded = !!expandedSubjectIds[subjectId];
+    if (isCurrentlyExpanded) {
+      setExpandedSubjectIds((prev) => ({ ...prev, [subjectId]: false }));
+      return;
+    }
+
+    setExpandedSubjectIds((prev) => ({ ...prev, [subjectId]: true }));
+
+    // If topics already loaded for this subject, don't re-fetch
+    if (subjectTopicsMap[subjectId]) {
+      return;
+    }
+
+    setLoadingTopicsMap((prev) => ({ ...prev, [subjectId]: true }));
+    try {
+      const res = await authFetch(`/api/user/topics?subjectId=${subjectId}`);
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.topics) {
+        setSubjectTopicsMap((prev) => ({ ...prev, [subjectId]: data.topics }));
+      } else {
+        setSubjectTopicsMap((prev) => ({ ...prev, [subjectId]: [] }));
+      }
+    } catch (err) {
+      console.error("Error requesting topics for subject:", err);
+      setSubjectTopicsMap((prev) => ({ ...prev, [subjectId]: [] }));
+    } finally {
+      setLoadingTopicsMap((prev) => ({ ...prev, [subjectId]: false }));
     }
   };
 
-  const loadMoreTopics = useCallback((subjectIndex) => {
-    if (isLoadingMore) return;
-    const subject = filteredSubjects[subjectIndex];
-    if (!subject || !subject.topics) return;
-    
-    const currentVisible = visibleTopics[subjectIndex] || 0;
-    const totalTopics = subject.topics.length;
-    if (currentVisible >= totalTopics) return;
-    
-    setIsLoadingMore(true);
-    setTimeout(() => {
-      setVisibleTopics((prev) => ({
-        ...prev,
-        [subjectIndex]: Math.min(currentVisible + TOPICS_PER_LOAD, totalTopics)
-      }));
-      setIsLoadingMore(false);
-    }, 300);
-  }, [filteredSubjects, visibleTopics, isLoadingMore]);
-
-  const handleSearch = (query) => {
-    if (!user) return;
-    if (!user.hasUploadsLoaded && query.trim()) {
-      setShowResources(true);
-      fetchUserUploads();
-      return;
+  const handleSearchChange = (val) => {
+    setSearchInput(val);
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
     }
-    if (!user.subjects) return;
+    searchDebounceRef.current = setTimeout(() => {
+      setSubjectsPage(1);
+      setSubjectsSearch(val);
+      fetchUserSubjects({
+        page: 1,
+        size: subjectsSize,
+        search: val,
+        order: subjectsOrder,
+      });
+    }, 350);
+  };
 
-    if (!query.trim()) {
-      setFilteredSubjects(user.subjects);
-      return;
-    }
-
-    const searchTerm = query.toLowerCase();
-    const filtered = user.subjects.map((subject) => {
-      const filteredTopics = subject.topics?.filter((topic) => 
-        subject.subject.toLowerCase().includes(searchTerm) ||
-        topic.topic.toLowerCase().includes(searchTerm)
-      ) || [];
-      return {
-        ...subject,
-        topics: filteredTopics
-      };
-    }).filter((subject) => 
-      subject.subject.toLowerCase().includes(searchTerm) || 
-      subject.topics.length > 0
-    );
-    
-    setFilteredSubjects(filtered);
-    const newVisible = {};
-    filtered.forEach((subject, index) => {
-      newVisible[index] = Math.min(TOPICS_PER_LOAD, subject.topics?.length || 0);
+  const clearSearch = () => {
+    setSearchInput("");
+    setSubjectsPage(1);
+    setSubjectsSearch("");
+    fetchUserSubjects({
+      page: 1,
+      size: subjectsSize,
+      search: "",
+      order: subjectsOrder,
     });
-    setVisibleTopics(newVisible);
-  };
-
-  const toggleUploadsView = (subjectIndex, topicIndex) => {
-    const key = `${subjectIndex}-${topicIndex}`;
-    setExpandedUploads((prev) => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
   };
 
   const formatDate = (timestamp) => {
@@ -385,19 +359,14 @@ export default function UserProfile({ googleClientId = "" }) {
         onLoad={() => setGoogleScriptReady(true)}
       />
       <div className="up-wrapper">
-        {/* Page Header & Breadcrumb */}
+        {/* Page Title: My Profile in our app theme design (No breadcrumb) */}
         <div className="up-page-header">
-          <h1 className="up-page-title">{user ? "My Account" : "Guest Profile"}</h1>
-          <div className="up-breadcrumb">
-            <Link href="/" className="up-breadcrumb-link">Home</Link>
-            <span className="up-breadcrumb-sep">&gt;</span>
-            <span className="up-breadcrumb-current">{user ? "My Account" : "Guest Profile"}</span>
-          </div>
+          <h1 className="up-page-title">My Profile</h1>
         </div>
 
         {user ? (
           <>
-            {/* Top Main Profile Card */}
+            {/* Top Main Profile Card with broader height */}
             <div className="up-main-card">
               {/* Decorative Corner Accents */}
               <div className="up-card-accent-blue" />
@@ -490,7 +459,7 @@ export default function UserProfile({ googleClientId = "" }) {
                   </div>
                 </div>
 
-                {/* Right 5 Stat Cards */}
+                {/* Right 4 Stat Cards: Subjects, Topics, Streak, Highest Streak (Uploads removed) */}
                 <div className="up-stats-grid">
                   {/* Card 1: Subjects */}
                   <div className="up-stat-card is-subjects">
@@ -510,16 +479,7 @@ export default function UserProfile({ googleClientId = "" }) {
                     <div className="up-stat-label">Topics</div>
                   </div>
 
-                  {/* Card 3: Uploads */}
-                  <div className="up-stat-card is-uploads">
-                    <div className="up-stat-icon-wrapper">
-                      <FiCloud />
-                    </div>
-                    <div className="up-stat-value">{user.uploadsCount ?? 0}</div>
-                    <div className="up-stat-label">Uploads</div>
-                  </div>
-
-                  {/* Card 4: Streak */}
+                  {/* Card 3: Streak */}
                   <div className="up-stat-card is-streak">
                     <div className="up-stat-icon-wrapper">
                       <FiZap />
@@ -528,7 +488,7 @@ export default function UserProfile({ googleClientId = "" }) {
                     <div className="up-stat-label">Streak</div>
                   </div>
 
-                  {/* Card 5: Highest streak */}
+                  {/* Card 4: Highest streak */}
                   <div className="up-stat-card is-highest-streak">
                     <div className="up-stat-icon-wrapper">
                       <FiTrendingUp />
@@ -596,13 +556,15 @@ export default function UserProfile({ googleClientId = "" }) {
                 <button
                   className="up-banner-action-btn"
                   onClick={() => {
-                    if (showResources) {
-                      setShowResources(false);
-                    } else {
-                      setShowResources(true);
-                      if (!user?.hasUploadsLoaded) {
-                        fetchUserUploads();
-                      }
+                    const nextShow = !showResources;
+                    setShowResources(nextShow);
+                    if (nextShow && subjectsData.length === 0) {
+                      fetchUserSubjects({
+                        page: 1,
+                        size: subjectsSize,
+                        search: subjectsSearch,
+                        order: subjectsOrder,
+                      });
                     }
                   }}
                 >
@@ -629,174 +591,274 @@ export default function UserProfile({ googleClientId = "" }) {
               </div>
             </div>
 
-            {/* Expanded Resources Area */}
+            {/* Expanded Resources Area with Auth-Protected Pagination */}
             {showResources && (
               <div className="up-expanded-resources-section">
-                <div className="up-search">
-                  <FiSearch className="up-search-icon" />
-                  <input
-                    type="text"
-                    placeholder="Search subjects and topics..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="up-search-input"
-                  />
+                {/* Search & Sort Controls Toolbar */}
+                <div className="up-resources-toolbar">
+                  <div className="up-search-box">
+                    <FiSearch className="up-search-icon" />
+                    <input
+                      type="text"
+                      placeholder="Search subjects or topics..."
+                      value={searchInput}
+                      onChange={(e) => handleSearchChange(e.target.value)}
+                      className="up-search-input"
+                    />
+                    {searchInput && (
+                      <button
+                        type="button"
+                        onClick={clearSearch}
+                        className="up-search-clear-btn"
+                        title="Clear search"
+                      >
+                        <FiX />
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="up-sort-control">
+                    <button
+                      type="button"
+                      className="up-sort-btn"
+                      onClick={() => {
+                        const newOrder = subjectsOrder === "asc" ? "desc" : "asc";
+                        setSubjectsOrder(newOrder);
+                        setSubjectsPage(1);
+                        fetchUserSubjects({
+                          page: 1,
+                          size: subjectsSize,
+                          search: subjectsSearch,
+                          order: newOrder,
+                        });
+                      }}
+                      title={`Current sort: ${subjectsOrder === "asc" ? "A to Z" : "Z to A"}`}
+                    >
+                      {subjectsOrder === "asc" ? (
+                        <>
+                          <FiArrowUp className="up-sort-icon" />
+                          <span>Sort: A → Z</span>
+                        </>
+                      ) : (
+                        <>
+                          <FiArrowDown className="up-sort-icon" />
+                          <span>Sort: Z → A</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
 
-                {loadingUploads ? (
-                  <div className="up-uploads-loading" style={{ textAlign: "center", padding: "40px 16px" }}>
-                    <div className="up-mini-spinner" style={{ margin: "0 auto 12px auto" }}></div>
-                    <p style={{ color: "#6b7280", fontSize: "14px", fontWeight: 500 }}>Loading your uploaded subjects & topics...</p>
+                {/* Loading State */}
+                {loadingSubjects ? (
+                  <div className="up-uploads-loading">
+                    <div className="up-mini-spinner" />
+                    <p>Loading uploaded resources...</p>
                   </div>
-                ) : !filteredSubjects || filteredSubjects.length === 0 ? (
+                ) : subjectsError ? (
+                  <div className="up-error-box">
+                    <FiAlertCircle className="up-error-icon" />
+                    <span>{subjectsError}</span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        fetchUserSubjects({
+                          page: subjectsPage,
+                          size: subjectsSize,
+                          search: subjectsSearch,
+                          order: subjectsOrder,
+                        })
+                      }
+                      className="up-retry-btn"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                ) : subjectsData.length === 0 ? (
                   <div className="up-empty">
-                    {searchQuery ? (
-                      <>
-                        <FiSearch className="up-empty-icon" />
-                        <h3 className="up-empty-title">No Results Found</h3>
-                        <p className="up-empty-text">Try different search terms</p>
-                      </>
-                    ) : (
-                      <>
-                        <FiBook className="up-empty-icon" />
-                        <h3 className="up-empty-title">No Subjects Added</h3>
-                        <p className="up-empty-text">Start building your learning profile!</p>
-                      </>
-                    )}
+                    <FiBook className="up-empty-icon" />
+                    <h3 className="up-empty-title">
+                      {subjectsSearch ? "No matching subjects found" : "No subjects added yet"}
+                    </h3>
+                    <p className="up-empty-text">
+                      {subjectsSearch
+                        ? `No results for "${subjectsSearch}". Try a different keyword.`
+                        : "Start creating subjects and uploading topics to build your profile!"}
+                    </p>
                   </div>
                 ) : (
-                  <div className="up-subjects">
-                    {filteredSubjects.slice(0, visibleSubjectsCount).map((subject, subjectIndex) => {
-                      const visibleCount = visibleTopics[subjectIndex] || 0;
-                      const hasMoreTopics = subject.topics && subject.topics.length > visibleCount;
-                      const displayTopics = subject.topics?.slice(0, visibleCount) || [];
+                  <>
+                    <div className="up-subjects">
+                      {subjectsData.map((subject) => {
+                        const isExpanded = !!expandedSubjectIds[subject._id];
+                        const isLoadingTopics = !!loadingTopicsMap[subject._id];
+                        const topics = subjectTopicsMap[subject._id];
 
-                      return (
-                        <div key={subjectIndex} className="up-subject-card">
-                          <div className="up-subject-header">
-                            <div className="up-subject-title">
-                              <FiBook className="up-subject-icon" />
-                              <h3 className="up-subject-name">{subject.subject}</h3>
+                        return (
+                          <div key={subject._id} className="up-subject-card">
+                            <div
+                              className="up-subject-header clickable"
+                              onClick={() => toggleSubjectTopics(subject._id)}
+                              role="button"
+                              tabIndex={0}
+                            >
+                              <div className="up-subject-title">
+                                <FiBook className="up-subject-icon" />
+                                <h3 className="up-subject-name">{subject.subject}</h3>
+                              </div>
+
+                              <div className="up-subject-actions">
+                                <span className="up-subject-badge">
+                                  {subject.topicsCount} {subject.topicsCount === 1 ? "topic" : "topics"}
+                                </span>
+                                <button
+                                  type="button"
+                                  className={`up-subject-expand-btn ${isExpanded ? "is-expanded" : ""}`}
+                                  aria-label={isExpanded ? "Collapse topics" : "Expand topics"}
+                                >
+                                  <FiChevronDown />
+                                </button>
+                              </div>
                             </div>
-                            <div className="up-subject-badge">
-                              {subject.topics?.length || 0} topics
-                            </div>
+
+                            {/* Under subject, user can request/view topics */}
+                            {isExpanded && (
+                              <div className="up-subject-topics-wrapper">
+                                {isLoadingTopics ? (
+                                  <div className="up-topic-loading">
+                                    <div className="up-mini-spinner" />
+                                    <span>Requesting topics...</span>
+                                  </div>
+                                ) : !topics || topics.length === 0 ? (
+                                  <div className="up-empty-topics">
+                                    <p>No topics added under this subject yet.</p>
+                                  </div>
+                                ) : (
+                                  <div className="up-topics">
+                                    {topics.map((topic) => (
+                                      <Link
+                                        key={topic._id}
+                                        href={`/works/${topic._id}`}
+                                        className="up-topic-card up-topic-card-link"
+                                        title={`Open ${topic.topic} in works`}
+                                      >
+                                        <div className="up-topic-header">
+                                          <div className="up-topic-title">
+                                            <h4 className="up-topic-name">{topic.topic}</h4>
+                                            <span className="up-topic-date">
+                                              <FiClock className="up-date-icon" />
+                                              {formatDate(topic.timestamp)}
+                                            </span>
+                                          </div>
+                                          <div className="up-topic-action-badge">
+                                            <span>Open in Works</span>
+                                            <FiExternalLink className="up-topic-action-icon" />
+                                          </div>
+                                        </div>
+
+                                        {topic.content && (
+                                          <div className="up-topic-content">
+                                            <p>{topic.content}</p>
+                                          </div>
+                                        )}
+                                      </Link>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Pagination Controls */}
+                    {subjectsPagination.totalPages > 1 && (
+                      <div className="up-pagination-container">
+                        <div className="up-pagination-info">
+                          Showing {(subjectsPagination.page - 1) * subjectsPagination.size + 1} -{" "}
+                          {Math.min(
+                            subjectsPagination.page * subjectsPagination.size,
+                            subjectsPagination.totalRecords
+                          )}{" "}
+                          of {subjectsPagination.totalRecords} subjects
+                        </div>
+
+                        <div className="up-pagination-controls">
+                          <button
+                            type="button"
+                            className="up-pagination-btn"
+                            disabled={subjectsPagination.page <= 1}
+                            onClick={() => {
+                              const newPage = subjectsPagination.page - 1;
+                              setSubjectsPage(newPage);
+                              fetchUserSubjects({
+                                page: newPage,
+                                size: subjectsSize,
+                                search: subjectsSearch,
+                                order: subjectsOrder,
+                              });
+                            }}
+                          >
+                            <FiChevronLeft /> Prev
+                          </button>
+
+                          <div className="up-pagination-pages">
+                            {Array.from(
+                              { length: subjectsPagination.totalPages },
+                              (_, i) => i + 1
+                            ).map((p) => (
+                              <button
+                                key={p}
+                                type="button"
+                                className={`up-pagination-page-btn ${
+                                  p === subjectsPagination.page ? "is-active" : ""
+                                }`}
+                                onClick={() => {
+                                  if (p !== subjectsPagination.page) {
+                                    setSubjectsPage(p);
+                                    fetchUserSubjects({
+                                      page: p,
+                                      size: subjectsSize,
+                                      search: subjectsSearch,
+                                      order: subjectsOrder,
+                                    });
+                                  }
+                                }}
+                              >
+                                {p}
+                              </button>
+                            ))}
                           </div>
 
-                          {!subject.topics || subject.topics.length === 0 ? (
-                            <div className="up-empty-topics">
-                              <p>No topics added yet</p>
-                            </div>
-                          ) : (
-                            <div className="up-topics">
-                              {displayTopics.map((topic, topicIndex) => {
-                                const key = `${subjectIndex}-${topicIndex}`;
-                                const isExpanded = expandedUploads[key];
-                                const validImages = topic.images?.filter((img) => img && img.trim() !== '') || [];
-
-                                return (
-                                  <div key={topicIndex} className="up-topic-card">
-                                    <div className="up-topic-header">
-                                      <div className="up-topic-title">
-                                        <h4 className="up-topic-name">{topic.topic}</h4>
-                                        <span className="up-topic-date">
-                                          <FiClock className="up-date-icon" />
-                                          {formatDate(topic.timestamp)}
-                                        </span>
-                                      </div>
-
-                                      {validImages.length > 0 && (
-                                        <button
-                                          onClick={() => toggleUploadsView(subjectIndex, topicIndex)}
-                                          className="up-uploads-btn"
-                                        >
-                                          <FiImage className="up-btn-icon" />
-                                          <span>
-                                            {validImages.length} {validImages.length === 1 ? 'upload' : 'uploads'}
-                                          </span>
-                                          <FiChevronRight
-                                            className={`up-chevron ${isExpanded ? 'is-expanded' : ''}`}
-                                          />
-                                        </button>
-                                      )}
-                                    </div>
-
-                                    {topic.content && (
-                                      <div className="up-topic-content">
-                                        <p>{topic.content}</p>
-                                      </div>
-                                    )}
-
-                                    {isExpanded && validImages.length > 0 && (
-                                      <div className="up-images-grid">
-                                        {validImages.map((image, imageIndex) => {
-                                          const imageKey = `${subjectIndex}-${topicIndex}-${imageIndex}`;
-                                          const isLoaded = loadedImages.has(imageKey);
-
-                                          return (
-                                            <div
-                                              key={imageIndex}
-                                              className="up-image-container up-image-lazy"
-                                              data-image-key={imageKey}
-                                            >
-                                              {isLoaded ? (
-                                                <img
-                                                  src={image}
-                                                  alt={`Upload ${imageIndex + 1}`}
-                                                  className="up-upload-image"
-                                                  loading="lazy"
-                                                />
-                                              ) : (
-                                                <div className="up-image-placeholder up-shimmer">
-                                                  <FiImage className="up-placeholder-icon" />
-                                                </div>
-                                              )}
-                                            </div>
-                                          );
-                                        })}
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-
-                              {hasMoreTopics && (
-                                <div
-                                  className="up-scroll-sentinel"
-                                  data-subject-index={subjectIndex}
-                                >
-                                  {isLoadingMore && (
-                                    <div className="up-topic-loading">
-                                      <div className="up-mini-spinner" />
-                                      <span>Loading topics...</span>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          )}
+                          <button
+                            type="button"
+                            className="up-pagination-btn"
+                            disabled={subjectsPagination.page >= subjectsPagination.totalPages}
+                            onClick={() => {
+                              const newPage = subjectsPagination.page + 1;
+                              setSubjectsPage(newPage);
+                              fetchUserSubjects({
+                                page: newPage,
+                                size: subjectsSize,
+                                search: subjectsSearch,
+                                order: subjectsOrder,
+                              });
+                            }}
+                          >
+                            Next <FiChevronRight />
+                          </button>
                         </div>
-                      );
-                    })}
-
-                    {filteredSubjects.length > visibleSubjectsCount && (
-                      <div className="up-load-more-subjects">
-                        <button
-                          onClick={() => setVisibleSubjectsCount((prev) => prev + SUBJECTS_PER_LOAD)}
-                          className="up-load-more-btn"
-                        >
-                          Load More Subjects
-                        </button>
                       </div>
                     )}
-                  </div>
+                  </>
                 )}
               </div>
             )}
           </>
         ) : (
           <>
-            {/* Guest / Logged Out Profile Card */}
+            {/* Guest / Logged Out Profile Card with broader height */}
             <div className="up-main-card is-guest">
               <div className="up-card-accent-blue" />
               <div className="up-card-accent-yellow">
@@ -837,7 +899,7 @@ export default function UserProfile({ googleClientId = "" }) {
                   </div>
                 </div>
 
-                {/* Right 5 Stat Cards Grid with Question Marks */}
+                {/* Right 4 Stat Cards Grid with Question Marks (Uploads removed) */}
                 <div className="up-stats-grid">
                   <div className="up-stat-card is-subjects is-guest-stat">
                     <div className="up-stat-icon-wrapper">
@@ -853,14 +915,6 @@ export default function UserProfile({ googleClientId = "" }) {
                     </div>
                     <div className="up-stat-value up-qm-glow">?</div>
                     <div className="up-stat-label">Topics</div>
-                  </div>
-
-                  <div className="up-stat-card is-uploads is-guest-stat">
-                    <div className="up-stat-icon-wrapper">
-                      <FiCloud />
-                    </div>
-                    <div className="up-stat-value up-qm-glow">?</div>
-                    <div className="up-stat-label">Uploads</div>
                   </div>
 
                   <div className="up-stat-card is-streak is-guest-stat">

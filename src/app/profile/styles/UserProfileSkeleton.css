@@ -54,36 +54,31 @@
   }
 }
 
-/* Page Header & Breadcrumb Skeleton */
+/* Page Title Skeleton (Breadcrumb removed) */
 .ups-page-header {
-  margin-bottom: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  margin-bottom: 1.5rem;
 }
 
 .ups-page-title-skeleton {
   width: 180px;
-  height: 28px;
-  border-radius: 8px;
+  height: 32px;
+  border-radius: 10px;
 }
 
-.ups-breadcrumb-skeleton {
-  width: 120px;
-  height: 16px;
-  border-radius: 6px;
-}
-
-/* Main Profile Card Skeleton */
+/* Main Profile Card Skeleton - Broader Height */
 .ups-main-card {
   position: relative;
   overflow: hidden;
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 20px;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
-  margin-bottom: 1.5rem;
-  padding: 2.25rem 2.25rem;
+  border-radius: 24px;
+  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.75rem;
+  padding: 3.25rem 2.75rem;
+  min-height: 310px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .ups-card-accent-blue {
@@ -174,8 +169,8 @@
 }
 
 .ups-avatar-wrapper {
-  width: 124px;
-  height: 124px;
+  width: 136px;
+  height: 136px;
   border-radius: 50%;
   border: 4px solid #ffffff;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
@@ -257,17 +252,17 @@
   border-radius: 4px;
 }
 
-/* Right 5 Stat Cards Grid Skeleton */
+/* Right 4 Stat Cards Grid Skeleton (Uploads removed) */
 .ups-stats-grid {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.85rem;
   flex-shrink: 0;
 }
 
 .ups-stat-card {
-  width: 105px;
-  height: 105px;
+  width: 108px;
+  height: 118px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 16px;
@@ -475,7 +470,7 @@
 
   .ups-stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 0.6rem;
   }
 
@@ -490,7 +485,8 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .ups-stat-card:last-child {
-    grid-column: span 2;
+  .ups-stat-card {
+    width: 100%;
+    height: 92px;
   }
 }

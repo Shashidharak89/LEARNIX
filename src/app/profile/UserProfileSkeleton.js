@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { 
   FiBook, 
   FiList,
-  FiCloud,
   FiZap,
   FiTrendingUp,
   FiUser,
@@ -33,7 +32,7 @@ export default function UserProfileSkeleton() {
       } else {
         setQuote("Loading your personalized learning experience...");
       }
-    } catch (error) {
+    } catch {
       setQuote("Loading your personalized learning experience...");
     } finally {
       setIsLoadingQuote(false);
@@ -43,13 +42,12 @@ export default function UserProfileSkeleton() {
   return (
     <div className="ups-container">
       <div className="ups-wrapper">
-        {/* Page Header & Breadcrumb Skeleton */}
+        {/* Page Title Skeleton (Breadcrumb removed) */}
         <div className="ups-page-header">
           <div className="ups-page-title-skeleton ups-shimmer" />
-          <div className="ups-breadcrumb-skeleton ups-shimmer" />
         </div>
 
-        {/* Main Profile Card Skeleton */}
+        {/* Main Profile Card Skeleton with broader height */}
         <div className="ups-main-card">
           <div className="ups-card-accent-blue" />
           <div className="ups-card-accent-yellow">
@@ -94,7 +92,7 @@ export default function UserProfileSkeleton() {
               </div>
             </div>
 
-            {/* Right 5 Stat Cards Grid Skeleton */}
+            {/* Right 4 Stat Cards Grid Skeleton (Uploads removed) */}
             <div className="ups-stats-grid">
               <div className="ups-stat-card is-subjects">
                 <div className="ups-stat-icon-wrapper">
@@ -110,14 +108,6 @@ export default function UserProfileSkeleton() {
                 </div>
                 <div className="ups-stat-val-skeleton ups-shimmer" />
                 <div className="ups-stat-label">Topics</div>
-              </div>
-
-              <div className="ups-stat-card is-uploads">
-                <div className="ups-stat-icon-wrapper">
-                  <FiCloud />
-                </div>
-                <div className="ups-stat-val-skeleton ups-shimmer" />
-                <div className="ups-stat-label">Uploads</div>
               </div>
 
               <div className="ups-stat-card is-streak">
