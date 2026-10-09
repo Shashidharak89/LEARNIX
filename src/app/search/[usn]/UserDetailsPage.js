@@ -299,14 +299,12 @@ export default function UserDetailsPage({ usn }) {
   return (
     <div className="up-container">
       <div className="up-wrapper">
-        {/* Centered User Profile Title Card */}
-        <div className="up-title-card">
-          <div className="up-title-pill-tag">
-            <FiUser className="up-title-pill-icon" />
+        {/* Centered LEARNIX PROFILE Badge Card */}
+        <div className="up-badge-card-container">
+          <div className="up-badge-card">
+            <FiUser className="up-badge-card-icon" />
             <span>LEARNIX PROFILE</span>
           </div>
-          <h1 className="up-title-heading">User Profile</h1>
-          <p className="up-title-subheading">Public academic credentials and uploaded resources</p>
         </div>
 
         {/* Top Main Profile Card with broader height */}

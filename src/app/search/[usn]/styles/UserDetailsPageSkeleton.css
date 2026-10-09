@@ -54,41 +54,19 @@
   }
 }
 
-/* Centered User Profile Title Card Skeleton */
-.uds-title-card {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border: 1px solid #e2e8f0;
-  border-radius: 20px;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
-  padding: 1.65rem 2rem;
-  margin-bottom: 1.75rem;
-  text-align: center;
+/* Centered LEARNIX PROFILE Badge Skeleton */
+.uds-badge-card-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  width: 100%;
 }
 
-.uds-title-pill-skeleton {
-  width: 140px;
-  height: 22px;
-  border-radius: 20px;
-}
-
-.uds-title-heading-skeleton {
-  width: 220px;
-  height: 36px;
-  border-radius: 10px;
-}
-
-.uds-title-subheading-skeleton {
-  width: 320px;
-  max-width: 90%;
-  height: 16px;
-  border-radius: 6px;
+.uds-badge-card-skeleton {
+  width: 190px;
+  height: 38px;
+  border-radius: 9999px;
 }
 
 /* Main Profile Card Skeleton - Broader Height */
@@ -496,8 +474,13 @@
     margin: 0 auto;
   }
 
-  .uds-meta-list {
-    justify-content: center;
+  .uds-badge-card-container {
+    margin-bottom: 1.25rem;
+  }
+
+  .uds-badge-card-skeleton {
+    width: 165px;
+    height: 32px;
   }
 
   .uds-stats-grid {
@@ -514,6 +497,11 @@
 }
 
 @media (max-width: 480px) {
+  .uds-badge-card-skeleton {
+    width: 145px;
+    height: 28px;
+  }
+
   .uds-stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }

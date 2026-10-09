@@ -16,11 +16,9 @@ export default function UserDetailsPageSkeleton() {
   return (
     <div className="uds-container">
       <div className="uds-wrapper">
-        {/* Centered User Profile Title Card Skeleton */}
-        <div className="uds-title-card">
-          <div className="uds-title-pill-skeleton uds-shimmer" />
-          <div className="uds-title-heading-skeleton uds-shimmer" />
-          <div className="uds-title-subheading-skeleton uds-shimmer" />
+        {/* Centered LEARNIX PROFILE Badge Skeleton */}
+        <div className="uds-badge-card-container">
+          <div className="uds-badge-card-skeleton uds-shimmer" />
         </div>
 
         {/* Main Profile Card Skeleton with broader height */}
