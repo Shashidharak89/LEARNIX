@@ -202,7 +202,7 @@ const ReviewCard = ({
             }}
           />
           <div className="tr-reviewer-details">
-            <Link href={`/search/${review.reviewerId.usn.toLowerCase()}`} className="tr-reviewer-name">
+            <Link href={`/users/${review.reviewerId.usn.toLowerCase()}`} className="tr-reviewer-name">
               {review.reviewerId.name}
             </Link>
             <span className="tr-review-meta">

@@ -11,22 +11,29 @@ export const GET = async (req) => {
     await connectDB();
 
     const { searchParams } = new URL(req.url);
-    const usnParam = searchParams.get("usn");
+    const identifier = (searchParams.get("usn") || searchParams.get("id") || "").trim();
     const includeUploads = searchParams.get("includeUploads") === "true";
 
-    if (!usnParam) {
+    if (!identifier) {
       return NextResponse.json(
-        { error: "USN is required" },
+        { error: "USN or User ID is required" },
         { status: 400 }
       );
     }
 
-    const usn = usnParam.trim().toUpperCase();
+    let user = null;
 
-    // Case-insensitive search
-    const user = await User.findOne({
-      usn: { $regex: new RegExp(`^${usn}$`, "i") }
-    }).lean();
+    // Check if identifier is a valid MongoDB ObjectId
+    if (/^[0-9a-fA-F]{24}$/.test(identifier)) {
+      user = await User.findById(identifier).lean();
+    }
+
+    // Otherwise or if not found by id, lookup by USN (case-insensitive)
+    if (!user) {
+      user = await User.findOne({
+        usn: { $regex: new RegExp(`^${identifier}$`, "i") }
+      }).lean();
+    }
 
     if (!user) {
       return NextResponse.json(

@@ -1,0 +1,513 @@
+/* UserDetailsPageSkeleton.css - Modern Apple-Style Shimmer Loader */
+
+* {
+  box-sizing: border-box;
+}
+
+.uds-container {
+  min-height: 100vh;
+  background-color: #ffffff;
+  padding: 1.5rem 1rem 3rem 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.6;
+}
+
+.uds-wrapper {
+  max-width: 1140px;
+  margin: 0 auto;
+  animation: udsFadeIn 0.4s ease-out;
+}
+
+@keyframes udsFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Shimmer Animation Effect */
+.uds-shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: #e2e8f0;
+}
+
+.uds-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.5) 20%,
+    rgba(255, 255, 255, 0.8) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: udsShimmer 1.8s infinite ease-in-out;
+}
+
+@keyframes udsShimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Centered LEARNIX PROFILE Badge Skeleton */
+.uds-badge-card-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.uds-badge-card-skeleton {
+  width: 190px;
+  height: 38px;
+  border-radius: 9999px;
+}
+
+/* Main Profile Card Skeleton - Broader Height */
+.uds-main-card {
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.75rem;
+  padding: 3.25rem 2.75rem;
+  min-height: 310px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.uds-card-accent-blue {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 90px;
+  height: 60px;
+  background: #007bff;
+  border-bottom-right-radius: 60px;
+  border-top-left-radius: 20px;
+  z-index: 1;
+}
+
+.uds-card-accent-yellow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 140px;
+  height: 110px;
+  background: linear-gradient(135deg, #ffc107 0%, #f59e0b 100%);
+  border-bottom-left-radius: 110px;
+  border-top-right-radius: 20px;
+  z-index: 1;
+}
+
+.uds-card-dots {
+  width: 50px;
+  height: 50px;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.7) 2px, transparent 2px);
+  background-size: 8px 8px;
+  margin: 16px 20px 0 auto;
+}
+
+.uds-card-dots-left {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 44px;
+  height: 44px;
+  background-image: radial-gradient(#3b82f6 2px, transparent 2px);
+  background-size: 8px 8px;
+  opacity: 0.35;
+  z-index: 1;
+}
+
+.uds-main-card-body {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+/* Left Profile Info Skeleton */
+.uds-profile-left {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.uds-avatar-wrapper {
+  width: 136px;
+  height: 136px;
+  border-radius: 50%;
+  border: 4px solid #ffffff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.uds-avatar-icon {
+  font-size: 2.8rem;
+  color: #94a3b8;
+}
+
+.uds-user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.uds-name-skeleton {
+  width: 220px;
+  height: 28px;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.uds-usn-skeleton {
+  width: 100px;
+  height: 18px;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+}
+
+.uds-quote-container {
+  margin-bottom: 0.85rem;
+}
+
+.uds-quote-text {
+  font-size: 0.875rem;
+  font-style: italic;
+  color: #64748b;
+  margin: 0;
+  max-width: 360px;
+}
+
+.uds-meta-list {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.uds-meta-pill-skeleton {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 4px 12px;
+  border-radius: 16px;
+  height: 26px;
+  width: 110px;
+}
+
+.uds-meta-icon {
+  color: #94a3b8;
+}
+
+.uds-pill-line {
+  flex: 1;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+/* Right 4 Stat Cards Grid Skeleton (Uploads removed) */
+.uds-stats-grid {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-shrink: 0;
+}
+
+.uds-stat-card {
+  width: 108px;
+  height: 118px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 0.85rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.uds-stat-card.is-subjects {
+  background: #f4f8ff;
+  border-color: #dbeafe;
+}
+
+.uds-stat-card.is-subjects .uds-stat-icon-wrapper {
+  color: #007bff;
+}
+
+.uds-stat-card.is-topics {
+  background: #fffdf0;
+  border-color: #fef08a;
+}
+
+.uds-stat-card.is-topics .uds-stat-icon-wrapper {
+  color: #eab308;
+}
+
+.uds-stat-card.is-streak {
+  background: #fff7ed;
+  border-color: #ffedd5;
+}
+
+.uds-stat-card.is-streak .uds-stat-icon-wrapper {
+  color: #f97316;
+}
+
+.uds-stat-card.is-highest-streak {
+  background: #f4f8ff;
+  border-color: #dbeafe;
+}
+
+.uds-stat-card.is-highest-streak .uds-stat-icon-wrapper {
+  color: #007bff;
+}
+
+.uds-stat-icon-wrapper {
+  font-size: 1.25rem;
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.uds-stat-val-skeleton {
+  width: 36px;
+  height: 22px;
+  border-radius: 6px;
+  margin-bottom: 0.35rem;
+}
+
+.uds-stat-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Resources Banner Card Skeleton */
+.uds-resources-banner-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
+}
+
+.uds-banner-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.uds-banner-heading-skeleton {
+  width: 240px;
+  height: 24px;
+  border-radius: 8px;
+}
+
+.uds-banner-subtext-skeleton {
+  width: 160px;
+  height: 16px;
+  border-radius: 6px;
+}
+
+.uds-banner-btn-skeleton {
+  width: 160px;
+  height: 42px;
+  border-radius: 25px;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: #007bff;
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+/* Subjects & Topics List Skeleton */
+.uds-subjects-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.uds-subject-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+.uds-subject-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.uds-subject-title {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.uds-subject-icon {
+  font-size: 1.3rem;
+  color: #007bff;
+}
+
+.uds-subj-name-skeleton {
+  width: 180px;
+  height: 22px;
+  border-radius: 6px;
+}
+
+.uds-subj-badge-skeleton {
+  width: 70px;
+  height: 24px;
+  border-radius: 20px;
+}
+
+.uds-topics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.uds-topic-item {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.uds-topic-name-skeleton {
+  width: 200px;
+  height: 18px;
+  border-radius: 6px;
+}
+
+.uds-topic-meta-skeleton {
+  width: 100px;
+  height: 16px;
+  border-radius: 6px;
+}
+
+/* Responsive Styles */
+@media (max-width: 1140px) {
+  .uds-main-card-body {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .uds-profile-left {
+    width: 100%;
+  }
+
+  .uds-stats-grid {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 768px) {
+  .uds-container {
+    padding: 1rem 0.75rem 2rem 0.75rem;
+  }
+
+  .uds-main-card {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .uds-profile-left {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .uds-avatar-wrapper {
+    width: 100px;
+    height: 100px;
+  }
+
+  .uds-name-skeleton {
+    margin: 0 auto 0.5rem auto;
+  }
+
+  .uds-usn-skeleton {
+    margin: 0 auto 0.75rem auto;
+  }
+
+  .uds-quote-container {
+    margin: 0 auto;
+  }
+
+  .uds-badge-card-container {
+    margin-bottom: 1.25rem;
+  }
+
+  .uds-badge-card-skeleton {
+    width: 165px;
+    height: 32px;
+  }
+
+  .uds-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.6rem;
+    width: 100%;
+  }
+
+  .uds-stat-card {
+    width: 100%;
+    height: 98px;
+  }
+}
+
+@media (max-width: 480px) {
+  .uds-badge-card-skeleton {
+    width: 145px;
+    height: 28px;
+  }
+
+  .uds-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .uds-stat-card {
+    width: 100%;
+    height: 92px;
+  }
+}

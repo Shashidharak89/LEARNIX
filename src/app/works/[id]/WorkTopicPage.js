@@ -368,7 +368,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
             />
           </div>
           <div className="wtpc-user-info">
-            <Link href={`/search/${user.usn.toLowerCase()}`} className="wtpc-user-name-link">
+            <Link href={`/users/${user.usn.toLowerCase()}`} className="wtpc-user-name-link">
               <h1 className="wtpc-user-name">{user.name}</h1>
             </Link>
             <div className="wtpc-user-details">

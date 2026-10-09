@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   FiBookOpen,
   FiTrendingUp,
-  FiSearch,
   FiTool,
   FiHelpCircle,
   FiUpload,
@@ -35,18 +34,6 @@ const navItems = [
     accent: "#4f46e5",
     bg: "#eef2ff",
     badge: "Interactive Hub",
-  },
-  {
-    id: "search",
-    href: "/search",
-    Icon: FiSearch,
-    label: "Search",
-    subtitle: "Smart Resource Search",
-    description: "Instantly search notes, syllabus topics, and past year question papers across all engineering and college courses.",
-    theme: "search",
-    accent: "#0284c7",
-    bg: "#e0f2fe",
-    badge: "Instant Search",
   },
   {
     id: "materials",
@@ -510,9 +497,9 @@ export default function HeroNavCards({ loggedIn }) {
                 })}
               </div>
 
-              {/* Bottom Row: 5 items centered */}
+              {/* Bottom Row: 4 items centered */}
               <div className="lnx-finale-row bottom-row">
-                {navItems.slice(5, 10).map(({ href, Icon, label, theme, authRequired }, cardIdx) => {
+                {navItems.slice(5).map(({ href, Icon, label, theme, authRequired }, cardIdx) => {
                   const realIdx = cardIdx + 5;
                   const resolvedHref = authRequired && !loggedIn ? "/login" : href;
                   return (

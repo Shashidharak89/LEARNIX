@@ -7,7 +7,7 @@ import Image from "next/image";
 import {
   FiUsers, FiArrowLeft, FiShield, FiUser, FiLoader,
   FiChevronDown, FiCalendar, FiHash, FiUserCheck, FiUserX, FiExternalLink,
-  FiTrash2,
+  FiTrash2, FiSearch, FiX,
 } from "react-icons/fi";
 import { MdAdminPanelSettings } from "react-icons/md";
 import "../styles/AdminDashboard.css";
@@ -79,7 +79,8 @@ export default function AdminUsers() {
   const [myUsn, setMyUsn]             = useState("");
   const [isLoaded, setIsLoaded]       = useState(false);
   const [sortMode, setSortMode]       = useState("createdAt");
-  const [initialPage, setInitialPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [users, setUsers]             = useState([]);
   const [total, setTotal]             = useState(0);
@@ -96,16 +97,36 @@ export default function AdminUsers() {
   const [confirmAction, setConfirmAction]   = useState(null);
   const [dropdownPos, setDropdownPos]       = useState({ top: 0, left: 0 });
 
-  const confirmRef = useRef(null);
-  const btnRefs    = useRef({});
+  const confirmRef   = useRef(null);
+  const btnRefs      = useRef({});
+  const sentinelRef  = useRef(null);
+  const pageRef      = useRef(page);
+  const totalPagesRef = useRef(totalPages);
+  const loadingMoreRef = useRef(false);
 
-  const syncUrlState = useCallback((nextPage, nextSort) => {
+  pageRef.current = page;
+  totalPagesRef.current = totalPages;
+
+  const syncUrlState = useCallback((nextPage, nextSort, nextSearch) => {
     if (typeof window === "undefined") return;
     const params = new window.URLSearchParams(window.location.search);
     params.set("page", String(Math.max(1, nextPage)));
     params.set("sort", nextSort || "createdAt");
+    if (nextSearch) {
+      params.set("search", nextSearch);
+    } else {
+      params.delete("search");
+    }
     window.history.replaceState({}, "", `${window.location.pathname}?${params.toString()}`);
   }, []);
+
+  // ── Debounce search input ──
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQuery(searchInput.trim());
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   // ── bootstrap ──
   useEffect(() => {
@@ -115,91 +136,113 @@ export default function AdminUsers() {
 
     if (typeof window !== "undefined") {
       const params = new window.URLSearchParams(window.location.search);
-      const qPage = Math.max(1, parseInt(params.get("page") || "1", 10));
       const qSort = params.get("sort") === "activity" ? "activity" : "createdAt";
-      setInitialPage(qPage);
+      const qSearch = (params.get("search") || "").trim();
       setSortMode(qSort);
-      syncUrlState(qPage, qSort);
+      if (qSearch) {
+        setSearchInput(qSearch);
+        setSearchQuery(qSearch);
+      }
     }
 
     setMyRole(r); setToken(t); setMyUsn(u);
     setTimeout(() => setIsLoaded(true), 100);
-  }, [syncUrlState]);
+  }, []);
 
-  // ── fetch users ──
-  const requestUsersPage = useCallback(async (pageNum, sortValue) => {
-    if (!token) return;
-    const res  = await fetch(`/api/admin/users?page=${pageNum}&limit=${PAGE_LIMIT}&sort=${sortValue}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data.error || "Failed to fetch users");
-    }
-    return data;
-  }, [token]);
-
-  const hydrateUsers = useCallback(async (targetPage, sortValue) => {
+  // ── fetch page 1 directly (fast, no looping) ──
+  const fetchFirstPage = useCallback(async (sortVal, searchVal) => {
     if (!token) return;
     setLoading(true);
     setLoadingMore(false);
     setError("");
 
     try {
-      const safeTarget = Math.max(1, targetPage);
-      let mergedUsers = [];
-      let lastMeta = null;
-
-      for (let currentPage = 1; currentPage <= safeTarget; currentPage += 1) {
-        const data = await requestUsersPage(currentPage, sortValue);
-        mergedUsers = [...mergedUsers, ...(data.users || [])];
-        lastMeta = data;
+      const q = encodeURIComponent(searchVal || "");
+      const res = await fetch(`/api/admin/users?page=1&limit=${PAGE_LIMIT}&sort=${sortVal}&search=${q}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to fetch users");
       }
 
-      setUsers(mergedUsers);
-      setTotal(lastMeta?.total || 0);
-      setPage(safeTarget);
-      setTotalPages(lastMeta?.totalPages || 1);
-      syncUrlState(safeTarget, sortValue);
+      setUsers(data.users || []);
+      setTotal(data.total || 0);
+      setPage(1);
+      setTotalPages(data.totalPages || 1);
+      syncUrlState(1, sortVal, searchVal);
     } catch (err) {
       setError(err.message || "Network error. Please try again.");
       setUsers([]);
     } finally {
       setLoading(false);
     }
-  }, [requestUsersPage, syncUrlState, token]);
+  }, [token, syncUrlState]);
 
+  // Trigger page 1 fetch when token is ready or sort/search changes
   useEffect(() => {
-    if (!isLoaded) return;
-    if (token && (myRole === "admin" || myRole === "superadmin")) {
-      hydrateUsers(initialPage, sortMode);
+    if (!isLoaded || !token) return;
+    if (myRole === "admin" || myRole === "superadmin") {
+      fetchFirstPage(sortMode, searchQuery);
     }
-  }, [token, myRole, hydrateUsers, initialPage, sortMode, isLoaded]);
+  }, [token, myRole, isLoaded, sortMode, searchQuery, fetchFirstPage]);
 
-  const handleViewMore = async () => {
-    if (page >= totalPages || !token) return;
+  // ── load only the NEXT page and append (never fetch from page 1 again) ──
+  const loadNextPage = useCallback(async () => {
+    if (loading || loadingMoreRef.current || !token) return;
+    const curPage = pageRef.current;
+    const maxPages = totalPagesRef.current;
+    if (curPage >= maxPages) return;
+
+    loadingMoreRef.current = true;
     setLoadingMore(true);
     setError("");
+
     try {
-      const nextPage = page + 1;
-      const data = await requestUsersPage(nextPage, sortMode);
+      const nextPage = curPage + 1;
+      const q = encodeURIComponent(searchQuery || "");
+      const res = await fetch(`/api/admin/users?page=${nextPage}&limit=${PAGE_LIMIT}&sort=${sortMode}&search=${q}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to fetch more users");
+      }
+
       setUsers(prev => [...prev, ...(data.users || [])]);
-      setTotal(data.total);
-      setPage(data.page);
-      setTotalPages(data.totalPages);
-      syncUrlState(data.page, sortMode);
+      setTotal(data.total || 0);
+      setPage(data.page || nextPage);
+      setTotalPages(data.totalPages || maxPages);
+      syncUrlState(data.page || nextPage, sortMode, searchQuery);
     } catch (err) {
-      setError(err.message || "Network error. Please try again.");
+      setError(err.message || "Network error while loading more users.");
     } finally {
+      loadingMoreRef.current = false;
       setLoadingMore(false);
     }
-  };
+  }, [loading, token, searchQuery, sortMode, syncUrlState]);
+
+  // ── IntersectionObserver for lazy loading on scroll ──
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loading && !loadingMoreRef.current && pageRef.current < totalPagesRef.current) {
+          loadNextPage();
+        }
+      },
+      { root: null, rootMargin: "300px", threshold: 0.1 }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [loading, loadNextPage]);
 
   const handleSortChange = (nextSort) => {
     const safeSort = nextSort === "activity" ? "activity" : "createdAt";
     setSortMode(safeSort);
-    setInitialPage(1);
-    syncUrlState(1, safeSort);
   };
 
   // ── inline confirm helpers ──
@@ -290,21 +333,43 @@ export default function AdminUsers() {
             <p className="adm-subtitle">
               {sortMode === "activity" ? "Active-first users" : "Latest registered users"} — {total > 0 ? `${total} total` : "loading…"}
             </p>
-            <div className="au-filter-row">
-              <label htmlFor="au-sort-select" className="au-filter-label">Sort</label>
-              <select
-                id="au-sort-select"
-                className="au-filter-select"
-                value={sortMode}
-                onChange={(event) => handleSortChange(event.target.value)}
-              >
-                <option value="activity">Latest active</option>
-                <option value="createdAt">Newest joined</option>
-              </select>
+            <div className="au-controls-row">
+              <div className="au-search-bar">
+                <FiSearch size={15} className="au-search-icon" />
+                <input
+                  type="text"
+                  className="au-search-input"
+                  placeholder="Search by name, USN, or email..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                />
+                {searchInput && (
+                  <button
+                    type="button"
+                    className="au-search-clear-btn"
+                    onClick={() => setSearchInput("")}
+                    title="Clear search"
+                  >
+                    <FiX size={14} />
+                  </button>
+                )}
+              </div>
+              <div className="au-filter-row">
+                <label htmlFor="au-sort-select" className="au-filter-label">Sort</label>
+                <select
+                  id="au-sort-select"
+                  className="au-filter-select"
+                  value={sortMode}
+                  onChange={(event) => handleSortChange(event.target.value)}
+                >
+                  <option value="activity">Latest active</option>
+                  <option value="createdAt">Newest joined</option>
+                </select>
+              </div>
+              <Link href="/admin/users/deleted" className="au-deleted-users-link">
+                <FiTrash2 size={13} /> View Deleted Users
+              </Link>
             </div>
-            <Link href="/admin/users/deleted" className="au-deleted-users-link">
-              <FiTrash2 size={13} /> View Deleted Users
-            </Link>
           </div>
           <div className="adm-header-deco">
             <div className="adm-deco-circle" style={{ background: "#dbeafe", border: "2px solid #bfdbfe" }}>
@@ -399,14 +464,23 @@ export default function AdminUsers() {
                     </span>
                   </div>
 
-                  {/* View Profile */}
+                  {/* View Profile Links */}
                   <div className="au-view-profile-row">
                     <Link
                       href={`/admin/users/profile/${user.usn}`}
                       className="au-view-profile-btn"
                     >
                       <FiExternalLink size={13} />
-                      View Profile
+                      Admin View
+                    </Link>
+                    <Link
+                      href={`/users/${user.usn}`}
+                      className="au-view-profile-btn au-view-public-btn"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <FiUser size={13} />
+                      Public Profile
                     </Link>
                   </div>
 
@@ -447,12 +521,15 @@ export default function AdminUsers() {
             })}
           </section>
 
+          {/* Lazy loading observer sentinel */}
+          <div ref={sentinelRef} className="au-sentinel" style={{ height: "1px" }} />
+
           {/* ── View more ── */}
           {page < totalPages && (
             <div className="au-view-more-wrap">
-              <button className="au-view-more-btn" onClick={handleViewMore} disabled={loadingMore}>
+              <button className="au-view-more-btn" onClick={loadNextPage} disabled={loadingMore}>
                 {loadingMore ? (
-                  <><span className="au-dots"><span /><span /><span /></span> Loading…</>
+                  <><span className="au-dots"><span /><span /><span /></span> Loading next page…</>
                 ) : (
                   <><FiChevronDown size={16} /> View More ({total - users.length} remaining)</>
                 )}

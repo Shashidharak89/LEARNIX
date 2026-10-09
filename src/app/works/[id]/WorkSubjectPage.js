@@ -87,7 +87,7 @@ const WorkSubjectPage = ({ data, loading, error, onShare }) => {
             />
           </div>
           <div className="wsp-user-info">
-            <Link href={`/search/${user.usn.toLowerCase()}`} className="wsp-user-name-link">
+            <Link href={`/users/${user.usn.toLowerCase()}`} className="wsp-user-name-link">
               <h1 className="wsp-user-name">{user.name}</h1>
             </Link>
             <div className="wsp-user-details">

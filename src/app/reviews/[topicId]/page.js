@@ -215,7 +215,7 @@ const ReviewCard = ({
             }}
           />
           <div className="mr-reviewer-details">
-            <Link href={`/search/${review.reviewerId?.usn?.toLowerCase() || ''}`} className="mr-reviewer-name">
+            <Link href={`/users/${review.reviewerId?.usn?.toLowerCase() || ''}`} className="mr-reviewer-name">
               {review.reviewerId?.name || 'Unknown User'}
             </Link>
             <div className="mr-review-meta">

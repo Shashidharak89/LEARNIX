@@ -286,7 +286,7 @@ export default function UpdatesPage({ initialUpdateId }) {
                 style={{ animationDelay: `${(idx % 10) * 40}ms` }}
               >
                 <div className="upd-card-header">
-                  <Link href={`/search/${u.usn || ''}`}>
+                  <Link href={`/users/${u.usn || ''}`}>
                     <img
                       src={u.profileUrl || '/default-profile.png'}
                       alt={u.name || 'user'}
@@ -296,12 +296,12 @@ export default function UpdatesPage({ initialUpdateId }) {
                   <div className="upd-user-info">
                     <div className="upd-user-top-row">
                       <div className="upd-user-name-usn" title={`${u.name || ''}${u.usn ? ` • ${u.usn}` : ''}`}>
-                        <Link href={`/search/${u.usn || ''}`} className="upd-user-name-link">
+                        <Link href={`/users/${u.usn || ''}`} className="upd-user-name-link">
                           <FiUser className="upd-user-icon" />
                           <span className="upd-user-name-text">{u.name}</span>
                         </Link>
                         {u.usn && (
-                          <Link href={`/search/${u.usn}`} className="upd-usn-link">
+                          <Link href={`/users/${u.usn}`} className="upd-usn-link">
                             • {u.usn}
                           </Link>
                         )}

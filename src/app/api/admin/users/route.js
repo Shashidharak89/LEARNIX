@@ -33,45 +33,42 @@ export const GET = async (req) => {
     const page  = Math.max(1, parseInt(searchParams.get("page")  || "1",  10));
     const limit = Math.max(1, parseInt(searchParams.get("limit") || "12", 10));
     const sort  = searchParams.get("sort") || "createdAt";
+    const search = (searchParams.get("search") || "").trim();
     const skip  = (page - 1) * limit;
 
     const isActivitySort = sort === "activity";
-    const activityFilter = { lastLoginAt: { $exists: true, $ne: null, $type: "date" } };
-    const total = isActivitySort
-      ? await User.countDocuments(activityFilter)
-      : await User.countDocuments({});
-    let users = [];
-
-    if (sort === "createdAt") {
-      users = await User.find({})
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .select("name usn profileimg role createdAt lastLoginAt")
-        .lean();
-    } else {
-      users = await User.aggregate([
-        { $match: activityFilter },
-        {
-          $addFields: {
-            nameLower: { $toLower: { $ifNull: ["$name", ""] } },
-          },
-        },
-        { $sort: { lastLoginAt: -1, nameLower: 1, _id: 1 } },
-        { $skip: skip },
-        { $limit: limit },
-        {
-          $project: {
-            name: 1,
-            usn: 1,
-            profileimg: 1,
-            role: 1,
-            createdAt: 1,
-            lastLoginAt: 1,
-          },
-        },
-      ]);
+    
+    let baseFilter = {};
+    if (isActivitySort) {
+      baseFilter = { lastLoginAt: { $exists: true, $ne: null, $type: "date" } };
     }
+
+    const searchCondition = search
+      ? {
+          $or: [
+            { name: { $regex: search, $options: "i" } },
+            { usn: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+          ],
+        }
+      : null;
+
+    const finalFilter = searchCondition
+      ? (Object.keys(baseFilter).length > 0 ? { $and: [baseFilter, searchCondition] } : searchCondition)
+      : baseFilter;
+
+    const total = await User.countDocuments(finalFilter);
+
+    const sortObj = isActivitySort
+      ? { lastLoginAt: -1, createdAt: -1 }
+      : { createdAt: -1 };
+
+    const users = await User.find(finalFilter)
+      .sort(sortObj)
+      .skip(skip)
+      .limit(limit)
+      .select("name usn email profileimg role createdAt lastLoginAt")
+      .lean();
 
     // Normalise: if role field is missing, treat as "user"
     const normalized = users.map(u => ({
@@ -85,7 +82,9 @@ export const GET = async (req) => {
       page,
       limit,
       sort,
-      totalPages: Math.ceil(total / limit),
+      search,
+      totalPages: Math.ceil(total / limit) || 1,
+      hasMore: page < Math.ceil(total / limit),
     });
   } catch (err) {
     console.error("Admin users fetch error:", err);

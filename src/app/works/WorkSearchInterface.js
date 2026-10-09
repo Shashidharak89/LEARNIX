@@ -651,7 +651,7 @@ const WorkSearchInterface = () => {
             <Link href={`/works/${topic.topicId}`} className="ws-topic-link" target="_blank" rel="noopener noreferrer">
               <h3 className="ws-topic-title">{topic.topic}</h3>
             </Link>
-            <Link href={`/search/${topic.usn.toLowerCase()}`} className="ws-user-link">
+            <Link href={`/users/${topic.usn.toLowerCase()}`} className="ws-user-link">
               <p className="ws-user-name">{topic.userName} ({topic.usn})</p>
             </Link>
             <div className="ws-topic-meta">

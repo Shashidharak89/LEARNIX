@@ -182,7 +182,7 @@ export default function ChatThreadPage({ userId }) {
             </p>
           </div>
           {participant?._id && (
-            <Link href={`/search/${participant.usn}`} className="chat-thread-profile-link">
+            <Link href={`/users/${participant.usn}`} className="chat-thread-profile-link">
               View profile
             </Link>
           )}

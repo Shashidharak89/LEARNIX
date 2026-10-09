@@ -13,15 +13,20 @@ export async function GET(req) {
 
     const authUser = await resolveAuthenticatedUser(req);
     const { searchParams } = new URL(req.url);
-    const usnParam = searchParams.get("usn");
+    const usnParam = (searchParams.get("usn") || searchParams.get("id") || "").trim();
 
     let targetUser = null;
     let isOwner = false;
 
     if (usnParam) {
-      targetUser = await User.findOne({
-        usn: { $regex: new RegExp(`^${usnParam.trim()}$`, "i") }
-      }).lean();
+      if (/^[0-9a-fA-F]{24}$/.test(usnParam)) {
+        targetUser = await User.findById(usnParam).lean();
+      }
+      if (!targetUser) {
+        targetUser = await User.findOne({
+          usn: { $regex: new RegExp(`^${usnParam}$`, "i") }
+        }).lean();
+      }
 
       if (!targetUser) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });

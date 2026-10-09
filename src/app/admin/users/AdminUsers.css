@@ -12,11 +12,77 @@
 }
 .au-back-link:hover { gap: 0.65rem; color: #2563eb; }
 
+.au-controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.au-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #ffffff;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 10px;
+  padding: 0.35rem 0.75rem;
+  min-width: 260px;
+  max-width: 380px;
+  flex: 1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.au-search-bar:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+}
+
+.au-search-icon {
+  color: #3b82f6;
+  flex-shrink: 0;
+}
+
+.au-search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.85rem;
+  color: #1e293b;
+  width: 100%;
+}
+
+.au-search-input::placeholder {
+  color: #94a3b8;
+}
+
+.au-search-clear-btn {
+  border: none;
+  background: #f1f5f9;
+  color: #64748b;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.au-search-clear-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
 .au-filter-row {
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  margin-top: 0.7rem;
 }
 
 .au-filter-label {
@@ -30,10 +96,11 @@
   background: #eff6ff;
   color: #1e3a8a;
   border-radius: 8px;
-  padding: 0.35rem 0.65rem;
+  padding: 0.4rem 0.65rem;
   font-size: 0.8rem;
   font-weight: 600;
   outline: none;
+  cursor: pointer;
 }
 
 .au-filter-select:focus {
@@ -149,6 +216,9 @@
 .au-role-msg { font-size: 0.78rem; font-weight: 600; color: #10b981; }
 
 .au-view-profile-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   padding-top: 0.65rem;
   border-top: 1px solid #f1f5f9;
   margin-bottom: 0.1rem;
@@ -172,6 +242,16 @@
   color: #fff;
   border-color: #3b82f6;
   transform: translateY(-1px);
+}
+.au-view-public-btn {
+  color: #475569;
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+.au-view-public-btn:hover {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
 }
 
 .au-own-tag {

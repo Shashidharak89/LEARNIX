@@ -739,12 +739,12 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                 <div className="upl-user-info">
                   <div className="upl-user-top-row">
                     <div className="upl-user-name-usn" title={`${u.name || ''}${u.usn ? ` • ${u.usn}` : ''}`}>
-                      <Link href={`/search/${u.usn || ''}`} className="upl-user-name-link">
+                      <Link href={`/users/${u.usn || ''}`} className="upl-user-name-link">
                         <FiUser className="upl-user-icon" />
                         <span className="upl-user-name-text">{u.name || 'User'}</span>
                       </Link>
                       {u.usn && (
-                        <Link href={`/search/${u.usn}`} className="upl-usn-link">
+                        <Link href={`/users/${u.usn}`} className="upl-usn-link">
                           • {u.usn}
                         </Link>
                       )}

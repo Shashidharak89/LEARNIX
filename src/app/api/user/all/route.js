@@ -1,83 +1,51 @@
-// src/app/api/user/all/route.js
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
-import Subject from "@/models/Subject";
-import Topic from "@/models/Topic";
+import { resolveAuthenticatedUser } from "@/lib/authUser";
+
+export const dynamic = "force-dynamic";
 
 export const GET = async (req) => {
   try {
     await connectDB();
 
-    const { searchParams } = new URL(req.url);
-    const search = searchParams.get("search")?.trim().toLowerCase() || "";
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = parseInt(searchParams.get("limit") || "12", 10);
-    const skip = (page - 1) * limit;
-
-    let users;
-
-    if (search) {
-      // Search in users, subjects, and topics
-      const userQuery = {
-        $or: [
-          { name: { $regex: search, $options: "i" } },
-          { usn: { $regex: search, $options: "i" } }
-        ]
-      };
-
-      const matchingUsers = await User.find(userQuery)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .select("name usn profileimg createdAt")
-        .lean();
-
-      // Also search in subjects and topics
-      const subjectsWithSearch = await Subject.find({
-        subject: { $regex: search, $options: "i" }
-      }).distinct("userId");
-
-      const topicsWithSearch = await Topic.find({
-        $or: [
-          { topic: { $regex: search, $options: "i" } },
-          { content: { $regex: search, $options: "i" } }
-        ]
-      }).distinct("userId");
-
-      // Combine user IDs
-      const userIds = [...new Set([
-        ...matchingUsers.map(u => u._id.toString()),
-        ...subjectsWithSearch.map(id => id.toString()),
-        ...topicsWithSearch.map(id => id.toString())
-      ])];
-
-      // Fetch users by IDs if not already fetched
-      if (subjectsWithSearch.length > 0 || topicsWithSearch.length > 0) {
-        const additionalUsers = await User.find({
-          $and: [
-            { _id: { $in: userIds } },
-            { _id: { $nin: matchingUsers.map(u => u._id) } }
-          ]
-        })
-          .sort({ createdAt: -1 })
-          .select("name usn profileimg createdAt")
-          .lean();
-
-        users = [...matchingUsers, ...additionalUsers].slice(skip, skip + limit);
-      } else {
-        users = matchingUsers;
-      }
-    } else {
-      users = await User.find({})
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .select("name usn profileimg createdAt")
-        .lean();
+    const caller = await resolveAuthenticatedUser(req);
+    if (!caller || (caller.role !== "admin" && caller.role !== "superadmin")) {
+      return NextResponse.json({ error: "Access denied. Only admins can view user directory." }, { status: 403 });
     }
 
-    return NextResponse.json({ users });
+    const { searchParams } = new URL(req.url);
+    const search = (searchParams.get("search") || "").trim();
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.max(1, parseInt(searchParams.get("limit") || "12", 10));
+    const skip = (page - 1) * limit;
+
+    const filter = search
+      ? {
+          $or: [
+            { name: { $regex: search, $options: "i" } },
+            { usn: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } },
+          ],
+        }
+      : {};
+
+    const total = await User.countDocuments(filter);
+    const users = await User.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select("name usn profileimg role createdAt")
+      .lean();
+
+    return NextResponse.json({
+      users,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit) || 1,
+      hasMore: page < Math.ceil(total / limit),
+    });
   } catch (err) {
     console.error("Error fetching users:", err);
     return NextResponse.json(

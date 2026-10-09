@@ -254,7 +254,7 @@ export default function SingleUpdateView({ updateId }) {
     );
   }
 
-  const profileLink = update.usn ? `/search/${encodeURIComponent(update.usn)}` : "/profile";
+  const profileLink = update.usn ? `/users/${encodeURIComponent(update.usn)}` : "/profile";
 
   return (
     <div className="suv-container">
@@ -285,7 +285,7 @@ export default function SingleUpdateView({ updateId }) {
                   </Link>
                   {update.usn && (
                     <Link
-                      href={`/search/${encodeURIComponent(update.usn)}`}
+                      href={`/users/${encodeURIComponent(update.usn)}`}
                       className="upd-usn-link"
                     >
                       • {update.usn}

@@ -10,14 +10,6 @@ const sliderData = [
     route: "/dashboard",
   },
   {
-    title: "Search",
-    description: "Find exactly what you're looking for instantly",
-    images: [
-      "https://res.cloudinary.com/dsojdpkgh/image/upload/v1758819912/search_pher6e.jpg"
-    ],
-    route: "/search",
-  },
-  {
     title: "Works",
     description: "Showcase your projects with dynamic presentations",
     images: [
