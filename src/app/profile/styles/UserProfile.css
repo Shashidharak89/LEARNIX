@@ -430,92 +430,154 @@
   margin: 0 0 0.75rem 0;
 }
 
-/* Settings Container & 3-Card Grid Panel */
-.up-settings-container {
-  position: relative;
-  z-index: 5;
+/* ── Account Settings Modal Window (Apple Theme) ── */
+.up-settings-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(15, 23, 42, 0.62);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: upFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-y: auto;
+}
+
+.up-settings-modal-container {
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 20px;
-  padding: 1.75rem 2rem;
-  margin-bottom: 1.75rem;
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.06);
-  animation: upSlideDown 0.3s ease-out;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 1140px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  animation: upModalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  position: relative;
+}
+
+@keyframes upModalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .up-settings-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 1.25rem;
-  margin-bottom: 1.5rem;
+  padding: 1.4rem 2rem;
   border-bottom: 1px solid #f1f5f9;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  flex-shrink: 0;
 }
 
 .up-settings-title-group {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 1rem;
 }
 
-.up-settings-header-icon {
-  font-size: 1.35rem;
+.up-settings-header-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #eff6ff;
   color: #007bff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  border: 1px solid #bfdbfe;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.12);
+  flex-shrink: 0;
 }
 
-.up-settings-header h2 {
+.up-settings-main-title {
   font-size: 1.35rem;
   font-weight: 700;
   color: #0f172a;
   margin: 0;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
+}
+
+.up-settings-subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0.2rem 0 0 0;
 }
 
 .up-settings-close-btn {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  border: 1px solid #cbd5e1;
-  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
   color: #64748b;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .up-settings-close-btn:hover {
   background: #fee2e2;
   color: #ef4444;
-  border-color: #fca5a5;
+  border-color: #fecaca;
+  transform: rotate(90deg);
 }
 
 .up-settings-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
+  padding: 1.75rem 2rem 2.25rem 2rem;
+  overflow-y: auto;
+  align-items: stretch;
 }
 
+/* 3-Card Settings Panels */
 .up-image-editor,
 .up-change-name,
 .up-change-password {
   background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 20px;
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  transition: all 0.2s ease;
+  justify-content: space-between;
+  gap: 1.25rem;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
 }
 
 .up-image-editor:hover,
 .up-change-name:hover,
 .up-change-password:hover {
   border-color: #cbd5e1;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.up-card-header-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .up-image-editor-title,
@@ -524,17 +586,381 @@
   font-size: 1.05rem;
   font-weight: 700;
   color: #0f172a;
-  margin: 0 0 1rem 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.up-card-icon-badge {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #007bff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  border: 1px solid #bfdbfe;
+}
+
+.up-card-desc {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin: 0.25rem 0 0 0;
+  line-height: 1.4;
+}
+
+/* Form Body & Input Groups */
+.up-form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+  justify-content: space-between;
+}
+
+.up-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.up-input-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+  letter-spacing: 0.01em;
+}
+
+.up-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.up-input-icon {
+  position: absolute;
+  left: 0.9rem;
+  color: #94a3b8;
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.up-text-input,
+.up-change-name-input,
+.up-change-password-input {
+  width: 100%;
+  padding: 0.75rem 0.9rem 0.75rem 2.4rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  color: #0f172a;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.up-text-input.has-toggle {
+  padding-right: 2.5rem;
+}
+
+.up-text-input:focus,
+.up-change-name-input:focus,
+.up-change-password-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+  background: #ffffff;
+}
+
+.up-text-input:disabled,
+.up-change-name-input:disabled,
+.up-change-password-input:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.up-pass-toggle-btn {
+  position: absolute;
+  right: 0.75rem;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.05rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.15s ease;
+}
+
+.up-pass-toggle-btn:hover {
+  color: #0f172a;
+}
+
+/* Submit & Action Buttons */
+.up-settings-submit-btn,
+.up-change-name-btn,
+.up-change-password-btn,
+.up-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.78rem 1.25rem;
+  border-radius: 12px;
+  background: #007bff;
+  color: #ffffff;
+  border: none;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 123, 255, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 0.25rem;
+}
+
+.up-settings-submit-btn:hover:not(:disabled),
+.up-change-name-btn:hover:not(:disabled),
+.up-change-password-btn:hover:not(:disabled),
+.up-upload-btn:hover:not(:disabled) {
+  background: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 123, 255, 0.35);
+}
+
+.up-settings-submit-btn:disabled,
+.up-change-name-btn:disabled,
+.up-change-password-btn:disabled,
+.up-upload-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Profile Picture Dropzone & Crop Tools */
+.up-file-dropzone {
+  border: 2px dashed #bfdbfe;
+  background: #f0f7ff;
+  border-radius: 16px;
+  padding: 1.4rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.up-file-dropzone:hover {
+  border-color: #007bff;
+  background: #e0f2fe;
+  transform: scale(1.01);
+}
+
+.up-dropzone-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #007bff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+  margin-bottom: 0.2rem;
+}
+
+.up-dropzone-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.up-dropzone-hint {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.up-image-input-hidden {
+  display: none;
+}
+
+.up-current-avatar-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.65rem 0.9rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+}
+
+.up-current-avatar-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #007bff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+}
+
+.up-current-avatar-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.up-current-avatar-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.up-current-avatar-sub {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+/* Crop Container & Controls */
+.up-crop-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.9rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+}
+
+.up-crop-preview {
+  position: relative;
+  max-width: 100%;
+  max-height: 180px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.up-crop-image {
+  max-width: 100%;
+  max-height: 180px;
+  object-fit: contain;
+  display: block;
+}
+
+.up-crop-square {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 2px solid #007bff;
+  box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.45);
+  pointer-events: none;
+}
+
+.up-crop-instruction {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin: 0;
+  text-align: center;
+}
+
+.up-crop-controls {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 0.75rem;
+}
+
+.up-crop-slider-horizontal,
+.up-crop-slider-vertical {
+  width: 100%;
+  accent-color: #007bff;
+  height: 6px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.up-crop-btn {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 0.55rem 1rem;
+  border-radius: 10px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.up-crop-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.up-cropped-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.9rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+}
+
+.up-cropped-image {
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #007bff;
+  box-shadow: 0 4px 14px rgba(0, 123, 255, 0.2);
+}
+
+/* Feedback Messages */
+.up-message {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-top: 0.4rem;
+  animation: upFadeIn 0.2s ease;
 }
 
-.up-image-editor-title svg,
-.up-change-name-title svg,
-.up-change-password-title svg {
-  color: #007bff;
-  font-size: 1.15rem;
+.up-message.up-success {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.up-message.up-error {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
 }
 
 /* Resources Toolbar: Search and Sort */
@@ -1048,7 +1474,36 @@
   }
 }
 
+@media (max-width: 1024px) {
+  .up-settings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
+  .up-settings-modal-backdrop {
+    padding: 1rem 0.75rem;
+  }
+
+  .up-settings-modal-container {
+    max-height: 94vh;
+    border-radius: 20px;
+  }
+
+  .up-settings-header {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .up-settings-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    padding: 1.25rem 1.5rem 1.75rem 1.5rem;
+  }
+
+  .up-settings-main-title {
+    font-size: 1.15rem;
+  }
+
   .up-container {
     padding: 1rem 0.75rem 2rem 0.75rem;
   }
@@ -1136,6 +1591,21 @@
 
   .up-banner-heading {
     font-size: 1.05rem;
+  }
+
+  .up-settings-header {
+    padding: 1.1rem 1.25rem;
+  }
+
+  .up-settings-header-icon-wrap {
+    width: 38px;
+    height: 38px;
+    font-size: 1.15rem;
+  }
+
+  .up-settings-grid {
+    padding: 1rem 1rem 1.5rem 1rem;
+    gap: 1rem;
   }
 }
 

@@ -85,6 +85,18 @@ export default function UserProfile({ googleClientId = "" }) {
   }, []);
 
   useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setShowSettings(false);
+      }
+    };
+    if (showSettings) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showSettings]);
+
+  useEffect(() => {
     let intervalId = null;
     const tick = async () => {
       try {
@@ -424,31 +436,50 @@ export default function UserProfile({ googleClientId = "" }) {
                 <FiSettings />
               </button>
 
-              {/* Settings Panel */}
+              {/* Settings Modal Window */}
               {showSettings && (
-                <div className="up-settings-container">
-                  <div className="up-settings-header">
-                    <div className="up-settings-title-group">
-                      <FiSettings className="up-settings-header-icon" />
-                      <h2>Account Settings</h2>
+                <div
+                  className="up-settings-modal-backdrop"
+                  onClick={() => setShowSettings(false)}
+                  role="dialog"
+                  aria-modal="true"
+                >
+                  <div
+                    className="up-settings-modal-container"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="up-settings-header">
+                      <div className="up-settings-title-group">
+                        <div className="up-settings-header-icon-wrap">
+                          <FiSettings className="up-settings-header-icon" />
+                        </div>
+                        <div>
+                          <h2 className="up-settings-main-title">Account Settings</h2>
+                          <p className="up-settings-subtitle">
+                            Update your photo, display name, and security password
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setShowSettings(false)}
+                        className="up-settings-close-btn"
+                        title="Close settings"
+                        aria-label="Close settings"
+                      >
+                        <FiX />
+                      </button>
                     </div>
-                    <button 
-                      onClick={() => setShowSettings(false)} 
-                      className="up-settings-close-btn"
-                      title="Close settings"
-                    >
-                      <FiX />
-                    </button>
-                  </div>
 
-                  <div className="up-settings-grid">
-                    <ProfileImageEditor 
-                      profileImage={profileImage} 
-                      setProfileImage={setProfileImage}
-                      usn={localStorage.getItem("usn")}
-                    />
-                    <ChangeName usn={localStorage.getItem("usn")} />
-                    <ChangePassword usn={localStorage.getItem("usn")} />
+                    <div className="up-settings-grid">
+                      <ProfileImageEditor
+                        profileImage={profileImage}
+                        setProfileImage={setProfileImage}
+                        usn={localStorage.getItem("usn")}
+                      />
+                      <ChangeName usn={localStorage.getItem("usn")} />
+                      <ChangePassword usn={localStorage.getItem("usn")} />
+                    </div>
                   </div>
                 </div>
               )}

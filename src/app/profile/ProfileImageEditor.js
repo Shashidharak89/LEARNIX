@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { FiCamera, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import { FiCamera, FiCheckCircle, FiAlertCircle, FiUploadCloud, FiCheck, FiCrop } from "react-icons/fi";
 import axios from "axios";
 import imageCompression from "browser-image-compression";
 import "./styles/UserProfile.css";
 
 export default function ProfileImageEditor({ profileImage, setProfileImage, usn }) {
   const [selectedImage, setSelectedImage] = useState(null);
-  const [compressedImage, setCompressedImage] = useState(null);
+  const [, setCompressedImage] = useState(null);
   const [croppedImage, setCroppedImage] = useState(null);
   const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
@@ -31,12 +31,11 @@ export default function ProfileImageEditor({ profileImage, setProfileImage, usn 
       setMessage("");
 
       try {
-        // Compress the image using browser-image-compression
         const compressionOptions = {
-          maxSizeMB: 0.5, // Maximum file size in MB
-          maxWidthOrHeight: 1920, // Maximum dimension
-          useWebWorker: true, // Use web worker for better performance
-          fileType: "image/jpeg", // Convert to JPEG for consistency
+          maxSizeMB: 0.5,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+          fileType: "image/jpeg",
         };
 
         const compressedFile = await imageCompression(file, compressionOptions);
@@ -54,7 +53,7 @@ export default function ProfileImageEditor({ profileImage, setProfileImage, usn 
             if (isSquare) {
               setCroppedImage(compressedFile);
             }
-            setSelectedImage(compressedFile); // Use compressed image for display and cropping
+            setSelectedImage(compressedFile);
           };
         };
         reader.readAsDataURL(compressedFile);
@@ -126,7 +125,6 @@ export default function ProfileImageEditor({ profileImage, setProfileImage, usn 
       setMessage(res.data.message || "Profile image updated successfully");
       setIsSuccess(true);
 
-      // Reset state
       setSelectedImage(null);
       setCompressedImage(null);
       setCroppedImage(null);
@@ -144,84 +142,126 @@ export default function ProfileImageEditor({ profileImage, setProfileImage, usn 
 
   return (
     <div className="up-image-editor">
-      <h3 className="up-image-editor-title">
-        <FiCamera /> Change Profile Image
-      </h3>
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleImageChange}
-        className="up-image-input"
-        disabled={isLoading}
-        ref={fileInputRef}
-      />
+      <div className="up-card-header-group">
+        <h3 className="up-image-editor-title">
+          <span className="up-card-icon-badge"><FiCamera /></span>
+          Profile Picture
+        </h3>
+        <p className="up-card-desc">Upload a photo and adjust framing before saving.</p>
+      </div>
 
-      {selectedImage && needsCropping && (
-        <div className="up-crop-container">
-          <div className="up-crop-preview">
-            <img
-              src={URL.createObjectURL(selectedImage)}
-              alt="Selected"
-              className="up-crop-image"
-              ref={imageRef}
-              onLoad={handleCrop}
-            />
-            <div className="up-crop-square"></div>
+      <div className="up-form-body">
+        {!selectedImage && profileImage && (
+          <div className="up-current-avatar-preview">
+            <img src={profileImage} alt="Current avatar" className="up-current-avatar-img" />
+            <div className="up-current-avatar-info">
+              <span className="up-current-avatar-label">Active Picture</span>
+              <span className="up-current-avatar-sub">Click below to replace</span>
+            </div>
           </div>
-          <p className="up-crop-instruction">
-            {isVerticalCrop
-              ? "Use the slider to adjust vertical crop"
-              : "Use the slider to adjust horizontal crop"}
-          </p>
-          <div className="up-crop-controls">
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={cropPosition}
-              onChange={(e) => {
-                setCropPosition(parseInt(e.target.value));
-                handleCrop();
-              }}
-              disabled={isLoading}
-              className={isVerticalCrop ? "up-crop-slider-vertical" : "up-crop-slider-horizontal"}
+        )}
+
+        <div
+          className="up-file-dropzone"
+          onClick={() => fileInputRef.current?.click()}
+          role="button"
+          tabIndex={0}
+        >
+          <div className="up-dropzone-icon-wrap">
+            <FiUploadCloud />
+          </div>
+          <span className="up-dropzone-title">Choose New Image</span>
+          <span className="up-dropzone-hint">PNG, JPG or WebP (auto-optimized)</span>
+        </div>
+
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="up-image-input-hidden"
+          disabled={isLoading}
+          ref={fileInputRef}
+        />
+
+        {selectedImage && needsCropping && (
+          <div className="up-crop-container">
+            <div className="up-crop-preview">
+              <img
+                src={URL.createObjectURL(selectedImage)}
+                alt="Selected"
+                className="up-crop-image"
+                ref={imageRef}
+                onLoad={handleCrop}
+              />
+              <div className="up-crop-square"></div>
+            </div>
+            <p className="up-crop-instruction">
+              {isVerticalCrop
+                ? "Adjust vertical position using slider"
+                : "Adjust horizontal position using slider"}
+            </p>
+            <div className="up-crop-controls">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={cropPosition}
+                onChange={(e) => {
+                  setCropPosition(parseInt(e.target.value, 10));
+                  handleCrop();
+                }}
+                disabled={isLoading}
+                className={isVerticalCrop ? "up-crop-slider-vertical" : "up-crop-slider-horizontal"}
+              />
+              <button
+                type="button"
+                className="up-crop-btn"
+                onClick={handleCrop}
+                disabled={isLoading}
+              >
+                <FiCrop /> Apply Crop
+              </button>
+            </div>
+          </div>
+        )}
+
+        <canvas ref={canvasRef} style={{ display: "none" }} />
+
+        {(croppedImage || (selectedImage && !needsCropping)) && (
+          <div className="up-cropped-preview">
+            <img
+              src={croppedImage ? URL.createObjectURL(croppedImage) : URL.createObjectURL(selectedImage)}
+              alt="Cropped Preview"
+              className="up-cropped-image"
             />
             <button
-              className="up-crop-btn"
-              onClick={handleCrop}
+              type="button"
+              className="up-settings-submit-btn"
+              onClick={handleUpload}
               disabled={isLoading}
             >
-              Crop to Square
+              {isLoading ? (
+                <>
+                  <div className="up-mini-spinner" />
+                  <span>Uploading...</span>
+                </>
+              ) : (
+                <>
+                  <FiCheck />
+                  <span>Save New Photo</span>
+                </>
+              )}
             </button>
           </div>
-        </div>
-      )}
+        )}
 
-      <canvas ref={canvasRef} style={{ display: "none" }} />
-
-      {(croppedImage || (selectedImage && !needsCropping)) && (
-        <div className="up-cropped-preview">
-          <img
-            src={croppedImage ? URL.createObjectURL(croppedImage) : URL.createObjectURL(selectedImage)}
-            alt="Cropped"
-            className="up-cropped-image"
-          />
-          <button
-            className="up-upload-btn"
-            onClick={handleUpload}
-            disabled={isLoading}
-          >
-            {isLoading ? "Uploading..." : "Upload Image"}
-          </button>
-        </div>
-      )}
-
-      {message && (
-        <div className={`up-message ${isSuccess ? "up-success" : "up-error"}`}>
-          {isSuccess ? <FiCheckCircle /> : <FiAlertCircle />}
-          <span>{message}</span>
-        </div>
-      )}
+        {message && (
+          <div className={`up-message ${isSuccess ? "up-success" : "up-error"}`}>
+            {isSuccess ? <FiCheckCircle /> : <FiAlertCircle />}
+            <span>{message}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
