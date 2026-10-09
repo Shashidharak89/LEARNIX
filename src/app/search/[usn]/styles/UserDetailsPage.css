@@ -402,10 +402,11 @@
 }
 
 .up-banner-heading {
-  font-size: 1.35rem;
+  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
   font-weight: 700;
   color: #0f172a;
   margin: 0 0 0.35rem 0;
+  word-break: break-word;
 }
 
 .up-banner-subtext {
@@ -1197,6 +1198,10 @@
     text-align: center;
   }
 
+  .up-banner-heading {
+    font-size: 1.18rem;
+  }
+
   .up-badge-card-container {
     margin-bottom: 1.25rem;
   }
@@ -1234,5 +1239,15 @@
 
   .up-user-fullname {
     font-size: 1.35rem;
+  }
+
+  .up-banner-heading {
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .up-banner-heading {
+    font-size: 0.95rem;
   }
 }

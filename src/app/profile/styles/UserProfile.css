@@ -359,11 +359,12 @@
 }
 
 .up-banner-heading {
-  font-size: 1.45rem;
+  font-size: clamp(1.1rem, 2.5vw, 1.45rem);
   font-weight: 700;
   color: #0f172a;
   margin: 0 0 0.35rem 0;
   letter-spacing: -0.01em;
+  word-break: break-word;
 }
 
 .up-banner-subtext {
@@ -693,6 +694,56 @@
   background: #eff6ff;
   padding: 0.35rem 0.75rem;
   border-radius: 20px;
+}
+
+/* Visibility Badges */
+.up-visibility-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  padding: 0.22rem 0.6rem;
+  border-radius: 9999px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.up-visibility-icon {
+  font-size: 0.78rem;
+  flex-shrink: 0;
+}
+
+.up-visibility-pill.is-public {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.up-visibility-pill.is-private {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.up-visibility-pill.is-unlisted {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border: 1px solid #ddd6fe;
+}
+
+.up-topic-title-top {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.up-topic-vis-pill {
+  font-size: 0.68rem;
+  padding: 0.18rem 0.5rem;
 }
 
 .up-subject-expand-btn {
@@ -1046,9 +1097,26 @@
     text-align: center;
   }
 
+  .up-banner-heading {
+    font-size: 1.18rem;
+  }
+
   .up-banner-graphic-left,
   .up-banner-graphic-right {
     display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .up-subject-header {
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  .up-subject-actions {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
   }
 }
 
@@ -1064,6 +1132,16 @@
 
   .up-user-fullname {
     font-size: 1.35rem;
+  }
+
+  .up-banner-heading {
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .up-banner-heading {
+    font-size: 0.95rem;
   }
 }
 

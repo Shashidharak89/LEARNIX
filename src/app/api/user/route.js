@@ -4,6 +4,7 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
+import { resolveAuthenticatedUser } from "@/lib/authUser";
 
 export const GET = async (req) => {
   try {
@@ -34,17 +35,30 @@ export const GET = async (req) => {
       );
     }
 
+    const authUser = await resolveAuthenticatedUser(req);
+    const isOwner = Boolean(authUser && authUser._id.toString() === user._id.toString());
+
     let subjectsWithTopics = [];
     let subjectsCount = 0;
     let topicsCount = 0;
     let uploadsCount = 0;
 
-    const subjects = await Subject.find({ userId: user._id }).lean();
+    const subjectFilter = { userId: user._id };
+    if (!isOwner) {
+      subjectFilter.$or = [{ visibility: "public" }, { visibility: { $exists: false } }];
+    }
+
+    const subjects = await Subject.find(subjectFilter).lean();
     subjectsCount = subjects.length;
     const subjectIds = subjects.map((s) => s._id);
 
     if (subjectIds.length > 0) {
-      const topicDocs = await Topic.find({ subjectId: { $in: subjectIds } }).lean();
+      const topicFilter = { subjectId: { $in: subjectIds } };
+      if (!isOwner) {
+        topicFilter.$or = [{ visibility: "public" }, { visibility: { $exists: false } }];
+      }
+
+      const topicDocs = await Topic.find(topicFilter).lean();
       topicsCount = topicDocs.length;
       uploadsCount = topicDocs.reduce(
         (sum, t) => sum + (t.images ? t.images.filter((img) => img && String(img).trim() !== "").length : 0),
@@ -80,7 +94,7 @@ export const GET = async (req) => {
         id: user._id.toString(),
         name: user.name,
         usn: user.usn,
-        email: user.email || "",
+        email: isOwner ? (user.email || "") : "",
         subjects: subjectsWithTopics,
         subjectsCount,
         topicsCount,

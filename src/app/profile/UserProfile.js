@@ -27,7 +27,8 @@ import {
   FiUser,
   FiExternalLink,
   FiArrowUp,
-  FiArrowDown
+  FiArrowDown,
+  FiGlobe
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import ChangeName from './ChangeName';
@@ -737,6 +738,16 @@ export default function UserProfile({ googleClientId = "" }) {
                               </div>
 
                               <div className="up-subject-actions">
+                                <span className={`up-visibility-pill is-${(subject.visibility || "public").toLowerCase()}`} title={`Subject visibility: ${subject.visibility || "public"}`}>
+                                  {subject.visibility === "private" ? (
+                                    <FiLock className="up-visibility-icon" />
+                                  ) : subject.visibility === "unlisted" ? (
+                                    <FiEyeOff className="up-visibility-icon" />
+                                  ) : (
+                                    <FiGlobe className="up-visibility-icon" />
+                                  )}
+                                  <span>{subject.visibility || "public"}</span>
+                                </span>
                                 <span className="up-subject-badge">
                                   {subject.topicsCount} {subject.topicsCount === 1 ? "topic" : "topics"}
                                 </span>
@@ -773,7 +784,19 @@ export default function UserProfile({ googleClientId = "" }) {
                                       >
                                         <div className="up-topic-header">
                                           <div className="up-topic-title">
-                                            <h4 className="up-topic-name">{topic.topic}</h4>
+                                            <div className="up-topic-title-top">
+                                              <h4 className="up-topic-name">{topic.topic}</h4>
+                                              <span className={`up-visibility-pill is-${(topic.visibility || "public").toLowerCase()} up-topic-vis-pill`} title={`Topic visibility: ${topic.visibility || "public"}`}>
+                                                {topic.visibility === "private" ? (
+                                                  <FiLock className="up-visibility-icon" />
+                                                ) : topic.visibility === "unlisted" ? (
+                                                  <FiEyeOff className="up-visibility-icon" />
+                                                ) : (
+                                                  <FiGlobe className="up-visibility-icon" />
+                                                )}
+                                                <span>{topic.visibility || "public"}</span>
+                                              </span>
+                                            </div>
                                             <span className="up-topic-date">
                                               <FiClock className="up-date-icon" />
                                               {formatDate(topic.timestamp)}

@@ -26,9 +26,10 @@ export async function GET(req) {
 
     const isOwner = Boolean(authUser && authUser._id.toString() === subject.userId.toString());
 
-    // If subject is private and viewer is not owner, deny access
-    if (subject.visibility === "private" && !isOwner) {
-      return NextResponse.json({ error: "Access denied to private subject" }, { status: 403 });
+    // If subject is not public and viewer is not owner, deny access
+    const isPublicSubject = !subject.visibility || subject.visibility === "public";
+    if (!isOwner && !isPublicSubject) {
+      return NextResponse.json({ error: "Access denied. Subject is not public." }, { status: 403 });
     }
 
     const topicQuery = { subjectId: subject._id };
