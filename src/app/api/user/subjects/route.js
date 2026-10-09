@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
+import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
@@ -11,31 +12,68 @@ export async function GET(req) {
     await connectDB();
 
     const authUser = await resolveAuthenticatedUser(req);
-    if (!authUser) {
-      return NextResponse.json(
-        { error: "Unauthorized. Valid authentication token required." },
-        { status: 401 }
-      );
+    const { searchParams } = new URL(req.url);
+    const usnParam = searchParams.get("usn");
+
+    let targetUser = null;
+    let isOwner = false;
+
+    if (usnParam) {
+      targetUser = await User.findOne({
+        usn: { $regex: new RegExp(`^${usnParam.trim()}$`, "i") }
+      }).lean();
+
+      if (!targetUser) {
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+
+      isOwner = Boolean(authUser && authUser._id.toString() === targetUser._id.toString());
+    } else {
+      if (!authUser) {
+        return NextResponse.json(
+          { error: "Unauthorized. Valid authentication token required." },
+          { status: 401 }
+        );
+      }
+      targetUser = authUser;
+      isOwner = true;
     }
 
-    const { searchParams } = new URL(req.url);
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const size = Math.max(1, parseInt(searchParams.get("size") || "10", 10));
     const search = (searchParams.get("search") || "").trim();
     const order = (searchParams.get("order") || "asc").toLowerCase() === "desc" ? "desc" : "asc";
 
-    const filter = { userId: authUser._id };
+    const filter = { userId: targetUser._id };
+    if (!isOwner) {
+      filter.$or = [{ visibility: "public" }, { visibility: { $exists: false } }];
+    }
 
     if (search) {
-      const matchingTopicSubjectIds = await Topic.find({
-        userId: authUser._id,
+      const topicFilter = {
+        userId: targetUser._id,
         topic: { $regex: search, $options: "i" }
-      }).distinct("subjectId");
+      };
+      if (!isOwner) {
+        topicFilter.$or = [{ visibility: "public" }, { visibility: { $exists: false } }];
+      }
 
-      filter.$or = [
+      const matchingTopicSubjectIds = await Topic.find(topicFilter).distinct("subjectId");
+
+      const searchCondition = [
         { subject: { $regex: search, $options: "i" } },
         { _id: { $in: matchingTopicSubjectIds } }
       ];
+
+      if (!isOwner) {
+        filter.$and = [
+          { $or: [{ visibility: "public" }, { visibility: { $exists: false } }] },
+          { $or: searchCondition }
+        ];
+        delete filter.$or;
+      } else {
+        filter.$or = searchCondition;
+      }
     }
 
     const sortDirection = order === "desc" ? -1 : 1;
@@ -51,8 +89,13 @@ export async function GET(req) {
 
     const subjectIds = subjects.map((s) => s._id);
 
+    const matchTopicFilter = { subjectId: { $in: subjectIds } };
+    if (!isOwner) {
+      matchTopicFilter.$or = [{ visibility: "public" }, { visibility: { $exists: false } }];
+    }
+
     const topicCounts = await Topic.aggregate([
-      { $match: { subjectId: { $in: subjectIds } } },
+      { $match: matchTopicFilter },
       { $group: { _id: "$subjectId", count: { $sum: 1 } } }
     ]);
 

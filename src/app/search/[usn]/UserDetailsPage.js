@@ -1,68 +1,70 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
-import axios from "axios";
-import { Calendar, BookOpen, ImageIcon, Eye, EyeOff, User, GraduationCap, Clock, ChevronDown, Search } from "lucide-react";
-import './styles/UserDetailsPage.css';
+import {
+  FiCalendar,
+  FiBook,
+  FiEyeOff,
+  FiClock,
+  FiChevronRight,
+  FiChevronDown,
+  FiSearch,
+  FiAlertCircle,
+  FiList,
+  FiZap,
+  FiTrendingUp,
+  FiX,
+  FiUser,
+  FiExternalLink,
+  FiArrowUp,
+  FiArrowDown,
+  FiMessageSquare
+} from "react-icons/fi";
+import { HiAcademicCap } from "react-icons/hi";
 import UserDetailsPageSkeleton from "./UserDetailsPageSkeleton";
+import machineLearningSvg from "@/app/profile/icons/Mapping for machine learning.svg";
+import "./styles/UserDetailsPage.css";
+import { authFetch } from "@/lib/clientAuth";
 
 export default function UserDetailsPage({ usn }) {
-  const router = useRouter();
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState("");
-  const [expandedTopics, setExpandedTopics] = useState({});
+  const [hasError, setHasError] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filteredSubjects, setFilteredSubjects] = useState([]);
-  const [visibleTopics, setVisibleTopics] = useState({});
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [publicSubjectsCount, setPublicSubjectsCount] = useState(0);
-  const [publicTotalTopics, setPublicTotalTopics] = useState(0);
-  const [publicTotalImages, setPublicTotalImages] = useState(0);
   const [showResources, setShowResources] = useState(false);
-  const [visibleSubjectsCount, setVisibleSubjectsCount] = useState(3);
   const [viewerUsn, setViewerUsn] = useState("");
-  
-  
-  const TOPICS_PER_LOAD = 3; // Load 3 topics at a time per subject
-  const SUBJECTS_PER_LOAD = 3;
+
+  // Paginated resources state
+  const [subjectsPage, setSubjectsPage] = useState(1);
+  const [subjectsSize] = useState(10);
+  const [subjectsSearch, setSubjectsSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [subjectsOrder, setSubjectsOrder] = useState("asc");
+  const [subjectsData, setSubjectsData] = useState([]);
+  const [subjectsPagination, setSubjectsPagination] = useState({
+    page: 1,
+    size: 10,
+    totalPages: 1,
+    totalRecords: 0,
+  });
+  const [loadingSubjects, setLoadingSubjects] = useState(false);
+  const [loadingMoreSubjects, setLoadingMoreSubjects] = useState(false);
+  const [subjectsError, setSubjectsError] = useState("");
+
+  // Topics under subject state
+  const [expandedSubjectIds, setExpandedSubjectIds] = useState({});
+  const [subjectTopicsMap, setSubjectTopicsMap] = useState({});
+  const [loadingTopicsMap, setLoadingTopicsMap] = useState({});
+
+  const searchDebounceRef = useRef(null);
   const DEFAULT_PROFILE_IMAGE = "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp";
 
-  const getSafeStreak = (value) => {
-    const parsed = Number(value);
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
-  };
-
-  const filterSubjects = useCallback((subjects, searchTerm = '') => {
-    return subjects
-      .filter(subject => (subject.visibility || "public") === "public")
-      .map(subject => {
-        const filteredTopics = subject.topics?.filter(topic => {
-          if ((topic.visibility || "public") !== "public") return false;
-          if (searchTerm) {
-            return (
-              topic.topic.toLowerCase().includes(searchTerm) ||
-              (topic.content && topic.content.toLowerCase().includes(searchTerm))
-            );
-          }
-          return true;
-        }) || [];
-        if (searchTerm) {
-          if (
-            !subject.subject.toLowerCase().includes(searchTerm) &&
-            filteredTopics.length === 0
-          ) {
-            return null;
-          }
-        }
-        return {
-          ...subject,
-          topics: filteredTopics
-        };
-      })
-      .filter(Boolean);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("usn") || "";
+      setViewerUsn(stored.toUpperCase());
+    }
   }, []);
 
   useEffect(() => {
@@ -71,132 +73,178 @@ export default function UserDetailsPage({ usn }) {
     }
   }, [usn]);
 
-  useEffect(() => {
-    const currentUsn = localStorage.getItem("usn") || "";
-    setViewerUsn(currentUsn.toUpperCase());
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-      handleSearch(searchQuery);
-    }
-  }, [user, searchQuery]);
-
-  // Set up intersection observer for infinite scroll
-  useEffect(() => {
-    const observers = [];
-    
-    const observerCallback = (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting && !isLoadingMore) {
-          const subjectIndex = parseInt(entry.target.dataset.subjectIndex);
-          loadMoreTopics(subjectIndex);
-        }
-      });
-    };
-
-    const observer = new IntersectionObserver(observerCallback, {
-      threshold: 0.1,
-      rootMargin: '50px'
-    });
-
-    // Observe all scroll sentinels
-    const sentinels = document.querySelectorAll('.user-details-scroll-sentinel');
-    sentinels.forEach((sentinel) => {
-      observer.observe(sentinel);
-      observers.push(observer);
-    });
-
-    return () => {
-      observers.forEach(obs => obs.disconnect());
-    };
-  }, [filteredSubjects, visibleTopics, isLoadingMore]);
-
   const fetchUserDetails = async (usnToSearch) => {
     setLoading(true);
+    setHasError(false);
+    setMessage("");
     try {
-      const res = await axios.get(`/api/user?usn=${usnToSearch}&includeUploads=true`);
-      const rawUser = res.data.user;
-      setUser(rawUser);
-      setMessage("");
-      
-      const publicSubjectsForStats = filterSubjects(rawUser.subjects || [], '');
-      let topicsCount = 0;
-      let imagesCount = 0;
-      publicSubjectsForStats.forEach(subject => {
-        topicsCount += subject.topics.length;
-        subject.topics.forEach(topic => {
-          const validImages = getValidImages(topic.images || []);
-          imagesCount += validImages.length;
-        });
-      });
-      setPublicSubjectsCount(publicSubjectsForStats.length);
-      setPublicTotalTopics(topicsCount);
-      setPublicTotalImages(imagesCount);
-      
-    } catch (err) {
-      console.error(err);
-      if (err.response?.status === 404) {
-        setMessage("User not found!");
-      } else {
-        setMessage(err.response?.data?.error || "Failed to fetch user details");
+      const res = await authFetch(`/api/user?usn=${encodeURIComponent(usnToSearch)}`);
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        if (res.status === 404) {
+          setMessage("Student profile not found.");
+        } else {
+          setMessage(data?.error || "Failed to load student details");
+        }
+        setHasError(true);
+        setUser(null);
+        return;
       }
+
+      setUser(data.user);
+    } catch (err) {
+      console.error("Error fetching user details:", err);
+      setHasError(true);
+      setMessage("Unable to load profile. Please check your connection.");
       setUser(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const loadMoreTopics = useCallback((subjectIndex) => {
-    if (isLoadingMore) return;
-    
-    const subject = filteredSubjects[subjectIndex];
-    if (!subject || !subject.topics) return;
-    
-    const currentVisible = visibleTopics[subjectIndex] || 0;
-    const totalTopics = subject.topics.length;
-    
-    if (currentVisible >= totalTopics) return;
-    
-    setIsLoadingMore(true);
-    
-    setTimeout(() => {
-      setVisibleTopics(prev => ({
-        ...prev,
-        [subjectIndex]: Math.min(currentVisible + TOPICS_PER_LOAD, totalTopics)
-      }));
-      setIsLoadingMore(false);
-    }, 500);
-  }, [filteredSubjects, visibleTopics, isLoadingMore]);
+  // Fetch paginated subjects for this user
+  const fetchUserSubjects = useCallback(async ({
+    page = 1,
+    size = 10,
+    search = "",
+    order = "asc",
+    append = false
+  } = {}) => {
+    if (!usn) return;
 
-  const handleSearch = useCallback((query) => {
-    if (!user || !user.subjects) return;
-    
-    const searchTerm = query.toLowerCase();
-    const filtered = filterSubjects(user.subjects, searchTerm);
-    setFilteredSubjects(filtered);
-    
-    // Reset visible topics for filtered results
-    const newVisible = {};
-    filtered.forEach((subject, index) => {
-      newVisible[index] = Math.min(TOPICS_PER_LOAD, subject.topics?.length || 0);
-    });
-    setVisibleTopics(newVisible);
-  }, [user, filterSubjects]);
+    if (append) {
+      setLoadingMoreSubjects(true);
+    } else {
+      setLoadingSubjects(true);
+    }
+    setSubjectsError("");
+    try {
+      const query = typeof window !== 'undefined' 
+        ? new window.URLSearchParams({
+            usn: String(usn),
+            page: String(page),
+            size: String(size),
+            search: String(search),
+            order: String(order),
+          })
+        : { toString: () => `usn=${encodeURIComponent(usn)}&page=${page}&size=${size}&search=${encodeURIComponent(search)}&order=${order}` };
 
-  const toggleTopicExpansion = (subjectIndex, topicIndex) => {
-    const key = `${subjectIndex}-${topicIndex}`;
-    setExpandedTopics(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
+      const res = await authFetch(`/api/user/subjects?${query.toString()}`);
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Failed to fetch subjects");
+      }
+
+      const newSubjects = data.subjects || [];
+      if (append) {
+        setSubjectsData((prev) => [...prev, ...newSubjects]);
+      } else {
+        setSubjectsData(newSubjects);
+      }
+      setSubjectsPage(page);
+      if (data.pagination) {
+        setSubjectsPagination(data.pagination);
+      }
+    } catch (err) {
+      console.error("Error fetching subjects:", err);
+      setSubjectsError(err.message || "Failed to load uploaded resources");
+    } finally {
+      setLoadingSubjects(false);
+      setLoadingMoreSubjects(false);
+    }
+  }, [usn]);
+
+  // Request topics under a specific subject
+  const toggleSubjectTopics = async (subjectId) => {
+    const isCurrentlyExpanded = !!expandedSubjectIds[subjectId];
+    if (isCurrentlyExpanded) {
+      setExpandedSubjectIds((prev) => ({ ...prev, [subjectId]: false }));
+      return;
+    }
+
+    setExpandedSubjectIds((prev) => ({ ...prev, [subjectId]: true }));
+
+    if (subjectTopicsMap[subjectId]) {
+      return;
+    }
+
+    setLoadingTopicsMap((prev) => ({ ...prev, [subjectId]: true }));
+    try {
+      const res = await authFetch(`/api/user/topics?subjectId=${subjectId}`);
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.topics) {
+        setSubjectTopicsMap((prev) => ({ ...prev, [subjectId]: data.topics }));
+      } else {
+        setSubjectTopicsMap((prev) => ({ ...prev, [subjectId]: [] }));
+      }
+    } catch (err) {
+      console.error("Error requesting topics for subject:", err);
+      setSubjectTopicsMap((prev) => ({ ...prev, [subjectId]: [] }));
+    } finally {
+      setLoadingTopicsMap((prev) => ({ ...prev, [subjectId]: false }));
+    }
   };
 
-  const getValidImages = (images) => {
-    return images ? images.filter(img => img && img.trim() !== '') : [];
+  const loadMoreSubjects = () => {
+    if (loadingMoreSubjects || subjectsPagination.page >= subjectsPagination.totalPages) return;
+    const nextPage = subjectsPagination.page + 1;
+    fetchUserSubjects({
+      page: nextPage,
+      size: subjectsSize,
+      search: subjectsSearch,
+      order: subjectsOrder,
+      append: true,
+    });
+  };
+
+  const handleSearchChange = (val) => {
+    setSearchInput(val);
+    if (searchDebounceRef.current) {
+      clearTimeout(searchDebounceRef.current);
+    }
+    searchDebounceRef.current = setTimeout(() => {
+      setSubjectsPage(1);
+      setSubjectsSearch(val);
+      fetchUserSubjects({
+        page: 1,
+        size: subjectsSize,
+        search: val,
+        order: subjectsOrder,
+        append: false,
+      });
+    }, 350);
+  };
+
+  const clearSearch = () => {
+    setSearchInput("");
+    setSubjectsPage(1);
+    setSubjectsSearch("");
+    fetchUserSubjects({
+      page: 1,
+      size: subjectsSize,
+      search: "",
+      order: subjectsOrder,
+      append: false,
+    });
+  };
+
+  const handleSortToggle = () => {
+    const newOrder = subjectsOrder === "asc" ? "desc" : "asc";
+    setSubjectsOrder(newOrder);
+    setSubjectsPage(1);
+    fetchUserSubjects({
+      page: 1,
+      size: subjectsSize,
+      search: subjectsSearch,
+      order: newOrder,
+      append: false,
+    });
   };
 
   const formatDate = (timestamp) => {
+    if (!timestamp) return "Sep 13, 2025";
     return new Date(timestamp).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -205,283 +253,357 @@ export default function UserDetailsPage({ usn }) {
   };
 
   if (loading) {
+    return <UserDetailsPageSkeleton />;
+  }
+
+  if (hasError || !user) {
     return (
-      <div className="user-details-container">
-        <UserDetailsPageSkeleton/>
+      <div className="up-container">
+        <div className="up-wrapper">
+          <div className="up-error-container">
+            <div className="up-error-content">
+              <FiUser className="up-error-icon" />
+              <h3 className="up-error-title">Student Not Found</h3>
+              <p className="up-error-message">{message || "No user found with the provided USN."}</p>
+              <Link href="/search" className="up-login-btn">
+                <FiSearch className="up-login-icon" />
+                Search Another Student
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
-  const canChat =
-    !!viewerUsn &&
-    !!user?.id &&
-    viewerUsn !== String(user?.usn || "").toUpperCase();
+  const canChat = Boolean(
+    viewerUsn &&
+    user?.id &&
+    viewerUsn !== String(user?.usn || "").toUpperCase()
+  );
 
   return (
-    <div className="user-details-container">
-      <div className="user-details-wrapper">
+    <div className="up-container">
+      <div className="up-wrapper">
+        {/* Page Title (No breadcrumb) */}
+        <div className="up-page-header">
+          <h1 className="up-page-title">Student Profile</h1>
+        </div>
 
-        {message && (
-          <div className="user-details-error-message">
-            <div className="user-details-error-content">
-              <User size={48} />
-              <h3>User Not Found</h3>
-              <p>{message}</p>
-            </div>
+        {/* Top Main Profile Card with broader height */}
+        <div className="up-main-card">
+          {/* Decorative Corner Accents */}
+          <div className="up-card-accent-blue" />
+          <div className="up-card-accent-yellow">
+            <div className="up-card-dots" />
           </div>
-        )}
+          <div className="up-card-dots-left" />
 
-        {user && (
-          <div className="user-details-profile">
-            {/* Profile Header */}
-            <div className="user-details-profile-header">
-              <div className="user-details-avatar">
+          {/* Main Profile Body */}
+          <div className="up-main-card-body">
+            {/* Left Profile Info */}
+            <div className="up-profile-left">
+              <div className="up-avatar-wrapper">
                 <img
                   src={user.profileimg || DEFAULT_PROFILE_IMAGE}
-                  alt={`${user.name}'s profile`}
-                  className="user-details-avatar-image"
+                  alt={user.name}
+                  className="up-avatar-img"
                 />
               </div>
-              <div className="user-details-profile-info">
-                <div className="user-details-name-section">
-                  <h2 className="user-details-name">{user.name}</h2>
-                  <span className="user-details-usn">{user.usn}</span>
-                </div>
-                <div className="user-details-stats">
-                  <div className="user-details-stat-item">
-                    <span className="user-details-stat-number">{publicSubjectsCount}</span>
-                    <span className="user-details-stat-label">Subjects</span>
+
+              <div className="up-user-details">
+                <h2 className="up-user-fullname">{user.name}</h2>
+                <div className="up-user-usn">{user.usn}</div>
+
+                <p className="up-user-quote">
+                  &ldquo;Every journey begins with a single step.&rdquo;
+                </p>
+
+                <div className="up-meta-list">
+                  <div className="up-meta-pill">
+                    <HiAcademicCap className="up-meta-icon" />
+                    <span>Student</span>
                   </div>
-                  <div className="user-details-stat-item">
-                    <span className="user-details-stat-number">{publicTotalTopics}</span>
-                    <span className="user-details-stat-label">Topics</span>
+                  <div className="up-meta-pill">
+                    <FiCalendar className="up-meta-icon" />
+                    <span>Joined {formatDate(user.createdAt)}</span>
                   </div>
-                  <div className="user-details-stat-item">
-                    <span className="user-details-stat-number">{publicTotalImages}</span>
-                    <span className="user-details-stat-label">Images</span>
-                  </div>
-                  <div className="user-details-stat-item">
-                    <span className="user-details-stat-number">{getSafeStreak(user.streaks)}</span>
-                    <span className="user-details-stat-label">Streak</span>
-                  </div>
-                </div>
-                <div className="user-details-highest-streak">
-                  Highest streak: {getSafeStreak(user.highestStreak)}
-                </div>
-                {canChat && (
-                  <div className="user-details-chat-wrap">
-                    <Link href={`/chat/${user.id}`} className="user-details-chat-link">
-                      Chat
+                  {/* Note: Email is intentionally omitted when inspecting other users */}
+                  {canChat && (
+                    <Link href={`/chat/${user.id}`} className="up-chat-pill" title="Start Chat">
+                      <FiMessageSquare className="up-meta-icon" />
+                      <span>Chat</span>
                     </Link>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Profile Meta */}
-            <div className="user-details-profile-meta">
-              <div className="user-details-meta-item">
-                <GraduationCap size={16} />
-                <span>Student</span>
-              </div>
-              <div className="user-details-meta-item">
-                <Calendar size={16} />
-                <span>Joined {formatDate(user.createdAt)}</span>
-              </div>
-            </div>
-
-            {/* Quote & College Section */}
-            <div className="user-details-quote-section">
-              <p className="user-details-quote">"Every journey begins with a single step."</p>
-              <p className="user-details-college">
-                <GraduationCap size={14} />
-                College: NMAM Institute of Technology, Nitte
-              </p>
-            </div>
-
-            {/* Content Section */}
-            <div className="user-details-content">
-              {/* View Uploaded Resources Toggle Button */}
-              {!showResources ? (
-                <div className="user-details-resources-toggle-container">
-                  <button 
-                    className="user-details-show-resources-btn"
-                    onClick={() => setShowResources(true)}
-                  >
-                    <Eye size={18} />
-                    View Uploaded Resources
-                  </button>
+                  )}
                 </div>
+              </div>
+            </div>
+
+            {/* Right 4 Stat Cards: Subjects, Topics, Streak, Highest Streak (Uploads removed) */}
+            <div className="up-stats-grid">
+              {/* Card 1: Subjects */}
+              <div className="up-stat-card is-subjects">
+                <div className="up-stat-icon-wrapper">
+                  <FiBook />
+                </div>
+                <div className="up-stat-value">{user.subjectsCount ?? user.subjects?.length ?? 0}</div>
+                <div className="up-stat-label">Subjects</div>
+              </div>
+
+              {/* Card 2: Topics */}
+              <div className="up-stat-card is-topics">
+                <div className="up-stat-icon-wrapper">
+                  <FiList />
+                </div>
+                <div className="up-stat-value">{user.topicsCount ?? 0}</div>
+                <div className="up-stat-label">Topics</div>
+              </div>
+
+              {/* Card 3: Streak */}
+              <div className="up-stat-card is-streak">
+                <div className="up-stat-icon-wrapper">
+                  <FiZap />
+                </div>
+                <div className="up-stat-value">{user.streaks || 1}</div>
+                <div className="up-stat-label">Streak</div>
+              </div>
+
+              {/* Card 4: Highest streak */}
+              <div className="up-stat-card is-highest-streak">
+                <div className="up-stat-icon-wrapper">
+                  <FiTrendingUp />
+                </div>
+                <div className="up-stat-value">{user.highestStreak || 1}</div>
+                <div className="up-stat-label">Highest streak</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Banner Card: View Uploaded Resources */}
+        <div className="up-resources-banner-card">
+          {/* Left Graphic */}
+          <div className="up-banner-graphic-left">
+            <svg width="105" height="90" viewBox="0 0 120 100" fill="none">
+              <ellipse cx="60" cy="90" rx="50" ry="6" fill="#cbd5e1" opacity="0.5"/>
+              <path d="M15 30C15 26.6863 17.6863 24 21 24H42L50 32H99C102.314 32 105 34.6863 105 38V80C105 83.3137 102.314 86 99 86H21C17.6863 86 15 83.3137 15 80V30Z" fill="#2563eb" opacity="0.85"/>
+              <rect x="35" y="16" width="30" height="40" rx="4" fill="#ffffff" stroke="#cbd5e1" strokeWidth="2"/>
+              <line x1="41" y1="26" x2="57" y2="26" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round"/>
+              <line x1="41" y1="32" x2="53" y2="32" stroke="#94a3b8" strokeWidth="2" strokeLinecap="round"/>
+              <path d="M12 40C12 36.6863 14.6863 34 18 34H102C105.314 34 108 36.6863 108 40V82C108 85.3137 105.314 88 102 88H18C14.6863 88 12 85.3137 12 82V40Z" fill="#007bff"/>
+              <circle cx="60" cy="62" r="16" fill="#ffffff"/>
+              <path d="M54 64C54 61.7909 55.7909 60 58 60C58.5523 60 59.0768 60.1118 59.5547 60.3137C60.2783 58.3754 62.1332 57 64.3333 57C67.1147 57 69.3804 59.135 69.6436 61.8596C70.9998 62.1245 72 63.3137 72 64.75C72 66.5449 70.5449 68 68.75 68H57.75C55.6789 68 54 66.3211 54 64.25Z" fill="#007bff"/>
+              <path d="M60 66V58M60 58L57 61M60 58L63 61" stroke="#007bff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+
+          {/* Center Content */}
+          <div className="up-banner-center">
+            <h3 className="up-banner-heading">View Uploaded Resources</h3>
+            <p className="up-banner-subtext">
+              {user.subjectsCount ?? user.subjects?.length ?? 0} subjects • {user.topicsCount ?? 0} topics
+            </p>
+
+            <button
+              className="up-banner-action-btn"
+              onClick={() => {
+                const nextShow = !showResources;
+                setShowResources(nextShow);
+                if (nextShow && subjectsData.length === 0) {
+                  fetchUserSubjects({
+                    page: 1,
+                    size: subjectsSize,
+                    search: subjectsSearch,
+                    order: subjectsOrder,
+                  });
+                }
+              }}
+            >
+              {showResources ? (
+                <>
+                  <FiEyeOff /> Hide Resources
+                </>
               ) : (
                 <>
-                  <div className="user-details-resources-toggle-container">
-                    <button 
-                      className="user-details-hide-resources-btn"
-                      onClick={() => {
-                        setShowResources(false);
-                        setVisibleSubjectsCount(SUBJECTS_PER_LOAD);
-                      }}
-                    >
-                      <EyeOff size={16} />
-                      Hide Resources
-                    </button>
-                  </div>
+                  View Resources <FiChevronRight />
+                </>
+              )}
+            </button>
+          </div>
 
-                  {/* Search Bar - only visible when resources are shown */}
-                  <div className="user-details-search-section">
-                    <div className="user-details-search-container">
-                      <Search className="user-details-search-icon" size={18} />
-                      <input
-                        type="text"
-                        placeholder="Search subjects, topics, or content..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="user-details-search-input"
-                      />
-                    </div>
-                  </div>
+          {/* Right Graphic */}
+          <div className="up-banner-graphic-right">
+            <img
+              src={machineLearningSvg.src || machineLearningSvg}
+              alt="Machine Learning Mapping"
+              className="up-banner-ml-img"
+              style={{ width: "160px", height: "105px", objectFit: "contain" }}
+            />
+          </div>
+        </div>
 
-                  {!filteredSubjects || filteredSubjects.length === 0 ? (
-                    <div className="user-details-empty-state">
-                      {searchQuery ? (
-                        <>
-                          <Search size={48} />
-                          <h3>No Results Found</h3>
-                          <p>Try searching with different keywords</p>
-                        </>
-                      ) : (
-                        <>
-                          <BookOpen size={48} />
-                          <h3>No Subjects Added</h3>
-                          <p>This student has not added any subjects yet.</p>
-                        </>
-                      )}
-                    </div>
+        {/* Expanded Resources Area with Auth-Protected Pagination & View More Button */}
+        {showResources && (
+          <div className="up-expanded-resources-section">
+            {/* Search & Sort Controls Toolbar */}
+            <div className="up-resources-toolbar">
+              <div className="up-search-box">
+                <FiSearch className="up-search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search subjects or topics..."
+                  value={searchInput}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  className="up-search-input"
+                />
+                {searchInput && (
+                  <button
+                    type="button"
+                    onClick={clearSearch}
+                    className="up-search-clear-btn"
+                    title="Clear search"
+                  >
+                    <FiX />
+                  </button>
+                )}
+              </div>
+
+              <div className="up-sort-control">
+                <button
+                  type="button"
+                  className="up-sort-btn"
+                  onClick={handleSortToggle}
+                  title={`Current sort: ${subjectsOrder === "asc" ? "A to Z" : "Z to A"}`}
+                >
+                  {subjectsOrder === "asc" ? (
+                    <>
+                      <FiArrowUp className="up-sort-icon" />
+                      <span>Sort: A → Z</span>
+                    </>
                   ) : (
                     <>
-                      <div className="user-details-subjects-grid">
-                        {filteredSubjects.slice(0, visibleSubjectsCount).map((subject, subjectIndex) => {
-                          const visibleCount = visibleTopics[subjectIndex] || 0;
-                          const hasMoreTopics = subject.topics && subject.topics.length > visibleCount;
-                          const displayTopics = subject.topics?.slice(0, visibleCount) || [];
-                    
-                          return (
-                            <div key={subjectIndex} className="user-details-subject-card">
-                              <div className="user-details-subject-header">
-                                <div className="user-details-subject-title">
-                                  <BookOpen size={20} />
-                                  <h3>{subject.subject}</h3>
-                                </div>
-                                <div className="user-details-subject-badge">
-                                  {subject.topics?.length || 0} topics
+                      <FiArrowDown className="up-sort-icon" />
+                      <span>Sort: Z → A</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Loading State */}
+            {loadingSubjects ? (
+              <div className="up-uploads-loading">
+                <div className="up-mini-spinner" />
+                <p>Loading uploaded resources...</p>
+              </div>
+            ) : subjectsError ? (
+              <div className="up-error-box">
+                <FiAlertCircle className="up-error-icon" />
+                <span>{subjectsError}</span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    fetchUserSubjects({
+                      page: subjectsPage,
+                      size: subjectsSize,
+                      search: subjectsSearch,
+                      order: subjectsOrder,
+                    })
+                  }
+                  className="up-retry-btn"
+                >
+                  Retry
+                </button>
+              </div>
+            ) : subjectsData.length === 0 ? (
+              <div className="up-empty">
+                <FiBook className="up-empty-icon" />
+                <h3 className="up-empty-title">
+                  {subjectsSearch ? "No matching subjects found" : "No public subjects added yet"}
+                </h3>
+                <p className="up-empty-text">
+                  {subjectsSearch
+                    ? `No results for "${subjectsSearch}". Try a different keyword.`
+                    : "This student has not added any public subjects yet."}
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="up-subjects">
+                  {subjectsData.map((subject) => {
+                    const isExpanded = !!expandedSubjectIds[subject._id];
+                    const isLoadingTopics = !!loadingTopicsMap[subject._id];
+                    const topics = subjectTopicsMap[subject._id];
+
+                    return (
+                      <div key={subject._id} className="up-subject-card">
+                        <div
+                          className="up-subject-header clickable"
+                          onClick={() => toggleSubjectTopics(subject._id)}
+                          role="button"
+                          tabIndex={0}
+                        >
+                          <div className="up-subject-title">
+                            <FiBook className="up-subject-icon" />
+                            <h3 className="up-subject-name">{subject.subject}</h3>
+                          </div>
+
+                          <div className="up-subject-actions">
+                            <span className="up-subject-badge">
+                              {subject.topicsCount} {subject.topicsCount === 1 ? "topic" : "topics"}
+                            </span>
+                            <button
+                              type="button"
+                              className={`up-subject-expand-btn ${isExpanded ? "is-expanded" : ""}`}
+                              aria-label={isExpanded ? "Collapse topics" : "Expand topics"}
+                            >
+                              <FiChevronDown />
+                            </button>
                           </div>
                         </div>
 
-                        {!subject.topics || subject.topics.length === 0 ? (
-                          <div className="user-details-empty-topics">
-                            <p>No topics added yet</p>
-                          </div>
-                        ) : (
-                          <div className="user-details-topics-list">
-                            {displayTopics.map((topic, topicIndex) => {
-                              const topicKey = `${subjectIndex}-${topicIndex}`;
-                              const isExpanded = expandedTopics[topicKey];
-                              const validImages = getValidImages(topic.images);
-                              const displayImages = isExpanded ? validImages : validImages.slice(0, 3);
-                              const hasMoreImages = validImages.length > 3;
-
-                              return (
-                                <div key={topicIndex} className="user-details-topic-card">
-                                  <div className="user-details-topic-header">
-                                    <div className="user-details-topic-info">
-                                      <h4 
-                                        className="user-details-topic-title user-details-clickable-title"
-                                        onClick={() => router.push(`/works/${topic._id}`)}
-                                      >
-                                        {topic.topic}
-                                      </h4>
-                                      <div className="user-details-topic-meta">
-                                        <span className="user-details-topic-date">
-                                          <Clock size={12} />
+                        {/* Under subject, user can request/view topics */}
+                        {isExpanded && (
+                          <div className="up-subject-topics-wrapper">
+                            {isLoadingTopics ? (
+                              <div className="up-topic-loading">
+                                <div className="up-mini-spinner" />
+                                <span>Requesting topics...</span>
+                              </div>
+                            ) : !topics || topics.length === 0 ? (
+                              <div className="up-empty-topics">
+                                <p>No public topics added under this subject yet.</p>
+                              </div>
+                            ) : (
+                              <div className="up-topics">
+                                {topics.map((topic) => (
+                                  <Link
+                                    key={topic._id}
+                                    href={`/works/${topic._id}`}
+                                    className="up-topic-card up-topic-card-link"
+                                    title={`Open ${topic.topic} in works`}
+                                  >
+                                    <div className="up-topic-header">
+                                      <div className="up-topic-title">
+                                        <h4 className="up-topic-name">{topic.topic}</h4>
+                                        <span className="up-topic-date">
+                                          <FiClock className="up-date-icon" />
                                           {formatDate(topic.timestamp)}
                                         </span>
-                                        {validImages.length > 0 && (
-                                          <span className="user-details-topic-images-count">
-                                            <ImageIcon size={12} />
-                                            {validImages.length} images
-                                          </span>
-                                        )}
+                                      </div>
+                                      <div className="up-topic-action-badge">
+                                        <span>Open in Works</span>
+                                        <FiExternalLink className="up-topic-action-icon" />
                                       </div>
                                     </div>
-                                  </div>
 
-                                  {topic.content && topic.content.trim() && (
-                                    <div className="user-details-topic-content">
-                                      <p>{topic.content}</p>
-                                    </div>
-                                  )}
-
-                                  {validImages.length > 0 && (
-                                    <div className="user-details-images-section">
-                                      <div className="user-details-images-grid">
-                                        {displayImages.map((imageUrl, imageIndex) => (
-                                          <div 
-                                            key={imageIndex} 
-                                            className="user-details-image-container user-details-clickable-image"
-                                            onClick={() => router.push(`/works/${topic._id}`)}
-                                          >
-                                            <div className="user-details-image-wrapper">
-                                              <img 
-                                                src={imageUrl} 
-                                                alt={`${topic.topic} - Image ${imageIndex + 1}`}
-                                                className="user-details-topic-image"
-                                                loading="lazy"
-                                              />
-                                            </div>
-                                          </div>
-                                        ))}
+                                    {topic.content && (
+                                      <div className="up-topic-content">
+                                        <p>{topic.content}</p>
                                       </div>
-                                      
-                                      {hasMoreImages && (
-                                        <button 
-                                          onClick={() => toggleTopicExpansion(subjectIndex, topicIndex)}
-                                          className="user-details-view-more-btn"
-                                        >
-                                          {isExpanded ? (
-                                            <>
-                                              <EyeOff size={14} />
-                                              Show Less
-                                            </>
-                                          ) : (
-                                            <>
-                                              <Eye size={14} />
-                                              View More ({validImages.length - 3} more)
-                                            </>
-                                          )}
-                                          <ChevronDown 
-                                            size={14} 
-                                            className={`user-details-chevron ${isExpanded ? 'user-details-rotated' : ''}`}
-                                          />
-                                        </button>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-                            
-                            {/* Scroll sentinel for infinite loading */}
-                            {hasMoreTopics && (
-                              <div 
-                                className="user-details-scroll-sentinel" 
-                                data-subject-index={subjectIndex}
-                              >
-                                {isLoadingMore && (
-                                  <div className="user-details-loading-more">
-                                    <div className="user-details-mini-spinner"></div>
-                                    <span>Loading more topics...</span>
-                                  </div>
-                                )}
+                                    )}
+                                  </Link>
+                                ))}
                               </div>
                             )}
                           </div>
@@ -489,25 +611,43 @@ export default function UserDetailsPage({ usn }) {
                       </div>
                     );
                   })}
-                      </div>
-                      
-                      {/* View More Subjects Button */}
-                      {filteredSubjects.length > visibleSubjectsCount && (
-                        <div className="user-details-view-more-subjects-container">
-                          <button 
-                            className="user-details-view-more-subjects-btn"
-                            onClick={() => setVisibleSubjectsCount(prev => prev + SUBJECTS_PER_LOAD)}
-                          >
-                            <Eye size={16} />
-                            View More Subjects ({filteredSubjects.length - visibleSubjectsCount} more)
-                          </button>
-                        </div>
+                </div>
+
+                {/* View More Button (appends next page) */}
+                {subjectsPagination.page < subjectsPagination.totalPages && (
+                  <div className="up-view-more-container">
+                    <button
+                      type="button"
+                      className="up-view-more-btn"
+                      onClick={loadMoreSubjects}
+                      disabled={loadingMoreSubjects}
+                    >
+                      {loadingMoreSubjects ? (
+                        <>
+                          <div className="up-mini-spinner" />
+                          <span>Loading more subjects...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>View More</span>
+                          <FiChevronDown className="up-view-more-icon" />
+                        </>
                       )}
-                    </>
+                    </button>
+                    <p className="up-view-more-info">
+                      Showing {subjectsData.length} of {subjectsPagination.totalRecords} subjects
+                    </p>
+                  </div>
+                )}
+
+                {subjectsPagination.totalRecords > subjectsSize &&
+                  subjectsPagination.page >= subjectsPagination.totalPages && (
+                    <div className="up-view-more-completed">
+                      <p>All {subjectsPagination.totalRecords} subjects loaded</p>
+                    </div>
                   )}
-                </>
-              )}
-            </div>
+              </>
+            )}
           </div>
         )}
       </div>
