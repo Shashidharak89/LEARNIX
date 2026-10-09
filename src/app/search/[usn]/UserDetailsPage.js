@@ -32,7 +32,7 @@ export default function UserDetailsPage({ usn }) {
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState("");
   const [hasError, setHasError] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [showResources, setShowResources] = useState(false);
   const [viewerUsn, setViewerUsn] = useState("");
   const [showImagePreview, setShowImagePreview] = useState(false);
@@ -72,6 +72,10 @@ export default function UserDetailsPage({ usn }) {
   useEffect(() => {
     if (usn) {
       fetchUserDetails(usn);
+    } else {
+      setLoading(false);
+      setHasError(true);
+      setMessage("Student USN is required.");
     }
   }, [usn]);
 
