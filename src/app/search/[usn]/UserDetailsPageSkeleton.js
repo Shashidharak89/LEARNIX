@@ -16,9 +16,11 @@ export default function UserDetailsPageSkeleton() {
   return (
     <div className="uds-container">
       <div className="uds-wrapper">
-        {/* Page Title Skeleton (No breadcrumb) */}
-        <div className="uds-page-header">
-          <div className="uds-page-title-skeleton uds-shimmer" />
+        {/* Centered User Profile Title Card Skeleton */}
+        <div className="uds-title-card">
+          <div className="uds-title-pill-skeleton uds-shimmer" />
+          <div className="uds-title-heading-skeleton uds-shimmer" />
+          <div className="uds-title-subheading-skeleton uds-shimmer" />
         </div>
 
         {/* Main Profile Card Skeleton with broader height */}

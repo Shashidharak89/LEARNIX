@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   FiCalendar,
   FiBook,
+  FiEye,
   FiEyeOff,
   FiClock,
   FiChevronRight,
@@ -34,6 +35,7 @@ export default function UserDetailsPage({ usn }) {
   const [loading, setLoading] = useState(false);
   const [showResources, setShowResources] = useState(false);
   const [viewerUsn, setViewerUsn] = useState("");
+  const [showImagePreview, setShowImagePreview] = useState(false);
 
   // Paginated resources state
   const [subjectsPage, setSubjectsPage] = useState(1);
@@ -72,6 +74,18 @@ export default function UserDetailsPage({ usn }) {
       fetchUserDetails(usn);
     }
   }, [usn]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setShowImagePreview(false);
+      }
+    };
+    if (showImagePreview) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showImagePreview]);
 
   const fetchUserDetails = async (usnToSearch) => {
     setLoading(true);
@@ -285,9 +299,14 @@ export default function UserDetailsPage({ usn }) {
   return (
     <div className="up-container">
       <div className="up-wrapper">
-        {/* Page Title (No breadcrumb) */}
-        <div className="up-page-header">
-          <h1 className="up-page-title">Student Profile</h1>
+        {/* Centered User Profile Title Card */}
+        <div className="up-title-card">
+          <div className="up-title-pill-tag">
+            <FiUser className="up-title-pill-icon" />
+            <span>LEARNIX PROFILE</span>
+          </div>
+          <h1 className="up-title-heading">User Profile</h1>
+          <p className="up-title-subheading">Public academic credentials and uploaded resources</p>
         </div>
 
         {/* Top Main Profile Card with broader height */}
@@ -303,12 +322,22 @@ export default function UserDetailsPage({ usn }) {
           <div className="up-main-card-body">
             {/* Left Profile Info */}
             <div className="up-profile-left">
-              <div className="up-avatar-wrapper">
+              <div 
+                className="up-avatar-wrapper is-clickable"
+                onClick={() => setShowImagePreview(true)}
+                role="button"
+                tabIndex={0}
+                title="Click to view full profile picture"
+              >
                 <img
                   src={user.profileimg || DEFAULT_PROFILE_IMAGE}
                   alt={user.name}
                   className="up-avatar-img"
                 />
+                <div className="up-avatar-hover-overlay">
+                  <FiEye className="up-avatar-eye-icon" />
+                  <span className="up-avatar-eye-label">View</span>
+                </div>
               </div>
 
               <div className="up-user-details">
@@ -648,6 +677,57 @@ export default function UserDetailsPage({ usn }) {
                   )}
               </>
             )}
+          </div>
+        )}
+
+        {/* Profile Picture Popup Modal Window */}
+        {showImagePreview && (
+          <div
+            className="up-image-modal-backdrop"
+            onClick={() => setShowImagePreview(false)}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div
+              className="up-image-modal-content"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="up-image-modal-header">
+                <div className="up-image-modal-user-info">
+                  <FiUser className="up-image-modal-icon" />
+                  <span className="up-image-modal-name">{user.name}</span>
+                  <span className="up-image-modal-usn">({user.usn})</span>
+                </div>
+                <button
+                  type="button"
+                  className="up-image-modal-close-btn"
+                  onClick={() => setShowImagePreview(false)}
+                  aria-label="Close image preview"
+                >
+                  <FiX />
+                </button>
+              </div>
+
+              <div className="up-image-modal-body">
+                <img
+                  src={user.profileimg || DEFAULT_PROFILE_IMAGE}
+                  alt={`${user.name}'s profile picture`}
+                  className="up-image-modal-img"
+                />
+              </div>
+
+              <div className="up-image-modal-footer">
+                <span className="up-image-modal-hint">Profile Photo Preview</span>
+                <a
+                  href={user.profileimg || DEFAULT_PROFILE_IMAGE}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="up-image-modal-action-link"
+                >
+                  <FiExternalLink /> Open in Full Resolution
+                </a>
+              </div>
+            </div>
           </div>
         )}
       </div>
