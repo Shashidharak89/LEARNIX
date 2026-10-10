@@ -21,6 +21,82 @@ export async function POST(req) {
     await connectDB();
     cleanupExpiredFiles().catch(() => {});
 
+    const contentType = req.headers.get("content-type") || "";
+
+    // ── Handle JSON payload (Direct Cloudinary upload registration / availability check) ──
+    if (contentType.includes("application/json")) {
+      const body = await req.json().catch(() => ({}));
+      const {
+        cloudinaryUrl,
+        publicId,
+        originalName,
+        size,
+        mimeType,
+        customCode: customCodeRaw,
+        checkOnly
+      } = body;
+
+      // Handle availability check request
+      if (checkOnly && customCodeRaw) {
+        const clean = String(customCodeRaw).toLowerCase().trim();
+        if (!/^[a-z0-9_-]{3,20}$/.test(clean)) {
+          return NextResponse.json({ available: false, error: "Code must be 3-20 letters/numbers." });
+        }
+        const existing = await File.findOne({ fileid: clean });
+        return NextResponse.json({ available: !existing });
+      }
+
+      if (!cloudinaryUrl) {
+        return NextResponse.json({ error: "Missing uploaded file URL" }, { status: 400 });
+      }
+
+      let finalFileId = '';
+      if (customCodeRaw) {
+        const clean = String(customCodeRaw).toLowerCase().trim();
+        if (!/^[a-z0-9_-]{3,20}$/.test(clean)) {
+          return NextResponse.json({ error: "Custom code must be 3-20 letters/numbers." }, { status: 400 });
+        }
+        const existing = await File.findOne({ fileid: clean });
+        if (existing) {
+          return NextResponse.json({ error: "Custom code is already in use. Please choose another." }, { status: 409 });
+        }
+        finalFileId = clean;
+      }
+
+      // Save file info to database
+      const newFile = new File({
+        originalName: originalName || "file",
+        fileid: finalFileId || '',
+        mimeType: mimeType || "application/octet-stream",
+        size: Number(size) || 0,
+        cloudinaryUrl,
+        publicId: publicId || ""
+      });
+
+      if (finalFileId) {
+        await newFile.save();
+      } else {
+        // Retry logic if auto-generating fileid
+        for (let attempt = 0; attempt < 5; attempt++) {
+          newFile.fileid = generateFileId();
+          try {
+            await newFile.save();
+            break;
+          } catch (err) {
+            if (err.code === 11000 && attempt < 4) continue;
+            throw err;
+          }
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        fileId: newFile.fileid,
+        cloudinaryUrl: newFile.cloudinaryUrl
+      });
+    }
+
+    // ── Handle multipart/form-data payload (Legacy fallback & availability check) ──
     const formData = await req.formData();
     const customCodeRaw = formData.get("customCode");
     const checkOnly = formData.get("checkOnly") === "true";
@@ -33,6 +109,53 @@ export async function POST(req) {
       }
       const existing = await File.findOne({ fileid: clean });
       return NextResponse.json({ available: !existing });
+    }
+
+    // If direct Cloudinary upload was performed and sent via formData
+    const directCloudinaryUrl = formData.get("cloudinaryUrl");
+    if (directCloudinaryUrl) {
+      let finalFileId = '';
+      if (customCodeRaw) {
+        const clean = String(customCodeRaw).toLowerCase().trim();
+        if (!/^[a-z0-9_-]{3,20}$/.test(clean)) {
+          return NextResponse.json({ error: "Custom code must be 3-20 letters/numbers." }, { status: 400 });
+        }
+        const existing = await File.findOne({ fileid: clean });
+        if (existing) {
+          return NextResponse.json({ error: "Custom code is already in use. Please choose another." }, { status: 409 });
+        }
+        finalFileId = clean;
+      }
+
+      const newFile = new File({
+        originalName: formData.get("originalName") || "file",
+        fileid: finalFileId || '',
+        mimeType: formData.get("mimeType") || "application/octet-stream",
+        size: Number(formData.get("size")) || 0,
+        cloudinaryUrl: directCloudinaryUrl,
+        publicId: formData.get("publicId") || ""
+      });
+
+      if (finalFileId) {
+        await newFile.save();
+      } else {
+        for (let attempt = 0; attempt < 5; attempt++) {
+          newFile.fileid = generateFileId();
+          try {
+            await newFile.save();
+            break;
+          } catch (err) {
+            if (err.code === 11000 && attempt < 4) continue;
+            throw err;
+          }
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        fileId: newFile.fileid,
+        cloudinaryUrl: newFile.cloudinaryUrl
+      });
     }
 
     const file = formData.get("file");

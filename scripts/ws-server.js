@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 
 /**
- * Standalone WebSocket Server for Learnix Updates Direct Cloudinary Upload Handshake
+ * Standalone WebSocket Server for Learnix Direct Cloudinary Upload Handshake
  * Usage: node scripts/ws-server.js
  */
 
 const { WebSocketServer } = require("ws");
 const jwt = require("jsonwebtoken");
 const cloudinary = require("cloudinary").v2;
+const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const path = require("path");
 
@@ -15,6 +16,7 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey@learnix";
 const WS_PORT = Number(process.env.WS_PORT) || 5001;
+const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_NAME,
@@ -22,6 +24,25 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET || process.env.CLOUDINARY_SECRET,
   secure: true,
 });
+
+if (MONGO_URI) {
+  mongoose.connect(MONGO_URI).catch((err) => {
+    console.warn("[WS Server] Mongo connection warning:", err.message);
+  });
+}
+
+const FileSchema = new mongoose.Schema({
+  originalName: { type: String, required: true },
+  fileid: { type: String, required: true, unique: true },
+  mimeType: { type: String, required: true },
+  size: { type: Number, required: true },
+  cloudinaryUrl: { type: String, required: true },
+  publicId: { type: String, required: true },
+  uploadedBy: { type: String, default: "anonymous" },
+  createdAt: { type: Date, default: Date.now, expires: 86400 }
+});
+
+const FileModel = mongoose.models.File || mongoose.model("File", FileSchema);
 
 function extractToken(req) {
   const authHeader = req.headers["authorization"] || req.headers["Authorization"];
@@ -74,25 +95,20 @@ wss.on("connection", (ws, req) => {
     }
   }
 
-  if (!authenticatedUser) {
-    try {
-      ws.send(JSON.stringify({
-        type: "error",
-        code: "UNAUTHORIZED",
-        message: "Authentication failed. Valid Bearer token required during handshake."
-      }));
-    } catch {}
-    setTimeout(() => ws.close(4401, "Unauthorized"), 150);
-    return;
+  if (authenticatedUser) {
+    ws.userId = authenticatedUser.userId;
+    ws.isAuthenticated = true;
+  } else {
+    ws.userId = null;
+    ws.isAuthenticated = false;
+    ws.isGuest = true;
   }
-
-  ws.userId = authenticatedUser.userId;
 
   try {
     ws.send(JSON.stringify({
       type: "authenticated",
-      message: "WebSocket connection established with authentication",
-      userId: ws.userId
+      message: "WebSocket connection established",
+      userId: ws.userId || "guest"
     }));
   } catch {}
 
@@ -109,7 +125,7 @@ wss.on("connection", (ws, req) => {
 
     switch (type) {
       case "init": {
-        const { filename, fileSize, userId } = msg;
+        const { filename, fileSize, userId, folder: requestedFolder } = msg;
         if (!uploadId || !filename) {
           ws.send(JSON.stringify({ type: "error", uploadId, message: "Missing uploadId or filename" }));
           return;
@@ -126,7 +142,7 @@ wss.on("connection", (ws, req) => {
 
         const timestamp = Math.floor(Date.now() / 1000);
         const targetUserId = userId || ws.userId;
-        const folder = targetUserId ? `updates/${targetUserId}` : "updates";
+        const folder = requestedFolder || (targetUserId ? `updates/${targetUserId}` : "updates");
         const sanitizedName = (filename || `upload-${Date.now()}`).replace(/[^a-zA-Z0-9._-]/g, "_");
         const publicId = `${Date.now()}_${sanitizedName}`;
 
@@ -191,6 +207,71 @@ wss.on("connection", (ws, req) => {
         break;
       }
 
+      case "fetch_file": {
+        const { fileId } = msg;
+        try {
+          const cleanId = String(fileId || "").trim().toLowerCase();
+          const fileDoc = await FileModel.findOne({ fileid: cleanId });
+          if (!fileDoc) {
+            ws.send(JSON.stringify({ type: "file_data", fileId: cleanId, error: "File not found or expired" }));
+            break;
+          }
+          const isExpired = Date.now() - new Date(fileDoc.createdAt).getTime() > 24 * 60 * 60 * 1000;
+          if (isExpired) {
+            ws.send(JSON.stringify({ type: "file_data", fileId: cleanId, error: "This file has expired after 24 hours." }));
+            break;
+          }
+          let downloadUrl = fileDoc.cloudinaryUrl;
+          if (typeof downloadUrl === "string" && downloadUrl.includes("res.cloudinary.com")) {
+            downloadUrl = downloadUrl.replace("/upload/", "/upload/fl_attachment/");
+          }
+          const nameLower = String(fileDoc.originalName || "").toLowerCase();
+          const isImage = (fileDoc.mimeType || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|svg|bmp|tiff)$/i.test(nameLower);
+          const isPdf = (fileDoc.mimeType === "application/pdf") || /\.pdf$/i.test(nameLower);
+          const isOfficeDoc = /\.(docx?|pptx?|xlsx?|odt|rtf|csv|txt)$/i.test(nameLower);
+          let viewUrl = fileDoc.cloudinaryUrl;
+          if (!isImage && !isPdf && isOfficeDoc) {
+            viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(fileDoc.cloudinaryUrl)}`;
+          }
+          ws.send(JSON.stringify({
+            type: "file_data",
+            fileId: fileDoc.fileid,
+            file: {
+              fileid: fileDoc.fileid,
+              fileName: fileDoc.originalName,
+              mimeType: fileDoc.mimeType,
+              size: fileDoc.size,
+              isImage,
+              isPdf,
+              isOfficeDoc,
+              cloudinaryUrl: fileDoc.cloudinaryUrl,
+              downloadUrl,
+              viewUrl,
+              createdAt: fileDoc.createdAt
+            }
+          }));
+        } catch (err) {
+          ws.send(JSON.stringify({ type: "file_data", fileId, error: err.message || "Failed to fetch file" }));
+        }
+        break;
+      }
+
+      case "check_code": {
+        const { customCode } = msg;
+        try {
+          const clean = String(customCode || "").toLowerCase().trim();
+          if (!/^[a-z0-9_-]{3,20}$/.test(clean)) {
+            ws.send(JSON.stringify({ type: "code_availability", customCode: clean, available: false, error: "Code must be 3-20 letters/numbers." }));
+            break;
+          }
+          const existing = await FileModel.findOne({ fileid: clean });
+          ws.send(JSON.stringify({ type: "code_availability", customCode: clean, available: !existing }));
+        } catch (err) {
+          ws.send(JSON.stringify({ type: "code_availability", customCode, available: false, error: "Database error" }));
+        }
+        break;
+      }
+
       default:
         break;
     }
@@ -203,6 +284,14 @@ wss.on("connection", (ws, req) => {
       }
     }
   });
+
+  ws.on("error", (err) => {
+    console.warn("[WS Server] Socket error:", err.message);
+  });
 });
 
-console.log(`[WS Server] Learnix Updates WebSocket Upload Server running on ws://localhost:${WS_PORT}`);
+wss.on("error", (err) => {
+  console.error("[WS Server] Server error:", err);
+});
+
+console.log(`[WS Server] Standalone Server running on ws://localhost:${WS_PORT}`);

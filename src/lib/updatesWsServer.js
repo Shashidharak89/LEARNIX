@@ -1,6 +1,9 @@
 import { WebSocketServer } from "ws";
 import jwt from "jsonwebtoken";
 import cloudinary from "@/lib/cloudinary";
+import { connectDB } from "@/lib/db";
+import File from "@/models/File";
+import { cleanupExpiredFiles } from "@/lib/fileCleanup";
 
 const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey@learnix";
 const WS_DEFAULT_PORT = Number(process.env.WS_PORT) || 5001;
@@ -62,32 +65,25 @@ export function getOrStartWsServer(desiredPort = WS_DEFAULT_PORT) {
         const decoded = jwt.verify(token, SECRET_KEY);
         authenticatedUser = { userId: decoded.userId, ...decoded };
       } catch (err) {
-        console.warn("[WS Updates] Token verification failed:", err.message);
+        console.warn("[WS Server] Token verification failed:", err.message);
       }
     }
 
-    if (!authenticatedUser) {
-      try {
-        ws.send(JSON.stringify({
-          type: "error",
-          code: "UNAUTHORIZED",
-          message: "Authentication failed. Valid Bearer token required during handshake."
-        }));
-      } catch {
-        // Socket may be closed
-      }
-      setTimeout(() => ws.close(4401, "Unauthorized"), 150);
-      return;
+    if (authenticatedUser) {
+      ws.userId = authenticatedUser.userId;
+      ws.isAuthenticated = true;
+    } else {
+      ws.userId = null;
+      ws.isAuthenticated = false;
+      ws.isGuest = true;
     }
-
-    ws.userId = authenticatedUser.userId;
 
     // Send welcome confirmation
     try {
       ws.send(JSON.stringify({
         type: "authenticated",
-        message: "WebSocket connection established with authentication",
-        userId: ws.userId
+        message: "WebSocket connection established",
+        userId: ws.userId || "guest"
       }));
     } catch {
       // Socket may be closed
@@ -106,7 +102,7 @@ export function getOrStartWsServer(desiredPort = WS_DEFAULT_PORT) {
 
       switch (type) {
         case "init": {
-          const { filename, fileSize, userId } = msg;
+          const { filename, fileSize, userId, folder: requestedFolder } = msg;
           if (!uploadId || !filename) {
             ws.send(JSON.stringify({
               type: "error",
@@ -131,7 +127,7 @@ export function getOrStartWsServer(desiredPort = WS_DEFAULT_PORT) {
 
           const timestamp = Math.floor(Date.now() / 1000);
           const targetUserId = userId || ws.userId;
-          const folder = targetUserId ? `updates/${targetUserId}` : "updates";
+          const folder = requestedFolder || (targetUserId ? `updates/${targetUserId}` : "updates");
           const sanitizedName = (filename || `upload-${Date.now()}`).replace(/[^a-zA-Z0-9._-]/g, "_");
           const publicId = `${Date.now()}_${sanitizedName}`;
 
@@ -197,6 +193,78 @@ export function getOrStartWsServer(desiredPort = WS_DEFAULT_PORT) {
           break;
         }
 
+        case "fetch_file": {
+          const { fileId } = msg;
+          try {
+            const cleanId = String(fileId || "").trim().toLowerCase();
+            if (!cleanId) {
+              ws.send(JSON.stringify({ type: "file_data", fileId, error: "Invalid file code" }));
+              break;
+            }
+            await connectDB();
+            cleanupExpiredFiles().catch(() => {});
+            const fileDoc = await File.findOne({ fileid: cleanId });
+            if (!fileDoc) {
+              ws.send(JSON.stringify({ type: "file_data", fileId: cleanId, error: "File not found or expired" }));
+              break;
+            }
+            const isExpired = Date.now() - new Date(fileDoc.createdAt).getTime() > 24 * 60 * 60 * 1000;
+            if (isExpired) {
+              ws.send(JSON.stringify({ type: "file_data", fileId: cleanId, error: "This file has expired after 24 hours." }));
+              break;
+            }
+            let downloadUrl = fileDoc.cloudinaryUrl;
+            if (typeof downloadUrl === "string" && downloadUrl.includes("res.cloudinary.com")) {
+              downloadUrl = downloadUrl.replace("/upload/", "/upload/fl_attachment/");
+            }
+            const nameLower = String(fileDoc.originalName || "").toLowerCase();
+            const isImage = (fileDoc.mimeType || "").startsWith("image/") || /\.(jpg|jpeg|png|gif|webp|svg|bmp|tiff)$/i.test(nameLower);
+            const isPdf = (fileDoc.mimeType === "application/pdf") || /\.pdf$/i.test(nameLower);
+            const isOfficeDoc = /\.(docx?|pptx?|xlsx?|odt|rtf|csv|txt)$/i.test(nameLower);
+            let viewUrl = fileDoc.cloudinaryUrl;
+            if (!isImage && !isPdf && isOfficeDoc) {
+              viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(fileDoc.cloudinaryUrl)}`;
+            }
+            ws.send(JSON.stringify({
+              type: "file_data",
+              fileId: fileDoc.fileid,
+              file: {
+                fileid: fileDoc.fileid,
+                fileName: fileDoc.originalName,
+                mimeType: fileDoc.mimeType,
+                size: fileDoc.size,
+                isImage,
+                isPdf,
+                isOfficeDoc,
+                cloudinaryUrl: fileDoc.cloudinaryUrl,
+                downloadUrl,
+                viewUrl,
+                createdAt: fileDoc.createdAt
+              }
+            }));
+          } catch (err) {
+            ws.send(JSON.stringify({ type: "file_data", fileId, error: err.message || "Failed to fetch file" }));
+          }
+          break;
+        }
+
+        case "check_code": {
+          const { customCode } = msg;
+          try {
+            const clean = String(customCode || "").toLowerCase().trim();
+            if (!/^[a-z0-9_-]{3,20}$/.test(clean)) {
+              ws.send(JSON.stringify({ type: "code_availability", customCode: clean, available: false, error: "Code must be 3-20 letters/numbers." }));
+              break;
+            }
+            await connectDB();
+            const existing = await File.findOne({ fileid: clean });
+            ws.send(JSON.stringify({ type: "code_availability", customCode: clean, available: !existing }));
+          } catch (err) {
+            ws.send(JSON.stringify({ type: "code_availability", customCode, available: false, error: "Database error" }));
+          }
+          break;
+        }
+
         default:
           break;
       }
@@ -211,12 +279,12 @@ export function getOrStartWsServer(desiredPort = WS_DEFAULT_PORT) {
     });
 
     ws.on("error", (err) => {
-      console.warn("[WS Updates] Socket error:", err.message);
+      console.warn("[WS Server] Socket error:", err.message);
     });
   });
 
   wss.on("error", (err) => {
-    console.error("[WS Updates] WebSocket Server error:", err);
+    console.error("[WS Server] WebSocket Server error:", err);
   });
 
   const instance = {
@@ -226,7 +294,7 @@ export function getOrStartWsServer(desiredPort = WS_DEFAULT_PORT) {
   };
 
   global.__updatesWsServerInstance = instance;
-  console.log(`[WS Updates] WebSocket Upload Server running on ws://localhost:${desiredPort}`);
+  console.log(`[WS Server] WebSocket Server running on ws://localhost:${desiredPort}`);
 
   return instance;
 }

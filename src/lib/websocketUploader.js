@@ -1,21 +1,24 @@
 /**
- * Client-side Direct Cloudinary Resumable Chunk Uploader for Updates
+ * Client-side Direct Cloudinary Resumable Chunk Uploader
  * 
  * Features:
  * - Zero binary payload transferred through application server (0 bytes RAM/disk usage on server).
- * - Authenticated WebSocket handshake to receive signed Cloudinary upload credentials.
- * - Slices file in browser into smaller chunks and posts directly to Cloudinary's chunk upload REST endpoint.
+ * - Direct browser-to-Cloudinary resumable chunk upload with WebSocket handshake.
+ * - Slices file in browser into chunks and posts directly to Cloudinary.
  * - Automatic chunk retry (up to 3 retries per chunk with backoff).
  * - Real-time progress updates sent over WebSocket and UI callback.
- * - Server complete/abort signaling for database workflow integration.
- * - Supports very large files, cancellation, and resilient network fallback.
+ * - Clean user-facing status messages without technical background jargon.
+ * - Seamless HTTP fallback if WebSockets are unavailable.
  */
 
 export async function uploadFileViaWebSocket(file, options = {}) {
   const {
     userId = "",
     token = (typeof window !== "undefined" ? localStorage.getItem("token") || "" : ""),
-    chunkSize = 6 * 1024 * 1024, // 6MB chunk size for Cloudinary direct resumable upload (Cloudinary requires min 5MB chunks)
+    folder = "updates",
+    signatureUrl = "/api/updates/upload/signature",
+    wsInfoUrl = "/api/updates/upload/ws-info",
+    chunkSize = 6 * 1024 * 1024, // 6MB chunk size for Cloudinary direct resumable upload
     onProgress = () => {},
     onStatus = () => {},
   } = options;
@@ -43,16 +46,16 @@ export async function uploadFileViaWebSocket(file, options = {}) {
   };
 
   try {
-    onStatus("Connecting to upload server via WebSocket...");
+    onStatus("Connecting...");
 
     // 1. Fetch WebSocket server coordinates from API
-    const infoRes = await fetch("/api/updates/upload/ws-info");
-    const info = await infoRes.json().catch(() => ({}));
+    const infoRes = await fetch(wsInfoUrl).catch(() => null);
+    const info = infoRes ? await infoRes.json().catch(() => ({})) : {};
     const port = info?.port || 5001;
 
-    const isSecure = window.location.protocol === "https:";
+    const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
     const protocol = isSecure ? "wss:" : "ws:";
-    const hostname = window.location.hostname || "localhost";
+    const hostname = typeof window !== "undefined" ? (window.location.hostname || "localhost") : "localhost";
 
     const queryAuth = token ? `?token=${encodeURIComponent(token)}` : "";
     const wsUrl = `${protocol}//${hostname}:${port}${queryAuth}`;
@@ -62,6 +65,7 @@ export async function uploadFileViaWebSocket(file, options = {}) {
     ws = await new Promise((resolve, reject) => {
       let socket;
       const WSConstructor = typeof window !== "undefined" && window.WebSocket ? window.WebSocket : globalThis.WebSocket;
+      if (!WSConstructor) return reject(new Error("WebSocket not supported"));
       try {
         socket = new WSConstructor(wsUrl, protocols);
       } catch (err) {
@@ -70,7 +74,7 @@ export async function uploadFileViaWebSocket(file, options = {}) {
 
       const connectionTimeout = setTimeout(() => {
         try { socket.close(); } catch (_e) {}
-        reject(new Error("WebSocket connection timed out"));
+        reject(new Error("Connection timed out"));
       }, 7000);
 
       socket.onopen = () => {
@@ -84,7 +88,7 @@ export async function uploadFileViaWebSocket(file, options = {}) {
       };
     });
 
-    onStatus("WebSocket connected. Requesting Cloudinary upload signature...");
+    onStatus("Preparing upload...");
 
     // 3. Request signed Cloudinary credentials over WebSocket
     const credentials = await new Promise((resolve, reject) => {
@@ -110,14 +114,14 @@ export async function uploadFileViaWebSocket(file, options = {}) {
         uploadId,
         filename: file.name,
         fileSize: file.size,
-        userId
+        userId,
+        folder
       }));
     });
 
-    onStatus("Upload credentials generated. Direct Cloudinary upload starting...");
+    onStatus("Uploading...");
 
     // 4. Perform Direct Chunked Upload from Browser to Cloudinary
-    // Cloudinary requires minimum 5MB (5,242,880 bytes) per chunk for resumable upload (except final chunk or file <= 5MB)
     const CLOUDINARY_MIN_CHUNK = 5 * 1024 * 1024;
     const effectiveChunkSize = file.size <= CLOUDINARY_MIN_CHUNK
       ? file.size
@@ -134,7 +138,6 @@ export async function uploadFileViaWebSocket(file, options = {}) {
       const end = Math.min(start + effectiveChunkSize, file.size);
       const chunkBlob = file.slice(start, end);
 
-      // Chunk Retry Loop (up to 3 attempts with backoff)
       let chunkSuccess = false;
       let lastChunkErr = null;
 
@@ -204,21 +207,21 @@ export async function uploadFileViaWebSocket(file, options = {}) {
                 if (xhr.status >= 200 && xhr.status < 300) {
                   resolveChunk(data);
                 } else {
-                  rejectChunk(new Error(data?.error?.message || `Cloudinary returned HTTP ${xhr.status}`));
+                  rejectChunk(new Error(data?.error?.message || `Upload returned HTTP ${xhr.status}`));
                 }
               } catch (e) {
-                rejectChunk(new Error(`Cloudinary response parse failed: ${xhr.statusText}`));
+                rejectChunk(new Error(`Upload response parse failed: ${xhr.statusText}`));
               }
             };
 
             xhr.onerror = () => {
               currentXhr = null;
-              rejectChunk(new Error("Network error during direct Cloudinary upload"));
+              rejectChunk(new Error("Network error during direct upload"));
             };
 
             xhr.onabort = () => {
               currentXhr = null;
-              rejectChunk(new Error("Chunk upload aborted"));
+              rejectChunk(new Error("Upload aborted"));
             };
 
             xhr.send(fd);
@@ -228,11 +231,11 @@ export async function uploadFileViaWebSocket(file, options = {}) {
           if (chunkIdx === totalChunks - 1) {
             finalCloudinaryResponse = res;
           }
-          break; // Chunk succeeded, exit retry loop
+          break;
         } catch (err) {
           lastChunkErr = err;
           if (attempt < 3 && !isAborted) {
-            onStatus(`Chunk ${chunkIdx + 1} failed. Retrying (${attempt + 1}/3)...`);
+            onStatus(`Retrying (${attempt + 1}/3)...`);
             await new Promise(r => setTimeout(r, attempt * 500));
           }
         }
@@ -244,8 +247,10 @@ export async function uploadFileViaWebSocket(file, options = {}) {
     }
 
     if (!finalCloudinaryResponse || !finalCloudinaryResponse.secure_url) {
-      throw new Error("Direct Cloudinary upload finished but invalid response received");
+      throw new Error("Direct upload finished but invalid response received");
     }
+
+    onStatus("Finalizing...");
 
     // 5. Complete Upload & Register Metadata with Server via WebSocket
     const fileResult = {
@@ -282,30 +287,28 @@ export async function uploadFileViaWebSocket(file, options = {}) {
       throw wsError;
     }
 
-    console.warn("[WS Upload] WebSocket connection unavailable. Using direct browser-to-Cloudinary HTTP fallback:", wsError?.message);
-
     if (ws) {
       try { ws.close(); } catch { /* ignore */ }
     }
 
     // Fallback: Fetch signed credentials via API and upload directly to Cloudinary from browser
-    onStatus("Fetching direct upload credentials...");
-    const sigRes = await fetch("/api/updates/upload/signature", {
+    onStatus("Preparing upload...");
+    const sigRes = await fetch(signatureUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {})
       },
-      body: JSON.stringify({ filename: file.name })
+      body: JSON.stringify({ filename: file.name, folder })
     });
 
     const sigData = await sigRes.json();
     if (!sigRes.ok || !sigData?.credentials) {
-      throw new Error(sigData?.error || "Failed to fetch direct upload credentials");
+      throw new Error(sigData?.error || "Failed to prepare direct upload");
     }
 
     const credentials = sigData.credentials;
-    onStatus("Direct Cloudinary upload starting...");
+    onStatus("Uploading...");
 
     const CLOUDINARY_MIN_CHUNK = 5 * 1024 * 1024;
     const effectiveChunkSize = file.size <= CLOUDINARY_MIN_CHUNK
@@ -407,6 +410,8 @@ export async function uploadFileViaWebSocket(file, options = {}) {
       }
     }
 
+    onStatus("Finalizing...");
+
     const fileResult = {
       url: finalCloudinaryResponse.secure_url,
       publicId: finalCloudinaryResponse.public_id,
@@ -426,4 +431,145 @@ export async function uploadFileViaWebSocket(file, options = {}) {
 
     return { file: fileResult, abort: abortUpload };
   }
+}
+
+/**
+ * Fetch file information by code over WebSocket with seamless HTTP fallback
+ */
+export async function fetchFileViaWebSocket(fileId) {
+  const cleanId = String(fileId || "").trim().toLowerCase();
+  if (!cleanId) throw new Error("Please enter a file code");
+
+  try {
+    const infoRes = await fetch("/api/updates/upload/ws-info").catch(() => null);
+    const info = infoRes ? await infoRes.json().catch(() => ({})) : {};
+    const port = info?.port || 5001;
+    const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
+    const protocol = isSecure ? "wss:" : "ws:";
+    const hostname = typeof window !== "undefined" ? (window.location.hostname || "localhost") : "localhost";
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+    const wsUrl = `${protocol}//${hostname}:${port}${token ? `?token=${encodeURIComponent(token)}` : ""}`;
+
+    const fileData = await new Promise((resolve, reject) => {
+      let socket;
+      const timeout = setTimeout(() => {
+        try { if (socket) socket.close(); } catch {}
+        reject(new Error("WebSocket timeout"));
+      }, 3500);
+
+      const WSConstructor = typeof window !== "undefined" && window.WebSocket ? window.WebSocket : globalThis.WebSocket;
+      if (!WSConstructor) return reject(new Error("No WebSocket constructor"));
+
+      try {
+        socket = new WSConstructor(wsUrl);
+      } catch (e) {
+        clearTimeout(timeout);
+        return reject(e);
+      }
+
+      socket.onopen = () => {
+        socket.send(JSON.stringify({ type: "fetch_file", fileId: cleanId }));
+      };
+
+      socket.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === "file_data") {
+            clearTimeout(timeout);
+            try { socket.close(); } catch {}
+            if (msg.error) return reject(new Error(msg.error));
+            if (msg.file) return resolve(msg.file);
+            return reject(new Error("File not found"));
+          }
+        } catch {}
+      };
+
+      socket.onerror = () => {
+        clearTimeout(timeout);
+        reject(new Error("WebSocket connection error"));
+      };
+    });
+
+    if (fileData) return fileData;
+  } catch (_wsErr) {
+    // Fall back to REST API
+  }
+
+  // HTTP Fallback
+  const res = await fetch(`/api/file/download/${cleanId}`);
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.error || "File not found or expired");
+  }
+  return data;
+}
+
+/**
+ * Check custom code availability over WebSocket with seamless HTTP fallback
+ */
+export async function checkCustomCodeViaWebSocket(customCode) {
+  const clean = String(customCode || "").trim().toLowerCase();
+  if (!clean) return { available: false, error: "Please enter a code" };
+
+  try {
+    const infoRes = await fetch("/api/updates/upload/ws-info").catch(() => null);
+    const info = infoRes ? await infoRes.json().catch(() => ({})) : {};
+    const port = info?.port || 5001;
+    const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
+    const protocol = isSecure ? "wss:" : "ws:";
+    const hostname = typeof window !== "undefined" ? (window.location.hostname || "localhost") : "localhost";
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+    const wsUrl = `${protocol}//${hostname}:${port}${token ? `?token=${encodeURIComponent(token)}` : ""}`;
+
+    const checkData = await new Promise((resolve, reject) => {
+      let socket;
+      const timeout = setTimeout(() => {
+        try { if (socket) socket.close(); } catch {}
+        reject(new Error("WebSocket timeout"));
+      }, 3000);
+
+      const WSConstructor = typeof window !== "undefined" && window.WebSocket ? window.WebSocket : globalThis.WebSocket;
+      if (!WSConstructor) return reject(new Error("No WebSocket constructor"));
+
+      try {
+        socket = new WSConstructor(wsUrl);
+      } catch (e) {
+        clearTimeout(timeout);
+        return reject(e);
+      }
+
+      socket.onopen = () => {
+        socket.send(JSON.stringify({ type: "check_code", customCode: clean }));
+      };
+
+      socket.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === "code_availability") {
+            clearTimeout(timeout);
+            try { socket.close(); } catch {}
+            return resolve(msg);
+          }
+        } catch {}
+      };
+
+      socket.onerror = () => {
+        clearTimeout(timeout);
+        reject(new Error("WebSocket connection error"));
+      };
+    });
+
+    if (checkData) return checkData;
+  } catch (_wsErr) {
+    // Fall back to REST API
+  }
+
+  // HTTP Fallback
+  const res = await fetch("/api/file/upload", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ customCode: clean, checkOnly: true })
+  });
+  const data = await res.json();
+  return data;
 }

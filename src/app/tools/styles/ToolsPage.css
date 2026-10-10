@@ -1494,3 +1494,121 @@
 .upd-file-action-btn:active {
   transform: scale(0.92);
 }
+
+/* =====================================================
+   File Upload Progress Banner (Apple / Updates Style)
+   ===================================================== */
+.tool-uploading-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 18px;
+  background: #f0f7ff;
+  border: 1.5px solid rgba(11, 116, 255, 0.22);
+  border-radius: 14px;
+  margin-top: 14px;
+  animation: tool-fade-in 200ms ease both;
+  box-shadow: 0 4px 14px rgba(11, 116, 255, 0.06);
+}
+
+.tool-uploading-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tool-uploading-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.tool-uploading-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.tool-uploading-filename-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+
+.tool-uploading-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.tool-uploading-percent {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--tool-blue);
+  font-variant-numeric: tabular-nums;
+  background: #ffffff;
+  border: 1px solid rgba(11, 116, 255, 0.2);
+  padding: 3px 10px;
+  border-radius: 9999px;
+  letter-spacing: -0.01em;
+  box-shadow: 0 1px 4px rgba(11, 116, 255, 0.08);
+}
+
+.tool-progress-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(11, 116, 255, 0.12);
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.tool-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0b74ff, #38bdf8);
+  border-radius: 9999px;
+  transition: width 200ms ease-out;
+  box-shadow: 0 0 10px rgba(11, 116, 255, 0.35);
+}
+
+.tool-progress-sub {
+  display: flex;
+  align-items: center;
+  font-size: 0.76rem;
+  color: var(--tool-gray-500);
+  font-weight: 500;
+}
+
+.tool-status-detail {
+  font-weight: 500;
+  color: var(--tool-gray-500);
+  font-size: 0.75rem;
+}
+
+.tool-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(11, 116, 255, 0.2);
+  border-top-color: var(--tool-blue);
+  border-radius: 50%;
+  animation: tool-spin 0.8s linear infinite;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+@keyframes tool-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes tool-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

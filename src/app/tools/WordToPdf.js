@@ -6,12 +6,18 @@ import {
   FiEye, FiClock, FiCode, FiEdit3
 } from "react-icons/fi";
 import FileIcon from "../components/FileIcon";
+import {
+  uploadFileViaWebSocket,
+  fetchFileViaWebSocket,
+  checkCustomCodeViaWebSocket,
+} from "@/lib/websocketUploader";
 import "./styles/ToolsPage.css";
 
 export default function FileUploadDownload({ globalIsDragging, droppedFile, forceExpandTrigger }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [file, setFile] = useState(null);
   const [uploadLoading, setUploadLoading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState(null);
   const [downloadId, setDownloadId] = useState("");
   const [downloadLoading, setDownloadLoading] = useState(false);
   const [fileId, setFileId] = useState("");
@@ -92,7 +98,7 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
     if (f) { setFile(f); setFileId(""); }
   }
 
-  // Drop on the card's upload zone — no popup message
+  // Drop on the card's upload zone
   const handleZoneDrop = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -115,7 +121,7 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
     setUploadZoneHover(false);
   }, []);
 
-  // Check custom code availability on button click
+  // Check custom code availability
   const handleCheckAvailability = async () => {
     const clean = customCodeInput.toLowerCase().trim();
     if (!clean) {
@@ -129,11 +135,7 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
     }
     setCheckingCustomCode(true);
     try {
-      const fd = new FormData();
-      fd.append("customCode", clean);
-      fd.append("checkOnly", "true");
-      const res = await fetch("/api/file/upload", { method: "POST", body: fd });
-      const data = await res.json();
+      const data = await checkCustomCodeViaWebSocket(clean);
       if (data.available === true) {
         setCustomCodeAvailable(true);
         showToast(`Code "${clean}" is available!`, "success");
@@ -149,6 +151,7 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
     }
   };
 
+  // Upload file directly to Cloudinary with real-time progress
   async function handleUpload() {
     if (!file) { showToast("Please choose a file.", "error"); return; }
     if (showCustomCodeInput && customCodeInput.trim() && customCodeAvailable !== true) {
@@ -157,17 +160,60 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
     }
 
     setUploadLoading(true);
-    showToast("Uploading…", "info");
+    setUploadStatus({
+      filename: file.name,
+      percent: 0,
+      statusText: "Preparing upload..."
+    });
+
     try {
-      const fd = new FormData();
-      fd.append("file", file, file.name);
-      if (showCustomCodeInput && customCodeInput.trim()) {
-        fd.append("customCode", customCodeInput.trim());
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+      const userId = typeof window !== "undefined" ? localStorage.getItem("usn") || "" : "";
+
+      // 1. Direct Cloudinary chunked upload
+      const uploadResult = await uploadFileViaWebSocket(file, {
+        userId,
+        token,
+        folder: "uploaded_files",
+        signatureUrl: "/api/file/upload/signature",
+        onProgress: ({ percent, statusText }) => {
+          setUploadStatus({
+            filename: file.name,
+            percent,
+            statusText: statusText || `${percent}% uploaded`
+          });
+        },
+        onStatus: (statusText) => {
+          setUploadStatus(prev => prev ? ({ ...prev, statusText }) : null);
+        }
+      });
+
+      if (!uploadResult?.file?.url) {
+        throw new Error("Upload failed. Please try again.");
       }
 
-      const res = await fetch("/api/file/upload", { method: "POST", body: fd });
+      setUploadStatus(prev => prev ? ({ ...prev, statusText: "Finalizing..." }) : null);
+
+      // 2. Register file metadata in database
+      const customCode = (showCustomCodeInput && customCodeInput.trim()) ? customCodeInput.trim() : undefined;
+      const res = await fetch("/api/file/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cloudinaryUrl: uploadResult.file.url,
+          publicId: uploadResult.file.publicId,
+          originalName: file.name,
+          size: file.size,
+          mimeType: file.type,
+          customCode
+        })
+      });
+
       const data = await res.json();
-      if (!res.ok) { showToast(data.error || "Upload failed", "error"); return; }
+      if (!res.ok) {
+        showToast(data.error || "Failed to register file.", "error");
+        return;
+      }
 
       setFileId(data.fileId);
       setPersistentFileId(data.fileId);
@@ -180,31 +226,29 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
       localStorage.setItem("userUploadedFiles", JSON.stringify(updated));
       setAllFiles(updated);
       showToast(`Upload complete! Code: ${data.fileId}`, "success");
-    } catch {
-      showToast("Network error. Try again.", "error");
+    } catch (err) {
+      console.error("Upload error:", err);
+      showToast(err.message || "Upload failed. Please try again.", "error");
     } finally {
       setUploadLoading(false);
+      setUploadStatus(null);
     }
   }
 
+  // Fetch file preview & download info by code
   async function handleFetchFile(idToFetch) {
     const targetId = (idToFetch || downloadId).trim();
     if (!targetId) { showToast("Enter a file code.", "error"); return; }
     setDownloadLoading(true);
     showToast("Fetching file preview…", "info");
     try {
-      const res = await fetch(`/api/file/download/${targetId}`);
-      const data = await res.json();
-      if (!res.ok) {
-        showToast(data.error || "File not found or expired.", "error");
-        return;
-      }
+      const data = await fetchFileViaWebSocket(targetId);
       setFetchedFile(data);
       setIsExpanded(true);
       setDownloadId("");
       showToast("File found! Preview ready below.", "success");
-    } catch {
-      showToast("Failed to fetch file. Try again.", "error");
+    } catch (err) {
+      showToast(err.message || "Failed to fetch file. Try again.", "error");
     } finally {
       setDownloadLoading(false);
     }
@@ -400,7 +444,7 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
               ) : (
                 <>
                   <p className="tool-upload-zone-label">Click to choose or drag &amp; drop</p>
-                  <p className="tool-upload-zone-hint">Supports all file types · Up to 100 MB · Auto-deletes in 24h</p>
+                  <p className="tool-upload-zone-hint">Supports all file types · Direct upload · Auto-deletes in 24h</p>
                 </>
               )}
             </div>
@@ -460,6 +504,38 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
               )}
             </div>
 
+            {/* Uploading progress notification card */}
+            {uploadLoading && uploadStatus && (
+              <div className="tool-uploading-banner">
+                <div className="tool-uploading-header">
+                  <div className="tool-uploading-left">
+                    <span className="tool-spinner"></span>
+                    <div className="tool-uploading-info">
+                      <span className="tool-uploading-filename-title" title={uploadStatus.filename}>
+                        {uploadStatus.filename}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="tool-uploading-right">
+                    <span className="tool-uploading-percent">{uploadStatus.percent || 0}% uploaded</span>
+                  </div>
+                </div>
+
+                <div className="tool-progress-track">
+                  <div
+                    className="tool-progress-fill"
+                    style={{ width: `${Math.max(2, uploadStatus.percent || 0)}%` }}
+                  ></div>
+                </div>
+
+                {uploadStatus.statusText && !uploadStatus.statusText.includes(`${uploadStatus.percent || 0}% uploaded`) && (
+                  <div className="tool-progress-sub">
+                    <span className="tool-status-detail">{uploadStatus.statusText}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="tool-btn-actions" style={{ marginTop: 14 }}>
               <button
                 className="tool-btn tool-btn-primary"
@@ -473,7 +549,7 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
                 <FiUpload size={15} />
                 {uploadLoading ? "Uploading…" : "Upload"}
               </button>
-              {file && (
+              {file && !uploadLoading && (
                 <button className="tool-btn tool-btn-ghost" onClick={() => { setFile(null); setFileId(""); }}>
                   <FiTrash2 size={14} /> Clear
                 </button>
