@@ -1,13 +1,13 @@
 "use client";
 
-import { use, useEffect, useRef, useState } from "react";
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
   FiArrowLeft, FiUser, FiShield, FiCalendar, FiBook,
   FiFileText, FiAlertCircle, FiLock, FiUnlock,
-  FiMoreVertical, FiEdit2, FiTrash2, FiKey, FiX,
-  FiCheck, FiEye, FiEyeOff, FiCamera,
+  FiEdit2, FiTrash2, FiKey, FiX,
+  FiCheck, FiEye, FiEyeOff, FiCamera, FiExternalLink,
 } from "react-icons/fi";
 import { MdAdminPanelSettings } from "react-icons/md";
 import "../../AdminUsers.css";
@@ -86,10 +86,6 @@ export default function AdminUserProfile({ params }) {
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState("");
 
-  /* 3-dot menu */
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuRef = useRef(null);
-
   /* modals */
   const [modal, setModal] = useState(null); // "edit" | "password" | "delete"
 
@@ -153,14 +149,6 @@ export default function AdminUserProfile({ params }) {
 
   useEffect(() => { fetchProfile(token, usn); }, [token, usn]); // eslint-disable-line
 
-  /* ── close menu on outside click ── */
-  useEffect(() => {
-    if (!menuOpen) return;
-    const h = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false); };
-    document.addEventListener("mousedown", h);
-    return () => document.removeEventListener("mousedown", h);
-  }, [menuOpen]);
-
   /* ── open modals ── */
   const openEdit = () => {
     setEditName(profile?.name || "");
@@ -168,11 +156,10 @@ export default function AdminUserProfile({ params }) {
     setEditImgFile(null);
     setEditImgPreview(null);
     setEditError("");
-    setMenuOpen(false);
     setModal("edit");
   };
-  const openPassword = () => { setPwNew(""); setPwConfirm(""); setPwError(""); setMenuOpen(false); setModal("password"); };
-  const openDelete   = () => { setDelError(""); setMenuOpen(false); setModal("delete"); };
+  const openPassword = () => { setPwNew(""); setPwConfirm(""); setPwError(""); setModal("password"); };
+  const openDelete   = () => { setDelError(""); setModal("delete"); };
 
   const handleImgChange = (e) => {
     const file = e.target.files?.[0];
@@ -274,43 +261,75 @@ export default function AdminUserProfile({ params }) {
           {/* Profile card */}
           <div className="aup-profile-card">
 
-            {/* 3-dot menu */}
+            {/* Quick Actions Toolbar — Direct access instead of 3 dots */}
             {isAdminOrSuper && (
-              <div className="aup-menu-wrap" ref={menuRef}>
+              <div className="aup-actions-toolbar">
                 <button
-                  className="aup-menu-btn"
-                  onClick={() => setMenuOpen(v => !v)}
-                  aria-label="More options"
+                  type="button"
+                  className="aup-toolbar-btn aup-btn-edit"
+                  onClick={openEdit}
+                  title="Edit user details"
                 >
-                  <FiMoreVertical size={18} />
+                  <FiEdit2 size={13} />
+                  <span>Edit Profile</span>
                 </button>
-                {menuOpen && (
-                  <div className="aup-menu-dropdown">
-                    <button className="aup-menu-item" onClick={openEdit}>
-                      <FiEdit2 size={14} /> Edit Profile
-                    </button>
-                    {isSuperAdmin && (
-                      <button className="aup-menu-item" onClick={openPassword}>
-                        <FiKey size={14} /> Change Password
-                      </button>
-                    )}
-                    {isSuperAdmin && (
-                      <button className="aup-menu-item aup-menu-danger" onClick={openDelete}>
-                        <FiTrash2 size={14} /> Delete User
-                      </button>
-                    )}
-                  </div>
+
+                {isSuperAdmin && (
+                  <button
+                    type="button"
+                    className="aup-toolbar-btn aup-btn-pw"
+                    onClick={openPassword}
+                    title="Change user password"
+                  >
+                    <FiKey size={13} />
+                    <span>Change Password</span>
+                  </button>
                 )}
+
+                {isSuperAdmin && (
+                  <button
+                    type="button"
+                    className="aup-toolbar-btn aup-btn-del"
+                    onClick={openDelete}
+                    title="Delete user"
+                  >
+                    <FiTrash2 size={13} />
+                    <span>Delete User</span>
+                  </button>
+                )}
+
+                <Link
+                  href={`/users/${profile.usn}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="aup-toolbar-btn aup-btn-public"
+                  title="Open user's public profile in new tab"
+                >
+                  <FiExternalLink size={13} />
+                  <span>Public Profile</span>
+                </Link>
               </div>
             )}
 
             <div className="aup-avatar-section">
-              <Image
-                src={profile.profileimg || "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp"}
-                alt={profile.name}
-                width={80} height={80}
-                className="aup-avatar"
-              />
+              <Link
+                href={`/users/${profile.usn}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="aup-avatar-link"
+                title="View original public profile"
+              >
+                <Image
+                  src={profile.profileimg || "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp"}
+                  alt={profile.name}
+                  width={80} height={80}
+                  className="aup-avatar"
+                  unoptimized
+                />
+                <span className="aup-avatar-badge">
+                  <FiExternalLink size={12} />
+                </span>
+              </Link>
               <div className="aup-avatar-info">
                 <h2 className="aup-name">{profile.name}</h2>
                 <p className="aup-usn">{profile.usn}</p>

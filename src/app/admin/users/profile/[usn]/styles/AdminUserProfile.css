@@ -29,13 +29,14 @@
   gap: 1.5rem;
 }
 
-/* ── Profile card ── */
+/* ── Profile card (Apple theme) ── */
 .aup-profile-card {
-  background: #fff;
+  background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 1.75rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border-radius: 20px;
+  padding: 1.85rem;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+  position: relative;
 }
 
 .aup-avatar-section {
@@ -303,65 +304,125 @@
 .aup-sk-stats   { display: flex; gap: 1rem; margin-top: 0.5rem; }
 .aup-sk-stat    { height: 64px; flex: 1; border-radius: 12px; }
 
-/* ══ 3-dot Menu ═══════════════════════════════════════════════ */
-.aup-menu-wrap {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-}
-
-.aup-profile-card {
-  position: relative; /* anchor for 3-dot */
-}
-
-.aup-menu-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.35rem;
-  border-radius: 8px;
-  color: #6b7280;
+/* ══ Quick Actions Toolbar (Direct Access - Apple Theme) ════════ */
+.aup-actions-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  transition: background 0.15s, color 0.15s;
+  gap: 0.65rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
 }
-.aup-menu-btn:hover { background: #f3f4f6; color: #1f2937; }
 
-.aup-menu-dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
-  min-width: 170px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
+.aup-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
   border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  padding: 0.35rem;
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
-.aup-menu-item {
+.aup-btn-edit {
+  background: #eff6ff;
+  color: #2563eb;
+  border-color: #bfdbfe;
+}
+.aup-btn-edit:hover {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.22);
+}
+
+.aup-btn-pw {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border-color: #ddd6fe;
+}
+.aup-btn-pw:hover {
+  background: #7c3aed;
+  color: #ffffff;
+  border-color: #7c3aed;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.22);
+}
+
+.aup-btn-del {
+  background: #fff1f2;
+  color: #e11d48;
+  border-color: #fecdd3;
+}
+.aup-btn-del:hover {
+  background: #e11d48;
+  color: #ffffff;
+  border-color: #e11d48;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.22);
+}
+
+.aup-btn-public {
+  background: #f8fafc;
+  color: #334155;
+  border-color: #cbd5e1;
+}
+.aup-btn-public:hover {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.22);
+}
+
+/* ── Clickable Avatar Link ── */
+.aup-avatar-link {
+  position: relative;
+  display: block;
+  flex-shrink: 0;
+  border-radius: 50%;
+  text-decoration: none;
+}
+
+.aup-avatar-link .aup-avatar {
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.aup-avatar-link:hover .aup-avatar {
+  transform: scale(1.05);
+  border-color: #3b82f6;
+  box-shadow: 0 6px 18px rgba(59, 130, 246, 0.25);
+}
+
+.aup-avatar-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  background: #3b82f6;
+  color: #ffffff;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  gap: 0.55rem;
-  width: 100%;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.55rem 0.7rem;
-  border-radius: 7px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #374151;
-  text-align: left;
-  transition: background 0.12s, color 0.12s;
+  justify-content: center;
+  border: 2px solid #ffffff;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.2s ease;
 }
-.aup-menu-item:hover { background: #f3f4f6; color: #111; }
-.aup-menu-danger     { color: #dc2626; }
-.aup-menu-danger:hover { background: #fee2e2; color: #b91c1c; }
+
+.aup-avatar-link:hover .aup-avatar-badge {
+  opacity: 1;
+  transform: scale(1);
+}
 
 /* ══ Modal ════════════════════════════════════════════════════ */
 .aup-modal-overlay {

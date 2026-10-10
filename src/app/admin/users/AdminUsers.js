@@ -7,7 +7,7 @@ import Image from "next/image";
 import {
   FiUsers, FiArrowLeft, FiShield, FiUser, FiLoader,
   FiChevronDown, FiCalendar, FiHash, FiUserCheck, FiUserX, FiExternalLink,
-  FiTrash2, FiSearch, FiX,
+  FiTrash2, FiSearch, FiX, FiArrowRight,
 } from "react-icons/fi";
 import { MdAdminPanelSettings } from "react-icons/md";
 import "../styles/AdminDashboard.css";
@@ -422,7 +422,7 @@ export default function AdminUsers() {
         </div>
       ) : (
         <>
-          <section className="au-users-grid">
+          <section className="au-users-list">
             {users.map((user, idx) => {
               const userRole     = user.role || "user";
               const isChanging   = changingRole[user.usn];
@@ -434,88 +434,102 @@ export default function AdminUsers() {
               return (
                 <div
                   key={user._id || idx}
-                  className="au-user-card"
-                  style={{ animationDelay: `${idx * 0.04}s` }}
+                  className="au-user-row"
+                  style={{ animationDelay: `${idx * 0.03}s` }}
                 >
-                  {/* Avatar + name row */}
-                  <div className="au-card-top">
-                    <div className="au-avatar-wrap">
-                      <Image
-                        src={user.profileimg || "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp"}
-                        alt={user.name}
-                        width={48} height={48}
-                        className="au-avatar"
-                      />
-                    </div>
-                    <div className="au-card-info">
-                      <p className="au-user-name">{user.name}</p>
-                      <p className="au-user-usn">{user.usn}</p>
-                      <p className={`au-last-seen ${lastSeen.isActive ? "au-last-seen-active" : ""}`}>
-                        Last seen: {lastSeen.text}
-                      </p>
-                    </div>
-                    <RoleBadge role={userRole} />
-                  </div>
-
-                  {/* Meta row */}
-                  <div className="au-meta-row">
-                    <span className="au-meta-item">
-                      <FiCalendar size={12} /> Joined {formatDate(user.createdAt)}
+                  {/* Left: Avatar (navigates to original public profile on click) */}
+                  <Link
+                    href={`/users/${user.usn}`}
+                    className="au-row-avatar-link"
+                    title={`View ${user.name}'s profile`}
+                  >
+                    <Image
+                      src={user.profileimg || "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp"}
+                      alt={user.name}
+                      width={52}
+                      height={52}
+                      className="au-row-avatar"
+                      unoptimized
+                    />
+                    <span className="au-avatar-hint">
+                      <FiExternalLink size={11} />
                     </span>
+                  </Link>
+
+                  {/* Middle: User Info (Name, USN, Badges, Meta) */}
+                  <div className="au-row-info">
+                    <div className="au-row-name-line">
+                      <Link
+                        href={`/users/${user.usn}`}
+                        className="au-row-name-link"
+                        title="View profile"
+                      >
+                        <span className="au-row-name">{user.name}</span>
+                      </Link>
+                      <RoleBadge role={userRole} />
+                      {isOwnAccount && <span className="au-own-tag">You</span>}
+                    </div>
+
+                    <div className="au-row-meta-line">
+                      <span className="au-row-usn">{user.usn}</span>
+                      {user.email && (
+                        <span className="au-row-email">• {user.email}</span>
+                      )}
+                      <span className="au-row-meta-item">
+                        <FiCalendar size={12} /> Joined {formatDate(user.createdAt)}
+                      </span>
+                      <span className={`au-row-last-seen ${lastSeen.isActive ? "is-active" : ""}`}>
+                        <span className="au-status-dot" />
+                        {lastSeen.text}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* View Profile Links */}
-                  <div className="au-view-profile-row">
+                  {/* Right: Actions Cluster */}
+                  <div className="au-row-actions">
+                    {/* Admin Profile button */}
                     <Link
                       href={`/admin/users/profile/${user.usn}`}
-                      className="au-view-profile-btn"
+                      className="au-admin-profile-btn"
+                      title="Open Admin Profile"
                     >
-                      <FiExternalLink size={13} />
-                      Admin View
+                      <FiShield size={13} />
+                      <span>Admin Profile</span>
+                      <FiArrowRight size={13} className="au-btn-arrow" />
                     </Link>
-                    <Link
-                      href={`/users/${user.usn}`}
-                      className="au-view-profile-btn au-view-public-btn"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <FiUser size={13} />
-                      Public Profile
-                    </Link>
-                  </div>
 
-                  {/* Role action — superadmin only, not own account */}
-                  {isSuperAdmin && !isOwnAccount && (
-                    <div className="au-role-action">
-                      <div className="au-confirm-wrap">
-                        {userRole === "admin" ? (
-                          <button
-                            ref={el => { btnRefs.current[user.usn] = el; }}
-                            className="au-role-btn au-role-btn-remove"
-                            onClick={() => isOpen ? closeConfirm() : openConfirm(user, "user", user.usn)}
-                            disabled={isChanging}
-                          >
-                            <FiUserX size={14} />
-                            {isChanging ? "Updating…" : "Remove Admin"}
-                          </button>
-                        ) : (
-                          <button
-                            ref={el => { btnRefs.current[user.usn] = el; }}
-                            className="au-role-btn au-role-btn-make"
-                            onClick={() => isOpen ? closeConfirm() : openConfirm(user, "admin", user.usn)}
-                            disabled={isChanging}
-                          >
-                            <FiUserCheck size={14} />
-                            {isChanging ? "Updating…" : "Make Admin"}
-                          </button>
-                        )}
+                    {/* Role action — superadmin only, not own account */}
+                    {isSuperAdmin && !isOwnAccount && (
+                      <div className="au-role-action">
+                        <div className="au-confirm-wrap">
+                          {userRole === "admin" ? (
+                            <button
+                              ref={el => { btnRefs.current[user.usn] = el; }}
+                              className="au-role-btn au-role-btn-remove"
+                              onClick={() => isOpen ? closeConfirm() : openConfirm(user, "user", user.usn)}
+                              disabled={isChanging}
+                              title="Demote from Admin"
+                            >
+                              <FiUserX size={13} />
+                              <span>{isChanging ? "Updating…" : "Remove Admin"}</span>
+                            </button>
+                          ) : (
+                            <button
+                              ref={el => { btnRefs.current[user.usn] = el; }}
+                              className="au-role-btn au-role-btn-make"
+                              onClick={() => isOpen ? closeConfirm() : openConfirm(user, "admin", user.usn)}
+                              disabled={isChanging}
+                              title="Promote to Admin"
+                            >
+                              <FiUserCheck size={13} />
+                              <span>{isChanging ? "Updating…" : "Make Admin"}</span>
+                            </button>
+                          )}
+                        </div>
+                        {msg && <span className="au-role-msg">{msg}</span>}
                       </div>
-                      {msg && <span className="au-role-msg">{msg}</span>}
-                    </div>
-                  )}
-
-                  {/* Own account label */}
-                  {isOwnAccount && <div className="au-own-tag">You</div>}
+                    )}
+                  </div>
                 </div>
               );
             })}
