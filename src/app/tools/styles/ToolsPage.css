@@ -1612,3 +1612,149 @@
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* =====================================================
+   File Upload + (Turbo / Emerald Theme)
+   ===================================================== */
+.tool-card-plus {
+  border-color: rgba(16, 185, 129, 0.22);
+}
+
+.tool-card-plus:hover {
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.tool-card-plus.tool-card-expanded {
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 12px 36px -6px rgba(16, 185, 129, 0.12), 0 4px 12px -2px rgba(16, 185, 129, 0.06);
+}
+
+.tool-card-plus .tool-card-header:hover .tool-card-toggle-icon {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.tool-card-plus.tool-card-expanded .tool-card-toggle-icon {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.tool-card-plus .tool-card-header-inline:focus-within {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+}
+
+.tool-plus-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.tool-btn-plus-accent {
+  background: #10b981 !important;
+  color: #ffffff !important;
+}
+
+.tool-btn-plus-accent:hover:not(:disabled) {
+  background: #059669 !important;
+}
+
+.tool-btn-plus-primary {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.tool-btn-plus-primary:hover:not(:disabled) {
+  background: #059669;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+}
+
+.tool-plus-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--tool-gray-600);
+  cursor: pointer;
+  user-select: none;
+}
+
+.tool-plus-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #10b981;
+  cursor: pointer;
+}
+
+/* Upload progress emerald overrides */
+.tool-uploading-banner-plus {
+  background: #f0fdf4;
+  border-color: rgba(16, 185, 129, 0.25);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.06);
+}
+
+.tool-spinner-green {
+  border-color: rgba(16, 185, 129, 0.2);
+  border-top-color: #10b981;
+}
+
+.tool-uploading-percent-green {
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.tool-progress-fill-green {
+  background: linear-gradient(90deg, #10b981, #34d399);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
+}
+
+/* Plus Result Ticket Card */
+.tool-plus-ticket {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.02));
+  border: 1.5px solid rgba(16, 185, 129, 0.3);
+  border-radius: 16px;
+  padding: 16px 20px;
+  animation: tool-fade-in 200ms ease both;
+}
+
+.tool-plus-ticket-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tool-plus-ticket-label {
+  font-size: 0.8rem;
+  color: var(--tool-gray-500);
+  font-weight: 500;
+}
+
+.tool-plus-ticket-code {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", monospace;
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: #059669;
+  line-height: 1.1;
+  margin: 4px 0 2px;
+}
+
+.tool-plus-ticket-meta {
+  font-size: 0.82rem;
+  color: var(--tool-gray-600);
+}
+
+.tool-plus-ticket-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}

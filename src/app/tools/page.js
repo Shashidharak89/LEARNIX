@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import { Navbar } from "../components/Navbar";
 import FileUploadDownload from "./WordToPdf";
+import FileUploadPlus from "./FileUploadPlus";
 import TextShareTool from "./TextShareTool";
 import ToolsInfo from "./ToolsInfo";
 import "./styles/ToolsPage.css";
@@ -11,6 +12,7 @@ export default function Tools() {
   const [globalIsDragging, setGlobalIsDragging] = useState(false);
   const [droppedFile, setDroppedFile] = useState(null);
   const [uploadExpandTrigger, setUploadExpandTrigger] = useState(0);
+  const [uploadPlusExpandTrigger, setUploadPlusExpandTrigger] = useState(0);
   const [textShareExpandTrigger, setTextShareExpandTrigger] = useState(0);
   const dragCounterRef = useRef(0);
 
@@ -18,6 +20,14 @@ export default function Tools() {
     setUploadExpandTrigger(prev => prev + 1);
     setTimeout(() => {
       const el = document.querySelector('.tool-card-blue');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 40);
+  }, []);
+
+  const handleUploadPlusClick = useCallback(() => {
+    setUploadPlusExpandTrigger(prev => prev + 1);
+    setTimeout(() => {
+      const el = document.querySelector('.tool-card-plus');
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }, 40);
   }, []);
@@ -95,6 +105,21 @@ export default function Tools() {
             </button>
             <button
               type="button"
+              className="tools-action-btn tools-action-btn-plus"
+              onClick={handleUploadPlusClick}
+              style={{
+                background: "rgba(16, 185, 129, 0.1)",
+                color: "#059669",
+                border: "1.5px solid rgba(16, 185, 129, 0.3)"
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+              File Upload +
+            </button>
+            <button
+              type="button"
               className="tools-action-btn tools-action-btn-secondary"
               onClick={handleTextShareClick}
             >
@@ -108,6 +133,7 @@ export default function Tools() {
 
         <div className="tools-cards-list">
           <FileUploadDownload globalIsDragging={globalIsDragging} droppedFile={droppedFile} forceExpandTrigger={uploadExpandTrigger} />
+          <FileUploadPlus forceExpandTrigger={uploadPlusExpandTrigger} />
           <TextShareTool forceExpandTrigger={textShareExpandTrigger} />
           <ToolsInfo />
         </div>
