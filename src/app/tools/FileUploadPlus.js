@@ -9,7 +9,7 @@ import {
 import FileIcon from "../components/FileIcon";
 import "./styles/ToolsPage.css";
 
-export default function FileUploadPlus({ globalIsDragging, droppedFile, forceExpandTrigger }) {
+export default function FileUploadPlus({ forceExpandTrigger }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [file, setFile] = useState(null);
   const [isListed, setIsListed] = useState(true);
@@ -25,6 +25,8 @@ export default function FileUploadPlus({ globalIsDragging, droppedFile, forceExp
   const [myUploads, setMyUploads] = useState([]);
   const [showMyUploads, setShowMyUploads] = useState(false);
   const [uploadZoneHover, setUploadZoneHover] = useState(false);
+  const [cardIsDragging, setCardIsDragging] = useState(false);
+  const cardDragDepthRef = useRef(0);
   const [toast, setToast] = useState(null);
 
   const toastTimeoutRef = useRef(null);
@@ -102,10 +104,13 @@ export default function FileUploadPlus({ globalIsDragging, droppedFile, forceExp
     }
   }
 
+  // Inner zone drop handler
   const handleZoneDrop = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     setUploadZoneHover(false);
+    setCardIsDragging(false);
+    cardDragDepthRef.current = 0;
     if (e.dataTransfer.files?.length > 0) {
       const dropped = e.dataTransfer.files[0];
       if (dropped.size > 100 * 1024 * 1024) {
@@ -115,6 +120,7 @@ export default function FileUploadPlus({ globalIsDragging, droppedFile, forceExp
       setFile(dropped);
       setResultTicket(null);
       setIsExpanded(true);
+      showToast(`Selected "${dropped.name}" for File Upload +`, "info");
     }
   }, [showToast]);
 
@@ -124,11 +130,60 @@ export default function FileUploadPlus({ globalIsDragging, droppedFile, forceExp
     setUploadZoneHover(true);
   }, []);
 
-  const handleZoneDragLeave = useCallback(() => {
+  const handleZoneDragLeave = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
     setUploadZoneHover(false);
   }, []);
 
-  // Upload file with speed & progress calculation
+  // Card-level Drag and Drop (strictly independent — does NOT affect FileUpload)
+  const handleCardDragEnter = useCallback((e) => {
+    if (e.dataTransfer.types && Array.from(e.dataTransfer.types).includes("Files")) {
+      e.preventDefault();
+      e.stopPropagation();
+      cardDragDepthRef.current += 1;
+      setCardIsDragging(true);
+    }
+  }, []);
+
+  const handleCardDragOver = useCallback((e) => {
+    if (e.dataTransfer.types && Array.from(e.dataTransfer.types).includes("Files")) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.dataTransfer.dropEffect = "copy";
+    }
+  }, []);
+
+  const handleCardDragLeave = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    cardDragDepthRef.current -= 1;
+    if (cardDragDepthRef.current <= 0) {
+      cardDragDepthRef.current = 0;
+      setCardIsDragging(false);
+    }
+  }, []);
+
+  const handleCardDrop = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    cardDragDepthRef.current = 0;
+    setCardIsDragging(false);
+    setUploadZoneHover(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const dropped = e.dataTransfer.files[0];
+      if (dropped.size > 100 * 1024 * 1024) {
+        showToast("File exceeds maximum 100 MB limit.", "error");
+        return;
+      }
+      setFile(dropped);
+      setResultTicket(null);
+      setIsExpanded(true);
+      showToast(`Selected "${dropped.name}" for File Upload +`, "info");
+    }
+  }, [showToast]);
+
+  // Upload file with accurate real-time speed & progress calculation
   function handleUpload() {
     if (!file) {
       showToast("Please choose a file to upload.", "error");
@@ -149,34 +204,55 @@ export default function FileUploadPlus({ globalIsDragging, droppedFile, forceExp
     const xhr = new XMLHttpRequest();
     xhrRef.current = xhr;
     const startTime = Date.now();
+    let lastLoaded = 0;
+    let lastTime = startTime;
+    let smoothedSpeed = 0;
 
     setProgressData({
       percent: 0,
       uploadedBytes: 0,
       totalBytes: file.size,
-      speedText: "",
-      etaText: ""
+      speedText: "Starting...",
+      etaText: "Calculating..."
     });
 
     xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) {
+      if (e.lengthComputable && e.total > 0) {
         const percent = Math.min(99, Math.round((e.loaded / e.total) * 100));
-        const elapsedSec = (Date.now() - startTime) / 1000;
-        const bytesPerSec = elapsedSec > 0 ? e.loaded / elapsedSec : 0;
-        const remainingBytes = e.total - e.loaded;
-        const etaSec = bytesPerSec > 0 ? remainingBytes / bytesPerSec : 0;
+        const now = Date.now();
+        const timeDelta = (now - lastTime) / 1000;
+
+        if (timeDelta >= 0.2) {
+          const bytesDelta = e.loaded - lastLoaded;
+          const currentSpeed = bytesDelta / timeDelta;
+          smoothedSpeed = smoothedSpeed === 0 ? currentSpeed : (0.65 * smoothedSpeed + 0.35 * currentSpeed);
+          lastLoaded = e.loaded;
+          lastTime = now;
+        }
+
+        const effectiveSpeed = smoothedSpeed > 0 ? smoothedSpeed : ((now - startTime) > 0 ? e.loaded / ((now - startTime) / 1000) : 0);
+        const remainingBytes = Math.max(0, e.total - e.loaded);
+        const etaSec = effectiveSpeed > 0 ? remainingBytes / effectiveSpeed : 0;
 
         let etaText = "";
-        if (etaSec > 0) {
-          etaText = etaSec < 60 ? `${Math.ceil(etaSec)}s left` : `${Math.floor(etaSec / 60)}m left`;
+        if (percent >= 99) {
+          etaText = "Finishing & indexing...";
+        } else if (etaSec > 0) {
+          if (etaSec < 60) {
+            etaText = `${Math.ceil(etaSec)}s remaining`;
+          } else {
+            const mins = Math.floor(etaSec / 60);
+            const secs = Math.ceil(etaSec % 60);
+            etaText = `${mins}m ${secs}s remaining`;
+          }
         }
 
         setProgressData({
           percent,
           uploadedBytes: e.loaded,
           totalBytes: e.total,
-          speedText: `${formatSize(bytesPerSec)}/s`,
-          etaText: percent >= 99 ? "Finalizing..." : etaText
+          speedText: effectiveSpeed > 0 ? `${formatSize(effectiveSpeed)}/s` : "Uploading...",
+          etaText: etaText || "Processing..."
         });
       }
     };
@@ -226,7 +302,7 @@ export default function FileUploadPlus({ globalIsDragging, droppedFile, forceExp
       showToast("Upload cancelled.", "info");
     };
 
-    // Use fast proxy route with fallback
+    // Forward upload through fast proxy route to Edge Worker
     xhr.open("POST", "/api/tools/upload-plus");
     xhr.send(fd);
   }
@@ -294,11 +370,17 @@ export default function FileUploadPlus({ globalIsDragging, droppedFile, forceExp
   const fileZoneClass = [
     "tool-upload-zone",
     file ? "upload-zone-has-file" : "",
-    uploadZoneHover ? "upload-zone-hover" : "",
+    (uploadZoneHover || cardIsDragging) ? "upload-zone-hover" : "",
   ].filter(Boolean).join(" ");
 
   return (
-    <div className={`tool-card tool-card-plus ${isExpanded ? "tool-card-expanded" : ""}`}>
+    <div
+      className={`tool-card tool-card-plus ${isExpanded ? "tool-card-expanded" : ""} ${cardIsDragging ? "tool-card-dragging-plus" : ""}`}
+      onDragEnter={handleCardDragEnter}
+      onDragOver={handleCardDragOver}
+      onDragLeave={handleCardDragLeave}
+      onDrop={handleCardDrop}
+    >
 
       {/* Toast */}
       {toast && (
@@ -464,7 +546,7 @@ export default function FileUploadPlus({ globalIsDragging, droppedFile, forceExp
               </label>
             </div>
 
-            {/* Real-time Progress Banner */}
+            {/* Real-time High-Precision Progress Banner */}
             {uploadLoading && progressData && (
               <div className="tool-uploading-banner tool-uploading-banner-plus">
                 <div className="tool-uploading-header">
@@ -474,20 +556,37 @@ export default function FileUploadPlus({ globalIsDragging, droppedFile, forceExp
                       <span className="tool-uploading-filename-title" title={file?.name}>
                         {file?.name}
                       </span>
-                      {progressData.speedText && (
-                        <span style={{ fontSize: "0.76rem", color: "var(--tool-gray-500)", fontWeight: 600 }}>
-                          · {progressData.speedText}
-                        </span>
-                      )}
+                      <span className="tool-status-stat">
+                        <strong style={{ color: "#059669" }}>
+                          {formatSize(progressData.uploadedBytes)}
+                        </strong>{" "}
+                        of {formatSize(progressData.totalBytes)}
+                      </span>
                     </div>
                   </div>
-                  <div className="tool-uploading-right">
+                  <div className="tool-uploading-right" style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <span className="tool-uploading-percent tool-uploading-percent-green">
-                      {progressData.percent}% uploaded
+                      {progressData.percent}%
                     </span>
+                    <button
+                      type="button"
+                      className="tool-btn-pill"
+                      onClick={handleCancelUpload}
+                      title="Cancel Upload"
+                      style={{
+                        padding: "3px 8px",
+                        fontSize: "0.75rem",
+                        color: "#ef4444",
+                        background: "rgba(239, 68, 68, 0.08)",
+                        borderColor: "rgba(239, 68, 68, 0.2)"
+                      }}
+                    >
+                      <FiX size={12} /> Cancel
+                    </button>
                   </div>
                 </div>
 
+                {/* Progress Bar Track */}
                 <div className="tool-progress-track">
                   <div
                     className="tool-progress-fill tool-progress-fill-green"
@@ -495,15 +594,20 @@ export default function FileUploadPlus({ globalIsDragging, droppedFile, forceExp
                   ></div>
                 </div>
 
-                <div className="tool-progress-sub" style={{ justifyContent: "space-between" }}>
-                  <span className="tool-status-detail">
-                    {formatSize(progressData.uploadedBytes)} / {formatSize(progressData.totalBytes)}
-                  </span>
-                  {progressData.etaText && (
-                    <span className="tool-status-detail" style={{ color: "#10b981", fontWeight: 600 }}>
-                      {progressData.etaText}
+                {/* Live Real-Time Speed & ETA Stats */}
+                <div className="tool-progress-stats-row">
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span className="tool-status-speed">
+                      ⚡ {progressData.speedText || "Uploading..."}
                     </span>
-                  )}
+                    <span style={{ color: "var(--tool-gray-400)" }}>•</span>
+                    <span className="tool-status-eta">
+                      ⏱ {progressData.etaText || "Processing..."}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: "0.74rem", color: "var(--tool-gray-500)", fontWeight: 500 }}>
+                    {progressData.percent >= 99 ? "Finalizing on Cloudflare Worker..." : "Direct edge stream"}
+                  </div>
                 </div>
               </div>
             )}

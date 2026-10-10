@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { Navbar } from "../components/Navbar";
 import FileUploadDownload from "./WordToPdf";
 import FileUploadPlus from "./FileUploadPlus";
@@ -9,12 +9,9 @@ import ToolsInfo from "./ToolsInfo";
 import "./styles/ToolsPage.css";
 
 export default function Tools() {
-  const [globalIsDragging, setGlobalIsDragging] = useState(false);
-  const [droppedFile, setDroppedFile] = useState(null);
   const [uploadExpandTrigger, setUploadExpandTrigger] = useState(0);
   const [uploadPlusExpandTrigger, setUploadPlusExpandTrigger] = useState(0);
   const [textShareExpandTrigger, setTextShareExpandTrigger] = useState(0);
-  const dragCounterRef = useRef(0);
 
   const handleUploadClick = useCallback(() => {
     setUploadExpandTrigger(prev => prev + 1);
@@ -40,41 +37,18 @@ export default function Tools() {
     }, 40);
   }, []);
 
-  const handlePageDragEnter = useCallback((e) => {
-    e.preventDefault();
-    dragCounterRef.current += 1;
-    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
-      setGlobalIsDragging(true);
-    }
-  }, []);
-
-  const handlePageDragLeave = useCallback((e) => {
-    e.preventDefault();
-    dragCounterRef.current -= 1;
-    if (dragCounterRef.current === 0) {
-      setGlobalIsDragging(false);
-    }
-  }, []);
-
+  // Prevent browser from opening dropped files if dropped outside tool cards
   const handlePageDragOver = useCallback((e) => {
     e.preventDefault();
   }, []);
 
   const handlePageDrop = useCallback((e) => {
     e.preventDefault();
-    dragCounterRef.current = 0;
-    setGlobalIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const dropped = e.dataTransfer.files[0];
-      setDroppedFile(dropped);
-    }
   }, []);
 
   return (
     <div
       className="tools-page-root"
-      onDragEnter={handlePageDragEnter}
-      onDragLeave={handlePageDragLeave}
       onDragOver={handlePageDragOver}
       onDrop={handlePageDrop}
     >
@@ -132,7 +106,7 @@ export default function Tools() {
         </div>
 
         <div className="tools-cards-list">
-          <FileUploadDownload globalIsDragging={globalIsDragging} droppedFile={droppedFile} forceExpandTrigger={uploadExpandTrigger} />
+          <FileUploadDownload forceExpandTrigger={uploadExpandTrigger} />
           <FileUploadPlus forceExpandTrigger={uploadPlusExpandTrigger} />
           <TextShareTool forceExpandTrigger={textShareExpandTrigger} />
           <ToolsInfo />

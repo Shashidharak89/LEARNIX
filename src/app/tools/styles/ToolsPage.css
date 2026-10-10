@@ -1712,8 +1712,15 @@
 }
 
 .tool-progress-fill-green {
-  background: linear-gradient(90deg, #10b981, #34d399);
-  box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
+  background: linear-gradient(90deg, #10b981 0%, #34d399 50%, #059669 100%);
+  background-size: 200% 100%;
+  animation: toolProgressShimmer 2s infinite linear;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+
+@keyframes toolProgressShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 /* Plus Result Ticket Card */
@@ -1757,4 +1764,53 @@
   gap: 8px;
   flex-wrap: wrap;
   margin-top: 10px;
+}
+
+/* Card-level Drag States */
+.tool-card-dragging-blue {
+  border: 2px dashed #0b74ff !important;
+  background: rgba(11, 116, 255, 0.05) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(11, 116, 255, 0.18) !important;
+}
+
+.tool-card-dragging-plus {
+  border: 2px dashed #10b981 !important;
+  background: rgba(16, 185, 129, 0.05) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(16, 185, 129, 0.18) !important;
+}
+
+/* Detailed Progress Stats Row */
+.tool-progress-stats-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  color: var(--tool-gray-600);
+  margin-top: 4px;
+}
+
+.tool-status-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tool-status-stat strong {
+  color: var(--tool-gray-800);
+  font-weight: 700;
+}
+
+.tool-status-speed {
+  color: #059669;
+  font-weight: 700;
+}
+
+.tool-status-eta {
+  color: #d97706;
+  font-weight: 600;
 }

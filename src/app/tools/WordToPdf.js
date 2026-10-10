@@ -13,7 +13,7 @@ import {
 } from "@/lib/websocketUploader";
 import "./styles/ToolsPage.css";
 
-export default function FileUploadDownload({ globalIsDragging, droppedFile, forceExpandTrigger }) {
+export default function FileUploadDownload({ forceExpandTrigger }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [file, setFile] = useState(null);
   const [uploadLoading, setUploadLoading] = useState(false);
@@ -26,6 +26,8 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
   const [allFiles, setAllFiles] = useState([]);
   const [showAll, setShowAll] = useState(false);
   const [uploadZoneHover, setUploadZoneHover] = useState(false);
+  const [cardIsDragging, setCardIsDragging] = useState(false);
+  const cardDragDepthRef = useRef(0);
   const [toast, setToast] = useState(null);
   const toastTimeoutRef = useRef(null);
   const [fetchedFile, setFetchedFile] = useState(null);
@@ -36,28 +38,12 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
   const [customCodeAvailable, setCustomCodeAvailable] = useState(null);
   const [checkingCustomCode, setCheckingCustomCode] = useState(false);
 
-  // Auto-expand when page receives a drag (globalIsDragging prop from page.js)
-  useEffect(() => {
-    if (globalIsDragging && !isExpanded) {
-      setIsExpanded(true);
-    }
-  }, [globalIsDragging, isExpanded]);
-
   // Auto-expand when triggered from header button click
   useEffect(() => {
     if (forceExpandTrigger) {
       setIsExpanded(true);
     }
   }, [forceExpandTrigger]);
-
-  // When a file is dropped on the page, set it and expand card without any popup
-  useEffect(() => {
-    if (droppedFile) {
-      setFile(droppedFile);
-      setFileId("");
-      setIsExpanded(true);
-    }
-  }, [droppedFile]);
 
   useEffect(() => {
     const storedFileId = localStorage.getItem("uploadedFileId");
@@ -98,18 +84,21 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
     if (f) { setFile(f); setFileId(""); }
   }
 
-  // Drop on the card's upload zone
+  // Drop on the card's inner upload zone
   const handleZoneDrop = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     setUploadZoneHover(false);
+    setCardIsDragging(false);
+    cardDragDepthRef.current = 0;
     if (e.dataTransfer.files?.length > 0) {
       const dropped = e.dataTransfer.files[0];
       setFile(dropped);
       setFileId("");
       setIsExpanded(true);
+      showToast(`Selected "${dropped.name}" for File Upload`, "info");
     }
-  }, []);
+  }, [showToast]);
 
   const handleZoneDragOver = useCallback((e) => {
     e.preventDefault();
@@ -117,9 +106,54 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
     setUploadZoneHover(true);
   }, []);
 
-  const handleZoneDragLeave = useCallback(() => {
+  const handleZoneDragLeave = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
     setUploadZoneHover(false);
   }, []);
+
+  // Card-level Drag and Drop (independent, does not affect FileUploadPlus)
+  const handleCardDragEnter = useCallback((e) => {
+    if (e.dataTransfer.types && Array.from(e.dataTransfer.types).includes("Files")) {
+      e.preventDefault();
+      e.stopPropagation();
+      cardDragDepthRef.current += 1;
+      setCardIsDragging(true);
+    }
+  }, []);
+
+  const handleCardDragOver = useCallback((e) => {
+    if (e.dataTransfer.types && Array.from(e.dataTransfer.types).includes("Files")) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.dataTransfer.dropEffect = "copy";
+    }
+  }, []);
+
+  const handleCardDragLeave = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    cardDragDepthRef.current -= 1;
+    if (cardDragDepthRef.current <= 0) {
+      cardDragDepthRef.current = 0;
+      setCardIsDragging(false);
+    }
+  }, []);
+
+  const handleCardDrop = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    cardDragDepthRef.current = 0;
+    setCardIsDragging(false);
+    setUploadZoneHover(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const dropped = e.dataTransfer.files[0];
+      setFile(dropped);
+      setFileId("");
+      setIsExpanded(true);
+      showToast(`Selected "${dropped.name}" for File Upload`, "info");
+    }
+  }, [showToast]);
 
   // Check custom code availability
   const handleCheckAvailability = async () => {
@@ -268,11 +302,17 @@ export default function FileUploadDownload({ globalIsDragging, droppedFile, forc
   const fileZoneClass = [
     "tool-upload-zone",
     file ? "upload-zone-has-file" : "",
-    (uploadZoneHover || globalIsDragging) ? "upload-zone-hover" : "",
+    (uploadZoneHover || cardIsDragging) ? "upload-zone-hover" : "",
   ].filter(Boolean).join(" ");
 
   return (
-    <div className={`tool-card tool-card-blue ${isExpanded ? "tool-card-expanded" : ""} ${globalIsDragging ? "tool-dragging" : ""}`}>
+    <div
+      className={`tool-card tool-card-blue ${isExpanded ? "tool-card-expanded" : ""} ${cardIsDragging ? "tool-card-dragging-blue" : ""}`}
+      onDragEnter={handleCardDragEnter}
+      onDragOver={handleCardDragOver}
+      onDragLeave={handleCardDragLeave}
+      onDrop={handleCardDrop}
+    >
 
       {/* Toast */}
       {toast && (
