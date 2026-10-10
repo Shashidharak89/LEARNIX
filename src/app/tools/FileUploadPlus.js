@@ -9,6 +9,8 @@ import {
 import FileIcon from "../components/FileIcon";
 import "./styles/ToolsPage.css";
 
+const WORKER_URL = "https://store.achieve6227.workers.dev";
+
 export default function FileUploadPlus({ forceExpandTrigger }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [file, setFile] = useState(null);
@@ -302,8 +304,8 @@ export default function FileUploadPlus({ forceExpandTrigger }) {
       showToast("Upload cancelled.", "info");
     };
 
-    // Forward upload through fast proxy route to Edge Worker
-    xhr.open("POST", "/api/tools/upload-plus");
+    // Upload directly to Cloudflare Worker Edge URL
+    xhr.open("POST", `${WORKER_URL}/api/upload`);
     xhr.send(fd);
   }
 
@@ -324,8 +326,8 @@ export default function FileUploadPlus({ forceExpandTrigger }) {
     setDownloadLoading(true);
     showToast(`Opening file ${code}...`, "info");
 
-    // Initiate direct browser download via proxy
-    const downloadUrl = `/api/tools/download-plus/${encodeURIComponent(code)}`;
+    // Initiate direct download from Cloudflare Worker
+    const downloadUrl = `${WORKER_URL}/api/download/${encodeURIComponent(code)}`;
     window.location.href = downloadUrl;
 
     setTimeout(() => {
@@ -333,11 +335,11 @@ export default function FileUploadPlus({ forceExpandTrigger }) {
     }, 1200);
   }
 
-  // Fetch recent files list
+  // Fetch recent files list from Cloudflare Worker
   async function fetchRecentFiles() {
     setRecentLoading(true);
     try {
-      const res = await fetch("/api/tools/files-plus");
+      const res = await fetch(`${WORKER_URL}/api/files`);
       const data = await res.json();
       if (data.success && Array.isArray(data.files)) {
         setRecentFiles(data.files);
@@ -486,7 +488,7 @@ export default function FileUploadPlus({ forceExpandTrigger }) {
                   </button>
                   <button
                     className="tool-btn-pill"
-                    onClick={() => copyToClipboard(`${window.location.origin}/api/tools/download-plus/${resultTicket.code}`, "Download link")}
+                    onClick={() => copyToClipboard(`${WORKER_URL}/api/download/${resultTicket.code}`, "Download link")}
                   >
                     <FiExternalLink size={13} /> Copy Download Link
                   </button>
