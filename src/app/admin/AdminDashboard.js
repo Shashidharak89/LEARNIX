@@ -30,6 +30,7 @@ import {
 import { MdAdminPanelSettings, MdOutlineSupervisorAccount } from "react-icons/md";
 import "./styles/AdminDashboard.css";
 import AdminRequestMetrics from "./AdminRequestMetrics";
+import AdminLeaderboard from "./AdminLeaderboard";
 
 // ─── Privilege config per role ────────────────────────────────────────────────
 const ROLE_CONFIG = {
@@ -235,6 +236,7 @@ export default function AdminDashboard() {
   const [role, setRole] = useState(null);
   const [name, setName] = useState(null);
   const [usn, setUsn] = useState(null);
+  const [token, setToken] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
   const [expandedCard, setExpandedCard] = useState(null);
 
@@ -242,9 +244,11 @@ export default function AdminDashboard() {
     const storedRole = localStorage.getItem("role") || "";
     const storedName = localStorage.getItem("name") || "";
     const storedUsn = localStorage.getItem("usn") || "";
+    const storedToken = localStorage.getItem("token") || "";
     setRole(storedRole);
     setName(storedName);
     setUsn(storedUsn);
+    setToken(storedToken);
     setTimeout(() => setIsLoaded(true), 100);
   }, []);
 
@@ -411,6 +415,9 @@ export default function AdminDashboard() {
           <FiArrowRight size={18} className="adm-quick-btn-arrow" />
         </Link>
       </div>
+
+      {/* ── Streaks Leaderboard (Highest & Active) ── */}
+      <AdminLeaderboard token={token} />
 
       {/* ── Feature cards ── */}
       <section className="adm-features-section">
