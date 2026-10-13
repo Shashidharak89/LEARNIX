@@ -124,28 +124,53 @@ export async function POST(req) {
     await connectDB();
 
     const body = await req.json();
-    const { title, content, links, userId, files, visibility } = body || {};
+    let { title, content, links, userId, files, visibility } = body || {};
 
     if (!title || !content) {
       return NextResponse.json({ error: 'Title and content are required' }, { status: 400 });
     }
 
     let user = null;
-    if (userId) {
+    const { resolveAuthenticatedUser } = await import("@/lib/authUser");
+    const authUser = await resolveAuthenticatedUser(req);
+
+    if (authUser?._id) {
+      user = authUser;
+      userId = authUser._id;
+    } else if (userId && mongoose.Types.ObjectId.isValid(userId)) {
       user = await User.findById(userId).lean();
       if (!user) {
         return NextResponse.json({ error: 'Invalid userId' }, { status: 400 });
       }
+    } else {
+      return NextResponse.json({ error: 'User must be signed in to create an update' }, { status: 401 });
     }
 
     const validVisibility = ["public", "private", "unlisted"].includes(visibility) ? visibility : "public";
 
+    // Clean and validate file objects matching FileSchema
+    const sanitizedFiles = Array.isArray(files)
+      ? files
+          .filter(f => f && (f.url || typeof f === 'string'))
+          .map(f => {
+            if (typeof f === 'string') {
+              return { url: f, publicId: f.split('/').pop() || 'file', name: f.split('/').pop(), resourceType: 'auto' };
+            }
+            return {
+              url: f.url,
+              publicId: f.publicId || f.url?.split('/').pop() || 'file',
+              name: f.name || f.url?.split('/').pop() || 'Attachment',
+              resourceType: f.resourceType || 'auto',
+            };
+          })
+      : [];
+
     const updateDoc = new Update({
-      title,
-      content,
+      title: title.trim(),
+      content: content.trim(),
       links: Array.isArray(links) ? links : (links ? [links] : []),
-      files: Array.isArray(files) ? files : (files ? [files] : []),
-      userId: userId || null,
+      files: sanitizedFiles,
+      userId: user._id,
       visibility: validVisibility,
     });
 

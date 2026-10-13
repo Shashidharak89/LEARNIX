@@ -9,51 +9,19 @@ import {
   FiLink,
   FiAlertCircle,
   FiCheckCircle,
-  FiImage,
-  FiTrash2,
   FiUploadCloud,
+  FiUpload,
   FiEye,
   FiGlobe,
   FiLock,
   FiLink2,
-  FiFileText,
-  FiFile,
-  FiFilm,
-  FiExternalLink,
   FiCheck,
-  FiPaperclip,
-  FiPlus,
   FiInfo
 } from "react-icons/fi";
+import FileIcon from "../../components/FileIcon";
 import { uploadFileViaWebSocket } from "@/lib/websocketUploader";
+import "./styles/UpdatesList.css";
 import "./styles/AddUpdateForm.css";
-
-const formatBytes = (bytes) => {
-  if (!bytes || bytes === 0) return null;
-  const k = 1024;
-  const sizes = ["B", "KB", "MB", "GB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
-};
-
-const getFileCategory = (file) => {
-  const name = file.name || "";
-  const ext = name.split(".").pop()?.toLowerCase();
-  const resType = file.resourceType;
-  if (resType === "image" || ["jpg", "jpeg", "png", "gif", "webp", "svg", "avif"].includes(ext)) {
-    return "image";
-  }
-  if (["mp4", "mov", "webm", "mkv", "avi"].includes(ext) || resType === "video") {
-    return "video";
-  }
-  if (["pdf", "doc", "docx", "txt", "rtf", "odt", "md"].includes(ext)) {
-    return "doc";
-  }
-  if (["xls", "xlsx", "csv"].includes(ext)) {
-    return "sheet";
-  }
-  return "file";
-};
 
 export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
   const [title, setTitle] = useState("");
@@ -65,28 +33,45 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isUploadingFiles, setIsUploadingFiles] = useState(false);
   const [uploadStatus, setUploadStatus] = useState(null);
-  const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
 
-  const fileInputRef = useRef(null);
-  const dragCounter = useRef(0);
   const router = useRouter();
 
   useEffect(() => {
     const usn = typeof window !== "undefined" ? localStorage.getItem("usn") : null;
-    if (!usn) return;
-    setUserUsn(usn);
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (usn) setUserUsn(usn);
 
     (async () => {
-      try {
-        const res = await fetch(`/api/user/id?usn=${encodeURIComponent(usn)}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data?.userId) setUserId(data.userId);
+      if (token) {
+        try {
+          const authRes = await fetch("/api/auth/verify-token", {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (authRes.ok) {
+            const authData = await authRes.json();
+            if (authData?.user?._id) {
+              setUserId(authData.user._id);
+              if (authData.user.usn) setUserUsn(authData.user.usn);
+              return;
+            }
+          }
+        } catch (e) {
+          console.error("Token verification error:", e);
         }
-      } catch (err) {
-        console.error("Failed to resolve user id", err);
+      }
+
+      if (usn) {
+        try {
+          const res = await fetch(`/api/user/id?usn=${encodeURIComponent(usn)}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data?.userId) setUserId(data.userId);
+          }
+        } catch (err) {
+          console.error("Failed to resolve user id", err);
+        }
       }
     })();
   }, []);
@@ -106,39 +91,28 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
       .filter(Boolean);
   };
 
-  const uploadFilesBatch = async (files) => {
-    if (!files || !files.length) return;
-
-    // Filter large files (>500MB)
-    const validFiles = [];
-    for (const f of files) {
-      if (f.size > 500 * 1024 * 1024) {
-        showToast(`"${f.name}" exceeds the 500MB limit`, "error");
-      } else {
-        validFiles.push(f);
-      }
-    }
-    if (!validFiles.length) return;
-
+  const handleFilesSelected = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
     setIsUploadingFiles(true);
     setUploadStatus({
       current: 1,
-      total: validFiles.length,
-      filename: validFiles[0]?.name,
+      total: files.length,
+      filename: files[0]?.name,
       percent: 0,
       chunkIndex: 1,
       totalChunks: 1,
-      statusText: "Connecting to WebSocket server..."
+      statusText: "Connecting to WebSocket..."
     });
 
     const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
 
     try {
-      for (let i = 0; i < validFiles.length; i++) {
-        const f = validFiles[i];
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
         setUploadStatus({
           current: i + 1,
-          total: validFiles.length,
+          total: files.length,
           filename: f.name,
           percent: 0,
           chunkIndex: 1,
@@ -153,7 +127,7 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
             const formattedStatus = statusText || `${percent}% uploaded`;
             setUploadStatus({
               current: i + 1,
-              total: validFiles.length,
+              total: files.length,
               filename: f.name,
               percent,
               chunkIndex: currentChunk,
@@ -166,111 +140,40 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
           }
         });
 
-        if (uploadResult?.file) {
-          setUploadedFiles((prev) => [...prev, { ...uploadResult.file, size: f.size }]);
+        const uploadedFile = uploadResult?.file;
+        if (uploadedFile) {
+          setUploadedFiles((p) => [...p, uploadedFile]);
         } else {
           showToast(`Failed to upload ${f.name}`, "error");
         }
       }
-      showToast(`Uploaded ${validFiles.length} file${validFiles.length > 1 ? "s" : ""} successfully via WebSocket`, "success");
+      showToast(`Uploaded ${files.length} file${files.length > 1 ? "s" : ""} successfully via WebSocket`, "success");
     } catch (err) {
       console.error("File upload error", err);
       showToast(err.message || "File upload failed. Please try again.", "error");
     } finally {
       setIsUploadingFiles(false);
       setUploadStatus(null);
+      if (e?.target) e.target.value = null;
     }
   };
 
-  const handleFilesSelected = (e) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length) {
-      uploadFilesBatch(files);
-    }
-    e.target.value = "";
-  };
+  const removeUploadedFile = async (idx) => {
+    const fileToRemove = uploadedFiles[idx];
+    setUploadedFiles((p) => p.filter((_, i) => i !== idx));
 
-  const handleDragEnter = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounter.current += 1;
-    if (e.dataTransfer?.items && e.dataTransfer.items.length > 0) {
-      setIsDragging(true);
-    }
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragCounter.current -= 1;
-    if (dragCounter.current <= 0) {
-      setIsDragging(false);
-      dragCounter.current = 0;
-    }
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    e.dataTransfer.dropEffect = "copy";
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-    dragCounter.current = 0;
-    if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
-      uploadFilesBatch(Array.from(e.dataTransfer.files));
-      e.dataTransfer.clearData();
-    }
-  };
-
-  const deleteFromCloudinary = async (fileObj) => {
-    if (!fileObj?.publicId) return;
-    try {
-      await fetch("/api/updates/upload", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          publicId: fileObj.publicId,
-          resourceType: fileObj.resourceType || "auto",
-        }),
-      });
-    } catch (err) {
-      console.error("Cloudinary delete error:", err);
-    }
-  };
-
-  const removeUploadedFile = async (fileToRemove, idx) => {
-    const target = fileToRemove || uploadedFiles[idx];
-    if (!target) return;
-
-    // Remove from UI state immediately
-    setUploadedFiles((p) =>
-      p.filter((item, i) => (target.publicId ? item.publicId !== target.publicId : i !== idx))
-    );
-
-    if (target.publicId) {
-      showToast(`Deleting "${target.name || "file"}" from Cloudinary...`, "info");
+    if (fileToRemove?.publicId) {
       try {
-        const res = await fetch("/api/updates/upload", {
+        await fetch("/api/updates/upload", {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            publicId: target.publicId,
-            resourceType: target.resourceType || "auto",
+            publicId: fileToRemove.publicId,
+            resourceType: fileToRemove.resourceType || "auto",
           }),
         });
-
-        if (res.ok) {
-          showToast(`"${target.name || "File"}" deleted from Cloudinary`, "success");
-        } else {
-          showToast(`Removed from form, but failed to delete from Cloudinary`, "warning");
-        }
       } catch (err) {
-        console.error("Error deleting from Cloudinary:", err);
-        showToast("Error deleting file from Cloudinary", "error");
+        console.error("Failed to delete uncommitted file from Cloudinary:", err);
       }
     }
   };
@@ -278,15 +181,42 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
   const handleClear = () => {
     if (uploadedFiles.length > 0) {
       uploadedFiles.forEach((f) => {
-        if (f.publicId) deleteFromCloudinary(f);
+        if (f.publicId) {
+          fetch("/api/updates/upload", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              publicId: f.publicId,
+              resourceType: f.resourceType || "auto",
+            }),
+          }).catch(console.error);
+        }
       });
-      showToast("Cleared form and removed uploaded files from Cloudinary", "info");
+      showToast("Cleared form and removed uploaded files", "info");
     }
     setTitle("");
     setContent("");
     setLinksText("");
     setUploadedFiles([]);
     setVisibility("public");
+  };
+
+  const handleCancelClick = () => {
+    if (uploadedFiles.length > 0) {
+      uploadedFiles.forEach((f) => {
+        if (f.publicId) {
+          fetch("/api/updates/upload", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              publicId: f.publicId,
+              resourceType: f.resourceType || "auto",
+            }),
+          }).catch(console.error);
+        }
+      });
+    }
+    if (onCancel) onCancel();
   };
 
   const handleSubmit = async (e) => {
@@ -303,11 +233,15 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
 
     setLoading(true);
     const links = parseLinks(linksText);
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
 
     try {
       const res = await fetch("/api/updates", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({
           title: title.trim(),
           content: content.trim(),
@@ -321,7 +255,11 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
       const data = await res.json();
       if (res.ok) {
         showToast("Update created successfully", "success");
-        handleClear();
+        setTitle("");
+        setContent("");
+        setLinksText("");
+        setUploadedFiles([]);
+        setVisibility("public");
         if (onUpdateAdded) onUpdateAdded();
       } else {
         showToast(data?.error || "Failed to create update", "error");
@@ -352,7 +290,7 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
         {onCancel && (
           <button
             type="button"
-            onClick={onCancel}
+            onClick={handleCancelClick}
             className="auf-close-header-btn"
             title="Collapse Form"
             aria-label="Close add update form"
@@ -511,170 +449,95 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
             </div>
           </div>
 
-          {/* Section 5: File Upload Section (LAST FIELD - Redesigned with Apple Theme + Drag & Drop) */}
-          <div className="auf-field auf-file-upload-section">
+          {/* Section 5: Files (optional) - Exact same UI & logic as Edit Update */}
+          <div className="auf-field">
             <div className="auf-label-row">
               <label className="auf-label">
                 <FiUploadCloud className="auf-label-icon" />
-                <span>Attachments & Media (optional)</span>
+                <span>Files (optional)</span>
               </label>
-              {uploadedFiles.length > 0 && (
-                <span className="auf-badge-count auf-badge-files">
-                  {uploadedFiles.length} {uploadedFiles.length === 1 ? "file" : "files"}
+              {uploadedFiles && uploadedFiles.length > 0 && (
+                <span className="upl-edit-file-count">
+                  {uploadedFiles.length} {uploadedFiles.length === 1 ? "file" : "files"} attached
                 </span>
               )}
             </div>
 
-            {/* Apple Theme Drag & Drop Dropzone */}
-            <div
-              className={`auf-dropzone ${isDragging ? "auf-dropzone-dragging" : ""} ${
-                isUploadingFiles ? "auf-dropzone-uploading" : ""
-              }`}
-              onDragEnter={handleDragEnter}
-              onDragLeave={handleDragLeave}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  fileInputRef.current?.click();
-                }
-              }}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                onChange={handleFilesSelected}
-                className="auf-hidden-input"
-                accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip"
-              />
-
-              <div className="auf-dropzone-icon-box">
-                <FiUploadCloud className="auf-dropzone-icon" />
-              </div>
-
-              <div className="auf-dropzone-text-group">
-                <p className="auf-dropzone-title">
-                  {isDragging ? (
-                    <span className="auf-dropzone-highlight">Drop files here to attach</span>
-                  ) : (
-                    <>
-                      Drag & drop files here, or <span className="auf-dropzone-browse">browse</span>
-                    </>
-                  )}
-                </p>
-                <p className="auf-dropzone-sub">
-                  Supports images, documents, PDFs, videos, and large archives up to 500MB each
-                </p>
-              </div>
+            <div className="upl-edit-files-row">
+              <label className="upl-file-btn">
+                <FiUpload />
+                <span>Add files</span>
+                <input
+                  type="file"
+                  multiple
+                  onChange={handleFilesSelected}
+                  className="upl-hidden-input"
+                />
+              </label>
+              {isUploadingFiles && !uploadStatus && (
+                <span className="upl-file-uploading">Uploading…</span>
+              )}
             </div>
 
-            {/* Uploading progress notification card */}
+            {/* Upload Progressbar */}
             {isUploadingFiles && uploadStatus && (
-              <div className="auf-uploading-banner">
-                <div className="auf-uploading-header">
-                  <div className="auf-uploading-left">
-                    <span className="auf-spinner auf-spinner-blue"></span>
-                    <div className="auf-uploading-info">
-                      <span className="auf-uploading-filename-title" title={uploadStatus.filename}>
-                        {uploadStatus.filename}
-                      </span>
-                      {uploadStatus.total > 1 && (
-                        <span className="auf-uploading-file-count">
-                          (File {uploadStatus.current} of {uploadStatus.total})
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="auf-uploading-right">
-                    <span className="auf-uploading-percent">{uploadStatus.percent || 0}% uploaded</span>
-                  </div>
+              <div className="upl-ws-progress-box">
+                <div className="upl-ws-progress-header">
+                  <span className="upl-ws-progress-filename" title={uploadStatus.filename}>
+                    <strong>{uploadStatus.filename}</strong>
+                    {uploadStatus.total > 1 && ` (File ${uploadStatus.current}/${uploadStatus.total})`}
+                  </span>
+                  <span className="upl-ws-progress-tag">
+                    {uploadStatus.percent || 0}% uploaded
+                  </span>
                 </div>
-
-                <div className="auf-progress-track">
+                <div className="upl-ws-progress-track">
                   <div
-                    className="auf-progress-fill"
+                    className="upl-ws-progress-fill"
                     style={{ width: `${Math.max(2, uploadStatus.percent || 0)}%` }}
                   ></div>
                 </div>
-
                 {uploadStatus.statusText && !uploadStatus.statusText.includes(`${uploadStatus.percent || 0}% uploaded`) && (
-                  <div className="auf-progress-sub">
-                    <span className="auf-status-detail">{uploadStatus.statusText}</span>
+                  <div className="upl-ws-progress-footer">
+                    <span className="upl-ws-progress-status-text">
+                      {uploadStatus.statusText}
+                    </span>
                   </div>
                 )}
               </div>
             )}
 
-            {/* Uploaded Files Gallery */}
-            {uploadedFiles.length > 0 && (
-              <div className="auf-files-grid">
+            {uploadedFiles && uploadedFiles.length > 0 && (
+              <div className="upl-edit-files-list">
                 {uploadedFiles.map((f, i) => {
-                  const cat = getFileCategory(f);
-                  const isImg = cat === "image";
+                  const url = f.url || f;
+                  const name = f.name || (typeof url === "string" ? url.split("/").pop() : "Attachment");
+                  const viewUrl = typeof url === "string" && url.startsWith("http")
+                    ? `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`
+                    : url;
 
                   return (
-                    <div key={i} className="auf-file-card">
-                      <div className="auf-file-preview">
-                        {isImg ? (
-                          <img src={f.url} alt={f.name || "upload"} className="auf-file-img" />
-                        ) : cat === "video" ? (
-                          <div className="auf-file-icon-box auf-file-icon-video">
-                            <FiFilm />
-                          </div>
-                        ) : cat === "doc" ? (
-                          <div className="auf-file-icon-box auf-file-icon-doc">
-                            <FiFileText />
-                          </div>
-                        ) : (
-                          <div className="auf-file-icon-box auf-file-icon-generic">
-                            <FiFile />
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="auf-file-meta">
-                        <span className="auf-file-title" title={f.name || f.url}>
-                          {f.name || "Attached File"}
-                        </span>
-                        <div className="auf-file-sub-info">
-                          <span className="auf-file-ext-pill">
-                            {(f.name?.split(".").pop() || f.resourceType || "file").toUpperCase()}
-                          </span>
-                          {f.size ? (
-                            <span className="auf-file-size">{formatBytes(f.size)}</span>
-                          ) : null}
-                        </div>
-                      </div>
-
-                      <div className="auf-file-card-actions">
+                    <div key={i} className="upl-edit-file-item">
+                      <div className="upl-edit-file-info">
+                        <FileIcon filename={name} />
                         <a
-                          href={f.url}
+                          href={viewUrl}
+                          className="upl-edit-file-link"
                           target="_blank"
                           rel="noreferrer noopener"
-                          className="auf-file-action-btn auf-file-action-view"
-                          title="View / Preview file"
-                          aria-label="View file"
-                          onClick={(e) => e.stopPropagation()}
+                          title={name}
                         >
-                          <FiExternalLink />
+                          {name}
                         </a>
-                        <button
-                          type="button"
-                          className="auf-file-action-btn auf-file-action-remove"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeUploadedFile(f, i);
-                          }}
-                          title="Delete file from Cloudinary"
-                          aria-label="Delete file from Cloudinary"
-                        >
-                          <FiTrash2 />
-                        </button>
                       </div>
+                      <button
+                        type="button"
+                        className="upl-edit-file-remove"
+                        onClick={() => removeUploadedFile(i)}
+                        title="Remove file"
+                      >
+                        <FiX />
+                      </button>
                     </div>
                   );
                 })}
@@ -700,14 +563,7 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
               {onCancel ? (
                 <button
                   type="button"
-                  onClick={() => {
-                    if (uploadedFiles.length > 0) {
-                      uploadedFiles.forEach((fileItem) => {
-                        if (fileItem.publicId) deleteFromCloudinary(fileItem);
-                      });
-                    }
-                    onCancel();
-                  }}
+                  onClick={handleCancelClick}
                   className="auf-btn auf-btn-clear"
                   disabled={loading || isUploadingFiles}
                 >
