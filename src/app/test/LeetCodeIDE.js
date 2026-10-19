@@ -18,6 +18,7 @@ import {
   FiShield,
   FiLogOut,
 } from "react-icons/fi";
+import { recordCodingEntry, exitCodingEnvironment } from "@/utils/codingExitTracker";
 import "./LeetCodeIDE.css";
 
 // Dynamic import of Monaco Editor with SSR disabled
@@ -58,20 +59,31 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
   const [isAdmin, setIsAdmin] = useState(false);
 
   function handleExit() {
-    if (typeof window !== "undefined") {
-      if (window.history.length > 1 && document.referrer && document.referrer.includes(window.location.host)) {
-        router.back();
-      } else {
-        router.push("/learnix-code");
-      }
-    } else {
-      router.push("/learnix-code");
-    }
+    exitCodingEnvironment(router);
   }
 
   useEffect(() => {
     const role = localStorage.getItem("role") || "";
     setIsAdmin(role === "admin" || role === "superadmin");
+
+    // Track original entry outside coding section
+    recordCodingEntry();
+
+    // Immediately remove any extra navbar padding
+    if (typeof document !== "undefined") {
+      document.body.classList.add("no-learnix-navbar-pad");
+      document.body.style.paddingTop = "0px";
+
+      // Detect if extra space is still kept by stale styles and trigger auto-refresh once
+      const computedPad = parseFloat(window.getComputedStyle(document.body).paddingTop);
+      if (computedPad > 10) {
+        document.body.style.paddingTop = "0px";
+        if (typeof sessionStorage !== "undefined" && !sessionStorage.getItem("learnix_code_nav_refreshed")) {
+          sessionStorage.setItem("learnix_code_nav_refreshed", "1");
+          window.location.reload();
+        }
+      }
+    }
 
     // Check URL params for ?problem=... or use initialProblemId
     let probParam = initialProblemId;
@@ -84,6 +96,13 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
     // Fetch list of problems
     fetchProblemsList(probParam);
+
+    return () => {
+      if (typeof document !== "undefined") {
+        document.body.classList.remove("no-learnix-navbar-pad");
+        document.body.style.paddingTop = "";
+      }
+    };
   }, [initialProblemId]);
 
   async function fetchProblemsList(initialSlug) {
@@ -93,26 +112,34 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
       if (data.success && data.problems?.length > 0) {
         setProblems(data.problems);
         const match = data.problems.find(
-          (p) => p.slug === initialSlug || p.problemId === initialSlug
+          (p, idx) =>
+            String(p.order || idx + 1) === String(initialSlug) ||
+            p.slug === initialSlug ||
+            p.problemId === initialSlug
         );
-        const targetSlug = match ? (match.slug || match.problemId) : (data.problems[0].slug || data.problems[0].problemId);
-        setSelectedSlug(targetSlug);
-        loadProblem(targetSlug);
+        const targetParam = match
+          ? String(match.order || data.problems.indexOf(match) + 1)
+          : (initialSlug || "1");
+        setSelectedSlug(targetParam);
+        loadProblem(targetParam);
       }
     } catch (err) {
       console.error("Failed to load problem list:", err);
     }
   }
 
-  const loadProblem = useCallback(async (slug) => {
+  const loadProblem = useCallback(async (slugOrId) => {
     setLoadingProblem(true);
     setExecutionResult(null);
     try {
-      const res = await fetch(`/api/coding/problems/${slug}`);
+      const res = await fetch(`/api/coding/problems/${slugOrId}`);
       const data = await res.json();
       if (data.success && data.problem) {
         const prob = data.problem;
         setProblem(prob);
+        if (prob.order) {
+          setSelectedSlug(String(prob.order));
+        }
 
         // Check localStorage cache for saved code or fallback to template
         const cacheKey = `learnix_code_${prob.problemId}`;
@@ -136,16 +163,16 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
   }, []);
 
   function handleProblemChange(e) {
-    const newSlug = e.target.value;
-    setSelectedSlug(newSlug);
+    const newId = e.target.value;
+    setSelectedSlug(newId);
     if (typeof window !== "undefined") {
       if (window.location.pathname.startsWith("/learnix-code/problems")) {
-        router.push(`${baseUrl}/${newSlug}`);
+        router.push(`${baseUrl}/${newId}`);
       } else {
         const newUrl = new URL(window.location);
-        newUrl.searchParams.set("problem", newSlug);
+        newUrl.searchParams.set("problem", newId);
         window.history.pushState({}, "", newUrl);
-        loadProblem(newSlug);
+        loadProblem(newId);
       }
     }
   }
@@ -256,11 +283,14 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
               onChange={handleProblemChange}
               className="lc-problem-select-btn"
             >
-              {problems.map((p) => (
-                <option key={p.problemId} value={p.slug || p.problemId}>
-                  {p.order ? `${p.order}. ` : ""}{p.title} ({p.difficulty})
-                </option>
-              ))}
+              {problems.map((p, pIdx) => {
+                const numericId = String(p.order || pIdx + 1);
+                return (
+                  <option key={p.problemId} value={numericId}>
+                    {numericId}. {p.title} ({p.difficulty})
+                  </option>
+                );
+              })}
             </select>
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FiLayers, FiSearch, FiArrowRight, FiCode } from "react-icons/fi";
+import { FiLayers, FiSearch, FiArrowRight } from "react-icons/fi";
 import LearnixCodeNav from "../components/LearnixCodeNav";
 import "./ProblemsList.css";
 
@@ -80,12 +80,11 @@ export default function ProblemsListPage() {
           ) : (
             <div className="lcp-table-body">
               {filtered.map((p, index) => {
-                const problemId = index + 1;
-                const problemSlug = p.slug || p.problemId;
+                const problemId = p.order || index + 1;
                 return (
                   <Link
                     key={p.problemId || index}
-                    href={`/learnix-code/problems/${problemSlug}`}
+                    href={`/learnix-code/problems/${problemId}`}
                     className="lcp-row"
                   >
                     <div className="lcp-col-id lcp-row-id">{problemId}</div>

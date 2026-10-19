@@ -21,19 +21,36 @@ export async function GET(req, { params }) {
 
     let problem = problemRes.Item;
 
-    // If not found by exact problemId, search by slug
+    // If not found by exact problemId, search by slug or numeric order ID
     if (!problem) {
-      const scanRes = await docClient.send(
-        new ScanCommand({
-          TableName: PROBLEMS_TABLE,
-          FilterExpression: "slug = :slug",
-          ExpressionAttributeValues: {
-            ":slug": id,
-          },
-        })
-      );
-      if (scanRes.Items && scanRes.Items.length > 0) {
-        problem = scanRes.Items[0];
+      const numericId = parseInt(id, 10);
+      if (!isNaN(numericId)) {
+        const orderRes = await docClient.send(
+          new ScanCommand({
+            TableName: PROBLEMS_TABLE,
+            FilterExpression: "#ord = :numId",
+            ExpressionAttributeNames: { "#ord": "order" },
+            ExpressionAttributeValues: { ":numId": numericId },
+          })
+        );
+        if (orderRes.Items && orderRes.Items.length > 0) {
+          problem = orderRes.Items[0];
+        }
+      }
+
+      if (!problem) {
+        const scanRes = await docClient.send(
+          new ScanCommand({
+            TableName: PROBLEMS_TABLE,
+            FilterExpression: "slug = :slug",
+            ExpressionAttributeValues: {
+              ":slug": id,
+            },
+          })
+        );
+        if (scanRes.Items && scanRes.Items.length > 0) {
+          problem = scanRes.Items[0];
+        }
       }
     }
 

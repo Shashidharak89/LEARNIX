@@ -17,6 +17,7 @@ import {
   FiTool,
   FiBell,
   FiClipboard,
+  FiCode,
   FiShield,
 } from "react-icons/fi";
 import "./styles/Navbar.css";
@@ -44,7 +45,7 @@ const NavbarContent = ({ searchParams }) => {
     if (typeof window !== "undefined" && pathname && pathname !== "/login" && pathname !== "/signup") {
       const queryString = searchParams?.toString();
       const full = pathname + (queryString ? `?${queryString}` : "");
-      sessionStorage.setItem("learnix_last_page", full);
+      window.sessionStorage.setItem("learnix_last_page", full);
     }
   }, [pathname, searchParams]);
 
@@ -194,6 +195,10 @@ const NavbarContent = ({ searchParams }) => {
       document.body.style.overflow = "unset";
     };
   }, [isOpen]);
+
+  if (pathname?.startsWith("/learnix-code") || pathname?.startsWith("/test")) {
+    return null;
+  }
 
   return (
     <>
@@ -354,6 +359,18 @@ const NavbarContent = ({ searchParams }) => {
               <FiClipboard size={18} />
             </span>
             <span className="learnix-nav-text">Question Papers</span>
+          </Link>
+
+          <Link
+            href="/learnix-code"
+            className="learnix-nav-item"
+            onClick={closeSidebar}
+            tabIndex={isOpen ? 0 : -1}
+          >
+            <span className="learnix-nav-icon">
+              <FiCode size={18} />
+            </span>
+            <span className="learnix-nav-text">Learnix Code</span>
           </Link>
 
           <Link

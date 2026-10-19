@@ -27,16 +27,33 @@ export async function POST(req) {
 
     let problem = problemRes.Item;
     if (!problem) {
-      // Try slug
-      const scanRes = await docClient.send(
-        new ScanCommand({
-          TableName: PROBLEMS_TABLE,
-          FilterExpression: "slug = :slug",
-          ExpressionAttributeValues: { ":slug": problemId },
-        })
-      );
-      if (scanRes.Items && scanRes.Items.length > 0) {
-        problem = scanRes.Items[0];
+      const numericId = parseInt(problemId, 10);
+      if (!isNaN(numericId)) {
+        const orderRes = await docClient.send(
+          new ScanCommand({
+            TableName: PROBLEMS_TABLE,
+            FilterExpression: "#ord = :numId",
+            ExpressionAttributeNames: { "#ord": "order" },
+            ExpressionAttributeValues: { ":numId": numericId },
+          })
+        );
+        if (orderRes.Items && orderRes.Items.length > 0) {
+          problem = orderRes.Items[0];
+        }
+      }
+
+      if (!problem) {
+        // Try slug
+        const scanRes = await docClient.send(
+          new ScanCommand({
+            TableName: PROBLEMS_TABLE,
+            FilterExpression: "slug = :slug",
+            ExpressionAttributeValues: { ":slug": problemId },
+          })
+        );
+        if (scanRes.Items && scanRes.Items.length > 0) {
+          problem = scanRes.Items[0];
+        }
       }
     }
 

@@ -10,6 +10,14 @@ body {
   margin: 0;
 }
 
+/* Coding environments have their own flush top navbar */
+body:has(.lc-workspace),
+body:has(.lch-wrapper),
+body:has(.lcp-wrapper),
+body.no-learnix-navbar-pad {
+  padding-top: 0 !important;
+}
+
 /* Main Navbar Container */
 .learnix-navbar-container {
   position: fixed;

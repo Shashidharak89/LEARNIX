@@ -3,12 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  FiCode,
   FiArrowRight,
   FiPlay,
-  FiAward,
   FiZap,
-  FiCheckCircle,
   FiTerminal,
 } from "react-icons/fi";
 import LearnixCodeNav from "./components/LearnixCodeNav";
@@ -99,11 +96,10 @@ export default function LearnixCodeHomePage() {
             <div className="lch-problems-grid">
               {first10.map((p, index) => {
                 const problemNumber = index + 1;
-                const problemSlug = p.slug || p.problemId;
                 return (
                   <Link
                     key={p.problemId || index}
-                    href={`/learnix-code/problems/${problemSlug}`}
+                    href={`/learnix-code/problems/${problemNumber}`}
                     className="lch-prob-row"
                   >
                     <div className="lch-prob-left">

@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { FiArrowUp } from 'react-icons/fi';
 import './styles/ScrollToTop.css';
 
 export default function ScrollToTop() {
+  const pathname = usePathname();
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -48,6 +50,11 @@ export default function ScrollToTop() {
   const radius = 20;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - scrollProgress * circumference;
+
+  // Hide completely on coding workspace and test pages
+  if (pathname?.startsWith('/learnix-code') || pathname?.startsWith('/test')) {
+    return null;
+  }
 
   return (
     <button

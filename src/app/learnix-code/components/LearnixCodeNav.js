@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { FiLogOut, FiShield, FiCode, FiLayers } from "react-icons/fi";
+import { recordCodingEntry, exitCodingEnvironment } from "@/utils/codingExitTracker";
 import "./LearnixCodeNav.css";
 
 export default function LearnixCodeNav() {
@@ -14,19 +15,26 @@ export default function LearnixCodeNav() {
   useEffect(() => {
     const role = localStorage.getItem("role") || "";
     setIsAdmin(role === "admin" || role === "superadmin");
+
+    // Record non-coding entry point so exit always returns to original page
+    recordCodingEntry();
+
+    // Remove any lingering navbar padding
+    if (typeof document !== "undefined") {
+      document.body.classList.add("no-learnix-navbar-pad");
+      document.body.style.paddingTop = "0px";
+    }
+
+    return () => {
+      if (typeof document !== "undefined") {
+        document.body.classList.remove("no-learnix-navbar-pad");
+        document.body.style.paddingTop = "";
+      }
+    };
   }, []);
 
   function handleExit() {
-    if (typeof window !== "undefined") {
-      // Check if referrer was within the site
-      if (window.history.length > 1 && document.referrer && document.referrer.includes(window.location.host)) {
-        router.back();
-      } else {
-        router.push("/");
-      }
-    } else {
-      router.push("/");
-    }
+    exitCodingEnvironment(router);
   }
 
   return (

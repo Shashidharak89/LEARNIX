@@ -2,14 +2,17 @@ import LeetCodeIDE from "@/app/test/LeetCodeIDE";
 
 export async function generateMetadata({ params }) {
   const { problemid } = await params;
-  const title = (problemid || "Problem")
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
+  const isNumber = !isNaN(parseInt(problemid, 10));
+  const title = isNumber
+    ? `Problem #${problemid}`
+    : (problemid || "Problem")
+        .split("-")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
 
   return {
     title: `${title} | Learnix Code`,
-    description: `Solve and test the ${title} problem in the Learnix in-browser code editor.`,
+    description: `Solve and test ${title} in the Learnix in-browser code editor.`,
   };
 }
 
