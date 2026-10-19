@@ -12,13 +12,17 @@ import {
   FiCheckCircle,
   FiXCircle,
   FiAlertTriangle,
-  FiCode,
   FiTerminal,
   FiHelpCircle,
   FiShield,
   FiLogOut,
   FiChevronDown,
   FiChevronUp,
+  FiCopy,
+  FiCheck,
+  FiAlignLeft,
+  FiMaximize2,
+  FiMinimize2,
 } from "react-icons/fi";
 import { recordCodingEntry, exitCodingEnvironment } from "@/utils/codingExitTracker";
 import "./LeetCodeIDE.css";
@@ -44,11 +48,14 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
   const [leftWidthPercent, setLeftWidthPercent] = useState(45);
   const [consoleHeight, setConsoleHeight] = useState(280);
   const [isDragging, setIsDragging] = useState(null); // null | "vertical" | "horizontal" | "corner"
+  const [isEditorMaximized, setIsEditorMaximized] = useState(false);
   const bodyRef = useRef(null);
   const editorRef = useRef(null);
 
   // Editor State
   const [code, setCode] = useState("");
+  const [cursorPos, setCursorPos] = useState({ line: 1, col: 1 });
+  const [copiedCode, setCopiedCode] = useState(false);
 
   // Console State
   const [activeConsoleTab, setActiveConsoleTab] = useState("testcase"); // "testcase" | "testresult"
@@ -237,6 +244,20 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     setCode(newCode || "");
     if (problem) {
       localStorage.setItem(`learnix_code_${problem.problemId}`, newCode || "");
+    }
+  }
+
+  function handleFormatCode() {
+    if (editorRef.current) {
+      editorRef.current.getAction("editor.action.formatDocument")?.run();
+    }
+  }
+
+  function handleCopyCode() {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(code);
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2000);
     }
   }
 
@@ -583,19 +604,44 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
           }}
         >
           {/* Top: Editor Card */}
-          <div className="lc-editor-card">
+          <div className={`lc-editor-card ${isEditorMaximized ? "lc-editor-maximized" : ""}`}>
             <div className="lc-editor-header">
               <div className="lc-lang-badge">
-                <FiCode size={16} />
-                <span>JavaScript (Node.js)</span>
+                <span className="lc-js-icon">JS</span>
+                <span className="lc-lang-text">JavaScript</span>
+                <span className="lc-lang-env">Node.js ES6+</span>
               </div>
               <div className="lc-editor-actions">
                 <button
+                  onClick={handleFormatCode}
+                  className="lc-action-btn"
+                  title="Format code indentation and spacing"
+                >
+                  <FiAlignLeft size={13} />
+                  <span>Format</span>
+                </button>
+                <button
+                  onClick={handleCopyCode}
+                  className="lc-action-btn"
+                  title="Copy code to clipboard"
+                >
+                  {copiedCode ? <FiCheck size={13} color="#00b8a3" /> : <FiCopy size={13} />}
+                  <span>{copiedCode ? "Copied!" : "Copy"}</span>
+                </button>
+                <button
                   onClick={handleResetCode}
-                  className="lc-icon-btn"
+                  className="lc-action-btn"
                   title="Reset to default boilerplate code"
                 >
-                  <FiRotateCcw size={15} />
+                  <FiRotateCcw size={13} />
+                  <span>Reset</span>
+                </button>
+                <button
+                  onClick={() => setIsEditorMaximized(!isEditorMaximized)}
+                  className="lc-icon-btn"
+                  title={isEditorMaximized ? "Restore Layout" : "Maximize Code Panel"}
+                >
+                  {isEditorMaximized ? <FiMinimize2 size={14} /> : <FiMaximize2 size={14} />}
                 </button>
               </div>
             </div>
@@ -608,51 +654,87 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                 value={code}
                 onMount={(editor) => {
                   editorRef.current = editor;
+                  editor.onDidChangeCursorPosition((e) => {
+                    setCursorPos({ line: e.position.lineNumber, col: e.position.column });
+                  });
                 }}
                 onChange={handleCodeChange}
                 options={{
                   fontSize: 14,
-                  fontFamily: "'Fira Code', 'Menlo', 'Monaco', monospace",
+                  fontFamily: "'Fira Code', 'Cascadia Code', 'JetBrains Mono', Consolas, monospace",
+                  fontLigatures: true,
+                  lineHeight: 22,
+                  cursorBlinking: "smooth",
+                  cursorSmoothCaretAnimation: "on",
+                  smoothScrolling: true,
                   minimap: { enabled: false },
                   scrollBeyondLastLine: false,
                   automaticLayout: true,
                   tabSize: 2,
                   lineNumbers: "on",
                   bracketPairColorization: { enabled: true },
-                  padding: { top: 12, bottom: 12 },
+                  guides: {
+                    bracketPairs: true,
+                    indentation: true,
+                  },
+                  autoClosingBrackets: "always",
+                  autoClosingQuotes: "always",
+                  formatOnPaste: true,
+                  formatOnType: true,
+                  padding: { top: 14, bottom: 14 },
                   suggestOnTriggerCharacters: true,
+                  quickSuggestions: { other: true, comments: false, strings: true },
+                  renderLineHighlight: "line",
+                  roundedSelection: true,
                 }}
               />
             </div>
-          </div>
 
-          {/* ── Horizontal Resizer Gutter between Editor and Console ── */}
-          <div
-            className={`lc-resizer-horizontal ${isDragging === "horizontal" ? "dragging" : ""}`}
-            onPointerDown={handlePointerDown("horizontal")}
-            onDoubleClick={() => setConsoleHeight((prev) => (prev <= 45 ? 280 : 42))}
-            title="Drag up/down to adjust console height (Drag down to minimize, double-click to toggle)"
-          >
-            {/* Corner Resizer Handle at top-left of the Console Field */}
-            <div
-              className={`lc-corner-resizer ${isDragging === "corner" ? "dragging" : ""}`}
-              onPointerDown={(e) => {
-                e.stopPropagation();
-                handlePointerDown("corner")(e);
-              }}
-              title="Hold and drag this corner to adjust width & height simultaneously"
-            >
-              <span className="lc-corner-icon" />
+            {/* Editor Footer / Status Bar */}
+            <div className="lc-editor-footer">
+              <div className="lc-footer-left">
+                <span>Ln {cursorPos.line}, Col {cursorPos.col}</span>
+                <span className="lc-footer-sep">•</span>
+                <span>Spaces: 2</span>
+              </div>
+              <div className="lc-footer-right">
+                <span>UTF-8</span>
+                <span className="lc-footer-sep">•</span>
+                <span>JavaScript</span>
+              </div>
             </div>
-
-            <div className="lc-resizer-grip-h" />
           </div>
 
-          {/* Bottom: Console / Test Cases Card */}
-          <div
-            className={`lc-console-card ${consoleHeight <= 45 ? "lc-console-minimized" : ""}`}
-            style={{ height: `${consoleHeight}px` }}
-          >
+          {/* ── Horizontal Resizer Gutter between Editor and Console (Hidden when maximized) ── */}
+          {!isEditorMaximized && (
+            <div
+              className={`lc-resizer-horizontal ${isDragging === "horizontal" ? "dragging" : ""}`}
+              onPointerDown={handlePointerDown("horizontal")}
+              onDoubleClick={() => setConsoleHeight((prev) => (prev <= 45 ? 280 : 42))}
+              title="Drag up/down to adjust console height (Drag down to minimize, double-click to toggle)"
+            >
+              {/* Corner Resizer Handle at top-left of the Console Field */}
+              <div
+                className={`lc-corner-resizer ${isDragging === "corner" ? "dragging" : ""}`}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  handlePointerDown("corner")(e);
+                }}
+                title="Hold and drag this corner to adjust width & height simultaneously"
+              >
+                <span className="lc-corner-icon" />
+              </div>
+
+              <div className="lc-resizer-grip-h" />
+            </div>
+          )}
+
+          {/* Bottom: Console / Test Cases Card (Hidden when maximized) */}
+          {!isEditorMaximized && (
+            <div
+              className={`lc-console-card ${consoleHeight <= 45 ? "lc-console-minimized" : ""}`}
+              style={{ height: `${consoleHeight}px` }}
+            >
             <div className="lc-console-header">
               <div className="lc-console-tabs">
                 <button
@@ -903,6 +985,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
             </div>
           )}
           </div>
+        )}
         </div>
       </div>
     </div>
