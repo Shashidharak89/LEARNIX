@@ -218,40 +218,42 @@
 .ac-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(6px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  padding: 1.5rem;
-  overflow-y: auto;
+  padding: 1.25rem;
 }
 
 .ac-modal {
   background: #ffffff;
   width: 100%;
-  max-width: 900px;
+  max-width: 980px;
+  height: 90vh;
   max-height: 90vh;
   border-radius: 16px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.4);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
 }
 
 .ac-modal-header {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem 1.75rem;
+  padding: 1.15rem 1.75rem;
   border-bottom: 1px solid #e2e8f0;
-  background: #f8fafc;
+  background: #ffffff;
 }
 
 .ac-modal-header h2 {
   margin: 0;
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #0f172a;
 }
@@ -264,14 +266,25 @@
   cursor: pointer;
   padding: 0.25rem;
   line-height: 1;
+  transition: color 0.15s ease;
 }
 
 .ac-close-btn:hover {
   color: #0f172a;
 }
 
+.ac-modal-content-wrapper {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .ac-modal-body {
-  padding: 1.75rem;
+  flex: 1;
+  min-height: 0;
+  padding: 1.5rem 1.75rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -361,23 +374,9 @@
   color: #475569;
 }
 
-.ac-modal-footer {
-  padding: 1.25rem 1.75rem;
-  border-top: 1px solid #e2e8f0;
-  background: #f8fafc;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-}
-
-@media (max-width: 640px) {
-  .ac-form-row {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* Modal Tabs */
 .ac-modal-tabs {
+  flex-shrink: 0;
   display: flex;
   gap: 0.5rem;
   padding: 0 1.75rem;
@@ -410,12 +409,45 @@
   background: rgba(37, 99, 235, 0.04);
 }
 
+/* Modal Sticky Footer */
+.ac-modal-sticky-footer {
+  flex-shrink: 0;
+  padding: 1rem 1.75rem;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.03);
+  z-index: 10;
+}
+
+.ac-footer-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.ac-modal-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 /* JSON Tooling & Editor */
 .ac-json-wrapper {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
   padding: 1.5rem 1.75rem;
+  -webkit-overflow-scrolling: touch;
 }
 
 .ac-json-banner {
@@ -472,9 +504,20 @@
   gap: 0.4rem;
 }
 
+.ac-json-stats-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #3b82f6;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+}
+
 .ac-json-actions-group {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .ac-json-tool-btn {
@@ -517,17 +560,21 @@
 
 .ac-json-editor-box {
   width: 100%;
-  font-family: "Fira Code", "Consolas", "Monaco", monospace;
-  font-size: 0.85rem;
+  font-family: "Fira Code", "JetBrains Mono", "Consolas", monospace;
+  font-size: 0.88rem;
   line-height: 1.6;
   background: #090d16;
   color: #38bdf8;
   border: 1px solid #1e293b;
   border-radius: 10px;
-  padding: 1rem 1.25rem;
+  padding: 1.1rem 1.25rem;
+  min-height: 320px;
+  max-height: 520px;
   resize: vertical;
-  min-height: 280px;
   box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+  overflow-y: auto;
+  white-space: pre;
+  tab-size: 2;
 }
 
 .ac-json-editor-box:focus {
@@ -586,5 +633,57 @@
   font-size: 0.85rem;
   font-weight: 600;
   color: #0f172a;
+  word-break: break-word;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .ac-modal-overlay {
+    padding: 0.5rem;
+  }
+
+  .ac-modal {
+    max-width: 100%;
+    height: 96vh;
+    max-height: 96vh;
+    border-radius: 12px;
+  }
+
+  .ac-modal-header,
+  .ac-modal-tabs,
+  .ac-modal-body,
+  .ac-json-wrapper,
+  .ac-modal-sticky-footer {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .ac-json-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ac-json-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ac-modal-sticky-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .ac-modal-footer-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .ac-form-row {
+    grid-template-columns: 1fr;
+  }
 }
 

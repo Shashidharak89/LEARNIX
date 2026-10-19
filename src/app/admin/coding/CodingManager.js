@@ -19,6 +19,7 @@ import {
   FiCheckCircle,
   FiAlertCircle,
   FiDownload,
+  FiClipboard,
 } from "react-icons/fi";
 import "./CodingManager.css";
 
@@ -286,10 +287,19 @@ function ${funcName || "solution"}(${paramNames}) {
     setIsModalOpen(true);
   }
 
+  // Clean comments and trailing commas if user pastes JS-like object notation
+  function tryCleanJson(str) {
+    if (!str) return "";
+    return str
+      .replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, "$1")
+      .replace(/,\s*([\]}])/g, "$1")
+      .trim();
+  }
+
   // JSON Quick Import Handlers
   function handleJsonTextChange(val) {
     setJsonInput(val);
-    if (!val.trim()) {
+    if (!val || !val.trim()) {
       setJsonParsed(null);
       setJsonError(null);
       return;
@@ -298,9 +308,31 @@ function ${funcName || "solution"}(${paramNames}) {
       const parsed = JSON.parse(val);
       setJsonParsed(parsed);
       setJsonError(null);
-    } catch (err) {
-      setJsonParsed(null);
-      setJsonError(err.message);
+    } catch (firstErr) {
+      try {
+        const cleaned = tryCleanJson(val);
+        const parsed = JSON.parse(cleaned);
+        setJsonParsed(parsed);
+        setJsonError(null);
+      } catch {
+        setJsonParsed(null);
+        setJsonError(firstErr.message);
+      }
+    }
+  }
+
+  async function handlePasteClipboard() {
+    try {
+      if (typeof navigator !== "undefined" && navigator?.clipboard?.readText) {
+        const clipText = await navigator.clipboard.readText();
+        if (clipText) {
+          handleJsonTextChange(clipText);
+        }
+      } else {
+        alert("Clipboard read not supported by browser. Please paste using Ctrl+V or Cmd+V.");
+      }
+    } catch {
+      alert("Clipboard access was blocked. Please paste directly into the editor using Ctrl+V or Cmd+V.");
     }
   }
 
@@ -329,8 +361,16 @@ function ${funcName || "solution"}(${paramNames}) {
       setJsonInput(JSON.stringify(parsed, null, 2));
       setJsonParsed(parsed);
       setJsonError(null);
-    } catch (err) {
-      setJsonError("Cannot prettify invalid JSON: " + err.message);
+    } catch {
+      try {
+        const cleaned = tryCleanJson(jsonInput);
+        const parsed = JSON.parse(cleaned);
+        setJsonInput(JSON.stringify(parsed, null, 2));
+        setJsonParsed(parsed);
+        setJsonError(null);
+      } catch (err) {
+        setJsonError("Cannot prettify invalid JSON: " + err.message);
+      }
     }
   }
 
@@ -341,56 +381,82 @@ function ${funcName || "solution"}(${paramNames}) {
   }
 
   async function handleCreateFromJson() {
-    if (!jsonInput.trim()) {
-      alert("Please paste or load JSON data first.");
+    if (!jsonInput || !jsonInput.trim()) {
+      alert("Please paste or load problem JSON data first.");
       return;
     }
 
-    let parsed = null;
-    try {
-      parsed = JSON.parse(jsonInput);
-    } catch (err) {
-      alert("JSON Syntax Error: " + err.message);
+    let parsed = jsonParsed;
+    if (!parsed) {
+      try {
+        parsed = JSON.parse(jsonInput);
+      } catch {
+        try {
+          parsed = JSON.parse(tryCleanJson(jsonInput));
+        } catch (err) {
+          alert("JSON Syntax Error: " + err.message + "\nPlease fix the JSON syntax or ensure all keys/strings use double quotes.");
+          return;
+        }
+      }
+    }
+
+    const title = parsed.title || parsed.name || parsed.questionTitle || parsed.problemName;
+    if (!title || typeof title !== "string") {
+      alert("Validation Error: Please specify a 'title' or 'name' for the problem.");
       return;
     }
 
-    if (!parsed.title || typeof parsed.title !== "string") {
-      alert("Validation Error: 'title' is required in the JSON.");
-      return;
-    }
+    const functionName = parsed.functionName || parsed.function || parsed.fn || parsed.methodName || "solution";
 
-    if (!parsed.functionName || typeof parsed.functionName !== "string") {
-      alert("Validation Error: 'functionName' is required in the JSON.");
-      return;
-    }
+    // Normalize parameters
+    let rawParams = parsed.parameters || parsed.params || [];
+    if (!Array.isArray(rawParams)) rawParams = [];
+    const parameters = rawParams.map((p, idx) => {
+      if (typeof p === "string") return { name: p, type: "any" };
+      return {
+        name: p?.name || `arg${idx + 1}`,
+        type: p?.type || "any",
+      };
+    });
 
-    if (!Array.isArray(parsed.testCases) || parsed.testCases.length === 0) {
+    const returnType = parsed.returnType || parsed.return_type || parsed.outputType || "any";
+
+    // Extract testcases flexibly
+    const rawCases = parsed.testCases || parsed.test_cases || parsed.testcases || parsed.tests || [];
+    if (!Array.isArray(rawCases) || rawCases.length === 0) {
       alert("Validation Error: 'testCases' array is required with at least 1 test case.");
       return;
     }
 
+    // Determine boilerplate template (strictly starter skeleton, never working code)
+    let jsTemplate =
+      parsed.boilerplateCode ||
+      parsed.boilerplate ||
+      parsed.starterCode ||
+      parsed.template ||
+      parsed.templates?.javascript;
+
+    if (!jsTemplate) {
+      jsTemplate = generateJsBoilerplate(functionName, parameters, returnType);
+    }
+
     setJsonSaving(true);
     try {
-      // Determine boilerplate template (strictly skeleton, never working code)
-      let jsTemplate = parsed.boilerplateCode || parsed.templates?.javascript;
-      if (!jsTemplate) {
-        jsTemplate = generateJsBoilerplate(
-          parsed.functionName,
-          parsed.parameters || [],
-          parsed.returnType || "any"
-        );
-      }
+      const cleanSlug = (parsed.slug || title)
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "");
 
       const payload = {
-        title: parsed.title,
-        slug: parsed.slug || parsed.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+        title,
+        slug: cleanSlug,
         difficulty: parsed.difficulty || "Easy",
         tags: Array.isArray(parsed.tags)
           ? parsed.tags
           : typeof parsed.tags === "string"
           ? parsed.tags.split(",").map((t) => t.trim()).filter(Boolean)
           : ["Basics"],
-        description: parsed.description || "",
+        description: parsed.description || parsed.statement || "",
         inputFormat: parsed.inputFormat || "",
         outputFormat: parsed.outputFormat || "",
         constraints: Array.isArray(parsed.constraints)
@@ -398,23 +464,31 @@ function ${funcName || "solution"}(${paramNames}) {
           : typeof parsed.constraints === "string"
           ? parsed.constraints.split("\n").map((c) => c.trim()).filter(Boolean)
           : [],
-        functionName: parsed.functionName,
-        returnType: parsed.returnType || "any",
-        parameters: Array.isArray(parsed.parameters) ? parsed.parameters : [],
+        functionName,
+        returnType,
+        parameters,
         templates: {
           javascript: jsTemplate,
         },
         order: Number(parsed.order) || (problems.length + 1),
         isActive: parsed.isActive !== false,
-        testCases: parsed.testCases.map((tc, idx) => ({
-          testCaseId: tc.testCaseId || `tc_${String(idx + 1).padStart(2, "0")}`,
-          order: tc.order || idx + 1,
-          input: typeof tc.input === "string" ? tc.input : JSON.stringify(tc.input),
-          rawInput: tc.rawInput || (typeof tc.input === "string" ? tc.input : JSON.stringify(tc.input)),
-          expectedOutput: typeof tc.expectedOutput === "string" ? tc.expectedOutput : JSON.stringify(tc.expectedOutput),
-          isSample: tc.isSample !== undefined ? Boolean(tc.isSample) : idx < 3,
-          explanation: tc.explanation || "",
-        })),
+        testCases: rawCases.map((tc, idx) => {
+          let inp = tc.input !== undefined ? tc.input : (tc.args !== undefined ? tc.args : []);
+          let exp = tc.expectedOutput !== undefined ? tc.expectedOutput : (tc.output !== undefined ? tc.output : (tc.expected !== undefined ? tc.expected : ""));
+
+          const inputStr = typeof inp === "string" ? inp : JSON.stringify(inp);
+          const outputStr = typeof exp === "string" ? exp : JSON.stringify(exp);
+
+          return {
+            testCaseId: tc.testCaseId || tc.id || `tc_${String(idx + 1).padStart(2, "0")}`,
+            order: tc.order || idx + 1,
+            input: inputStr,
+            rawInput: tc.rawInput || inputStr,
+            expectedOutput: outputStr,
+            isSample: tc.isSample !== undefined ? Boolean(tc.isSample) : idx < 3,
+            explanation: tc.explanation || "",
+          };
+        }),
       };
 
       const res = await fetch("/api/admin/coding/problems", {
@@ -781,71 +855,87 @@ function ${funcName || "solution"}(${paramNames}) {
             )}
 
             {activeModalTab === "json" && !editingId ? (
-              <div className="ac-json-wrapper">
-                {/* Information Banner with Dummy Sample Actions */}
-                <div className="ac-json-banner">
-                  <div className="ac-json-banner-text">
-                    <h4>
-                      <FiCode /> Quick Problem Creation via JSON
-                    </h4>
-                    <p>
-                      Paste problem specifications in JSON format. Note: Boilerplate must be starter skeleton code (with JSDoc and <code>{"// Write your code here"}</code>), not actual working solution code.
-                    </p>
+              <div className="ac-modal-content-wrapper">
+                <div className="ac-json-wrapper">
+                  {/* Information Banner with Dummy Sample Actions */}
+                  <div className="ac-json-banner">
+                    <div className="ac-json-banner-text">
+                      <h4>
+                        <FiCode /> Quick Problem Creation via JSON
+                      </h4>
+                      <p>
+                        Paste problem specifications in JSON format. Note: Boilerplate must be starter skeleton code (with JSDoc and <code>{"// Write your code here"}</code>), not actual working solution code.
+                      </p>
+                    </div>
+                    <div className="ac-json-banner-actions">
+                      <button
+                        type="button"
+                        onClick={handleCopySample}
+                        className={`ac-json-tool-btn ${jsonCopied ? "ac-json-tool-btn-copied" : "ac-json-tool-btn-primary"}`}
+                        title="Copy standard dummy sample format to clipboard"
+                      >
+                        {jsonCopied ? <FiCheck /> : <FiCopy />}
+                        <span>{jsonCopied ? "Copied Sample JSON!" : "Copy Sample JSON"}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleLoadSample}
+                        className="ac-json-tool-btn"
+                        title="Load sample template into the editor"
+                      >
+                        <FiDownload />
+                        <span>Load Sample into Editor</span>
+                      </button>
+                    </div>
                   </div>
-                  <div className="ac-json-banner-actions">
-                    <button
-                      type="button"
-                      onClick={handleCopySample}
-                      className={`ac-json-tool-btn ${jsonCopied ? "ac-json-tool-btn-copied" : "ac-json-tool-btn-primary"}`}
-                      title="Copy standard dummy sample format to clipboard"
-                    >
-                      {jsonCopied ? <FiCheck /> : <FiCopy />}
-                      <span>{jsonCopied ? "Copied Sample JSON!" : "Copy Sample JSON"}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleLoadSample}
-                      className="ac-json-tool-btn"
-                      title="Load sample template into the editor"
-                    >
-                      <FiDownload />
-                      <span>Load Sample into Editor</span>
-                    </button>
-                  </div>
-                </div>
 
-                {/* Editor Toolbar */}
-                <div className="ac-json-toolbar">
-                  <span className="ac-json-toolbar-title">
-                    <FiFileText /> Problem JSON Specification
-                  </span>
-                  <div className="ac-json-actions-group">
-                    <button
-                      type="button"
-                      onClick={handlePrettifyJson}
-                      className="ac-json-tool-btn"
-                      title="Format JSON with indentation"
-                    >
-                      <FiRefreshCw /> Prettify
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleClearJson}
-                      className="ac-json-tool-btn"
-                      title="Clear editor contents"
-                    >
-                      <FiTrash2 /> Clear
-                    </button>
+                  {/* Editor Toolbar */}
+                  <div className="ac-json-toolbar">
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                      <span className="ac-json-toolbar-title">
+                        <FiFileText /> Problem JSON Specification
+                      </span>
+                      {jsonInput && (
+                        <span className="ac-json-stats-badge">
+                          {jsonInput.split("\n").length} lines · {jsonInput.length.toLocaleString()} chars
+                        </span>
+                      )}
+                    </div>
+                    <div className="ac-json-actions-group">
+                      <button
+                        type="button"
+                        onClick={handlePasteClipboard}
+                        className="ac-json-tool-btn"
+                        title="Paste text from clipboard"
+                      >
+                        <FiClipboard /> Paste Clipboard
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handlePrettifyJson}
+                        className="ac-json-tool-btn"
+                        title="Format JSON with indentation"
+                      >
+                        <FiRefreshCw /> Prettify
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleClearJson}
+                        className="ac-json-tool-btn"
+                        title="Clear editor contents"
+                      >
+                        <FiTrash2 /> Clear
+                      </button>
+                    </div>
                   </div>
-                </div>
 
-                {/* JSON Editor Textarea */}
-                <textarea
-                  className="ac-json-editor-box"
-                  rows={16}
-                  value={jsonInput}
-                  onChange={(e) => handleJsonTextChange(e.target.value)}
-                  placeholder={`Paste problem JSON here or click "Load Sample into Editor"...
+                  {/* JSON Editor Textarea */}
+                  <textarea
+                    className="ac-json-editor-box"
+                    rows={16}
+                    value={jsonInput}
+                    onChange={(e) => handleJsonTextChange(e.target.value)}
+                    placeholder={`Paste problem JSON here or click "Load Sample into Editor"...
 
 Example structure:
 {
@@ -859,95 +949,120 @@ Example structure:
   "boilerplateCode": "/**\\n * @param {number} a\\n * @param {number} b\\n * @return {number}\\n */\\nfunction addTwoNumbers(a, b) {\\n    // Write your code here\\n}",
   "testCases": [...]
 }`}
-                />
+                  />
 
-                {/* Live Real-time Status & Validation */}
-                {jsonError && (
-                  <div className="ac-json-status-card ac-json-status-error">
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 700 }}>
-                      <FiAlertCircle size={18} />
-                      <span>JSON Syntax Error</span>
-                    </div>
-                    <div style={{ fontFamily: "monospace", fontSize: "0.8rem", whiteSpace: "pre-wrap" }}>
-                      {jsonError}
-                    </div>
-                  </div>
-                )}
-
-                {jsonParsed && !jsonError && (
-                  <div className="ac-json-status-card ac-json-status-valid">
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  {/* Live Real-time Status & Validation */}
+                  {jsonError && (
+                    <div className="ac-json-status-card ac-json-status-error">
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 700 }}>
-                        <FiCheckCircle size={18} />
-                        <span>Valid Problem Schema Detected</span>
+                        <FiAlertCircle size={18} />
+                        <span>JSON Syntax Error</span>
                       </div>
-                      <span className="ac-badge ac-badge-easy" style={{ fontSize: "0.75rem" }}>
-                        {jsonParsed.difficulty || "Easy"}
-                      </span>
-                    </div>
-
-                    <div className="ac-json-preview-grid">
-                      <div className="ac-json-preview-item">
-                        <span className="ac-json-preview-label">Title</span>
-                        <span className="ac-json-preview-val">{jsonParsed.title || "—"}</span>
+                      <div style={{ fontFamily: "monospace", fontSize: "0.82rem", whiteSpace: "pre-wrap" }}>
+                        {jsonError}
                       </div>
-                      <div className="ac-json-preview-item">
-                        <span className="ac-json-preview-label">Function Signature</span>
-                        <span className="ac-json-preview-val">
-                          {jsonParsed.functionName || "solution"}
-                          ({(jsonParsed.parameters || []).map((p) => p.name).join(", ")}) →{" "}
-                          {jsonParsed.returnType || "any"}
-                        </span>
-                      </div>
-                      <div className="ac-json-preview-item">
-                        <span className="ac-json-preview-label">Test Cases</span>
-                        <span className="ac-json-preview-val">
-                          {Array.isArray(jsonParsed.testCases) ? jsonParsed.testCases.length : 0} Cases{" "}
-                          ({(jsonParsed.testCases || []).filter((t) => t.isSample).length} sample)
-                        </span>
-                      </div>
-                      <div className="ac-json-preview-item">
-                        <span className="ac-json-preview-label">Boilerplate Stub</span>
-                        <span className="ac-json-preview-val" style={{ color: "#2563eb" }}>
-                          {jsonParsed.boilerplateCode
-                            ? "Custom Starter Skeleton"
-                            : "Auto-generated Starter Stub"}
-                        </span>
+                      <div style={{ fontSize: "0.78rem", color: "#b91c1c" }}>
+                        Tip: Ensure all object keys and strings are enclosed in double quotes <code>&quot;...&quot;</code> and check for unclosed brackets or trailing commas.
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* JSON Modal Actions */}
-                <div className="ac-modal-footer" style={{ padding: "1.25rem 0 0 0", background: "transparent" }}>
-                  <button
-                    type="button"
-                    onClick={() => setIsModalOpen(false)}
-                    className="ac-btn ac-btn-secondary"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleCreateFromJson}
-                    disabled={jsonSaving || !jsonParsed || !jsonParsed.title}
-                    className="ac-btn ac-btn-primary"
-                    style={{ minWidth: "210px" }}
-                  >
+                  {jsonParsed && !jsonError && (
+                    <div className="ac-json-status-card ac-json-status-valid">
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 700 }}>
+                          <FiCheckCircle size={18} />
+                          <span>Valid Problem Schema Detected</span>
+                        </div>
+                        <span className="ac-badge ac-badge-easy" style={{ fontSize: "0.75rem" }}>
+                          {jsonParsed.difficulty || "Easy"}
+                        </span>
+                      </div>
+
+                      <div className="ac-json-preview-grid">
+                        <div className="ac-json-preview-item">
+                          <span className="ac-json-preview-label">Title</span>
+                          <span className="ac-json-preview-val">{jsonParsed.title || jsonParsed.name || "—"}</span>
+                        </div>
+                        <div className="ac-json-preview-item">
+                          <span className="ac-json-preview-label">Function Signature</span>
+                          <span className="ac-json-preview-val">
+                            {jsonParsed.functionName || jsonParsed.fn || "solution"}
+                            ({(jsonParsed.parameters || jsonParsed.params || []).map((p) => typeof p === "string" ? p : p.name).join(", ")}) →{" "}
+                            {jsonParsed.returnType || "any"}
+                          </span>
+                        </div>
+                        <div className="ac-json-preview-item">
+                          <span className="ac-json-preview-label">Test Cases</span>
+                          <span className="ac-json-preview-val">
+                            {Array.isArray(jsonParsed.testCases || jsonParsed.test_cases || jsonParsed.tests)
+                              ? (jsonParsed.testCases || jsonParsed.test_cases || jsonParsed.tests).length
+                              : 0} Cases
+                          </span>
+                        </div>
+                        <div className="ac-json-preview-item">
+                          <span className="ac-json-preview-label">Boilerplate Stub</span>
+                          <span className="ac-json-preview-val" style={{ color: "#2563eb" }}>
+                            {jsonParsed.boilerplateCode || jsonParsed.boilerplate || jsonParsed.starterCode || jsonParsed.templates?.javascript
+                              ? "Custom Starter Skeleton"
+                              : "Auto-generated Starter Stub"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Sticky Footer for JSON view */}
+                <div className="ac-modal-sticky-footer">
+                  <div className="ac-footer-status">
                     {jsonSaving ? (
-                      <>
-                        <FiRefreshCw className="animate-spin" /> Creating Problem...
-                      </>
+                      <span style={{ color: "#2563eb", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                        <FiRefreshCw className="animate-spin" /> Saving problem to DynamoDB...
+                      </span>
+                    ) : jsonParsed && !jsonError ? (
+                      <span style={{ color: "#16a34a", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                        <FiCheckCircle /> Ready to create: {jsonParsed.title || jsonParsed.name || "Problem"}
+                      </span>
+                    ) : jsonError ? (
+                      <span style={{ color: "#dc2626", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                        <FiAlertCircle /> Fix syntax error above to proceed
+                      </span>
                     ) : (
-                      <>
-                        <FiPlus /> Paste &amp; Create Problem
-                      </>
+                      <span>Paste JSON or click &quot;Load Sample into Editor&quot;</span>
                     )}
-                  </button>
+                  </div>
+                  <div className="ac-modal-footer-actions">
+                    <button
+                      type="button"
+                      onClick={() => setIsModalOpen(false)}
+                      className="ac-btn ac-btn-secondary"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCreateFromJson}
+                      disabled={jsonSaving || (!jsonParsed && !jsonInput.trim())}
+                      className="ac-btn ac-btn-primary"
+                      style={{ minWidth: "210px" }}
+                    >
+                      {jsonSaving ? (
+                        <>
+                          <FiRefreshCw className="animate-spin" /> Creating Problem...
+                        </>
+                      ) : (
+                        <>
+                          <FiPlus /> Paste &amp; Create Problem
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (
-            <form onSubmit={handleSave} className="ac-modal-body">
+            <form onSubmit={handleSave} className="ac-modal-content-wrapper">
+              <div className="ac-modal-body">
               {/* Basic Fields */}
               <div className="ac-form-row">
                 <div className="ac-form-group">
@@ -1245,23 +1360,29 @@ Example structure:
                 </div>
               ))}
 
-              <div className="ac-modal-footer">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="ac-btn ac-btn-secondary"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="ac-btn ac-btn-primary"
-                >
-                  {saving ? "Saving..." : editingId ? "Update Question" : "Create Question"}
-                </button>
-              </div>
-            </form>
+                </div>
+                <div className="ac-modal-sticky-footer">
+                  <div className="ac-footer-status">
+                    <span>{editingId ? "Editing existing question" : "Configuring new question"}</span>
+                  </div>
+                  <div className="ac-modal-footer-actions">
+                    <button
+                      type="button"
+                      onClick={() => setIsModalOpen(false)}
+                      className="ac-btn ac-btn-secondary"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="ac-btn ac-btn-primary"
+                    >
+                      {saving ? "Saving..." : editingId ? "Update Question" : "Create Question"}
+                    </button>
+                  </div>
+                </div>
+              </form>
             )}
           </div>
         </div>
