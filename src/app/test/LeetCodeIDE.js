@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -17,6 +17,8 @@ import {
   FiHelpCircle,
   FiShield,
   FiLogOut,
+  FiChevronDown,
+  FiChevronUp,
 } from "react-icons/fi";
 import { recordCodingEntry, exitCodingEnvironment } from "@/utils/codingExitTracker";
 import "./LeetCodeIDE.css";
@@ -38,9 +40,15 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
   const [problem, setProblem] = useState(null);
   const [loadingProblem, setLoadingProblem] = useState(true);
 
+  // Panel Resizing State
+  const [leftWidthPercent, setLeftWidthPercent] = useState(45);
+  const [consoleHeight, setConsoleHeight] = useState(280);
+  const [isDragging, setIsDragging] = useState(null); // null | "vertical" | "horizontal" | "corner"
+  const bodyRef = useRef(null);
+  const editorRef = useRef(null);
+
   // Editor State
   const [code, setCode] = useState("");
-  const [language, setLanguage] = useState("javascript");
 
   // Console State
   const [activeConsoleTab, setActiveConsoleTab] = useState("testcase"); // "testcase" | "testresult"
@@ -62,6 +70,54 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     exitCodingEnvironment(router);
   }
 
+  const handlePointerDown = (type) => (e) => {
+    e.preventDefault();
+    setIsDragging(type);
+  };
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handlePointerMove = (e) => {
+      if (!bodyRef.current) return;
+      const bodyRect = bodyRef.current.getBoundingClientRect();
+
+      if (isDragging === "vertical" || isDragging === "corner") {
+        const offsetX = e.clientX - bodyRect.left;
+        const totalWidth = bodyRect.width;
+        let newPercent = (offsetX / totalWidth) * 100;
+        // Clamp between 20% and 75%
+        newPercent = Math.max(20, Math.min(75, newPercent));
+        setLeftWidthPercent(newPercent);
+      }
+
+      if (isDragging === "horizontal" || isDragging === "corner") {
+        // Dragging down minimizes console, dragging up expands console
+        const newHeight = bodyRect.bottom - e.clientY;
+        const maxHeight = Math.max(120, bodyRect.height - 100);
+        const clampedHeight = Math.max(42, Math.min(maxHeight, newHeight));
+        setConsoleHeight(clampedHeight);
+      }
+    };
+
+    const handlePointerUp = () => {
+      setIsDragging(null);
+      if (editorRef.current) {
+        setTimeout(() => {
+          editorRef.current?.layout();
+        }, 50);
+      }
+    };
+
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", handlePointerUp);
+
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+    };
+  }, [isDragging]);
+
   useEffect(() => {
     const role = localStorage.getItem("role") || "";
     setIsAdmin(role === "admin" || role === "superadmin");
@@ -78,8 +134,8 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
       const computedPad = parseFloat(window.getComputedStyle(document.body).paddingTop);
       if (computedPad > 10) {
         document.body.style.paddingTop = "0px";
-        if (typeof sessionStorage !== "undefined" && !sessionStorage.getItem("learnix_code_nav_refreshed")) {
-          sessionStorage.setItem("learnix_code_nav_refreshed", "1");
+        if (typeof window !== "undefined" && typeof window.sessionStorage !== "undefined" && !window.sessionStorage.getItem("learnix_code_nav_refreshed")) {
+          window.sessionStorage.setItem("learnix_code_nav_refreshed", "1");
           window.location.reload();
         }
       }
@@ -88,7 +144,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     // Check URL params for ?problem=... or use initialProblemId
     let probParam = initialProblemId;
     if (typeof window !== "undefined") {
-      const urlParams = new URLSearchParams(window.location.search);
+      const urlParams = new window.URLSearchParams(window.location.search);
       const q = urlParams.get("problem");
       if (q) probParam = q;
     }
@@ -336,9 +392,31 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
       </nav>
 
       {/* ── Workspace Split Body ── */}
-      <div className="lc-body">
+      <div className="lc-body" ref={bodyRef}>
+        {/* Full-screen dragging glass overlay to capture pointer moves across Monaco and text */}
+        {isDragging && (
+          <div
+            className="lc-drag-glass"
+            style={{
+              cursor:
+                isDragging === "vertical"
+                  ? "col-resize"
+                  : isDragging === "horizontal"
+                  ? "row-resize"
+                  : "nwse-resize",
+            }}
+          />
+        )}
+
         {/* Left Pane: Problem Description */}
-        <div className="lc-left-pane">
+        <div
+          className="lc-left-pane"
+          style={{
+            flex: `0 0 ${leftWidthPercent}%`,
+            width: `${leftWidthPercent}%`,
+            maxWidth: `${leftWidthPercent}%`,
+          }}
+        >
           <div className="lc-pane-header">
             <button
               onClick={() => setActiveLeftTab("description")}
@@ -389,9 +467,51 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
                 {/* Problem Statement Content */}
                 <div className="lc-markdown-body">
-                  <div style={{ whiteSpace: "pre-line", marginBottom: "1rem" }}>
+                  <div style={{ whiteSpace: "pre-line", marginBottom: "1.25rem" }}>
                     {problem.description}
                   </div>
+
+                  {/* ── 3 Example Testcases with Outputs in Description Section ── */}
+                  {sampleCases && sampleCases.length > 0 && (
+                    <div className="lc-examples-section">
+                      {sampleCases.slice(0, 3).map((sc, idx) => (
+                        <div key={sc.testCaseId || idx} className="lc-example-card">
+                          <div className="lc-example-title">Example {idx + 1}:</div>
+                          <div className="lc-example-content">
+                            <div className="lc-example-line">
+                              <span className="lc-example-key">Input:</span>{" "}
+                              <code className="lc-example-code">
+                                {sc.rawInput ||
+                                  (Array.isArray(sc.input)
+                                    ? sc.input
+                                        .map((v) =>
+                                          typeof v === "object" ? JSON.stringify(v) : String(v)
+                                        )
+                                        .join(", ")
+                                    : JSON.stringify(sc.input))}
+                              </code>
+                            </div>
+                            <div className="lc-example-line">
+                              <span className="lc-example-key">Output:</span>{" "}
+                              <code className="lc-example-code lc-example-code-out">
+                                {typeof sc.expectedOutput === "object"
+                                  ? JSON.stringify(sc.expectedOutput)
+                                  : String(sc.expectedOutput)}
+                              </code>
+                            </div>
+                            {sc.explanation && (
+                              <div className="lc-example-line">
+                                <span className="lc-example-key">Explanation:</span>{" "}
+                                <span className="lc-example-explanation">
+                                  {sc.explanation}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   {/* Input & Output Format */}
                   {problem.inputFormat && (
@@ -443,8 +563,25 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
           </div>
         </div>
 
-        {/* Right Pane: Code Editor + Output Console */}
-        <div className="lc-right-pane">
+        {/* ── Vertical Resizer Gutter between Left and Right Panes ── */}
+        <div
+          className={`lc-resizer-vertical ${isDragging === "vertical" ? "dragging" : ""}`}
+          onPointerDown={handlePointerDown("vertical")}
+          onDoubleClick={() => setLeftWidthPercent(45)}
+          title="Drag horizontally to resize panes (Double-click to reset to 45%)"
+        >
+          <div className="lc-resizer-grip-v" />
+        </div>
+
+        {/* ── Right Pane: Code Editor + Output Console ── */}
+        <div
+          className="lc-right-pane"
+          style={{
+            flex: `1 1 calc(${100 - leftWidthPercent}% - 8px)`,
+            minWidth: 0,
+            width: `calc(${100 - leftWidthPercent}% - 8px)`,
+          }}
+        >
           {/* Top: Editor Card */}
           <div className="lc-editor-card">
             <div className="lc-editor-header">
@@ -469,6 +606,9 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                 language="javascript"
                 theme="vs-dark"
                 value={code}
+                onMount={(editor) => {
+                  editorRef.current = editor;
+                }}
                 onChange={handleCodeChange}
                 options={{
                   fontSize: 14,
@@ -486,8 +626,33 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
             </div>
           </div>
 
+          {/* ── Horizontal Resizer Gutter between Editor and Console ── */}
+          <div
+            className={`lc-resizer-horizontal ${isDragging === "horizontal" ? "dragging" : ""}`}
+            onPointerDown={handlePointerDown("horizontal")}
+            onDoubleClick={() => setConsoleHeight((prev) => (prev <= 45 ? 280 : 42))}
+            title="Drag up/down to adjust console height (Drag down to minimize, double-click to toggle)"
+          >
+            {/* Corner Resizer Handle at top-left of the Console Field */}
+            <div
+              className={`lc-corner-resizer ${isDragging === "corner" ? "dragging" : ""}`}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                handlePointerDown("corner")(e);
+              }}
+              title="Hold and drag this corner to adjust width & height simultaneously"
+            >
+              <span className="lc-corner-icon" />
+            </div>
+
+            <div className="lc-resizer-grip-h" />
+          </div>
+
           {/* Bottom: Console / Test Cases Card */}
-          <div className="lc-console-card">
+          <div
+            className={`lc-console-card ${consoleHeight <= 45 ? "lc-console-minimized" : ""}`}
+            style={{ height: `${consoleHeight}px` }}
+          >
             <div className="lc-console-header">
               <div className="lc-console-tabs">
                 <button
@@ -517,9 +682,20 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                   )}
                 </button>
               </div>
+
+              <div className="lc-console-header-actions">
+                <button
+                  onClick={() => setConsoleHeight((prev) => (prev <= 45 ? 280 : 42))}
+                  className="lc-icon-btn"
+                  title={consoleHeight <= 45 ? "Expand Console" : "Minimize Console"}
+                >
+                  {consoleHeight <= 45 ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
+                </button>
+              </div>
             </div>
 
-            <div className="lc-console-body">
+            {consoleHeight > 45 && (
+              <div className="lc-console-body">
               {/* ── Testcase Tab ── */}
               {activeConsoleTab === "testcase" && (
                 <div>
@@ -725,6 +901,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                 </div>
               )}
             </div>
+          )}
           </div>
         </div>
       </div>
