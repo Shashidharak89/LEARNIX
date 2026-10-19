@@ -12,8 +12,138 @@ import {
   FiArrowLeft,
   FiRefreshCw,
   FiList,
+  FiFileText,
+  FiCopy,
+  FiCheck,
+  FiSliders,
+  FiCheckCircle,
+  FiAlertCircle,
+  FiDownload,
 } from "react-icons/fi";
 import "./CodingManager.css";
+
+// ─── Dummy Sample JSON Template (Standard LeetCode-style structure) ───────────
+const SAMPLE_PROBLEM_JSON = {
+  title: "Add Two Numbers",
+  slug: "add-two-numbers",
+  difficulty: "Easy",
+  tags: ["Math", "Basics"],
+  description: "### Problem Statement\n\nGiven two integers `a` and `b`, return their sum.\n\n### Example 1:\n**Input:** `a = 2, b = 3`\n**Output:** `5`\n**Explanation:** `2 + 3 = 5`\n\n### Example 2:\n**Input:** `a = -5, b = 10`\n**Output:** `5`\n\n### Example 3:\n**Input:** `a = 0, b = 0`\n**Output:** `0`",
+  inputFormat: "Two integers `a` and `b` passed as function arguments.",
+  outputFormat: "Return an integer representing the sum of `a` and `b`.",
+  constraints: [
+    "-10^9 <= a <= 10^9",
+    "-10^9 <= b <= 10^9"
+  ],
+  functionName: "addTwoNumbers",
+  parameters: [
+    { name: "a", type: "number" },
+    { name: "b", type: "number" }
+  ],
+  returnType: "number",
+  boilerplateCode: `/**
+ * @param {number} a
+ * @param {number} b
+ * @return {number}
+ */
+function addTwoNumbers(a, b) {
+    // Write your code here
+}`,
+  order: 1,
+  isActive: true,
+  testCases: [
+    {
+      testCaseId: "tc_01",
+      order: 1,
+      input: [2, 3],
+      rawInput: "a = 2, b = 3",
+      expectedOutput: 5,
+      isSample: true,
+      explanation: "2 + 3 = 5"
+    },
+    {
+      testCaseId: "tc_02",
+      order: 2,
+      input: [-5, 10],
+      rawInput: "a = -5, b = 10",
+      expectedOutput: 5,
+      isSample: true,
+      explanation: "-5 + 10 = 5"
+    },
+    {
+      testCaseId: "tc_03",
+      order: 3,
+      input: [0, 0],
+      rawInput: "a = 0, b = 0",
+      expectedOutput: 0,
+      isSample: true,
+      explanation: "0 + 0 = 0"
+    },
+    {
+      testCaseId: "tc_04",
+      order: 4,
+      input: [100, 250],
+      rawInput: "a = 100, b = 250",
+      expectedOutput: 350,
+      isSample: false,
+      explanation: "100 + 250 = 350"
+    },
+    {
+      testCaseId: "tc_05",
+      order: 5,
+      input: [-100, -200],
+      rawInput: "a = -100, b = -200",
+      expectedOutput: -300,
+      isSample: false,
+      explanation: "-100 + -200 = -300"
+    },
+    {
+      testCaseId: "tc_06",
+      order: 6,
+      input: [999999999, 1],
+      rawInput: "a = 999999999, b = 1",
+      expectedOutput: 1000000000,
+      isSample: false,
+      explanation: "999999999 + 1 = 1000000000"
+    },
+    {
+      testCaseId: "tc_07",
+      order: 7,
+      input: [-50, 50],
+      rawInput: "a = -50, b = 50",
+      expectedOutput: 0,
+      isSample: false,
+      explanation: "-50 + 50 = 0"
+    },
+    {
+      testCaseId: "tc_08",
+      order: 8,
+      input: [12345, 67890],
+      rawInput: "a = 12345, b = 67890",
+      expectedOutput: 80235,
+      isSample: false,
+      explanation: "12345 + 67890 = 80235"
+    },
+    {
+      testCaseId: "tc_09",
+      order: 9,
+      input: [7, -15],
+      rawInput: "a = 7, b = -15",
+      expectedOutput: -8,
+      isSample: false,
+      explanation: "7 + -15 = -8"
+    },
+    {
+      testCaseId: "tc_10",
+      order: 10,
+      input: [42, 58],
+      rawInput: "a = 42, b = 58",
+      expectedOutput: 100,
+      isSample: false,
+      explanation: "42 + 58 = 100"
+    }
+  ]
+};
 
 export default function CodingManager() {
   const [problems, setProblems] = useState([]);
@@ -25,6 +155,14 @@ export default function CodingManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [activeModalTab, setActiveModalTab] = useState("form"); // "form" | "json"
+
+  // JSON Quick Import State
+  const [jsonInput, setJsonInput] = useState("");
+  const [jsonParsed, setJsonParsed] = useState(null);
+  const [jsonError, setJsonError] = useState(null);
+  const [jsonCopied, setJsonCopied] = useState(false);
+  const [jsonSaving, setJsonSaving] = useState(false);
 
   // Form Fields
   const [formData, setFormData] = useState({
@@ -90,35 +228,33 @@ export default function CodingManager() {
     }
   }
 
-  function generateJsBoilerplate(funcName, params, retType, title) {
+  // Pure skeleton boilerplate generator - strictly comments and empty stub, NEVER actual working code
+  function generateJsBoilerplate(funcName, params, retType) {
     const paramsDoc = (params || [])
       .map((p) => ` * @param {${p.type || "any"}} ${p.name || "arg"}`)
       .join("\n");
     const paramNames = (params || []).map((p) => p.name || "arg").join(", ");
 
     return `/**
- * ${title || "Solution"}
- * 
-${paramsDoc}
- * @return {${retType || "any"}}
+${paramsDoc ? paramsDoc + "\n" : ""} * @return {${retType || "any"}}
  */
 function ${funcName || "solution"}(${paramNames}) {
     // Write your code here
-    
 }`;
   }
 
-  function openCreateModal() {
+  function openCreateModal(initialTab = "form") {
     setEditingId(null);
+    setActiveModalTab(initialTab);
     const initialParams = [{ name: "a", type: "number" }, { name: "b", type: "number" }];
-    const defaultTemplate = generateJsBoilerplate("solution", initialParams, "number", "New Problem");
+    const defaultTemplate = generateJsBoilerplate("solution", initialParams, "number");
 
     setFormData({
       title: "",
       slug: "",
       difficulty: "Easy",
       tags: "Math, Basics",
-      description: "### Problem Statement\n\nWrite a function to solve...",
+      description: "### Problem Statement\n\nGiven two integers a and b, return their sum.",
       inputFormat: "Two integers passed as function arguments.",
       outputFormat: "Return the calculated integer result.",
       constraints: "-10^9 <= a, b <= 10^9",
@@ -139,11 +275,175 @@ function ${funcName || "solution"}(${paramNames}) {
         },
       ],
     });
+
+    if (initialTab === "json" && !jsonInput) {
+      const sampleStr = JSON.stringify(SAMPLE_PROBLEM_JSON, null, 2);
+      setJsonInput(sampleStr);
+      setJsonParsed(SAMPLE_PROBLEM_JSON);
+      setJsonError(null);
+    }
+
     setIsModalOpen(true);
+  }
+
+  // JSON Quick Import Handlers
+  function handleJsonTextChange(val) {
+    setJsonInput(val);
+    if (!val.trim()) {
+      setJsonParsed(null);
+      setJsonError(null);
+      return;
+    }
+    try {
+      const parsed = JSON.parse(val);
+      setJsonParsed(parsed);
+      setJsonError(null);
+    } catch (err) {
+      setJsonParsed(null);
+      setJsonError(err.message);
+    }
+  }
+
+  function handleCopySample() {
+    const text = JSON.stringify(SAMPLE_PROBLEM_JSON, null, 2);
+    if (typeof navigator !== "undefined" && navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(text);
+      setJsonCopied(true);
+      setTimeout(() => setJsonCopied(false), 2200);
+    } else {
+      alert("Dummy sample JSON copied to clipboard!");
+    }
+  }
+
+  function handleLoadSample() {
+    const text = JSON.stringify(SAMPLE_PROBLEM_JSON, null, 2);
+    setJsonInput(text);
+    setJsonParsed(SAMPLE_PROBLEM_JSON);
+    setJsonError(null);
+  }
+
+  function handlePrettifyJson() {
+    if (!jsonInput.trim()) return;
+    try {
+      const parsed = JSON.parse(jsonInput);
+      setJsonInput(JSON.stringify(parsed, null, 2));
+      setJsonParsed(parsed);
+      setJsonError(null);
+    } catch (err) {
+      setJsonError("Cannot prettify invalid JSON: " + err.message);
+    }
+  }
+
+  function handleClearJson() {
+    setJsonInput("");
+    setJsonParsed(null);
+    setJsonError(null);
+  }
+
+  async function handleCreateFromJson() {
+    if (!jsonInput.trim()) {
+      alert("Please paste or load JSON data first.");
+      return;
+    }
+
+    let parsed = null;
+    try {
+      parsed = JSON.parse(jsonInput);
+    } catch (err) {
+      alert("JSON Syntax Error: " + err.message);
+      return;
+    }
+
+    if (!parsed.title || typeof parsed.title !== "string") {
+      alert("Validation Error: 'title' is required in the JSON.");
+      return;
+    }
+
+    if (!parsed.functionName || typeof parsed.functionName !== "string") {
+      alert("Validation Error: 'functionName' is required in the JSON.");
+      return;
+    }
+
+    if (!Array.isArray(parsed.testCases) || parsed.testCases.length === 0) {
+      alert("Validation Error: 'testCases' array is required with at least 1 test case.");
+      return;
+    }
+
+    setJsonSaving(true);
+    try {
+      // Determine boilerplate template (strictly skeleton, never working code)
+      let jsTemplate = parsed.boilerplateCode || parsed.templates?.javascript;
+      if (!jsTemplate) {
+        jsTemplate = generateJsBoilerplate(
+          parsed.functionName,
+          parsed.parameters || [],
+          parsed.returnType || "any"
+        );
+      }
+
+      const payload = {
+        title: parsed.title,
+        slug: parsed.slug || parsed.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+        difficulty: parsed.difficulty || "Easy",
+        tags: Array.isArray(parsed.tags)
+          ? parsed.tags
+          : typeof parsed.tags === "string"
+          ? parsed.tags.split(",").map((t) => t.trim()).filter(Boolean)
+          : ["Basics"],
+        description: parsed.description || "",
+        inputFormat: parsed.inputFormat || "",
+        outputFormat: parsed.outputFormat || "",
+        constraints: Array.isArray(parsed.constraints)
+          ? parsed.constraints
+          : typeof parsed.constraints === "string"
+          ? parsed.constraints.split("\n").map((c) => c.trim()).filter(Boolean)
+          : [],
+        functionName: parsed.functionName,
+        returnType: parsed.returnType || "any",
+        parameters: Array.isArray(parsed.parameters) ? parsed.parameters : [],
+        templates: {
+          javascript: jsTemplate,
+        },
+        order: Number(parsed.order) || (problems.length + 1),
+        isActive: parsed.isActive !== false,
+        testCases: parsed.testCases.map((tc, idx) => ({
+          testCaseId: tc.testCaseId || `tc_${String(idx + 1).padStart(2, "0")}`,
+          order: tc.order || idx + 1,
+          input: typeof tc.input === "string" ? tc.input : JSON.stringify(tc.input),
+          rawInput: tc.rawInput || (typeof tc.input === "string" ? tc.input : JSON.stringify(tc.input)),
+          expectedOutput: typeof tc.expectedOutput === "string" ? tc.expectedOutput : JSON.stringify(tc.expectedOutput),
+          isSample: tc.isSample !== undefined ? Boolean(tc.isSample) : idx < 3,
+          explanation: tc.explanation || "",
+        })),
+      };
+
+      const res = await fetch("/api/admin/coding/problems", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setIsModalOpen(false);
+        fetchProblems(token);
+        alert(`Problem "${payload.title}" created successfully with ${payload.testCases.length} test cases!`);
+      } else {
+        alert(data.error || "Failed to create problem from JSON");
+      }
+    } catch (err) {
+      alert("Error saving problem from JSON: " + err.message);
+    } finally {
+      setJsonSaving(false);
+    }
   }
 
   async function openEditModal(problem) {
     setEditingId(problem.problemId);
+    setActiveModalTab("form");
     setSaving(true);
     try {
       const res = await fetch(`/api/admin/coding/problems/${problem.problemId}`, {
@@ -348,7 +648,10 @@ function ${funcName || "solution"}(${paramNames}) {
           <Link href="/test" target="_blank" className="ac-btn ac-btn-outline">
             <FiExternalLink /> Live /test Page
           </Link>
-          <button onClick={openCreateModal} className="ac-btn ac-btn-primary">
+          <button onClick={() => openCreateModal("json")} className="ac-btn ac-btn-outline">
+            <FiFileText /> Insert via JSON
+          </button>
+          <button onClick={() => openCreateModal("form")} className="ac-btn ac-btn-primary">
             <FiPlus /> Create New Question
           </button>
         </div>
@@ -452,12 +755,198 @@ function ${funcName || "solution"}(${paramNames}) {
         <div className="ac-modal-overlay">
           <div className="ac-modal">
             <div className="ac-modal-header">
-              <h2>{editingId ? `Edit Question: ${formData.title}` : "Create New Coding Question"}</h2>
+              <h2>{editingId ? `Edit Question: ${formData.title}` : activeModalTab === "json" ? "Fast Question Creator via JSON" : "Create New Coding Question"}</h2>
               <button onClick={() => setIsModalOpen(false)} className="ac-close-btn">
                 <FiX />
               </button>
             </div>
 
+            {!editingId && (
+              <div className="ac-modal-tabs">
+                <button
+                  type="button"
+                  className={`ac-modal-tab ${activeModalTab === "form" ? "active" : ""}`}
+                  onClick={() => setActiveModalTab("form")}
+                >
+                  <FiSliders /> Form Builder
+                </button>
+                <button
+                  type="button"
+                  className={`ac-modal-tab ${activeModalTab === "json" ? "active" : ""}`}
+                  onClick={() => setActiveModalTab("json")}
+                >
+                  <FiFileText /> JSON Data Insert
+                </button>
+              </div>
+            )}
+
+            {activeModalTab === "json" && !editingId ? (
+              <div className="ac-json-wrapper">
+                {/* Information Banner with Dummy Sample Actions */}
+                <div className="ac-json-banner">
+                  <div className="ac-json-banner-text">
+                    <h4>
+                      <FiCode /> Quick Problem Creation via JSON
+                    </h4>
+                    <p>
+                      Paste problem specifications in JSON format. Note: Boilerplate must be starter skeleton code (with JSDoc and <code>{"// Write your code here"}</code>), not actual working solution code.
+                    </p>
+                  </div>
+                  <div className="ac-json-banner-actions">
+                    <button
+                      type="button"
+                      onClick={handleCopySample}
+                      className={`ac-json-tool-btn ${jsonCopied ? "ac-json-tool-btn-copied" : "ac-json-tool-btn-primary"}`}
+                      title="Copy standard dummy sample format to clipboard"
+                    >
+                      {jsonCopied ? <FiCheck /> : <FiCopy />}
+                      <span>{jsonCopied ? "Copied Sample JSON!" : "Copy Sample JSON"}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleLoadSample}
+                      className="ac-json-tool-btn"
+                      title="Load sample template into the editor"
+                    >
+                      <FiDownload />
+                      <span>Load Sample into Editor</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Editor Toolbar */}
+                <div className="ac-json-toolbar">
+                  <span className="ac-json-toolbar-title">
+                    <FiFileText /> Problem JSON Specification
+                  </span>
+                  <div className="ac-json-actions-group">
+                    <button
+                      type="button"
+                      onClick={handlePrettifyJson}
+                      className="ac-json-tool-btn"
+                      title="Format JSON with indentation"
+                    >
+                      <FiRefreshCw /> Prettify
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleClearJson}
+                      className="ac-json-tool-btn"
+                      title="Clear editor contents"
+                    >
+                      <FiTrash2 /> Clear
+                    </button>
+                  </div>
+                </div>
+
+                {/* JSON Editor Textarea */}
+                <textarea
+                  className="ac-json-editor-box"
+                  rows={16}
+                  value={jsonInput}
+                  onChange={(e) => handleJsonTextChange(e.target.value)}
+                  placeholder={`Paste problem JSON here or click "Load Sample into Editor"...
+
+Example structure:
+{
+  "title": "Add Two Numbers",
+  "difficulty": "Easy",
+  "tags": ["Math"],
+  "description": "Given two integers a and b...",
+  "functionName": "addTwoNumbers",
+  "parameters": [{ "name": "a", "type": "number" }, { "name": "b", "type": "number" }],
+  "returnType": "number",
+  "boilerplateCode": "/**\\n * @param {number} a\\n * @param {number} b\\n * @return {number}\\n */\\nfunction addTwoNumbers(a, b) {\\n    // Write your code here\\n}",
+  "testCases": [...]
+}`}
+                />
+
+                {/* Live Real-time Status & Validation */}
+                {jsonError && (
+                  <div className="ac-json-status-card ac-json-status-error">
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 700 }}>
+                      <FiAlertCircle size={18} />
+                      <span>JSON Syntax Error</span>
+                    </div>
+                    <div style={{ fontFamily: "monospace", fontSize: "0.8rem", whiteSpace: "pre-wrap" }}>
+                      {jsonError}
+                    </div>
+                  </div>
+                )}
+
+                {jsonParsed && !jsonError && (
+                  <div className="ac-json-status-card ac-json-status-valid">
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 700 }}>
+                        <FiCheckCircle size={18} />
+                        <span>Valid Problem Schema Detected</span>
+                      </div>
+                      <span className="ac-badge ac-badge-easy" style={{ fontSize: "0.75rem" }}>
+                        {jsonParsed.difficulty || "Easy"}
+                      </span>
+                    </div>
+
+                    <div className="ac-json-preview-grid">
+                      <div className="ac-json-preview-item">
+                        <span className="ac-json-preview-label">Title</span>
+                        <span className="ac-json-preview-val">{jsonParsed.title || "—"}</span>
+                      </div>
+                      <div className="ac-json-preview-item">
+                        <span className="ac-json-preview-label">Function Signature</span>
+                        <span className="ac-json-preview-val">
+                          {jsonParsed.functionName || "solution"}
+                          ({(jsonParsed.parameters || []).map((p) => p.name).join(", ")}) →{" "}
+                          {jsonParsed.returnType || "any"}
+                        </span>
+                      </div>
+                      <div className="ac-json-preview-item">
+                        <span className="ac-json-preview-label">Test Cases</span>
+                        <span className="ac-json-preview-val">
+                          {Array.isArray(jsonParsed.testCases) ? jsonParsed.testCases.length : 0} Cases{" "}
+                          ({(jsonParsed.testCases || []).filter((t) => t.isSample).length} sample)
+                        </span>
+                      </div>
+                      <div className="ac-json-preview-item">
+                        <span className="ac-json-preview-label">Boilerplate Stub</span>
+                        <span className="ac-json-preview-val" style={{ color: "#2563eb" }}>
+                          {jsonParsed.boilerplateCode
+                            ? "Custom Starter Skeleton"
+                            : "Auto-generated Starter Stub"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* JSON Modal Actions */}
+                <div className="ac-modal-footer" style={{ padding: "1.25rem 0 0 0", background: "transparent" }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="ac-btn ac-btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCreateFromJson}
+                    disabled={jsonSaving || !jsonParsed || !jsonParsed.title}
+                    className="ac-btn ac-btn-primary"
+                    style={{ minWidth: "210px" }}
+                  >
+                    {jsonSaving ? (
+                      <>
+                        <FiRefreshCw className="animate-spin" /> Creating Problem...
+                      </>
+                    ) : (
+                      <>
+                        <FiPlus /> Paste &amp; Create Problem
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            ) : (
             <form onSubmit={handleSave} className="ac-modal-body">
               {/* Basic Fields */}
               <div className="ac-form-row">
@@ -773,6 +1262,7 @@ function ${funcName || "solution"}(${paramNames}) {
                 </button>
               </div>
             </form>
+            )}
           </div>
         </div>
       )}
