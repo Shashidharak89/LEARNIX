@@ -1,4 +1,4 @@
-/* LearnixCodeBanner.css */
+/* LearnixCodeBanner.css — Light Theme Edition for Home Screen */
 
 .lcb-section {
   width: 100%;
@@ -10,8 +10,8 @@
 
 .lcb-card {
   position: relative;
-  background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.22) 0%, rgba(15, 23, 42, 0.98) 65%, #090d16 100%);
-  border: 1px solid rgba(99, 102, 241, 0.3);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 20px;
   padding: 2.75rem 3rem;
   display: flex;
@@ -19,26 +19,26 @@
   justify-content: space-between;
   gap: 2.5rem;
   overflow: hidden;
-  box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.6), 0 0 35px -10px rgba(99, 102, 241, 0.2);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
   text-decoration: none;
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
 }
 
 .lcb-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(129, 140, 248, 0.6);
-  box-shadow: 0 28px 50px -12px rgba(15, 23, 42, 0.8), 0 0 50px -5px rgba(99, 102, 241, 0.35);
+  border-color: #cbd5e1;
+  box-shadow: 0 14px 35px -4px rgba(15, 23, 42, 0.1), 0 4px 12px -2px rgba(15, 23, 42, 0.05);
 }
 
-/* Background Ambient Glow */
+/* Subtle background accent tint */
 .lcb-ambient-glow {
   position: absolute;
-  top: -50px;
-  right: -50px;
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+  top: -80px;
+  right: -80px;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -52,24 +52,24 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(99, 102, 241, 0.15);
-  border: 1px solid rgba(129, 140, 248, 0.35);
-  color: #a5b4fc;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  color: #1d4ed8;
   font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   padding: 0.35rem 0.85rem;
   border-radius: 9999px;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.1rem;
 }
 
 .lcb-badge-dot {
   width: 7px;
   height: 7px;
-  background-color: #38bdf8;
+  background-color: #2563eb;
   border-radius: 50%;
-  box-shadow: 0 0 8px #38bdf8;
+  box-shadow: 0 0 6px rgba(37, 99, 235, 0.6);
   animation: lcb-pulse 2s infinite;
 }
 
@@ -81,20 +81,20 @@
 .lcb-title {
   font-size: 2.2rem;
   font-weight: 800;
-  color: #ffffff;
+  color: #0f172a;
   line-height: 1.2;
   margin: 0 0 1rem 0;
   letter-spacing: -0.5px;
 }
 
 .lcb-title-highlight {
-  background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+  background: linear-gradient(135deg, #1e4fd8 0%, #4338ca 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .lcb-tagline {
-  color: #94a3b8;
+  color: #475569;
   font-size: 1.05rem;
   line-height: 1.6;
   margin: 0 0 1.5rem 0;
@@ -109,11 +109,11 @@
 }
 
 .lcb-feat-chip {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #cbd5e1;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #334155;
   font-size: 0.82rem;
-  padding: 0.3rem 0.75rem;
+  padding: 0.35rem 0.8rem;
   border-radius: 8px;
   font-weight: 500;
 }
@@ -122,23 +122,23 @@
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+  background: #1e4fd8;
   color: #ffffff;
   font-weight: 600;
   font-size: 0.95rem;
   padding: 0.75rem 1.6rem;
   border-radius: 12px;
-  box-shadow: 0 8px 20px -4px rgba(79, 70, 229, 0.5);
+  box-shadow: 0 4px 14px rgba(30, 79, 216, 0.28);
   transition: all 0.2s ease;
 }
 
 .lcb-card:hover .lcb-btn-cta {
+  background: #15379e;
   transform: translateX(4px);
-  background: linear-gradient(135deg, #4338ca 0%, #2563eb 100%);
-  box-shadow: 0 10px 24px -3px rgba(79, 70, 229, 0.65);
+  box-shadow: 0 6px 18px rgba(30, 79, 216, 0.4);
 }
 
-/* Code Snippet Card Mockup */
+/* Light Theme Code Snippet Card Mockup */
 .lcb-visual {
   flex: 0.9;
   z-index: 2;
@@ -149,22 +149,22 @@
 .lcb-code-box {
   width: 100%;
   max-width: 380px;
-  background: #0d1117;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08);
   font-family: "Fira Code", monospace;
   font-size: 0.82rem;
 }
 
 .lcb-code-top {
-  background: #161b22;
+  background: #f1f5f9;
   padding: 0.6rem 0.9rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .lcb-dots {
@@ -183,31 +183,33 @@
 .lcb-dot-green { background: #27c93f; }
 
 .lcb-code-file {
-  color: #8b949e;
+  color: #64748b;
   font-size: 0.75rem;
+  font-weight: 500;
 }
 
 .lcb-code-body {
   padding: 1.1rem;
   line-height: 1.6;
-  color: #e6edf3;
+  color: #1e293b;
 }
 
-.lcb-kw { color: #ff7b72; }
-.lcb-fn { color: #d2a8ff; }
-.lcb-var { color: #79c0ff; }
-.lcb-str { color: #a5d6ff; }
-.lcb-num { color: #79c0ff; }
-.lcb-cmt { color: #8b949e; font-style: italic; }
+.lcb-kw { color: #7c3aed; font-weight: 600; }
+.lcb-fn { color: #0284c7; font-weight: 600; }
+.lcb-var { color: #0f172a; }
+.lcb-str { color: #059669; }
+.lcb-num { color: #d97706; }
+.lcb-cmt { color: #64748b; font-style: italic; }
 
 .lcb-status-pill {
-  margin-top: 0.75rem;
-  background: rgba(39, 201, 63, 0.15);
-  border: 1px solid rgba(39, 201, 63, 0.3);
-  color: #3fb950;
-  padding: 0.35rem 0.65rem;
+  margin-top: 0.85rem;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #059669;
+  padding: 0.35rem 0.75rem;
   border-radius: 6px;
   font-size: 0.75rem;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: space-between;
