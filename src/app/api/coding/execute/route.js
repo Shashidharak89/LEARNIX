@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
-import { docClient, PROBLEMS_TABLE, TESTCASES_TABLE } from "@/lib/dynamodb";
-import { GetCommand, QueryCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { docClient, PROBLEMS_TABLE, TESTCASES_TABLE, SUBMISSIONS_TABLE } from "@/lib/dynamodb";
+import { GetCommand, QueryCommand, ScanCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { executeCode } from "@/lib/codeRunner";
+import { connectDB } from "@/lib/db";
+import { resolveAuthenticatedUser } from "@/lib/authUser";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +17,24 @@ export async function POST(req) {
     }
     if (!code || typeof code !== "string") {
       return NextResponse.json({ success: false, error: "code string is required" }, { status: 400 });
+    }
+
+    // Require authentication for submit mode
+    let authUser = null;
+    if (mode === "submit") {
+      await connectDB();
+      const authResult = await resolveAuthenticatedUser(req, { withMeta: true });
+      if (!authResult?.user) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Please log in to submit your solution. You can test your code freely with 'Run'.",
+            requiresLogin: true,
+          },
+          { status: 401 }
+        );
+      }
+      authUser = authResult.user;
     }
 
     // Lookup problem
@@ -93,23 +113,23 @@ export async function POST(req) {
       // Run only sample test cases
       targetCases = allTestCases.filter((tc) => tc.isSample === true);
       if (targetCases.length === 0) {
-        // Fallback to first 2 testcases if no sample flag
-        targetCases = allTestCases.slice(0, 2);
+        targetCases = allTestCases.slice(0, 3);
       }
     } else {
       // Submit mode: run ALL test cases (both sample and hidden)
       targetCases = allTestCases;
     }
 
+    // Execute code. When submitting, stopOnFailure is false so that all test cases run and all passing ones are counted.
     const executionResult = executeCode({
       userCode: code,
       functionName: problem.functionName || "addTwoNumbers",
       testCases: targetCases,
-      timeoutMs: 2000,
-      stopOnFailure: mode === "submit",
+      timeoutMs: 2500,
+      stopOnFailure: false,
     });
 
-    // In submit mode, sanitize hidden testcases if we don't want to expose hidden inputs/expectedOutputs
+    // In submit mode, sanitize results for display
     const sanitizedResults = executionResult.results.map((res) => {
       if (mode === "submit" && !res.isSample && res.passed) {
         return {
@@ -123,6 +143,51 @@ export async function POST(req) {
       return res;
     });
 
+    let submissionRecord = null;
+
+    // In submit mode: persist submission details to DynamoDB
+    if (mode === "submit" && authUser) {
+      const submissionId = `sub_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+      const submittedAt = new Date().toISOString();
+      const userId = String(authUser._id || authUser.id);
+
+      const submissionItem = {
+        userId,
+        submissionId,
+        usn: authUser.usn || "",
+        userName: authUser.name || "",
+        userEmail: authUser.email || "",
+        problemId: problem.problemId,
+        problemTitle: problem.title,
+        problemOrder: problem.order || 1,
+        code,
+        language: "javascript",
+        status: executionResult.status,
+        error: executionResult.error || null,
+        totalRuntime: executionResult.totalRuntime,
+        passedTestCases: executionResult.passedTestCases,
+        totalTestCases: targetCases.length,
+        submittedAt,
+        results: sanitizedResults,
+      };
+
+      await docClient.send(
+        new PutCommand({
+          TableName: SUBMISSIONS_TABLE,
+          Item: submissionItem,
+        })
+      );
+
+      submissionRecord = {
+        submissionId,
+        status: executionResult.status,
+        passedTestCases: executionResult.passedTestCases,
+        totalTestCases: targetCases.length,
+        totalRuntime: executionResult.totalRuntime,
+        submittedAt,
+      };
+    }
+
     return NextResponse.json({
       success: true,
       mode,
@@ -133,6 +198,7 @@ export async function POST(req) {
       totalTestCases: targetCases.length,
       allProblemsTestCasesCount: allTestCases.length,
       results: sanitizedResults,
+      submission: submissionRecord,
     });
   } catch (err) {
     console.error("Execution error:", err);

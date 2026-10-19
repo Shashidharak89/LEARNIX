@@ -143,7 +143,10 @@ export function executeCode({
         runtimeMs: 0,
         logs,
       });
-      break;
+
+      if (stopOnFailure || isTimeout) {
+        break;
+      }
     }
   }
 

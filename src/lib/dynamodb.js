@@ -25,3 +25,4 @@ export const rawDynamoClient = client;
 
 export const PROBLEMS_TABLE = process.env.DYNAMODB_PROBLEMS_TABLE || "LearnixCodingProblems";
 export const TESTCASES_TABLE = process.env.DYNAMODB_TESTCASES_TABLE || "LearnixCodingTestCases";
+export const SUBMISSIONS_TABLE = process.env.DYNAMODB_SUBMISSIONS_TABLE || "LearnixCodingSubmissions";

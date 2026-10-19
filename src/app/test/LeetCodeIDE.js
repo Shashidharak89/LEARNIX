@@ -23,6 +23,10 @@ import {
   FiAlignLeft,
   FiMaximize2,
   FiMinimize2,
+  FiClock,
+  FiUser,
+  FiLogIn,
+  FiCode,
 } from "react-icons/fi";
 import { recordCodingEntry, exitCodingEnvironment } from "@/utils/codingExitTracker";
 import "./LeetCodeIDE.css";
@@ -58,10 +62,18 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
   const [copiedCode, setCopiedCode] = useState(false);
 
   // Console State
-  const [activeConsoleTab, setActiveConsoleTab] = useState("testcase"); // "testcase" | "testresult"
+  const [activeConsoleTab, setActiveConsoleTab] = useState("testcase"); // "testcase" | "testresult" | "submissions"
   const [selectedCaseIdx, setSelectedCaseIdx] = useState(0);
   const [selectedResultIdx, setSelectedResultIdx] = useState(0);
-  const [activeLeftTab, setActiveLeftTab] = useState("description"); // "description" | "help"
+  const [activeLeftTab, setActiveLeftTab] = useState("description"); // "description" | "help" | "submissions"
+
+  // Submissions & Auth State
+  const [submissions, setSubmissions] = useState([]);
+  const [loadingSubmissions, setLoadingSubmissions] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [selectedSubmission, setSelectedSubmission] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
 
   // Execution states
   const [executing, setExecuting] = useState(false);
@@ -125,9 +137,46 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     };
   }, [isDragging]);
 
+  const fetchSubmissions = useCallback(async (targetProblemId) => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+    if (!token) {
+      setSubmissions([]);
+      return;
+    }
+
+    const pid = targetProblemId || problem?.problemId || selectedSlug;
+    if (!pid) return;
+
+    setLoadingSubmissions(true);
+    try {
+      const res = await fetch(`/api/coding/submissions?problemId=${encodeURIComponent(pid)}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSubmissions(data.submissions || []);
+      } else {
+        setSubmissions([]);
+      }
+    } catch (err) {
+      console.error("Failed to load submissions:", err);
+      setSubmissions([]);
+    } finally {
+      setLoadingSubmissions(false);
+    }
+  }, [problem, selectedSlug]);
+
   useEffect(() => {
-    const role = localStorage.getItem("role") || "";
+    const role = (typeof window !== "undefined" && localStorage.getItem("role")) || "";
     setIsAdmin(role === "admin" || role === "superadmin");
+
+    const token = (typeof window !== "undefined" && localStorage.getItem("token")) || "";
+    setIsLoggedIn(Boolean(token));
+    const storedName =
+      (typeof window !== "undefined" && (localStorage.getItem("name") || localStorage.getItem("usn"))) || "";
+    setUserName(storedName);
 
     // Track original entry outside coding section
     recordCodingEntry();
@@ -217,13 +266,16 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
         setSelectedCaseIdx(0);
         setSelectedResultIdx(0);
         setActiveConsoleTab("testcase");
+
+        // Load past submissions for this problem if logged in
+        fetchSubmissions(prob.problemId);
       }
     } catch (err) {
       console.error("Error loading problem:", err);
     } finally {
       setLoadingProblem(false);
     }
-  }, []);
+  }, [fetchSubmissions]);
 
   function handleProblemChange(e) {
     const newId = e.target.value;
@@ -274,6 +326,15 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
   async function runCode(mode = "run") {
     if (!problem || executing) return;
+
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+
+    // Require authentication for submit mode
+    if (mode === "submit" && !token) {
+      setShowLoginPrompt(true);
+      return;
+    }
+
     setExecuting(true);
     setExecMode(mode);
     setActiveConsoleTab("testresult");
@@ -290,9 +351,14 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
         }
       }
 
+      const headers = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const res = await fetch("/api/coding/execute", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           problemId: problem.problemId,
           code,
@@ -302,9 +368,18 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
       });
 
       const data = await res.json();
+      if (data.requiresLogin) {
+        setShowLoginPrompt(true);
+        setExecuting(false);
+        return;
+      }
+
       if (data.success) {
         setExecutionResult(data);
         setSelectedResultIdx(0);
+        if (mode === "submit") {
+          fetchSubmissions(problem.problemId);
+        }
       } else {
         setExecutionResult({
           status: "Error",
@@ -327,6 +402,126 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     } finally {
       setExecuting(false);
     }
+  }
+
+  function renderSubmissionsView() {
+    if (!isLoggedIn) {
+      return (
+        <div className="lc-auth-gate-box">
+          <div style={{ fontSize: "2.2rem", marginBottom: "0.5rem" }}>🔒</div>
+          <h3 style={{ color: "#ffffff", margin: "0 0 0.5rem 0" }}>Log In to Track Submissions</h3>
+          <p style={{ color: "#9ca3af", maxWidth: "420px", margin: "0 auto 1.25rem auto", fontSize: "0.9rem", lineHeight: 1.6 }}>
+            You can test and run your solution freely using <strong>Run</strong>. To submit your code, evaluate against all hidden testcases, and record your score in DynamoDB, please log in with your Learnix account.
+          </p>
+          <button
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+              }
+            }}
+            className="lc-btn-action lc-btn-submit"
+            style={{ margin: "0 auto" }}
+          >
+            <FiLogIn size={15} />
+            <span>Log In to Learnix</span>
+          </button>
+        </div>
+      );
+    }
+
+    if (loadingSubmissions) {
+      return (
+        <div style={{ padding: "2.5rem", textAlign: "center", color: "#9ca3af" }}>
+          <div style={{ fontSize: "1.75rem", marginBottom: "0.5rem" }}>⏳</div>
+          <p>Loading your submission history from DynamoDB...</p>
+        </div>
+      );
+    }
+
+    if (submissions.length === 0) {
+      return (
+        <div style={{ padding: "2.5rem 1.5rem", textAlign: "center", color: "#9ca3af" }}>
+          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>📝</div>
+          <h3 style={{ color: "#ffffff", margin: "0 0 0.5rem 0" }}>No Submissions Yet</h3>
+          <p style={{ maxWidth: "420px", margin: "0 auto", fontSize: "0.9rem" }}>
+            Submit your solution above to evaluate against all 10 testcases and record your submission!
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="lc-submissions-list">
+        <div className="lc-submissions-header-row">
+          <span>Status</span>
+          <span>Cases Passed</span>
+          <span>Runtime</span>
+          <span>Submitted</span>
+          <span style={{ textAlign: "right" }}>Actions</span>
+        </div>
+        {submissions.map((sub) => {
+          const isPassed = sub.status === "Accepted";
+          return (
+            <div key={sub.submissionId} className="lc-submission-card">
+              <div className="lc-sub-col">
+                <span
+                  className={`lc-sub-status-pill ${
+                    isPassed
+                      ? "lc-sub-accepted"
+                      : sub.status === "Wrong Answer"
+                      ? "lc-sub-wrong"
+                      : "lc-sub-error"
+                  }`}
+                >
+                  {isPassed ? <FiCheckCircle size={13} /> : <FiXCircle size={13} />}
+                  <span>{sub.status}</span>
+                </span>
+              </div>
+
+              <div
+                className="lc-sub-col"
+                style={{
+                  color: isPassed ? "var(--lc-easy)" : sub.status === "Wrong Answer" ? "#f87171" : "#fbbf24",
+                  fontWeight: 600,
+                }}
+              >
+                {sub.passedTestCases} / {sub.totalTestCases || 10}
+              </div>
+
+              <div className="lc-sub-col" style={{ color: "#9ca3af", fontFamily: "monospace", fontSize: "0.85rem" }}>
+                {sub.totalRuntime} ms
+              </div>
+
+              <div className="lc-sub-col" style={{ color: "#6b7280", fontSize: "0.8rem" }}>
+                {new Date(sub.submittedAt).toLocaleDateString()} {new Date(sub.submittedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+              </div>
+
+              <div className="lc-sub-col lc-sub-actions">
+                <button
+                  onClick={() => {
+                    setCode(sub.code);
+                    alert("Solution restored into code editor!");
+                  }}
+                  className="lc-sub-btn"
+                  title="Load code into editor"
+                >
+                  <FiRotateCcw size={12} />
+                  <span>Load</span>
+                </button>
+                <button
+                  onClick={() => setSelectedSubmission(sub)}
+                  className="lc-sub-btn lc-sub-btn-primary"
+                  title="View code and details"
+                >
+                  <FiCode size={12} />
+                  <span>View</span>
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
   }
 
   if (loadingProblem && !problem) {
@@ -388,7 +583,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
             onClick={() => runCode("submit")}
             disabled={executing}
             className="lc-btn-action lc-btn-submit"
-            title="Submit code against all 10 test cases"
+            title="Submit code against all 10 test cases (Requires Login)"
           >
             <FiUploadCloud size={15} />
             <span>{executing && execMode === "submit" ? "Evaluating..." : "Submit"}</span>
@@ -401,6 +596,27 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
               <FiShield size={14} /> Admin Dashboard
             </Link>
           )}
+
+          {isLoggedIn ? (
+            <span className="lc-user-pill">
+              <FiUser size={13} />
+              <span>{userName || "Account"}</span>
+            </span>
+          ) : (
+            <button
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+                }
+              }}
+              className="lc-btn-login-nav"
+              title="Log in to submit code"
+            >
+              <FiLogIn size={13} />
+              <span>Log In</span>
+            </button>
+          )}
+
           <button
             onClick={handleExit}
             className="lc-btn-exit"
@@ -451,9 +667,22 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
             >
               <FiHelpCircle size={15} /> Guide &amp; Constraints
             </button>
+            <button
+              onClick={() => {
+                setActiveLeftTab("submissions");
+                fetchSubmissions();
+              }}
+              className={`lc-tab-btn ${activeLeftTab === "submissions" ? "active" : ""}`}
+            >
+              <FiClock size={15} /> Submissions
+              {submissions.length > 0 && (
+                <span className="lc-count-badge">{submissions.length}</span>
+              )}
+            </button>
           </div>
 
           <div className="lc-pane-content">
+            {activeLeftTab === "submissions" && renderSubmissionsView()}
             {problem && activeLeftTab === "description" && (
               <div>
                 <div className="lc-problem-title-row">
@@ -763,6 +992,18 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                     />
                   )}
                 </button>
+                <button
+                  onClick={() => {
+                    setActiveConsoleTab("submissions");
+                    fetchSubmissions();
+                  }}
+                  className={`lc-tab-btn ${activeConsoleTab === "submissions" ? "active" : ""}`}
+                >
+                  <FiClock size={14} /> Submissions
+                  {submissions.length > 0 && (
+                    <span className="lc-count-badge">{submissions.length}</span>
+                  )}
+                </button>
               </div>
 
               <div className="lc-console-header-actions">
@@ -982,12 +1223,150 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                   )}
                 </div>
               )}
+
+              {/* ── Submissions Tab in Console ── */}
+              {activeConsoleTab === "submissions" && (
+                <div style={{ padding: "0.25rem 0" }}>
+                  {renderSubmissionsView()}
+                </div>
+              )}
             </div>
           )}
           </div>
         )}
         </div>
       </div>
+
+      {/* ── Login Prompt Modal ── */}
+      {showLoginPrompt && (
+        <div className="lc-modal-backdrop" onClick={() => setShowLoginPrompt(false)}>
+          <div className="lc-modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="lc-modal-header">
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <FiShield size={20} color="#f59e0b" />
+                <h3 style={{ margin: 0, color: "#ffffff", fontSize: "1.1rem" }}>Login Required to Submit</h3>
+              </div>
+              <button
+                onClick={() => setShowLoginPrompt(false)}
+                className="lc-icon-btn"
+                style={{ fontSize: "1rem" }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="lc-modal-body">
+              <p style={{ margin: "0 0 1rem 0", color: "#e5e7eb", lineHeight: 1.6 }}>
+                You are currently testing in guest mode. You can freely run and verify your code using the <strong>Run</strong> button without logging in.
+              </p>
+              <p style={{ margin: "0 0 1.5rem 0", color: "#9ca3af", fontSize: "0.9rem", lineHeight: 1.6 }}>
+                To <strong>Submit</strong> your solution against all 10 hidden testcases, verify your solution, and store your submission history in DynamoDB, please log in with your Learnix account.
+              </p>
+
+              <div className="lc-modal-actions">
+                <button
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      router.push(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+                    }
+                  }}
+                  className="lc-btn-modal-login"
+                >
+                  <FiLogIn size={15} />
+                  <span>Log In to Submit</span>
+                </button>
+                <button
+                  onClick={() => setShowLoginPrompt(false)}
+                  className="lc-btn-modal-cancel"
+                >
+                  Keep Testing as Guest
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Selected Submission Code View Modal ── */}
+      {selectedSubmission && (
+        <div className="lc-modal-backdrop" onClick={() => setSelectedSubmission(null)}>
+          <div className="lc-modal-box lc-modal-box-large" onClick={(e) => e.stopPropagation()}>
+            <div className="lc-modal-header">
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+                <span
+                  className={`lc-sub-status-pill ${
+                    selectedSubmission.status === "Accepted"
+                      ? "lc-sub-accepted"
+                      : selectedSubmission.status === "Wrong Answer"
+                      ? "lc-sub-wrong"
+                      : "lc-sub-error"
+                  }`}
+                >
+                  {selectedSubmission.status === "Accepted" ? <FiCheckCircle size={13} /> : <FiXCircle size={13} />}
+                  <span>{selectedSubmission.status}</span>
+                </span>
+                <span style={{ color: "#ffffff", fontWeight: 600 }}>
+                  Submission Details
+                </span>
+                <span style={{ color: "#9ca3af", fontSize: "0.85rem" }}>
+                  ({selectedSubmission.passedTestCases} / {selectedSubmission.totalTestCases || 10} Cases Passed • {selectedSubmission.totalRuntime} ms)
+                </span>
+              </div>
+              <button
+                onClick={() => setSelectedSubmission(null)}
+                className="lc-icon-btn"
+                style={{ fontSize: "1rem" }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="lc-modal-body">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                <span style={{ fontSize: "0.8rem", color: "#9ca3af" }}>
+                  Submitted on {new Date(selectedSubmission.submittedAt).toLocaleString()}
+                </span>
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <button
+                    onClick={() => {
+                      if (typeof navigator !== "undefined" && navigator.clipboard) {
+                        navigator.clipboard.writeText(selectedSubmission.code);
+                        alert("Code copied to clipboard!");
+                      }
+                    }}
+                    className="lc-action-btn"
+                  >
+                    <FiCopy size={13} />
+                    <span>Copy Code</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCode(selectedSubmission.code);
+                      setSelectedSubmission(null);
+                      alert("Solution restored into code editor!");
+                    }}
+                    className="lc-action-btn"
+                    style={{ background: "var(--lc-accent)", color: "#ffffff", borderColor: "var(--lc-accent)" }}
+                  >
+                    <FiRotateCcw size={13} />
+                    <span>Load into Editor</span>
+                  </button>
+                </div>
+              </div>
+
+              <pre className="lc-submission-code-view">
+                <code>{selectedSubmission.code}</code>
+              </pre>
+
+              {selectedSubmission.error && (
+                <div style={{ marginTop: "1rem", background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: "6px", padding: "0.75rem", color: "#f87171", fontFamily: "monospace", fontSize: "0.85rem" }}>
+                  <strong>Error:</strong> {selectedSubmission.error}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
