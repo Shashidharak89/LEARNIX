@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   FiPlay,
   FiUploadCloud,
@@ -15,6 +16,7 @@ import {
   FiTerminal,
   FiHelpCircle,
   FiShield,
+  FiLogOut,
 } from "react-icons/fi";
 import "./LeetCodeIDE.css";
 
@@ -28,9 +30,10 @@ const Editor = dynamic(() => import("@monaco-editor/react"), {
   ),
 });
 
-export default function LeetCodeIDE() {
+export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", baseUrl = "/learnix-code/problems" }) {
+  const router = useRouter();
   const [problems, setProblems] = useState([]);
-  const [selectedSlug, setSelectedSlug] = useState("add-two-numbers");
+  const [selectedSlug, setSelectedSlug] = useState(initialProblemId);
   const [problem, setProblem] = useState(null);
   const [loadingProblem, setLoadingProblem] = useState(true);
 
@@ -54,20 +57,34 @@ export default function LeetCodeIDE() {
   // Check if caller might be admin (from localStorage) just to show Admin link
   const [isAdmin, setIsAdmin] = useState(false);
 
+  function handleExit() {
+    if (typeof window !== "undefined") {
+      if (window.history.length > 1 && document.referrer && document.referrer.includes(window.location.host)) {
+        router.back();
+      } else {
+        router.push("/learnix-code");
+      }
+    } else {
+      router.push("/learnix-code");
+    }
+  }
+
   useEffect(() => {
     const role = localStorage.getItem("role") || "";
     setIsAdmin(role === "admin" || role === "superadmin");
 
-    // Check URL params for ?problem=...
-    const urlParams = new URLSearchParams(window.location.search);
-    const probParam = urlParams.get("problem");
-    if (probParam) {
-      setSelectedSlug(probParam);
+    // Check URL params for ?problem=... or use initialProblemId
+    let probParam = initialProblemId;
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const q = urlParams.get("problem");
+      if (q) probParam = q;
     }
+    setSelectedSlug(probParam);
 
     // Fetch list of problems
-    fetchProblemsList(probParam || "add-two-numbers");
-  }, []);
+    fetchProblemsList(probParam);
+  }, [initialProblemId]);
 
   async function fetchProblemsList(initialSlug) {
     try {
@@ -121,10 +138,16 @@ export default function LeetCodeIDE() {
   function handleProblemChange(e) {
     const newSlug = e.target.value;
     setSelectedSlug(newSlug);
-    const newUrl = new URL(window.location);
-    newUrl.searchParams.set("problem", newSlug);
-    window.history.pushState({}, "", newUrl);
-    loadProblem(newSlug);
+    if (typeof window !== "undefined") {
+      if (window.location.pathname.startsWith("/learnix-code/problems")) {
+        router.push(`${baseUrl}/${newSlug}`);
+      } else {
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set("problem", newSlug);
+        window.history.pushState({}, "", newUrl);
+        loadProblem(newSlug);
+      }
+    }
   }
 
   function handleCodeChange(newCode) {
@@ -271,9 +294,14 @@ export default function LeetCodeIDE() {
               <FiShield size={14} /> Admin Dashboard
             </Link>
           )}
-          <Link href="/" className="lc-nav-link">
-            Exit
-          </Link>
+          <button
+            onClick={handleExit}
+            className="lc-btn-exit"
+            title="Exit coding environment and return to previous page"
+          >
+            <FiLogOut size={14} />
+            <span>Exit</span>
+          </button>
         </div>
       </nav>
 

@@ -2,11 +2,19 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { MdEmail } from "react-icons/md";
 import { FaInstagram, FaHeart } from "react-icons/fa";
 import "./styles/Footer.css";
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  // Hide main footer on dedicated coding environments
+  if (pathname?.startsWith("/learnix-code") || pathname?.startsWith("/test")) {
+    return null;
+  }
+
   return (
     <footer className="learnix-main-footer">
       <div className="learnix-footer-container">

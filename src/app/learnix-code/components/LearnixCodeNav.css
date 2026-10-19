@@ -1,0 +1,118 @@
+/* LearnixCodeNav.css */
+
+.lcn-navbar {
+  height: 58px;
+  background-color: #12141a;
+  border-bottom: 1px solid #232733;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+}
+
+.lcn-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.lcn-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: #ffffff;
+}
+
+.lcn-brand-icon {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  color: #ffffff;
+  padding: 0.3rem 0.55rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+}
+
+.lcn-links {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lcn-link {
+  color: #94a3b8;
+  font-size: 0.88rem;
+  font-weight: 500;
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.lcn-link:hover, .lcn-link.active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.lcn-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lcn-exit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  padding: 0.45rem 0.95rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lcn-exit-btn:hover {
+  background: rgba(239, 68, 68, 0.22);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.45);
+  transform: translateX(-1px);
+}
+
+.lcn-admin-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.lcn-admin-link:hover {
+  background: rgba(56, 189, 248, 0.2);
+}
+
+@media (max-width: 640px) {
+  .lcn-navbar {
+    padding: 0 1rem;
+  }
+  .lcn-links {
+    display: none;
+  }
+}

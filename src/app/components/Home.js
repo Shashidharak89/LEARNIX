@@ -5,6 +5,7 @@ import HeroSection from "./HeroSection";
 import HeroSearch from "./HeroSearch";
 import DashboardNavCards from "../dashboard/DashboardNavCards";
 import DownloadAppBanner from "./DownloadAppBanner";
+import LearnixCodeBanner from "./LearnixCodeBanner";
 import RandomQuote from "./home/RandomQuote";
 import WhatIsLearnix from "./home/WhatIsLearnix";
 import WhoIsLearnixFor from "./home/WhoIsLearnixFor";
@@ -48,6 +49,7 @@ export default function Home() {
             <br />
             <br />
             <DownloadAppBanner />
+            <LearnixCodeBanner />
             <br />
             <br />
             <br />

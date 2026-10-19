@@ -1,0 +1,231 @@
+/* LearnixCodeBanner.css */
+
+.lcb-section {
+  width: 100%;
+  max-width: 1200px;
+  margin: 1.5rem auto 2.5rem auto;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+.lcb-card {
+  position: relative;
+  background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.22) 0%, rgba(15, 23, 42, 0.98) 65%, #090d16 100%);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 20px;
+  padding: 2.75rem 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2.5rem;
+  overflow: hidden;
+  box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.6), 0 0 35px -10px rgba(99, 102, 241, 0.2);
+  text-decoration: none;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.lcb-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(129, 140, 248, 0.6);
+  box-shadow: 0 28px 50px -12px rgba(15, 23, 42, 0.8), 0 0 50px -5px rgba(99, 102, 241, 0.35);
+}
+
+/* Background Ambient Glow */
+.lcb-ambient-glow {
+  position: absolute;
+  top: -50px;
+  right: -50px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.lcb-content {
+  flex: 1.2;
+  z-index: 2;
+}
+
+.lcb-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(129, 140, 248, 0.35);
+  color: #a5b4fc;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  margin-bottom: 1.2rem;
+}
+
+.lcb-badge-dot {
+  width: 7px;
+  height: 7px;
+  background-color: #38bdf8;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #38bdf8;
+  animation: lcb-pulse 2s infinite;
+}
+
+@keyframes lcb-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.lcb-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+  margin: 0 0 1rem 0;
+  letter-spacing: -0.5px;
+}
+
+.lcb-title-highlight {
+  background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.lcb-tagline {
+  color: #94a3b8;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+  max-width: 540px;
+}
+
+.lcb-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1.8rem;
+}
+
+.lcb-feat-chip {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.lcb-btn-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.75rem 1.6rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px -4px rgba(79, 70, 229, 0.5);
+  transition: all 0.2s ease;
+}
+
+.lcb-card:hover .lcb-btn-cta {
+  transform: translateX(4px);
+  background: linear-gradient(135deg, #4338ca 0%, #2563eb 100%);
+  box-shadow: 0 10px 24px -3px rgba(79, 70, 229, 0.65);
+}
+
+/* Code Snippet Card Mockup */
+.lcb-visual {
+  flex: 0.9;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+}
+
+.lcb-code-box {
+  width: 100%;
+  max-width: 380px;
+  background: #0d1117;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.5);
+  font-family: "Fira Code", monospace;
+  font-size: 0.82rem;
+}
+
+.lcb-code-top {
+  background: #161b22;
+  padding: 0.6rem 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lcb-dots {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.lcb-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.lcb-dot-red { background: #ff5f56; }
+.lcb-dot-yellow { background: #ffbd2e; }
+.lcb-dot-green { background: #27c93f; }
+
+.lcb-code-file {
+  color: #8b949e;
+  font-size: 0.75rem;
+}
+
+.lcb-code-body {
+  padding: 1.1rem;
+  line-height: 1.6;
+  color: #e6edf3;
+}
+
+.lcb-kw { color: #ff7b72; }
+.lcb-fn { color: #d2a8ff; }
+.lcb-var { color: #79c0ff; }
+.lcb-str { color: #a5d6ff; }
+.lcb-num { color: #79c0ff; }
+.lcb-cmt { color: #8b949e; font-style: italic; }
+
+.lcb-status-pill {
+  margin-top: 0.75rem;
+  background: rgba(39, 201, 63, 0.15);
+  border: 1px solid rgba(39, 201, 63, 0.3);
+  color: #3fb950;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@media (max-width: 900px) {
+  .lcb-card {
+    flex-direction: column;
+    padding: 2rem 1.5rem;
+    gap: 2rem;
+  }
+  .lcb-visual {
+    width: 100%;
+  }
+  .lcb-code-box {
+    max-width: 100%;
+  }
+  .lcb-title {
+    font-size: 1.75rem;
+  }
+}
