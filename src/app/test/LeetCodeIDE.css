@@ -1,0 +1,575 @@
+/* LeetCodeIDE.css — Premium LeetCode-inspired Dark Theme */
+
+:root {
+  --lc-bg-main: #1a1a1a;
+  --lc-bg-header: #262626;
+  --lc-bg-card: #282828;
+  --lc-bg-inner: #1e1e1e;
+  --lc-border: #383838;
+  --lc-border-light: #444444;
+  --lc-text-primary: #eff2f6;
+  --lc-text-secondary: #9ca3af;
+  --lc-text-muted: #6b7280;
+  --lc-easy: #00b8a3;
+  --lc-easy-bg: rgba(0, 184, 163, 0.15);
+  --lc-medium: #ffc01e;
+  --lc-medium-bg: rgba(255, 192, 30, 0.15);
+  --lc-hard: #ff375f;
+  --lc-hard-bg: rgba(255, 55, 95, 0.15);
+  --lc-accent: #3b82f6;
+  --lc-btn-run: #3a3a3a;
+  --lc-btn-run-hover: #4a4a4a;
+  --lc-btn-submit: #00b8a3;
+  --lc-btn-submit-hover: #009987;
+}
+
+.lc-workspace {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--lc-bg-main);
+  color: var(--lc-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow: hidden;
+}
+
+/* ── Top Navigation Bar ── */
+.lc-navbar {
+  height: 52px;
+  background-color: var(--lc-bg-header);
+  border-bottom: 1px solid var(--lc-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  flex-shrink: 0;
+  z-index: 20;
+}
+
+.lc-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.lc-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.lc-logo-icon {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: #ffffff;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.lc-problem-select-btn {
+  background: var(--lc-bg-card);
+  border: 1px solid var(--lc-border);
+  color: var(--lc-text-primary);
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.lc-problem-select-btn:hover {
+  background: #333333;
+}
+
+.lc-nav-center {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lc-btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s ease;
+}
+
+.lc-btn-run {
+  background-color: var(--lc-btn-run);
+  color: #e5e7eb;
+}
+
+.lc-btn-run:hover:not(:disabled) {
+  background-color: var(--lc-btn-run-hover);
+  color: #ffffff;
+}
+
+.lc-btn-submit {
+  background-color: var(--lc-btn-submit);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 184, 163, 0.3);
+}
+
+.lc-btn-submit:hover:not(:disabled) {
+  background-color: var(--lc-btn-submit-hover);
+}
+
+.lc-btn-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lc-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lc-nav-link {
+  color: var(--lc-text-secondary);
+  font-size: 0.85rem;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  transition: color 0.2s;
+}
+
+.lc-nav-link:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ── Main Layout Body ── */
+.lc-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  padding: 0.5rem;
+  gap: 0.5rem;
+}
+
+/* ── Left Pane: Problem Description ── */
+.lc-left-pane {
+  flex: 1;
+  min-width: 320px;
+  max-width: 50%;
+  background-color: var(--lc-bg-card);
+  border-radius: 8px;
+  border: 1px solid var(--lc-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.lc-pane-header {
+  height: 42px;
+  background-color: #242424;
+  border-bottom: 1px solid var(--lc-border);
+  display: flex;
+  align-items: center;
+  padding: 0 0.75rem;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.lc-tab-btn {
+  background: none;
+  border: none;
+  color: var(--lc-text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.15s;
+}
+
+.lc-tab-btn:hover {
+  color: #ffffff;
+}
+
+.lc-tab-btn.active {
+  color: #ffffff;
+  background: #333333;
+  font-weight: 600;
+}
+
+.lc-pane-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.lc-problem-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.lc-problem-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0;
+  color: #ffffff;
+}
+
+.lc-meta-chips {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.lc-difficulty-pill {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+}
+
+.lc-diff-easy {
+  color: var(--lc-easy);
+  background: var(--lc-easy-bg);
+}
+
+.lc-diff-medium {
+  color: var(--lc-medium);
+  background: var(--lc-medium-bg);
+}
+
+.lc-diff-hard {
+  color: var(--lc-hard);
+  background: var(--lc-hard-bg);
+}
+
+.lc-tag-chip {
+  background: #333333;
+  color: var(--lc-text-secondary);
+  font-size: 0.75rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+}
+
+.lc-markdown-body {
+  line-height: 1.65;
+  color: #d1d5db;
+  font-size: 0.95rem;
+}
+
+.lc-markdown-body h3, .lc-markdown-body h4 {
+  color: #ffffff;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.lc-markdown-body pre {
+  background: var(--lc-bg-inner);
+  border: 1px solid var(--lc-border);
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-family: "Fira Code", monospace;
+  font-size: 0.85rem;
+  color: #e2e8f0;
+  margin: 0.75rem 0;
+}
+
+.lc-markdown-body code {
+  background: #333333;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-family: monospace;
+  color: #f3f4f6;
+}
+
+.lc-section-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--lc-border);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.lc-section-box h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.95rem;
+  color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.lc-constraints-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+.lc-constraints-list li {
+  margin-bottom: 0.35rem;
+}
+
+/* ── Right Pane: Editor + Console ── */
+.lc-right-pane {
+  flex: 1;
+  min-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow: hidden;
+}
+
+/* Editor Container */
+.lc-editor-card {
+  flex: 1;
+  background-color: var(--lc-bg-card);
+  border-radius: 8px;
+  border: 1px solid var(--lc-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 250px;
+}
+
+.lc-editor-header {
+  height: 42px;
+  background-color: #242424;
+  border-bottom: 1px solid var(--lc-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.75rem;
+  flex-shrink: 0;
+}
+
+.lc-lang-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #f59e0b;
+}
+
+.lc-editor-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.lc-icon-btn {
+  background: none;
+  border: none;
+  color: var(--lc-text-secondary);
+  padding: 0.35rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.lc-icon-btn:hover {
+  background: #333333;
+  color: #ffffff;
+}
+
+.lc-monaco-wrap {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #1e1e1e;
+}
+
+/* Console / Testcases Bottom Panel */
+.lc-console-card {
+  height: 280px;
+  background-color: var(--lc-bg-card);
+  border-radius: 8px;
+  border: 1px solid var(--lc-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.lc-console-header {
+  height: 42px;
+  background-color: #242424;
+  border-bottom: 1px solid var(--lc-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.75rem;
+  flex-shrink: 0;
+}
+
+.lc-console-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lc-console-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+/* Testcase Selector Buttons in Console */
+.lc-case-nav {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.lc-case-chip {
+  background: #333333;
+  border: 1px solid transparent;
+  color: var(--lc-text-secondary);
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.lc-case-chip.active {
+  background: #444444;
+  color: #ffffff;
+  border-color: #666666;
+}
+
+.lc-case-chip.passed {
+  border-left: 3px solid var(--lc-easy);
+}
+
+.lc-case-chip.failed {
+  border-left: 3px solid var(--lc-hard);
+}
+
+.lc-param-block {
+  margin-bottom: 0.75rem;
+}
+
+.lc-param-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--lc-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+}
+
+.lc-param-box {
+  background: var(--lc-bg-inner);
+  border: 1px solid var(--lc-border);
+  border-radius: 6px;
+  padding: 0.6rem 0.85rem;
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #ffffff;
+}
+
+/* Test Result Displays */
+.lc-status-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+}
+
+.lc-status-accepted {
+  background: rgba(0, 184, 163, 0.12);
+  border: 1px solid rgba(0, 184, 163, 0.3);
+  color: var(--lc-easy);
+}
+
+.lc-status-wrong {
+  background: rgba(255, 55, 95, 0.12);
+  border: 1px solid rgba(255, 55, 95, 0.3);
+  color: var(--lc-hard);
+}
+
+.lc-status-error {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+}
+
+.lc-status-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lc-status-metrics {
+  font-size: 0.85rem;
+  color: var(--lc-text-secondary);
+}
+
+/* Custom Scrollbar for IDE */
+.lc-workspace *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.lc-workspace *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lc-workspace *::-webkit-scrollbar-thumb {
+  background: #3e3e3e;
+  border-radius: 4px;
+}
+
+.lc-workspace *::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+
+@media (max-width: 900px) {
+  .lc-body {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .lc-left-pane {
+    max-width: 100%;
+    min-height: 400px;
+  }
+  .lc-right-pane {
+    min-height: 600px;
+  }
+}
