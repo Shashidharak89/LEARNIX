@@ -513,6 +513,28 @@
   gap: 0.5rem;
 }
 
+.lc-lang-selector-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.lc-lang-select-box {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: #2a2a2a;
+  border: 1px solid #3d3d3d;
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem 0.2rem 0.4rem;
+  transition: all 0.15s ease;
+}
+
+.lc-lang-select-box:hover {
+  background: #333333;
+  border-color: #555555;
+}
+
 .lc-js-icon {
   background: #f7df1e;
   color: #000000;
@@ -523,6 +545,68 @@
   line-height: 1;
   display: inline-block;
   letter-spacing: -0.5px;
+}
+
+.lc-java-icon {
+  background: #f89820;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  line-height: 1;
+  display: inline-block;
+  letter-spacing: -0.5px;
+}
+
+.lc-lang-dropdown {
+  background: transparent;
+  border: none;
+  color: #f3f4f6;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  font-family: inherit;
+}
+
+.lc-lang-dropdown option {
+  background: #1f1f1f;
+  color: #f3f4f6;
+}
+
+.lc-lang-runner-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+  background: #23272f;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #334155;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.lc-sub-lang-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.lc-sub-lang-js {
+  background: rgba(247, 223, 30, 0.15);
+  color: #f7df1e;
+  border: 1px solid rgba(247, 223, 30, 0.3);
+}
+
+.lc-sub-lang-java {
+  background: rgba(248, 152, 32, 0.15);
+  color: #f89820;
+  border: 1px solid rgba(248, 152, 32, 0.3);
 }
 
 .lc-lang-text {
@@ -1145,3 +1229,97 @@
   margin: 0;
   line-height: 1.6;
 }
+
+/* ── Language Selector ── */
+.lc-lang-select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #222222;
+  border: 1px solid #383838;
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.lc-lang-select-wrap:hover,
+.lc-lang-select-wrap:focus-within {
+  border-color: #555555;
+  background: #282828;
+}
+
+.lc-lang-badge-icon {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.lc-lang-badge-icon.js {
+  background: #f7df1e;
+  color: #000000;
+}
+
+.lc-lang-badge-icon.java {
+  background: #ea580c;
+  color: #ffffff;
+}
+
+.lc-lang-select {
+  background: transparent;
+  color: #eff2f6;
+  border: none;
+  outline: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding-right: 0.25rem;
+}
+
+.lc-lang-select option {
+  background: #1e1e1e;
+  color: #eff2f6;
+}
+
+.lc-sub-lang-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  margin-left: 0.4rem;
+  text-transform: uppercase;
+}
+
+.lc-sub-lang-pill.java {
+  background: rgba(234, 88, 12, 0.18);
+  border: 1px solid rgba(234, 88, 12, 0.4);
+  color: #fb923c;
+}
+
+.lc-sub-lang-pill.javascript {
+  background: rgba(247, 223, 30, 0.15);
+  border: 1px solid rgba(247, 223, 30, 0.35);
+  color: #fde047;
+}
+
+/* 10s Cooldown timer indicator on buttons */
+.lc-btn-cooldown {
+  opacity: 0.65;
+  cursor: not-allowed !important;
+}
+
+.lc-cooldown-timer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+

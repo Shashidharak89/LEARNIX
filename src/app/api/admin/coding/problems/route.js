@@ -92,19 +92,40 @@ export async function POST(req) {
     const now = new Date().toISOString();
 
     // Default javascript boilerplate template if not specified
+    // Generate default Java boilerplate template
+    const javaTypeMap = {
+      number: "int",
+      string: "String",
+      boolean: "boolean",
+      "number[]": "int[]",
+      "string[]": "String[]",
+      object: "Map<String, Object>",
+      any: "Object",
+    };
+    const jRetType = javaTypeMap[returnType] || "int";
+    const jDefaultReturn =
+      jRetType === "int" || jRetType === "long" || jRetType === "double"
+        ? "0"
+        : jRetType === "boolean"
+        ? "false"
+        : jRetType === "String"
+        ? '""'
+        : jRetType.endsWith("[]")
+        ? `new ${jRetType}{}`
+        : "null";
+
+    const jParams = (parameters || [])
+      .map((p) => `${javaTypeMap[p.type] || "int"} ${p.name || "arg"}`)
+      .join(", ");
+
+    const defaultJavaTemplate = `class Solution {\n    public ${jRetType} ${functionName}(${jParams}) {\n        // Write your code here\n        return ${jDefaultReturn};\n    }\n}`;
+
+    // Default templates for both JavaScript and Java
     const finalTemplates = {
       javascript:
         templates.javascript ||
-        `/**
- * ${title}
- * 
-${parameters.map((p) => ` * @param {${p.type || "any"}} ${p.name || "arg"}`).join("\n")}
- * @return {${returnType || "any"}}
- */
-function ${functionName}(${parameters.map((p) => p.name || "arg").join(", ")}) {
-    // Write your code here
-    
-}`,
+        `/**\n${parameters.map((p) => ` * @param {${p.type || "any"}} ${p.name || "arg"}`).join("\n")}\n * @return {${returnType || "any"}}\n */\nfunction ${functionName}(${parameters.map((p) => p.name || "arg").join(", ")}) {\n    // Write your code here\n}`,
+      java: templates.java || defaultJavaTemplate,
       ...templates,
     };
 

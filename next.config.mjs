@@ -5,6 +5,8 @@ process.env.BROWSERSLIST_IGNORE_OLD_DATA = "true";
 const nextConfig = {
   reactStrictMode: true,
 
+  serverExternalPackages: ['compile-run'],
+
   experimental: {
     serverActions: {
       bodySizeLimit: '50mb',

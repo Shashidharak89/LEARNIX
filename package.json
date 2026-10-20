@@ -24,6 +24,7 @@
     "bcryptjs": "^3.0.2",
     "browser-image-compression": "^2.0.2",
     "cloudinary": "^2.7.0",
+    "compile-run": "^2.3.4",
     "docx-preview": "^0.3.7",
     "firebase-admin": "^13.10.0",
     "fontkit": "^2.0.4",

@@ -57,6 +57,12 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
   const editorRef = useRef(null);
 
   // Editor State
+  const [languages, setLanguages] = useState([
+    { languageId: "javascript", name: "JavaScript", monacoLang: "javascript", version: "ES6+" },
+    { languageId: "java", name: "Java", monacoLang: "java", version: "OpenJDK 25" },
+  ]);
+  const [selectedLanguage, setSelectedLanguage] = useState("javascript");
+  const [cooldown, setCooldown] = useState(0); // 10s cooldown timer
   const [code, setCode] = useState("");
   const [cursorPos, setCursorPos] = useState({ line: 1, col: 1 });
   const [copiedCode, setCopiedCode] = useState(false);
@@ -84,6 +90,31 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
   // Check if caller might be admin (from localStorage) just to show Admin link
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // Cooldown countdown effect (10s timer)
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const interval = setInterval(() => {
+      setCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [cooldown]);
+
+  // Fetch supported languages from DynamoDB API
+  useEffect(() => {
+    async function fetchLanguages() {
+      try {
+        const res = await fetch("/api/coding/languages");
+        const data = await res.json();
+        if (data.success && data.languages?.length > 0) {
+          setLanguages(data.languages);
+        }
+      } catch (err) {
+        console.error("Failed to load languages:", err);
+      }
+    }
+    fetchLanguages();
+  }, []);
 
   function handleExit() {
     exitCodingEnvironment(router);
@@ -240,6 +271,26 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     }
   }
 
+  const getLanguageTemplate = useCallback((prob, lang) => {
+    if (!prob) return "";
+    const cacheKey = `learnix_code_${prob.problemId}_${lang}`;
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(cacheKey);
+      if (saved) return saved;
+      if (lang === "javascript") {
+        const oldSaved = localStorage.getItem(`learnix_code_${prob.problemId}`);
+        if (oldSaved) return oldSaved;
+      }
+    }
+    if (prob.templates && prob.templates[lang]) {
+      return prob.templates[lang];
+    }
+    if (lang === "java") {
+      return `class Solution {\n    public int ${prob.functionName || "solution"}() {\n        // Write your code here\n        return 0;\n    }\n}`;
+    }
+    return `function ${prob.functionName || "solution"}() {\n  // Write your code here\n}`;
+  }, []);
+
   const loadProblem = useCallback(async (slugOrId) => {
     setLoadingProblem(true);
     setExecutionResult(null);
@@ -253,14 +304,9 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
           setSelectedSlug(String(prob.order));
         }
 
-        // Check localStorage cache for saved code or fallback to template
-        const cacheKey = `learnix_code_${prob.problemId}`;
-        const savedCode = localStorage.getItem(cacheKey);
-        const defaultCode =
-          prob.templates?.javascript ||
-          `// Write your solution here\nfunction ${prob.functionName || "solution"}() {\n  \n}`;
-
-        setCode(savedCode || defaultCode);
+        // Load cached code or boilerplate template for currently selected language
+        const templateCode = getLanguageTemplate(prob, selectedLanguage);
+        setCode(templateCode);
 
         // Reset selected case
         setSelectedCaseIdx(0);
@@ -275,7 +321,17 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     } finally {
       setLoadingProblem(false);
     }
-  }, [fetchSubmissions]);
+  }, [fetchSubmissions, getLanguageTemplate, selectedLanguage]);
+
+  function handleLanguageChange(newLang) {
+    if (!problem) return;
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`learnix_code_${problem.problemId}_${selectedLanguage}`, code);
+    }
+    setSelectedLanguage(newLang);
+    const nextCode = getLanguageTemplate(problem, newLang);
+    setCode(nextCode);
+  }
 
   function handleProblemChange(e) {
     const newId = e.target.value;
@@ -294,8 +350,8 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
   function handleCodeChange(newCode) {
     setCode(newCode || "");
-    if (problem) {
-      localStorage.setItem(`learnix_code_${problem.problemId}`, newCode || "");
+    if (problem && typeof window !== "undefined") {
+      localStorage.setItem(`learnix_code_${problem.problemId}_${selectedLanguage}`, newCode || "");
     }
   }
 
@@ -315,17 +371,139 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
   function handleResetCode() {
     if (!problem) return;
-    if (typeof window !== "undefined" && window.confirm("Reset code to default boilerplate template?")) {
-      const defaultCode =
-        problem.templates?.javascript ||
-        `function ${problem.functionName || "solution"}() {\n  \n}`;
+    if (typeof window !== "undefined" && window.confirm(`Reset ${selectedLanguage.toUpperCase()} code to default boilerplate template?`)) {
+      let defaultCode = problem.templates?.[selectedLanguage];
+      if (!defaultCode) {
+        if (selectedLanguage === "java") {
+          defaultCode = `class Solution {\n    public int ${problem.functionName || "solution"}() {\n        // Write your code here\n        return 0;\n    }\n}`;
+        } else {
+          defaultCode = `function ${problem.functionName || "solution"}() {\n  // Write your code here\n}`;
+        }
+      }
       setCode(defaultCode);
-      localStorage.setItem(`learnix_code_${problem.problemId}`, defaultCode);
+      if (typeof window !== "undefined") {
+        localStorage.setItem(`learnix_code_${problem.problemId}_${selectedLanguage}`, defaultCode);
+      }
+    }
+  }
+
+  // Client-side JavaScript evaluation for immediate, zero-latency run mode
+  function executeJavaScriptInBrowser(userCode, functionName, testCases) {
+    const getTime = () =>
+      typeof window !== "undefined" && window.performance ? window.performance.now() : Date.now();
+
+    const startTime = getTime();
+    const capturedLogs = [];
+
+    try {
+      const wrappedCode = `
+        "use strict";
+        const console = {
+          log: (...args) => capturedLogs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')),
+          error: (...args) => capturedLogs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')),
+          warn: (...args) => capturedLogs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ')),
+          info: (...args) => capturedLogs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' '))
+        };
+        ${userCode}
+        if (typeof ${functionName} !== 'function') {
+          throw new Error('Function "${functionName}" is not defined in your code.');
+        }
+        return ${functionName};
+      `;
+
+      const userFn = new Function("capturedLogs", wrappedCode)(capturedLogs);
+
+      const results = [];
+      for (let i = 0; i < testCases.length; i++) {
+        const tc = testCases[i];
+        const tcStart = getTime();
+        let actualOutput;
+        let error = null;
+        let passed = false;
+
+        try {
+          const inputArgs = Array.isArray(tc.input) ? tc.input : [tc.input];
+          const copiedArgs = JSON.parse(JSON.stringify(inputArgs));
+          actualOutput = userFn(...copiedArgs);
+
+          const normalize = (v) => {
+            if (v === undefined) return "undefined";
+            if (typeof v === "number" || typeof v === "boolean") return JSON.stringify(v);
+            if (typeof v === "string") {
+              try {
+                return JSON.stringify(JSON.parse(v));
+              } catch {
+                return JSON.stringify(v);
+              }
+            }
+            return JSON.stringify(v);
+          };
+
+          const actualNorm = normalize(actualOutput);
+          const expectedNorm = normalize(tc.expectedOutput);
+          passed = actualNorm === expectedNorm;
+        } catch (err) {
+          error = err.message || String(err);
+        }
+
+        const tcEnd = getTime();
+        const rawInputStr = Array.isArray(tc.input)
+          ? tc.input.map((a) => (typeof a === "object" ? JSON.stringify(a) : String(a))).join(", ")
+          : (typeof tc.input === "object" ? JSON.stringify(tc.input) : String(tc.input));
+
+        results.push({
+          testCaseIndex: i + 1,
+          input: tc.input,
+          rawInput: rawInputStr,
+          expectedOutput: tc.expectedOutput,
+          actualOutput: actualOutput !== undefined ? actualOutput : null,
+          passed,
+          runtime: Math.round((tcEnd - tcStart) * 100) / 100,
+          logs: [...capturedLogs],
+          error,
+        });
+      }
+
+      const totalRuntime = Math.max(1, Math.round(getTime() - startTime));
+      const passedTestCases = results.filter((r) => r.passed).length;
+      const allPassed = passedTestCases === results.length;
+
+      return {
+        success: true,
+        mode: "run",
+        language: "javascript",
+        executionPlatform: "Browser (Client-side)",
+        status: allPassed ? "Accepted" : "Wrong Answer",
+        totalTestCases: results.length,
+        passedTestCases,
+        totalRuntime,
+        results,
+        stdout: capturedLogs.join("\n"),
+      };
+    } catch (err) {
+      return {
+        success: false,
+        mode: "run",
+        language: "javascript",
+        executionPlatform: "Browser (Client-side)",
+        status: "Runtime Error",
+        error: err.message || String(err),
+        results: [],
+        totalRuntime: 0,
+        passedTestCases: 0,
+        totalTestCases: testCases.length,
+      };
     }
   }
 
   async function runCode(mode = "run") {
     if (!problem || executing) return;
+
+    // 10s cooldown restriction
+    if (cooldown > 0) {
+      alert(`Please wait ${cooldown}s before running or submitting again.`);
+      return;
+    }
 
     const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
 
@@ -335,6 +513,8 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
       return;
     }
 
+    // Set 10s cooldown timer immediately
+    setCooldown(10);
     setExecuting(true);
     setExecMode(mode);
     setActiveConsoleTab("testresult");
@@ -351,6 +531,23 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
         }
       }
 
+      // If JavaScript in "run" mode: run directly in browser
+      if (selectedLanguage === "javascript" && mode === "run") {
+        let casesToTest;
+        if (customArgs !== undefined) {
+          casesToTest = [{ input: customArgs, expectedOutput: null }];
+        } else {
+          casesToTest = problem.sampleCases || problem.testCases?.slice(0, 3) || [];
+        }
+
+        const clientResult = executeJavaScriptInBrowser(code, problem.functionName, casesToTest);
+        setExecutionResult(clientResult);
+        setSelectedResultIdx(0);
+        setExecuting(false);
+        return;
+      }
+
+      // For Java (Run or Submit) or JavaScript (Submit mode): execute on server
       const headers = { "Content-Type": "application/json" };
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;
@@ -361,6 +558,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
         headers,
         body: JSON.stringify({
           problemId: problem.problemId,
+          language: selectedLanguage,
           code,
           mode,
           customInput: customArgs,
@@ -368,6 +566,21 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
       });
 
       const data = await res.json();
+
+      if (res.status === 429) {
+        setCooldown(data.cooldownRemaining || 10);
+        setExecutionResult({
+          status: "Rate Limited",
+          error: data.error || "Please wait before executing again.",
+          results: [],
+          totalRuntime: 0,
+          passedTestCases: 0,
+          totalTestCases: 0,
+        });
+        setExecuting(false);
+        return;
+      }
+
       if (data.requiresLogin) {
         setShowLoginPrompt(true);
         setExecuting(false);
@@ -461,9 +674,10 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
         </div>
         {submissions.map((sub) => {
           const isPassed = sub.status === "Accepted";
+          const subLang = sub.language || "javascript";
           return (
             <div key={sub.submissionId} className="lc-submission-card">
-              <div className="lc-sub-col">
+              <div className="lc-sub-col" style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
                 <span
                   className={`lc-sub-status-pill ${
                     isPassed
@@ -475,6 +689,9 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                 >
                   {isPassed ? <FiCheckCircle size={13} /> : <FiXCircle size={13} />}
                   <span>{sub.status}</span>
+                </span>
+                <span className={`lc-sub-lang-pill ${subLang === "java" ? "java" : "javascript"}`}>
+                  {subLang === "java" ? "Java" : "JS"}
                 </span>
               </div>
 
@@ -499,11 +716,17 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
               <div className="lc-sub-col lc-sub-actions">
                 <button
                   onClick={() => {
+                    if (sub.language && sub.language !== selectedLanguage) {
+                      setSelectedLanguage(sub.language);
+                    }
                     setCode(sub.code);
-                    alert("Solution restored into code editor!");
+                    if (problem && typeof window !== "undefined") {
+                      localStorage.setItem(`learnix_code_${problem.problemId}_${sub.language || selectedLanguage}`, sub.code);
+                    }
+                    alert(`Restored ${sub.language ? sub.language.toUpperCase() : "solution"} into code editor!`);
                   }}
                   className="lc-sub-btn"
-                  title="Load code into editor"
+                  title="Load code and language into editor"
                 >
                   <FiRotateCcw size={12} />
                   <span>Load</span>
@@ -571,22 +794,34 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
         <div className="lc-nav-center">
           <button
             onClick={() => runCode("run")}
-            disabled={executing}
-            className="lc-btn-action lc-btn-run"
-            title="Run code against sample test cases (Ctrl + ')"
+            disabled={executing || cooldown > 0}
+            className={`lc-btn-action lc-btn-run ${cooldown > 0 ? "lc-btn-cooldown" : ""}`}
+            title={cooldown > 0 ? `Rate limited: wait ${cooldown}s` : "Run code against sample test cases (Ctrl + ')"}
           >
             <FiPlay size={14} />
-            <span>{executing && execMode === "run" ? "Running..." : "Run"}</span>
+            <span>
+              {cooldown > 0
+                ? `Run (${cooldown}s)`
+                : executing && execMode === "run"
+                ? "Running..."
+                : "Run"}
+            </span>
           </button>
 
           <button
             onClick={() => runCode("submit")}
-            disabled={executing}
-            className="lc-btn-action lc-btn-submit"
-            title="Submit code against all 10 test cases (Requires Login)"
+            disabled={executing || cooldown > 0}
+            className={`lc-btn-action lc-btn-submit ${cooldown > 0 ? "lc-btn-cooldown" : ""}`}
+            title={cooldown > 0 ? `Rate limited: wait ${cooldown}s` : "Submit code against all 10 test cases (Requires Login)"}
           >
             <FiUploadCloud size={15} />
-            <span>{executing && execMode === "submit" ? "Evaluating..." : "Submit"}</span>
+            <span>
+              {cooldown > 0
+                ? `Submit (${cooldown}s)`
+                : executing && execMode === "submit"
+                ? "Evaluating..."
+                : "Submit"}
+            </span>
           </button>
         </div>
 
@@ -835,10 +1070,22 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
           {/* Top: Editor Card */}
           <div className={`lc-editor-card ${isEditorMaximized ? "lc-editor-maximized" : ""}`}>
             <div className="lc-editor-header">
-              <div className="lc-lang-badge">
-                <span className="lc-js-icon">JS</span>
-                <span className="lc-lang-text">JavaScript</span>
-                <span className="lc-lang-env">Node.js ES6+</span>
+              <div className="lc-lang-select-wrap">
+                <span className={`lc-lang-badge-icon ${selectedLanguage === "java" ? "java" : "js"}`}>
+                  {selectedLanguage === "java" ? "JAVA" : "JS"}
+                </span>
+                <select
+                  value={selectedLanguage}
+                  onChange={(e) => handleLanguageChange(e.target.value)}
+                  className="lc-lang-select"
+                  title="Switch programming language"
+                >
+                  {languages.map((lang) => (
+                    <option key={lang.languageId} value={lang.languageId}>
+                      {lang.name} {lang.version ? `(${lang.version})` : ""}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="lc-editor-actions">
                 <button
@@ -878,7 +1125,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
             <div className="lc-monaco-wrap">
               <Editor
                 height="100%"
-                language="javascript"
+                language={selectedLanguage === "java" ? "java" : "javascript"}
                 theme="vs-dark"
                 value={code}
                 onMount={(editor) => {
@@ -1136,6 +1383,10 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                         </div>
 
                         <div className="lc-status-metrics">
+                          <span style={{ color: executionResult.language === "java" ? "#fb923c" : "#fde047", fontWeight: 600 }}>
+                            {executionResult.language === "java" ? "Java" : "JavaScript"} • {executionResult.executionPlatform || (executionResult.language === "java" ? "Server (compile-run)" : "Browser")}
+                          </span>
+                          <span style={{ margin: "0 0.5rem" }}>•</span>
                           <span>
                             {executionResult.passedTestCases} / {executionResult.totalTestCases} Testcases Passed
                           </span>
@@ -1144,10 +1395,10 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                         </div>
                       </div>
 
-                      {/* General Error Message if any */}
-                      {executionResult.error && (
-                        <div style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: "6px", padding: "0.75rem", color: "#f87171", fontFamily: "monospace", fontSize: "0.85rem", marginBottom: "1rem" }}>
-                          {executionResult.error}
+                      {/* Compiler or Runtime Error Message if any */}
+                      {(executionResult.compileError || executionResult.error) && (
+                        <div style={{ background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: "6px", padding: "0.75rem", color: "#f87171", fontFamily: "monospace", fontSize: "0.85rem", marginBottom: "1rem", whiteSpace: "pre-wrap" }}>
+                          {executionResult.compileError || executionResult.error}
                         </div>
                       )}
 
@@ -1305,6 +1556,13 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                   {selectedSubmission.status === "Accepted" ? <FiCheckCircle size={13} /> : <FiXCircle size={13} />}
                   <span>{selectedSubmission.status}</span>
                 </span>
+                <span
+                  className={`lc-sub-lang-pill ${
+                    (selectedSubmission.language || "javascript") === "java" ? "java" : "javascript"
+                  }`}
+                >
+                  {(selectedSubmission.language || "javascript") === "java" ? "Java" : "JS"}
+                </span>
                 <span style={{ color: "#ffffff", fontWeight: 600 }}>
                   Submission Details
                 </span>
@@ -1341,7 +1599,16 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                   </button>
                   <button
                     onClick={() => {
+                      if (selectedSubmission.language && selectedSubmission.language !== selectedLanguage) {
+                        setSelectedLanguage(selectedSubmission.language);
+                      }
                       setCode(selectedSubmission.code);
+                      if (problem && typeof window !== "undefined") {
+                        localStorage.setItem(
+                          `learnix_code_${problem.problemId}_${selectedSubmission.language || selectedLanguage}`,
+                          selectedSubmission.code
+                        );
+                      }
                       setSelectedSubmission(null);
                       alert("Solution restored into code editor!");
                     }}

@@ -2,21 +2,63 @@ import { NextResponse } from "next/server";
 import { docClient, PROBLEMS_TABLE, TESTCASES_TABLE, SUBMISSIONS_TABLE } from "@/lib/dynamodb";
 import { GetCommand, QueryCommand, ScanCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { executeCode } from "@/lib/codeRunner";
+import { executeJavaCode } from "@/lib/javaRunner";
 import { connectDB } from "@/lib/db";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
 
 export const dynamic = "force-dynamic";
 
+// In-memory rate limiting map: 1 run/submit per 10 seconds per user / IP
+const rateLimitMap = new Map();
+
+function checkRateLimit(callerKey) {
+  const now = Date.now();
+  const lastTime = rateLimitMap.get(callerKey);
+  if (lastTime && now - lastTime < 10000) {
+    const remainingMs = 10000 - (now - lastTime);
+    return Math.ceil(remainingMs / 1000);
+  }
+  rateLimitMap.set(callerKey, now);
+
+  // Periodic cleanup if map grows large
+  if (rateLimitMap.size > 2000) {
+    for (const [k, v] of rateLimitMap.entries()) {
+      if (now - v > 60000) rateLimitMap.delete(k);
+    }
+  }
+  return 0;
+}
+
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { problemId, code, mode = "run", customInput } = body;
+    const { problemId, code, language = "javascript", mode = "run", customInput } = body;
 
     if (!problemId) {
       return NextResponse.json({ success: false, error: "problemId is required" }, { status: 400 });
     }
     if (!code || typeof code !== "string") {
       return NextResponse.json({ success: false, error: "code string is required" }, { status: 400 });
+    }
+
+    // Rate Limiting (10 seconds restriction)
+    const clientIp =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      req.headers.get("x-real-ip") ||
+      "unknown_client";
+    const authHeader = req.headers.get("authorization") || "";
+    const callerKey = authHeader ? `auth:${authHeader.slice(-24)}` : `ip:${clientIp}`;
+
+    const cooldownRemaining = checkRateLimit(callerKey);
+    if (cooldownRemaining > 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Please wait ${cooldownRemaining}s before running or submitting again. (10s restriction)`,
+          cooldownRemaining,
+        },
+        { status: 429 }
+      );
     }
 
     // Require authentication for submit mode
@@ -121,16 +163,29 @@ export async function POST(req) {
     }
 
     // Execute code. When submitting, stopOnFailure is false so that all test cases run and all passing ones are counted.
-    const executionResult = executeCode({
-      userCode: code,
-      functionName: problem.functionName || "addTwoNumbers",
-      testCases: targetCases,
-      timeoutMs: 2500,
-      stopOnFailure: false,
-    });
+    const selectedLang = (language || "javascript").toLowerCase();
+    let executionResult;
+
+    if (selectedLang === "java") {
+      executionResult = await executeJavaCode({
+        userCode: code,
+        functionName: problem.functionName || "addTwoNumbers",
+        testCases: targetCases,
+        timeoutMs: 12000,
+        stopOnFailure: false,
+      });
+    } else {
+      executionResult = executeCode({
+        userCode: code,
+        functionName: problem.functionName || "addTwoNumbers",
+        testCases: targetCases,
+        timeoutMs: 2500,
+        stopOnFailure: false,
+      });
+    }
 
     // In submit mode, sanitize results for display
-    const sanitizedResults = executionResult.results.map((res) => {
+    const sanitizedResults = (executionResult.results || []).map((res) => {
       if (mode === "submit" && !res.isSample && res.passed) {
         return {
           testCaseId: res.testCaseId,
@@ -161,7 +216,7 @@ export async function POST(req) {
         problemTitle: problem.title,
         problemOrder: problem.order || 1,
         code,
-        language: "javascript",
+        language: selectedLang,
         status: executionResult.status,
         error: executionResult.error || null,
         totalRuntime: executionResult.totalRuntime,
