@@ -10,6 +10,12 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Introducing Learnix Code — Interactive Coding Playground",
+      date: "Oct 20, 2026",
+      description:
+        "We are thrilled to launch Learnix Code, our brand-new coding and problem-solving playground! Practice data structures and algorithms with a sleek LeetCode-style interface featuring Monaco Editor, customizable split panels, and dark mode. Supports both JavaScript (with instant in-browser execution) and Java (compiled and executed securely on the server via OpenJDK). Test your code against sample cases or submit to evaluate against all 10 hidden testcases and record your submissions in DynamoDB!",
+    },
+    {
       title: "Global Search Option Added on Home Page",
       date: "Sep 23, 2026",
       description:
@@ -173,7 +179,7 @@ export default function WhatsNew() {
         <div className="wn__icon_wrapper">
           <MdNewReleases className="wn__header_icon" />
         </div>
-        <h2 className="wn__main_title">What's New</h2>
+        <h2 className="wn__main_title">What&apos;s New</h2>
       </div>
 
       <div className="wn__updates_grid">
