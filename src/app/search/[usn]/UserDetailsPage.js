@@ -24,6 +24,7 @@ import {
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import UserDetailsPageSkeleton from "./UserDetailsPageSkeleton";
+import CodingProfileStats from "@/app/profile/CodingProfileStats";
 import machineLearningSvg from "@/app/profile/icons/Mapping for machine learning.svg";
 import "./styles/UserDetailsPage.css";
 import { authFetch } from "@/lib/clientAuth";
@@ -410,6 +411,9 @@ export default function UserDetailsPage({ usn }) {
             </div>
           </div>
         </div>
+
+        {/* LeetCode-style Coding Stats & Submission Activity Calendar */}
+        <CodingProfileStats usn={usn} userId={user?._id || user?.id} />
 
         {/* Bottom Banner Card: View Uploaded Resources */}
         <div className="up-resources-banner-card">

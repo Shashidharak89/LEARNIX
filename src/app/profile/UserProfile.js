@@ -35,6 +35,7 @@ import ChangeName from './ChangeName';
 import ChangePassword from './ChangePassword';
 import ProfileImageEditor from './ProfileImageEditor';
 import UserProfileSkeleton from './UserProfileSkeleton';
+import CodingProfileStats from './CodingProfileStats';
 import machineLearningSvg from './icons/Mapping for machine learning.svg';
 import './styles/UserProfile.css';
 import { authFetch } from '@/lib/clientAuth';
@@ -599,6 +600,9 @@ export default function UserProfile({ googleClientId = "" }) {
                 </div>
               )}
             </div>
+
+            {/* LeetCode-style Coding Stats & Submission Activity Calendar */}
+            <CodingProfileStats usn={user?.usn} userId={user?._id || user?.id} />
 
             {/* Bottom Banner Card: View Uploaded Resources */}
             <div className="up-resources-banner-card">
