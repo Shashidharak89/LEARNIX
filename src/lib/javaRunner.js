@@ -260,10 +260,12 @@ public class Main {
       if (!parsed) {
         // Did not reach this test case
         allPassed = false;
+        const formattedIn = tc.rawInput || (typeof tc.input === "string" ? tc.input : JSON.stringify(tc.input));
         results.push({
           testCaseId: tc.testCaseId || `tc_${i + 1}`,
           order: tc.order || i + 1,
-          input: tc.rawInput || (typeof tc.input === "string" ? tc.input : JSON.stringify(tc.input)),
+          input: formattedIn,
+          rawInput: formattedIn,
           expectedOutput: typeof tc.expectedOutput === "string" ? tc.expectedOutput : JSON.stringify(tc.expectedOutput),
           actualOutput: "Execution incomplete",
           passed: false,
@@ -279,10 +281,12 @@ public class Main {
       if (parsed.type === "err") {
         allPassed = false;
         if (!generalError) generalError = parsed.err;
+        const formattedIn = tc.rawInput || (typeof tc.input === "string" ? tc.input : JSON.stringify(tc.input));
         results.push({
           testCaseId: tc.testCaseId || `tc_${i + 1}`,
           order: tc.order || i + 1,
-          input: tc.rawInput || (typeof tc.input === "string" ? tc.input : JSON.stringify(tc.input)),
+          input: formattedIn,
+          rawInput: formattedIn,
           expectedOutput: typeof tc.expectedOutput === "string" ? tc.expectedOutput : JSON.stringify(tc.expectedOutput),
           actualOutput: `Runtime Error: ${parsed.err}`,
           passed: false,
@@ -301,10 +305,12 @@ public class Main {
         allPassed = false;
       }
 
+      const formattedIn = tc.rawInput || (typeof tc.input === "string" ? tc.input : JSON.stringify(tc.input));
       results.push({
         testCaseId: tc.testCaseId || `tc_${i + 1}`,
         order: tc.order || i + 1,
-        input: tc.rawInput || (typeof tc.input === "string" ? tc.input : JSON.stringify(tc.input)),
+        input: formattedIn,
+        rawInput: formattedIn,
         expectedOutput: typeof tc.expectedOutput === "string" ? tc.expectedOutput : JSON.stringify(tc.expectedOutput),
         actualOutput: parsed.out,
         passed: isMatch,

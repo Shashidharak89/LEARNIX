@@ -135,7 +135,7 @@ export function executeCode({
         order: tc.order || i + 1,
         isSample: tc.isSample ?? true,
         input: tc.input,
-        rawInput: tc.rawInput,
+        rawInput: tc.rawInput || (Array.isArray(tc.input) ? tc.input.join(", ") : String(tc.input)),
         expectedOutput: tc.expectedOutput,
         actualOutput: null,
         error: errorMsg,

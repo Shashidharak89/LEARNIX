@@ -664,85 +664,96 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     }
 
     return (
-      <div className="lc-submissions-list">
-        <div className="lc-submissions-header-row">
-          <span>Status</span>
-          <span>Cases Passed</span>
-          <span>Runtime</span>
-          <span>Submitted</span>
-          <span style={{ textAlign: "right" }}>Actions</span>
+      <div className="lc-submissions-container">
+        <div className="lc-submissions-list">
+          <div className="lc-submissions-header-row">
+            <span>Status</span>
+            <span>Cases Passed</span>
+            <span>Runtime</span>
+            <span>Submitted</span>
+            <span style={{ textAlign: "right" }}>Actions</span>
+          </div>
+          {submissions.map((sub) => {
+            const isPassed = sub.status === "Accepted";
+            const subLang = sub.language || "javascript";
+            return (
+              <div key={sub.submissionId} className="lc-submission-card">
+                <div className="lc-sub-col lc-sub-col-status">
+                  <span
+                    className={`lc-sub-status-pill ${
+                      isPassed
+                        ? "lc-sub-accepted"
+                        : sub.status === "Wrong Answer"
+                        ? "lc-sub-wrong"
+                        : "lc-sub-error"
+                    }`}
+                  >
+                    {isPassed ? <FiCheckCircle size={13} /> : <FiXCircle size={13} />}
+                    <span>{sub.status}</span>
+                  </span>
+                  <span className={`lc-sub-lang-pill ${subLang === "java" ? "java" : "javascript"}`}>
+                    {subLang === "java" ? "Java" : "JS"}
+                  </span>
+                </div>
+
+                <div className="lc-sub-col lc-sub-col-cases">
+                  <span className="lc-sub-mobile-label">Cases:</span>
+                  <span
+                    className="lc-sub-cases-val"
+                    style={{
+                      color: isPassed ? "var(--lc-easy)" : sub.status === "Wrong Answer" ? "#f87171" : "#fbbf24",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {sub.passedTestCases} / {sub.totalTestCases || 10}
+                  </span>
+                </div>
+
+                <div className="lc-sub-col lc-sub-col-runtime">
+                  <span className="lc-sub-mobile-label">Runtime:</span>
+                  <span style={{ color: "#9ca3af", fontFamily: "monospace", fontSize: "0.85rem" }}>
+                    {sub.totalRuntime} ms
+                  </span>
+                </div>
+
+                <div className="lc-sub-col lc-sub-col-date">
+                  <span className="lc-sub-mobile-label">Date:</span>
+                  <span style={{ color: "#6b7280", fontSize: "0.8rem" }}>
+                    {new Date(sub.submittedAt).toLocaleDateString()} {new Date(sub.submittedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </span>
+                </div>
+
+                <div className="lc-sub-col lc-sub-col-actions lc-sub-actions">
+                  <button
+                    onClick={() => {
+                      if (sub.language && sub.language !== selectedLanguage) {
+                        setSelectedLanguage(sub.language);
+                      }
+                      setCode(sub.code);
+                      if (problem && typeof window !== "undefined") {
+                        localStorage.setItem(`learnix_code_${problem.problemId}_${sub.language || selectedLanguage}`, sub.code);
+                      }
+                      alert(`Restored ${sub.language ? sub.language.toUpperCase() : "solution"} into code editor!`);
+                    }}
+                    className="lc-sub-btn"
+                    title="Load code and language into editor"
+                  >
+                    <FiRotateCcw size={12} />
+                    <span>Load</span>
+                  </button>
+                  <button
+                    onClick={() => setSelectedSubmission(sub)}
+                    className="lc-sub-btn lc-sub-btn-primary"
+                    title="View code and details"
+                  >
+                    <FiCode size={12} />
+                    <span>View</span>
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
-        {submissions.map((sub) => {
-          const isPassed = sub.status === "Accepted";
-          const subLang = sub.language || "javascript";
-          return (
-            <div key={sub.submissionId} className="lc-submission-card">
-              <div className="lc-sub-col" style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                <span
-                  className={`lc-sub-status-pill ${
-                    isPassed
-                      ? "lc-sub-accepted"
-                      : sub.status === "Wrong Answer"
-                      ? "lc-sub-wrong"
-                      : "lc-sub-error"
-                  }`}
-                >
-                  {isPassed ? <FiCheckCircle size={13} /> : <FiXCircle size={13} />}
-                  <span>{sub.status}</span>
-                </span>
-                <span className={`lc-sub-lang-pill ${subLang === "java" ? "java" : "javascript"}`}>
-                  {subLang === "java" ? "Java" : "JS"}
-                </span>
-              </div>
-
-              <div
-                className="lc-sub-col"
-                style={{
-                  color: isPassed ? "var(--lc-easy)" : sub.status === "Wrong Answer" ? "#f87171" : "#fbbf24",
-                  fontWeight: 600,
-                }}
-              >
-                {sub.passedTestCases} / {sub.totalTestCases || 10}
-              </div>
-
-              <div className="lc-sub-col" style={{ color: "#9ca3af", fontFamily: "monospace", fontSize: "0.85rem" }}>
-                {sub.totalRuntime} ms
-              </div>
-
-              <div className="lc-sub-col" style={{ color: "#6b7280", fontSize: "0.8rem" }}>
-                {new Date(sub.submittedAt).toLocaleDateString()} {new Date(sub.submittedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-              </div>
-
-              <div className="lc-sub-col lc-sub-actions">
-                <button
-                  onClick={() => {
-                    if (sub.language && sub.language !== selectedLanguage) {
-                      setSelectedLanguage(sub.language);
-                    }
-                    setCode(sub.code);
-                    if (problem && typeof window !== "undefined") {
-                      localStorage.setItem(`learnix_code_${problem.problemId}_${sub.language || selectedLanguage}`, sub.code);
-                    }
-                    alert(`Restored ${sub.language ? sub.language.toUpperCase() : "solution"} into code editor!`);
-                  }}
-                  className="lc-sub-btn"
-                  title="Load code and language into editor"
-                >
-                  <FiRotateCcw size={12} />
-                  <span>Load</span>
-                </button>
-                <button
-                  onClick={() => setSelectedSubmission(sub)}
-                  className="lc-sub-btn lc-sub-btn-primary"
-                  title="View code and details"
-                >
-                  <FiCode size={12} />
-                  <span>View</span>
-                </button>
-              </div>
-            </div>
-          );
-        })}
       </div>
     );
   }
@@ -759,7 +770,9 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     );
   }
 
-  const sampleCases = problem?.sampleCases || [];
+  const sampleCases = (problem?.sampleCases && problem.sampleCases.length > 0)
+    ? problem.sampleCases
+    : (problem?.testCases?.slice(0, 3) || []);
 
   return (
     <div className="lc-workspace">
@@ -1296,14 +1309,22 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                         <div className="lc-param-label">Input</div>
                         <div className="lc-param-box">
                           {sampleCases[selectedCaseIdx].rawInput ||
-                            JSON.stringify(sampleCases[selectedCaseIdx].input)}
+                            (Array.isArray(sampleCases[selectedCaseIdx].input)
+                              ? sampleCases[selectedCaseIdx].input
+                                  .map((v) => (typeof v === "object" ? JSON.stringify(v) : String(v)))
+                                  .join(", ")
+                              : typeof sampleCases[selectedCaseIdx].input === "object"
+                              ? JSON.stringify(sampleCases[selectedCaseIdx].input)
+                              : String(sampleCases[selectedCaseIdx].input ?? "N/A"))}
                         </div>
                       </div>
 
                       <div className="lc-param-block">
                         <div className="lc-param-label">Expected Output</div>
                         <div className="lc-param-box">
-                          {JSON.stringify(sampleCases[selectedCaseIdx].expectedOutput)}
+                          {typeof sampleCases[selectedCaseIdx].expectedOutput === "object"
+                            ? JSON.stringify(sampleCases[selectedCaseIdx].expectedOutput)
+                            : String(sampleCases[selectedCaseIdx].expectedOutput ?? "N/A")}
                         </div>
                       </div>
 
@@ -1419,14 +1440,29 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
                           {executionResult.results[selectedResultIdx] && (
                             <div>
-                              {executionResult.results[selectedResultIdx].rawInput && (
-                                <div className="lc-param-block">
-                                  <div className="lc-param-label">Input</div>
-                                  <div className="lc-param-box">
-                                    {executionResult.results[selectedResultIdx].rawInput}
-                                  </div>
+                              {/* Always display Input for the test case */}
+                              <div className="lc-param-block">
+                                <div className="lc-param-label">Input</div>
+                                <div className="lc-param-box">
+                                  {executionResult.results[selectedResultIdx].rawInput ||
+                                    (executionResult.results[selectedResultIdx].input !== undefined
+                                      ? (Array.isArray(executionResult.results[selectedResultIdx].input)
+                                          ? executionResult.results[selectedResultIdx].input
+                                              .map((v) => (typeof v === "object" ? JSON.stringify(v) : String(v)))
+                                              .join(", ")
+                                          : typeof executionResult.results[selectedResultIdx].input === "object"
+                                          ? JSON.stringify(executionResult.results[selectedResultIdx].input)
+                                          : String(executionResult.results[selectedResultIdx].input))
+                                      : (sampleCases[selectedResultIdx]?.rawInput ||
+                                         (Array.isArray(sampleCases[selectedResultIdx]?.input)
+                                           ? sampleCases[selectedResultIdx].input
+                                               .map((v) => (typeof v === "object" ? JSON.stringify(v) : String(v)))
+                                               .join(", ")
+                                           : typeof sampleCases[selectedResultIdx]?.input === "object"
+                                           ? JSON.stringify(sampleCases[selectedResultIdx].input)
+                                           : String(sampleCases[selectedResultIdx]?.input ?? "N/A"))))}
                                 </div>
-                              )}
+                              </div>
 
                               <div className="lc-param-block">
                                 <div className="lc-param-label">Output</div>
@@ -1438,19 +1474,19 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                                       : "var(--lc-hard)",
                                   }}
                                 >
-                                  {JSON.stringify(
-                                    executionResult.results[selectedResultIdx].actualOutput
-                                  )}
+                                  {typeof executionResult.results[selectedResultIdx].actualOutput === "object"
+                                    ? JSON.stringify(executionResult.results[selectedResultIdx].actualOutput)
+                                    : String(executionResult.results[selectedResultIdx].actualOutput ?? "None")}
                                 </div>
                               </div>
 
                               {executionResult.results[selectedResultIdx].expectedOutput !== undefined && (
                                 <div className="lc-param-block">
-                                  <div className="lc-param-label">Expected</div>
+                                  <div className="lc-param-label">Expected Output</div>
                                   <div className="lc-param-box">
-                                    {JSON.stringify(
-                                      executionResult.results[selectedResultIdx].expectedOutput
-                                    )}
+                                    {typeof executionResult.results[selectedResultIdx].expectedOutput === "object"
+                                      ? JSON.stringify(executionResult.results[selectedResultIdx].expectedOutput)
+                                      : String(executionResult.results[selectedResultIdx].expectedOutput)}
                                   </div>
                                 </div>
                               )}

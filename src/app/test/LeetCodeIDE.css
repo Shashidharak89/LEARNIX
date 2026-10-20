@@ -946,20 +946,6 @@
   background: #555555;
 }
 
-@media (max-width: 900px) {
-  .lc-body {
-    flex-direction: column;
-    overflow-y: auto;
-  }
-  .lc-left-pane {
-    max-width: 100%;
-    min-height: 400px;
-  }
-  .lc-right-pane {
-    min-height: 600px;
-  }
-}
-
 /* ── User Navbar Elements ── */
 .lc-user-pill {
   display: inline-flex;
@@ -1016,11 +1002,18 @@
 }
 
 /* ── Submissions List & Cards ── */
+.lc-submissions-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .lc-submissions-list {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   padding: 0.25rem 0;
+  min-width: 100%;
 }
 
 .lc-submissions-header-row {
@@ -1048,9 +1041,184 @@
   transition: all 0.15s ease;
 }
 
+.lc-sub-mobile-label {
+  display: none;
+}
+
 .lc-submission-card:hover {
   background: #272727;
   border-color: #444444;
+}
+
+/* ── Responsive Coding Page & Submissions Layout ── */
+@media (max-width: 900px) {
+  .lc-workspace {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .lc-navbar {
+    height: auto;
+    min-height: 52px;
+    padding: 0.6rem 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: space-between;
+  }
+
+  .lc-nav-left {
+    gap: 0.6rem;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .lc-problem-select-btn {
+    max-width: 180px;
+    font-size: 0.8rem;
+  }
+
+  .lc-nav-center {
+    order: 3;
+    width: 100%;
+    justify-content: stretch;
+    gap: 0.6rem;
+    padding-top: 0.4rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .lc-nav-center .lc-btn-action {
+    flex: 1;
+    justify-content: center;
+    padding: 0.5rem 0.85rem;
+  }
+
+  .lc-body {
+    flex-direction: column;
+    overflow-y: visible;
+    height: auto;
+  }
+
+  .lc-left-pane {
+    max-width: 100% !important;
+    width: 100% !important;
+    flex: none !important;
+    min-height: 380px;
+    max-height: 500px;
+    border-right: none;
+    border-bottom: 2px solid var(--lc-border);
+  }
+
+  .lc-resizer-vertical {
+    display: none !important;
+  }
+
+  .lc-right-pane {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: none !important;
+    min-height: 650px;
+    height: auto;
+  }
+
+  .lc-editor-card {
+    min-height: 380px;
+    height: 420px;
+  }
+
+  .lc-resizer-horizontal {
+    display: none !important;
+  }
+
+  .lc-corner-resizer {
+    display: none !important;
+  }
+
+  .lc-console-card {
+    height: auto !important;
+    min-height: 280px;
+    max-height: 550px;
+  }
+
+  .lc-modal-box {
+    width: 95vw;
+    max-width: 95vw;
+    max-height: 88vh;
+  }
+
+  .lc-modal-body {
+    max-height: calc(88vh - 75px);
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 680px) {
+  .lc-submissions-header-row {
+    display: none;
+  }
+
+  .lc-submission-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    padding: 0.85rem 1rem;
+    background: #222222;
+    border-radius: 8px;
+  }
+
+  .lc-sub-mobile-label {
+    display: inline;
+    color: #9ca3af;
+    font-size: 0.78rem;
+    font-weight: 500;
+    margin-right: 0.35rem;
+  }
+
+  .lc-sub-col {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .lc-sub-col-status {
+    justify-content: flex-start;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .lc-sub-col-actions {
+    justify-content: flex-end;
+    padding-top: 0.35rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .lc-editor-header {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    height: auto;
+    padding: 0.4rem 0.6rem;
+  }
+
+  .lc-action-btn span {
+    display: none;
+  }
+
+  .lc-tab-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.78rem;
+  }
+
+  .lc-case-chip {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.78rem;
+  }
+
+  .lc-problem-select-btn {
+    max-width: 140px;
+    font-size: 0.78rem;
+  }
 }
 
 .lc-sub-col {
