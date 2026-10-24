@@ -9,7 +9,7 @@ export async function GET() {
     const res = await docClient.send(
       new ScanCommand({
         TableName: PROBLEMS_TABLE,
-        ProjectionExpression: "problemId, slug, title, difficulty, tags, #ord, isActive",
+        ProjectionExpression: "problemId, slug, title, difficulty, tags, topicIds, #ord, isActive",
         ExpressionAttributeNames: {
           "#ord": "order",
         },

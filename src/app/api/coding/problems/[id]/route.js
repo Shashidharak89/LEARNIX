@@ -94,6 +94,7 @@ export async function GET(req, { params }) {
         title: problem.title,
         difficulty: problem.difficulty,
         tags: problem.tags || [],
+        topicIds: problem.topicIds || [],
         description: problem.description,
         inputFormat: problem.inputFormat,
         outputFormat: problem.outputFormat,

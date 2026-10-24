@@ -127,6 +127,7 @@ export async function POST(req) {
         slug,
         difficulty = "Easy",
         tags = [],
+        topicIds = [],
         description = "",
         inputFormat = "",
         outputFormat = "",
@@ -211,12 +212,42 @@ export async function POST(req) {
         ...templates,
       };
 
+      // Normalize topicIds
+      let normalizedTopicIds = Array.isArray(topicIds)
+        ? topicIds
+        : Array.isArray(probData.topics)
+        ? probData.topics
+        : typeof topicIds === "string"
+        ? topicIds.split(",").map((t) => t.trim().toLowerCase()).filter(Boolean)
+        : [];
+
+      let normalizedTags = Array.isArray(tags)
+        ? tags
+        : typeof tags === "string"
+        ? tags.split(",").map((t) => t.trim()).filter(Boolean)
+        : [];
+
+      // If topicIds provided but tags empty, format topicIds into display tags
+      if (normalizedTags.length === 0 && normalizedTopicIds.length > 0) {
+        normalizedTags = normalizedTopicIds.map(
+          (tid) => tid.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
+        );
+      }
+
+      // If tags provided but topicIds empty, infer topicIds from tags
+      if (normalizedTopicIds.length === 0 && normalizedTags.length > 0) {
+        normalizedTopicIds = normalizedTags.map((t) =>
+          t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "")
+        );
+      }
+
       const problemItem = {
         problemId,
         slug: cleanSlug,
         title,
         difficulty,
-        tags: Array.isArray(tags) ? tags : [],
+        tags: normalizedTags,
+        topicIds: normalizedTopicIds,
         description,
         inputFormat,
         outputFormat,

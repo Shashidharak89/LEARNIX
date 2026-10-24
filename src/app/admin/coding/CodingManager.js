@@ -20,15 +20,168 @@ import {
   FiAlertCircle,
   FiDownload,
   FiClipboard,
+  FiTag,
 } from "react-icons/fi";
 import "./CodingManager.css";
 
-// ─── Dummy Sample JSON Template (Bulk Array Format) ──────────────────────────
+// ─── Preformatted Sample JSON String with Topic IDs Reference & Comments ─────
+const SAMPLE_PROBLEM_JSON_STRING = `/*
+  =============================================================================
+  LEARNIX CODING — TOPIC REFERENCE GUIDE
+  -----------------------------------------------------------------------------
+  Use these topic IDs inside "topicIds": [ "topic-id-1", ... ]:
+  
+  • "arrays"              -> Arrays
+  • "hash-table"          -> Hash Table
+  • "strings"             -> Strings
+  • "math"                -> Math
+  • "two-pointers"        -> Two Pointers
+  • "dynamic-programming" -> Dynamic Programming
+  • "binary-search"       -> Binary Search
+  • "sorting"             -> Sorting
+  • "recursion"           -> Recursion
+  • "stack"               -> Stack
+  • "queue"               -> Queue
+  • "linked-list"         -> Linked List
+  • "trees"               -> Trees
+  • "binary-tree"         -> Binary Tree
+  • "graphs"              -> Graphs
+  • "sliding-window"      -> Sliding Window
+  • "greedy"              -> Greedy
+  • "heap"                -> Heap (Priority Queue)
+  • "backtracking"        -> Backtracking
+  • "bit-manipulation"    -> Bit Manipulation
+  • "matrix"              -> Matrix
+  • "basics"              -> Basics
+  =============================================================================
+*/
+[
+  {
+    "title": "Add Two Numbers",
+    "slug": "add-two-numbers",
+    "difficulty": "Easy",
+    "topicIds": [
+      "math",     // this id belongs to topic: Math
+      "basics"    // this id belongs to topic: Basics
+    ],
+    "description": "### Problem Statement\\n\\nGiven two integers \`a\` and \`b\`, return their sum.\\n\\n### Example 1:\\n**Input:** \`a = 2, b = 3\`\\n**Output:** \`5\`\\n**Explanation:** \`2 + 3 = 5\`\\n\\n### Example 2:\\n**Input:** \`a = -5, b = 10\`\\n**Output:** \`5\`\\n\\n### Example 3:\\n**Input:** \`a = 0, b = 0\`\\n**Output:** \`0\`",
+    "inputFormat": "Two integers \`a\` and \`b\` passed as function arguments.",
+    "outputFormat": "Return an integer representing the sum of \`a\` and \`b\`.",
+    "constraints": [
+      "-10^9 <= a <= 10^9",
+      "-10^9 <= b <= 10^9"
+    ],
+    "functionName": "addTwoNumbers",
+    "parameters": [
+      { "name": "a", "type": "number" },
+      { "name": "b", "type": "number" }
+    ],
+    "returnType": "number",
+    "boilerplateCode": "/**\\n * @param {number} a\\n * @param {number} b\\n * @return {number}\\n */\\nfunction addTwoNumbers(a, b) {\\n    // Write your code here\\n}",
+    "javaBoilerplate": "class Solution {\\n    public int addTwoNumbers(int a, int b) {\\n        // Write your code here\\n        return 0;\\n    }\\n}",
+    "isActive": true,
+    "testCases": [
+      {
+        "testCaseId": "tc_01",
+        "order": 1,
+        "input": [2, 3],
+        "rawInput": "a = 2, b = 3",
+        "expectedOutput": 5,
+        "isSample": true,
+        "explanation": "2 + 3 = 5"
+      },
+      {
+        "testCaseId": "tc_02",
+        "order": 2,
+        "input": [-5, 10],
+        "rawInput": "a = -5, b = 10",
+        "expectedOutput": 5,
+        "isSample": true,
+        "explanation": "-5 + 10 = 5"
+      },
+      {
+        "testCaseId": "tc_03",
+        "order": 3,
+        "input": [0, 0],
+        "rawInput": "a = 0, b = 0",
+        "expectedOutput": 0,
+        "isSample": true,
+        "explanation": "0 + 0 = 0"
+      },
+      {
+        "testCaseId": "tc_04",
+        "order": 4,
+        "input": [100, 250],
+        "rawInput": "a = 100, b = 250",
+        "expectedOutput": 350,
+        "isSample": false,
+        "explanation": "100 + 250 = 350"
+      }
+    ]
+  },
+  {
+    "title": "Multiply Two Numbers",
+    "slug": "multiply-two-numbers",
+    "difficulty": "Easy",
+    "topicIds": [
+      "math",     // this id belongs to topic: Math
+      "basics"    // this id belongs to topic: Basics
+    ],
+    "description": "### Problem Statement\\n\\nGiven two integers \`a\` and \`b\`, return their product.\\n\\n### Example 1:\\n**Input:** \`a = 4, b = 5\`\\n**Output:** \`20\`\\n**Explanation:** \`4 * 5 = 20\`\\n\\n### Example 2:\\n**Input:** \`a = -3, b = 7\`\\n**Output:** \`-21\`\\n**Explanation:** \`-3 * 7 = -21\`",
+    "inputFormat": "Two integers \`a\` and \`b\` passed as function arguments.",
+    "outputFormat": "Return an integer representing the product of \`a\` and \`b\`.",
+    "constraints": [
+      "-10^4 <= a <= 10^4",
+      "-10^4 <= b <= 10^4"
+    ],
+    "functionName": "multiplyTwoNumbers",
+    "parameters": [
+      { "name": "a", "type": "number" },
+      { "name": "b", "type": "number" }
+    ],
+    "returnType": "number",
+    "boilerplateCode": "/**\\n * @param {number} a\\n * @param {number} b\\n * @return {number}\\n */\\nfunction multiplyTwoNumbers(a, b) {\\n    // Write your code here\\n}",
+    "javaBoilerplate": "class Solution {\\n    public int multiplyTwoNumbers(int a, int b) {\\n        // Write your code here\\n        return 0;\\n    }\\n}",
+    "isActive": true,
+    "testCases": [
+      {
+        "testCaseId": "tc_01",
+        "order": 1,
+        "input": [4, 5],
+        "rawInput": "a = 4, b = 5",
+        "expectedOutput": 20,
+        "isSample": true,
+        "explanation": "4 * 5 = 20"
+      },
+      {
+        "testCaseId": "tc_02",
+        "order": 2,
+        "input": [-3, 7],
+        "rawInput": "a = -3, b = 7",
+        "expectedOutput": -21,
+        "isSample": true,
+        "explanation": "-3 * 7 = -21"
+      },
+      {
+        "testCaseId": "tc_03",
+        "order": 3,
+        "input": [12, 12],
+        "rawInput": "a = 12, b = 12",
+        "expectedOutput": 144,
+        "isSample": false,
+        "explanation": "12 * 12 = 144"
+      }
+    ]
+  }
+]`;
+
+// ─── Dummy Sample JSON Template (Bulk Array Format Object) ───────────────────
 const SAMPLE_PROBLEM_JSON = [
   {
     title: "Add Two Numbers",
     slug: "add-two-numbers",
     difficulty: "Easy",
+    topicIds: ["math", "basics"],
     tags: ["Math", "Basics"],
     description: "### Problem Statement\n\nGiven two integers `a` and `b`, return their sum.\n\n### Example 1:\n**Input:** `a = 2, b = 3`\n**Output:** `5`\n**Explanation:** `2 + 3 = 5`\n\n### Example 2:\n**Input:** `a = -5, b = 10`\n**Output:** `5`\n\n### Example 3:\n**Input:** `a = 0, b = 0`\n**Output:** `0`",
     inputFormat: "Two integers `a` and `b` passed as function arguments.",
@@ -101,6 +254,7 @@ function addTwoNumbers(a, b) {
     title: "Multiply Two Numbers",
     slug: "multiply-two-numbers",
     difficulty: "Easy",
+    topicIds: ["math", "basics"],
     tags: ["Math", "Basics"],
     description: "### Problem Statement\n\nGiven two integers `a` and `b`, return their product.\n\n### Example 1:\n**Input:** `a = 4, b = 5`\n**Output:** `20`\n**Explanation:** `4 * 5 = 20`\n\n### Example 2:\n**Input:** `a = -3, b = 7`\n**Output:** `-21`\n**Explanation:** `-3 * 7 = -21`",
     inputFormat: "Two integers `a` and `b` passed as function arguments.",
@@ -181,12 +335,22 @@ export default function CodingManager() {
   const [jsonCopied, setJsonCopied] = useState(false);
   const [jsonSaving, setJsonSaving] = useState(false);
 
+  // Topic Management State
+  const [topics, setTopics] = useState([]);
+  const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
+  const [newTopicName, setNewTopicName] = useState("");
+  const [newTopicId, setNewTopicId] = useState("");
+  const [newTopicDesc, setNewTopicDesc] = useState("");
+  const [topicSaving, setTopicSaving] = useState(false);
+  const [topicCopied, setTopicCopied] = useState("");
+
   // Form Fields
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
     difficulty: "Easy",
-    tags: "Math, Algorithms",
+    tags: "Math, Basics",
+    topicIds: ["math", "basics"],
     description: "",
     inputFormat: "",
     outputFormat: "",
@@ -222,7 +386,87 @@ export default function CodingManager() {
     const storedToken = localStorage.getItem("token") || "";
     setToken(storedToken);
     fetchProblems(storedToken);
+    fetchTopics(storedToken);
   }, []);
+
+  async function fetchTopics(authToken) {
+    try {
+      const res = await fetch("/api/admin/coding/topics", {
+        headers: { Authorization: `Bearer ${authToken || token}` },
+      });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.topics)) {
+        setTopics(data.topics);
+      }
+    } catch (err) {
+      console.error("Failed to load topics:", err);
+    }
+  }
+
+  async function handleCreateTopic(e) {
+    if (e) e.preventDefault();
+    if (!newTopicName.trim()) {
+      alert("Please enter a Topic Name.");
+      return;
+    }
+    setTopicSaving(true);
+    try {
+      const res = await fetch("/api/admin/coding/topics", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: newTopicName.trim(),
+          topicId: newTopicId.trim() || undefined,
+          description: newTopicDesc.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.topic) {
+        setTopics((prev) => [...prev, data.topic]);
+        setNewTopicName("");
+        setNewTopicId("");
+        setNewTopicDesc("");
+        alert(data.message || `Topic "${data.topic.name}" created successfully!`);
+      } else {
+        alert(data.error || "Failed to create topic");
+      }
+    } catch (err) {
+      alert("Error creating topic: " + err.message);
+    } finally {
+      setTopicSaving(false);
+    }
+  }
+
+  function toggleTopicSelection(tId, tName) {
+    setFormData((prev) => {
+      const currentIds = Array.isArray(prev.topicIds) ? [...prev.topicIds] : [];
+      const currentTags = (prev.tags || "").split(",").map((t) => t.trim()).filter(Boolean);
+
+      let nextIds;
+      let nextTags;
+
+      if (currentIds.includes(tId)) {
+        nextIds = currentIds.filter((id) => id !== tId);
+        nextTags = currentTags.filter((t) => t.toLowerCase() !== tName.toLowerCase());
+      } else {
+        nextIds = [...currentIds, tId];
+        if (!currentTags.some((t) => t.toLowerCase() === tName.toLowerCase())) {
+          nextTags = [...currentTags, tName];
+        } else {
+          nextTags = currentTags;
+        }
+      }
+
+      return {
+        ...prev,
+        topicIds: nextIds,
+        tags: nextTags.join(", "),
+      };
+    });
+  }
 
   async function fetchProblems(jwtToken) {
     setLoading(true);
@@ -323,6 +567,7 @@ function ${funcName || "solution"}(${paramNames}) {
       slug: "",
       difficulty: "Easy",
       tags: "Math, Basics",
+      topicIds: ["math", "basics"],
       description: "### Problem Statement\n\nGiven two integers a and b, return their sum.",
       inputFormat: "Two integers passed as function arguments.",
       outputFormat: "Return the calculated integer result.",
@@ -347,8 +592,7 @@ function ${funcName || "solution"}(${paramNames}) {
     });
 
     if (initialTab === "json" && !jsonInput) {
-      const sampleStr = JSON.stringify(SAMPLE_PROBLEM_JSON, null, 2);
-      setJsonInput(sampleStr);
+      setJsonInput(SAMPLE_PROBLEM_JSON_STRING);
       setJsonParsed(SAMPLE_PROBLEM_JSON);
       setJsonError(null);
     }
@@ -406,9 +650,8 @@ function ${funcName || "solution"}(${paramNames}) {
   }
 
   function handleCopySample() {
-    const text = JSON.stringify(SAMPLE_PROBLEM_JSON, null, 2);
     if (typeof navigator !== "undefined" && navigator?.clipboard?.writeText) {
-      navigator.clipboard.writeText(text);
+      navigator.clipboard.writeText(SAMPLE_PROBLEM_JSON_STRING);
       setJsonCopied(true);
       setTimeout(() => setJsonCopied(false), 2200);
     } else {
@@ -417,8 +660,7 @@ function ${funcName || "solution"}(${paramNames}) {
   }
 
   function handleLoadSample() {
-    const text = JSON.stringify(SAMPLE_PROBLEM_JSON, null, 2);
-    setJsonInput(text);
+    setJsonInput(SAMPLE_PROBLEM_JSON_STRING);
     setJsonParsed(SAMPLE_PROBLEM_JSON);
     setJsonError(null);
   }
@@ -501,15 +743,36 @@ function ${funcName || "solution"}(${paramNames}) {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)+/g, "");
 
+    // Extract topicIds & tags
+    let rawTopicIds = item.topicIds || item.topics || [];
+    if (typeof rawTopicIds === "string") {
+      rawTopicIds = rawTopicIds.split(",").map((t) => t.trim().toLowerCase()).filter(Boolean);
+    }
+    if (!Array.isArray(rawTopicIds)) rawTopicIds = [];
+
+    let rawTags = Array.isArray(item.tags)
+      ? item.tags
+      : typeof item.tags === "string"
+      ? item.tags.split(",").map((t) => t.trim()).filter(Boolean)
+      : [];
+
+    if (rawTags.length === 0 && rawTopicIds.length > 0) {
+      rawTags = rawTopicIds.map((tid) => {
+        const found = topics.find((t) => t.topicId === tid);
+        return found ? found.name : tid.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+      });
+    }
+
+    if (rawTopicIds.length === 0 && rawTags.length > 0) {
+      rawTopicIds = rawTags.map((tag) => tag.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, ""));
+    }
+
     return {
       title,
       slug: cleanSlug,
       difficulty: item.difficulty || "Easy",
-      tags: Array.isArray(item.tags)
-        ? item.tags
-        : typeof item.tags === "string"
-        ? item.tags.split(",").map((t) => t.trim()).filter(Boolean)
-        : ["Basics"],
+      tags: rawTags.length > 0 ? rawTags : ["Basics"],
+      topicIds: rawTopicIds,
       description: item.description || item.statement || "",
       inputFormat: item.inputFormat || "",
       outputFormat: item.outputFormat || "",
@@ -656,6 +919,7 @@ function ${funcName || "solution"}(${paramNames}) {
           slug: p.slug || p.problemId,
           difficulty: p.difficulty || "Easy",
           tags: Array.isArray(p.tags) ? p.tags.join(", ") : "",
+          topicIds: Array.isArray(p.topicIds) ? p.topicIds : (Array.isArray(p.tags) ? p.tags.map((t) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "")) : []),
           description: p.description || "",
           inputFormat: p.inputFormat || "",
           outputFormat: p.outputFormat || "",
@@ -710,6 +974,7 @@ function ${funcName || "solution"}(${paramNames}) {
         slug: formData.slug || formData.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
         difficulty: formData.difficulty,
         tags: formData.tags.split(",").map((t) => t.trim()).filter(Boolean),
+        topicIds: Array.isArray(formData.topicIds) ? formData.topicIds : [],
         description: formData.description,
         inputFormat: formData.inputFormat,
         outputFormat: formData.outputFormat,
@@ -842,6 +1107,13 @@ function ${funcName || "solution"}(${paramNames}) {
           <Link href="/admin" className="ac-btn ac-btn-outline">
             <FiArrowLeft /> Back to Admin
           </Link>
+          <button
+            onClick={() => setIsTopicModalOpen(true)}
+            className="ac-btn ac-btn-outline"
+            title="Manage and create topics"
+          >
+            <FiTag /> Topics ({topics.length})
+          </button>
           <Link href="/test" target="_blank" className="ac-btn ac-btn-outline">
             <FiExternalLink /> Live /test Page
           </Link>
@@ -905,11 +1177,21 @@ function ${funcName || "solution"}(${paramNames}) {
               <div className="ac-card-desc">{p.description}</div>
 
               <div className="ac-tags">
-                {(p.tags || []).map((t, idx) => (
-                  <span key={idx} className="ac-tag">
-                    {t}
-                  </span>
-                ))}
+                {(p.topicIds && p.topicIds.length > 0
+                  ? p.topicIds.map((tid, idx) => {
+                      const found = topics.find((t) => t.topicId === tid);
+                      return (
+                        <span key={idx} className="ac-tag" title={`Topic ID: ${tid}`}>
+                          <FiTag style={{ fontSize: "0.7rem", marginRight: "3px" }} />
+                          {found ? found.name : tid}
+                        </span>
+                      );
+                    })
+                  : (p.tags || []).map((t, idx) => (
+                      <span key={idx} className="ac-tag">
+                        {t}
+                      </span>
+                    )))}
               </div>
             </div>
 
@@ -1049,6 +1331,49 @@ function ${funcName || "solution"}(${paramNames}) {
                       >
                         <FiTrash2 /> Clear
                       </button>
+                    </div>
+                  </div>
+
+                  {/* Topic IDs Reference Guide Bar */}
+                  <div className="ac-topic-guide-bar">
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", flexWrap: "wrap", gap: "0.5rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
+                        <FiTag color="#2563eb" size={16} />
+                        <span style={{ fontWeight: 700, fontSize: "0.85rem", color: "#1e3a8a" }}>
+                          Available Topic IDs ({topics.length}):
+                        </span>
+                        <span style={{ fontSize: "0.78rem", color: "#64748b" }}>
+                          (Click any topic below to copy its ID into your clipboard)
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsTopicModalOpen(true)}
+                        className="ac-json-tool-btn"
+                        style={{ padding: "0.25rem 0.65rem", fontSize: "0.75rem", background: "#ffffff" }}
+                      >
+                        <FiPlus /> Manage / Create Topics
+                      </button>
+                    </div>
+
+                    <div className="ac-topic-chips-scroll" style={{ width: "100%", marginTop: "0.3rem" }}>
+                      {topics.map((t) => (
+                        <span
+                          key={t.topicId}
+                          className="ac-topic-chip-tag"
+                          title={`Click to copy "${t.topicId}"`}
+                          onClick={() => {
+                            if (typeof navigator !== "undefined" && navigator?.clipboard?.writeText) {
+                              navigator.clipboard.writeText(`"${t.topicId}"`);
+                              setTopicCopied(t.topicId);
+                              setTimeout(() => setTopicCopied(""), 2000);
+                            }
+                          }}
+                        >
+                          <span style={{ fontWeight: 600 }}>{t.name}</span>
+                          <code>{topicCopied === t.topicId ? "✓ Copied!" : `"${t.topicId}"`}</code>
+                        </span>
+                      ))}
                     </div>
                   </div>
 
@@ -1299,6 +1624,41 @@ Example structure:
                     placeholder="e.g. 12"
                     className="ac-input"
                   />
+                </div>
+              </div>
+
+              {/* Topics Reference & Interactive Selection */}
+              <div className="ac-form-group">
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.4rem" }}>
+                  <label className="ac-label" style={{ margin: 0, display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                    <FiTag color="#2563eb" /> Topics Reference <span style={{ fontSize: "0.75rem", color: "#64748b" }}>(Click pill to toggle topic IDs)</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsTopicModalOpen(true)}
+                    className="ac-btn ac-btn-secondary"
+                    style={{ padding: "0.25rem 0.65rem", fontSize: "0.75rem" }}
+                  >
+                    <FiPlus /> Manage / Create Topics
+                  </button>
+                </div>
+
+                <div className="ac-topic-pills-wrap">
+                  {topics.map((top) => {
+                    const isSelected = (formData.topicIds || []).includes(top.topicId);
+                    return (
+                      <span
+                        key={top.topicId}
+                        onClick={() => toggleTopicSelection(top.topicId, top.name)}
+                        className={`ac-topic-pill ${isSelected ? "selected" : ""}`}
+                        title={top.description || top.name}
+                      >
+                        {isSelected && <FiCheck size={12} />}
+                        <span>{top.name}</span>
+                        <code>({top.topicId})</code>
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -1601,6 +1961,136 @@ Example structure:
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Topics Management Modal */}
+      {isTopicModalOpen && (
+        <div className="ac-modal-overlay">
+          <div className="ac-modal" style={{ maxWidth: "800px", maxHeight: "90vh" }}>
+            <div className="ac-modal-header">
+              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                <FiTag color="#2563eb" size={22} />
+                <h2 style={{ margin: 0, fontSize: "1.25rem" }}>Coding Topics Management</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsTopicModalOpen(false)}
+                className="ac-close-btn"
+              >
+                <FiX />
+              </button>
+            </div>
+
+            <div className="ac-modal-body" style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+              {/* Create New Topic Box */}
+              <form onSubmit={handleCreateTopic} style={{ background: "#f8fafc", padding: "1.25rem", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
+                <h4 style={{ margin: "0 0 0.75rem 0", display: "flex", alignItems: "center", gap: "0.4rem", color: "#0f172a" }}>
+                  <FiPlus /> Create New Coding Topic
+                </h4>
+                <div className="ac-form-row">
+                  <div className="ac-form-group">
+                    <label className="ac-label">Topic Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={newTopicName}
+                      onChange={(e) => {
+                        setNewTopicName(e.target.value);
+                        if (!newTopicId || newTopicId === newTopicName.toLowerCase().replace(/[^a-z0-9]+/g, "-")) {
+                          setNewTopicId(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, ""));
+                        }
+                      }}
+                      placeholder="e.g. Bitmask"
+                      className="ac-input"
+                    />
+                  </div>
+                  <div className="ac-form-group">
+                    <label className="ac-label">Topic ID / Slug (used in problem references)</label>
+                    <input
+                      type="text"
+                      value={newTopicId}
+                      onChange={(e) => setNewTopicId(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-"))}
+                      placeholder="e.g. bitmask (auto if blank)"
+                      className="ac-input"
+                    />
+                  </div>
+                </div>
+                <div className="ac-form-group" style={{ marginTop: "0.5rem" }}>
+                  <label className="ac-label">Description (optional)</label>
+                  <input
+                    type="text"
+                    value={newTopicDesc}
+                    onChange={(e) => setNewTopicDesc(e.target.value)}
+                    placeholder="Short description of this coding algorithmic concept..."
+                    className="ac-input"
+                  />
+                </div>
+                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "0.75rem" }}>
+                  <button
+                    type="submit"
+                    disabled={topicSaving || !newTopicName.trim()}
+                    className="ac-btn ac-btn-primary"
+                  >
+                    {topicSaving ? <FiRefreshCw className="animate-spin" /> : <FiPlus />}
+                    <span>{topicSaving ? "Creating..." : "Create Topic"}</span>
+                  </button>
+                </div>
+              </form>
+
+              {/* Existing Topics List */}
+              <div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.6rem" }}>
+                  <h4 style={{ margin: 0, color: "#0f172a", fontSize: "1rem" }}>
+                    All Topics ({topics.length})
+                  </h4>
+                  <span style={{ fontSize: "0.8rem", color: "#64748b" }}>
+                    Click ID to copy to clipboard
+                  </span>
+                </div>
+
+                <div className="ac-topics-grid">
+                  {topics.map((t) => (
+                    <div key={t.topicId} className="ac-topic-card">
+                      <div className="ac-topic-card-header">
+                        <span className="ac-topic-card-title">{t.name}</span>
+                        <span
+                          className="ac-topic-card-id"
+                          title="Click to copy ID"
+                          onClick={() => {
+                            if (typeof navigator !== "undefined" && navigator?.clipboard?.writeText) {
+                              navigator.clipboard.writeText(t.topicId);
+                              setTopicCopied(t.topicId);
+                              setTimeout(() => setTopicCopied(""), 2000);
+                            }
+                          }}
+                        >
+                          {topicCopied === t.topicId ? "✓ Copied" : t.topicId}
+                        </span>
+                      </div>
+                      <div className="ac-topic-card-desc">
+                        {t.description || "No description provided."}
+                      </div>
+                      <div style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: "auto", display: "flex", justifyContent: "space-between" }}>
+                        <span>Order #{t.order || "—"}</span>
+                        <span>{t.problemsCount !== undefined ? `${t.problemsCount} problem(s)` : ""}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="ac-modal-sticky-footer" style={{ justifyContent: "flex-end" }}>
+              <button
+                type="button"
+                onClick={() => setIsTopicModalOpen(false)}
+                className="ac-btn ac-btn-secondary"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
