@@ -12,18 +12,54 @@ export async function GET(req) {
       return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(req.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const size = Math.max(1, parseInt(searchParams.get("size") || "20", 10));
+    const search = (searchParams.get("search") || "").trim().toLowerCase();
+    const difficulty = (searchParams.get("difficulty") || "all").trim();
+
     const scanRes = await docClient.send(
       new ScanCommand({
         TableName: PROBLEMS_TABLE,
       })
     );
 
-    const problems = scanRes.Items || [];
-    problems.sort((a, b) => (a.order || 999) - (b.order || 999));
+    let allProblems = scanRes.Items || [];
 
-    // For each problem, get testcase count
+    // Filter by difficulty if specified
+    if (difficulty && difficulty !== "all") {
+      allProblems = allProblems.filter(
+        (p) => p.difficulty && p.difficulty.toLowerCase() === difficulty.toLowerCase()
+      );
+    }
+
+    // Filter by search keyword if specified
+    if (search) {
+      allProblems = allProblems.filter((p) => {
+        const matchesTitle = p.title && p.title.toLowerCase().includes(search);
+        const matchesSlug = p.slug && p.slug.toLowerCase().includes(search);
+        const matchesId = p.problemId && p.problemId.toLowerCase().includes(search);
+        const matchesOrder = String(p.order || "").includes(search);
+        const matchesTags = Array.isArray(p.tags) && p.tags.some((t) => t.toLowerCase().includes(search));
+        const matchesTopics = Array.isArray(p.topicIds) && p.topicIds.some((tid) => tid.toLowerCase().includes(search));
+        const matchesDesc = p.description && p.description.toLowerCase().includes(search);
+        return matchesTitle || matchesSlug || matchesId || matchesOrder || matchesTags || matchesTopics || matchesDesc;
+      });
+    }
+
+    // Sort by order ascending
+    allProblems.sort((a, b) => (a.order || 999) - (b.order || 999));
+
+    const total = allProblems.length;
+    const totalPages = Math.ceil(total / size);
+    const startIndex = (page - 1) * size;
+    const endIndex = startIndex + size;
+    const sliced = allProblems.slice(startIndex, endIndex);
+    const hasMore = endIndex < total;
+
+    // For the requested slice only, get testcase count
     const enriched = await Promise.all(
-      problems.map(async (p) => {
+      sliced.map(async (p) => {
         try {
           const tcRes = await docClient.send(
             new QueryCommand({
@@ -43,7 +79,15 @@ export async function GET(req) {
       })
     );
 
-    return NextResponse.json({ success: true, problems: enriched });
+    return NextResponse.json({
+      success: true,
+      problems: enriched,
+      page,
+      size,
+      total,
+      totalPages,
+      hasMore,
+    });
   } catch (err) {
     console.error("Admin coding problems fetch error:", err);
     return NextResponse.json(

@@ -25,6 +25,7 @@ import {
   FiSearch,
   FiChevronDown,
   FiChevronUp,
+  FiLoader,
 } from "react-icons/fi";
 import "./CodingManager.css";
 
@@ -351,8 +352,13 @@ export default function CodingManager() {
   const [topicCopied, setTopicCopied] = useState("");
 
   // Toolbar & Filtering State
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [activeSearch, setActiveSearch] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalProblems, setTotalProblems] = useState(0);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   // Collapsible Form Accordions State
   const [formAccordions, setFormAccordions] = useState({
@@ -402,7 +408,7 @@ export default function CodingManager() {
   useEffect(() => {
     const storedToken = localStorage.getItem("token") || "";
     setToken(storedToken);
-    fetchProblems(storedToken);
+    fetchProblems({ jwtToken: storedToken, pageToFetch: 1, search: "", difficulty: "all" });
     fetchTopics(storedToken);
   }, []);
 
@@ -485,18 +491,52 @@ export default function CodingManager() {
     });
   }
 
-  async function fetchProblems(jwtToken) {
-    setLoading(true);
+  async function fetchProblems(options = {}) {
+    const opts = typeof options === "string" ? { jwtToken: options } : options;
+    const {
+      jwtToken,
+      pageToFetch = 1,
+      search = activeSearch,
+      difficulty = difficultyFilter,
+      append = false,
+    } = opts;
+
+    const effectiveToken = jwtToken || token;
+    if (append) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
     setError(null);
+
     try {
-      const res = await fetch("/api/admin/coding/problems", {
+      const params = new URLSearchParams({
+        page: String(pageToFetch),
+        size: "20",
+        search: (search || "").trim(),
+        difficulty: difficulty || "all",
+      });
+
+      const res = await fetch(`/api/admin/coding/problems?${params.toString()}`, {
         headers: {
-          Authorization: `Bearer ${jwtToken || token}`,
+          Authorization: `Bearer ${effectiveToken}`,
         },
       });
       const data = await res.json();
       if (data.success) {
-        setProblems(data.problems || []);
+        const incoming = data.problems || [];
+        if (append) {
+          setProblems((prev) => {
+            const existingIds = new Set(prev.map((p) => p.problemId));
+            const newItems = incoming.filter((p) => !existingIds.has(p.problemId));
+            return [...prev, ...newItems];
+          });
+        } else {
+          setProblems(incoming);
+        }
+        setPage(data.page || pageToFetch);
+        setHasMore(Boolean(data.hasMore));
+        setTotalProblems(typeof data.total === "number" ? data.total : incoming.length);
       } else {
         setError(data.error || "Failed to load problems");
       }
@@ -504,7 +544,60 @@ export default function CodingManager() {
       setError(err.message || "Network error loading problems");
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
+  }
+
+  function handleSearchSubmit(e) {
+    if (e) e.preventDefault();
+    const query = searchInput.trim();
+    setActiveSearch(query);
+    setPage(1);
+    fetchProblems({
+      jwtToken: token,
+      pageToFetch: 1,
+      search: query,
+      difficulty: difficultyFilter,
+      append: false,
+    });
+  }
+
+  function handleClearSearch() {
+    setSearchInput("");
+    if (activeSearch) {
+      setActiveSearch("");
+      setPage(1);
+      fetchProblems({
+        jwtToken: token,
+        pageToFetch: 1,
+        search: "",
+        difficulty: difficultyFilter,
+        append: false,
+      });
+    }
+  }
+
+  function handleDifficultyChange(diff) {
+    setDifficultyFilter(diff);
+    setPage(1);
+    fetchProblems({
+      jwtToken: token,
+      pageToFetch: 1,
+      search: activeSearch,
+      difficulty: diff,
+      append: false,
+    });
+  }
+
+  function handleViewMore() {
+    if (loadingMore || !hasMore) return;
+    fetchProblems({
+      jwtToken: token,
+      pageToFetch: page + 1,
+      search: activeSearch,
+      difficulty: difficultyFilter,
+      append: true,
+    });
   }
 
   function getJavaType(typeStr) {
@@ -577,7 +670,7 @@ function ${funcName || "solution"}(${paramNames}) {
       const o = Number(p.order);
       return !isNaN(o) && o > max ? o : max;
     }, 0);
-    const nextOrder = Math.max(problems.length, maxExistingOrder) + 1;
+    const nextOrder = Math.max(totalProblems || problems.length, maxExistingOrder) + 1;
 
     setFormData({
       title: "",
@@ -1300,23 +1393,6 @@ function ${funcName || "solution"}(${paramNames}) {
     });
   }
 
-  const filteredProblems = problems.filter((p) => {
-    const q = searchQuery.toLowerCase().trim();
-    const matchesSearch =
-      !q ||
-      p.title?.toLowerCase().includes(q) ||
-      p.slug?.toLowerCase().includes(q) ||
-      String(p.order || "").includes(q) ||
-      (p.topicIds && p.topicIds.some((t) => t.toLowerCase().includes(q))) ||
-      (p.tags && p.tags.some((t) => t.toLowerCase().includes(q)));
-
-    const matchesDiff =
-      difficultyFilter === "all" ||
-      (p.difficulty && p.difficulty.toLowerCase() === difficultyFilter.toLowerCase());
-
-    return matchesSearch && matchesDiff;
-  });
-
   return (
     <div className="ac-container">
       {/* Header - Apple Style Clean White */}
@@ -1334,7 +1410,7 @@ function ${funcName || "solution"}(${paramNames}) {
               <div className="ac-header-headline-row">
                 <h1 className="ac-header-title">Coding Problems</h1>
                 <span className="ac-header-stat-pill">
-                  {problems.length} {problems.length === 1 ? "Problem" : "Problems"}
+                  {totalProblems || problems.length} {(totalProblems || problems.length) === 1 ? "Problem" : "Problems"}
                 </span>
                 <span className="ac-header-topic-pill">
                   {topics.length} Topics
@@ -1373,32 +1449,43 @@ function ${funcName || "solution"}(${paramNames}) {
 
       {/* Toolbar: Search & Difficulty Filters */}
       <div className="ac-toolbar">
-        <div className="ac-search-box">
-          <FiSearch className="ac-search-icon" size={16} />
-          <input
-            type="text"
-            placeholder="Search problems by title, topic, or #order..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="ac-search-input"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="ac-search-clear-btn"
-              title="Clear search"
-            >
-              <FiX size={14} />
-            </button>
-          )}
-        </div>
+        <form className="ac-search-form" onSubmit={handleSearchSubmit}>
+          <div className="ac-search-box">
+            <FiSearch className="ac-search-icon" size={16} />
+            <input
+              type="text"
+              placeholder="Search problems by title, topic, or #order..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="ac-search-input"
+            />
+            {searchInput && (
+              <button
+                type="button"
+                onClick={handleClearSearch}
+                className="ac-search-clear-btn"
+                title="Clear search"
+              >
+                <FiX size={14} />
+              </button>
+            )}
+          </div>
+          <button
+            type="submit"
+            className="ac-search-submit-btn"
+            title="Search problems"
+          >
+            <FiSearch size={15} />
+            <span>Search</span>
+          </button>
+        </form>
 
         <div className="ac-difficulty-tabs">
           {["all", "Easy", "Medium", "Hard"].map((diff) => (
             <button
               key={diff}
               type="button"
-              onClick={() => setDifficultyFilter(diff)}
+              onClick={() => handleDifficultyChange(diff)}
               className={`ac-diff-tab ${difficultyFilter === diff ? "active" : ""}`}
             >
               {diff === "all" ? "All" : diff}
@@ -1434,20 +1521,22 @@ function ${funcName || "solution"}(${paramNames}) {
       )}
 
       {/* Empty State */}
-      {!loading && filteredProblems.length === 0 && !error && (
+      {!loading && problems.length === 0 && !error && (
         <div className="ac-empty-box">
           <FiList size={40} color="#94a3b8" />
-          <h3>{searchQuery || difficultyFilter !== "all" ? "No Matching Problems Found" : "No Coding Problems Found"}</h3>
+          <h3>{activeSearch || difficultyFilter !== "all" ? "No Matching Problems Found" : "No Coding Problems Found"}</h3>
           <p>
-            {searchQuery || difficultyFilter !== "all"
+            {activeSearch || difficultyFilter !== "all"
               ? "Try adjusting your search query or difficulty filter."
               : "Create your first problem using the button above to get started."}
           </p>
-          {(searchQuery || difficultyFilter !== "all") ? (
+          {(activeSearch || difficultyFilter !== "all") ? (
             <button
               onClick={() => {
-                setSearchQuery("");
+                setSearchInput("");
+                setActiveSearch("");
                 setDifficultyFilter("all");
+                fetchProblems({ jwtToken: token, pageToFetch: 1, search: "", difficulty: "all" });
               }}
               className="ac-btn ac-btn-outline"
             >
@@ -1462,88 +1551,113 @@ function ${funcName || "solution"}(${paramNames}) {
       )}
 
       {/* Problem Cards - One Problem Per Row */}
-      {!loading && filteredProblems.length > 0 && (
-        <div className="ac-list-rows">
-          {filteredProblems.map((p, index) => {
-            const displayOrder = p.order || index + 1;
-            return (
-              <div key={p.problemId} className="ac-row-card">
-                <div className="ac-row-left">
-                  <div className="ac-row-order" title={`Problem #${displayOrder}`}>
-                    #{displayOrder}
-                  </div>
-
-                  <div className="ac-row-content">
-                    <div className="ac-row-title-row">
-                      <h3 className="ac-row-title">{p.title}</h3>
-                      <span
-                        className={`ac-badge ${
-                          p.difficulty === "Easy"
-                            ? "ac-badge-easy"
-                            : p.difficulty === "Medium"
-                            ? "ac-badge-medium"
-                            : "ac-badge-hard"
-                        }`}
-                      >
-                        {p.difficulty}
-                      </span>
+      {!loading && problems.length > 0 && (
+        <>
+          <div className="ac-list-rows">
+            {problems.map((p, index) => {
+              const displayOrder = p.order || index + 1;
+              return (
+                <div key={p.problemId} className="ac-row-card">
+                  <div className="ac-row-left">
+                    <div className="ac-row-order" title={`Problem #${displayOrder}`}>
+                      #{displayOrder}
                     </div>
 
-                    <div className="ac-row-topics-row">
-                      {p.topicIds && p.topicIds.length > 0 ? (
-                        p.topicIds.map((tid, idx) => {
-                          const found = topics.find((t) => t.topicId === tid);
-                          return (
-                            <span key={idx} className="ac-tag" title={`Topic ID: ${tid}`}>
-                              <FiTag style={{ fontSize: "0.68rem", marginRight: "3px" }} />
-                              {found ? found.name : tid}
+                    <div className="ac-row-content">
+                      <div className="ac-row-title-row">
+                        <Link
+                          href={`/learnix-code/problems/${p.order || p.slug || p.problemId}`}
+                          target="_blank"
+                          className="ac-row-title-link"
+                          title={`Solve "${p.title}" in Learnix Code`}
+                        >
+                          <h3 className="ac-row-title">{p.title}</h3>
+                        </Link>
+                        <span
+                          className={`ac-badge ${
+                            p.difficulty === "Easy"
+                              ? "ac-badge-easy"
+                              : p.difficulty === "Medium"
+                              ? "ac-badge-medium"
+                              : "ac-badge-hard"
+                          }`}
+                        >
+                          {p.difficulty}
+                        </span>
+                      </div>
+
+                      <div className="ac-row-topics-row">
+                        {p.topicIds && p.topicIds.length > 0 ? (
+                          p.topicIds.map((tid, idx) => {
+                            const found = topics.find((t) => t.topicId === tid);
+                            return (
+                              <span key={idx} className="ac-tag" title={`Topic ID: ${tid}`}>
+                                <FiTag style={{ fontSize: "0.68rem", marginRight: "3px" }} />
+                                {found ? found.name : tid}
+                              </span>
+                            );
+                          })
+                        ) : (
+                          (p.tags || []).map((t, idx) => (
+                            <span key={idx} className="ac-tag">
+                              {t}
                             </span>
-                          );
-                        })
-                      ) : (
-                        (p.tags || []).map((t, idx) => (
-                          <span key={idx} className="ac-tag">
-                            {t}
-                          </span>
-                        ))
-                      )}
-                      <span className="ac-row-tc-count">
-                        {p.testCasesCount || (p.testCases ? p.testCases.length : 0)} testcases
-                      </span>
+                          ))
+                        )}
+                        <span className="ac-row-tc-count">
+                          {p.testCasesCount || (p.testCases ? p.testCases.length : 0)} testcases
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="ac-row-actions">
-                  <Link
-                    href={`/test?problem=${p.slug || p.problemId}`}
-                    target="_blank"
-                    className="ac-btn-icon ac-btn-icon-live"
-                    title="Test problem in sandbox"
-                  >
-                    <FiExternalLink size={15} />
-                    <span>Live</span>
-                  </Link>
-                  <button
-                    onClick={() => openEditModal(p)}
-                    className="ac-btn-icon ac-btn-icon-edit"
-                    title="Edit problem configuration"
-                  >
-                    <FiEdit size={15} />
-                    <span>Edit</span>
-                  </button>
-                  <button
-                    onClick={() => handleDelete(p.problemId)}
-                    className="ac-btn-icon ac-btn-icon-delete"
-                    title="Delete problem"
-                  >
-                    <FiTrash2 size={15} />
-                  </button>
+                  <div className="ac-row-actions">
+                    <button
+                      onClick={() => openEditModal(p)}
+                      className="ac-btn-icon ac-btn-icon-edit"
+                      title="Edit problem configuration"
+                    >
+                      <FiEdit size={15} />
+                      <span>Edit</span>
+                    </button>
+                    <button
+                      onClick={() => handleDelete(p.problemId)}
+                      className="ac-btn-icon ac-btn-icon-delete"
+                      title="Delete problem"
+                    >
+                      <FiTrash2 size={15} />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+
+          {/* View More Button */}
+          {hasMore && (
+            <div className="ac-view-more-wrap">
+              <button
+                type="button"
+                onClick={handleViewMore}
+                disabled={loadingMore}
+                className="ac-btn-view-more"
+                title="Load more problems"
+              >
+                {loadingMore ? (
+                  <>
+                    <FiLoader className="ac-spinner" size={16} />
+                    <span>Loading more...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>View More Problems</span>
+                    <FiChevronDown size={16} />
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {/* Create / Edit Modal */}
