@@ -612,6 +612,9 @@ function ${funcName || "solution"}(${paramNames}) {
       setJsonError(null);
     }
 
+    // Always reset accordion state on open
+    setFormAccordions({ formats: false, templates: false, testcases: true });
+
     setIsModalOpen(true);
   }
 
@@ -948,6 +951,8 @@ function ${funcName || "solution"}(${paramNames}) {
           isActive: p.isActive !== false,
           testCases: tcs.length > 0 ? tcs : [{ testCaseId: "tc_01", input: "[]", rawInput: "", expectedOutput: "0", isSample: true, explanation: "" }],
         });
+        // Reset accordions so edit modal always starts clean
+        setFormAccordions({ formats: false, templates: false, testcases: true });
         setIsModalOpen(true);
       } else {
         alert(data.error || "Failed to fetch problem details");

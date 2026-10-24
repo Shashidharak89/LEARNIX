@@ -7,11 +7,9 @@ import CodingManager from "./CodingManager";
 export default function AdminCodingPage() {
   return (
     <AdminGuard>
-      <div style={{ minHeight: "100vh", backgroundColor: "#f8fafc" }}>
+      <div style={{ minHeight: "100vh", backgroundColor: "#ffffff" }}>
         <Navbar />
-        <div style={{ paddingTop: "5.5rem" }}>
-          <CodingManager />
-        </div>
+        <CodingManager />
       </div>
     </AdminGuard>
   );
