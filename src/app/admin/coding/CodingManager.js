@@ -23,26 +23,27 @@ import {
 } from "react-icons/fi";
 import "./CodingManager.css";
 
-// ─── Dummy Sample JSON Template (Standard LeetCode-style structure) ───────────
-const SAMPLE_PROBLEM_JSON = {
-  title: "Add Two Numbers",
-  slug: "add-two-numbers",
-  difficulty: "Easy",
-  tags: ["Math", "Basics"],
-  description: "### Problem Statement\n\nGiven two integers `a` and `b`, return their sum.\n\n### Example 1:\n**Input:** `a = 2, b = 3`\n**Output:** `5`\n**Explanation:** `2 + 3 = 5`\n\n### Example 2:\n**Input:** `a = -5, b = 10`\n**Output:** `5`\n\n### Example 3:\n**Input:** `a = 0, b = 0`\n**Output:** `0`",
-  inputFormat: "Two integers `a` and `b` passed as function arguments.",
-  outputFormat: "Return an integer representing the sum of `a` and `b`.",
-  constraints: [
-    "-10^9 <= a <= 10^9",
-    "-10^9 <= b <= 10^9"
-  ],
-  functionName: "addTwoNumbers",
-  parameters: [
-    { name: "a", type: "number" },
-    { name: "b", type: "number" }
-  ],
-  returnType: "number",
-  boilerplateCode: `/**
+// ─── Dummy Sample JSON Template (Bulk Array Format) ──────────────────────────
+const SAMPLE_PROBLEM_JSON = [
+  {
+    title: "Add Two Numbers",
+    slug: "add-two-numbers",
+    difficulty: "Easy",
+    tags: ["Math", "Basics"],
+    description: "### Problem Statement\n\nGiven two integers `a` and `b`, return their sum.\n\n### Example 1:\n**Input:** `a = 2, b = 3`\n**Output:** `5`\n**Explanation:** `2 + 3 = 5`\n\n### Example 2:\n**Input:** `a = -5, b = 10`\n**Output:** `5`\n\n### Example 3:\n**Input:** `a = 0, b = 0`\n**Output:** `0`",
+    inputFormat: "Two integers `a` and `b` passed as function arguments.",
+    outputFormat: "Return an integer representing the sum of `a` and `b`.",
+    constraints: [
+      "-10^9 <= a <= 10^9",
+      "-10^9 <= b <= 10^9"
+    ],
+    functionName: "addTwoNumbers",
+    parameters: [
+      { name: "a", type: "number" },
+      { name: "b", type: "number" }
+    ],
+    returnType: "number",
+    boilerplateCode: `/**
  * @param {number} a
  * @param {number} b
  * @return {number}
@@ -50,107 +51,116 @@ const SAMPLE_PROBLEM_JSON = {
 function addTwoNumbers(a, b) {
     // Write your code here
 }`,
-  javaBoilerplate: `class Solution {
+    javaBoilerplate: `class Solution {
     public int addTwoNumbers(int a, int b) {
         // Write your code here
         return 0;
     }
 }`,
-  order: 1,
-  isActive: true,
-  testCases: [
-    {
-      testCaseId: "tc_01",
-      order: 1,
-      input: [2, 3],
-      rawInput: "a = 2, b = 3",
-      expectedOutput: 5,
-      isSample: true,
-      explanation: "2 + 3 = 5"
-    },
-    {
-      testCaseId: "tc_02",
-      order: 2,
-      input: [-5, 10],
-      rawInput: "a = -5, b = 10",
-      expectedOutput: 5,
-      isSample: true,
-      explanation: "-5 + 10 = 5"
-    },
-    {
-      testCaseId: "tc_03",
-      order: 3,
-      input: [0, 0],
-      rawInput: "a = 0, b = 0",
-      expectedOutput: 0,
-      isSample: true,
-      explanation: "0 + 0 = 0"
-    },
-    {
-      testCaseId: "tc_04",
-      order: 4,
-      input: [100, 250],
-      rawInput: "a = 100, b = 250",
-      expectedOutput: 350,
-      isSample: false,
-      explanation: "100 + 250 = 350"
-    },
-    {
-      testCaseId: "tc_05",
-      order: 5,
-      input: [-100, -200],
-      rawInput: "a = -100, b = -200",
-      expectedOutput: -300,
-      isSample: false,
-      explanation: "-100 + -200 = -300"
-    },
-    {
-      testCaseId: "tc_06",
-      order: 6,
-      input: [999999999, 1],
-      rawInput: "a = 999999999, b = 1",
-      expectedOutput: 1000000000,
-      isSample: false,
-      explanation: "999999999 + 1 = 1000000000"
-    },
-    {
-      testCaseId: "tc_07",
-      order: 7,
-      input: [-50, 50],
-      rawInput: "a = -50, b = 50",
-      expectedOutput: 0,
-      isSample: false,
-      explanation: "-50 + 50 = 0"
-    },
-    {
-      testCaseId: "tc_08",
-      order: 8,
-      input: [12345, 67890],
-      rawInput: "a = 12345, b = 67890",
-      expectedOutput: 80235,
-      isSample: false,
-      explanation: "12345 + 67890 = 80235"
-    },
-    {
-      testCaseId: "tc_09",
-      order: 9,
-      input: [7, -15],
-      rawInput: "a = 7, b = -15",
-      expectedOutput: -8,
-      isSample: false,
-      explanation: "7 + -15 = -8"
-    },
-    {
-      testCaseId: "tc_10",
-      order: 10,
-      input: [42, 58],
-      rawInput: "a = 42, b = 58",
-      expectedOutput: 100,
-      isSample: false,
-      explanation: "42 + 58 = 100"
+    isActive: true,
+    testCases: [
+      {
+        testCaseId: "tc_01",
+        order: 1,
+        input: [2, 3],
+        rawInput: "a = 2, b = 3",
+        expectedOutput: 5,
+        isSample: true,
+        explanation: "2 + 3 = 5"
+      },
+      {
+        testCaseId: "tc_02",
+        order: 2,
+        input: [-5, 10],
+        rawInput: "a = -5, b = 10",
+        expectedOutput: 5,
+        isSample: true,
+        explanation: "-5 + 10 = 5"
+      },
+      {
+        testCaseId: "tc_03",
+        order: 3,
+        input: [0, 0],
+        rawInput: "a = 0, b = 0",
+        expectedOutput: 0,
+        isSample: true,
+        explanation: "0 + 0 = 0"
+      },
+      {
+        testCaseId: "tc_04",
+        order: 4,
+        input: [100, 250],
+        rawInput: "a = 100, b = 250",
+        expectedOutput: 350,
+        isSample: false,
+        explanation: "100 + 250 = 350"
+      }
+    ]
+  },
+  {
+    title: "Multiply Two Numbers",
+    slug: "multiply-two-numbers",
+    difficulty: "Easy",
+    tags: ["Math", "Basics"],
+    description: "### Problem Statement\n\nGiven two integers `a` and `b`, return their product.\n\n### Example 1:\n**Input:** `a = 4, b = 5`\n**Output:** `20`\n**Explanation:** `4 * 5 = 20`\n\n### Example 2:\n**Input:** `a = -3, b = 7`\n**Output:** `-21`\n**Explanation:** `-3 * 7 = -21`",
+    inputFormat: "Two integers `a` and `b` passed as function arguments.",
+    outputFormat: "Return an integer representing the product of `a` and `b`.",
+    constraints: [
+      "-10^4 <= a <= 10^4",
+      "-10^4 <= b <= 10^4"
+    ],
+    functionName: "multiplyTwoNumbers",
+    parameters: [
+      { name: "a", type: "number" },
+      { name: "b", type: "number" }
+    ],
+    returnType: "number",
+    boilerplateCode: `/**
+ * @param {number} a
+ * @param {number} b
+ * @return {number}
+ */
+function multiplyTwoNumbers(a, b) {
+    // Write your code here
+}`,
+    javaBoilerplate: `class Solution {
+    public int multiplyTwoNumbers(int a, int b) {
+        // Write your code here
+        return 0;
     }
-  ]
-};
+}`,
+    isActive: true,
+    testCases: [
+      {
+        testCaseId: "tc_01",
+        order: 1,
+        input: [4, 5],
+        rawInput: "a = 4, b = 5",
+        expectedOutput: 20,
+        isSample: true,
+        explanation: "4 * 5 = 20"
+      },
+      {
+        testCaseId: "tc_02",
+        order: 2,
+        input: [-3, 7],
+        rawInput: "a = -3, b = 7",
+        expectedOutput: -21,
+        isSample: true,
+        explanation: "-3 * 7 = -21"
+      },
+      {
+        testCaseId: "tc_03",
+        order: 3,
+        input: [12, 12],
+        rawInput: "a = 12, b = 12",
+        expectedOutput: 144,
+        isSample: false,
+        explanation: "12 * 12 = 144"
+      }
+    ]
+  }
+];
 
 export default function CodingManager() {
   const [problems, setProblems] = useState([]);
@@ -302,6 +312,12 @@ function ${funcName || "solution"}(${paramNames}) {
     const defaultTemplate = generateJsBoilerplate("solution", initialParams, "number");
     const defaultJavaTemplate = generateJavaBoilerplate("solution", initialParams, "number");
 
+    const maxExistingOrder = problems.reduce((max, p) => {
+      const o = Number(p.order);
+      return !isNaN(o) && o > max ? o : max;
+    }, 0);
+    const nextOrder = Math.max(problems.length, maxExistingOrder) + 1;
+
     setFormData({
       title: "",
       slug: "",
@@ -316,7 +332,7 @@ function ${funcName || "solution"}(${paramNames}) {
       parameters: initialParams,
       jsTemplate: defaultTemplate,
       javaTemplate: defaultJavaTemplate,
-      order: problems.length + 1,
+      order: nextOrder,
       isActive: true,
       testCases: [
         {
@@ -433,6 +449,106 @@ function ${funcName || "solution"}(${paramNames}) {
     setJsonError(null);
   }
 
+  function normalizeProblemPayload(item, assignedOrder, index = 0) {
+    const title = item.title || item.name || item.questionTitle || item.problemName;
+    if (!title || typeof title !== "string") {
+      throw new Error(`Problem at index ${index + 1} is missing a required 'title' or 'name'.`);
+    }
+
+    const functionName = item.functionName || item.function || item.fn || item.methodName || "solution";
+
+    // Normalize parameters
+    let rawParams = item.parameters || item.params || [];
+    if (!Array.isArray(rawParams)) rawParams = [];
+    const parameters = rawParams.map((p, pIdx) => {
+      if (typeof p === "string") return { name: p, type: "any" };
+      return {
+        name: p?.name || `arg${pIdx + 1}`,
+        type: p?.type || "any",
+      };
+    });
+
+    const returnType = item.returnType || item.return_type || item.outputType || "any";
+
+    // Extract testcases flexibly
+    const rawCases = item.testCases || item.test_cases || item.testcases || item.tests || [];
+    if (!Array.isArray(rawCases) || rawCases.length === 0) {
+      throw new Error(`Problem "${title}" requires a 'testCases' array with at least 1 test case.`);
+    }
+
+    // Determine boilerplate templates (strictly starter skeleton, never working code)
+    let jsTemplate =
+      item.boilerplateCode ||
+      item.boilerplate ||
+      item.starterCode ||
+      item.template ||
+      item.templates?.javascript;
+
+    if (!jsTemplate) {
+      jsTemplate = generateJsBoilerplate(functionName, parameters, returnType);
+    }
+
+    let javaTemplate =
+      item.javaBoilerplate ||
+      item.templates?.java;
+
+    if (!javaTemplate) {
+      javaTemplate = generateJavaBoilerplate(functionName, parameters, returnType);
+    }
+
+    const cleanSlug = (item.slug || title)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "");
+
+    return {
+      title,
+      slug: cleanSlug,
+      difficulty: item.difficulty || "Easy",
+      tags: Array.isArray(item.tags)
+        ? item.tags
+        : typeof item.tags === "string"
+        ? item.tags.split(",").map((t) => t.trim()).filter(Boolean)
+        : ["Basics"],
+      description: item.description || item.statement || "",
+      inputFormat: item.inputFormat || "",
+      outputFormat: item.outputFormat || "",
+      constraints: Array.isArray(item.constraints)
+        ? item.constraints
+        : typeof item.constraints === "string"
+        ? item.constraints.split("\n").map((c) => c.trim()).filter(Boolean)
+        : [],
+      functionName,
+      returnType,
+      parameters,
+      templates: {
+        javascript: jsTemplate,
+        java: javaTemplate,
+      },
+      boilerplateCode: jsTemplate,
+      javaBoilerplate: javaTemplate,
+      order: assignedOrder,
+      isActive: item.isActive !== false,
+      testCases: rawCases.map((tc, tcIdx) => {
+        let inp = tc.input !== undefined ? tc.input : (tc.args !== undefined ? tc.args : []);
+        let exp = tc.expectedOutput !== undefined ? tc.expectedOutput : (tc.output !== undefined ? tc.output : (tc.expected !== undefined ? tc.expected : ""));
+
+        const inputStr = typeof inp === "string" ? inp : JSON.stringify(inp);
+        const outputStr = typeof exp === "string" ? exp : JSON.stringify(exp);
+
+        return {
+          testCaseId: tc.testCaseId || tc.id || `tc_${String(tcIdx + 1).padStart(2, "0")}`,
+          order: tc.order || tcIdx + 1,
+          input: inputStr,
+          rawInput: tc.rawInput || inputStr,
+          expectedOutput: outputStr,
+          isSample: tc.isSample !== undefined ? Boolean(tc.isSample) : tcIdx < 3,
+          explanation: tc.explanation || "",
+        };
+      }),
+    };
+  }
+
   async function handleCreateFromJson() {
     if (!jsonInput || !jsonInput.trim()) {
       alert("Please paste or load problem JSON data first.");
@@ -453,127 +569,63 @@ function ${funcName || "solution"}(${paramNames}) {
       }
     }
 
-    const title = parsed.title || parsed.name || parsed.questionTitle || parsed.problemName;
-    if (!title || typeof title !== "string") {
-      alert("Validation Error: Please specify a 'title' or 'name' for the problem.");
+    // Support both single problem object AND array of problems
+    const rawList = Array.isArray(parsed)
+      ? parsed
+      : Array.isArray(parsed?.problems)
+      ? parsed.problems
+      : [parsed];
+
+    if (rawList.length === 0) {
+      alert("No problems found in the JSON data.");
       return;
     }
 
-    const functionName = parsed.functionName || parsed.function || parsed.fn || parsed.methodName || "solution";
+    // Determine current maximum problem order
+    const maxExistingOrder = problems.reduce((max, p) => {
+      const o = Number(p.order);
+      return !isNaN(o) && o > max ? o : max;
+    }, 0);
+    // If total problem available is 11 then next will be 12 for sure
+    const startOrder = Math.max(problems.length, maxExistingOrder) + 1;
 
-    // Normalize parameters
-    let rawParams = parsed.parameters || parsed.params || [];
-    if (!Array.isArray(rawParams)) rawParams = [];
-    const parameters = rawParams.map((p, idx) => {
-      if (typeof p === "string") return { name: p, type: "any" };
-      return {
-        name: p?.name || `arg${idx + 1}`,
-        type: p?.type || "any",
-      };
-    });
-
-    const returnType = parsed.returnType || parsed.return_type || parsed.outputType || "any";
-
-    // Extract testcases flexibly
-    const rawCases = parsed.testCases || parsed.test_cases || parsed.testcases || parsed.tests || [];
-    if (!Array.isArray(rawCases) || rawCases.length === 0) {
-      alert("Validation Error: 'testCases' array is required with at least 1 test case.");
+    let payloads;
+    try {
+      payloads = rawList.map((item, idx) => {
+        // If single problem and user explicitly customized a higher order, respect it; otherwise auto-assign
+        const assignedOrder =
+          rawList.length === 1 && Number(item.order) > 0
+            ? Number(item.order)
+            : startOrder + idx;
+        return normalizeProblemPayload(item, assignedOrder, idx);
+      });
+    } catch (valErr) {
+      alert("Validation Error: " + valErr.message);
       return;
-    }
-
-    // Determine boilerplate templates (strictly starter skeleton, never working code)
-    let jsTemplate =
-      parsed.boilerplateCode ||
-      parsed.boilerplate ||
-      parsed.starterCode ||
-      parsed.template ||
-      parsed.templates?.javascript;
-
-    if (!jsTemplate) {
-      jsTemplate = generateJsBoilerplate(functionName, parameters, returnType);
-    }
-
-    let javaTemplate =
-      parsed.javaBoilerplate ||
-      parsed.templates?.java;
-
-    if (!javaTemplate) {
-      javaTemplate = generateJavaBoilerplate(functionName, parameters, returnType);
     }
 
     setJsonSaving(true);
     try {
-      const cleanSlug = (parsed.slug || title)
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)+/g, "");
-
-      const payload = {
-        title,
-        slug: cleanSlug,
-        difficulty: parsed.difficulty || "Easy",
-        tags: Array.isArray(parsed.tags)
-          ? parsed.tags
-          : typeof parsed.tags === "string"
-          ? parsed.tags.split(",").map((t) => t.trim()).filter(Boolean)
-          : ["Basics"],
-        description: parsed.description || parsed.statement || "",
-        inputFormat: parsed.inputFormat || "",
-        outputFormat: parsed.outputFormat || "",
-        constraints: Array.isArray(parsed.constraints)
-          ? parsed.constraints
-          : typeof parsed.constraints === "string"
-          ? parsed.constraints.split("\n").map((c) => c.trim()).filter(Boolean)
-          : [],
-        functionName,
-        returnType,
-        parameters,
-        templates: {
-          javascript: jsTemplate,
-          java: javaTemplate,
-        },
-        boilerplateCode: jsTemplate,
-        javaBoilerplate: javaTemplate,
-        order: Number(parsed.order) || (problems.length + 1),
-        isActive: parsed.isActive !== false,
-        testCases: rawCases.map((tc, idx) => {
-          let inp = tc.input !== undefined ? tc.input : (tc.args !== undefined ? tc.args : []);
-          let exp = tc.expectedOutput !== undefined ? tc.expectedOutput : (tc.output !== undefined ? tc.output : (tc.expected !== undefined ? tc.expected : ""));
-
-          const inputStr = typeof inp === "string" ? inp : JSON.stringify(inp);
-          const outputStr = typeof exp === "string" ? exp : JSON.stringify(exp);
-
-          return {
-            testCaseId: tc.testCaseId || tc.id || `tc_${String(idx + 1).padStart(2, "0")}`,
-            order: tc.order || idx + 1,
-            input: inputStr,
-            rawInput: tc.rawInput || inputStr,
-            expectedOutput: outputStr,
-            isSample: tc.isSample !== undefined ? Boolean(tc.isSample) : idx < 3,
-            explanation: tc.explanation || "",
-          };
-        }),
-      };
-
       const res = await fetch("/api/admin/coding/problems", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payloads),
       });
 
       const data = await res.json();
       if (data.success) {
         setIsModalOpen(false);
         fetchProblems(token);
-        alert(`Problem "${payload.title}" created successfully with ${payload.testCases.length} test cases!`);
+        const orderSummary = payloads.map((p) => `#${p.order}`).join(", ");
+        alert(`Successfully created ${payloads.length} problem(s) (Assigned Problem ${orderSummary})!`);
       } else {
-        alert(data.error || "Failed to create problem from JSON");
+        alert(data.error || "Failed to create problem(s) from JSON");
       }
     } catch (err) {
-      alert("Error saving problem from JSON: " + err.message);
+      alert("Error saving problem(s) from JSON: " + err.message);
     } finally {
       setJsonSaving(false);
     }
@@ -1039,48 +1091,101 @@ Example structure:
                   )}
 
                   {jsonParsed && !jsonError && (
-                    <div className="ac-json-status-card ac-json-status-valid">
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 700 }}>
-                          <FiCheckCircle size={18} />
-                          <span>Valid Problem Schema Detected</span>
+                    Array.isArray(jsonParsed) ? (
+                      <div className="ac-json-status-card ac-json-status-valid">
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 700 }}>
+                            <FiCheckCircle size={18} />
+                            <span>Valid Problem Array Detected ({jsonParsed.length} Problems)</span>
+                          </div>
+                          <span className="ac-badge ac-badge-easy" style={{ fontSize: "0.75rem" }}>
+                            Bulk Import Ready
+                          </span>
                         </div>
-                        <span className="ac-badge ac-badge-easy" style={{ fontSize: "0.75rem" }}>
-                          {jsonParsed.difficulty || "Easy"}
-                        </span>
-                      </div>
 
-                      <div className="ac-json-preview-grid">
-                        <div className="ac-json-preview-item">
-                          <span className="ac-json-preview-label">Title</span>
-                          <span className="ac-json-preview-val">{jsonParsed.title || jsonParsed.name || "—"}</span>
-                        </div>
-                        <div className="ac-json-preview-item">
-                          <span className="ac-json-preview-label">Function Signature</span>
-                          <span className="ac-json-preview-val">
-                            {jsonParsed.functionName || jsonParsed.fn || "solution"}
-                            ({(jsonParsed.parameters || jsonParsed.params || []).map((p) => typeof p === "string" ? p : p.name).join(", ")}) →{" "}
-                            {jsonParsed.returnType || "any"}
-                          </span>
-                        </div>
-                        <div className="ac-json-preview-item">
-                          <span className="ac-json-preview-label">Test Cases</span>
-                          <span className="ac-json-preview-val">
-                            {Array.isArray(jsonParsed.testCases || jsonParsed.test_cases || jsonParsed.tests)
-                              ? (jsonParsed.testCases || jsonParsed.test_cases || jsonParsed.tests).length
-                              : 0} Cases
-                          </span>
-                        </div>
-                        <div className="ac-json-preview-item">
-                          <span className="ac-json-preview-label">Boilerplate Stub</span>
-                          <span className="ac-json-preview-val" style={{ color: "#2563eb" }}>
-                            {jsonParsed.boilerplateCode || jsonParsed.boilerplate || jsonParsed.starterCode || jsonParsed.templates?.javascript
-                              ? "Custom Starter Skeleton"
-                              : "Auto-generated Starter Stub"}
-                          </span>
+                        <div style={{ marginTop: "0.75rem", display: "flex", flexDirection: "column", gap: "0.5rem", maxHeight: "240px", overflowY: "auto" }}>
+                          {jsonParsed.map((p, idx) => {
+                            const maxExisting = problems.reduce((max, item) => Math.max(max, Number(item.order) || 0), 0);
+                            const autoOrder = Math.max(problems.length, maxExisting) + 1 + idx;
+                            const tcCount = Array.isArray(p.testCases || p.test_cases || p.tests)
+                              ? (p.testCases || p.test_cases || p.tests).length
+                              : 0;
+                            return (
+                              <div
+                                key={idx}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  padding: "0.55rem 0.8rem",
+                                  background: "#f8fafc",
+                                  borderRadius: "6px",
+                                  border: "1px solid #e2e8f0",
+                                }}
+                              >
+                                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                  <span className="ac-badge ac-badge-easy" style={{ fontWeight: 700, padding: "2px 7px" }}>
+                                    #{autoOrder}
+                                  </span>
+                                  <span style={{ fontWeight: 600, color: "#0f172a" }}>
+                                    {p.title || p.name || `Problem ${idx + 1}`}
+                                  </span>
+                                  <span style={{ fontSize: "0.78rem", color: "#64748b" }}>
+                                    ({p.difficulty || "Easy"})
+                                  </span>
+                                </div>
+                                <div style={{ fontSize: "0.78rem", color: "#475569" }}>
+                                  <code>{p.functionName || "solution"}()</code> · {tcCount} test cases
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="ac-json-status-card ac-json-status-valid">
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 700 }}>
+                            <FiCheckCircle size={18} />
+                            <span>Valid Problem Schema Detected</span>
+                          </div>
+                          <span className="ac-badge ac-badge-easy" style={{ fontSize: "0.75rem" }}>
+                            {jsonParsed.difficulty || "Easy"}
+                          </span>
+                        </div>
+
+                        <div className="ac-json-preview-grid">
+                          <div className="ac-json-preview-item">
+                            <span className="ac-json-preview-label">Title</span>
+                            <span className="ac-json-preview-val">{jsonParsed.title || jsonParsed.name || "—"}</span>
+                          </div>
+                          <div className="ac-json-preview-item">
+                            <span className="ac-json-preview-label">Function Signature</span>
+                            <span className="ac-json-preview-val">
+                              {jsonParsed.functionName || jsonParsed.fn || "solution"}
+                              ({(jsonParsed.parameters || jsonParsed.params || []).map((p) => typeof p === "string" ? p : p.name).join(", ")}) →{" "}
+                              {jsonParsed.returnType || "any"}
+                            </span>
+                          </div>
+                          <div className="ac-json-preview-item">
+                            <span className="ac-json-preview-label">Test Cases</span>
+                            <span className="ac-json-preview-val">
+                              {Array.isArray(jsonParsed.testCases || jsonParsed.test_cases || jsonParsed.tests)
+                                ? (jsonParsed.testCases || jsonParsed.test_cases || jsonParsed.tests).length
+                                : 0} Cases
+                            </span>
+                          </div>
+                          <div className="ac-json-preview-item">
+                            <span className="ac-json-preview-label">Boilerplate Stub</span>
+                            <span className="ac-json-preview-val" style={{ color: "#2563eb" }}>
+                              {jsonParsed.boilerplateCode || jsonParsed.boilerplate || jsonParsed.starterCode || jsonParsed.templates?.javascript
+                                ? "Custom Starter Skeleton"
+                                : "Auto-generated Starter Stub"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )
                   )}
                 </div>
 
@@ -1089,11 +1194,11 @@ Example structure:
                   <div className="ac-footer-status">
                     {jsonSaving ? (
                       <span style={{ color: "#2563eb", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                        <FiRefreshCw className="animate-spin" /> Saving problem to DynamoDB...
+                        <FiRefreshCw className="animate-spin" /> Saving problem(s) to DynamoDB...
                       </span>
                     ) : jsonParsed && !jsonError ? (
                       <span style={{ color: "#16a34a", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                        <FiCheckCircle /> Ready to create: {jsonParsed.title || jsonParsed.name || "Problem"}
+                        <FiCheckCircle /> Ready to create: {Array.isArray(jsonParsed) ? `${jsonParsed.length} Problems (Bulk Array)` : (jsonParsed.title || jsonParsed.name || "Problem")}
                       </span>
                     ) : jsonError ? (
                       <span style={{ color: "#dc2626", display: "flex", alignItems: "center", gap: "0.4rem" }}>
@@ -1120,11 +1225,11 @@ Example structure:
                     >
                       {jsonSaving ? (
                         <>
-                          <FiRefreshCw className="animate-spin" /> Creating Problem...
+                          <FiRefreshCw className="animate-spin" /> Creating Problem(s)...
                         </>
                       ) : (
                         <>
-                          <FiPlus /> Paste &amp; Create Problem
+                          <FiPlus /> Paste &amp; Create {Array.isArray(jsonParsed) ? `${jsonParsed.length} Problems` : "Problem"}
                         </>
                       )}
                     </button>
@@ -1179,6 +1284,19 @@ Example structure:
                     value={formData.tags}
                     onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
                     placeholder="Math, Algorithms, Basics"
+                    className="ac-input"
+                  />
+                </div>
+                <div className="ac-form-group">
+                  <label className="ac-label">
+                    Problem # <span style={{ fontSize: "0.75rem", color: "#64748b" }}>(Auto-assigned)</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={formData.order || ""}
+                    onChange={(e) => setFormData({ ...formData, order: Number(e.target.value) || 1 })}
+                    placeholder="e.g. 12"
                     className="ac-input"
                   />
                 </div>
