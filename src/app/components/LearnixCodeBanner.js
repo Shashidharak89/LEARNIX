@@ -21,13 +21,13 @@ export default function LearnixCodeBanner() {
           </h2>
 
           <p className="lcb-tagline">
-            Level up your algorithmic skills with our in-browser coding playground.
-            Solve curated challenges, execute JavaScript in a real-time sandbox, and verify against automated test cases.
+            Level up your algorithmic skills with our interactive coding playground.
+            Solve curated challenges and verify against automated test cases.
           </p>
 
           <div className="lcb-features">
             <span className="lcb-feat-chip">⚡ 10+ Curated Problems</span>
-            <span className="lcb-feat-chip">💻 In-Browser IDE</span>
+            <span className="lcb-feat-chip">💻 Interactive IDE</span>
             <span className="lcb-feat-chip">🧪 Automated Test Cases</span>
             <span className="lcb-feat-chip">🚀 No Login Required</span>
           </div>
@@ -48,14 +48,16 @@ export default function LearnixCodeBanner() {
                 <span className="lcb-dot lcb-dot-yellow" />
                 <span className="lcb-dot lcb-dot-green" />
               </div>
-              <span className="lcb-code-file">solution.js</span>
+              <span className="lcb-code-file">Solution.java</span>
               <FiCode size={14} color="#8b949e" />
             </div>
 
             <div className="lcb-code-body">
-              <span className="lcb-cmt">/** Add Two Numbers **/</span><br />
-              <span className="lcb-kw">function</span> <span className="lcb-fn">addTwoNumbers</span>(<span className="lcb-var">a</span>, <span className="lcb-var">b</span>) &#123;<br />
-              &nbsp;&nbsp;<span className="lcb-kw">return</span> <span className="lcb-var">a</span> + <span className="lcb-var">b</span>;<br />
+              <span className="lcb-cmt">{"// Solution.java"}</span><br />
+              <span className="lcb-kw">class</span> <span className="lcb-fn">Solution</span> &#123;<br />
+              &nbsp;&nbsp;<span className="lcb-kw">public int</span> <span className="lcb-fn">addTwoNumbers</span>(<span className="lcb-kw">int</span> <span className="lcb-var">a</span>, <span className="lcb-kw">int</span> <span className="lcb-var">b</span>) &#123;<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span className="lcb-kw">return</span> <span className="lcb-var">a</span> + <span className="lcb-var">b</span>;<br />
+              &nbsp;&nbsp;&#125;<br />
               &#125;<br />
               <div className="lcb-status-pill">
                 <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>

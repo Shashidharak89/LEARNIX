@@ -103,8 +103,8 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
   // Editor State
   const [languages, setLanguages] = useState([
-    { languageId: "javascript", name: "JavaScript", monacoLang: "javascript", version: "ES6+" },
     { languageId: "java", name: "Java", monacoLang: "java", version: "OpenJDK 25" },
+    { languageId: "javascript", name: "JavaScript", monacoLang: "javascript", version: "ES6+" },
   ]);
   const [selectedLanguage, setSelectedLanguage] = useState("java");
   const [cooldown, setCooldown] = useState(0); // 10s cooldown timer
@@ -511,7 +511,6 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
         success: true,
         mode: "run",
         language: "javascript",
-        executionPlatform: "Browser (Client-side)",
         status: allPassed ? "Accepted" : "Wrong Answer",
         totalTestCases: results.length,
         passedTestCases,
@@ -524,7 +523,6 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
         success: false,
         mode: "run",
         language: "javascript",
-        executionPlatform: "Browser (Client-side)",
         status: "Runtime Error",
         error: err.message || String(err),
         results: [],
@@ -1084,7 +1082,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
               <div className="lc-markdown-body">
                 <h3>About This Coding Environment</h3>
                 <p>
-                  This coding sandbox allows you to write and execute JavaScript (Node.js) solutions directly in your browser.
+                  This coding sandbox allows you to write and execute code solutions directly in an interactive IDE.
                 </p>
                 <div className="lc-section-box">
                   <h4>💡 How to Run &amp; Test</h4>
@@ -1443,10 +1441,6 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                         </div>
 
                         <div className="lc-status-metrics">
-                          <span style={{ color: executionResult.language === "java" ? "#fb923c" : "#fde047", fontWeight: 600 }}>
-                            {executionResult.language === "java" ? "Java" : "JavaScript"} • {executionResult.executionPlatform || (executionResult.language === "java" ? "Server (compile-run)" : "Browser")}
-                          </span>
-                          <span style={{ margin: "0 0.5rem" }}>•</span>
                           <span>
                             {executionResult.passedTestCases} / {executionResult.totalTestCases} Testcases Passed
                           </span>

@@ -6,22 +6,20 @@ export const dynamic = "force-dynamic";
 
 const FALLBACK_LANGUAGES = [
   {
-    languageId: "javascript",
-    name: "JavaScript",
-    version: "ES2024 / Node.js",
-    monaco: "javascript",
-    extension: "js",
-    executionMode: "browser",
-    order: 1,
-    isActive: true,
-  },
-  {
     languageId: "java",
     name: "Java",
     version: "OpenJDK 25",
     monaco: "java",
     extension: "java",
-    executionMode: "server",
+    order: 1,
+    isActive: true,
+  },
+  {
+    languageId: "javascript",
+    name: "JavaScript",
+    version: "ES2024",
+    monaco: "javascript",
+    extension: "js",
     order: 2,
     isActive: true,
   },

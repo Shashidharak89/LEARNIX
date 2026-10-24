@@ -63,7 +63,7 @@ export default function LearnixCodeHomePage() {
               <span className="lch-stat-label">Coding Challenges</span>
             </div>
             <div className="lch-stat-card">
-              <span className="lch-stat-num">JavaScript</span>
+              <span className="lch-stat-num">Real-Time</span>
               <span className="lch-stat-label">Execution Engine</span>
             </div>
             <div className="lch-stat-card">
