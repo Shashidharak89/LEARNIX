@@ -339,6 +339,7 @@ export default function CodingManager() {
   const [jsonCopied, setJsonCopied] = useState(false);
   const [jsonSaving, setJsonSaving] = useState(false);
   const [originalEditJson, setOriginalEditJson] = useState("");
+  const [showTopicGuide, setShowTopicGuide] = useState(false);
 
   // Topic Management State
   const [topics, setTopics] = useState([]);
@@ -613,8 +614,8 @@ function ${funcName || "solution"}(${paramNames}) {
       setJsonError(null);
     }
 
-    // Always reset accordion state on open
-    setFormAccordions({ formats: false, templates: false, testcases: true });
+    // Always reset accordion state on open to expanded so all sections are visible
+    setFormAccordions({ formats: true, templates: true, testcases: true });
 
     setIsModalOpen(true);
   }
@@ -1663,6 +1664,14 @@ function ${funcName || "solution"}(${paramNames}) {
                     <div className="ac-json-actions-group">
                       <button
                         type="button"
+                        onClick={() => setShowTopicGuide((prev) => !prev)}
+                        className={`ac-json-tool-btn ${showTopicGuide ? "ac-json-tool-btn-primary" : ""}`}
+                        title="Toggle Topic IDs reference guide"
+                      >
+                        <FiTag /> {showTopicGuide ? "Hide Topic Guide" : "Topic IDs Guide"}
+                      </button>
+                      <button
+                        type="button"
                         onClick={handlePasteClipboard}
                         className="ac-json-tool-btn"
                         title="Paste text from clipboard"
@@ -1688,53 +1697,54 @@ function ${funcName || "solution"}(${paramNames}) {
                     </div>
                   </div>
 
-                  {/* Topic IDs Reference Guide Bar */}
-                  <div className="ac-topic-guide-bar">
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", flexWrap: "wrap", gap: "0.5rem" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
-                        <FiTag color="#2563eb" size={16} />
-                        <span style={{ fontWeight: 700, fontSize: "0.85rem", color: "#1e3a8a" }}>
-                          Available Topic IDs ({topics.length}):
-                        </span>
-                        <span style={{ fontSize: "0.78rem", color: "#64748b" }}>
-                          (Click any topic below to copy its ID into your clipboard)
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setIsTopicModalOpen(true)}
-                        className="ac-json-tool-btn"
-                        style={{ padding: "0.25rem 0.65rem", fontSize: "0.75rem", background: "#ffffff" }}
-                      >
-                        <FiPlus /> Manage / Create Topics
-                      </button>
-                    </div>
-
-                    <div className="ac-topic-chips-scroll" style={{ width: "100%", marginTop: "0.3rem" }}>
-                      {topics.map((t) => (
-                        <span
-                          key={t.topicId}
-                          className="ac-topic-chip-tag"
-                          title={`Click to copy "${t.topicId}"`}
-                          onClick={() => {
-                            if (typeof navigator !== "undefined" && navigator?.clipboard?.writeText) {
-                              navigator.clipboard.writeText(`"${t.topicId}"`);
-                              setTopicCopied(t.topicId);
-                              setTimeout(() => setTopicCopied(""), 2000);
-                            }
-                          }}
+                  {/* Topic IDs Reference Guide Bar (Collapsible to keep editor huge & uncluttered) */}
+                  {showTopicGuide && (
+                    <div className="ac-topic-guide-bar">
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", flexWrap: "wrap", gap: "0.5rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
+                          <FiTag color="#2563eb" size={16} />
+                          <span style={{ fontWeight: 700, fontSize: "0.85rem", color: "#1e3a8a" }}>
+                            Available Topic IDs ({topics.length}):
+                          </span>
+                          <span style={{ fontSize: "0.78rem", color: "#64748b" }}>
+                            (Click any topic below to copy its ID into your clipboard)
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setIsTopicModalOpen(true)}
+                          className="ac-json-tool-btn"
+                          style={{ padding: "0.25rem 0.65rem", fontSize: "0.75rem", background: "#ffffff" }}
                         >
-                          <span style={{ fontWeight: 600 }}>{t.name}</span>
-                          <code>{topicCopied === t.topicId ? "✓ Copied!" : `"${t.topicId}"`}</code>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                          <FiPlus /> Manage / Create Topics
+                        </button>
+                      </div>
 
-                  {/* JSON Editor Textarea */}
+                      <div className="ac-topic-chips-scroll" style={{ width: "100%", marginTop: "0.3rem" }}>
+                        {topics.map((t) => (
+                          <span
+                            key={t.topicId}
+                            className="ac-topic-chip-tag"
+                            title={`Click to copy "${t.topicId}"`}
+                            onClick={() => {
+                              if (typeof navigator !== "undefined" && navigator?.clipboard?.writeText) {
+                                navigator.clipboard.writeText(`"${t.topicId}"`);
+                                setTopicCopied(t.topicId);
+                                setTimeout(() => setTopicCopied(""), 2000);
+                              }
+                            }}
+                          >
+                            <span style={{ fontWeight: 600 }}>{t.name}</span>
+                            <code>{topicCopied === t.topicId ? "✓ Copied!" : `"${t.topicId}"`}</code>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* JSON Editor Textarea - Expands to 80% height of the popup window */}
                   <textarea
                     className="ac-json-editor-box"
-                    rows={16}
                     value={jsonInput}
                     onChange={(e) => handleJsonTextChange(e.target.value)}
                     placeholder={`Paste problem JSON here or click "Load Sample into Editor"...
@@ -2052,7 +2062,7 @@ Example structure:
               <div className="ac-form-sections-toolbar">
                 <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
                   <FiSliders color="#ea580c" size={15} />
-                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#334155" }}>
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#1e293b" }}>
                     Advanced Settings &amp; Test Cases:
                   </span>
                 </div>
@@ -2060,29 +2070,30 @@ Example structure:
                   <button
                     type="button"
                     className="ac-btn-text"
-                    onClick={() => {
-                      const allOpen = formAccordions.formats && formAccordions.templates && formAccordions.testcases;
-                      setFormAccordions({
-                        formats: !allOpen,
-                        templates: !allOpen,
-                        testcases: !allOpen,
-                      });
-                    }}
+                    style={{ fontWeight: 700, color: "#2563eb" }}
+                    onClick={() => setFormAccordions({ formats: true, templates: true, testcases: true })}
                   >
-                    {formAccordions.formats && formAccordions.templates && formAccordions.testcases
-                      ? "Collapse All Sections"
-                      : "Expand All Sections"}
+                    <FiChevronDown style={{ marginRight: 3 }} /> Expand All
                   </button>
                   <button
                     type="button"
                     className="ac-btn-text"
-                    style={{ color: "#ea580c" }}
+                    style={{ color: "#64748b" }}
+                    onClick={() => setFormAccordions({ formats: false, templates: false, testcases: false })}
+                  >
+                    <FiChevronUp style={{ marginRight: 3 }} /> Collapse All
+                  </button>
+                  <span style={{ color: "#cbd5e1" }}>|</span>
+                  <button
+                    type="button"
+                    className="ac-btn-text"
+                    style={{ color: "#ea580c", fontWeight: 700 }}
                     onClick={() => {
                       syncFormToJson();
                       setActiveModalTab("json");
                     }}
                   >
-                    <FiFileText style={{ marginRight: 4 }} /> Edit this Question in JSON
+                    <FiFileText style={{ marginRight: 4 }} /> Full JSON Editor
                   </button>
                 </div>
               </div>
