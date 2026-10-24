@@ -22,6 +22,9 @@ import {
   FiDownload,
   FiClipboard,
   FiTag,
+  FiSearch,
+  FiChevronDown,
+  FiChevronUp,
 } from "react-icons/fi";
 import "./CodingManager.css";
 
@@ -345,6 +348,17 @@ export default function CodingManager() {
   const [topicSaving, setTopicSaving] = useState(false);
   const [topicCopied, setTopicCopied] = useState("");
 
+  // Toolbar & Filtering State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [difficultyFilter, setDifficultyFilter] = useState("all");
+
+  // Collapsible Form Accordions State
+  const [formAccordions, setFormAccordions] = useState({
+    formats: false,
+    templates: false,
+    testcases: true,
+  });
+
   // Form Fields
   const [formData, setFormData] = useState({
     title: "",
@@ -550,7 +564,7 @@ function ${funcName || "solution"}(${paramNames}) {
 }`;
   }
 
-  function openCreateModal(initialTab = "form") {
+  function openCreateModal(initialTab = "json") {
     setEditingId(null);
     setActiveModalTab(initialTab);
     const initialParams = [{ name: "a", type: "number" }, { name: "b", type: "number" }];
@@ -1092,150 +1106,251 @@ function ${funcName || "solution"}(${paramNames}) {
     });
   }
 
+  const filteredProblems = problems.filter((p) => {
+    const q = searchQuery.toLowerCase().trim();
+    const matchesSearch =
+      !q ||
+      p.title?.toLowerCase().includes(q) ||
+      p.slug?.toLowerCase().includes(q) ||
+      String(p.order || "").includes(q) ||
+      (p.topicIds && p.topicIds.some((t) => t.toLowerCase().includes(q))) ||
+      (p.tags && p.tags.some((t) => t.toLowerCase().includes(q)));
+
+    const matchesDiff =
+      difficultyFilter === "all" ||
+      (p.difficulty && p.difficulty.toLowerCase() === difficultyFilter.toLowerCase());
+
+    return matchesSearch && matchesDiff;
+  });
+
   return (
     <div className="ac-container">
-      {/* Header */}
+      {/* Header - Apple Style Clean White */}
       <header className="ac-header">
         <div className="ac-header-left">
-          <h1>
+          <div className="ac-header-brand">
             <Image
               src="/learnix-code-logo.png"
               alt="Learnix Code"
-              width={30}
-              height={30}
-              style={{ objectFit: "contain", verticalAlign: "middle", marginRight: "0.5rem" }}
+              width={34}
+              height={34}
+              className="ac-header-logo"
             />
-            Coding Problems Management
-          </h1>
-          <p>
-            Create, edit, and configure LeetCode-style questions, JavaScript boilerplate templates, and normalized test cases.
-          </p>
+            <div>
+              <div className="ac-header-headline-row">
+                <h1 className="ac-header-title">Coding Problems</h1>
+                <span className="ac-header-stat-pill">
+                  {problems.length} {problems.length === 1 ? "Problem" : "Problems"}
+                </span>
+                <span className="ac-header-topic-pill">
+                  {topics.length} Topics
+                </span>
+              </div>
+              <p className="ac-header-subtitle">
+                Configure LeetCode-style challenges, test cases, and algorithmic topics
+              </p>
+            </div>
+          </div>
         </div>
+
         <div className="ac-header-actions">
-          <Link href="/admin" className="ac-btn ac-btn-outline">
-            <FiArrowLeft /> Back to Admin
+          <Link href="/admin" className="ac-btn ac-btn-outline" title="Return to Admin Overview">
+            <FiArrowLeft size={15} /> <span>Admin</span>
           </Link>
           <button
             onClick={() => setIsTopicModalOpen(true)}
             className="ac-btn ac-btn-outline"
             title="Manage and create topics"
           >
-            <FiTag /> Topics ({topics.length})
+            <FiTag size={15} /> <span>Topics ({topics.length})</span>
           </button>
-          <Link href="/test" target="_blank" className="ac-btn ac-btn-outline">
-            <FiExternalLink /> Live /test Page
+          <Link href="/test" target="_blank" className="ac-btn ac-btn-outline" title="Open live testing playground">
+            <FiExternalLink size={15} /> <span>Live Arena</span>
           </Link>
-          <button onClick={() => openCreateModal("json")} className="ac-btn ac-btn-outline">
-            <FiFileText /> Insert via JSON
-          </button>
-          <button onClick={() => openCreateModal("form")} className="ac-btn ac-btn-primary">
-            <FiPlus /> Create New Question
+          <button
+            onClick={() => openCreateModal("json")}
+            className="ac-btn ac-btn-primary"
+            title="Add problem via JSON or Form"
+          >
+            <FiPlus size={16} /> <span>Add Problem</span>
           </button>
         </div>
       </header>
 
-      {/* Loading & Error States */}
+      {/* Toolbar: Search & Difficulty Filters */}
+      <div className="ac-toolbar">
+        <div className="ac-search-box">
+          <FiSearch className="ac-search-icon" size={16} />
+          <input
+            type="text"
+            placeholder="Search problems by title, topic, or #order..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="ac-search-input"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="ac-search-clear-btn"
+              title="Clear search"
+            >
+              <FiX size={14} />
+            </button>
+          )}
+        </div>
+
+        <div className="ac-difficulty-tabs">
+          {["all", "Easy", "Medium", "Hard"].map((diff) => (
+            <button
+              key={diff}
+              type="button"
+              onClick={() => setDifficultyFilter(diff)}
+              className={`ac-diff-tab ${difficultyFilter === diff ? "active" : ""}`}
+            >
+              {diff === "all" ? "All" : diff}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Lightweight Apple Shimmer Skeleton Loader */}
       {loading && (
-        <div style={{ textAlign: "center", padding: "3rem", color: "#64748b" }}>
-          <FiRefreshCw className="animate-spin" size={28} />
-          <p style={{ marginTop: "0.5rem" }}>Loading problems from DynamoDB...</p>
+        <div className="ac-skeleton-list">
+          {[1, 2, 3, 4, 5].map((idx) => (
+            <div key={idx} className="ac-skeleton-row">
+              <div className="ac-skeleton-order ac-shimmer" />
+              <div className="ac-skeleton-body">
+                <div className="ac-skeleton-title ac-shimmer" />
+                <div className="ac-skeleton-tags">
+                  <div className="ac-skeleton-pill ac-shimmer" style={{ width: "70px" }} />
+                  <div className="ac-skeleton-pill ac-shimmer" style={{ width: "100px" }} />
+                  <div className="ac-skeleton-pill ac-shimmer" style={{ width: "85px" }} />
+                </div>
+              </div>
+              <div className="ac-skeleton-actions ac-shimmer" />
+            </div>
+          ))}
         </div>
       )}
 
       {error && (
-        <div style={{ background: "#fee2e2", border: "1px solid #fecaca", padding: "1rem", borderRadius: "10px", color: "#b91c1c", marginBottom: "1.5rem" }}>
+        <div className="ac-error-banner">
           <strong>Error:</strong> {error}
         </div>
       )}
 
-      {/* Problem Cards */}
-      {!loading && problems.length === 0 && !error && (
-        <div style={{ textAlign: "center", padding: "3rem", background: "#f8fafc", borderRadius: "14px", border: "1px dashed #cbd5e1" }}>
+      {/* Empty State */}
+      {!loading && filteredProblems.length === 0 && !error && (
+        <div className="ac-empty-box">
           <FiList size={40} color="#94a3b8" />
-          <h3 style={{ margin: "1rem 0 0.5rem 0", color: "#334155" }}>No Coding Problems Found</h3>
-          <p style={{ color: "#64748b", marginBottom: "1.25rem" }}>Create your first problem to appear on the <code>/test</code> route.</p>
-          <button onClick={openCreateModal} className="ac-btn ac-btn-primary">
-            <FiPlus /> Create Problem
-          </button>
+          <h3>{searchQuery || difficultyFilter !== "all" ? "No Matching Problems Found" : "No Coding Problems Found"}</h3>
+          <p>
+            {searchQuery || difficultyFilter !== "all"
+              ? "Try adjusting your search query or difficulty filter."
+              : "Create your first problem using the button above to get started."}
+          </p>
+          {(searchQuery || difficultyFilter !== "all") ? (
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setDifficultyFilter("all");
+              }}
+              className="ac-btn ac-btn-outline"
+            >
+              Clear Filters
+            </button>
+          ) : (
+            <button onClick={() => openCreateModal("json")} className="ac-btn ac-btn-primary">
+              <FiPlus /> Add Problem
+            </button>
+          )}
         </div>
       )}
 
-      <div className="ac-grid">
-        {problems.map((p) => (
-          <div key={p.problemId} className="ac-card">
-            <div>
-              <div className="ac-card-top">
-                <div>
-                  <h3 className="ac-card-title">{p.title}</h3>
-                  <span className="ac-card-slug">{p.problemId}</span>
-                </div>
-                <span
-                  className={`ac-badge ${
-                    p.difficulty === "Easy"
-                      ? "ac-badge-easy"
-                      : p.difficulty === "Medium"
-                      ? "ac-badge-medium"
-                      : "ac-badge-hard"
-                  }`}
-                >
-                  {p.difficulty}
-                </span>
-              </div>
+      {/* Problem Cards - One Problem Per Row */}
+      {!loading && filteredProblems.length > 0 && (
+        <div className="ac-list-rows">
+          {filteredProblems.map((p, index) => {
+            const displayOrder = p.order || index + 1;
+            return (
+              <div key={p.problemId} className="ac-row-card">
+                <div className="ac-row-left">
+                  <div className="ac-row-order" title={`Problem #${displayOrder}`}>
+                    #{displayOrder}
+                  </div>
 
-              <div className="ac-card-desc">{p.description}</div>
-
-              <div className="ac-tags">
-                {(p.topicIds && p.topicIds.length > 0
-                  ? p.topicIds.map((tid, idx) => {
-                      const found = topics.find((t) => t.topicId === tid);
-                      return (
-                        <span key={idx} className="ac-tag" title={`Topic ID: ${tid}`}>
-                          <FiTag style={{ fontSize: "0.7rem", marginRight: "3px" }} />
-                          {found ? found.name : tid}
-                        </span>
-                      );
-                    })
-                  : (p.tags || []).map((t, idx) => (
-                      <span key={idx} className="ac-tag">
-                        {t}
+                  <div className="ac-row-content">
+                    <div className="ac-row-title-row">
+                      <h3 className="ac-row-title">{p.title}</h3>
+                      <span
+                        className={`ac-badge ${
+                          p.difficulty === "Easy"
+                            ? "ac-badge-easy"
+                            : p.difficulty === "Medium"
+                            ? "ac-badge-medium"
+                            : "ac-badge-hard"
+                        }`}
+                      >
+                        {p.difficulty}
                       </span>
-                    )))}
-              </div>
-            </div>
+                    </div>
 
-            <div className="ac-card-meta">
-              <span>{p.testCasesCount || 0} Test Cases</span>
-              <div className="ac-card-actions">
-                <Link
-                  href={`/test?problem=${p.slug || p.problemId}`}
-                  target="_blank"
-                  className="ac-btn ac-btn-secondary"
-                  title="Test in frontend"
-                  style={{ padding: "0.4rem 0.6rem" }}
-                >
-                  <FiExternalLink />
-                </Link>
-                <button
-                  onClick={() => openEditModal(p)}
-                  className="ac-btn ac-btn-secondary"
-                  title="Edit question"
-                  style={{ padding: "0.4rem 0.6rem" }}
-                >
-                  <FiEdit />
-                </button>
-                <button
-                  onClick={() => handleDelete(p.problemId)}
-                  className="ac-btn ac-btn-danger"
-                  title="Delete question"
-                  style={{ padding: "0.4rem 0.6rem" }}
-                >
-                  <FiTrash2 />
-                </button>
+                    <div className="ac-row-topics-row">
+                      {p.topicIds && p.topicIds.length > 0 ? (
+                        p.topicIds.map((tid, idx) => {
+                          const found = topics.find((t) => t.topicId === tid);
+                          return (
+                            <span key={idx} className="ac-tag" title={`Topic ID: ${tid}`}>
+                              <FiTag style={{ fontSize: "0.68rem", marginRight: "3px" }} />
+                              {found ? found.name : tid}
+                            </span>
+                          );
+                        })
+                      ) : (
+                        (p.tags || []).map((t, idx) => (
+                          <span key={idx} className="ac-tag">
+                            {t}
+                          </span>
+                        ))
+                      )}
+                      <span className="ac-row-tc-count">
+                        {p.testCasesCount || (p.testCases ? p.testCases.length : 0)} testcases
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="ac-row-actions">
+                  <Link
+                    href={`/test?problem=${p.slug || p.problemId}`}
+                    target="_blank"
+                    className="ac-btn-icon ac-btn-icon-live"
+                    title="Test problem in sandbox"
+                  >
+                    <FiExternalLink size={15} />
+                    <span>Live</span>
+                  </Link>
+                  <button
+                    onClick={() => openEditModal(p)}
+                    className="ac-btn-icon ac-btn-icon-edit"
+                    title="Edit problem configuration"
+                  >
+                    <FiEdit size={15} />
+                    <span>Edit</span>
+                  </button>
+                  <button
+                    onClick={() => handleDelete(p.problemId)}
+                    className="ac-btn-icon ac-btn-icon-delete"
+                    title="Delete problem"
+                  >
+                    <FiTrash2 size={15} />
+                  </button>
+                </div>
               </div>
-            </div>
-          </div>
-        ))}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Create / Edit Modal */}
       {isModalOpen && (
@@ -1682,268 +1797,345 @@ Example structure:
                 />
               </div>
 
-              {/* Input & Output Format */}
-              <div className="ac-form-row">
-                <div className="ac-form-group">
-                  <label className="ac-label">Input Format</label>
-                  <textarea
-                    rows={2}
-                    value={formData.inputFormat}
-                    onChange={(e) => setFormData({ ...formData, inputFormat: e.target.value })}
-                    placeholder="Describe input parameters format..."
-                    className="ac-textarea"
-                  />
-                </div>
-                <div className="ac-form-group">
-                  <label className="ac-label">Output Format</label>
-                  <textarea
-                    rows={2}
-                    value={formData.outputFormat}
-                    onChange={(e) => setFormData({ ...formData, outputFormat: e.target.value })}
-                    placeholder="Describe expected return value format..."
-                    className="ac-textarea"
-                  />
-                </div>
-              </div>
-
-              {/* Constraints */}
-              <div className="ac-form-group">
-                <label className="ac-label">Constraints (one per line)</label>
-                <textarea
-                  rows={3}
-                  value={formData.constraints}
-                  onChange={(e) => setFormData({ ...formData, constraints: e.target.value })}
-                  placeholder="-10^9 <= a <= 10^9"
-                  className="ac-textarea"
-                />
-              </div>
-
-              {/* Function Signature & Parameters */}
-              <div className="ac-section-title">
-                <span>Function Signature &amp; Parameters</span>
+              {/* Collapsible Section 1: Formats & Constraints */}
+              <div className="ac-accordion-card">
                 <button
                   type="button"
-                  onClick={addParameter}
-                  className="ac-btn ac-btn-secondary"
-                  style={{ fontSize: "0.75rem", padding: "0.3rem 0.6rem" }}
+                  className="ac-accordion-trigger"
+                  onClick={() => setFormAccordions((prev) => ({ ...prev, formats: !prev.formats }))}
                 >
-                  <FiPlus /> Add Parameter
+                  <div className="ac-accordion-trigger-left">
+                    <FiSliders size={16} color="#ea580c" />
+                    <span className="ac-accordion-title">Input, Output Formats &amp; Constraints</span>
+                    <span className="ac-accordion-badge">Optional</span>
+                  </div>
+                  <div className="ac-accordion-trigger-right">
+                    <span className="ac-accordion-state-label">
+                      {formAccordions.formats ? "Collapse" : "Expand"}
+                    </span>
+                    {formAccordions.formats ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
+                  </div>
                 </button>
-              </div>
 
-              <div className="ac-form-row">
-                <div className="ac-form-group">
-                  <label className="ac-label">Function Name</label>
-                  <input
-                    type="text"
-                    value={formData.functionName}
-                    onChange={(e) => {
-                      const fn = e.target.value;
-                      const jsTmpl = generateJsBoilerplate(fn, formData.parameters, formData.returnType, formData.title);
-                      const javaTmpl = generateJavaBoilerplate(fn, formData.parameters, formData.returnType);
-                      setFormData({ ...formData, functionName: fn, jsTemplate: jsTmpl, javaTemplate: javaTmpl });
-                    }}
-                    placeholder="e.g. addTwoNumbers"
-                    className="ac-input"
-                  />
-                </div>
-                <div className="ac-form-group">
-                  <label className="ac-label">Return Type</label>
-                  <select
-                    value={formData.returnType}
-                    onChange={(e) => {
-                      const rt = e.target.value;
-                      const jsTmpl = generateJsBoilerplate(formData.functionName, formData.parameters, rt, formData.title);
-                      const javaTmpl = generateJavaBoilerplate(formData.functionName, formData.parameters, rt);
-                      setFormData({ ...formData, returnType: rt, jsTemplate: jsTmpl, javaTemplate: javaTmpl });
-                    }}
-                    className="ac-select"
-                  >
-                    <option value="number">number</option>
-                    <option value="string">string</option>
-                    <option value="boolean">boolean</option>
-                    <option value="number[]">number[]</option>
-                    <option value="string[]">string[]</option>
-                    <option value="object">object</option>
-                    <option value="any">any</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Parameter Rows */}
-              {formData.parameters.map((param, pIdx) => (
-                <div key={pIdx} style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
-                  <input
-                    type="text"
-                    value={param.name}
-                    placeholder="param name (e.g. a)"
-                    onChange={(e) => updateParameter(pIdx, "name", e.target.value)}
-                    className="ac-input"
-                    style={{ flex: 1 }}
-                  />
-                  <select
-                    value={param.type}
-                    onChange={(e) => updateParameter(pIdx, "type", e.target.value)}
-                    className="ac-select"
-                    style={{ width: "140px" }}
-                  >
-                    <option value="number">number</option>
-                    <option value="string">string</option>
-                    <option value="boolean">boolean</option>
-                    <option value="number[]">number[]</option>
-                    <option value="string[]">string[]</option>
-                    <option value="object">object</option>
-                    <option value="any">any</option>
-                  </select>
-                  <button
-                    type="button"
-                    onClick={() => removeParameter(pIdx)}
-                    className="ac-btn ac-btn-danger"
-                    style={{ padding: "0.5rem" }}
-                  >
-                    <FiTrash2 />
-                  </button>
-                </div>
-              ))}
-
-              {/* Java Boilerplate Code */}
-              <div className="ac-section-title">
-                <span>Java Boilerplate Code Template</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const tmpl = generateJavaBoilerplate(formData.functionName, formData.parameters, formData.returnType);
-                    setFormData({ ...formData, javaTemplate: tmpl });
-                  }}
-                  className="ac-btn ac-btn-secondary"
-                  style={{ fontSize: "0.75rem", padding: "0.3rem 0.6rem" }}
-                >
-                  <FiRefreshCw /> Regenerate Java Default
-                </button>
-              </div>
-
-              <div className="ac-form-group">
-                <textarea
-                  rows={8}
-                  value={formData.javaTemplate}
-                  onChange={(e) => setFormData({ ...formData, javaTemplate: e.target.value })}
-                  className="ac-textarea ac-code-input"
-                  placeholder="Enter Java boilerplate template code (class Solution { ... })..."
-                />
-              </div>
-
-              {/* JavaScript Boilerplate Code */}
-              <div className="ac-section-title">
-                <span>JavaScript Boilerplate Code Template</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const tmpl = generateJsBoilerplate(formData.functionName, formData.parameters, formData.returnType, formData.title);
-                    setFormData({ ...formData, jsTemplate: tmpl });
-                  }}
-                  className="ac-btn ac-btn-secondary"
-                  style={{ fontSize: "0.75rem", padding: "0.3rem 0.6rem" }}
-                >
-                  <FiRefreshCw /> Regenerate JS Default
-                </button>
-              </div>
-
-              <div className="ac-form-group">
-                <textarea
-                  rows={8}
-                  value={formData.jsTemplate}
-                  onChange={(e) => setFormData({ ...formData, jsTemplate: e.target.value })}
-                  className="ac-textarea ac-code-input"
-                  placeholder="Enter JavaScript boilerplate template code..."
-                />
-              </div>
-
-              {/* Test Cases */}
-              <div className="ac-section-title">
-                <span>Test Cases ({formData.testCases.length})</span>
-                <button
-                  type="button"
-                  onClick={addTestCase}
-                  className="ac-btn ac-btn-secondary"
-                  style={{ fontSize: "0.75rem", padding: "0.3rem 0.6rem" }}
-                >
-                  <FiPlus /> Add Test Case
-                </button>
-              </div>
-
-              {formData.testCases.map((tc, tcIdx) => (
-                <div key={tcIdx} className="ac-tc-box">
-                  <div className="ac-tc-header">
-                    <span className="ac-tc-badge">Test Case #{tcIdx + 1} ({tc.testCaseId})</span>
-                    <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                      <label style={{ fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "0.35rem", cursor: "pointer" }}>
-                        <input
-                          type="checkbox"
-                          checked={tc.isSample}
-                          onChange={(e) => updateTestCase(tcIdx, "isSample", e.target.checked)}
+                {formAccordions.formats && (
+                  <div className="ac-accordion-content">
+                    <div className="ac-form-row">
+                      <div className="ac-form-group">
+                        <label className="ac-label">Input Format</label>
+                        <textarea
+                          rows={2}
+                          value={formData.inputFormat}
+                          onChange={(e) => setFormData({ ...formData, inputFormat: e.target.value })}
+                          placeholder="Describe input parameters format..."
+                          className="ac-textarea"
                         />
-                        <span>Sample Case (visible to user)</span>
-                      </label>
+                      </div>
+                      <div className="ac-form-group">
+                        <label className="ac-label">Output Format</label>
+                        <textarea
+                          rows={2}
+                          value={formData.outputFormat}
+                          onChange={(e) => setFormData({ ...formData, outputFormat: e.target.value })}
+                          placeholder="Describe expected return value format..."
+                          className="ac-textarea"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="ac-form-group" style={{ marginBottom: 0 }}>
+                      <label className="ac-label">Constraints (one per line)</label>
+                      <textarea
+                        rows={3}
+                        value={formData.constraints}
+                        onChange={(e) => setFormData({ ...formData, constraints: e.target.value })}
+                        placeholder="-10^9 <= a <= 10^9"
+                        className="ac-textarea"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Collapsible Section 2: Code Templates & Function Signature */}
+              <div className="ac-accordion-card">
+                <button
+                  type="button"
+                  className="ac-accordion-trigger"
+                  onClick={() => setFormAccordions((prev) => ({ ...prev, templates: !prev.templates }))}
+                >
+                  <div className="ac-accordion-trigger-left">
+                    <FiCode size={16} color="#ea580c" />
+                    <span className="ac-accordion-title">Function Signature &amp; Boilerplate Templates</span>
+                    <span className="ac-accordion-badge">
+                      {formData.parameters.length} Parameters · Java &amp; JS
+                    </span>
+                  </div>
+                  <div className="ac-accordion-trigger-right">
+                    <span className="ac-accordion-state-label">
+                      {formAccordions.templates ? "Collapse" : "Expand"}
+                    </span>
+                    {formAccordions.templates ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
+                  </div>
+                </button>
+
+                {formAccordions.templates && (
+                  <div className="ac-accordion-content">
+                    <div className="ac-section-title" style={{ marginTop: 0 }}>
+                      <span>Function Signature &amp; Parameters</span>
                       <button
                         type="button"
-                        onClick={() => removeTestCase(tcIdx)}
-                        className="ac-btn ac-btn-danger"
-                        style={{ padding: "0.3rem 0.5rem", fontSize: "0.75rem" }}
+                        onClick={addParameter}
+                        className="ac-btn ac-btn-secondary"
+                        style={{ fontSize: "0.75rem", padding: "0.3rem 0.6rem" }}
                       >
-                        <FiTrash2 /> Remove
+                        <FiPlus /> Add Parameter
                       </button>
                     </div>
-                  </div>
 
-                  <div className="ac-form-row">
-                    <div className="ac-form-group">
-                      <label className="ac-label">Input (JSON array of arguments) *</label>
-                      <input
-                        type="text"
-                        value={tc.input}
-                        onChange={(e) => updateTestCase(tcIdx, "input", e.target.value)}
-                        placeholder="[2, 3]"
-                        className="ac-input"
-                        style={{ fontFamily: "monospace" }}
-                      />
+                    <div className="ac-form-row">
+                      <div className="ac-form-group">
+                        <label className="ac-label">Function Name</label>
+                        <input
+                          type="text"
+                          value={formData.functionName}
+                          onChange={(e) => {
+                            const fn = e.target.value;
+                            const jsTmpl = generateJsBoilerplate(fn, formData.parameters, formData.returnType, formData.title);
+                            const javaTmpl = generateJavaBoilerplate(fn, formData.parameters, formData.returnType);
+                            setFormData({ ...formData, functionName: fn, jsTemplate: jsTmpl, javaTemplate: javaTmpl });
+                          }}
+                          placeholder="e.g. addTwoNumbers"
+                          className="ac-input"
+                        />
+                      </div>
+                      <div className="ac-form-group">
+                        <label className="ac-label">Return Type</label>
+                        <select
+                          value={formData.returnType}
+                          onChange={(e) => {
+                            const rt = e.target.value;
+                            const jsTmpl = generateJsBoilerplate(formData.functionName, formData.parameters, rt, formData.title);
+                            const javaTmpl = generateJavaBoilerplate(formData.functionName, formData.parameters, rt);
+                            setFormData({ ...formData, returnType: rt, jsTemplate: jsTmpl, javaTemplate: javaTmpl });
+                          }}
+                          className="ac-select"
+                        >
+                          <option value="number">number</option>
+                          <option value="string">string</option>
+                          <option value="boolean">boolean</option>
+                          <option value="number[]">number[]</option>
+                          <option value="string[]">string[]</option>
+                          <option value="object">object</option>
+                          <option value="any">any</option>
+                        </select>
+                      </div>
                     </div>
-                    <div className="ac-form-group">
-                      <label className="ac-label">Expected Output (JSON value) *</label>
-                      <input
-                        type="text"
-                        value={tc.expectedOutput}
-                        onChange={(e) => updateTestCase(tcIdx, "expectedOutput", e.target.value)}
-                        placeholder="5"
-                        className="ac-input"
-                        style={{ fontFamily: "monospace" }}
-                      />
-                    </div>
-                  </div>
 
-                  <div className="ac-form-row">
+                    {/* Parameter Rows */}
+                    {formData.parameters.map((param, pIdx) => (
+                      <div key={pIdx} style={{ display: "flex", gap: "0.75rem", alignItems: "center", marginBottom: "0.5rem" }}>
+                        <input
+                          type="text"
+                          value={param.name}
+                          placeholder="param name (e.g. a)"
+                          onChange={(e) => updateParameter(pIdx, "name", e.target.value)}
+                          className="ac-input"
+                          style={{ flex: 1 }}
+                        />
+                        <select
+                          value={param.type}
+                          onChange={(e) => updateParameter(pIdx, "type", e.target.value)}
+                          className="ac-select"
+                          style={{ width: "140px" }}
+                        >
+                          <option value="number">number</option>
+                          <option value="string">string</option>
+                          <option value="boolean">boolean</option>
+                          <option value="number[]">number[]</option>
+                          <option value="string[]">string[]</option>
+                          <option value="object">object</option>
+                          <option value="any">any</option>
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => removeParameter(pIdx)}
+                          className="ac-btn ac-btn-danger"
+                          style={{ padding: "0.5rem" }}
+                        >
+                          <FiTrash2 />
+                        </button>
+                      </div>
+                    ))}
+
+                    {/* Java Boilerplate Code */}
+                    <div className="ac-section-title">
+                      <span>Java Boilerplate Code Template</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const tmpl = generateJavaBoilerplate(formData.functionName, formData.parameters, formData.returnType);
+                          setFormData({ ...formData, javaTemplate: tmpl });
+                        }}
+                        className="ac-btn ac-btn-secondary"
+                        style={{ fontSize: "0.75rem", padding: "0.3rem 0.6rem" }}
+                      >
+                        <FiRefreshCw /> Regenerate Java Default
+                      </button>
+                    </div>
+
                     <div className="ac-form-group">
-                      <label className="ac-label">Raw Input Display (e.g. a = 2, b = 3)</label>
-                      <input
-                        type="text"
-                        value={tc.rawInput}
-                        onChange={(e) => updateTestCase(tcIdx, "rawInput", e.target.value)}
-                        placeholder="a = 2, b = 3"
-                        className="ac-input"
+                      <textarea
+                        rows={7}
+                        value={formData.javaTemplate}
+                        onChange={(e) => setFormData({ ...formData, javaTemplate: e.target.value })}
+                        className="ac-textarea ac-code-input"
+                        placeholder="Enter Java boilerplate template code (class Solution { ... })..."
                       />
                     </div>
-                    <div className="ac-form-group">
-                      <label className="ac-label">Explanation (optional)</label>
-                      <input
-                        type="text"
-                        value={tc.explanation}
-                        onChange={(e) => updateTestCase(tcIdx, "explanation", e.target.value)}
-                        placeholder="2 + 3 equals 5"
-                        className="ac-input"
+
+                    {/* JavaScript Boilerplate Code */}
+                    <div className="ac-section-title">
+                      <span>JavaScript Boilerplate Code Template</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const tmpl = generateJsBoilerplate(formData.functionName, formData.parameters, formData.returnType, formData.title);
+                          setFormData({ ...formData, jsTemplate: tmpl });
+                        }}
+                        className="ac-btn ac-btn-secondary"
+                        style={{ fontSize: "0.75rem", padding: "0.3rem 0.6rem" }}
+                      >
+                        <FiRefreshCw /> Regenerate JS Default
+                      </button>
+                    </div>
+
+                    <div className="ac-form-group" style={{ marginBottom: 0 }}>
+                      <textarea
+                        rows={7}
+                        value={formData.jsTemplate}
+                        onChange={(e) => setFormData({ ...formData, jsTemplate: e.target.value })}
+                        className="ac-textarea ac-code-input"
+                        placeholder="Enter JavaScript boilerplate template code..."
                       />
                     </div>
                   </div>
-                </div>
-              ))}
+                )}
+              </div>
+
+              {/* Collapsible Section 3: Test Cases */}
+              <div className="ac-accordion-card">
+                <button
+                  type="button"
+                  className="ac-accordion-trigger"
+                  onClick={() => setFormAccordions((prev) => ({ ...prev, testcases: !prev.testcases }))}
+                >
+                  <div className="ac-accordion-trigger-left">
+                    <FiCheckCircle size={16} color="#16a34a" />
+                    <span className="ac-accordion-title">Test Cases Configuration</span>
+                    <span className="ac-accordion-badge">
+                      {formData.testCases.length} Testcases
+                    </span>
+                  </div>
+                  <div className="ac-accordion-trigger-right">
+                    <span className="ac-accordion-state-label">
+                      {formAccordions.testcases ? "Collapse" : "Expand"}
+                    </span>
+                    {formAccordions.testcases ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
+                  </div>
+                </button>
+
+                {formAccordions.testcases && (
+                  <div className="ac-accordion-content">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+                      <span style={{ fontSize: "0.85rem", color: "#64748b" }}>
+                        Specify inputs (as JSON argument array) and expected output.
+                      </span>
+                      <button
+                        type="button"
+                        onClick={addTestCase}
+                        className="ac-btn ac-btn-secondary"
+                        style={{ fontSize: "0.75rem", padding: "0.3rem 0.6rem" }}
+                      >
+                        <FiPlus /> Add Test Case
+                      </button>
+                    </div>
+
+                    {formData.testCases.map((tc, tcIdx) => (
+                      <div key={tcIdx} className="ac-tc-box">
+                        <div className="ac-tc-header">
+                          <span className="ac-tc-badge">Test Case #{tcIdx + 1} ({tc.testCaseId})</span>
+                          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                            <label style={{ fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "0.35rem", cursor: "pointer" }}>
+                              <input
+                                type="checkbox"
+                                checked={tc.isSample}
+                                onChange={(e) => updateTestCase(tcIdx, "isSample", e.target.checked)}
+                              />
+                              <span>Sample Case (visible to user)</span>
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => removeTestCase(tcIdx)}
+                              className="ac-btn ac-btn-danger"
+                              style={{ padding: "0.3rem 0.5rem", fontSize: "0.75rem" }}
+                            >
+                              <FiTrash2 /> Remove
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="ac-form-row">
+                          <div className="ac-form-group">
+                            <label className="ac-label">Input (JSON array of arguments) *</label>
+                            <input
+                              type="text"
+                              value={tc.input}
+                              onChange={(e) => updateTestCase(tcIdx, "input", e.target.value)}
+                              placeholder="[2, 3]"
+                              className="ac-input"
+                              style={{ fontFamily: "monospace" }}
+                            />
+                          </div>
+                          <div className="ac-form-group">
+                            <label className="ac-label">Expected Output (JSON value) *</label>
+                            <input
+                              type="text"
+                              value={tc.expectedOutput}
+                              onChange={(e) => updateTestCase(tcIdx, "expectedOutput", e.target.value)}
+                              placeholder="5"
+                              className="ac-input"
+                              style={{ fontFamily: "monospace" }}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="ac-form-row">
+                          <div className="ac-form-group">
+                            <label className="ac-label">Raw Input Display (e.g. a = 2, b = 3)</label>
+                            <input
+                              type="text"
+                              value={tc.rawInput}
+                              onChange={(e) => updateTestCase(tcIdx, "rawInput", e.target.value)}
+                              placeholder="a = 2, b = 3"
+                              className="ac-input"
+                            />
+                          </div>
+                          <div className="ac-form-group">
+                            <label className="ac-label">Explanation (optional)</label>
+                            <input
+                              type="text"
+                              value={tc.explanation}
+                              onChange={(e) => updateTestCase(tcIdx, "explanation", e.target.value)}
+                              placeholder="2 + 3 equals 5"
+                              className="ac-input"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
                 </div>
                 <div className="ac-modal-sticky-footer">
