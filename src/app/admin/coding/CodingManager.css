@@ -689,6 +689,39 @@
   gap: 1.15rem;
 }
 
+/* ── Form Section Toolbar & Helpers ── */
+.ac-form-sections-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  padding: 0.6rem 0.85rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.ac-btn-text {
+  background: none;
+  border: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #2563eb;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.15s ease;
+}
+
+.ac-btn-text:hover {
+  background: #eff6ff;
+}
+
 /* ── Collapsible Accordion Cards in Form Builder ── */
 .ac-accordion-card {
   border: 1px solid var(--ac-border);

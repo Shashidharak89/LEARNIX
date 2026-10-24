@@ -338,6 +338,7 @@ export default function CodingManager() {
   const [jsonError, setJsonError] = useState(null);
   const [jsonCopied, setJsonCopied] = useState(false);
   const [jsonSaving, setJsonSaving] = useState(false);
+  const [originalEditJson, setOriginalEditJson] = useState("");
 
   // Topic Management State
   const [topics, setTopics] = useState([]);
@@ -709,6 +710,98 @@ function ${funcName || "solution"}(${paramNames}) {
     setJsonError(null);
   }
 
+  // Prepares the full JSON representation of the current problem based on formData
+  function syncFormToJson() {
+    const fullProblemJson = {
+      ...(editingId ? { problemId: editingId } : {}),
+      title: formData.title,
+      slug: formData.slug || formData.title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+      difficulty: formData.difficulty,
+      order: Number(formData.order) || 1,
+      isActive: formData.isActive,
+      tags: formData.tags ? formData.tags.split(",").map((t) => t.trim()).filter(Boolean) : [],
+      topicIds: Array.isArray(formData.topicIds) ? formData.topicIds : [],
+      description: formData.description,
+      inputFormat: formData.inputFormat,
+      outputFormat: formData.outputFormat,
+      constraints: formData.constraints ? formData.constraints.split("\n").map((c) => c.trim()).filter(Boolean) : [],
+      functionName: formData.functionName,
+      returnType: formData.returnType,
+      parameters: formData.parameters,
+      boilerplateCode: formData.jsTemplate,
+      javaBoilerplate: formData.javaTemplate,
+      testCases: formData.testCases.map((tc, idx) => ({
+        testCaseId: tc.testCaseId || `tc_${String(idx + 1).padStart(2, "0")}`,
+        order: idx + 1,
+        input: tc.input,
+        rawInput: tc.rawInput || tc.input,
+        expectedOutput: tc.expectedOutput,
+        isSample: Boolean(tc.isSample),
+        explanation: tc.explanation || "",
+      })),
+    };
+    const formatted = JSON.stringify(fullProblemJson, null, 2);
+    setJsonInput(formatted);
+    setJsonParsed(fullProblemJson);
+    setJsonError(null);
+  }
+
+  // Parses the current JSON input and updates all formData fields accordingly
+  function applyJsonToForm() {
+    let parsed = jsonParsed;
+    if (!parsed) {
+      try {
+        parsed = JSON.parse(jsonInput);
+      } catch {
+        try {
+          parsed = JSON.parse(tryCleanJson(jsonInput));
+        } catch (err) {
+          alert("JSON Syntax Error: " + err.message);
+          return false;
+        }
+      }
+    }
+    const item = Array.isArray(parsed) ? parsed[0] : (parsed?.problem || parsed);
+    if (!item) {
+      alert("Invalid JSON: No problem object found.");
+      return false;
+    }
+    try {
+      const normalized = normalizeProblemPayload(item, Number(item.order) || formData.order || 1, 0);
+      setFormData({
+        title: normalized.title,
+        slug: normalized.slug,
+        difficulty: normalized.difficulty,
+        tags: normalized.tags.join(", "),
+        topicIds: normalized.topicIds,
+        description: normalized.description,
+        inputFormat: normalized.inputFormat,
+        outputFormat: normalized.outputFormat,
+        constraints: Array.isArray(normalized.constraints) ? normalized.constraints.join("\n") : (normalized.constraints || ""),
+        functionName: normalized.functionName,
+        returnType: normalized.returnType,
+        parameters: normalized.parameters,
+        jsTemplate: normalized.boilerplateCode,
+        javaTemplate: normalized.javaBoilerplate,
+        order: normalized.order,
+        isActive: normalized.isActive,
+        testCases: normalized.testCases,
+      });
+      alert("Successfully parsed JSON into the Form Editor!");
+      return true;
+    } catch (err) {
+      alert("Validation Error: " + err.message);
+      return false;
+    }
+  }
+
+  function handleResetToSavedJson() {
+    if (originalEditJson) {
+      setJsonInput(originalEditJson);
+      handleJsonTextChange(originalEditJson);
+    }
+  }
+
   function normalizeProblemPayload(item, assignedOrder, index = 0) {
     const title = item.title || item.name || item.questionTitle || item.problemName;
     if (!title || typeof title !== "string") {
@@ -912,6 +1005,72 @@ function ${funcName || "solution"}(${paramNames}) {
     }
   }
 
+  async function handleSaveFromJson() {
+    if (!jsonInput || !jsonInput.trim()) {
+      alert("Please paste or load problem JSON data first.");
+      return;
+    }
+
+    let parsed = jsonParsed;
+    if (!parsed) {
+      try {
+        parsed = JSON.parse(jsonInput);
+      } catch {
+        try {
+          parsed = JSON.parse(tryCleanJson(jsonInput));
+        } catch (err) {
+          alert("JSON Syntax Error: " + err.message + "\nPlease fix the JSON syntax or ensure all keys/strings use double quotes.");
+          return;
+        }
+      }
+    }
+
+    if (editingId) {
+      const item = Array.isArray(parsed) ? parsed[0] : (parsed?.problem || parsed);
+      if (!item || typeof item !== "object") {
+        alert("Invalid JSON format: Expected a problem object.");
+        return;
+      }
+
+      let payload;
+      try {
+        const orderNum = Number(item.order) || Number(formData.order) || 1;
+        payload = normalizeProblemPayload(item, orderNum, 0);
+      } catch (valErr) {
+        alert("Validation Error: " + valErr.message);
+        return;
+      }
+
+      setJsonSaving(true);
+      try {
+        const res = await fetch(`/api/admin/coding/problems/${editingId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          setIsModalOpen(false);
+          fetchProblems(token);
+          alert(`Successfully updated problem "${payload.title}" via JSON!`);
+        } else {
+          alert(data.error || "Failed to update problem via JSON");
+        }
+      } catch (err) {
+        alert("Error updating problem via JSON: " + err.message);
+      } finally {
+        setJsonSaving(false);
+      }
+      return;
+    }
+
+    await handleCreateFromJson();
+  }
+
   async function openEditModal(problem) {
     setEditingId(problem.problemId);
     setActiveModalTab("form");
@@ -932,11 +1091,11 @@ function ${funcName || "solution"}(${paramNames}) {
           explanation: tc.explanation || "",
         }));
 
-        setFormData({
+        const newFormData = {
           title: p.title || "",
           slug: p.slug || p.problemId,
           difficulty: p.difficulty || "Easy",
-          tags: Array.isArray(p.tags) ? p.tags.join(", ") : "",
+          tags: Array.isArray(p.tags) ? p.tags.join(", ") : (p.tags || ""),
           topicIds: Array.isArray(p.topicIds) ? p.topicIds : (Array.isArray(p.tags) ? p.tags.map((t) => t.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "")) : []),
           description: p.description || "",
           inputFormat: p.inputFormat || "",
@@ -950,9 +1109,38 @@ function ${funcName || "solution"}(${paramNames}) {
           order: p.order || 1,
           isActive: p.isActive !== false,
           testCases: tcs.length > 0 ? tcs : [{ testCaseId: "tc_01", input: "[]", rawInput: "", expectedOutput: "0", isSample: true, explanation: "" }],
-        });
-        // Reset accordions so edit modal always starts clean
-        setFormAccordions({ formats: false, templates: false, testcases: true });
+        };
+        setFormData(newFormData);
+
+        // Prepopulate the full JSON representation for the JSON Editor tab
+        const fullProblemJson = {
+          problemId: p.problemId,
+          title: newFormData.title,
+          slug: newFormData.slug,
+          difficulty: newFormData.difficulty,
+          order: newFormData.order,
+          isActive: newFormData.isActive,
+          tags: Array.isArray(p.tags) ? p.tags : (newFormData.tags ? newFormData.tags.split(",").map((t) => t.trim()).filter(Boolean) : []),
+          topicIds: newFormData.topicIds,
+          description: newFormData.description,
+          inputFormat: newFormData.inputFormat,
+          outputFormat: newFormData.outputFormat,
+          constraints: Array.isArray(p.constraints) ? p.constraints : newFormData.constraints.split("\n").map((c) => c.trim()).filter(Boolean),
+          functionName: newFormData.functionName,
+          returnType: newFormData.returnType,
+          parameters: newFormData.parameters,
+          boilerplateCode: newFormData.jsTemplate,
+          javaBoilerplate: newFormData.javaTemplate,
+          testCases: newFormData.testCases,
+        };
+        const formattedJsonStr = JSON.stringify(fullProblemJson, null, 2);
+        setJsonInput(formattedJsonStr);
+        setJsonParsed(fullProblemJson);
+        setJsonError(null);
+        setOriginalEditJson(formattedJsonStr);
+
+        // All sections expanded so all options are directly visible and editable
+        setFormAccordions({ formats: true, templates: true, testcases: true });
         setIsModalOpen(true);
       } else {
         alert(data.error || "Failed to fetch problem details");
@@ -1368,57 +1556,95 @@ function ${funcName || "solution"}(${paramNames}) {
               </button>
             </div>
 
-            {!editingId && (
-              <div className="ac-modal-tabs">
-                <button
-                  type="button"
-                  className={`ac-modal-tab ${activeModalTab === "form" ? "active" : ""}`}
-                  onClick={() => setActiveModalTab("form")}
-                >
-                  <FiSliders /> Form Builder
-                </button>
-                <button
-                  type="button"
-                  className={`ac-modal-tab ${activeModalTab === "json" ? "active" : ""}`}
-                  onClick={() => setActiveModalTab("json")}
-                >
-                  <FiFileText /> JSON Data Insert
-                </button>
-              </div>
-            )}
+            <div className="ac-modal-tabs">
+              <button
+                type="button"
+                className={`ac-modal-tab ${activeModalTab === "form" ? "active" : ""}`}
+                onClick={() => setActiveModalTab("form")}
+              >
+                <FiSliders /> {editingId ? "Form Editor (Fields & Testcases)" : "Form Builder"}
+              </button>
+              <button
+                type="button"
+                className={`ac-modal-tab ${activeModalTab === "json" ? "active" : ""}`}
+                onClick={() => {
+                  syncFormToJson();
+                  setActiveModalTab("json");
+                }}
+              >
+                <FiFileText /> {editingId ? "Edit via JSON (All Details)" : "JSON Data Insert"}
+              </button>
+            </div>
 
-            {activeModalTab === "json" && !editingId ? (
+            {activeModalTab === "json" ? (
               <div className="ac-modal-content-wrapper">
                 <div className="ac-json-wrapper">
-                  {/* Information Banner with Dummy Sample Actions */}
+                  {/* Information Banner with Actions */}
                   <div className="ac-json-banner">
                     <div className="ac-json-banner-text">
                       <h4>
-                        <FiCode /> Quick Problem Creation via JSON
+                        <FiCode /> {editingId ? "Edit Problem via Raw JSON" : "Quick Problem Creation via JSON"}
                       </h4>
                       <p>
-                        Paste problem specifications in JSON format. Note: Boilerplate must be starter skeleton code (with JSDoc and <code>{"// Write your code here"}</code>), not actual working solution code.
+                        {editingId
+                          ? "This JSON contains all details of this problem including test cases, topics, templates, and constraints. You can edit any value directly or paste an updated JSON object to update this problem."
+                          : "Paste problem specifications in JSON format. Note: Boilerplate must be starter skeleton code (with JSDoc and // Write your code here), not actual working solution code."}
                       </p>
                     </div>
                     <div className="ac-json-banner-actions">
                       <button
                         type="button"
-                        onClick={handleCopySample}
+                        onClick={() => {
+                          if (typeof navigator !== "undefined" && navigator?.clipboard?.writeText) {
+                            navigator.clipboard.writeText(jsonInput);
+                            setJsonCopied(true);
+                            setTimeout(() => setJsonCopied(false), 2200);
+                          } else {
+                            handleCopySample();
+                          }
+                        }}
                         className={`ac-json-tool-btn ${jsonCopied ? "ac-json-tool-btn-copied" : "ac-json-tool-btn-primary"}`}
-                        title="Copy standard dummy sample format to clipboard"
+                        title="Copy JSON to clipboard"
                       >
                         {jsonCopied ? <FiCheck /> : <FiCopy />}
-                        <span>{jsonCopied ? "Copied Sample JSON!" : "Copy Sample JSON"}</span>
+                        <span>{jsonCopied ? (editingId ? "Copied Problem JSON!" : "Copied Sample JSON!") : (editingId ? "Copy Problem JSON" : "Copy Sample JSON")}</span>
                       </button>
-                      <button
-                        type="button"
-                        onClick={handleLoadSample}
-                        className="ac-json-tool-btn"
-                        title="Load sample template into the editor"
-                      >
-                        <FiDownload />
-                        <span>Load Sample into Editor</span>
-                      </button>
+                      {editingId ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (applyJsonToForm()) {
+                                setActiveModalTab("form");
+                              }
+                            }}
+                            className="ac-json-tool-btn"
+                            title="Parse and apply this JSON to the Form Editor"
+                          >
+                            <FiSliders />
+                            <span>Apply to Form Editor</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleResetToSavedJson}
+                            className="ac-json-tool-btn"
+                            title="Reset to original saved JSON"
+                          >
+                            <FiRefreshCw />
+                            <span>Reset to Saved</span>
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleLoadSample}
+                          className="ac-json-tool-btn"
+                          title="Load sample template into the editor"
+                        >
+                          <FiDownload />
+                          <span>Load Sample into Editor</span>
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -1647,18 +1873,18 @@ Example structure:
                   <div className="ac-footer-status">
                     {jsonSaving ? (
                       <span style={{ color: "#2563eb", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                        <FiRefreshCw className="animate-spin" /> Saving problem(s) to DynamoDB...
+                        <FiRefreshCw className="animate-spin" /> {editingId ? "Updating problem in DynamoDB..." : "Saving problem(s) to DynamoDB..."}
                       </span>
                     ) : jsonParsed && !jsonError ? (
                       <span style={{ color: "#16a34a", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                        <FiCheckCircle /> Ready to create: {Array.isArray(jsonParsed) ? `${jsonParsed.length} Problems (Bulk Array)` : (jsonParsed.title || jsonParsed.name || "Problem")}
+                        <FiCheckCircle /> {editingId ? `Ready to update: "${jsonParsed.title || formData.title}"` : `Ready to create: ${Array.isArray(jsonParsed) ? `${jsonParsed.length} Problems (Bulk Array)` : (jsonParsed.title || jsonParsed.name || "Problem")}`}
                       </span>
                     ) : jsonError ? (
                       <span style={{ color: "#dc2626", display: "flex", alignItems: "center", gap: "0.4rem" }}>
                         <FiAlertCircle /> Fix syntax error above to proceed
                       </span>
                     ) : (
-                      <span>Paste JSON or click &quot;Load Sample into Editor&quot;</span>
+                      <span>{editingId ? "Edit JSON or click 'Update Problem via JSON'" : "Paste JSON or click 'Load Sample into Editor'"}</span>
                     )}
                   </div>
                   <div className="ac-modal-footer-actions">
@@ -1669,23 +1895,43 @@ Example structure:
                     >
                       Cancel
                     </button>
-                    <button
-                      type="button"
-                      onClick={handleCreateFromJson}
-                      disabled={jsonSaving || (!jsonParsed && !jsonInput.trim())}
-                      className="ac-btn ac-btn-primary"
-                      style={{ minWidth: "210px" }}
-                    >
-                      {jsonSaving ? (
-                        <>
-                          <FiRefreshCw className="animate-spin" /> Creating Problem(s)...
-                        </>
-                      ) : (
-                        <>
-                          <FiPlus /> Paste &amp; Create {Array.isArray(jsonParsed) ? `${jsonParsed.length} Problems` : "Problem"}
-                        </>
-                      )}
-                    </button>
+                    {editingId ? (
+                      <button
+                        type="button"
+                        onClick={handleSaveFromJson}
+                        disabled={jsonSaving || Boolean(jsonError)}
+                        className="ac-btn ac-btn-primary"
+                        style={{ minWidth: "210px" }}
+                      >
+                        {jsonSaving ? (
+                          <>
+                            <FiRefreshCw className="animate-spin" /> Updating Problem...
+                          </>
+                        ) : (
+                          <>
+                            <FiCheck /> Update Problem via JSON
+                          </>
+                        )}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleSaveFromJson}
+                        disabled={jsonSaving || (!jsonParsed && !jsonInput.trim())}
+                        className="ac-btn ac-btn-primary"
+                        style={{ minWidth: "210px" }}
+                      >
+                        {jsonSaving ? (
+                          <>
+                            <FiRefreshCw className="animate-spin" /> Creating Problem(s)...
+                          </>
+                        ) : (
+                          <>
+                            <FiPlus /> Paste &amp; Create {Array.isArray(jsonParsed) ? `${jsonParsed.length} Problems` : "Problem"}
+                          </>
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1800,6 +2046,45 @@ Example structure:
                   placeholder="Describe the problem, examples, and details..."
                   className="ac-textarea"
                 />
+              </div>
+
+              {/* Sections Toolbar: Expand/Collapse All & Switch to JSON */}
+              <div className="ac-form-sections-toolbar">
+                <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
+                  <FiSliders color="#ea580c" size={15} />
+                  <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "#334155" }}>
+                    Advanced Settings &amp; Test Cases:
+                  </span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <button
+                    type="button"
+                    className="ac-btn-text"
+                    onClick={() => {
+                      const allOpen = formAccordions.formats && formAccordions.templates && formAccordions.testcases;
+                      setFormAccordions({
+                        formats: !allOpen,
+                        templates: !allOpen,
+                        testcases: !allOpen,
+                      });
+                    }}
+                  >
+                    {formAccordions.formats && formAccordions.templates && formAccordions.testcases
+                      ? "Collapse All Sections"
+                      : "Expand All Sections"}
+                  </button>
+                  <button
+                    type="button"
+                    className="ac-btn-text"
+                    style={{ color: "#ea580c" }}
+                    onClick={() => {
+                      syncFormToJson();
+                      setActiveModalTab("json");
+                    }}
+                  >
+                    <FiFileText style={{ marginRight: 4 }} /> Edit this Question in JSON
+                  </button>
+                </div>
               </div>
 
               {/* Collapsible Section 1: Formats & Constraints */}
