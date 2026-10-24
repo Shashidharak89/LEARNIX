@@ -30,6 +30,20 @@
   color: #ffffff;
 }
 
+.lcn-brand-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.4));
+  border-radius: 6px;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: block;
+}
+
+.lcn-brand:hover .lcn-brand-img {
+  transform: scale(1.08) rotate(3deg);
+}
+
 .lcn-brand-icon {
   background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
   color: #ffffff;

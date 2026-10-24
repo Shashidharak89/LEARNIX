@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   FiArrowRight,
   FiPlay,
@@ -43,6 +44,17 @@ export default function LearnixCodeHomePage() {
       <main className="lch-main">
         {/* Hero Section */}
         <section className="lch-hero">
+          <div className="lch-hero-logo-wrap">
+            <Image
+              src="/learnix-code-logo.png"
+              alt="Learnix Code"
+              width={88}
+              height={88}
+              className="lch-hero-logo"
+              priority
+            />
+          </div>
+
           <div className="lch-badge">
             <FiZap size={14} />
             <span>Interactive Code Arena</span>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { FiLogOut, FiShield, FiCode, FiLayers } from "react-icons/fi";
 import { recordCodingEntry, exitCodingEnvironment } from "@/utils/codingExitTracker";
@@ -41,7 +42,14 @@ export default function LearnixCodeNav() {
     <nav className="lcn-navbar">
       <div className="lcn-left">
         <Link href="/learnix-code" className="lcn-brand">
-          <span className="lcn-brand-icon">&lt;/&gt;</span>
+          <Image
+            src="/learnix-code-logo.png"
+            alt="Learnix Code Logo"
+            width={32}
+            height={32}
+            className="lcn-brand-img"
+            priority
+          />
           <span>Learnix <span style={{ color: "#38bdf8" }}>Code</span></span>
         </Link>
 

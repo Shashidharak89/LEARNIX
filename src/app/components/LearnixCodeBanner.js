@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { FiCode, FiArrowRight, FiCheckCircle } from "react-icons/fi";
 import "./styles/LearnixCodeBanner.css";
 
@@ -12,7 +13,13 @@ export default function LearnixCodeBanner() {
 
         <div className="lcb-content">
           <div className="lcb-badge">
-            <span className="lcb-badge-dot" />
+            <Image
+              src="/learnix-code-logo.png"
+              alt="Learnix Code Logo"
+              width={20}
+              height={20}
+              className="lcb-badge-logo"
+            />
             <span>Interactive Coding Arena</span>
           </div>
 

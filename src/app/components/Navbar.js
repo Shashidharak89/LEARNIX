@@ -17,7 +17,6 @@ import {
   FiTool,
   FiBell,
   FiClipboard,
-  FiCode,
   FiShield,
 } from "react-icons/fi";
 import "./styles/Navbar.css";
@@ -368,7 +367,13 @@ const NavbarContent = ({ searchParams }) => {
             tabIndex={isOpen ? 0 : -1}
           >
             <span className="learnix-nav-icon">
-              <FiCode size={18} />
+              <Image
+                src="/learnix-code-logo.png"
+                alt="Learnix Code"
+                width={20}
+                height={20}
+                style={{ objectFit: "contain", verticalAlign: "middle" }}
+              />
             </span>
             <span className="learnix-nav-text">Learnix Code</span>
           </Link>

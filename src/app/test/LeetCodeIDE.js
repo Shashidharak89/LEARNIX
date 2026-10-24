@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   FiPlay,
@@ -799,7 +800,16 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     return (
       <div className="lc-workspace" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ textAlign: "center", color: "#9ca3af" }}>
-          <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>⚡</div>
+          <div style={{ marginBottom: "1.2rem" }}>
+            <Image
+              src="/learnix-code-logo.png"
+              alt="Learnix Code"
+              width={64}
+              height={64}
+              style={{ filter: "drop-shadow(0 0 16px rgba(245, 158, 11, 0.45))", animation: "pulse 2s infinite" }}
+              priority
+            />
+          </div>
           <h2 style={{ color: "#ffffff", margin: "0 0 0.5rem 0" }}>Loading Learnix Coding Playground...</h2>
           <p>Initializing LeetCode interface and connecting to DynamoDB</p>
         </div>
@@ -816,8 +826,15 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
       {/* ── Top Bar ── */}
       <nav className="lc-navbar">
         <div className="lc-nav-left">
-          <Link href="/" className="lc-logo">
-            <span className="lc-logo-icon">&lt;/&gt;</span>
+          <Link href="/learnix-code" className="lc-logo" title="Back to Learnix Code Arena">
+            <Image
+              src="/learnix-code-logo.png"
+              alt="Learnix Code Logo"
+              width={28}
+              height={28}
+              className="lc-logo-img"
+              priority
+            />
             <span>Learnix <span style={{ color: "#f59e0b" }}>Code</span></span>
           </Link>
 

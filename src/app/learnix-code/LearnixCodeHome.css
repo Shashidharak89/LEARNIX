@@ -25,6 +25,27 @@
   position: relative;
 }
 
+.lch-hero-logo-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.lch-hero-logo {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 30px rgba(245, 158, 11, 0.45));
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.3s ease;
+  border-radius: 12px;
+}
+
+.lch-hero-logo:hover {
+  transform: scale(1.08) rotate(2deg);
+  filter: drop-shadow(0 0 45px rgba(245, 158, 11, 0.65));
+}
+
 .lch-badge {
   display: inline-flex;
   align-items: center;

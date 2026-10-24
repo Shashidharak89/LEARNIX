@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   FiCode,
   FiPlus,
@@ -1097,7 +1098,14 @@ function ${funcName || "solution"}(${paramNames}) {
       <header className="ac-header">
         <div className="ac-header-left">
           <h1>
-            <FiCode /> Coding Problems Management
+            <Image
+              src="/learnix-code-logo.png"
+              alt="Learnix Code"
+              width={30}
+              height={30}
+              style={{ objectFit: "contain", verticalAlign: "middle", marginRight: "0.5rem" }}
+            />
+            Coding Problems Management
           </h1>
           <p>
             Create, edit, and configure LeetCode-style questions, JavaScript boilerplate templates, and normalized test cases.

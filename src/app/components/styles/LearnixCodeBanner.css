@@ -64,6 +64,14 @@
   margin-bottom: 1.1rem;
 }
 
+.lcb-badge-logo {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.45));
+  border-radius: 4px;
+}
+
 .lcb-badge-dot {
   width: 7px;
   height: 7px;
