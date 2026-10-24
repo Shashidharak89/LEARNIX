@@ -102,6 +102,8 @@ export async function GET(req, { params }) {
         parameters: problem.parameters || [],
         returnType: problem.returnType,
         templates: problem.templates || {},
+        boilerplateCode: problem.boilerplateCode || problem.templates?.javascript || "",
+        javaBoilerplate: problem.javaBoilerplate || problem.templates?.java || "",
         totalTestCasesCount: allTestCases.length,
         sampleCases,
       },

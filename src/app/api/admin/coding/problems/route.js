@@ -74,6 +74,8 @@ export async function POST(req) {
       parameters = [],
       returnType = "any",
       templates = {},
+      boilerplateCode,
+      javaBoilerplate,
       order = 1,
       isActive = true,
       testCases = [],
@@ -91,41 +93,71 @@ export async function POST(req) {
     const problemId = cleanSlug || `problem-${Date.now()}`;
     const now = new Date().toISOString();
 
-    // Default javascript boilerplate template if not specified
-    // Generate default Java boilerplate template
+    // Comprehensive Java type mapping
     const javaTypeMap = {
       number: "int",
+      int: "int",
+      integer: "int",
+      long: "long",
+      double: "double",
+      float: "double",
       string: "String",
       boolean: "boolean",
+      bool: "boolean",
+      char: "char",
+      character: "char",
       "number[]": "int[]",
+      "int[]": "int[]",
       "string[]": "String[]",
+      "boolean[]": "boolean[]",
+      array: "int[]",
+      "array<number>": "int[]",
+      "array<string>": "String[]",
       object: "Map<String, Object>",
       any: "Object",
+      void: "void",
     };
-    const jRetType = javaTypeMap[returnType] || "int";
+
+    const normRet = String(returnType || "int").toLowerCase();
+    const jRetType = javaTypeMap[normRet] || "int";
     const jDefaultReturn =
-      jRetType === "int" || jRetType === "long" || jRetType === "double"
-        ? "0"
+      jRetType === "int" || jRetType === "long" || jRetType === "short" || jRetType === "byte"
+        ? "return 0;"
+        : jRetType === "double" || jRetType === "float"
+        ? "return 0.0;"
         : jRetType === "boolean"
-        ? "false"
+        ? "return false;"
         : jRetType === "String"
-        ? '""'
+        ? 'return "";'
+        : jRetType === "void"
+        ? ""
         : jRetType.endsWith("[]")
-        ? `new ${jRetType}{}`
-        : "null";
+        ? `return new ${jRetType}{};`
+        : "return null;";
 
     const jParams = (parameters || [])
-      .map((p) => `${javaTypeMap[p.type] || "int"} ${p.name || "arg"}`)
+      .map((p) => {
+        const pType = javaTypeMap[String(p.type || "number").toLowerCase()] || "int";
+        return `${pType} ${p.name || "arg"}`;
+      })
       .join(", ");
 
-    const defaultJavaTemplate = `class Solution {\n    public ${jRetType} ${functionName}(${jParams}) {\n        // Write your code here\n        return ${jDefaultReturn};\n    }\n}`;
+    const defaultJavaTemplate = `class Solution {\n    public ${jRetType} ${functionName}(${jParams}) {\n        // Write your code here\n        ${jDefaultReturn}\n    }\n}`;
 
-    // Default templates for both JavaScript and Java
+    // Final templates for both JavaScript and Java
+    const finalJsBoilerplate =
+      templates.javascript ||
+      boilerplateCode ||
+      `/**\n${parameters.map((p) => ` * @param {${p.type || "any"}} ${p.name || "arg"}`).join("\n")}\n * @return {${returnType || "any"}}\n */\nfunction ${functionName}(${parameters.map((p) => p.name || "arg").join(", ")}) {\n    // Write your code here\n}`;
+
+    const finalJavaBoilerplate =
+      templates.java ||
+      javaBoilerplate ||
+      defaultJavaTemplate;
+
     const finalTemplates = {
-      javascript:
-        templates.javascript ||
-        `/**\n${parameters.map((p) => ` * @param {${p.type || "any"}} ${p.name || "arg"}`).join("\n")}\n * @return {${returnType || "any"}}\n */\nfunction ${functionName}(${parameters.map((p) => p.name || "arg").join(", ")}) {\n    // Write your code here\n}`,
-      java: templates.java || defaultJavaTemplate,
+      javascript: finalJsBoilerplate,
+      java: finalJavaBoilerplate,
       ...templates,
     };
 
@@ -143,6 +175,8 @@ export async function POST(req) {
       parameters: Array.isArray(parameters) ? parameters : [],
       returnType,
       templates: finalTemplates,
+      boilerplateCode: finalJsBoilerplate,
+      javaBoilerplate: finalJavaBoilerplate,
       order: Number(order) || 1,
       isActive: Boolean(isActive),
       createdAt: now,

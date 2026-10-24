@@ -1,5 +1,6 @@
 import vm from "node:vm";
 import { performance } from "node:perf_hooks";
+import { areOutputsEqual } from "./outputComparator.js";
 
 /**
  * Execute user submitted JavaScript code against test cases in an isolated VM sandbox.
@@ -97,8 +98,7 @@ export function executeCode({
       totalRuntime += elapsed;
 
       const actualOutput = sandbox.returnValue;
-      const isMatch =
-        JSON.stringify(actualOutput) === JSON.stringify(tc.expectedOutput);
+      const isMatch = areOutputsEqual(actualOutput, tc.expectedOutput);
 
       if (!isMatch) {
         allPassed = false;

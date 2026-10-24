@@ -50,6 +50,12 @@ const SAMPLE_PROBLEM_JSON = {
 function addTwoNumbers(a, b) {
     // Write your code here
 }`,
+  javaBoilerplate: `class Solution {
+    public int addTwoNumbers(int a, int b) {
+        // Write your code here
+        return 0;
+    }
+}`,
   order: 1,
   isActive: true,
   testCases: [
@@ -179,6 +185,7 @@ export default function CodingManager() {
     returnType: "number",
     parameters: [{ name: "a", type: "number" }, { name: "b", type: "number" }],
     jsTemplate: "",
+    javaTemplate: "",
     order: 1,
     isActive: true,
     testCases: [
@@ -229,6 +236,50 @@ export default function CodingManager() {
     }
   }
 
+  function getJavaType(typeStr) {
+    if (!typeStr) return "void";
+    const t = String(typeStr).trim().toLowerCase();
+    if (t === "number" || t === "int" || t === "integer") return "int";
+    if (t === "long") return "long";
+    if (t === "double" || t === "float") return "double";
+    if (t === "string") return "String";
+    if (t === "boolean" || t === "bool") return "boolean";
+    if (t === "char" || t === "character") return "char";
+    if (t === "number[]" || t === "int[]" || t === "integer[]" || t === "array<number>" || t === "array") return "int[]";
+    if (t === "string[]" || t === "array<string>") return "String[]";
+    if (t === "boolean[]" || t === "array<boolean>") return "boolean[]";
+    if (t === "char[]") return "char[]";
+    if (t === "void") return "void";
+    return "Object";
+  }
+
+  function generateJavaBoilerplate(funcName, params = [], retType = "number") {
+    const jRet = getJavaType(retType);
+    const jRetVal =
+      jRet === "int" || jRet === "long" || jRet === "short" || jRet === "byte"
+        ? "return 0;"
+        : jRet === "double" || jRet === "float"
+        ? "return 0.0;"
+        : jRet === "boolean"
+        ? "return false;"
+        : jRet === "String"
+        ? 'return "";'
+        : jRet === "void"
+        ? ""
+        : jRet.endsWith("[]")
+        ? `return new ${jRet}{};`
+        : "return null;";
+
+    const jParams = (params || [])
+      .map((p) => {
+        const pType = getJavaType(p.type || "number");
+        return `${pType} ${p.name || "arg"}`;
+      })
+      .join(", ");
+
+    return `class Solution {\n    public ${jRet} ${funcName || "solution"}(${jParams}) {\n        // Write your code here\n        ${jRetVal}\n    }\n}`;
+  }
+
   // Pure skeleton boilerplate generator - strictly comments and empty stub, NEVER actual working code
   function generateJsBoilerplate(funcName, params, retType) {
     const paramsDoc = (params || [])
@@ -249,6 +300,7 @@ function ${funcName || "solution"}(${paramNames}) {
     setActiveModalTab(initialTab);
     const initialParams = [{ name: "a", type: "number" }, { name: "b", type: "number" }];
     const defaultTemplate = generateJsBoilerplate("solution", initialParams, "number");
+    const defaultJavaTemplate = generateJavaBoilerplate("solution", initialParams, "number");
 
     setFormData({
       title: "",
@@ -263,6 +315,7 @@ function ${funcName || "solution"}(${paramNames}) {
       returnType: "number",
       parameters: initialParams,
       jsTemplate: defaultTemplate,
+      javaTemplate: defaultJavaTemplate,
       order: problems.length + 1,
       isActive: true,
       testCases: [
@@ -428,7 +481,7 @@ function ${funcName || "solution"}(${paramNames}) {
       return;
     }
 
-    // Determine boilerplate template (strictly starter skeleton, never working code)
+    // Determine boilerplate templates (strictly starter skeleton, never working code)
     let jsTemplate =
       parsed.boilerplateCode ||
       parsed.boilerplate ||
@@ -438,6 +491,14 @@ function ${funcName || "solution"}(${paramNames}) {
 
     if (!jsTemplate) {
       jsTemplate = generateJsBoilerplate(functionName, parameters, returnType);
+    }
+
+    let javaTemplate =
+      parsed.javaBoilerplate ||
+      parsed.templates?.java;
+
+    if (!javaTemplate) {
+      javaTemplate = generateJavaBoilerplate(functionName, parameters, returnType);
     }
 
     setJsonSaving(true);
@@ -469,7 +530,10 @@ function ${funcName || "solution"}(${paramNames}) {
         parameters,
         templates: {
           javascript: jsTemplate,
+          java: javaTemplate,
         },
+        boilerplateCode: jsTemplate,
+        javaBoilerplate: javaTemplate,
         order: Number(parsed.order) || (problems.length + 1),
         isActive: parsed.isActive !== false,
         testCases: rawCases.map((tc, idx) => {
@@ -547,7 +611,8 @@ function ${funcName || "solution"}(${paramNames}) {
           functionName: p.functionName || "solution",
           returnType: p.returnType || "any",
           parameters: p.parameters || [],
-          jsTemplate: p.templates?.javascript || "",
+          jsTemplate: p.templates?.javascript || p.boilerplateCode || generateJsBoilerplate(p.functionName, p.parameters, p.returnType),
+          javaTemplate: p.templates?.java || p.javaBoilerplate || generateJavaBoilerplate(p.functionName, p.parameters, p.returnType),
           order: p.order || 1,
           isActive: p.isActive !== false,
           testCases: tcs.length > 0 ? tcs : [{ testCaseId: "tc_01", input: "[]", rawInput: "", expectedOutput: "0", isSample: true, explanation: "" }],
@@ -602,7 +667,10 @@ function ${funcName || "solution"}(${paramNames}) {
         parameters: formData.parameters,
         templates: {
           javascript: formData.jsTemplate,
+          java: formData.javaTemplate,
         },
+        boilerplateCode: formData.jsTemplate,
+        javaBoilerplate: formData.javaTemplate,
         order: Number(formData.order) || 1,
         isActive: formData.isActive,
         testCases: formData.testCases.map((tc, idx) => ({
@@ -648,16 +716,18 @@ function ${funcName || "solution"}(${paramNames}) {
   function addParameter() {
     setFormData((prev) => {
       const newParams = [...prev.parameters, { name: `arg${prev.parameters.length + 1}`, type: "number" }];
-      const newTemplate = generateJsBoilerplate(prev.functionName, newParams, prev.returnType, prev.title);
-      return { ...prev, parameters: newParams, jsTemplate: newTemplate };
+      const jsTmpl = generateJsBoilerplate(prev.functionName, newParams, prev.returnType, prev.title);
+      const javaTmpl = generateJavaBoilerplate(prev.functionName, newParams, prev.returnType);
+      return { ...prev, parameters: newParams, jsTemplate: jsTmpl, javaTemplate: javaTmpl };
     });
   }
 
   function removeParameter(index) {
     setFormData((prev) => {
       const newParams = prev.parameters.filter((_, i) => i !== index);
-      const newTemplate = generateJsBoilerplate(prev.functionName, newParams, prev.returnType, prev.title);
-      return { ...prev, parameters: newParams, jsTemplate: newTemplate };
+      const jsTmpl = generateJsBoilerplate(prev.functionName, newParams, prev.returnType, prev.title);
+      const javaTmpl = generateJavaBoilerplate(prev.functionName, newParams, prev.returnType);
+      return { ...prev, parameters: newParams, jsTemplate: jsTmpl, javaTemplate: javaTmpl };
     });
   }
 
@@ -665,8 +735,9 @@ function ${funcName || "solution"}(${paramNames}) {
     setFormData((prev) => {
       const newParams = [...prev.parameters];
       newParams[index] = { ...newParams[index], [field]: value };
-      const newTemplate = generateJsBoilerplate(prev.functionName, newParams, prev.returnType, prev.title);
-      return { ...prev, parameters: newParams, jsTemplate: newTemplate };
+      const jsTmpl = generateJsBoilerplate(prev.functionName, newParams, prev.returnType, prev.title);
+      const javaTmpl = generateJavaBoilerplate(prev.functionName, newParams, prev.returnType);
+      return { ...prev, parameters: newParams, jsTemplate: jsTmpl, javaTemplate: javaTmpl };
     });
   }
 
@@ -1182,8 +1253,9 @@ Example structure:
                     value={formData.functionName}
                     onChange={(e) => {
                       const fn = e.target.value;
-                      const tmpl = generateJsBoilerplate(fn, formData.parameters, formData.returnType, formData.title);
-                      setFormData({ ...formData, functionName: fn, jsTemplate: tmpl });
+                      const jsTmpl = generateJsBoilerplate(fn, formData.parameters, formData.returnType, formData.title);
+                      const javaTmpl = generateJavaBoilerplate(fn, formData.parameters, formData.returnType);
+                      setFormData({ ...formData, functionName: fn, jsTemplate: jsTmpl, javaTemplate: javaTmpl });
                     }}
                     placeholder="e.g. addTwoNumbers"
                     className="ac-input"
@@ -1195,8 +1267,9 @@ Example structure:
                     value={formData.returnType}
                     onChange={(e) => {
                       const rt = e.target.value;
-                      const tmpl = generateJsBoilerplate(formData.functionName, formData.parameters, rt, formData.title);
-                      setFormData({ ...formData, returnType: rt, jsTemplate: tmpl });
+                      const jsTmpl = generateJsBoilerplate(formData.functionName, formData.parameters, rt, formData.title);
+                      const javaTmpl = generateJavaBoilerplate(formData.functionName, formData.parameters, rt);
+                      setFormData({ ...formData, returnType: rt, jsTemplate: jsTmpl, javaTemplate: javaTmpl });
                     }}
                     className="ac-select"
                   >
@@ -1247,7 +1320,33 @@ Example structure:
                 </div>
               ))}
 
-              {/* Boilerplate Code */}
+              {/* Java Boilerplate Code */}
+              <div className="ac-section-title">
+                <span>Java Boilerplate Code Template</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const tmpl = generateJavaBoilerplate(formData.functionName, formData.parameters, formData.returnType);
+                    setFormData({ ...formData, javaTemplate: tmpl });
+                  }}
+                  className="ac-btn ac-btn-secondary"
+                  style={{ fontSize: "0.75rem", padding: "0.3rem 0.6rem" }}
+                >
+                  <FiRefreshCw /> Regenerate Java Default
+                </button>
+              </div>
+
+              <div className="ac-form-group">
+                <textarea
+                  rows={8}
+                  value={formData.javaTemplate}
+                  onChange={(e) => setFormData({ ...formData, javaTemplate: e.target.value })}
+                  className="ac-textarea ac-code-input"
+                  placeholder="Enter Java boilerplate template code (class Solution { ... })..."
+                />
+              </div>
+
+              {/* JavaScript Boilerplate Code */}
               <div className="ac-section-title">
                 <span>JavaScript Boilerplate Code Template</span>
                 <button
@@ -1259,7 +1358,7 @@ Example structure:
                   className="ac-btn ac-btn-secondary"
                   style={{ fontSize: "0.75rem", padding: "0.3rem 0.6rem" }}
                 >
-                  <FiRefreshCw /> Regenerate Default
+                  <FiRefreshCw /> Regenerate JS Default
                 </button>
               </div>
 

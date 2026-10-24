@@ -29,7 +29,52 @@ import {
   FiCode,
 } from "react-icons/fi";
 import { recordCodingEntry, exitCodingEnvironment } from "@/utils/codingExitTracker";
+import { areOutputsEqual } from "@/lib/outputComparator";
 import "./LeetCodeIDE.css";
+
+function getJavaType(typeStr) {
+  if (!typeStr) return "void";
+  const t = String(typeStr).trim().toLowerCase();
+  if (t === "number" || t === "int" || t === "integer") return "int";
+  if (t === "long") return "long";
+  if (t === "double" || t === "float") return "double";
+  if (t === "string") return "String";
+  if (t === "boolean" || t === "bool") return "boolean";
+  if (t === "char" || t === "character") return "char";
+  if (t === "number[]" || t === "int[]" || t === "integer[]" || t === "array<number>" || t === "array") return "int[]";
+  if (t === "string[]" || t === "array<string>") return "String[]";
+  if (t === "boolean[]" || t === "array<boolean>") return "boolean[]";
+  if (t === "char[]") return "char[]";
+  if (t === "void") return "void";
+  return "Object";
+}
+
+function generateJavaBoilerplate(funcName, params = [], retType = "number") {
+  const jRet = getJavaType(retType);
+  const jRetVal =
+    jRet === "int" || jRet === "long" || jRet === "short" || jRet === "byte"
+      ? "return 0;"
+      : jRet === "double" || jRet === "float"
+      ? "return 0.0;"
+      : jRet === "boolean"
+      ? "return false;"
+      : jRet === "String"
+      ? 'return "";'
+      : jRet === "void"
+      ? ""
+      : jRet.endsWith("[]")
+      ? `return new ${jRet}{};`
+      : "return null;";
+
+  const jParams = (params || [])
+    .map((p) => {
+      const pType = getJavaType(p.type || "number");
+      return `${pType} ${p.name || "arg"}`;
+    })
+    .join(", ");
+
+  return `class Solution {\n    public ${jRet} ${funcName || "solution"}(${jParams}) {\n        // Write your code here\n        ${jRetVal}\n    }\n}`;
+}
 
 // Dynamic import of Monaco Editor with SSR disabled
 const Editor = dynamic(() => import("@monaco-editor/react"), {
@@ -61,7 +106,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     { languageId: "javascript", name: "JavaScript", monacoLang: "javascript", version: "ES6+" },
     { languageId: "java", name: "Java", monacoLang: "java", version: "OpenJDK 25" },
   ]);
-  const [selectedLanguage, setSelectedLanguage] = useState("javascript");
+  const [selectedLanguage, setSelectedLanguage] = useState("java");
   const [cooldown, setCooldown] = useState(0); // 10s cooldown timer
   const [code, setCode] = useState("");
   const [cursorPos, setCursorPos] = useState({ line: 1, col: 1 });
@@ -286,9 +331,15 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
       return prob.templates[lang];
     }
     if (lang === "java") {
-      return `class Solution {\n    public int ${prob.functionName || "solution"}() {\n        // Write your code here\n        return 0;\n    }\n}`;
+      return (
+        prob.javaBoilerplate ||
+        generateJavaBoilerplate(prob.functionName, prob.parameters, prob.returnType)
+      );
     }
-    return `function ${prob.functionName || "solution"}() {\n  // Write your code here\n}`;
+    return (
+      prob.boilerplateCode ||
+      `function ${prob.functionName || "solution"}(${(prob.parameters || []).map((p) => p.name || "arg").join(", ")}) {\n  // Write your code here\n}`
+    );
   }, []);
 
   const loadProblem = useCallback(async (slugOrId) => {
@@ -375,9 +426,13 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
       let defaultCode = problem.templates?.[selectedLanguage];
       if (!defaultCode) {
         if (selectedLanguage === "java") {
-          defaultCode = `class Solution {\n    public int ${problem.functionName || "solution"}() {\n        // Write your code here\n        return 0;\n    }\n}`;
+          defaultCode =
+            problem.javaBoilerplate ||
+            generateJavaBoilerplate(problem.functionName, problem.parameters, problem.returnType);
         } else {
-          defaultCode = `function ${problem.functionName || "solution"}() {\n  // Write your code here\n}`;
+          defaultCode =
+            problem.boilerplateCode ||
+            `function ${problem.functionName || "solution"}(${(problem.parameters || []).map((p) => p.name || "arg").join(", ")}) {\n  // Write your code here\n}`;
         }
       }
       setCode(defaultCode);
@@ -425,23 +480,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
           const inputArgs = Array.isArray(tc.input) ? tc.input : [tc.input];
           const copiedArgs = JSON.parse(JSON.stringify(inputArgs));
           actualOutput = userFn(...copiedArgs);
-
-          const normalize = (v) => {
-            if (v === undefined) return "undefined";
-            if (typeof v === "number" || typeof v === "boolean") return JSON.stringify(v);
-            if (typeof v === "string") {
-              try {
-                return JSON.stringify(JSON.parse(v));
-              } catch {
-                return JSON.stringify(v);
-              }
-            }
-            return JSON.stringify(v);
-          };
-
-          const actualNorm = normalize(actualOutput);
-          const expectedNorm = normalize(tc.expectedOutput);
-          passed = actualNorm === expectedNorm;
+          passed = areOutputsEqual(actualOutput, tc.expectedOutput);
         } catch (err) {
           error = err.message || String(err);
         }

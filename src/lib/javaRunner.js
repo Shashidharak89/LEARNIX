@@ -1,4 +1,5 @@
 import { java } from "compile-run";
+import { areOutputsEqual } from "./outputComparator.js";
 
 /**
  * Format JavaScript value to Java literal expression.
@@ -34,60 +35,6 @@ function toJavaLiteral(val) {
     }
   }
   return JSON.stringify(val);
-}
-
-/**
- * Compare actual Java output with expected test case output.
- */
-function areOutputsEqual(actualStr, expected) {
-  if (actualStr === undefined || actualStr === null) return false;
-  const cleanActual = String(actualStr).trim();
-
-  if (expected === null || expected === undefined) {
-    return cleanActual === "null" || cleanActual === "";
-  }
-
-  // Boolean comparison
-  if (typeof expected === "boolean") {
-    return cleanActual.toLowerCase() === String(expected).toLowerCase();
-  }
-
-  // Number comparison
-  if (typeof expected === "number") {
-    const num = Number(cleanActual);
-    if (!isNaN(num)) {
-      return Math.abs(num - expected) < 1e-6;
-    }
-    return cleanActual === String(expected);
-  }
-
-  // String comparison
-  if (typeof expected === "string") {
-    if (cleanActual === expected) return true;
-    // Check if expected is stringified JSON
-    try {
-      const parsed = JSON.parse(expected);
-      return areOutputsEqual(cleanActual, parsed);
-    } catch {
-      return cleanActual === expected;
-    }
-  }
-
-  // Array comparison
-  if (Array.isArray(expected)) {
-    // Java Arrays.toString produces [1, 2, 3]
-    try {
-      const parsedActual = JSON.parse(cleanActual);
-      return JSON.stringify(parsedActual) === JSON.stringify(expected);
-    } catch {
-      // Direct bracket normalization
-      const normActual = cleanActual.replace(/\s+/g, "");
-      const normExpected = JSON.stringify(expected).replace(/\s+/g, "");
-      return normActual === normExpected;
-    }
-  }
-
-  return cleanActual === String(expected);
 }
 
 /**

@@ -78,10 +78,20 @@ export async function PUT(req, { params }) {
     const existing = existingRes.Item;
     const now = new Date().toISOString();
 
+    const mergedTemplates = {
+      ...(existing.templates || {}),
+      ...(body.templates || {}),
+    };
+    if (body.javaBoilerplate) mergedTemplates.java = body.javaBoilerplate;
+    if (body.boilerplateCode) mergedTemplates.javascript = body.boilerplateCode;
+
     const updatedItem = {
       ...existing,
       ...body,
       problemId: id,
+      templates: mergedTemplates,
+      boilerplateCode: mergedTemplates.javascript || body.boilerplateCode || existing.boilerplateCode,
+      javaBoilerplate: mergedTemplates.java || body.javaBoilerplate || existing.javaBoilerplate,
       updatedAt: now,
     };
 
