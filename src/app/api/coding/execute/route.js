@@ -8,14 +8,14 @@ import { resolveAuthenticatedUser } from "@/lib/authUser";
 
 export const dynamic = "force-dynamic";
 
-// In-memory rate limiting map: 1 run/submit per 10 seconds per user / IP
+// In-memory rate limiting map: 1 run/submit per 5 seconds per user / IP
 const rateLimitMap = new Map();
 
 function checkRateLimit(callerKey) {
   const now = Date.now();
   const lastTime = rateLimitMap.get(callerKey);
-  if (lastTime && now - lastTime < 10000) {
-    const remainingMs = 10000 - (now - lastTime);
+  if (lastTime && now - lastTime < 5000) {
+    const remainingMs = 5000 - (now - lastTime);
     return Math.ceil(remainingMs / 1000);
   }
   rateLimitMap.set(callerKey, now);
@@ -41,7 +41,7 @@ export async function POST(req) {
       return NextResponse.json({ success: false, error: "code string is required" }, { status: 400 });
     }
 
-    // Rate Limiting (10 seconds restriction)
+    // Rate Limiting (5 seconds internal restriction)
     const clientIp =
       req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
       req.headers.get("x-real-ip") ||
@@ -54,7 +54,7 @@ export async function POST(req) {
       return NextResponse.json(
         {
           success: false,
-          error: `Please wait ${cooldownRemaining}s before running or submitting again. (10s restriction)`,
+          error: "You are submitting too frequently! Please wait a moment before trying again.",
           cooldownRemaining,
         },
         { status: 429 }

@@ -30,6 +30,11 @@ import {
   FiCode,
   FiSun,
   FiMoon,
+  FiList,
+  FiX,
+  FiSearch,
+  FiChevronRight,
+  FiLoader,
 } from "react-icons/fi";
 import { recordCodingEntry, exitCodingEnvironment } from "@/utils/codingExitTracker";
 import { areOutputsEqual } from "@/lib/outputComparator";
@@ -37,6 +42,20 @@ import MarkdownRenderer from "@/app/components/MarkdownRenderer";
 import "./LeetCodeIDE.css";
 
 const THEME_KEY = "learnix-code-theme";
+
+function getLangDisplay(lang) {
+  const id = (lang.languageId || "").toLowerCase();
+  let icon = "💻";
+  if (id.includes("java") && !id.includes("script")) icon = "☕";
+  else if (id.includes("javascript") || id === "js") icon = "⚡";
+  else if (id.includes("python") || id === "py") icon = "🐍";
+  else if (id.includes("cpp") || id === "c++" || id === "c") icon = "⚙️";
+  else if (id.includes("typescript") || id === "ts") icon = "🔷";
+  return {
+    icon,
+    label: `${icon} ${lang.name || id} ${lang.version ? `(${lang.version})` : ""}`.trim(),
+  };
+}
 
 function getJavaType(typeStr) {
   if (!typeStr) return "void";
@@ -144,7 +163,99 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
   // Check if caller might be admin (from localStorage) just to show Admin link
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Cooldown countdown effect (10s timer)
+  // Sidebar Problem List Drawer State
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarProblems, setSidebarProblems] = useState([]);
+  const [sidebarLoading, setSidebarLoading] = useState(false);
+  const [sidebarLoadingMore, setSidebarLoadingMore] = useState(false);
+  const [sidebarSearchInput, setSidebarSearchInput] = useState("");
+  const [sidebarActiveSearch, setSidebarActiveSearch] = useState("");
+  const [sidebarPage, setSidebarPage] = useState(1);
+  const [sidebarHasMore, setSidebarHasMore] = useState(false);
+  const [sidebarTotal, setSidebarTotal] = useState(0);
+
+  const fetchSidebarProblems = useCallback(async (opts = {}) => {
+    const { pageToFetch = 1, search = "", append = false } = opts;
+    if (append) {
+      setSidebarLoadingMore(true);
+    } else {
+      setSidebarLoading(true);
+    }
+    try {
+      const params = new URLSearchParams({
+        page: String(pageToFetch),
+        size: "20",
+        search: search.trim(),
+        difficulty: "all",
+      });
+      const res = await fetch(`/api/coding/problems?${params.toString()}`);
+      const data = await res.json();
+      if (data.success) {
+        const incoming = data.problems || [];
+        if (append) {
+          setSidebarProblems((prev) => {
+            const existing = new Set(prev.map((p) => p.problemId));
+            return [...prev, ...incoming.filter((p) => !existing.has(p.problemId))];
+          });
+        } else {
+          setSidebarProblems(incoming);
+        }
+        setSidebarPage(data.page || pageToFetch);
+        setSidebarHasMore(Boolean(data.hasMore));
+        setSidebarTotal(data.total || 0);
+      }
+    } catch (err) {
+      console.error("Failed to load sidebar problems:", err);
+    } finally {
+      setSidebarLoading(false);
+      setSidebarLoadingMore(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isSidebarOpen && sidebarProblems.length === 0) {
+      fetchSidebarProblems({ pageToFetch: 1, search: "" });
+    }
+  }, [isSidebarOpen, sidebarProblems.length, fetchSidebarProblems]);
+
+  useEffect(() => {
+    if (!isSidebarOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") setSidebarOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isSidebarOpen]);
+
+  function handleSidebarSearchSubmit(e) {
+    e.preventDefault();
+    setSidebarActiveSearch(sidebarSearchInput);
+    fetchSidebarProblems({ pageToFetch: 1, search: sidebarSearchInput, append: false });
+  }
+
+  function handleSidebarClearSearch() {
+    setSidebarSearchInput("");
+    setSidebarActiveSearch("");
+    fetchSidebarProblems({ pageToFetch: 1, search: "", append: false });
+  }
+
+  function handleSelectProblemFromSidebar(problemItem) {
+    const targetParam = String(problemItem.order || problemItem.slug || problemItem.problemId);
+    setSelectedSlug(targetParam);
+    if (typeof window !== "undefined") {
+      if (window.location.pathname.startsWith("/learnix-code/problems")) {
+        router.push(`${baseUrl}/${targetParam}`);
+      } else {
+        const newUrl = new URL(window.location);
+        newUrl.searchParams.set("problem", targetParam);
+        window.history.pushState({}, "", newUrl);
+        loadProblem(targetParam);
+      }
+    }
+    setSidebarOpen(false);
+  }
+
+  // Cooldown countdown effect (internal 5s timer)
   useEffect(() => {
     if (cooldown <= 0) return;
     const interval = setInterval(() => {
@@ -558,9 +669,9 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
   async function runCode(mode = "run") {
     if (!problem || executing) return;
 
-    // 10s cooldown restriction
+    // 5s cooldown restriction (internal limit, spam prevention)
     if (cooldown > 0) {
-      alert(`Please wait ${cooldown}s before running or submitting again.`);
+      alert("You are submitting too frequently! Please wait a moment before trying again.");
       return;
     }
 
@@ -572,8 +683,8 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
       return;
     }
 
-    // Set 10s cooldown timer immediately
-    setCooldown(10);
+    // Set 5s cooldown timer immediately
+    setCooldown(5);
     setExecuting(true);
     setExecMode(mode);
     setActiveConsoleTab("testresult");
@@ -627,10 +738,10 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
       const data = await res.json();
 
       if (res.status === 429) {
-        setCooldown(data.cooldownRemaining || 10);
+        setCooldown(data.cooldownRemaining || 5);
         setExecutionResult({
           status: "Rate Limited",
-          error: data.error || "Please wait before executing again.",
+          error: data.error || "You are submitting too frequently! Please wait a moment before trying again.",
           results: [],
           totalRuntime: 0,
           passedTestCases: 0,
@@ -844,6 +955,146 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
   return (
     <div className={`lc-workspace ${theme === "light" ? "lc-theme-light" : "lc-theme-dark"}`}>
+      {/* ── Slide-Out Problem List Drawer ── */}
+      <div
+        className={`lc-drawer-overlay ${isSidebarOpen ? "open" : ""}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
+      <aside className={`lc-drawer ${isSidebarOpen ? "open" : ""}`} aria-label="Problems Drawer">
+        {/* Header */}
+        <div className="lc-drawer-header">
+          <div className="lc-drawer-header-left">
+            <span className="lc-drawer-title">Problem List</span>
+            {sidebarTotal > 0 && (
+              <span className="lc-drawer-count">{sidebarTotal} Questions</span>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(false)}
+            className="lc-drawer-close-btn"
+            title="Close problem list"
+          >
+            <FiX size={18} />
+          </button>
+        </div>
+
+        {/* Search Bar */}
+        <div className="lc-drawer-search-wrap">
+          <form className="lc-drawer-search-form" onSubmit={handleSidebarSearchSubmit}>
+            <FiSearch size={14} className="lc-drawer-search-icon" />
+            <input
+              type="text"
+              value={sidebarSearchInput}
+              onChange={(e) => setSidebarSearchInput(e.target.value)}
+              placeholder="Search questions..."
+              className="lc-drawer-search-input"
+            />
+            {sidebarSearchInput && (
+              <button
+                type="button"
+                onClick={handleSidebarClearSearch}
+                className="lc-drawer-search-clear"
+                title="Clear"
+              >
+                <FiX size={13} />
+              </button>
+            )}
+          </form>
+        </div>
+
+        {/* Problem List Items */}
+        <div className="lc-drawer-body">
+          {sidebarLoading ? (
+            <div className="lc-drawer-loading">
+              <FiLoader className="lc-spin" size={20} />
+              <span>Loading questions...</span>
+            </div>
+          ) : sidebarProblems.length === 0 ? (
+            <div className="lc-drawer-empty">
+              <span>No questions found</span>
+              {sidebarActiveSearch && (
+                <button
+                  type="button"
+                  onClick={handleSidebarClearSearch}
+                  className="lc-drawer-retry-btn"
+                >
+                  Clear search
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="lc-drawer-items">
+              {sidebarProblems.map((p, index) => {
+                const pNum = p.order || index + 1;
+                const isCurrent =
+                  String(selectedSlug) === String(pNum) ||
+                  (problem && (problem.problemId === p.problemId || String(problem.order) === String(pNum)));
+                const diffClass =
+                  p.difficulty === "Easy"
+                    ? "easy"
+                    : p.difficulty === "Medium"
+                    ? "medium"
+                    : "hard";
+
+                return (
+                  <button
+                    key={p.problemId || index}
+                    type="button"
+                    onClick={() => handleSelectProblemFromSidebar(p)}
+                    className={`lc-drawer-item ${isCurrent ? "active" : ""}`}
+                  >
+                    <div className="lc-drawer-item-left">
+                      <span className="lc-drawer-item-status">
+                        {isCurrent ? (
+                          <FiCheck size={14} className="lc-status-check active" />
+                        ) : (
+                          <span className="lc-status-bullet" />
+                        )}
+                      </span>
+                      <span className="lc-drawer-item-title">
+                        {pNum}. {p.title}
+                      </span>
+                    </div>
+                    <span className={`lc-drawer-item-diff ${diffClass}`}>
+                      {p.difficulty}
+                    </span>
+                  </button>
+                );
+              })}
+
+              {/* View More button */}
+              {sidebarHasMore && (
+                <div className="lc-drawer-view-more-wrap">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      fetchSidebarProblems({
+                        pageToFetch: sidebarPage + 1,
+                        search: sidebarActiveSearch,
+                        append: true,
+                      })
+                    }
+                    disabled={sidebarLoadingMore}
+                    className="lc-drawer-view-more-btn"
+                  >
+                    {sidebarLoadingMore ? (
+                      <>
+                        <FiLoader className="lc-spin" size={14} />
+                        <span>Loading...</span>
+                      </>
+                    ) : (
+                      <span>View More</span>
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </aside>
+
       {/* ── Top Bar ── */}
       <nav className="lc-navbar">
         <div className="lc-nav-left">
@@ -859,38 +1110,32 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
             <span>Learnix <span style={{ color: "#f59e0b" }}>Code</span></span>
           </Link>
 
-          {/* Problem Selector Dropdown */}
-          <div style={{ position: "relative" }}>
-            <select
-              value={selectedSlug}
-              onChange={handleProblemChange}
-              className="lc-problem-select-btn"
-            >
-              {problems.map((p, pIdx) => {
-                const numericId = String(p.order || pIdx + 1);
-                return (
-                  <option key={p.problemId} value={numericId}>
-                    {numericId}. {p.title} ({p.difficulty})
-                  </option>
-                );
-              })}
-            </select>
-          </div>
+          <div className="lc-nav-divider" />
+
+          {/* Problem List Sidebar Trigger */}
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            className="lc-btn-problem-list"
+            title="Open Problem List"
+          >
+            <FiList size={16} />
+            <span>Problem List</span>
+            <FiChevronRight size={14} className="lc-btn-pl-chevron" />
+          </button>
         </div>
 
         {/* Action Buttons: Run & Submit */}
         <div className="lc-nav-center">
           <button
             onClick={() => runCode("run")}
-            disabled={executing || cooldown > 0}
-            className={`lc-btn-action lc-btn-run ${cooldown > 0 ? "lc-btn-cooldown" : ""}`}
-            title={cooldown > 0 ? `Rate limited: wait ${cooldown}s` : "Run code against sample test cases (Ctrl + ')"}
+            disabled={executing}
+            className="lc-btn-action lc-btn-run"
+            title="Run code against sample test cases (Ctrl + ')"
           >
             <FiPlay size={14} />
             <span>
-              {cooldown > 0
-                ? `Run (${cooldown}s)`
-                : executing && execMode === "run"
+              {executing && execMode === "run"
                 ? "Running..."
                 : "Run"}
             </span>
@@ -898,15 +1143,13 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
           <button
             onClick={() => runCode("submit")}
-            disabled={executing || cooldown > 0}
-            className={`lc-btn-action lc-btn-submit ${cooldown > 0 ? "lc-btn-cooldown" : ""}`}
-            title={cooldown > 0 ? `Rate limited: wait ${cooldown}s` : "Submit code against all 10 test cases (Requires Login)"}
+            disabled={executing}
+            className="lc-btn-action lc-btn-submit"
+            title="Submit code against all test cases (Requires Login)"
           >
             <FiUploadCloud size={15} />
             <span>
-              {cooldown > 0
-                ? `Submit (${cooldown}s)`
-                : executing && execMode === "submit"
+              {executing && execMode === "submit"
                 ? "Evaluating..."
                 : "Submit"}
             </span>
@@ -1169,20 +1412,20 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
           <div className={`lc-editor-card ${isEditorMaximized ? "lc-editor-maximized" : ""}`}>
             <div className="lc-editor-header">
               <div className="lc-lang-select-wrap">
-                <span className={`lc-lang-badge-icon ${selectedLanguage === "java" ? "java" : "js"}`}>
-                  {selectedLanguage === "java" ? "JAVA" : "JS"}
-                </span>
                 <select
                   value={selectedLanguage}
                   onChange={(e) => handleLanguageChange(e.target.value)}
                   className="lc-lang-select"
                   title="Switch programming language"
                 >
-                  {languages.map((lang) => (
-                    <option key={lang.languageId} value={lang.languageId}>
-                      {lang.name} {lang.version ? `(${lang.version})` : ""}
-                    </option>
-                  ))}
+                  {languages.map((lang) => {
+                    const { label } = getLangDisplay(lang);
+                    return (
+                      <option key={lang.languageId} value={lang.languageId}>
+                        {label}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
               <div className="lc-editor-actions">

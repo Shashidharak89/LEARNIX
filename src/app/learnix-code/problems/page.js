@@ -279,58 +279,62 @@ export default function ProblemsListPage() {
           </div>
         ) : (
           <>
-            {/* Table */}
-            <div className="lcp-table-card">
-              <div className="lcp-table-head">
-                <div className="lcp-col-id">#</div>
-                <div className="lcp-col-title">Problem</div>
-                <div className="lcp-col-topics">Topics</div>
-                <div className="lcp-col-diff">Difficulty</div>
-                <div className="lcp-col-action">Solve</div>
-              </div>
+            {/* Admin-style Card List */}
+            <div className="lcp-list-rows">
+              {problems.map((p, index) => {
+                const pid = p.order || index + 1;
+                const diffClass =
+                  p.difficulty === "Easy"
+                    ? "lcp-badge-easy"
+                    : p.difficulty === "Medium"
+                    ? "lcp-badge-medium"
+                    : "lcp-badge-hard";
 
-              <div className="lcp-table-body">
-                {problems.map((p, index) => {
-                  const pid = p.order || index + 1;
-                  const diffClass =
-                    p.difficulty === "Easy"
-                      ? "lcp-diff-easy"
-                      : p.difficulty === "Medium"
-                      ? "lcp-diff-medium"
-                      : "lcp-diff-hard";
-
-                  return (
-                    <Link
-                      key={p.problemId || index}
-                      href={`/learnix-code/problems/${pid}`}
-                      className="lcp-row"
-                    >
-                      <div className="lcp-col-id lcp-row-id">{pid}</div>
-                      <div className="lcp-col-title">
-                        <span className="lcp-row-title">{p.title}</span>
+                return (
+                  <div key={p.problemId || index} className="lcp-row-card">
+                    <div className="lcp-row-left">
+                      <div className="lcp-row-order" title={`Problem #${pid}`}>
+                        #{pid}
                       </div>
-                      <div className="lcp-col-topics">
-                        <div className="lcp-row-tags">
-                          {(p.tags || p.topicIds || []).slice(0, 3).map((t, i) => (
-                            <span key={i} className="lcp-tag">
-                              <FiTag size={10} />
+
+                      <div className="lcp-row-content">
+                        <div className="lcp-row-title-row">
+                          <Link
+                            href={`/learnix-code/problems/${pid}`}
+                            className="lcp-row-title-link"
+                            title={`Solve "${p.title}" in Learnix Code`}
+                          >
+                            <h3 className="lcp-row-title">{p.title}</h3>
+                          </Link>
+                          <span className={`lcp-badge ${diffClass}`}>
+                            {p.difficulty}
+                          </span>
+                        </div>
+
+                        <div className="lcp-row-topics-row">
+                          {(p.tags || p.topicIds || []).map((t, idx) => (
+                            <span key={idx} className="lcp-tag">
+                              <FiTag style={{ fontSize: "0.7rem", marginRight: "3px" }} />
                               {t}
                             </span>
                           ))}
                         </div>
                       </div>
-                      <div className="lcp-col-diff">
-                        <span className={`lcp-diff-pill ${diffClass}`}>{p.difficulty}</span>
-                      </div>
-                      <div className="lcp-col-action">
-                        <span className="lcp-solve-link">
-                          Solve <FiArrowRight size={13} />
-                        </span>
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
+                    </div>
+
+                    <div className="lcp-row-actions">
+                      <Link
+                        href={`/learnix-code/problems/${pid}`}
+                        className="lcp-solve-btn"
+                        title={`Solve "${p.title}"`}
+                      >
+                        <span>Solve</span>
+                        <FiArrowRight size={14} />
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
             {/* View More */}
