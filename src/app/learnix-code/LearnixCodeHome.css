@@ -69,32 +69,32 @@
   --lch-bg-prob-row: #ffffff;
   --lch-bg-prob-row-hover: #fff7ed;
   --lch-bg-tag: #f1f5f9;
-  --lch-bg-cta: radial-gradient(circle at center, rgba(249, 115, 22, 0.07) 0%, rgba(248, 249, 251, 1) 80%);
+  --lch-bg-cta: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
   --lch-bg-skeleton: #e8edf5;
 
   --lch-text-primary: #0f172a;
-  --lch-text-secondary: #475569;
-  --lch-text-muted: #94a3b8;
-  --lch-text-id: #94a3b8;
-  --lch-text-tag: #475569;
+  --lch-text-secondary: #334155;
+  --lch-text-muted: #64748b;
+  --lch-text-id: #64748b;
+  --lch-text-tag: #334155;
   --lch-text-prob-title: #0f172a;
-  --lch-text-prob-title-hover: #f97316;
+  --lch-text-prob-title-hover: #ea580c;
   --lch-text-section-title: #0f172a;
-  --lch-text-stat-num: #f97316;
-  --lch-text-stat-label: #94a3b8;
-  --lch-text-view-more: #f97316;
-  --lch-text-view-more-hover: #ea580c;
+  --lch-text-stat-num: #ea580c;
+  --lch-text-stat-label: #64748b;
+  --lch-text-view-more: #ea580c;
+  --lch-text-view-more-hover: #c2410c;
 
   --lch-border: #e2e8f0;
   --lch-border-prob-row: #e2e8f0;
-  --lch-border-prob-row-hover: #f97316;
+  --lch-border-prob-row-hover: #ea580c;
   --lch-border-stat-card: #e2e8f0;
 
   --lch-badge-bg: #fff7ed;
   --lch-badge-border: #fed7aa;
-  --lch-badge-color: #f97316;
+  --lch-badge-color: #ea580c;
 
-  --lch-shadow-prob-hover: 0 8px 20px -4px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(249, 115, 22, 0.12);
+  --lch-shadow-prob-hover: 0 8px 20px -4px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(249, 115, 22, 0.15);
 
   --lch-solve-bg: #fff7ed;
   --lch-solve-color: #f97316;

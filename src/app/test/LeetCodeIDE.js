@@ -85,7 +85,7 @@ function generateJavaBoilerplate(funcName, params = [], retType = "number") {
 const Editor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
   loading: () => (
-    <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7280", background: "#1e1e1e" }}>
+    <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--lc-text-secondary)", background: "var(--lc-bg-card)" }}>
       Loading Code Editor...
     </div>
   ),
@@ -680,8 +680,8 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
       return (
         <div className="lc-auth-gate-box">
           <div style={{ fontSize: "2.2rem", marginBottom: "0.5rem" }}>🔒</div>
-          <h3 style={{ color: "#ffffff", margin: "0 0 0.5rem 0" }}>Log In to Track Submissions</h3>
-          <p style={{ color: "#9ca3af", maxWidth: "420px", margin: "0 auto 1.25rem auto", fontSize: "0.9rem", lineHeight: 1.6 }}>
+          <h3 style={{ color: "var(--lc-text-primary)", margin: "0 0 0.5rem 0" }}>Log In to Track Submissions</h3>
+          <p style={{ color: "var(--lc-text-secondary)", maxWidth: "420px", margin: "0 auto 1.25rem auto", fontSize: "0.9rem", lineHeight: 1.6 }}>
             You can test and run your solution freely using <strong>Run</strong>. To submit your code, evaluate against all hidden testcases, and record your score in DynamoDB, please log in with your Learnix account.
           </p>
           <button
@@ -702,7 +702,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
     if (loadingSubmissions) {
       return (
-        <div style={{ padding: "2.5rem", textAlign: "center", color: "#9ca3af" }}>
+        <div style={{ padding: "2.5rem", textAlign: "center", color: "var(--lc-text-secondary)" }}>
           <div style={{ fontSize: "1.75rem", marginBottom: "0.5rem" }}>⏳</div>
           <p>Loading your submission history from DynamoDB...</p>
         </div>
@@ -711,9 +711,9 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
     if (submissions.length === 0) {
       return (
-        <div style={{ padding: "2.5rem 1.5rem", textAlign: "center", color: "#9ca3af" }}>
+        <div style={{ padding: "2.5rem 1.5rem", textAlign: "center", color: "var(--lc-text-secondary)" }}>
           <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>📝</div>
-          <h3 style={{ color: "#ffffff", margin: "0 0 0.5rem 0" }}>No Submissions Yet</h3>
+          <h3 style={{ color: "var(--lc-text-primary)", margin: "0 0 0.5rem 0" }}>No Submissions Yet</h3>
           <p style={{ maxWidth: "420px", margin: "0 auto", fontSize: "0.9rem" }}>
             Submit your solution above to evaluate against all 10 testcases and record your submission!
           </p>
@@ -818,8 +818,8 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
   if (loadingProblem && !problem) {
     return (
-      <div className="lc-workspace" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ textAlign: "center", color: "#9ca3af" }}>
+      <div className={`lc-workspace ${theme === "light" ? "lc-theme-light" : "lc-theme-dark"}`} style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center", color: "var(--lc-text-secondary)" }}>
           <div style={{ marginBottom: "1.2rem" }}>
             <Image
               src="/learnix-code-logo.png"
@@ -830,7 +830,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
               priority
             />
           </div>
-          <h2 style={{ color: "#ffffff", margin: "0 0 0.5rem 0" }}>Loading Learnix Coding Playground...</h2>
+          <h2 style={{ color: "var(--lc-text-primary)", margin: "0 0 0.5rem 0" }}>Loading Learnix Coding Playground...</h2>
           <p>Initializing LeetCode interface and connecting to DynamoDB</p>
         </div>
       </div>
@@ -1042,7 +1042,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                     </span>
                   ))}
 
-                  <span className="lc-tag-chip" style={{ color: "#9ca3af" }}>
+                  <span className="lc-tag-chip">
                     {problem.totalTestCasesCount || 10} Test Cases
                   </span>
                 </div>
@@ -1099,14 +1099,14 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                   {problem.inputFormat && (
                     <div className="lc-section-box">
                       <h4>Input Format</h4>
-                      <p style={{ margin: 0, color: "#9ca3af" }}>{problem.inputFormat}</p>
+                      <p style={{ margin: 0, color: "var(--lc-text-secondary)" }}>{problem.inputFormat}</p>
                     </div>
                   )}
 
                   {problem.outputFormat && (
                     <div className="lc-section-box">
                       <h4>Output Format</h4>
-                      <p style={{ margin: 0, color: "#9ca3af" }}>{problem.outputFormat}</p>
+                      <p style={{ margin: 0, color: "var(--lc-text-secondary)" }}>{problem.outputFormat}</p>
                     </div>
                   )}
 
@@ -1413,7 +1413,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                       </div>
 
                       {sampleCases[selectedCaseIdx].explanation && (
-                        <div style={{ color: "#9ca3af", fontSize: "0.85rem", marginTop: "0.5rem" }}>
+                        <div style={{ color: "var(--lc-text-muted)", fontSize: "0.85rem", marginTop: "0.5rem" }}>
                           💡 <em>{sampleCases[selectedCaseIdx].explanation}</em>
                         </div>
                       )}
@@ -1429,19 +1429,10 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                           value={customInputStr}
                           onChange={(e) => setCustomInputStr(e.target.value)}
                           placeholder="e.g. [50, 100]"
-                          style={{
-                            width: "100%",
-                            background: "#1e1e1e",
-                            border: "1px solid #383838",
-                            borderRadius: "6px",
-                            padding: "0.6rem 0.85rem",
-                            color: "#ffffff",
-                            fontFamily: "monospace",
-                            outline: "none",
-                          }}
+                          className="lc-custom-input"
                         />
                       </div>
-                      <p style={{ fontSize: "0.8rem", color: "#9ca3af" }}>
+                      <p style={{ fontSize: "0.8rem", color: "var(--lc-text-muted)" }}>
                         Click <strong>Run</strong> to test your code with these custom arguments.
                       </p>
                     </div>
@@ -1453,13 +1444,13 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
               {activeConsoleTab === "testresult" && (
                 <div>
                   {!executionResult && !executing && (
-                    <div style={{ color: "#6b7280", textAlign: "center", padding: "2rem" }}>
+                    <div style={{ color: "var(--lc-text-muted)", textAlign: "center", padding: "2rem" }}>
                       Run or Submit your code to see the test results here.
                     </div>
                   )}
 
                   {executing && (
-                    <div style={{ textAlign: "center", padding: "2rem", color: "#9ca3af" }}>
+                    <div style={{ textAlign: "center", padding: "2rem", color: "var(--lc-text-secondary)" }}>
                       <div style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>⏳</div>
                       <p>{execMode === "submit" ? "Running all 10 test cases..." : "Evaluating sample test cases..."}</p>
                     </div>
@@ -1611,7 +1602,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
             <div className="lc-modal-header">
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <FiShield size={20} color="#f59e0b" />
-                <h3 style={{ margin: 0, color: "#ffffff", fontSize: "1.1rem" }}>Login Required to Submit</h3>
+                <h3 style={{ margin: 0, color: "var(--lc-text-primary)", fontSize: "1.1rem" }}>Login Required to Submit</h3>
               </div>
               <button
                 onClick={() => setShowLoginPrompt(false)}
@@ -1623,10 +1614,10 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
             </div>
 
             <div className="lc-modal-body">
-              <p style={{ margin: "0 0 1rem 0", color: "#e5e7eb", lineHeight: 1.6 }}>
+              <p style={{ margin: "0 0 1rem 0", color: "var(--lc-text-primary)", lineHeight: 1.6 }}>
                 You are currently testing in guest mode. You can freely run and verify your code using the <strong>Run</strong> button without logging in.
               </p>
-              <p style={{ margin: "0 0 1.5rem 0", color: "#9ca3af", fontSize: "0.9rem", lineHeight: 1.6 }}>
+              <p style={{ margin: "0 0 1.5rem 0", color: "var(--lc-text-secondary)", fontSize: "0.9rem", lineHeight: 1.6 }}>
                 To <strong>Submit</strong> your solution against all 10 hidden testcases, verify your solution, and store your submission history in DynamoDB, please log in with your Learnix account.
               </p>
 
@@ -1679,10 +1670,10 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                 >
                   {(selectedSubmission.language || "javascript") === "java" ? "Java" : "JS"}
                 </span>
-                <span style={{ color: "#ffffff", fontWeight: 600 }}>
+                <span style={{ color: "var(--lc-text-primary)", fontWeight: 600 }}>
                   Submission Details
                 </span>
-                <span style={{ color: "#9ca3af", fontSize: "0.85rem" }}>
+                <span style={{ color: "var(--lc-text-secondary)", fontSize: "0.85rem" }}>
                   ({selectedSubmission.passedTestCases} / {selectedSubmission.totalTestCases || 10} Cases Passed • {selectedSubmission.totalRuntime} ms)
                 </span>
               </div>

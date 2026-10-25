@@ -69,36 +69,36 @@
   --lcp-bg-indicator: #fff7ed;
 
   --lcp-text-primary: #0f172a;
-  --lcp-text-secondary: #475569;
-  --lcp-text-muted: #94a3b8;
-  --lcp-text-pill-easy: #059669;
-  --lcp-text-pill-medium: #d97706;
-  --lcp-text-pill-hard: #dc2626;
+  --lcp-text-secondary: #334155;
+  --lcp-text-muted: #64748b;
+  --lcp-text-pill-easy: #047857;
+  --lcp-text-pill-medium: #b45309;
+  --lcp-text-pill-hard: #b91c1c;
   --lcp-text-tab-active: #0f172a;
   --lcp-text-tag: #ea580c;
   --lcp-text-indicator: #ea580c;
 
   --lcp-border: #e2e8f0;
   --lcp-border-subtle: #f1f5f9;
-  --lcp-border-search: #e2e8f0;
+  --lcp-border-search: #cbd5e1;
   --lcp-border-tab-active: transparent;
   --lcp-border-indicator: #fed7aa;
 
-  --lcp-orange: #f97316;
-  --lcp-orange-dark: #ea580c;
+  --lcp-orange: #ea580c;
+  --lcp-orange-dark: #c2410c;
   --lcp-orange-light: #fff7ed;
   --lcp-orange-btn-text: #ffffff;
 
-  --lcp-shadow-card: 0 4px 20px rgba(0, 0, 0, 0.06);
-  --lcp-shadow-search-focus: 0 0 0 3px rgba(249, 115, 22, 0.15);
-  --lcp-row-title-hover: #f97316;
-  --lcp-solve-link-color: #94a3b8;
-  --lcp-solve-link-hover: #f97316;
+  --lcp-shadow-card: 0 4px 20px rgba(0, 0, 0, 0.05);
+  --lcp-shadow-search-focus: 0 0 0 3px rgba(234, 88, 12, 0.18);
+  --lcp-row-title-hover: #ea580c;
+  --lcp-solve-link-color: #64748b;
+  --lcp-solve-link-hover: #ea580c;
   --lcp-theme-btn-bg: #f1f5f9;
   --lcp-theme-btn-border: #e2e8f0;
-  --lcp-theme-btn-color: #475569;
-  --lcp-end-color: #94a3b8;
-  --lcp-empty-icon-color: #cbd5e1;
+  --lcp-theme-btn-color: #334155;
+  --lcp-end-color: #64748b;
+  --lcp-empty-icon-color: #94a3b8;
 }
 
 /* ─── Wrapper ─── */
@@ -466,6 +466,7 @@
   gap: 0.28rem;
   background: var(--lcp-bg-tag);
   color: var(--lcp-text-tag);
+  border: 1px solid var(--lcp-border-indicator);
   font-size: 0.72rem;
   font-weight: 600;
   padding: 0.18rem 0.55rem;
@@ -486,16 +487,19 @@
 .lcp-diff-easy {
   color: var(--lcp-text-pill-easy);
   background: var(--lcp-bg-pill-easy);
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .lcp-diff-medium {
   color: var(--lcp-text-pill-medium);
   background: var(--lcp-bg-pill-medium);
+  border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
 .lcp-diff-hard {
   color: var(--lcp-text-pill-hard);
   background: var(--lcp-bg-pill-hard);
+  border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
 /* ─── Solve Link ─── */
