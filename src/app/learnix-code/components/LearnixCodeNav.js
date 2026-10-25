@@ -4,18 +4,29 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { FiLogOut, FiShield, FiCode, FiLayers } from "react-icons/fi";
+import { FiLogOut, FiShield, FiCode, FiLayers, FiSun, FiMoon } from "react-icons/fi";
 import { recordCodingEntry, exitCodingEnvironment } from "@/utils/codingExitTracker";
 import "./LearnixCodeNav.css";
 
-export default function LearnixCodeNav() {
+const THEME_KEY = "learnix-code-theme";
+
+export default function LearnixCodeNav({ theme, onToggleTheme }) {
   const router = useRouter();
   const pathname = usePathname();
   const [isAdmin, setIsAdmin] = useState(false);
 
+  // Internal theme state for when not passed as prop (e.g., on home page)
+  const [localTheme, setLocalTheme] = useState("dark");
+
   useEffect(() => {
     const role = localStorage.getItem("role") || "";
     setIsAdmin(role === "admin" || role === "superadmin");
+
+    // Load theme if not controlled externally
+    if (!theme) {
+      const saved = localStorage.getItem(THEME_KEY);
+      setLocalTheme(saved === "light" ? "light" : "dark");
+    }
 
     // Record non-coding entry point so exit always returns to original page
     recordCodingEntry();
@@ -32,14 +43,29 @@ export default function LearnixCodeNav() {
         document.body.style.paddingTop = "";
       }
     };
-  }, []);
+  }, [theme]);
+
+  const effectiveTheme = theme || localTheme;
+
+  function handleToggleTheme() {
+    if (onToggleTheme) {
+      onToggleTheme();
+    } else {
+      // Internal toggle for pages that don't pass it down
+      setLocalTheme((prev) => {
+        const next = prev === "dark" ? "light" : "dark";
+        localStorage.setItem(THEME_KEY, next);
+        return next;
+      });
+    }
+  }
 
   function handleExit() {
     exitCodingEnvironment(router);
   }
 
   return (
-    <nav className="lcn-navbar">
+    <nav className={`lcn-navbar lcn-theme-${effectiveTheme}`}>
       <div className="lcn-left">
         <Link href="/learnix-code" className="lcn-brand">
           <Image
@@ -50,7 +76,7 @@ export default function LearnixCodeNav() {
             className="lcn-brand-img"
             priority
           />
-          <span>Learnix <span style={{ color: "#38bdf8" }}>Code</span></span>
+          <span>Learnix <span className="lcn-brand-accent">Code</span></span>
         </Link>
 
         <div className="lcn-links">
@@ -62,9 +88,9 @@ export default function LearnixCodeNav() {
           </Link>
           <Link
             href="/learnix-code/problems"
-            className={`lcn-link ${pathname === "/learnix-code/problems" ? "active" : ""}`}
+            className={`lcn-link ${pathname === "/learnix-code/problems" || pathname?.startsWith("/learnix-code/problems/") ? "active" : ""}`}
           >
-            <FiLayers style={{ marginRight: 4 }} /> All Problems
+            <FiLayers style={{ marginRight: 4 }} /> Problems
           </Link>
         </div>
       </div>
@@ -72,9 +98,18 @@ export default function LearnixCodeNav() {
       <div className="lcn-right">
         {isAdmin && (
           <Link href="/admin/coding" className="lcn-admin-link">
-            <FiShield size={14} /> Admin Dashboard
+            <FiShield size={14} /> Admin
           </Link>
         )}
+
+        {/* Theme Toggle */}
+        <button
+          onClick={handleToggleTheme}
+          className="lcn-theme-btn"
+          title={`Switch to ${effectiveTheme === "dark" ? "light" : "dark"} mode`}
+        >
+          {effectiveTheme === "dark" ? <FiSun size={15} /> : <FiMoon size={15} />}
+        </button>
 
         <button
           onClick={handleExit}

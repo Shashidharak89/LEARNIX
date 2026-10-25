@@ -12,14 +12,20 @@ import {
 import LearnixCodeNav from "./components/LearnixCodeNav";
 import "./LearnixCodeHome.css";
 
+const THEME_KEY = "learnix-code-theme";
+
 export default function LearnixCodeHomePage() {
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [theme, setTheme] = useState("dark");
 
   useEffect(() => {
+    const saved = localStorage.getItem(THEME_KEY);
+    setTheme(saved === "light" ? "light" : "dark");
+
     async function loadProblems() {
       try {
-        const res = await fetch("/api/coding/problems");
+        const res = await fetch("/api/coding/problems?page=1&size=10");
         const data = await res.json();
         if (data.success) {
           setProblems(data.problems || []);
@@ -33,13 +39,18 @@ export default function LearnixCodeHomePage() {
     loadProblems();
   }, []);
 
-  // Display the first 10 problems
-  const first10 = problems.slice(0, 10);
+  function toggleTheme() {
+    setTheme((prev) => {
+      const next = prev === "dark" ? "light" : "dark";
+      localStorage.setItem(THEME_KEY, next);
+      return next;
+    });
+  }
 
   return (
-    <div className="lch-wrapper">
-      {/* Top Navbar with Exit Button */}
-      <LearnixCodeNav />
+    <div className={`lch-wrapper lch-theme-${theme}`}>
+      {/* Top Navbar */}
+      <LearnixCodeNav theme={theme} onToggleTheme={toggleTheme} />
 
       <main className="lch-main">
         {/* Hero Section */}
@@ -71,7 +82,7 @@ export default function LearnixCodeHomePage() {
 
           <div className="lch-stats-row">
             <div className="lch-stat-card">
-              <span className="lch-stat-num">{problems.length || "10+"}</span>
+              <span className="lch-stat-num">{problems.length > 0 ? `${problems.length}+` : "10+"}</span>
               <span className="lch-stat-label">Coding Challenges</span>
             </div>
             <div className="lch-stat-card">
@@ -93,21 +104,23 @@ export default function LearnixCodeHomePage() {
         <section>
           <div className="lch-section-header">
             <h2 className="lch-section-title">
-              <FiTerminal size={20} color="#38bdf8" /> Featured Challenges
+              <FiTerminal size={20} /> Featured Challenges
             </h2>
             <Link href="/learnix-code/problems" className="lch-view-more-link">
-              View All Problems ({problems.length}) <FiArrowRight size={16} />
+              View All Problems <FiArrowRight size={16} />
             </Link>
           </div>
 
           {loading ? (
-            <div style={{ textAlign: "center", padding: "3rem", color: "#64748b" }}>
-              Loading challenges from DynamoDB...
+            <div className="lch-skeleton-list">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="lch-skeleton-row lch-shimmer" />
+              ))}
             </div>
           ) : (
             <div className="lch-problems-grid">
-              {first10.map((p, index) => {
-                const problemNumber = index + 1;
+              {problems.map((p, index) => {
+                const problemNumber = p.order || index + 1;
                 return (
                   <Link
                     key={p.problemId || index}
@@ -153,10 +166,8 @@ export default function LearnixCodeHomePage() {
 
           {/* View More CTA Card */}
           <div className="lch-view-all-cta">
-            <h3 style={{ fontSize: "1.3rem", margin: "0 0 0.5rem 0", color: "#ffffff" }}>
-              Explore the Full Problem Set
-            </h3>
-            <p style={{ color: "#94a3b8", margin: "0 0 1.5rem 0", fontSize: "0.95rem" }}>
+            <h3 className="lch-cta-title">Explore the Full Problem Set</h3>
+            <p className="lch-cta-desc">
               Browse all algorithmic problems, test your limits, and master data structures.
             </p>
             <Link href="/learnix-code/problems" className="lch-cta-btn">

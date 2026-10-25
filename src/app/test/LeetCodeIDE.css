@@ -1,26 +1,52 @@
-/* LeetCodeIDE.css — Premium LeetCode-inspired Dark Theme */
+/* LeetCodeIDE.css — Premium LeetCode-inspired Dark/Light Theme with Orange Accent */
 
-:root {
-  --lc-bg-main: #1a1a1a;
-  --lc-bg-header: #262626;
-  --lc-bg-card: #282828;
-  --lc-bg-inner: #1e1e1e;
-  --lc-border: #383838;
-  --lc-border-light: #444444;
-  --lc-text-primary: #eff2f6;
-  --lc-text-secondary: #9ca3af;
-  --lc-text-muted: #6b7280;
-  --lc-easy: #00b8a3;
-  --lc-easy-bg: rgba(0, 184, 163, 0.15);
-  --lc-medium: #ffc01e;
-  --lc-medium-bg: rgba(255, 192, 30, 0.15);
-  --lc-hard: #ff375f;
-  --lc-hard-bg: rgba(255, 55, 95, 0.15);
-  --lc-accent: #3b82f6;
-  --lc-btn-run: #3a3a3a;
-  --lc-btn-run-hover: #4a4a4a;
-  --lc-btn-submit: #00b8a3;
-  --lc-btn-submit-hover: #009987;
+:root,
+.lc-workspace.lc-theme-dark {
+  --lc-bg-main: #0c0e14;
+  --lc-bg-header: #131722;
+  --lc-bg-card: #171b26;
+  --lc-bg-inner: #10131c;
+  --lc-border: #232838;
+  --lc-border-light: #2c3347;
+  --lc-text-primary: #f1f5f9;
+  --lc-text-secondary: #94a3b8;
+  --lc-text-muted: #64748b;
+  --lc-easy: #10b981;
+  --lc-easy-bg: rgba(16, 185, 129, 0.15);
+  --lc-medium: #f59e0b;
+  --lc-medium-bg: rgba(245, 158, 11, 0.15);
+  --lc-hard: #ef4444;
+  --lc-hard-bg: rgba(239, 68, 68, 0.15);
+  --lc-accent: #f97316;
+  --lc-accent-hover: #ea580c;
+  --lc-btn-run: #232838;
+  --lc-btn-run-hover: #2e354a;
+  --lc-btn-submit: #ea580c;
+  --lc-btn-submit-hover: #c2410c;
+}
+
+.lc-workspace.lc-theme-light {
+  --lc-bg-main: #f8fafc;
+  --lc-bg-header: #ffffff;
+  --lc-bg-card: #ffffff;
+  --lc-bg-inner: #f1f5f9;
+  --lc-border: #e2e8f0;
+  --lc-border-light: #cbd5e1;
+  --lc-text-primary: #0f172a;
+  --lc-text-secondary: #475569;
+  --lc-text-muted: #64748b;
+  --lc-easy: #059669;
+  --lc-easy-bg: rgba(5, 150, 105, 0.12);
+  --lc-medium: #d97706;
+  --lc-medium-bg: rgba(217, 119, 6, 0.12);
+  --lc-hard: #dc2626;
+  --lc-hard-bg: rgba(220, 38, 38, 0.12);
+  --lc-accent: #ea580c;
+  --lc-accent-hover: #c2410c;
+  --lc-btn-run: #f1f5f9;
+  --lc-btn-run-hover: #e2e8f0;
+  --lc-btn-submit: #ea580c;
+  --lc-btn-submit-hover: #c2410c;
 }
 
 .lc-workspace {
@@ -171,6 +197,26 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
+.lc-btn-theme {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--lc-bg-card);
+  border: 1px solid var(--lc-border);
+  color: var(--lc-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lc-btn-theme:hover {
+  color: var(--lc-accent);
+  border-color: var(--lc-accent);
+  transform: rotate(15deg);
+}
+
 .lc-btn-exit {
   display: inline-flex;
   align-items: center;
@@ -190,6 +236,74 @@
   background: rgba(239, 68, 68, 0.22);
   color: #fca5a5;
   border-color: rgba(239, 68, 68, 0.5);
+}
+
+/* ── Light Theme Overrides ── */
+.lc-workspace.lc-theme-light .lc-logo {
+  color: #0f172a;
+}
+
+.lc-workspace.lc-theme-light .lc-problem-select-btn {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.lc-workspace.lc-theme-light .lc-problem-select-btn:hover {
+  background: #f1f5f9;
+}
+
+.lc-workspace.lc-theme-light .lc-left-tabs,
+.lc-workspace.lc-theme-light .lc-editor-header,
+.lc-workspace.lc-theme-light .lc-console-nav {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+.lc-workspace.lc-theme-light .lc-monaco-wrap {
+  background: #fffffe !important;
+}
+
+.lc-workspace.lc-theme-light .lc-tab-btn {
+  color: #64748b;
+}
+
+.lc-workspace.lc-theme-light .lc-tab-btn.active {
+  color: var(--lc-accent);
+  background: rgba(234, 88, 12, 0.08);
+}
+
+.lc-workspace.lc-theme-light .lc-section-box,
+.lc-workspace.lc-theme-light .lc-example-card,
+.lc-workspace.lc-theme-light .lc-testcase-pill {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+.lc-workspace.lc-theme-light .lc-example-code {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.lc-workspace.lc-theme-light .lc-badge-tag {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.lc-workspace.lc-theme-light .lc-user-pill {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #334155;
+}
+
+.lc-workspace.lc-theme-light .lc-nav-link:hover {
+  color: #0f172a;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.lc-workspace.lc-theme-light .lc-resizer-vertical,
+.lc-workspace.lc-theme-light .lc-resizer-horizontal {
+  background: #e2e8f0;
 }
 
 /* ── Main Layout Body ── */

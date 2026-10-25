@@ -28,10 +28,14 @@ import {
   FiUser,
   FiLogIn,
   FiCode,
+  FiSun,
+  FiMoon,
 } from "react-icons/fi";
 import { recordCodingEntry, exitCodingEnvironment } from "@/utils/codingExitTracker";
 import { areOutputsEqual } from "@/lib/outputComparator";
 import "./LeetCodeIDE.css";
+
+const THEME_KEY = "learnix-code-theme";
 
 function getJavaType(typeStr) {
   if (!typeStr) return "void";
@@ -131,8 +135,10 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
   const [executing, setExecuting] = useState(false);
   const [execMode, setExecMode] = useState("run"); // "run" | "submit"
   const [executionResult, setExecutionResult] = useState(null);
-  const [customInputStr, setCustomInputStr] = useState("");
   const [useCustomInput, setUseCustomInput] = useState(false);
+
+  // Theme state ("dark" | "light")
+  const [theme, setTheme] = useState("dark");
 
   // Check if caller might be admin (from localStorage) just to show Admin link
   const [isAdmin, setIsAdmin] = useState(false);
@@ -254,6 +260,12 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     const storedName =
       (typeof window !== "undefined" && (localStorage.getItem("name") || localStorage.getItem("usn"))) || "";
     setUserName(storedName);
+
+    // Load saved theme preference
+    const savedTheme = (typeof window !== "undefined" && localStorage.getItem(THEME_KEY)) || "";
+    if (savedTheme === "light" || savedTheme === "dark") {
+      setTheme(savedTheme);
+    }
 
     // Track original entry outside coding section
     recordCodingEntry();
@@ -418,6 +430,14 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
       navigator.clipboard.writeText(code);
       setCopiedCode(true);
       setTimeout(() => setCopiedCode(false), 2000);
+    }
+  }
+
+  function toggleTheme() {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(THEME_KEY, next);
     }
   }
 
@@ -822,7 +842,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     : (problem?.testCases?.slice(0, 3) || []);
 
   return (
-    <div className="lc-workspace">
+    <div className={`lc-workspace ${theme === "light" ? "lc-theme-light" : "lc-theme-dark"}`}>
       {/* ── Top Bar ── */}
       <nav className="lc-navbar">
         <div className="lc-nav-left">
@@ -918,6 +938,16 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
               <span>Log In</span>
             </button>
           )}
+
+          {/* Theme toggle button */}
+          <button
+            onClick={toggleTheme}
+            className="lc-btn-theme"
+            title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? <FiSun size={15} /> : <FiMoon size={15} />}
+          </button>
 
           <button
             onClick={handleExit}
@@ -1193,7 +1223,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
               <Editor
                 height="100%"
                 language={selectedLanguage === "java" ? "java" : "javascript"}
-                theme="vs-dark"
+                theme={theme === "light" ? "vs" : "vs-dark"}
                 value={code}
                 onMount={(editor) => {
                   editorRef.current = editor;
