@@ -86,15 +86,42 @@ export async function GET(req) {
         ScanIndexForward: true, // chronological order
       })
     );
-    const submissions = submissionsRes.Items || [];
+    let submissions = submissionsRes.Items || [];
+
+    // Fallback if user might have submissions saved with USN
+    if (authUser.usn && authUser.usn !== userId) {
+      try {
+        const usnSubRes = await docClient.send(
+          new QueryCommand({
+            TableName: SUBMISSIONS_TABLE,
+            KeyConditionExpression: "userId = :uid",
+            ExpressionAttributeValues: {
+              ":uid": String(authUser.usn),
+            },
+            ScanIndexForward: true,
+          })
+        );
+        if (usnSubRes.Items && usnSubRes.Items.length > 0) {
+          const seen = new Set(submissions.map((s) => s.submissionId));
+          for (const s of usnSubRes.Items) {
+            if (!seen.has(s.submissionId)) {
+              submissions.push(s);
+            }
+          }
+        }
+      } catch {
+        // ignore fallback error
+      }
+    }
 
     // 3. Process Submissions for Solved vs Attempting
     const solvedSet = new Set();
     const attemptedSet = new Set();
     let qualifyingCount = 0;
 
-    // Calendar map: { "YYYY-MM-DD": count }
+    // Calendar map: { "YYYY-MM-DD": count } and raw timestamps
     const calendarMap = {};
+    const submissionTimestamps = [];
 
     for (const sub of submissions) {
       const pid = sub.problemId;
@@ -116,10 +143,12 @@ export async function GET(req) {
         }
       }
 
-      // Date mapping for heatmap
-      if (sub.submittedAt) {
+      // Date mapping for heatmap (every submission counts: wrong, right, runtime error, etc.)
+      const subTime = sub.submittedAt || sub.createdAt;
+      if (subTime) {
+        submissionTimestamps.push(subTime);
         try {
-          const dateObj = new Date(sub.submittedAt);
+          const dateObj = new Date(subTime);
           if (!isNaN(dateObj.getTime())) {
             const dateStr = dateObj.toISOString().split("T")[0]; // YYYY-MM-DD
             calendarMap[dateStr] = (calendarMap[dateStr] || 0) + 1;
@@ -232,6 +261,7 @@ export async function GET(req) {
         maxStreak,
         currentStreak,
         calendar: calendarMap,
+        submissionTimestamps,
       },
     });
   } catch (err) {

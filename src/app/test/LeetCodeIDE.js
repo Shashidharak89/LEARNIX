@@ -689,6 +689,14 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     setExecMode(mode);
     setActiveConsoleTab("testresult");
 
+    // Auto-expand testcase/testresult panel if minimized
+    if (consoleHeight <= 50) {
+      setConsoleHeight(280);
+    }
+    if (isEditorMaximized) {
+      setIsEditorMaximized(false);
+    }
+
     try {
       let customArgs = undefined;
       if (mode === "run" && useCustomInput && customInputStr.trim()) {
@@ -837,87 +845,102 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
       <div className="lc-submissions-container">
         <div className="lc-submissions-list">
           <div className="lc-submissions-header-row">
-            <span>Status</span>
-            <span>Cases Passed</span>
-            <span>Runtime</span>
-            <span>Submitted</span>
-            <span style={{ textAlign: "right" }}>Actions</span>
+            <span className="lc-sh-order">#</span>
+            <span className="lc-sh-status">Status</span>
+            <span className="lc-sh-lang">Language</span>
+            <span className="lc-sh-runtime">Runtime</span>
+            <span className="lc-sh-cases">Cases</span>
+            <span className="lc-sh-actions">Actions</span>
           </div>
-          {submissions.map((sub) => {
+          {submissions.map((sub, idx) => {
             const isPassed = sub.status === "Accepted";
-            const subLang = sub.language || "javascript";
+            const subLang = (sub.language || "javascript").toLowerCase();
+            const orderNum = submissions.length - idx;
+            const submittedDate = sub.submittedAt ? new Date(sub.submittedAt) : null;
+            const dateStr = submittedDate
+              ? submittedDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+              : "";
+
             return (
-              <div key={sub.submissionId} className="lc-submission-card">
-                <div className="lc-sub-col lc-sub-col-status">
+              <div
+                key={sub.submissionId || idx}
+                className="lc-submission-card"
+                onClick={() => setSelectedSubmission(sub)}
+                title="Click to view full solution code"
+              >
+                <div className="lc-sub-cell lc-sub-cell-order">
+                  <span className="lc-sub-order-badge">{orderNum}</span>
+                </div>
+
+                <div className="lc-sub-cell lc-sub-cell-status">
                   <span
-                    className={`lc-sub-status-pill ${
+                    className={`lc-sub-status-title ${
                       isPassed
-                        ? "lc-sub-accepted"
+                        ? "accepted"
                         : sub.status === "Wrong Answer"
-                        ? "lc-sub-wrong"
-                        : "lc-sub-error"
+                        ? "wrong"
+                        : "error"
                     }`}
                   >
-                    {isPassed ? <FiCheckCircle size={13} /> : <FiXCircle size={13} />}
-                    <span>{sub.status}</span>
+                    {sub.status || "Submitted"}
                   </span>
-                  <span className={`lc-sub-lang-pill ${subLang === "java" ? "java" : "javascript"}`}>
-                    {subLang === "java" ? "Java" : "JS"}
+                  {dateStr && <span className="lc-sub-date-label">{dateStr}</span>}
+                </div>
+
+                <div className="lc-sub-cell lc-sub-cell-lang">
+                  <span className={`lc-sub-lang-pill ${subLang.includes("java") && !subLang.includes("script") ? "java" : "javascript"}`}>
+                    {subLang.includes("java") && !subLang.includes("script") ? "Java" : "JavaScript"}
                   </span>
                 </div>
 
-                <div className="lc-sub-col lc-sub-col-cases">
-                  <span className="lc-sub-mobile-label">Cases:</span>
+                <div className="lc-sub-cell lc-sub-cell-runtime">
+                  <span className="lc-sub-runtime-val">
+                    <FiClock size={12} className="lc-sub-runtime-icon" />
+                    <span>{sub.totalRuntime != null ? `${sub.totalRuntime} ms` : "N/A"}</span>
+                  </span>
+                </div>
+
+                <div className="lc-sub-cell lc-sub-cell-cases">
                   <span
-                    className="lc-sub-cases-val"
+                    className="lc-sub-cases-text"
                     style={{
                       color: isPassed ? "var(--lc-easy)" : sub.status === "Wrong Answer" ? "#f87171" : "#fbbf24",
-                      fontWeight: 600,
                     }}
                   >
-                    {sub.passedTestCases} / {sub.totalTestCases || 10}
+                    {sub.passedTestCases != null ? `${sub.passedTestCases}/${sub.totalTestCases || 10}` : "N/A"}
                   </span>
                 </div>
 
-                <div className="lc-sub-col lc-sub-col-runtime">
-                  <span className="lc-sub-mobile-label">Runtime:</span>
-                  <span style={{ color: "#9ca3af", fontFamily: "monospace", fontSize: "0.85rem" }}>
-                    {sub.totalRuntime} ms
-                  </span>
-                </div>
-
-                <div className="lc-sub-col lc-sub-col-date">
-                  <span className="lc-sub-mobile-label">Date:</span>
-                  <span style={{ color: "#6b7280", fontSize: "0.8rem" }}>
-                    {new Date(sub.submittedAt).toLocaleDateString()} {new Date(sub.submittedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                  </span>
-                </div>
-
-                <div className="lc-sub-col lc-sub-col-actions lc-sub-actions">
+                <div className="lc-sub-cell lc-sub-cell-actions" onClick={(e) => e.stopPropagation()}>
                   <button
+                    type="button"
                     onClick={() => {
                       if (sub.language && sub.language !== selectedLanguage) {
                         setSelectedLanguage(sub.language);
                       }
                       setCode(sub.code);
                       if (problem && typeof window !== "undefined") {
-                        localStorage.setItem(`learnix_code_${problem.problemId}_${sub.language || selectedLanguage}`, sub.code);
+                        localStorage.setItem(
+                          `learnix_code_${problem.problemId}_${sub.language || selectedLanguage}`,
+                          sub.code
+                        );
                       }
                       alert(`Restored ${sub.language ? sub.language.toUpperCase() : "solution"} into code editor!`);
                     }}
-                    className="lc-sub-btn"
-                    title="Load code and language into editor"
+                    className="lc-sub-btn lc-sub-btn-load"
+                    title="Load solution into code editor"
                   >
-                    <FiRotateCcw size={12} />
-                    <span>Load</span>
+                    <FiRotateCcw size={13} />
+                    <span className="lc-sub-btn-text">Load</span>
                   </button>
                   <button
+                    type="button"
                     onClick={() => setSelectedSubmission(sub)}
-                    className="lc-sub-btn lc-sub-btn-primary"
-                    title="View code and details"
+                    className="lc-sub-btn lc-sub-btn-view"
+                    title="View solution code"
                   >
-                    <FiCode size={12} />
-                    <span>View</span>
+                    <FiCode size={13} />
+                    <span className="lc-sub-btn-text">Code</span>
                   </button>
                 </div>
               </div>
@@ -1972,9 +1995,25 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                 </div>
               </div>
 
-              <pre className="lc-submission-code-view">
-                <code>{selectedSubmission.code}</code>
-              </pre>
+              <div className="lc-sub-code-editor-box">
+                <Editor
+                  height="360px"
+                  language={(selectedSubmission.language || "javascript") === "java" ? "java" : "javascript"}
+                  theme={theme === "light" ? "vs" : "vs-dark"}
+                  value={selectedSubmission.code}
+                  options={{
+                    readOnly: true,
+                    minimap: { enabled: false },
+                    fontSize: 13,
+                    fontFamily: "'Fira Code', 'Cascadia Code', 'Consolas', monospace",
+                    lineNumbers: "on",
+                    scrollBeyondLastLine: false,
+                    automaticLayout: true,
+                    wordWrap: "on",
+                    padding: { top: 12, bottom: 12 },
+                  }}
+                />
+              </div>
 
               {selectedSubmission.error && (
                 <div style={{ marginTop: "1rem", background: "rgba(239, 68, 68, 0.15)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: "6px", padding: "0.75rem", color: "#f87171", fontFamily: "monospace", fontSize: "0.85rem" }}>

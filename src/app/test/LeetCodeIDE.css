@@ -1554,38 +1554,226 @@
   min-width: 100%;
 }
 
+/* ── Submissions Table / Cards in Description Panel ── */
+.lc-submissions-container {
+  padding: 0.25rem 0 1.5rem 0;
+  width: 100%;
+}
+
+.lc-submissions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  width: 100%;
+}
+
 .lc-submissions-header-row {
   display: grid;
-  grid-template-columns: 140px 110px 90px 160px 1fr;
+  grid-template-columns: 28px 1.5fr 1fr 1fr 0.9fr 1.1fr;
   align-items: center;
-  padding: 0.4rem 0.85rem;
-  font-size: 0.74rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.73rem;
   font-weight: 700;
   color: #71717a;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid #333333;
+  border-bottom: 1px solid #27272a;
+  gap: 0.45rem;
 }
 
 .lc-submission-card {
   display: grid;
-  grid-template-columns: 140px 110px 90px 160px 1fr;
+  grid-template-columns: 28px 1.5fr 1fr 1fr 0.9fr 1.1fr;
   align-items: center;
-  background: #212121;
-  border: 1px solid #333333;
-  border-radius: 6px;
-  padding: 0.75rem 0.85rem;
+  background: #1c1c1f;
+  border: 1px solid #27272a;
+  border-radius: 8px;
+  padding: 0.65rem 0.75rem;
   font-size: 0.85rem;
+  gap: 0.45rem;
+  cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.lc-sub-mobile-label {
-  display: none;
+.lc-submission-card:hover {
+  background: #232328;
+  border-color: #3f3f46;
 }
 
-.lc-submission-card:hover {
-  background: #272727;
-  border-color: #444444;
+.lc-sub-cell {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.lc-sub-cell-order {
+  justify-content: flex-start;
+}
+
+.lc-sub-order-badge {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #71717a;
+  font-family: monospace;
+}
+
+.lc-sub-cell-status {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+}
+
+.lc-sub-status-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  white-space: nowrap;
+  line-height: 1.25;
+}
+
+.lc-sub-status-title.accepted {
+  color: #00b8a3;
+}
+
+.lc-sub-status-title.wrong {
+  color: #ef4444;
+}
+
+.lc-sub-status-title.error {
+  color: #f59e0b;
+}
+
+.lc-sub-date-label {
+  font-size: 0.72rem;
+  color: #71717a;
+  white-space: nowrap;
+}
+
+.lc-sub-cell-lang {
+  justify-content: flex-start;
+}
+
+.lc-sub-lang-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e4e4e7;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  letter-spacing: 0.2px;
+}
+
+.lc-sub-lang-pill.java {
+  background: rgba(234, 88, 12, 0.15);
+  border-color: rgba(234, 88, 12, 0.35);
+  color: #fb923c;
+}
+
+.lc-sub-lang-pill.javascript {
+  background: rgba(247, 223, 30, 0.12);
+  border-color: rgba(247, 223, 30, 0.3);
+  color: #fde047;
+}
+
+.lc-sub-runtime-val {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  color: #a1a1aa;
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.lc-sub-runtime-icon {
+  opacity: 0.6;
+}
+
+.lc-sub-cases-text {
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.lc-sub-cell-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.lc-sub-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.32rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid #3f3f46;
+  background: #27272a;
+  color: #f4f4f5;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.lc-sub-btn:hover {
+  background: #3f3f46;
+  color: #ffffff;
+}
+
+.lc-sub-btn-view {
+  background: #f97316;
+  border-color: #ea580c;
+  color: #ffffff;
+}
+
+.lc-sub-btn-view:hover {
+  background: #ea580c;
+}
+
+.lc-sub-code-editor-box {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #27272a;
+}
+
+@media (max-width: 680px) {
+  .lc-submissions-header-row {
+    grid-template-columns: 24px 1.4fr 1fr 1fr 1fr;
+  }
+  .lc-submission-card {
+    grid-template-columns: 24px 1.4fr 1fr 1fr 1fr;
+  }
+  .lc-sh-cases, .lc-sub-cell-cases {
+    display: none;
+  }
+  .lc-sub-btn-text {
+    display: none;
+  }
+  .lc-sub-btn {
+    padding: 0.32rem 0.45rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .lc-submissions-header-row {
+    grid-template-columns: 1.5fr 1fr 1fr;
+  }
+  .lc-submission-card {
+    grid-template-columns: 1.5fr 1fr 1fr;
+  }
+  .lc-sh-order, .lc-sub-cell-order, .lc-sh-runtime, .lc-sub-cell-runtime {
+    display: none;
+  }
 }
 
 /* ── Responsive Coding Page & Submissions Layout ── */

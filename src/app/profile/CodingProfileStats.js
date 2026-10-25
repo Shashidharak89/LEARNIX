@@ -46,20 +46,33 @@ export default function CodingProfileStats({ usn = "", userId = "" }) {
     loadStats();
   }, [usn, userId]);
 
-  // Compute 52/53 weeks x 7 days calendar grid for the past 365 days
+  // Compute 52/53 weeks x 7 days calendar grid for the past 365 days (ending on today in local timezone)
   const calendarData = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const map = {};
+    if (stats?.submissionTimestamps && Array.isArray(stats.submissionTimestamps)) {
+      for (const ts of stats.submissionTimestamps) {
+        if (!ts) continue;
+        const d = new Date(ts);
+        if (isNaN(d.getTime())) continue;
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        const key = `${y}-${m}-${day}`;
+        map[key] = (map[key] || 0) + 1;
+      }
+    } else if (stats?.calendar) {
+      Object.assign(map, stats.calendar);
+    }
 
-    const map = stats?.calendar || {};
+    const now = new Date();
+    // Today in local midnight end
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
-    // Determine the end day of the grid (today's day of week: 0=Sun, 6=Sat)
-    // We want 53 columns of 7 days, ending at the current week
-    const currentDayOfWeek = today.getDay(); // 0-6
+    // Determine current day of week (0=Sun, 6=Sat)
+    const currentDayOfWeek = now.getDay();
     const totalDays = 52 * 7 + (currentDayOfWeek + 1);
 
-    const startDate = new Date(today);
-    startDate.setDate(startDate.getDate() - (totalDays - 1));
+    const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (totalDays - 1), 0, 0, 0, 0);
 
     const weeks = [];
     let currentWeek = [];
@@ -69,17 +82,20 @@ export default function CodingProfileStats({ usn = "", userId = "" }) {
     const cursor = new Date(startDate);
 
     while (cursor <= today) {
-      const dateStr = cursor.toISOString().split("T")[0];
+      const y = cursor.getFullYear();
+      const m = String(cursor.getMonth() + 1).padStart(2, "0");
+      const d = String(cursor.getDate()).padStart(2, "0");
+      const dateStr = `${y}-${m}-${d}`;
       const count = map[dateStr] || 0;
-      const m = cursor.getMonth();
+      const monthIdx = cursor.getMonth();
 
       // Track month labels at the start of a month
-      if (m !== lastMonth && cursor.getDate() <= 7) {
+      if (monthIdx !== lastMonth && cursor.getDate() <= 7) {
         months.push({
           colIndex: weeks.length,
           name: cursor.toLocaleString("default", { month: "short" }),
         });
-        lastMonth = m;
+        lastMonth = monthIdx;
       }
 
       currentWeek.push({
@@ -116,6 +132,27 @@ export default function CodingProfileStats({ usn = "", userId = "" }) {
 
     return { weeks, months };
   }, [stats]);
+
+  // Total submissions and active days in past 365 days
+  const annualSubmissionsCount = useMemo(() => {
+    let sum = 0;
+    for (const week of calendarData.weeks) {
+      for (const day of week) {
+        sum += day.count;
+      }
+    }
+    return sum;
+  }, [calendarData]);
+
+  const totalActiveDaysCount = useMemo(() => {
+    let active = 0;
+    for (const week of calendarData.weeks) {
+      for (const day of week) {
+        if (day.count > 0) active++;
+      }
+    }
+    return active;
+  }, [calendarData]);
 
   if (loading) {
     return (
@@ -305,7 +342,7 @@ export default function CodingProfileStats({ usn = "", userId = "" }) {
         <div className="cps-cal-header">
           <div className="cps-cal-title-wrap">
             <span className="cps-cal-total-bold">
-              {stats.annualSubmissions || stats.totalSubmissions || 0}
+              {annualSubmissionsCount}
             </span>
             <span className="cps-cal-title-text">
               submissions in the past one year
@@ -321,7 +358,7 @@ export default function CodingProfileStats({ usn = "", userId = "" }) {
           <div className="cps-cal-meta-wrap">
             <span className="cps-cal-meta-item">
               Total active days:{" "}
-              <strong className="cps-meta-strong">{stats.totalActiveDays}</strong>
+              <strong className="cps-meta-strong">{totalActiveDaysCount}</strong>
             </span>
             <span className="cps-cal-meta-item">
               Max streak:{" "}
@@ -347,12 +384,16 @@ export default function CodingProfileStats({ usn = "", userId = "" }) {
                       className={`cps-cal-cell level-${day.level}`}
                       onMouseEnter={(e) => {
                         const rect = e.currentTarget.getBoundingClientRect();
+                        const countText =
+                          day.count === 1 ? "1 submission" : `${day.count} submissions`;
+                        const text =
+                          day.count > 0
+                            ? `${day.dateFormatted} - ${countText}`
+                            : `${day.dateFormatted} - No submissions`;
                         setActiveTooltip({
                           x: rect.left + rect.width / 2,
                           y: rect.top - 8,
-                          text: `${day.count} ${
-                            day.count === 1 ? "submission" : "submissions"
-                          } on ${day.dateFormatted}`,
+                          text,
                         });
                       }}
                       onMouseLeave={() => setActiveTooltip(null)}
