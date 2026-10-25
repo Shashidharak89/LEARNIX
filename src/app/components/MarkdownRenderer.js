@@ -3,6 +3,7 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import CodeBlock from "./CodeBlock";
@@ -12,26 +13,31 @@ import "./styles/MarkdownRenderer.css";
 export default function MarkdownRenderer({ content, className = "" }) {
   if (!content) return null;
 
-  // Preprocess HTML image tags and line breaks into standard markdown
-  const normalizedContent =
-    typeof content === "string"
-      ? content
-          .replace(
-            /<img\s+[^>]*src=["']([^"']+)["'][^>]*alt=["']([^"']*)["'][^>]*\/?>/gi,
-            "![$2]($1)"
-          )
-          .replace(
-            /<img\s+[^>]*alt=["']([^"']*)["'][^>]*src=["']([^"']+)["'][^>]*\/?>/gi,
-            "![$1]($2)"
-          )
-          .replace(/<img\s+[^>]*src=["']([^"']+)["'][^>]*\/?>/gi, "![]($1)")
-          .replace(/<br\s*\/?>/gi, "\n\n")
-      : content;
+  // Preprocess HTML image tags and normalize newlines from raw JSON strings
+  let normalized = typeof content === "string" ? content : String(content || "");
+
+  // Convert literal escaped "\n" (from raw JSON copy-paste) to real newlines
+  if (normalized.includes("\\n")) {
+    normalized = normalized.replace(/\\n/g, "\n");
+  }
+
+  // Preprocess HTML image tags and <br> into standard markdown
+  const normalizedContent = normalized
+    .replace(
+      /<img\s+[^>]*src=["']([^"']+)["'][^>]*alt=["']([^"']*)["'][^>]*\/?>/gi,
+      "![$2]($1)"
+    )
+    .replace(
+      /<img\s+[^>]*alt=["']([^"']*)["'][^>]*src=["']([^"']+)["'][^>]*\/?>/gi,
+      "![$1]($2)"
+    )
+    .replace(/<img\s+[^>]*src=["']([^"']+)["'][^>]*\/?>/gi, "![]($1)")
+    .replace(/<br\s*\/?>/gi, "\n\n");
 
   return (
     <div className={`markdown-content ${className}`}>
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkMath]}
+        remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]}
         rehypePlugins={[rehypeKatex]}
         components={{
           code({ node, inline, className, children, ...props }) {
