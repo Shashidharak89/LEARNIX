@@ -33,6 +33,7 @@ import {
 } from "react-icons/fi";
 import { recordCodingEntry, exitCodingEnvironment } from "@/utils/codingExitTracker";
 import { areOutputsEqual } from "@/lib/outputComparator";
+import MarkdownRenderer from "@/app/components/MarkdownRenderer";
 import "./LeetCodeIDE.css";
 
 const THEME_KEY = "learnix-code-theme";
@@ -1049,12 +1050,12 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
                 {/* Problem Statement Content */}
                 <div className="lc-markdown-body">
-                  <div style={{ whiteSpace: "pre-line", marginBottom: "1.25rem" }}>
-                    {problem.description}
+                  <div className="lc-description-wrapper" style={{ marginBottom: "1.5rem" }}>
+                    <MarkdownRenderer content={problem.description} />
                   </div>
 
                   {/* ── 3 Example Testcases with Outputs in Description Section ── */}
-                  {sampleCases && sampleCases.length > 0 && (
+                  {sampleCases && sampleCases.length > 0 && !problem.description?.includes("Example 1") && (
                     <div className="lc-examples-section">
                       {sampleCases.slice(0, 3).map((sc, idx) => (
                         <div key={sc.testCaseId || idx} className="lc-example-card">

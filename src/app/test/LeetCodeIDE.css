@@ -813,36 +813,50 @@
 }
 
 .lc-markdown-body {
-  line-height: 1.65;
-  color: #d1d5db;
+  line-height: 1.7;
   font-size: 0.95rem;
 }
 
-.lc-markdown-body h3, .lc-markdown-body h4 {
-  color: #ffffff;
-  margin-top: 1.25rem;
-  margin-bottom: 0.5rem;
+.lc-description-wrapper {
+  word-break: break-word;
 }
 
-.lc-markdown-body pre {
-  background: var(--lc-bg-inner);
-  border: 1px solid var(--lc-border);
-  padding: 1rem;
-  border-radius: 8px;
-  overflow-x: auto;
-  font-family: "Fira Code", monospace;
-  font-size: 0.85rem;
-  color: #e2e8f0;
-  margin: 0.75rem 0;
+.lc-description-wrapper .markdown-content {
+  font-size: 0.95rem;
+  line-height: 1.7;
 }
 
-.lc-markdown-body code {
-  background: #333333;
-  padding: 0.15rem 0.4rem;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  font-family: monospace;
-  color: #f3f4f6;
+.lc-description-wrapper .markdown-content h1,
+.lc-description-wrapper .markdown-content h2,
+.lc-description-wrapper .markdown-content h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.lc-description-wrapper .markdown-content h3 {
+  font-size: 1.15rem;
+}
+
+.lc-description-wrapper .markdown-content p {
+  margin-bottom: 1rem;
+}
+
+.lc-description-wrapper .markdown-img-wrapper {
+  margin: 1.25rem 0;
+  text-align: center;
+}
+
+.lc-description-wrapper .markdown-img {
+  max-width: 100%;
+  max-height: 450px;
+  object-fit: contain;
+  border-radius: 10px;
+  cursor: zoom-in;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lc-description-wrapper .markdown-img:hover {
+  transform: scale(1.02);
 }
 
 .lc-section-box {

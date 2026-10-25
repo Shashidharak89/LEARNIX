@@ -12,6 +12,22 @@ import "./styles/MarkdownRenderer.css";
 export default function MarkdownRenderer({ content, className = "" }) {
   if (!content) return null;
 
+  // Preprocess HTML image tags and line breaks into standard markdown
+  const normalizedContent =
+    typeof content === "string"
+      ? content
+          .replace(
+            /<img\s+[^>]*src=["']([^"']+)["'][^>]*alt=["']([^"']*)["'][^>]*\/?>/gi,
+            "![$2]($1)"
+          )
+          .replace(
+            /<img\s+[^>]*alt=["']([^"']*)["'][^>]*src=["']([^"']+)["'][^>]*\/?>/gi,
+            "![$1]($2)"
+          )
+          .replace(/<img\s+[^>]*src=["']([^"']+)["'][^>]*\/?>/gi, "![]($1)")
+          .replace(/<br\s*\/?>/gi, "\n\n")
+      : content;
+
   return (
     <div className={`markdown-content ${className}`}>
       <ReactMarkdown
@@ -52,15 +68,26 @@ export default function MarkdownRenderer({ content, className = "" }) {
             );
           },
           img({ node, src, alt, ...props }) {
+            const hasCaption = alt && alt !== "Image preview" && alt !== "Illustration";
             return (
               <span className="markdown-img-wrapper">
                 <img
                   src={src}
-                  alt={alt || "Image preview"}
+                  alt={alt || "Illustration"}
                   className="markdown-img"
                   loading="lazy"
+                  onClick={() => {
+                    if (typeof window !== "undefined" && src) {
+                      window.open(src, "_blank");
+                    }
+                  }}
+                  title="Click to view full image in a new tab"
+                  style={{ cursor: "pointer" }}
                   {...props}
                 />
+                {hasCaption && (
+                  <span className="markdown-img-caption">{alt}</span>
+                )}
               </span>
             );
           },
@@ -89,7 +116,7 @@ export default function MarkdownRenderer({ content, className = "" }) {
           },
         }}
       >
-        {content}
+        {normalizedContent}
       </ReactMarkdown>
     </div>
   );

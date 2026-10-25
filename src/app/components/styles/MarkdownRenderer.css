@@ -214,3 +214,169 @@
 .markdown-content .katex {
   font-size: 1.05em;
 }
+
+/* Image Caption */
+.markdown-img-caption {
+  display: block;
+  font-size: 0.8rem;
+  margin-top: 6px;
+  font-style: italic;
+  color: #64748b;
+  text-align: center;
+}
+
+/* ── Learnix Code Dark Theme Integration ── */
+.lc-workspace.lc-theme-dark .markdown-content {
+  color: #d1d5db;
+}
+
+.lc-workspace.lc-theme-dark .markdown-content h1,
+.lc-workspace.lc-theme-dark .markdown-content h2,
+.lc-workspace.lc-theme-dark .markdown-content h3,
+.lc-workspace.lc-theme-dark .markdown-content h4,
+.lc-workspace.lc-theme-dark .markdown-content h5,
+.lc-workspace.lc-theme-dark .markdown-content h6 {
+  color: #f8fafc;
+  border-bottom-color: #232838;
+}
+
+.lc-workspace.lc-theme-dark .markdown-content strong {
+  color: #ffffff;
+}
+
+.lc-workspace.lc-theme-dark .markdown-content .inline-code {
+  background: #171b26;
+  color: #f97316;
+  border: 1px solid #283046;
+}
+
+.lc-workspace.lc-theme-dark .markdown-content blockquote {
+  background: #12151f;
+  border-left-color: #f97316;
+  color: #cbd5e1;
+}
+
+.lc-workspace.lc-theme-dark .markdown-content .markdown-link {
+  color: #f97316;
+}
+
+.lc-workspace.lc-theme-dark .markdown-content .markdown-link:hover {
+  color: #fb923c;
+  border-bottom-color: #f97316;
+}
+
+.lc-workspace.lc-theme-dark .markdown-content .markdown-table-wrapper {
+  background: #12151f;
+  border-color: #232838;
+}
+
+.lc-workspace.lc-theme-dark .markdown-content .markdown-table th {
+  background: #171b26;
+  color: #f1f5f9;
+  border-bottom-color: #232838;
+}
+
+.lc-workspace.lc-theme-dark .markdown-content .markdown-table td {
+  color: #cbd5e1;
+  border-bottom-color: #1e2433;
+}
+
+.lc-workspace.lc-theme-dark .markdown-content .markdown-table tr:nth-child(even) td {
+  background: #151926;
+}
+
+.lc-workspace.lc-theme-dark .markdown-content hr {
+  border-top-color: #232838;
+}
+
+.lc-workspace.lc-theme-dark .markdown-content li::marker {
+  color: #f97316;
+}
+
+.lc-workspace.lc-theme-dark .markdown-img {
+  border-color: #232838;
+  background: #12151f;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.lc-workspace.lc-theme-dark .markdown-img-caption {
+  color: #94a3b8;
+}
+
+/* ── Learnix Code Light Theme Integration ── */
+.lc-workspace.lc-theme-light .markdown-content {
+  color: #334155;
+}
+
+.lc-workspace.lc-theme-light .markdown-content h1,
+.lc-workspace.lc-theme-light .markdown-content h2,
+.lc-workspace.lc-theme-light .markdown-content h3,
+.lc-workspace.lc-theme-light .markdown-content h4,
+.lc-workspace.lc-theme-light .markdown-content h5,
+.lc-workspace.lc-theme-light .markdown-content h6 {
+  color: #0f172a;
+  border-bottom-color: #e2e8f0;
+}
+
+.lc-workspace.lc-theme-light .markdown-content strong {
+  color: #0f172a;
+}
+
+.lc-workspace.lc-theme-light .markdown-content .inline-code {
+  background: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #fed7aa;
+}
+
+.lc-workspace.lc-theme-light .markdown-content blockquote {
+  background: #f8fafc;
+  border-left-color: #ea580c;
+  color: #334155;
+}
+
+.lc-workspace.lc-theme-light .markdown-content .markdown-link {
+  color: #ea580c;
+}
+
+.lc-workspace.lc-theme-light .markdown-content .markdown-link:hover {
+  color: #c2410c;
+  border-bottom-color: #ea580c;
+}
+
+.lc-workspace.lc-theme-light .markdown-content .markdown-table-wrapper {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.lc-workspace.lc-theme-light .markdown-content .markdown-table th {
+  background: #f8fafc;
+  color: #0f172a;
+  border-bottom-color: #e2e8f0;
+}
+
+.lc-workspace.lc-theme-light .markdown-content .markdown-table td {
+  color: #334155;
+  border-bottom-color: #f1f5f9;
+}
+
+.lc-workspace.lc-theme-light .markdown-content .markdown-table tr:nth-child(even) td {
+  background: #fafcfe;
+}
+
+.lc-workspace.lc-theme-light .markdown-content hr {
+  border-top-color: #e2e8f0;
+}
+
+.lc-workspace.lc-theme-light .markdown-content li::marker {
+  color: #ea580c;
+}
+
+.lc-workspace.lc-theme-light .markdown-img {
+  border-color: #e2e8f0;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.lc-workspace.lc-theme-light .markdown-img-caption {
+  color: #64748b;
+}

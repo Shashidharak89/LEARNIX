@@ -27,6 +27,7 @@ import {
   FiChevronUp,
   FiLoader,
 } from "react-icons/fi";
+import MarkdownRenderer from "@/app/components/MarkdownRenderer";
 import "./CodingManager.css";
 
 // ─── Preformatted Sample JSON String with Topic IDs Reference & Comments ─────
@@ -366,6 +367,9 @@ export default function CodingManager() {
     templates: false,
     testcases: true,
   });
+
+  // Problem description editor tab: "write" | "preview"
+  const [descTab, setDescTab] = useState("write");
 
   // Form Fields
   const [formData, setFormData] = useState({
@@ -2162,14 +2166,47 @@ Example structure:
 
               {/* Description */}
               <div className="ac-form-group">
-                <label className="ac-label">Problem Statement (Markdown supported)</label>
-                <textarea
-                  rows={6}
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Describe the problem, examples, and details..."
-                  className="ac-textarea"
-                />
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.45rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                  <label className="ac-label" style={{ margin: 0 }}>
+                    Problem Statement (Markdown &amp; Images supported)
+                  </label>
+                  <div className="ac-desc-tabs">
+                    <button
+                      type="button"
+                      className={`ac-desc-tab ${descTab === "write" ? "active" : ""}`}
+                      onClick={() => setDescTab("write")}
+                    >
+                      Write
+                    </button>
+                    <button
+                      type="button"
+                      className={`ac-desc-tab ${descTab === "preview" ? "active" : ""}`}
+                      onClick={() => setDescTab("preview")}
+                    >
+                      Preview
+                    </button>
+                  </div>
+                </div>
+
+                {descTab === "write" ? (
+                  <textarea
+                    rows={8}
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="### Problem Statement&#10;&#10;Given an array...&#10;&#10;### Example 1:&#10;**Input:** `...`&#10;**Output:** `...`&#10;&#10;![Illustration](https://...)"
+                    className="ac-textarea"
+                  />
+                ) : (
+                  <div className="ac-desc-preview-box">
+                    {formData.description?.trim() ? (
+                      <MarkdownRenderer content={formData.description} />
+                    ) : (
+                      <p style={{ color: "#94a3b8", fontStyle: "italic", margin: 0 }}>
+                        Nothing to preview yet. Switch to "Write" and type your markdown problem statement.
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Sections Toolbar: Expand/Collapse All & Switch to JSON */}
