@@ -36,12 +36,28 @@ import {
   FiChevronRight,
   FiLoader,
 } from "react-icons/fi";
+import { FaJava, FaPython } from "react-icons/fa";
+import { SiJavascript, SiCplusplus } from "react-icons/si";
 import { recordCodingEntry, exitCodingEnvironment } from "@/utils/codingExitTracker";
 import { areOutputsEqual } from "@/lib/outputComparator";
 import MarkdownRenderer from "@/app/components/MarkdownRenderer";
 import "./LeetCodeIDE.css";
 
 const THEME_KEY = "learnix-code-theme";
+
+function getLanguageReactIcon(langId, size = 15) {
+  const id = (langId || "").toLowerCase();
+  if (id.includes("java") && !id.includes("script")) {
+    return <FaJava size={size} color="#ea580c" className="lc-react-icon-java" title="Java" />;
+  }
+  if (id.includes("javascript") || id === "js") {
+    return <SiJavascript size={size} color="#f7df1e" className="lc-react-icon-js" title="JavaScript" />;
+  }
+  if (id.includes("python") || id === "py") {
+    return <FaPython size={size} color="#38bdf8" className="lc-react-icon-python" title="Python" />;
+  }
+  return <SiCplusplus size={size} color="#60a5fa" className="lc-react-icon-cpp" title="C++" />;
+}
 
 function getLangDisplay(lang) {
   const id = (lang.languageId || "").toLowerCase();
@@ -889,7 +905,8 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
                 <div className="lc-sub-cell lc-sub-cell-lang">
                   <span className={`lc-sub-lang-pill ${subLang.includes("java") && !subLang.includes("script") ? "java" : "javascript"}`}>
-                    {subLang.includes("java") && !subLang.includes("script") ? "Java" : "JavaScript"}
+                    {getLanguageReactIcon(subLang, 12)}
+                    <span>{subLang.includes("java") && !subLang.includes("script") ? "Java" : "JavaScript"}</span>
                   </span>
                 </div>
 
@@ -1435,21 +1452,22 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
           <div className={`lc-editor-card ${isEditorMaximized ? "lc-editor-maximized" : ""}`}>
             <div className="lc-editor-header">
               <div className="lc-lang-select-wrap">
+                <span className="lc-lang-selected-icon">
+                  {getLanguageReactIcon(selectedLanguage, 15)}
+                </span>
                 <select
                   value={selectedLanguage}
                   onChange={(e) => handleLanguageChange(e.target.value)}
                   className="lc-lang-select"
                   title="Switch programming language"
                 >
-                  {languages.map((lang) => {
-                    const { label } = getLangDisplay(lang);
-                    return (
-                      <option key={lang.languageId} value={lang.languageId}>
-                        {label}
-                      </option>
-                    );
-                  })}
+                  {languages.map((lang) => (
+                    <option key={lang.languageId} value={lang.languageId}>
+                      {lang.name} {lang.version ? `(${lang.version})` : ""}
+                    </option>
+                  ))}
                 </select>
+                <FiChevronDown size={12} className="lc-lang-arrow-icon" />
               </div>
               <div className="lc-editor-actions">
                 <button
@@ -1935,7 +1953,8 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                     (selectedSubmission.language || "javascript") === "java" ? "java" : "javascript"
                   }`}
                 >
-                  {(selectedSubmission.language || "javascript") === "java" ? "Java" : "JS"}
+                  {getLanguageReactIcon(selectedSubmission.language, 12)}
+                  <span>{(selectedSubmission.language || "javascript") === "java" ? "Java" : "JavaScript"}</span>
                 </span>
                 <span style={{ color: "var(--lc-text-primary)", fontWeight: 600 }}>
                   Submission Details

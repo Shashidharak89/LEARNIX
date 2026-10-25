@@ -2128,36 +2128,32 @@
 .lc-lang-select-wrap {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: #222222;
+  gap: 0.45rem;
+  background: #202024;
   border: 1px solid #383838;
   border-radius: 6px;
-  padding: 0.2rem 0.5rem;
+  padding: 0.25rem 0.55rem;
   transition: all 0.2s ease;
+  position: relative;
 }
 
 .lc-lang-select-wrap:hover,
 .lc-lang-select-wrap:focus-within {
   border-color: #555555;
-  background: #282828;
+  background: #28282c;
 }
 
-.lc-lang-badge-icon {
-  font-size: 0.72rem;
-  font-weight: 800;
-  padding: 0.15rem 0.35rem;
-  border-radius: 4px;
-  letter-spacing: 0.5px;
+.lc-lang-selected-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.lc-lang-badge-icon.js {
-  background: #f7df1e;
-  color: #000000;
-}
-
-.lc-lang-badge-icon.java {
-  background: #ea580c;
-  color: #ffffff;
+.lc-lang-arrow-icon {
+  color: #71717a;
+  pointer-events: none;
+  flex-shrink: 0;
 }
 
 .lc-lang-select {
