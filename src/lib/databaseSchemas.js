@@ -7,7 +7,8 @@
 export const DATABASE_SCHEMAS = {
   resources: {
     id: "resources",
-    title: "Public Resources & Topics Data",
+    title: "Resources",
+    filename: "Resources.csv",
     entity: "Topic & Subject with User Profile",
     description: "Exhaustive nested export of all public topics and subjects. Every topic attribute is dereferenced with its parent Subject and author User records.",
     headers: [
@@ -85,7 +86,8 @@ export const DATABASE_SCHEMAS = {
 
   "study-materials": {
     id: "study-materials",
-    title: "Study Materials Complete Taxonomy Data",
+    title: "Study Materials",
+    filename: "Study_Materials.csv",
     entity: "SMFiles -> SMSubject -> SMCollege -> SMUniversity, SMCourse, SMSemester, SMBatch",
     description: "Deep relational export traversing the complete study material hierarchy from files down to colleges, universities, courses, semesters, and batches.",
     headers: [
@@ -187,7 +189,8 @@ export const DATABASE_SCHEMAS = {
 
   updates: {
     id: "updates",
-    title: "Public Updates & Author Profile Data",
+    title: "Updates",
+    filename: "Updates.csv",
     entity: "Update with User Author and Cloudinary Files",
     description: "Every update record with public visibility, populated with full author profile attributes, attached file metadata, and external links.",
     headers: [
@@ -264,7 +267,8 @@ export const DATABASE_SCHEMAS = {
 
   users: {
     id: "users",
-    title: "User Directory & Uploads Aggregation Data",
+    title: "Users",
+    filename: "Users.csv",
     entity: "User with Subjects, Topics, and Updates Upload Histories",
     description: "Every user account record combined with aggregated upload metrics, list of authored public subjects, topics, updates, and attached files.",
     headers: [

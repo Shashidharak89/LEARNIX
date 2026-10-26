@@ -28,9 +28,9 @@ import "./styles/DatabaseManagement.css";
 const COLLECTIONS_CONFIG = [
   {
     id: "resources",
-    title: "Public Resources & Topics",
+    title: "Resources",
     shortName: "Resources",
-    badge: "All Public Topics & Subjects",
+    badge: "Resources",
     badgeClass: "badge-blue",
     icon: <FiGlobe size={24} />,
     color: "#3b82f6",
@@ -40,23 +40,10 @@ const COLLECTIONS_CONFIG = [
     previewColumns: ["topic_title", "topic_content", "subject_name", "author_name", "author_usn"]
   },
   {
-    id: "study-materials",
-    title: "Study Materials Complete Taxonomy",
-    shortName: "Study Materials",
-    badge: "Full Hierarchical Taxonomy",
-    badgeClass: "badge-purple",
-    icon: <FiBook size={24} />,
-    color: "#8b5cf6",
-    bgColor: "#f5f3ff",
-    borderColor: "#ddd6fe",
-    columnsCount: DATABASE_SCHEMAS["study-materials"].headers.length,
-    previewColumns: ["file_name", "file_url", "subject_name", "college_name", "university_name"]
-  },
-  {
     id: "updates",
-    title: "Public Platform Updates",
+    title: "Updates",
     shortName: "Updates",
-    badge: "All Public Updates & Files",
+    badge: "Updates",
     badgeClass: "badge-pink",
     icon: <FiShare2 size={24} />,
     color: "#ec4899",
@@ -66,10 +53,23 @@ const COLLECTIONS_CONFIG = [
     previewColumns: ["update_title", "update_content", "update_files_urls", "author_name", "author_usn"]
   },
   {
+    id: "study-materials",
+    title: "Study Materials",
+    shortName: "Study Materials",
+    badge: "Study Materials",
+    badgeClass: "badge-purple",
+    icon: <FiBook size={24} />,
+    color: "#8b5cf6",
+    bgColor: "#f5f3ff",
+    borderColor: "#ddd6fe",
+    columnsCount: DATABASE_SCHEMAS["study-materials"].headers.length,
+    previewColumns: ["file_name", "file_url", "subject_name", "college_name", "university_name"]
+  },
+  {
     id: "users",
-    title: "User Directory & Uploads Footprint",
-    shortName: "Users & Uploads",
-    badge: "Accounts & Aggregated Uploads",
+    title: "Users",
+    shortName: "Users",
+    badge: "Users",
     badgeClass: "badge-emerald",
     icon: <FiUsers size={24} />,
     color: "#10b981",
@@ -366,13 +366,26 @@ export default function DatabaseManagement() {
             <FiGlobe size={22} />
           </div>
           <div className="dbm-stat-info">
-            <span className="dbm-stat-label">Public Resources</span>
+            <span className="dbm-stat-label">Resources</span>
             <div className="dbm-stat-number">
               {loadingStats ? "..." : (stats?.publicTopicsCount ?? 0) + (stats?.publicSubjectsCount ?? 0)}
             </div>
             <span className="dbm-stat-sub">
-              {stats?.publicTopicsCount ?? 0} public topics, {stats?.publicSubjectsCount ?? 0} public subjects
+              {stats?.publicTopicsCount ?? 0} topics, {stats?.publicSubjectsCount ?? 0} subjects
             </span>
+          </div>
+        </div>
+
+        <div className="dbm-stat-card">
+          <div className="dbm-stat-icon-wrap" style={{ background: "#fdf2f8", color: "#ec4899" }}>
+            <FiShare2 size={22} />
+          </div>
+          <div className="dbm-stat-info">
+            <span className="dbm-stat-label">Updates</span>
+            <div className="dbm-stat-number">
+              {loadingStats ? "..." : stats?.publicUpdatesCount ?? 0}
+            </div>
+            <span className="dbm-stat-sub">Platform updates with files &amp; user profiles</span>
           </div>
         </div>
 
@@ -386,21 +399,8 @@ export default function DatabaseManagement() {
               {loadingStats ? "..." : stats?.studyMaterialsCount ?? 0}
             </div>
             <span className="dbm-stat-sub">
-              Files across {stats?.smSubjectsCount ?? 0} curriculum subjects
+              Across {stats?.smSubjectsCount ?? 0} curriculum subjects
             </span>
-          </div>
-        </div>
-
-        <div className="dbm-stat-card">
-          <div className="dbm-stat-icon-wrap" style={{ background: "#fdf2f8", color: "#ec4899" }}>
-            <FiShare2 size={22} />
-          </div>
-          <div className="dbm-stat-info">
-            <span className="dbm-stat-label">Public Updates</span>
-            <div className="dbm-stat-number">
-              {loadingStats ? "..." : stats?.publicUpdatesCount ?? 0}
-            </div>
-            <span className="dbm-stat-sub">All non-private updates with files &amp; user profiles</span>
           </div>
         </div>
 
@@ -409,11 +409,11 @@ export default function DatabaseManagement() {
             <FiUsers size={22} />
           </div>
           <div className="dbm-stat-info">
-            <span className="dbm-stat-label">Registered Users</span>
+            <span className="dbm-stat-label">Users</span>
             <div className="dbm-stat-number">
               {loadingStats ? "..." : stats?.usersCount ?? 0}
             </div>
-            <span className="dbm-stat-sub">Accounts tracked with comprehensive upload history</span>
+            <span className="dbm-stat-sub">Accounts tracked with upload metrics</span>
           </div>
         </div>
       </section>
@@ -494,7 +494,7 @@ export default function DatabaseManagement() {
       )}
 
       {/* ── Export Cards Grid ── */}
-      <h2 className="dbm-section-heading">Available Database Collections &amp; Relational Exports</h2>
+      <h2 className="dbm-section-heading">Database Collections</h2>
       <div className="dbm-cards-grid">
         {COLLECTIONS_CONFIG.map((col) => {
           const isCurrentlyExporting = exportingCollection === col.id;

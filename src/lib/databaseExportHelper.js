@@ -315,8 +315,7 @@ export async function buildResourcesCSV(onProgress = () => {}) {
   onProgress({ percent: 96, processed: rows.length - 1, total: rows.length - 1, status: "Finalizing public resources CSV payload..." });
 
   const csvContent = rows.join("\r\n");
-  const dateStr = new Date().toISOString().slice(0, 10);
-  const filename = `learnix_public_resources_${dateStr}.csv`;
+  const filename = "Resources.csv";
 
   onProgress({ percent: 100, processed: rows.length - 1, total: rows.length - 1, status: "Complete" });
 
@@ -507,8 +506,7 @@ export async function buildStudyMaterialsCSV(onProgress = () => {}) {
   onProgress({ percent: 96, processed: rows.length - 1, total: rows.length - 1, status: "Finalizing study materials CSV..." });
 
   const csvContent = rows.join("\r\n");
-  const dateStr = new Date().toISOString().slice(0, 10);
-  const filename = `learnix_study_materials_${dateStr}.csv`;
+  const filename = "Study_Materials.csv";
 
   onProgress({ percent: 100, processed: rows.length - 1, total: rows.length - 1, status: "Complete" });
 
@@ -605,8 +603,7 @@ export async function buildUpdatesCSV(onProgress = () => {}) {
   onProgress({ percent: 96, processed: rows.length - 1, total: rows.length - 1, status: "Finalizing updates CSV payload..." });
 
   const csvContent = rows.join("\r\n");
-  const dateStr = new Date().toISOString().slice(0, 10);
-  const filename = `learnix_public_updates_${dateStr}.csv`;
+  const filename = "Updates.csv";
 
   onProgress({ percent: 100, processed: rows.length - 1, total: rows.length - 1, status: "Complete" });
 
@@ -760,8 +757,7 @@ export async function buildUsersCSV(onProgress = () => {}) {
   onProgress({ percent: 96, processed: rows.length - 1, total: rows.length - 1, status: "Finalizing users CSV..." });
 
   const csvContent = rows.join("\r\n");
-  const dateStr = new Date().toISOString().slice(0, 10);
-  const filename = `learnix_users_and_uploads_${dateStr}.csv`;
+  const filename = "Users.csv";
 
   onProgress({ percent: 100, processed: rows.length - 1, total: rows.length - 1, status: "Complete" });
 
