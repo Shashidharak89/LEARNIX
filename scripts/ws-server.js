@@ -44,6 +44,14 @@ const FileSchema = new mongoose.Schema({
 
 const FileModel = mongoose.models.File || mongoose.model("File", FileSchema);
 
+const UserSchema = new mongoose.Schema({
+  name: String,
+  usn: String,
+  email: String,
+  role: String
+}, { strict: false });
+const UserModel = mongoose.models.User || mongoose.model("User", UserSchema);
+
 function extractToken(req) {
   const authHeader = req.headers["authorization"] || req.headers["Authorization"];
   if (authHeader && typeof authHeader === "string" && authHeader.toLowerCase().startsWith("bearer ")) {
@@ -268,6 +276,70 @@ wss.on("connection", (ws, req) => {
           ws.send(JSON.stringify({ type: "code_availability", customCode: clean, available: !existing }));
         } catch (err) {
           ws.send(JSON.stringify({ type: "code_availability", customCode, available: false, error: "Database error" }));
+        }
+        break;
+      }
+
+      case "export_database": {
+        const { exportId, collection, token: msgToken } = msg;
+        try {
+          const tokenToUse = msgToken || token;
+          if (!tokenToUse) {
+            ws.send(JSON.stringify({ type: "export_error", exportId, message: "Authorization token required." }));
+            break;
+          }
+          let userId = ws.userId;
+          let role = null;
+          try {
+            const decoded = jwt.verify(tokenToUse, SECRET_KEY);
+            userId = decoded.userId;
+            const userDoc = await UserModel.findById(userId).select("role").lean();
+            role = userDoc?.role;
+          } catch (authErr) {
+            ws.send(JSON.stringify({ type: "export_error", exportId, message: "Invalid or expired authorization token." }));
+            break;
+          }
+
+          if (role !== "admin" && role !== "superadmin") {
+            ws.send(JSON.stringify({ type: "export_error", exportId, message: "Forbidden. Admin privileges required." }));
+            break;
+          }
+
+          // Import helper dynamically using file URL
+          const helperPath = path.resolve(__dirname, "../src/lib/databaseExportHelper.js");
+          const { pathToFileURL } = require("url");
+          const { generateCollectionCSV } = await import(pathToFileURL(helperPath).href);
+
+          const result = await generateCollectionCSV(collection, (progress) => {
+            if (ws.readyState === 1) {
+              ws.send(JSON.stringify({
+                type: "export_progress",
+                exportId,
+                collection,
+                percent: progress.percent,
+                processed: progress.processed,
+                total: progress.total,
+                status: progress.status
+              }));
+            }
+          });
+
+          ws.send(JSON.stringify({
+            type: "export_complete",
+            exportId,
+            collection,
+            filename: result.filename,
+            csvData: result.csvContent,
+            rowCount: result.rowCount,
+            sizeBytes: result.sizeBytes
+          }));
+        } catch (err) {
+          console.error("[WS Server] export_database error:", err);
+          ws.send(JSON.stringify({
+            type: "export_error",
+            exportId,
+            message: err.message || "Failed to generate database export"
+          }));
         }
         break;
       }

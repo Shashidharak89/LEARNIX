@@ -11,6 +11,7 @@ import {
   FiBook,
   FiTool,
   FiCode,
+  FiDatabase,
 } from "react-icons/fi";
 import { MdAdminPanelSettings, MdOutlineSupervisorAccount } from "react-icons/md";
 import "./styles/AdminDashboard.css";
@@ -176,6 +177,15 @@ export default function AdminDashboard() {
           <div className="adm-quick-btn-text">
             <span className="adm-quick-btn-label">Coding Problems</span>
             <span className="adm-quick-btn-sub">Create &amp; manage LeetCode questions, test cases</span>
+          </div>
+          <FiArrowRight size={18} className="adm-quick-btn-arrow" />
+        </Link>
+
+        <Link href="/admin/database" className="adm-quick-btn" style={{ background: 'rgba(59, 130, 246, 0.08)', borderColor: 'rgba(59, 130, 246, 0.22)' }}>
+          <span className="adm-quick-btn-icon" style={{ background: '#dbeafe', color: '#2563eb' }}><FiDatabase size={20} /></span>
+          <div className="adm-quick-btn-text">
+            <span className="adm-quick-btn-label">Database Management</span>
+            <span className="adm-quick-btn-sub">Download CSVs with WebSocket progress (Resources, Study Materials, Updates &amp; Users)</span>
           </div>
           <FiArrowRight size={18} className="adm-quick-btn-arrow" />
         </Link>

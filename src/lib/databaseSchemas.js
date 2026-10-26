@@ -1,0 +1,378 @@
+/**
+ * Database CSV Export Schema Definitions & Metadata
+ * Provides complete attribute specifications, nested relational origins,
+ * and copyable headers/schemas for all Learnix database collections.
+ */
+
+export const DATABASE_SCHEMAS = {
+  resources: {
+    id: "resources",
+    title: "Public Resources & Topics Data",
+    entity: "Topic & Subject with User Profile",
+    description: "Exhaustive nested export of all public topics and subjects. Every topic attribute is dereferenced with its parent Subject and author User records.",
+    headers: [
+      // ── Topic Attributes ──
+      "topic_id",
+      "resource_type",
+      "topic_title",
+      "topic_content",
+      "topic_images_count",
+      "topic_images_urls",
+      "topic_images_json",
+      "topic_download_link",
+      "topic_visibility",
+      "topic_timestamp",
+      "topic_version_v",
+      // ── Referenced Subject Attributes ──
+      "subject_id",
+      "subject_name",
+      "subject_visibility",
+      "subject_created_at",
+      "subject_version_v",
+      // ── Referenced Author User Attributes ──
+      "author_user_id",
+      "author_name",
+      "author_usn",
+      "author_email",
+      "author_firebase_uid",
+      "author_role",
+      "author_plan",
+      "author_profile_image",
+      "author_current_streaks",
+      "author_highest_streak",
+      "author_balance",
+      "author_has_password",
+      "author_last_login_at",
+      "author_token_created_at",
+      "author_account_created_at",
+      "author_version_v"
+    ],
+    attributes: [
+      { name: "topic_id", type: "ObjectId", sourceModel: "Topic._id", description: "Unique MongoDB ObjectId of the topic resource" },
+      { name: "resource_type", type: "String", sourceModel: "Calculated", description: "Topic / Resource, Work Legacy, or Subject Container" },
+      { name: "topic_title", type: "String", sourceModel: "Topic.topic", description: "Title / name of the topic" },
+      { name: "topic_content", type: "String", sourceModel: "Topic.content", description: "Full content text (markdown or formatted body, RFC 4180 escaped)" },
+      { name: "topic_images_count", type: "Number", sourceModel: "Topic.images.length", description: "Total count of attached images" },
+      { name: "topic_images_urls", type: "String", sourceModel: "Topic.images", description: "Semicolon-separated list of image URLs" },
+      { name: "topic_images_json", type: "JSON", sourceModel: "Topic.images", description: "Raw JSON string array of image URLs" },
+      { name: "topic_download_link", type: "String", sourceModel: "Topic.downloadlink", description: "Direct download link for attachments or source files" },
+      { name: "topic_visibility", type: "String", sourceModel: "Topic.visibility", description: "Public visibility status" },
+      { name: "topic_timestamp", type: "ISO Date", sourceModel: "Topic.timestamp", description: "Timestamp when the topic was authored" },
+      { name: "topic_version_v", type: "Number", sourceModel: "Topic.__v", description: "MongoDB document version key" },
+      { name: "subject_id", type: "ObjectId", sourceModel: "Subject._id", description: "Unique ObjectId of parent Subject" },
+      { name: "subject_name", type: "String", sourceModel: "Subject.subject", description: "Name of the subject grouping this topic" },
+      { name: "subject_visibility", type: "String", sourceModel: "Subject.visibility", description: "Visibility of the parent subject" },
+      { name: "subject_created_at", type: "ISO Date", sourceModel: "Subject.createdAt", description: "Subject creation date" },
+      { name: "subject_version_v", type: "Number", sourceModel: "Subject.__v", description: "Parent subject MongoDB document version" },
+      { name: "author_user_id", type: "ObjectId", sourceModel: "User._id", description: "Unique ObjectId of user who authored the resource" },
+      { name: "author_name", type: "String", sourceModel: "User.name", description: "Full display name of author" },
+      { name: "author_usn", type: "String", sourceModel: "User.usn", description: "University Seat Number (USN) of author" },
+      { name: "author_email", type: "String", sourceModel: "User.email", description: "Registered email address of author" },
+      { name: "author_firebase_uid", type: "String", sourceModel: "User.firebaseUid", description: "Firebase authentication UID if linked" },
+      { name: "author_role", type: "String", sourceModel: "User.role", description: "User account role (user, admin, superadmin)" },
+      { name: "author_plan", type: "String", sourceModel: "User.plan", description: "Subscription plan (basic, pro, etc.)" },
+      { name: "author_profile_image", type: "String", sourceModel: "User.profileimg", description: "Profile avatar Cloudinary URL" },
+      { name: "author_current_streaks", type: "Number", sourceModel: "User.streaks", description: "Current active daily streaks" },
+      { name: "author_highest_streak", type: "Number", sourceModel: "User.highestStreak", description: "Highest historical streak recorded" },
+      { name: "author_balance", type: "Number", sourceModel: "User.balance", description: "Account coin / rewards balance" },
+      { name: "author_has_password", type: "Boolean", sourceModel: "User.password", description: "Whether the user account has a local password hash" },
+      { name: "author_last_login_at", type: "ISO Date", sourceModel: "User.lastLoginAt", description: "Last logged in timestamp" },
+      { name: "author_token_created_at", type: "ISO Date", sourceModel: "User.tokenCreatedAt", description: "Session token generation timestamp" },
+      { name: "author_account_created_at", type: "ISO Date", sourceModel: "User.createdAt", description: "Account registration date" },
+      { name: "author_version_v", type: "Number", sourceModel: "User.__v", description: "User document MongoDB version" }
+    ]
+  },
+
+  "study-materials": {
+    id: "study-materials",
+    title: "Study Materials Complete Taxonomy Data",
+    entity: "SMFiles -> SMSubject -> SMCollege -> SMUniversity, SMCourse, SMSemester, SMBatch",
+    description: "Deep relational export traversing the complete study material hierarchy from files down to colleges, universities, courses, semesters, and batches.",
+    headers: [
+      // ── File Attributes ──
+      "file_id",
+      "file_name",
+      "file_url",
+      "file_type",
+      "file_created_at",
+      "file_updated_at",
+      "file_version_v",
+      // ── Subject Attributes ──
+      "subject_id",
+      "subject_name",
+      "subject_created_at",
+      "subject_updated_at",
+      "subject_version_v",
+      // ── College Attributes ──
+      "college_id",
+      "college_name",
+      "college_location",
+      "college_created_at",
+      "college_updated_at",
+      "college_version_v",
+      // ── University Attributes ──
+      "university_id",
+      "university_name",
+      "university_city",
+      "university_district",
+      "university_created_at",
+      "university_updated_at",
+      "university_version_v",
+      // ── Course Attributes ──
+      "course_id",
+      "course_name",
+      "course_created_at",
+      "course_updated_at",
+      "course_version_v",
+      // ── Semester Attributes ──
+      "semester_id",
+      "semester_number",
+      "semester_created_at",
+      "semester_updated_at",
+      "semester_version_v",
+      // ── Batch Attributes ──
+      "batch_id",
+      "batch_start_year",
+      "batch_end_year",
+      "batch_label",
+      "batch_created_at",
+      "batch_updated_at",
+      "batch_version_v"
+    ],
+    attributes: [
+      { name: "file_id", type: "ObjectId", sourceModel: "SMFiles._id", description: "Unique file identifier" },
+      { name: "file_name", type: "String", sourceModel: "SMFiles.name", description: "Display name of study material document" },
+      { name: "file_url", type: "String", sourceModel: "SMFiles.fileurl", description: "Cloudinary or external document URL" },
+      { name: "file_type", type: "String", sourceModel: "SMFiles.type", description: "default (uploaded) or external (linked)" },
+      { name: "file_created_at", type: "ISO Date", sourceModel: "SMFiles.createdAt", description: "Upload timestamp" },
+      { name: "file_updated_at", type: "ISO Date", sourceModel: "SMFiles.updatedAt", description: "Last modification timestamp" },
+      { name: "file_version_v", type: "Number", sourceModel: "SMFiles.__v", description: "File document version" },
+      { name: "subject_id", type: "ObjectId", sourceModel: "SMSubject._id", description: "Subject identifier" },
+      { name: "subject_name", type: "String", sourceModel: "SMSubject.name", description: "Subject name (e.g. Mathematics, OS)" },
+      { name: "subject_created_at", type: "ISO Date", sourceModel: "SMSubject.createdAt", description: "Subject creation date" },
+      { name: "subject_updated_at", type: "ISO Date", sourceModel: "SMSubject.updatedAt", description: "Subject update date" },
+      { name: "subject_version_v", type: "Number", sourceModel: "SMSubject.__v", description: "Subject document version" },
+      { name: "college_id", type: "ObjectId", sourceModel: "SMCollege._id", description: "College identifier" },
+      { name: "college_name", type: "String", sourceModel: "SMCollege.name", description: "College name" },
+      { name: "college_location", type: "String", sourceModel: "SMCollege.location", description: "College geographic location" },
+      { name: "college_created_at", type: "ISO Date", sourceModel: "SMCollege.createdAt", description: "College creation date" },
+      { name: "college_updated_at", type: "ISO Date", sourceModel: "SMCollege.updatedAt", description: "College update date" },
+      { name: "college_version_v", type: "Number", sourceModel: "SMCollege.__v", description: "College document version" },
+      { name: "university_id", type: "ObjectId", sourceModel: "SMUniversity._id", description: "University identifier" },
+      { name: "university_name", type: "String", sourceModel: "SMUniversity.name", description: "University name (e.g. VTU)" },
+      { name: "university_city", type: "String", sourceModel: "SMUniversity.city", description: "University headquarters city" },
+      { name: "university_district", type: "String", sourceModel: "SMUniversity.district", description: "University administrative district" },
+      { name: "university_created_at", type: "ISO Date", sourceModel: "SMUniversity.createdAt", description: "University creation date" },
+      { name: "university_updated_at", type: "ISO Date", sourceModel: "SMUniversity.updatedAt", description: "University update date" },
+      { name: "university_version_v", type: "Number", sourceModel: "SMUniversity.__v", description: "University document version" },
+      { name: "course_id", type: "ObjectId", sourceModel: "SMCourse._id", description: "Course / Degree identifier" },
+      { name: "course_name", type: "String", sourceModel: "SMCourse.name", description: "Course name (e.g. B.Tech, MCA)" },
+      { name: "course_created_at", type: "ISO Date", sourceModel: "SMCourse.createdAt", description: "Course creation date" },
+      { name: "course_updated_at", type: "ISO Date", sourceModel: "SMCourse.updatedAt", description: "Course update date" },
+      { name: "course_version_v", type: "Number", sourceModel: "SMCourse.__v", description: "Course document version" },
+      { name: "semester_id", type: "ObjectId", sourceModel: "SMSemester._id", description: "Semester identifier" },
+      { name: "semester_number", type: "Number", sourceModel: "SMSemester.sem", description: "Semester number (1-8)" },
+      { name: "semester_created_at", type: "ISO Date", sourceModel: "SMSemester.createdAt", description: "Semester creation date" },
+      { name: "semester_updated_at", type: "ISO Date", sourceModel: "SMSemester.updatedAt", description: "Semester update date" },
+      { name: "semester_version_v", type: "Number", sourceModel: "SMSemester.__v", description: "Semester document version" },
+      { name: "batch_id", type: "ObjectId", sourceModel: "SMBatch._id", description: "Academic batch identifier" },
+      { name: "batch_start_year", type: "Number", sourceModel: "SMBatch.startyear", description: "Batch starting year" },
+      { name: "batch_end_year", type: "Number", sourceModel: "SMBatch.endyear", description: "Batch graduating year" },
+      { name: "batch_label", type: "String", sourceModel: "Calculated", description: "Formatted batch label (e.g. 2022 - 2026)" },
+      { name: "batch_created_at", type: "ISO Date", sourceModel: "SMBatch.createdAt", description: "Batch creation date" },
+      { name: "batch_updated_at", type: "ISO Date", sourceModel: "SMBatch.updatedAt", description: "Batch update date" },
+      { name: "batch_version_v", type: "Number", sourceModel: "SMBatch.__v", description: "Batch document version" }
+    ]
+  },
+
+  updates: {
+    id: "updates",
+    title: "Public Updates & Author Profile Data",
+    entity: "Update with User Author and Cloudinary Files",
+    description: "Every update record with public visibility, populated with full author profile attributes, attached file metadata, and external links.",
+    headers: [
+      // ── Update Attributes ──
+      "update_id",
+      "update_title",
+      "update_content",
+      "update_visibility",
+      "update_links_count",
+      "update_links_list",
+      "update_links_json",
+      "update_files_count",
+      "update_files_names",
+      "update_files_urls",
+      "update_files_public_ids",
+      "update_files_resource_types",
+      "update_files_complete_json",
+      "update_created_at",
+      "update_updated_at",
+      "update_version_v",
+      // ── Referenced Author User Attributes ──
+      "author_user_id",
+      "author_name",
+      "author_usn",
+      "author_email",
+      "author_firebase_uid",
+      "author_role",
+      "author_plan",
+      "author_profile_image",
+      "author_current_streaks",
+      "author_highest_streak",
+      "author_balance",
+      "author_has_password",
+      "author_last_login_at",
+      "author_token_created_at",
+      "author_account_created_at",
+      "author_version_v"
+    ],
+    attributes: [
+      { name: "update_id", type: "ObjectId", sourceModel: "Update._id", description: "Unique ObjectId of platform update" },
+      { name: "update_title", type: "String", sourceModel: "Update.title", description: "Headline / title of update" },
+      { name: "update_content", type: "String", sourceModel: "Update.content", description: "Full message content (RFC 4180 escaped)" },
+      { name: "update_visibility", type: "String", sourceModel: "Update.visibility", description: "Visibility (public / unlisted / default)" },
+      { name: "update_links_count", type: "Number", sourceModel: "Update.links.length", description: "Total number of embedded external links" },
+      { name: "update_links_list", type: "String", sourceModel: "Update.links", description: "Semicolon-separated list of URLs" },
+      { name: "update_links_json", type: "JSON", sourceModel: "Update.links", description: "Raw JSON string array of links" },
+      { name: "update_files_count", type: "Number", sourceModel: "Update.files.length", description: "Count of attached Cloudinary files" },
+      { name: "update_files_names", type: "String", sourceModel: "Update.files.name", description: "Semicolon-separated original file names" },
+      { name: "update_files_urls", type: "String", sourceModel: "Update.files.url", description: "Semicolon-separated Cloudinary direct URLs" },
+      { name: "update_files_public_ids", type: "String", sourceModel: "Update.files.publicId", description: "Cloudinary asset public IDs" },
+      { name: "update_files_resource_types", type: "String", sourceModel: "Update.files.resourceType", description: "Asset types (raw, image, video)" },
+      { name: "update_files_complete_json", type: "JSON", sourceModel: "Update.files", description: "Full JSON serialized array of attached file objects" },
+      { name: "update_created_at", type: "ISO Date", sourceModel: "Update.createdAt", description: "Publish timestamp" },
+      { name: "update_updated_at", type: "ISO Date", sourceModel: "Update.updatedAt", description: "Last edited timestamp" },
+      { name: "update_version_v", type: "Number", sourceModel: "Update.__v", description: "Update document MongoDB version" },
+      { name: "author_user_id", type: "ObjectId", sourceModel: "User._id", description: "Author account identifier" },
+      { name: "author_name", type: "String", sourceModel: "User.name", description: "Author display name" },
+      { name: "author_usn", type: "String", sourceModel: "User.usn", description: "Author USN" },
+      { name: "author_email", type: "String", sourceModel: "User.email", description: "Author registered email" },
+      { name: "author_firebase_uid", type: "String", sourceModel: "User.firebaseUid", description: "Author Firebase UID" },
+      { name: "author_role", type: "String", sourceModel: "User.role", description: "Author role (user, admin, superadmin)" },
+      { name: "author_plan", type: "String", sourceModel: "User.plan", description: "Author subscription plan" },
+      { name: "author_profile_image", type: "String", sourceModel: "User.profileimg", description: "Author profile image URL" },
+      { name: "author_current_streaks", type: "Number", sourceModel: "User.streaks", description: "Author active daily streaks" },
+      { name: "author_highest_streak", type: "Number", sourceModel: "User.highestStreak", description: "Author peak streak" },
+      { name: "author_balance", type: "Number", sourceModel: "User.balance", description: "Author rewards balance" },
+      { name: "author_has_password", type: "Boolean", sourceModel: "User.password", description: "Whether the user account has a password set" },
+      { name: "author_last_login_at", type: "ISO Date", sourceModel: "User.lastLoginAt", description: "Author last login date" },
+      { name: "author_token_created_at", type: "ISO Date", sourceModel: "User.tokenCreatedAt", description: "Token creation timestamp" },
+      { name: "author_account_created_at", type: "ISO Date", sourceModel: "User.createdAt", description: "Author account creation date" },
+      { name: "author_version_v", type: "Number", sourceModel: "User.__v", description: "Author user document version" }
+    ]
+  },
+
+  users: {
+    id: "users",
+    title: "User Directory & Uploads Aggregation Data",
+    entity: "User with Subjects, Topics, and Updates Upload Histories",
+    description: "Every user account record combined with aggregated upload metrics, list of authored public subjects, topics, updates, and attached files.",
+    headers: [
+      // ── User Core Attributes ──
+      "user_id",
+      "name",
+      "usn",
+      "email",
+      "firebase_uid",
+      "role",
+      "plan",
+      "profile_image_url",
+      "current_streaks",
+      "highest_streak",
+      "account_balance",
+      "has_local_password",
+      "last_login_at",
+      "token_created_at",
+      "account_created_at",
+      "user_version_v",
+      // ── Uploads & Content Aggregations ──
+      "total_subjects_created",
+      "public_subjects_count",
+      "private_subjects_count",
+      "public_subject_names",
+      "public_subject_ids",
+      "total_topics_created",
+      "public_topics_count",
+      "private_topics_count",
+      "public_topic_titles",
+      "public_topic_ids",
+      "total_updates_created",
+      "public_updates_count",
+      "private_updates_count",
+      "public_update_titles",
+      "public_update_ids",
+      "total_update_files_attached",
+      "combined_total_uploads",
+      "uploads_summary_json"
+    ],
+    attributes: [
+      { name: "user_id", type: "ObjectId", sourceModel: "User._id", description: "Unique MongoDB ObjectId of user" },
+      { name: "name", type: "String", sourceModel: "User.name", description: "User's full display name" },
+      { name: "usn", type: "String", sourceModel: "User.usn", description: "University Seat Number" },
+      { name: "email", type: "String", sourceModel: "User.email", description: "Registered email address" },
+      { name: "firebase_uid", type: "String", sourceModel: "User.firebaseUid", description: "Firebase UID for Google SSO" },
+      { name: "role", type: "String", sourceModel: "User.role", description: "Access level (user, admin, superadmin)" },
+      { name: "plan", type: "String", sourceModel: "User.plan", description: "Subscription tier" },
+      { name: "profile_image_url", type: "String", sourceModel: "User.profileimg", description: "Profile picture Cloudinary URL" },
+      { name: "current_streaks", type: "Number", sourceModel: "User.streaks", description: "Current consecutive login streaks" },
+      { name: "highest_streak", type: "Number", sourceModel: "User.highestStreak", description: "All-time highest streak achieved" },
+      { name: "account_balance", type: "Number", sourceModel: "User.balance", description: "Current coin balance" },
+      { name: "has_local_password", type: "Boolean", sourceModel: "User.password", description: "Whether user has a hashed local password" },
+      { name: "last_login_at", type: "ISO Date", sourceModel: "User.lastLoginAt", description: "Last active session timestamp" },
+      { name: "token_created_at", type: "ISO Date", sourceModel: "User.tokenCreatedAt", description: "Latest token issuance date" },
+      { name: "account_created_at", type: "ISO Date", sourceModel: "User.createdAt", description: "Account registration date" },
+      { name: "user_version_v", type: "Number", sourceModel: "User.__v", description: "User document version" },
+      { name: "total_subjects_created", type: "Number", sourceModel: "Subject.count", description: "Total subjects created by this user" },
+      { name: "public_subjects_count", type: "Number", sourceModel: "Subject.public.count", description: "Public subjects count" },
+      { name: "private_subjects_count", type: "Number", sourceModel: "Subject.private.count", description: "Private subjects count" },
+      { name: "public_subject_names", type: "String", sourceModel: "Subject.subject", description: "Semicolon-separated public subject titles" },
+      { name: "public_subject_ids", type: "String", sourceModel: "Subject._id", description: "Semicolon-separated public subject ObjectIds" },
+      { name: "total_topics_created", type: "Number", sourceModel: "Topic.count", description: "Total topics authored by this user" },
+      { name: "public_topics_count", type: "Number", sourceModel: "Topic.public.count", description: "Public topics count" },
+      { name: "private_topics_count", type: "Number", sourceModel: "Topic.private.count", description: "Private topics count" },
+      { name: "public_topic_titles", type: "String", sourceModel: "Topic.topic", description: "Semicolon-separated public topic titles" },
+      { name: "public_topic_ids", type: "String", sourceModel: "Topic._id", description: "Semicolon-separated public topic ObjectIds" },
+      { name: "total_updates_created", type: "Number", sourceModel: "Update.count", description: "Total platform updates posted" },
+      { name: "public_updates_count", type: "Number", sourceModel: "Update.public.count", description: "Public updates count" },
+      { name: "private_updates_count", type: "Number", sourceModel: "Update.private.count", description: "Private updates count" },
+      { name: "public_update_titles", type: "String", sourceModel: "Update.title", description: "Semicolon-separated public update headlines" },
+      { name: "public_update_ids", type: "String", sourceModel: "Update._id", description: "Semicolon-separated public update ObjectIds" },
+      { name: "total_update_files_attached", type: "Number", sourceModel: "Update.files.length", description: "Total files attached across all updates" },
+      { name: "combined_total_uploads", type: "Number", sourceModel: "Calculated", description: "Sum of subjects + topics + updates authored" },
+      { name: "uploads_summary_json", type: "JSON", sourceModel: "Calculated", description: "Structured JSON breakdown of user's upload footprint" }
+    ]
+  }
+};
+
+/**
+ * Returns formatted JSON schema string for copy-pasting
+ */
+export function getCopyableSchemaJSON(collectionId) {
+  const schema = DATABASE_SCHEMAS[collectionId];
+  if (!schema) return "{}";
+
+  const exportObj = {
+    dataset: schema.id,
+    title: schema.title,
+    entity: schema.entity,
+    totalAttributes: schema.headers.length,
+    columns: schema.attributes.map((attr, index) => ({
+      index: index + 1,
+      columnName: attr.name,
+      dataType: attr.type,
+      sourceOrigin: attr.sourceModel,
+      description: attr.description
+    }))
+  };
+
+  return JSON.stringify(exportObj, null, 2);
+}
+
+/**
+ * Returns comma-separated header line for copy-pasting
+ */
+export function getCopyableHeadersCSV(collectionId) {
+  const schema = DATABASE_SCHEMAS[collectionId];
+  if (!schema) return "";
+  return schema.headers.join(",");
+}
