@@ -36,10 +36,8 @@ const COLLECTIONS_CONFIG = [
     color: "#3b82f6",
     bgColor: "#eff6ff",
     borderColor: "#bfdbfe",
-    description:
-      "All public learning resources, topics, and subjects. Traverses and includes all topic attributes (content, images, download link, timestamps) plus full nested parent Subject and author User account records.",
     columnsCount: DATABASE_SCHEMAS.resources.headers.length,
-    columns: DATABASE_SCHEMAS.resources.headers.slice(0, 14)
+    previewColumns: ["topic_title", "topic_content", "subject_name", "author_name", "author_usn"]
   },
   {
     id: "study-materials",
@@ -51,10 +49,8 @@ const COLLECTIONS_CONFIG = [
     color: "#8b5cf6",
     bgColor: "#f5f3ff",
     borderColor: "#ddd6fe",
-    description:
-      "Traverses the complete study material hierarchy: SMFiles -> SMSubject -> SMCollege -> SMUniversity, SMCourse, SMSemester, SMBatch. Captures all attributes at every level of the taxonomy.",
     columnsCount: DATABASE_SCHEMAS["study-materials"].headers.length,
-    columns: DATABASE_SCHEMAS["study-materials"].headers.slice(0, 14)
+    previewColumns: ["file_name", "file_url", "subject_name", "college_name", "university_name"]
   },
   {
     id: "updates",
@@ -66,10 +62,8 @@ const COLLECTIONS_CONFIG = [
     color: "#ec4899",
     bgColor: "#fdf2f8",
     borderColor: "#fbcfe8",
-    description:
-      "Every update published with public or unlisted visibility. Captures all update attributes, external links, attached Cloudinary files (names, URLs, public IDs, types), and full publisher User account profiles.",
     columnsCount: DATABASE_SCHEMAS.updates.headers.length,
-    columns: DATABASE_SCHEMAS.updates.headers.slice(0, 14)
+    previewColumns: ["update_title", "update_content", "update_files_urls", "author_name", "author_usn"]
   },
   {
     id: "users",
@@ -81,10 +75,8 @@ const COLLECTIONS_CONFIG = [
     color: "#10b981",
     bgColor: "#ecfdf5",
     borderColor: "#a7f3d0",
-    description:
-      "All registered users with complete account profile attributes (USN, email, streaks, balance, plan, last login) combined with aggregated upload metrics (total/public subjects, topics, updates, and files).",
     columnsCount: DATABASE_SCHEMAS.users.headers.length,
-    columns: DATABASE_SCHEMAS.users.headers.slice(0, 14)
+    previewColumns: ["name", "usn", "email", "total_subjects", "total_updates"]
   }
 ];
 
@@ -523,13 +515,11 @@ export default function DatabaseManagement() {
                 </div>
               </div>
 
-              <p className="dbm-card-desc">{col.description}</p>
-
-              {/* Column Tags */}
+              {/* Column Tags - Displayed in 2 Clean Rows */}
               <div className="dbm-card-columns-section">
                 <div className="dbm-columns-header-row">
                   <span className="dbm-columns-label">
-                    Includes {col.columnsCount} Nested Attributes:
+                    Total {col.columnsCount} Attributes:
                   </span>
                   <button
                     type="button"
@@ -537,22 +527,24 @@ export default function DatabaseManagement() {
                     className="dbm-card-schema-link"
                   >
                     <FiCode size={13} />
-                    <span>View &amp; Copy Schema</span>
+                    <span>View All Schema</span>
                   </button>
                 </div>
                 <div className="dbm-column-tags">
-                  {col.columns.map((cName) => (
+                  {col.previewColumns.map((cName) => (
                     <span key={cName} className="dbm-col-tag">
                       {cName}
                     </span>
                   ))}
-                  {col.columnsCount > col.columns.length && (
-                    <span
+                  {col.columnsCount > col.previewColumns.length && (
+                    <button
+                      type="button"
                       onClick={() => setActiveSchemaModal(col.id)}
                       className="dbm-col-tag-more"
+                      title="Click to view full attribute dictionary"
                     >
-                      +{col.columnsCount - col.columns.length} more attributes...
-                    </span>
+                      +{col.columnsCount - col.previewColumns.length} more attributes...
+                    </button>
                   )}
                 </div>
               </div>
