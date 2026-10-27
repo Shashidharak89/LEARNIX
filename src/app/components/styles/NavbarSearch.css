@@ -230,8 +230,8 @@
   border: 2px solid #e2e8f0;
   border-radius: 20px;
   box-shadow:
-    0 24px 56px rgba(15, 23, 42, 0.18),
-    0 4px 18px rgba(15, 23, 42, 0.08);
+    0 24px 56px rgba(15, 23, 42, 0.16),
+    0 4px 18px rgba(15, 23, 42, 0.07);
   z-index: 999999;
   padding: 16px 16px 14px 16px;
   animation: lnxNavPopupRise 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -469,6 +469,8 @@
    ───────────────────────────────────────────────────────────────────────── */
 .lnx-nav-search-popup-body {
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   flex: 1;
   padding-right: 4px;
   display: grid;

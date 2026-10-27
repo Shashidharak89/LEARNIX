@@ -22,21 +22,47 @@ const CATEGORIES = [
   { key: "questionPapers", label: "Question Papers", icon: FiFileText, href: "/qp" },
 ];
 
-function normalizeResourceType(type) {
+function normalizeResourceType(type, sourceFile) {
   const t = (type || "").toLowerCase().trim();
-  if (t === "study_material" || t === "materials" || t === "material") return "study_material";
-  if (t === "update" || t === "updates") return "update";
-  if (t === "work" || t === "works" || t === "resource" || t === "resources") return "resource";
-  if (t === "question_paper" || t === "qp" || t === "questionpapers") return "question_paper";
-  return "other";
+  const s = (sourceFile || "").toLowerCase().trim();
+
+  // Only topic is mapped to resource (or source_file resources)
+  if (
+    t === "topic" ||
+    t === "topics" ||
+    t === "work" ||
+    t === "works" ||
+    t === "resource" ||
+    t === "resources" ||
+    s === "resources"
+  ) {
+    return "resource";
+  }
+
+  // Updates remain update
+  if (t === "update" || t === "updates" || s === "updates") {
+    return "update";
+  }
+
+  // Study materials remain study_material
+  if (t === "study_material" || t === "materials" || t === "material" || s === "study_materials") {
+    return "study_material";
+  }
+
+  // Question papers remain question_paper
+  if (t === "question_paper" || t === "qp" || t === "questionpapers") {
+    return "question_paper";
+  }
+
+  return t || "resource";
 }
 
 const TYPE_CONFIG = {
-  study_material: {
-    label: "Study Material",
-    pluralLabel: "Study Materials",
-    icon: FiBookOpen,
-    badgeClass: "lnx-ai-type-pill--study",
+  resource: {
+    label: "Resource",
+    pluralLabel: "Resources",
+    icon: FiFolder,
+    badgeClass: "lnx-ai-type-pill--resource",
   },
   update: {
     label: "Update",
@@ -44,11 +70,11 @@ const TYPE_CONFIG = {
     icon: FiBell,
     badgeClass: "lnx-ai-type-pill--update",
   },
-  resource: {
-    label: "Resource",
-    pluralLabel: "Resources",
-    icon: FiFolder,
-    badgeClass: "lnx-ai-type-pill--resource",
+  study_material: {
+    label: "Study Material",
+    pluralLabel: "Study Materials",
+    icon: FiBookOpen,
+    badgeClass: "lnx-ai-type-pill--study",
   },
   question_paper: {
     label: "Question Paper",
@@ -56,43 +82,46 @@ const TYPE_CONFIG = {
     icon: FiFileText,
     badgeClass: "lnx-ai-type-pill--qp",
   },
-  other: {
-    label: "Recommendation",
-    pluralLabel: "Recommendations",
-    icon: FiZap,
-    badgeClass: "lnx-ai-type-pill--other",
-  },
 };
 
 function getAiItemHref(item) {
-  const normType = normalizeResourceType(item.resource_type);
+  const normType = normalizeResourceType(item.resource_type, item.source_file);
   const cleanId = item.resource_id ? String(item.resource_id).replace(/^["']|["']$/g, "").trim() : "";
 
+  // Topic / Resource navigation -> /works/[id]
+  if (normType === "resource") {
+    if (cleanId) {
+      if (cleanId.startsWith("sub-only-")) {
+        return `/works/subject/${cleanId.replace("sub-only-", "")}`;
+      }
+      return `/works/${cleanId}`;
+    }
+    if (item.resource_url) return item.resource_url;
+    return "/works";
+  }
+
+  // Update navigation -> /updates/[id]
   if (normType === "update") {
     if (cleanId) return `/updates/${cleanId}`;
     if (item.resource_url) return item.resource_url;
     return "/updates";
   }
 
+  // Study material navigation -> direct resource_url or /materials query
   if (normType === "study_material") {
     if (item.resource_url) return item.resource_url;
     if (item.subject_name) return `/materials?q=${encodeURIComponent(item.subject_name)}`;
     return "/materials";
   }
 
-  if (normType === "resource") {
-    if (cleanId) return `/works/${cleanId}`;
-    if (item.resource_url) return item.resource_url;
-    return "/works";
-  }
-
+  // Question paper navigation -> /qp/[id] or /qp query
   if (normType === "question_paper") {
     if (cleanId) return `/qp/${cleanId}`;
     if (item.subject_name) return `/qp/query/${encodeURIComponent(item.subject_name)}`;
     return "/qp";
   }
 
-  return item.resource_url || "/works";
+  return item.resource_url || (cleanId ? `/works/${cleanId}` : "/works");
 }
 
 export default function NavbarSearch() {
@@ -207,7 +236,7 @@ export default function NavbarSearch() {
     if (!aiResults || aiResults.length === 0) return [];
     const counts = { all: aiResults.length };
     aiResults.forEach((item) => {
-      const type = normalizeResourceType(item.resource_type);
+      const type = normalizeResourceType(item.resource_type, item.source_file);
       counts[type] = (counts[type] || 0) + 1;
     });
 
@@ -229,7 +258,7 @@ export default function NavbarSearch() {
     if (!aiResults) return [];
     if (activeTab === "all") return aiResults;
     return aiResults.filter(
-      (item) => normalizeResourceType(item.resource_type) === activeTab
+      (item) => normalizeResourceType(item.resource_type, item.source_file) === activeTab
     );
   }, [aiResults, activeTab]);
 
@@ -246,12 +275,9 @@ export default function NavbarSearch() {
   // When user clicks on an AI suggestion:
   // 1. Replaces the keyword in the search bar
   // 2. Automatically searches that keyword
-  // 3. Opens the resource in a new tab
+  // 3. Opens the resource in a new tab (e.g. /works/[id], /updates/[id], or study material)
   const handleItemClick = (e, item) => {
-    if (
-      e.target.closest("button.lnx-ai-btn--download") ||
-      e.target.closest("button.lnx-ai-btn--search-only")
-    ) {
+    if (e.target.closest("button.lnx-ai-btn--download")) {
       return;
     }
 
@@ -260,22 +286,12 @@ export default function NavbarSearch() {
     // Replace keyword in search bar
     setSearchTerm(keyword);
 
-    // Search automatically with this recommendation
+    // Search automatically with this keyword
     handleSearch(keyword);
 
     // Open suggested resource in a new tab
     const href = getAiItemHref(item);
     openInNewTab(href);
-  };
-
-  // Dedicated "Search this keyword only" handler (replaces keyword and triggers search)
-  const handleSearchOnly = (e, keyword) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!keyword) return;
-    const cleanK = keyword.trim();
-    setSearchTerm(cleanK);
-    handleSearch(cleanK);
   };
 
   // Direct View handler for Study Materials:
@@ -537,7 +553,7 @@ export default function NavbarSearch() {
                 /* Save space: Show clean compact notice when direct search has 0 results */
                 <div className="lnx-nav-search-zero-pill">
                   <span className="lnx-nav-search-zero-tag">0 direct matches</span>
-                  <span className="lnx-nav-search-zero-text">Showing AI Recommendations</span>
+                  <span className="lnx-nav-search-zero-text">Showing AI Suggestions</span>
                 </div>
               ) : loadingDirect ? (
                 <div className="lnx-nav-search-direct-loading">
@@ -546,14 +562,14 @@ export default function NavbarSearch() {
                 </div>
               ) : null}
 
-              {/* ── Right Column: AI Recommendations Section ── */}
+              {/* ── Right Column: AI Suggestions Section ── */}
               <div className="lnx-nav-ai-column">
                 {loadingAi ? (
                   <div className="lnx-ai-loading-box">
                     <div className="lnx-ai-loading-header">
                       <span className="lnx-ai-sparkle-dot pulse" />
                       <FiZap size={14} className="lnx-ai-zap-icon" />
-                      <span>AI is finding recommendations for &ldquo;{submittedTerm}&rdquo;...</span>
+                      <span>AI is finding suggestions for &ldquo;{submittedTerm}&rdquo;...</span>
                     </div>
                     <div className="lnx-ai-loading-shimmer-row" />
                     <div className="lnx-ai-loading-shimmer-row lnx-ai-loading-shimmer-row--short" />
@@ -565,9 +581,9 @@ export default function NavbarSearch() {
                       <div className="lnx-ai-header-left">
                         <div className="lnx-ai-badge">
                           <FiZap size={13} className="lnx-ai-sparkle-icon" />
-                          <span>AI Recommendations</span>
+                          <span>AI Suggestions</span>
                         </div>
-                        <span className="lnx-ai-count-chip">{aiResults.length} suggestions</span>
+                        <span className="lnx-ai-count-chip">{aiResults.length} found</span>
                       </div>
 
                       {/* Filter Tabs if multiple types are present */}
@@ -591,8 +607,8 @@ export default function NavbarSearch() {
                     {/* AI Results Cards */}
                     <div className="lnx-ai-cards-list">
                       {filteredAiResults.map((item, idx) => {
-                        const normType = normalizeResourceType(item.resource_type);
-                        const config = TYPE_CONFIG[normType] || TYPE_CONFIG.other;
+                        const normType = normalizeResourceType(item.resource_type, item.source_file);
+                        const config = TYPE_CONFIG[normType] || TYPE_CONFIG.resource;
                         const Icon = config.icon;
                         const isStudyMaterial = normType === "study_material";
                         const hasUrl = !!item.resource_url;
@@ -604,7 +620,7 @@ export default function NavbarSearch() {
                             onClick={(e) => handleItemClick(e, item)}
                             role="button"
                             tabIndex={0}
-                            title="Click to search keyword & open in new tab"
+                            title="Click to open in new tab & search"
                             onKeyDown={(e) => e.key === "Enter" && handleItemClick(e, item)}
                           >
                             <div className="lnx-ai-card-main">
@@ -630,11 +646,7 @@ export default function NavbarSearch() {
                               {(item.subject_name || item.course_name || item.semester_number) && (
                                 <div className="lnx-ai-card-details">
                                   {item.subject_name && (
-                                    <span
-                                      className="lnx-ai-card-subject lnx-ai-clickable-meta"
-                                      title="Search this subject"
-                                      onClick={(e) => handleSearchOnly(e, item.subject_name)}
-                                    >
+                                    <span className="lnx-ai-card-subject">
                                       {item.subject_name}
                                     </span>
                                   )}
@@ -683,20 +695,9 @@ export default function NavbarSearch() {
                                   </button>
                                 </div>
                               ) : (
-                                <div className="lnx-ai-actions-group">
-                                  <button
-                                    type="button"
-                                    className="lnx-ai-btn lnx-ai-btn--search-only"
-                                    onClick={(e) => handleSearchOnly(e, item.title)}
-                                    title="Search this keyword in Learnix"
-                                  >
-                                    <FiSearch size={12} />
-                                    <span>Search</span>
-                                  </button>
-                                  <span className="lnx-ai-card-arrow" title="Open in new tab">
-                                    <FiChevronRight size={18} />
-                                  </span>
-                                </div>
+                                <span className="lnx-ai-card-arrow" title="Open resource in new tab">
+                                  <FiChevronRight size={18} />
+                                </span>
                               )}
                             </div>
                           </div>
@@ -707,8 +708,8 @@ export default function NavbarSearch() {
                 ) : !loadingAi && !loadingDirect && totalDirectCount === 0 && (!aiResults || aiResults.length === 0) ? (
                   <div className="lnx-nav-search-empty-state">
                     <FiSearch size={26} className="lnx-nav-empty-icon" />
-                    <p>No catalog matches or AI recommendations found for &ldquo;{submittedTerm}&rdquo;.</p>
-                    <span>Try searching by topics like Operating Systems, DSA, Mathematics, or semester names.</span>
+                    <p>No catalog matches or AI suggestions found for &ldquo;{submittedTerm}&rdquo;.</p>
+                    <span>Try searching by topics like Operating Systems, DSA, Mathematics, or Java.</span>
                   </div>
                 ) : null}
               </div>
