@@ -49,6 +49,10 @@ export default function Home() {
             <br />
             <br />
             <DownloadAppBanner />
+            <br />
+            <br />
+            <br />
+            <br />
             <LearnixCodeBanner />
             <br />
             <br />
