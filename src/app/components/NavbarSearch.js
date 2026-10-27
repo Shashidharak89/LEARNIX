@@ -288,9 +288,12 @@ export default function NavbarSearch() {
   // When user clicks on an AI suggestion:
   // 1. Replaces the keyword in the search bar
   // 2. Automatically searches that keyword
-  // 3. Opens the resource in a new tab (e.g. /works/[id], /updates/[id], or study material)
+  // 3. Opens the resource in a new tab (Google view for study materials, /works/[id], /updates/[id], etc.)
   const handleItemClick = (e, item) => {
-    if (e.target.closest("button.lnx-ai-btn--download")) {
+    if (
+      e.target.closest("button.lnx-ai-btn--download") ||
+      e.target.closest("button.lnx-ai-btn--view")
+    ) {
       return;
     }
 
@@ -302,13 +305,20 @@ export default function NavbarSearch() {
     // Search automatically with this keyword
     handleSearch(keyword);
 
+    const normType = normalizeResourceType(item.resource_type, item.source_file);
+    if (normType === "study_material" && item.resource_url) {
+      const googleViewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(item.resource_url)}`;
+      openInNewTab(googleViewUrl);
+      return;
+    }
+
     // Open suggested resource in a new tab
     const href = getAiItemHref(item);
     openInNewTab(href);
   };
 
   // Direct View handler for Study Materials:
-  // Replaces keyword, triggers search, and opens file in new tab
+  // Replaces keyword, triggers search, and opens in Google Docs viewer as usual
   const handleViewMaterial = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
@@ -316,8 +326,13 @@ export default function NavbarSearch() {
     setSearchTerm(keyword);
     handleSearch(keyword);
 
-    const url = item.resource_url || getAiItemHref(item);
-    openInNewTab(url);
+    const rawUrl = item.resource_url;
+    if (rawUrl) {
+      const googleViewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(rawUrl)}`;
+      openInNewTab(googleViewUrl);
+    } else {
+      openInNewTab(getAiItemHref(item));
+    }
   };
 
   // Direct Download handler for Study Materials
@@ -365,10 +380,10 @@ export default function NavbarSearch() {
           ref={inputRef}
           type="text"
           className="lnx-nav-search-input"
-          placeholder="Search Learnix..."
+          placeholder="Smart Search..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          aria-label="Search Learnix"
+          aria-label="Smart Search"
         />
         {searchTerm && (
           <button
@@ -377,7 +392,7 @@ export default function NavbarSearch() {
             onClick={handleClear}
             aria-label="Clear search"
           >
-            <FiX size={13} />
+            <FiX size={15} />
           </button>
         )}
         <button
@@ -416,10 +431,10 @@ export default function NavbarSearch() {
               ref={mobileInputRef}
               type="text"
               className="lnx-nav-search-input"
-              placeholder="Search Learnix..."
+              placeholder="Smart Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              aria-label="Search Learnix"
+              aria-label="Smart Search"
             />
             {searchTerm && (
               <button
@@ -428,7 +443,7 @@ export default function NavbarSearch() {
                 onClick={handleClear}
                 aria-label="Clear search"
               >
-                <FiX size={13} />
+                <FiX size={15} />
               </button>
             )}
             <button
@@ -482,7 +497,7 @@ export default function NavbarSearch() {
                 ref={popupInputRef}
                 type="text"
                 className="lnx-popup-search-input"
-                placeholder="Search keywords, topics, notes..."
+                placeholder="Smart Search..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 aria-label="Search within popup"
@@ -494,7 +509,7 @@ export default function NavbarSearch() {
                   onClick={() => setSearchTerm("")}
                   aria-label="Clear popup input"
                 >
-                  <FiX size={14} />
+                  <FiX size={16} />
                 </button>
               )}
               <button

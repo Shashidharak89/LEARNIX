@@ -64,27 +64,27 @@
   font-weight: 400;
 }
 
-/* Inline clear X button */
+/* Inline clear X button: minimal transparent icon without circular background */
 .lnx-nav-search-clear-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  border-radius: 0;
   border: none;
-  background: #e2e8f0;
-  color: #64748b;
+  background: transparent;
+  color: #94a3b8;
   cursor: pointer;
   padding: 0;
   flex-shrink: 0;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  transition: color 0.15s ease, transform 0.15s ease;
 }
 
 .lnx-nav-search-clear-btn:hover {
-  background: #cbd5e1;
-  color: #0f172a;
-  transform: scale(1.1);
+  background: transparent;
+  color: #475569;
+  transform: scale(1.15);
 }
 
 /* Submit / Search button */
@@ -221,9 +221,10 @@
   top: 76px;
   left: 50%;
   transform: translateX(-50%);
-  width: calc(100vw - 32px);
-  max-width: 620px;
-  max-height: min(88vh, 720px);
+  width: 70vw;
+  max-width: 1040px;
+  min-width: 320px;
+  max-height: min(88vh, 740px);
   display: flex;
   flex-direction: column;
   transition: max-height 0.3s ease;
@@ -234,9 +235,17 @@
     0 24px 56px rgba(15, 23, 42, 0.16),
     0 4px 18px rgba(15, 23, 42, 0.07);
   z-index: 999999;
-  padding: 16px 16px 14px 16px;
+  padding: 16px 18px 14px 18px;
   animation: lnxNavPopupRise 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
   overflow: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.lnx-nav-search-popup::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 /* Thin yellow accent line at top of popup */
@@ -517,21 +526,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  border-radius: 0;
   border: none;
-  background: #e2e8f0;
-  color: #64748b;
+  background: transparent;
+  color: #94a3b8;
   cursor: pointer;
   padding: 0;
   flex-shrink: 0;
-  transition: all 0.15s ease;
+  transition: color 0.15s ease, transform 0.15s ease;
 }
 
 .lnx-popup-search-clear:hover {
-  background: #cbd5e1;
-  color: #0f172a;
+  background: transparent;
+  color: #475569;
+  transform: scale(1.15);
 }
 
 .lnx-popup-search-submit {
@@ -624,36 +634,26 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   Popup Body & Scrollbar (Flowing top-to-bottom layout)
+   Popup Body (Hidden scrollbars, smooth vertical scroll)
    ───────────────────────────────────────────────────────────────────────── */
 .lnx-nav-search-popup-body {
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   flex: 1;
-  padding-right: 4px;
+  padding-right: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
   max-height: calc(85vh - 150px);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .lnx-nav-search-popup-body::-webkit-scrollbar {
-  width: 6px;
-}
-
-.lnx-nav-search-popup-body::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 999px;
-}
-
-.lnx-nav-search-popup-body::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 999px;
-}
-
-.lnx-nav-search-popup-body::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .lnx-nav-ai-column {
@@ -919,7 +919,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 12px;
+  padding: 11px 14px;
   border-radius: 12px;
   border: 1.5px solid #edf2f7;
   background: #ffffff;
@@ -945,7 +945,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 /* Metadata row: Type pill + similarity match */
@@ -1006,17 +1006,14 @@
   border-radius: 999px;
 }
 
-/* Card title */
+/* Card title: responsive font size, wraps naturally based on text length */
 .lnx-ai-card-title {
-  font-size: 0.86rem;
+  font-size: 0.88rem;
   font-weight: 650;
   color: #0f172a;
-  line-height: 1.35;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .lnx-ai-card:hover .lnx-ai-card-title {
@@ -1233,7 +1230,7 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   Responsive Breakpoints
+   Responsive Breakpoints & Small Screen Typography
    ───────────────────────────────────────────────────────────────────────── */
 @media (max-width: 860px) {
   /* Hide the desktop form, show icon toggle */
@@ -1255,6 +1252,7 @@
     padding: 14px 12px;
     max-height: calc(88vh - 76px);
     transform: none;
+    border-radius: 16px;
   }
 
   /* Direct search pills on small screens: keep compact scrollable as it was */
@@ -1280,5 +1278,144 @@
   @keyframes lnxNavPopupRise {
     from { opacity: 0; transform: translateY(12px) scale(0.97); }
     to   { opacity: 1; transform: translateY(0) scale(1);       }
+  }
+}
+
+/* ── Small Screen Adjustments (<= 600px): Adjusted font size & spacing ───── */
+@media (max-width: 600px) {
+  .lnx-nav-search-popup {
+    top: 72px;
+    left: 8px;
+    right: 8px;
+    padding: 12px 10px;
+    border-radius: 14px;
+    max-height: calc(90vh - 72px);
+  }
+
+  .lnx-nav-search-popup-header {
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+  }
+
+  .lnx-nav-search-popup-title {
+    font-size: 0.8rem;
+  }
+
+  .lnx-popup-search-bar {
+    height: 38px;
+    padding: 0 4px 0 12px;
+    margin-bottom: 8px;
+  }
+
+  .lnx-popup-search-input {
+    font-size: 0.82rem;
+  }
+
+  .lnx-popup-search-icon {
+    font-size: 13px;
+  }
+
+  .lnx-nav-direct-row-wrap {
+    margin-bottom: 8px;
+  }
+
+  .lnx-nav-cat-pill {
+    padding: 5px 9px;
+    font-size: 0.72rem;
+    gap: 4px;
+  }
+
+  .lnx-nav-cat-pill-icon {
+    width: 17px;
+    height: 17px;
+  }
+
+  .lnx-nav-cat-pill-count {
+    font-size: 0.69rem;
+  }
+
+  .lnx-ai-header {
+    margin-bottom: 2px;
+  }
+
+  .lnx-ai-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+  }
+
+  .lnx-ai-count-chip {
+    font-size: 0.68rem;
+    padding: 1px 6px;
+  }
+
+  .lnx-ai-cards-list {
+    gap: 7px;
+  }
+
+  .lnx-ai-card {
+    padding: 9px 10px;
+    gap: 8px;
+    border-radius: 10px;
+  }
+
+  .lnx-ai-card-title {
+    font-size: 0.8rem;
+    line-height: 1.34;
+  }
+
+  .lnx-ai-type-pill {
+    font-size: 0.62rem;
+    padding: 2px 6px;
+  }
+
+  .lnx-ai-similarity-badge {
+    font-size: 0.6rem;
+    padding: 1px 5px;
+  }
+
+  .lnx-ai-card-details {
+    font-size: 0.67rem;
+    gap: 4px;
+  }
+
+  .lnx-ai-btn {
+    font-size: 0.68rem;
+    padding: 4px 7px;
+    border-radius: 6px;
+  }
+
+  .lnx-ai-actions-group {
+    gap: 4px;
+  }
+}
+
+/* ── Extra-Small Screens (<= 400px): Maximum compactness ─────────────────── */
+@media (max-width: 400px) {
+  .lnx-nav-search-popup {
+    padding: 10px 8px;
+  }
+
+  .lnx-nav-search-popup-title {
+    font-size: 0.75rem;
+  }
+
+  .lnx-popup-search-bar {
+    height: 36px;
+  }
+
+  .lnx-popup-search-input {
+    font-size: 0.78rem;
+  }
+
+  .lnx-ai-card {
+    padding: 8px 8px;
+  }
+
+  .lnx-ai-card-title {
+    font-size: 0.76rem;
+  }
+
+  .lnx-ai-btn span {
+    font-size: 0.65rem;
   }
 }
