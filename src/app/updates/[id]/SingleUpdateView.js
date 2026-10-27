@@ -167,7 +167,7 @@ export default function SingleUpdateView({ updateId }) {
       });
   }, [update, updateId]);
 
-  // View study material in Google Docs viewer
+  // View study material in Google Docs viewer in a new tab
   const handleRecViewMaterial = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
@@ -177,7 +177,13 @@ export default function SingleUpdateView({ updateId }) {
       window.open(googleViewUrl, "_blank", "noopener,noreferrer");
     } else {
       const href = getRecItemHref(item);
-      window.open(href, "_blank", "noopener,noreferrer");
+      if (href) {
+        const targetUrl =
+          href.startsWith("http://") || href.startsWith("https://")
+            ? href
+            : `${typeof window !== "undefined" ? window.location.origin : ""}${href}`;
+        window.open(targetUrl, "_blank", "noopener,noreferrer");
+      }
     }
   };
 
@@ -214,6 +220,7 @@ export default function SingleUpdateView({ updateId }) {
     }
   };
 
+  // Clicking any recommendation card opens in a new tab
   const handleRecCardClick = (e, item) => {
     if (
       e.target.closest("button.suv-ai-btn--download") ||
@@ -230,7 +237,13 @@ export default function SingleUpdateView({ updateId }) {
     }
 
     const href = getRecItemHref(item);
-    window.open(href, "_blank", "noopener,noreferrer");
+    if (href) {
+      const targetUrl =
+        href.startsWith("http://") || href.startsWith("https://")
+          ? href
+          : `${typeof window !== "undefined" ? window.location.origin : ""}${href}`;
+      window.open(targetUrl, "_blank", "noopener,noreferrer");
+    }
   };
 
   useEffect(() => {
@@ -650,128 +663,128 @@ export default function SingleUpdateView({ updateId }) {
               })}
             </div>
           )}
+        </div>
 
-          {/* AI Recommended Section at the end of the update */}
-          {(loadingRecs || (recommendations && recommendations.length > 0)) && (
-            <div className="suv-ai-rec-section">
-              <div className="suv-ai-rec-header">
-                <div className="suv-ai-rec-badge-row">
-                  <span className="suv-ai-badge">
-                    <FiZap size={13} className="suv-ai-sparkle-icon" />
-                    <span>AI Suggestions</span>
-                  </span>
-                  <span className="suv-ai-count-tag">
-                    {recommendations ? `${recommendations.length} recommended` : "Finding reads..."}
-                  </span>
-                </div>
-                <h3 className="suv-ai-rec-heading">Recommended to Read Next</h3>
-                <p className="suv-ai-rec-sub">
-                  Curated resources, materials & related updates based on this topic
-                </p>
+        {/* Separate AI Recommendations Card */}
+        {(loadingRecs || (recommendations && recommendations.length > 0)) && (
+          <div className="suv-ai-rec-card">
+            <div className="suv-ai-rec-header">
+              <div className="suv-ai-rec-badge-row">
+                <span className="suv-ai-badge">
+                  <FiZap size={13} className="suv-ai-sparkle-icon" />
+                  <span>AI Suggestions</span>
+                </span>
+                <span className="suv-ai-count-tag">
+                  {recommendations ? `${recommendations.length} recommended` : "Finding reads..."}
+                </span>
               </div>
+              <h3 className="suv-ai-rec-heading">Recommended to Read Next</h3>
+              <p className="suv-ai-rec-sub">
+                Curated resources, materials & related updates based on this topic
+              </p>
+            </div>
 
-              {loadingRecs ? (
-                <div className="suv-ai-skeleton-list">
-                  {[1, 2].map((k) => (
-                    <div key={k} className="suv-ai-skeleton-card">
-                      <div className="suv-ai-skel-line suv-ai-skel-pill" />
-                      <div className="suv-ai-skel-line suv-ai-skel-title" />
-                      <div className="suv-ai-skel-line suv-ai-skel-meta" />
-                    </div>
-                  ))}
-                </div>
-              ) : recommendations && recommendations.length > 0 ? (
-                <div className="suv-ai-cards-list">
-                  {recommendations.map((item, idx) => {
-                    const normType = normalizeResourceType(item.resource_type, item.source_file);
-                    const config = TYPE_CONFIG[normType] || TYPE_CONFIG.resource;
-                    const Icon = config.icon;
-                    const isStudyMaterial = normType === "study_material";
-                    const hasUrl = !!item.resource_url;
+            {loadingRecs ? (
+              <div className="suv-ai-skeleton-list">
+                {[1, 2, 3].map((k) => (
+                  <div key={k} className="suv-ai-skeleton-card">
+                    <div className="suv-ai-skel-line suv-ai-skel-pill" />
+                    <div className="suv-ai-skel-line suv-ai-skel-title" />
+                    <div className="suv-ai-skel-line suv-ai-skel-meta" />
+                  </div>
+                ))}
+              </div>
+            ) : recommendations && recommendations.length > 0 ? (
+              <div className="suv-ai-cards-list">
+                {recommendations.map((item, idx) => {
+                  const normType = normalizeResourceType(item.resource_type, item.source_file);
+                  const config = TYPE_CONFIG[normType] || TYPE_CONFIG.resource;
+                  const Icon = config.icon;
+                  const isStudyMaterial = normType === "study_material";
+                  const hasUrl = !!item.resource_url;
 
-                    return (
-                      <div
-                        key={item.resource_id || `rec-${idx}`}
-                        className="suv-ai-card"
-                        onClick={(e) => handleRecCardClick(e, item)}
-                        role="button"
-                        tabIndex={0}
-                        title="Click to open in new tab"
-                        onKeyDown={(e) => e.key === "Enter" && handleRecCardClick(e, item)}
-                      >
-                        <div className="suv-ai-card-main">
-                          <div className="suv-ai-card-meta-top">
-                            <span className={`suv-ai-type-pill ${config.badgeClass}`}>
-                              <Icon size={12} />
-                              <span>{config.label}</span>
+                  return (
+                    <div
+                      key={item.resource_id || `rec-${idx}`}
+                      className="suv-ai-card"
+                      onClick={(e) => handleRecCardClick(e, item)}
+                      role="button"
+                      tabIndex={0}
+                      title="Click to open in new tab"
+                      onKeyDown={(e) => e.key === "Enter" && handleRecCardClick(e, item)}
+                    >
+                      <div className="suv-ai-card-main">
+                        <div className="suv-ai-card-meta-top">
+                          <span className={`suv-ai-type-pill ${config.badgeClass}`}>
+                            <Icon size={12} />
+                            <span>{config.label}</span>
+                          </span>
+                          {item.similarity && (
+                            <span className="suv-ai-similarity-badge">
+                              {Math.round(item.similarity * 100)}% match
                             </span>
-                            {item.similarity && (
-                              <span className="suv-ai-similarity-badge">
-                                {Math.round(item.similarity * 100)}% match
-                              </span>
+                          )}
+                        </div>
+
+                        <div className="suv-ai-card-title">{item.title}</div>
+
+                        {(item.subject_name || item.course_name || item.semester_number) && (
+                          <div className="suv-ai-card-details">
+                            {item.subject_name && (
+                              <span className="suv-ai-card-subject">{item.subject_name}</span>
+                            )}
+                            {item.semester_number && (
+                              <span className="suv-ai-card-sem">Sem {item.semester_number}</span>
+                            )}
+                            {item.course_name && (
+                              <span className="suv-ai-card-course">{item.course_name}</span>
                             )}
                           </div>
-
-                          <div className="suv-ai-card-title">{item.title}</div>
-
-                          {(item.subject_name || item.course_name || item.semester_number) && (
-                            <div className="suv-ai-card-details">
-                              {item.subject_name && (
-                                <span className="suv-ai-card-subject">{item.subject_name}</span>
-                              )}
-                              {item.semester_number && (
-                                <span className="suv-ai-card-sem">Sem {item.semester_number}</span>
-                              )}
-                              {item.course_name && (
-                                <span className="suv-ai-card-course">{item.course_name}</span>
-                              )}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="suv-ai-card-actions">
-                          {isStudyMaterial && hasUrl ? (
-                            <div className="suv-ai-actions-group">
-                              <button
-                                type="button"
-                                className="suv-ai-btn suv-ai-btn--view"
-                                onClick={(e) => handleRecViewMaterial(e, item)}
-                                title="View in Google Docs viewer"
-                              >
-                                <FiEye size={12} />
-                                <span>View</span>
-                              </button>
-                              <button
-                                type="button"
-                                className="suv-ai-btn suv-ai-btn--download"
-                                onClick={(e) => handleRecDownloadMaterial(e, item)}
-                                disabled={
-                                  downloadingRecId === (item.resource_id || item.resource_url)
-                                }
-                                title="Download file directly"
-                              >
-                                <FiDownload size={12} />
-                                <span>
-                                  {downloadingRecId === (item.resource_id || item.resource_url)
-                                    ? "..."
-                                    : "Download"}
-                                </span>
-                              </button>
-                            </div>
-                          ) : (
-                            <span className="suv-ai-card-arrow" title="Open in new tab">
-                              <FiChevronRight size={18} />
-                            </span>
-                          )}
-                        </div>
+                        )}
                       </div>
-                    );
-                  })}
-                </div>
-              ) : null}
-            </div>
-          )}
-        </div>
+
+                      <div className="suv-ai-card-actions">
+                        {isStudyMaterial && hasUrl ? (
+                          <div className="suv-ai-actions-group">
+                            <button
+                              type="button"
+                              className="suv-ai-btn suv-ai-btn--view"
+                              onClick={(e) => handleRecViewMaterial(e, item)}
+                              title="View in Google Docs viewer"
+                            >
+                              <FiEye size={12} />
+                              <span>View</span>
+                            </button>
+                            <button
+                              type="button"
+                              className="suv-ai-btn suv-ai-btn--download"
+                              onClick={(e) => handleRecDownloadMaterial(e, item)}
+                              disabled={
+                                downloadingRecId === (item.resource_id || item.resource_url)
+                              }
+                              title="Download file directly"
+                            >
+                              <FiDownload size={12} />
+                              <span>
+                                {downloadingRecId === (item.resource_id || item.resource_url)
+                                  ? "..."
+                                  : "Download"}
+                              </span>
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="suv-ai-card-arrow" title="Open in new tab">
+                            <FiChevronRight size={18} />
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
+          </div>
+        )}
       </main>
 
       {/* Toast Notification */}
