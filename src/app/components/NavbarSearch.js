@@ -1,7 +1,6 @@
 "use client";
 import { useState, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   FiSearch,
   FiX,
@@ -17,8 +16,8 @@ import {
 import "./styles/NavbarSearch.css";
 
 const CATEGORIES = [
-  { key: "updates", label: "Updates", icon: FiBell, href: "/updates" },
   { key: "works", label: "Resources", icon: FiFolder, href: "/works" },
+  { key: "updates", label: "Updates", icon: FiBell, href: "/updates" },
   { key: "materials", label: "Study Materials", icon: FiBookOpen, href: "/materials" },
   { key: "questionPapers", label: "Question Papers", icon: FiFileText, href: "/qp" },
 ];
@@ -97,7 +96,6 @@ function getAiItemHref(item) {
 }
 
 export default function NavbarSearch() {
-  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [submittedTerm, setSubmittedTerm] = useState("");
 
@@ -235,34 +233,62 @@ export default function NavbarSearch() {
     );
   }, [aiResults, activeTab]);
 
-  // Navigate to an AI suggestion
-  const handleItemClick = (e, item) => {
-    if (e.target.closest("button") || e.target.closest(".lnx-ai-btn")) {
-      return;
-    }
-    const href = getAiItemHref(item);
-    closePopup();
-    setIsMobileInputOpen(false);
-
-    if (href.startsWith("http://") || href.startsWith("https://")) {
-      window.open(href, "_blank", "noopener,noreferrer");
-    } else {
-      router.push(href);
-    }
+  // Helper to open in new tab
+  const openInNewTab = (href) => {
+    if (!href) return;
+    const targetUrl =
+      href.startsWith("http://") || href.startsWith("https://")
+        ? href
+        : `${window.location.origin}${href}`;
+    window.open(targetUrl, "_blank", "noopener,noreferrer");
   };
 
-  // Direct View handler for Study Materials
+  // When user clicks on an AI suggestion:
+  // 1. Replaces the keyword in the search bar
+  // 2. Automatically searches that keyword
+  // 3. Opens the resource in a new tab
+  const handleItemClick = (e, item) => {
+    if (
+      e.target.closest("button.lnx-ai-btn--download") ||
+      e.target.closest("button.lnx-ai-btn--search-only")
+    ) {
+      return;
+    }
+
+    const keyword = (item.title || item.subject_name || submittedTerm).trim();
+
+    // Replace keyword in search bar
+    setSearchTerm(keyword);
+
+    // Search automatically with this recommendation
+    handleSearch(keyword);
+
+    // Open suggested resource in a new tab
+    const href = getAiItemHref(item);
+    openInNewTab(href);
+  };
+
+  // Dedicated "Search this keyword only" handler (replaces keyword and triggers search)
+  const handleSearchOnly = (e, keyword) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!keyword) return;
+    const cleanK = keyword.trim();
+    setSearchTerm(cleanK);
+    handleSearch(cleanK);
+  };
+
+  // Direct View handler for Study Materials:
+  // Replaces keyword, triggers search, and opens file in new tab
   const handleViewMaterial = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
+    const keyword = (item.title || item.subject_name || submittedTerm).trim();
+    setSearchTerm(keyword);
+    handleSearch(keyword);
+
     const url = item.resource_url || getAiItemHref(item);
-    if (url.startsWith("http://") || url.startsWith("https://")) {
-      window.open(url, "_blank", "noopener,noreferrer");
-    } else {
-      closePopup();
-      setIsMobileInputOpen(false);
-      router.push(url);
-    }
+    openInNewTab(url);
   };
 
   // Direct Download handler for Study Materials
@@ -292,13 +318,14 @@ export default function NavbarSearch() {
       setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
     } catch (err) {
       console.warn("Direct blob download failed, opening in new tab:", err);
-      window.open(url, "_blank");
+      openInNewTab(url);
     } finally {
       setDownloadingId(null);
     }
   };
 
   const isAnyLoading = loadingDirect || loadingAi;
+  const hasDirectResults = directResults && totalDirectCount > 0;
 
   return (
     <div className="lnx-nav-search-root" ref={containerRef}>
@@ -419,16 +446,49 @@ export default function NavbarSearch() {
               </button>
             </div>
 
-            {/* Popup Body (Scrollable container) */}
-            <div className="lnx-nav-search-popup-body">
-              {/* ── 1. Direct Catalog Section ── */}
-              {loadingDirect ? (
-                <div className="lnx-nav-search-direct-loading">
-                  <span className="lnx-nav-search-spinner-sm" />
-                  <span>Checking catalog...</span>
-                </div>
-              ) : directResults && totalDirectCount > 0 ? (
-                <div className="lnx-nav-direct-section">
+            {/* ── Mobile Single-Row Direct Results ── */}
+            {/* Shows all 4 categories in a single horizontal row on mobile */}
+            <div className="lnx-nav-mobile-cats-wrap">
+              <div className="lnx-nav-mobile-cats-row">
+                {CATEGORIES.map((cat) => {
+                  const data = directResults ? directResults[cat.key] : null;
+                  const count = data?.count || 0;
+                  const Icon = cat.icon;
+                  const targetHref =
+                    count > 0
+                      ? `${cat.href}?q=${encodeURIComponent(submittedTerm)}`
+                      : cat.href;
+
+                  return (
+                    <Link
+                      key={cat.key}
+                      href={targetHref}
+                      className={`lnx-nav-mobile-cat-pill ${count === 0 ? "lnx-nav-mobile-cat-pill--empty" : ""}`}
+                      onClick={() => {
+                        closePopup();
+                        setIsMobileInputOpen(false);
+                      }}
+                    >
+                      <span className={`lnx-nav-mobile-cat-icon lnx-nav-cat-icon--${cat.key}`}>
+                        <Icon size={13} />
+                      </span>
+                      <span className="lnx-nav-mobile-cat-label">{cat.label}</span>
+                      <span className="lnx-nav-mobile-cat-count">
+                        ({count > 0 ? `${count} found` : "0"})
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Popup Body (2 columns on large screen, 1 column on mobile) */}
+            <div
+              className={`lnx-nav-search-popup-body ${!hasDirectResults ? "lnx-nav-search-popup-body--full-ai" : ""}`}
+            >
+              {/* ── Left Column (Desktop): Direct Catalog Search ── */}
+              {hasDirectResults ? (
+                <div className="lnx-nav-desktop-cats-wrap">
                   <div className="lnx-nav-section-title">
                     <span>Catalog Matches</span>
                     <span className="lnx-nav-section-count">({totalDirectCount})</span>
@@ -455,18 +515,18 @@ export default function NavbarSearch() {
                         >
                           <div className="lnx-nav-search-cat-left">
                             <span className={`lnx-nav-search-cat-icon lnx-nav-cat-icon--${cat.key}`}>
-                              <Icon size={18} />
+                              <Icon size={17} />
                             </span>
                             <div className="lnx-nav-search-cat-info">
                               <span className="lnx-nav-search-cat-label">{cat.label}</span>
                               <span className="lnx-nav-search-cat-dash">—</span>
                               <span className="lnx-nav-search-cat-count">
-                                {count > 0 ? `${count} result${count === 1 ? "" : "s"}` : "0 matches"}
+                                {count > 0 ? `${count} found` : "0 matches"}
                               </span>
                             </div>
                           </div>
                           <span className="lnx-nav-search-cat-arrow">
-                            <FiChevronRight size={18} />
+                            <FiChevronRight size={17} />
                           </span>
                         </Link>
                       );
@@ -474,161 +534,184 @@ export default function NavbarSearch() {
                   </div>
                 </div>
               ) : directResults && totalDirectCount === 0 ? (
-                /* Save space: render sleek single-line pill when direct search has 0 results */
+                /* Save space: Show clean compact notice when direct search has 0 results */
                 <div className="lnx-nav-search-zero-pill">
                   <span className="lnx-nav-search-zero-tag">0 direct matches</span>
-                  <span className="lnx-nav-search-zero-text">Showing AI Smart Suggestions</span>
+                  <span className="lnx-nav-search-zero-text">Showing AI Recommendations</span>
+                </div>
+              ) : loadingDirect ? (
+                <div className="lnx-nav-search-direct-loading">
+                  <span className="lnx-nav-search-spinner-sm" />
+                  <span>Checking catalog...</span>
                 </div>
               ) : null}
 
-              {/* ── 2. AI Suggestions Section ── */}
-              {loadingAi ? (
-                <div className="lnx-ai-loading-box">
-                  <div className="lnx-ai-loading-header">
-                    <span className="lnx-ai-sparkle-dot pulse" />
-                    <FiZap size={14} className="lnx-ai-zap-icon" />
-                    <span>AI is finding recommended materials...</span>
+              {/* ── Right Column: AI Recommendations Section ── */}
+              <div className="lnx-nav-ai-column">
+                {loadingAi ? (
+                  <div className="lnx-ai-loading-box">
+                    <div className="lnx-ai-loading-header">
+                      <span className="lnx-ai-sparkle-dot pulse" />
+                      <FiZap size={14} className="lnx-ai-zap-icon" />
+                      <span>AI is finding recommendations for &ldquo;{submittedTerm}&rdquo;...</span>
+                    </div>
+                    <div className="lnx-ai-loading-shimmer-row" />
+                    <div className="lnx-ai-loading-shimmer-row lnx-ai-loading-shimmer-row--short" />
                   </div>
-                  <div className="lnx-ai-loading-shimmer-row" />
-                  <div className="lnx-ai-loading-shimmer-row lnx-ai-loading-shimmer-row--short" />
-                </div>
-              ) : aiResults && aiResults.length > 0 ? (
-                <div className="lnx-ai-section">
-                  {/* AI Section Header */}
-                  <div className="lnx-ai-header">
-                    <div className="lnx-ai-header-left">
-                      <div className="lnx-ai-badge">
-                        <FiZap size={13} className="lnx-ai-sparkle-icon" />
-                        <span>AI Suggestions</span>
+                ) : aiResults && aiResults.length > 0 ? (
+                  <div className="lnx-ai-section">
+                    {/* AI Section Header */}
+                    <div className="lnx-ai-header">
+                      <div className="lnx-ai-header-left">
+                        <div className="lnx-ai-badge">
+                          <FiZap size={13} className="lnx-ai-sparkle-icon" />
+                          <span>AI Recommendations</span>
+                        </div>
+                        <span className="lnx-ai-count-chip">{aiResults.length} suggestions</span>
                       </div>
-                      <span className="lnx-ai-count-chip">{aiResults.length} recommended</span>
+
+                      {/* Filter Tabs if multiple types are present */}
+                      {availableTabs.length > 2 && (
+                        <div className="lnx-ai-tabs-wrap">
+                          {availableTabs.map((tab) => (
+                            <button
+                              key={tab.key}
+                              type="button"
+                              className={`lnx-ai-tab ${activeTab === tab.key ? "lnx-ai-tab--active" : ""}`}
+                              onClick={() => setActiveTab(tab.key)}
+                            >
+                              <span>{tab.label}</span>
+                              <span className="lnx-ai-tab-count">({tab.count})</span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
-                    {/* Filter Tabs if multiple types are present */}
-                    {availableTabs.length > 2 && (
-                      <div className="lnx-ai-tabs-wrap">
-                        {availableTabs.map((tab) => (
-                          <button
-                            key={tab.key}
-                            type="button"
-                            className={`lnx-ai-tab ${activeTab === tab.key ? "lnx-ai-tab--active" : ""}`}
-                            onClick={() => setActiveTab(tab.key)}
+                    {/* AI Results Cards */}
+                    <div className="lnx-ai-cards-list">
+                      {filteredAiResults.map((item, idx) => {
+                        const normType = normalizeResourceType(item.resource_type);
+                        const config = TYPE_CONFIG[normType] || TYPE_CONFIG.other;
+                        const Icon = config.icon;
+                        const isStudyMaterial = normType === "study_material";
+                        const hasUrl = !!item.resource_url;
+
+                        return (
+                          <div
+                            key={item.resource_id || `ai-${idx}`}
+                            className="lnx-ai-card"
+                            onClick={(e) => handleItemClick(e, item)}
+                            role="button"
+                            tabIndex={0}
+                            title="Click to search keyword & open in new tab"
+                            onKeyDown={(e) => e.key === "Enter" && handleItemClick(e, item)}
                           >
-                            <span>{tab.label}</span>
-                            <span className="lnx-ai-tab-count">({tab.count})</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* AI Results Cards */}
-                  <div className="lnx-ai-cards-list">
-                    {filteredAiResults.map((item, idx) => {
-                      const normType = normalizeResourceType(item.resource_type);
-                      const config = TYPE_CONFIG[normType] || TYPE_CONFIG.other;
-                      const Icon = config.icon;
-                      const isStudyMaterial = normType === "study_material";
-                      const hasUrl = !!item.resource_url;
-
-                      return (
-                        <div
-                          key={item.resource_id || `ai-${idx}`}
-                          className="lnx-ai-card"
-                          onClick={(e) => handleItemClick(e, item)}
-                          role="button"
-                          tabIndex={0}
-                          onKeyDown={(e) => e.key === "Enter" && handleItemClick(e, item)}
-                        >
-                          <div className="lnx-ai-card-main">
-                            {/* Type badge + match score */}
-                            <div className="lnx-ai-card-meta-top">
-                              <span className={`lnx-ai-type-pill ${config.badgeClass}`}>
-                                <Icon size={12} />
-                                <span>{config.label}</span>
-                              </span>
-                              {item.similarity && (
-                                <span className="lnx-ai-similarity-badge">
-                                  {Math.round(item.similarity * 100)}% match
+                            <div className="lnx-ai-card-main">
+                              {/* Type badge + match score */}
+                              <div className="lnx-ai-card-meta-top">
+                                <span className={`lnx-ai-type-pill ${config.badgeClass}`}>
+                                  <Icon size={12} />
+                                  <span>{config.label}</span>
                                 </span>
+                                {item.similarity && (
+                                  <span className="lnx-ai-similarity-badge">
+                                    {Math.round(item.similarity * 100)}% match
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Title */}
+                              <div className="lnx-ai-card-title">
+                                {item.title}
+                              </div>
+
+                              {/* Details (Subject, Semester, Course) */}
+                              {(item.subject_name || item.course_name || item.semester_number) && (
+                                <div className="lnx-ai-card-details">
+                                  {item.subject_name && (
+                                    <span
+                                      className="lnx-ai-card-subject lnx-ai-clickable-meta"
+                                      title="Search this subject"
+                                      onClick={(e) => handleSearchOnly(e, item.subject_name)}
+                                    >
+                                      {item.subject_name}
+                                    </span>
+                                  )}
+                                  {item.semester_number && (
+                                    <span className="lnx-ai-card-sem">
+                                      Sem {item.semester_number}
+                                    </span>
+                                  )}
+                                  {item.course_name && (
+                                    <span className="lnx-ai-card-course">
+                                      {item.course_name}
+                                    </span>
+                                  )}
+                                </div>
                               )}
                             </div>
 
-                            {/* Title */}
-                            <div className="lnx-ai-card-title" title={item.title}>
-                              {item.title}
+                            {/* Card Actions */}
+                            <div className="lnx-ai-card-actions">
+                              {isStudyMaterial && hasUrl ? (
+                                <div className="lnx-ai-actions-group">
+                                  <button
+                                    type="button"
+                                    className="lnx-ai-btn lnx-ai-btn--view"
+                                    onClick={(e) => handleViewMaterial(e, item)}
+                                    title="View file in new tab & search"
+                                  >
+                                    <FiEye size={12} />
+                                    <span>View</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="lnx-ai-btn lnx-ai-btn--download"
+                                    onClick={(e) => handleDownloadMaterial(e, item)}
+                                    disabled={
+                                      downloadingId === (item.resource_id || item.resource_url)
+                                    }
+                                    title="Download file directly"
+                                  >
+                                    <FiDownload size={12} />
+                                    <span>
+                                      {downloadingId === (item.resource_id || item.resource_url)
+                                        ? "..."
+                                        : "Download"}
+                                    </span>
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="lnx-ai-actions-group">
+                                  <button
+                                    type="button"
+                                    className="lnx-ai-btn lnx-ai-btn--search-only"
+                                    onClick={(e) => handleSearchOnly(e, item.title)}
+                                    title="Search this keyword in Learnix"
+                                  >
+                                    <FiSearch size={12} />
+                                    <span>Search</span>
+                                  </button>
+                                  <span className="lnx-ai-card-arrow" title="Open in new tab">
+                                    <FiChevronRight size={18} />
+                                  </span>
+                                </div>
+                              )}
                             </div>
-
-                            {/* Details (Subject, Semester, Course) */}
-                            {(item.subject_name || item.course_name || item.semester_number) && (
-                              <div className="lnx-ai-card-details">
-                                {item.subject_name && (
-                                  <span className="lnx-ai-card-subject">
-                                    {item.subject_name}
-                                  </span>
-                                )}
-                                {item.semester_number && (
-                                  <span className="lnx-ai-card-sem">
-                                    Sem {item.semester_number}
-                                  </span>
-                                )}
-                                {item.course_name && (
-                                  <span className="lnx-ai-card-course">
-                                    {item.course_name}
-                                  </span>
-                                )}
-                              </div>
-                            )}
                           </div>
-
-                          {/* Card Actions */}
-                          <div className="lnx-ai-card-actions">
-                            {isStudyMaterial && hasUrl ? (
-                              <div className="lnx-ai-actions-group">
-                                <button
-                                  type="button"
-                                  className="lnx-ai-btn lnx-ai-btn--view"
-                                  onClick={(e) => handleViewMaterial(e, item)}
-                                  title="View file"
-                                >
-                                  <FiEye size={12} />
-                                  <span>View</span>
-                                </button>
-                                <button
-                                  type="button"
-                                  className="lnx-ai-btn lnx-ai-btn--download"
-                                  onClick={(e) => handleDownloadMaterial(e, item)}
-                                  disabled={
-                                    downloadingId === (item.resource_id || item.resource_url)
-                                  }
-                                  title="Download file"
-                                >
-                                  <FiDownload size={12} />
-                                  <span>
-                                    {downloadingId === (item.resource_id || item.resource_url)
-                                      ? "..."
-                                      : "Download"}
-                                  </span>
-                                </button>
-                              </div>
-                            ) : (
-                              <span className="lnx-ai-card-arrow" title="Open resource">
-                                <FiChevronRight size={18} />
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              ) : !loadingAi && !loadingDirect && totalDirectCount === 0 && (!aiResults || aiResults.length === 0) ? (
-                <div className="lnx-nav-search-empty-state">
-                  <FiSearch size={26} className="lnx-nav-empty-icon" />
-                  <p>No catalog matches or AI recommendations found for &ldquo;{submittedTerm}&rdquo;.</p>
-                  <span>Try searching by topics like Operating Systems, DSA, Mathematics, or semester names.</span>
-                </div>
-              ) : null}
+                ) : !loadingAi && !loadingDirect && totalDirectCount === 0 && (!aiResults || aiResults.length === 0) ? (
+                  <div className="lnx-nav-search-empty-state">
+                    <FiSearch size={26} className="lnx-nav-empty-icon" />
+                    <p>No catalog matches or AI recommendations found for &ldquo;{submittedTerm}&rdquo;.</p>
+                    <span>Try searching by topics like Operating Systems, DSA, Mathematics, or semester names.</span>
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
         </>
