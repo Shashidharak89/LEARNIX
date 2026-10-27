@@ -143,6 +143,7 @@ export default function NavbarSearch() {
 
   const inputRef = useRef(null);
   const mobileInputRef = useRef(null);
+  const popupInputRef = useRef(null);
   const containerRef = useRef(null);
 
   const handleSearch = async (queryText) => {
@@ -152,6 +153,8 @@ export default function NavbarSearch() {
     setSubmittedTerm(cleanQ);
     setLoadingDirect(true);
     setLoadingAi(true);
+    setDirectResults(null);
+    setAiResults(null);
     setIsPopupOpen(true);
     setActiveTab("all");
 
@@ -219,6 +222,16 @@ export default function NavbarSearch() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  // Auto-focus in-popup search bar when popup opens
+  useEffect(() => {
+    if (isPopupOpen) {
+      const timer = setTimeout(() => {
+        popupInputRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isPopupOpen]);
 
   // Compute total direct matches
   const totalDirectCount = useMemo(() => {
@@ -345,7 +358,7 @@ export default function NavbarSearch() {
 
   return (
     <div className="lnx-nav-search-root" ref={containerRef}>
-      {/* Desktop Search Form (Wide screens) */}
+      {/* Desktop Search Form (Navbar header) */}
       <form className="lnx-nav-search-form-desktop" onSubmit={handleSubmit}>
         <FiSearch className="lnx-nav-search-icon" />
         <input
@@ -447,7 +460,7 @@ export default function NavbarSearch() {
         <>
           <div className="lnx-nav-search-backdrop" onClick={closePopup} />
           <div className="lnx-nav-search-popup">
-            {/* Popup Header */}
+            {/* Popup Header with Title + Close */}
             <div className="lnx-nav-search-popup-header">
               <div className="lnx-nav-search-popup-title">
                 Search Results for &ldquo;<span>{submittedTerm}</span>&rdquo;
@@ -462,117 +475,102 @@ export default function NavbarSearch() {
               </button>
             </div>
 
-            {/* ── Mobile Single-Row Direct Results ── */}
-            {/* Shows all 4 categories in a single horizontal row on mobile */}
-            <div className="lnx-nav-mobile-cats-wrap">
-              <div className="lnx-nav-mobile-cats-row">
-                {CATEGORIES.map((cat) => {
-                  const data = directResults ? directResults[cat.key] : null;
-                  const count = data?.count || 0;
-                  const Icon = cat.icon;
-                  const targetHref =
-                    count > 0
-                      ? `${cat.href}?q=${encodeURIComponent(submittedTerm)}`
-                      : cat.href;
+            {/* In-Popup Search Bar (Search keywords dynamically from inside popup) */}
+            <form className="lnx-popup-search-bar" onSubmit={handleSubmit}>
+              <FiSearch className="lnx-popup-search-icon" />
+              <input
+                ref={popupInputRef}
+                type="text"
+                className="lnx-popup-search-input"
+                placeholder="Search keywords, topics, notes..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                aria-label="Search within popup"
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  className="lnx-popup-search-clear"
+                  onClick={() => setSearchTerm("")}
+                  aria-label="Clear popup input"
+                >
+                  <FiX size={14} />
+                </button>
+              )}
+              <button
+                type="submit"
+                className="lnx-popup-search-submit"
+                disabled={isAnyLoading}
+                aria-label="Search"
+              >
+                {isAnyLoading ? (
+                  <span className="lnx-nav-search-spinner" />
+                ) : (
+                  <FiSearch size={14} />
+                )}
+              </button>
+            </form>
 
-                  return (
-                    <Link
-                      key={cat.key}
-                      href={targetHref}
-                      className={`lnx-nav-mobile-cat-pill ${count === 0 ? "lnx-nav-mobile-cat-pill--empty" : ""}`}
-                      onClick={() => {
-                        closePopup();
-                        setIsMobileInputOpen(false);
-                      }}
-                    >
-                      <span className={`lnx-nav-mobile-cat-icon lnx-nav-cat-icon--${cat.key}`}>
-                        <Icon size={13} />
-                      </span>
-                      <span className="lnx-nav-mobile-cat-label">{cat.label}</span>
-                      <span className="lnx-nav-mobile-cat-count">
-                        ({count > 0 ? `${count} found` : "0"})
-                      </span>
-                    </Link>
-                  );
-                })}
+            {/* ── Top Row: Direct Catalog Matches (First row across all screen sizes) ── */}
+            {hasDirectResults ? (
+              <div className="lnx-nav-direct-row-wrap">
+                <div className="lnx-nav-direct-pills-row">
+                  {CATEGORIES.map((cat) => {
+                    const data = directResults ? directResults[cat.key] : null;
+                    const count = data?.count || 0;
+                    const Icon = cat.icon;
+                    const targetHref =
+                      count > 0
+                        ? `${cat.href}?q=${encodeURIComponent(submittedTerm)}`
+                        : cat.href;
+
+                    return (
+                      <Link
+                        key={cat.key}
+                        href={targetHref}
+                        className={`lnx-nav-cat-pill ${count === 0 ? "lnx-nav-cat-pill--empty" : ""}`}
+                        onClick={() => {
+                          closePopup();
+                          setIsMobileInputOpen(false);
+                        }}
+                      >
+                        <span className={`lnx-nav-cat-pill-icon lnx-nav-cat-icon--${cat.key}`}>
+                          <Icon size={13} />
+                        </span>
+                        <span className="lnx-nav-cat-pill-label">{cat.label}</span>
+                        <span className="lnx-nav-cat-pill-count">
+                          ({count > 0 ? `${count} found` : "0"})
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            ) : directResults && totalDirectCount === 0 ? (
+              /* Space saving subtle note when direct count is 0 */
+              <div className="lnx-nav-search-zero-pill">
+                <span className="lnx-nav-search-zero-tag">0 direct matches</span>
+                <span className="lnx-nav-search-zero-text">Showing AI Suggestions</span>
+              </div>
+            ) : null}
 
-            {/* Popup Body (2 columns on large screen, 1 column on mobile) */}
-            <div
-              className={`lnx-nav-search-popup-body ${!hasDirectResults ? "lnx-nav-search-popup-body--full-ai" : ""}`}
-            >
-              {/* ── Left Column (Desktop): Direct Catalog Search ── */}
-              {hasDirectResults ? (
-                <div className="lnx-nav-desktop-cats-wrap">
-                  <div className="lnx-nav-section-title">
-                    <span>Catalog Matches</span>
-                    <span className="lnx-nav-section-count">({totalDirectCount})</span>
-                  </div>
-                  <div className="lnx-nav-search-popup-rows">
-                    {CATEGORIES.map((cat) => {
-                      const data = directResults[cat.key];
-                      const count = data?.count || 0;
-                      const Icon = cat.icon;
-                      const targetHref =
-                        count > 0
-                          ? `${cat.href}?q=${encodeURIComponent(submittedTerm)}`
-                          : cat.href;
-
-                      return (
-                        <Link
-                          key={cat.key}
-                          href={targetHref}
-                          className={`lnx-nav-search-cat-row ${count === 0 ? "lnx-nav-search-cat-row--empty" : ""}`}
-                          onClick={() => {
-                            closePopup();
-                            setIsMobileInputOpen(false);
-                          }}
-                        >
-                          <div className="lnx-nav-search-cat-left">
-                            <span className={`lnx-nav-search-cat-icon lnx-nav-cat-icon--${cat.key}`}>
-                              <Icon size={17} />
-                            </span>
-                            <div className="lnx-nav-search-cat-info">
-                              <span className="lnx-nav-search-cat-label">{cat.label}</span>
-                              <span className="lnx-nav-search-cat-dash">—</span>
-                              <span className="lnx-nav-search-cat-count">
-                                {count > 0 ? `${count} found` : "0 matches"}
-                              </span>
-                            </div>
-                          </div>
-                          <span className="lnx-nav-search-cat-arrow">
-                            <FiChevronRight size={17} />
-                          </span>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : directResults && totalDirectCount === 0 ? (
-                /* Save space: Show clean compact notice when direct search has 0 results */
-                <div className="lnx-nav-search-zero-pill">
-                  <span className="lnx-nav-search-zero-tag">0 direct matches</span>
-                  <span className="lnx-nav-search-zero-text">Showing AI Suggestions</span>
-                </div>
-              ) : loadingDirect ? (
-                <div className="lnx-nav-search-direct-loading">
-                  <span className="lnx-nav-search-spinner-sm" />
-                  <span>Checking catalog...</span>
-                </div>
-              ) : null}
-
-              {/* ── Right Column: AI Suggestions Section ── */}
+            {/* Popup Scrollable Body (AI Suggestions section below direct results) */}
+            <div className="lnx-nav-search-popup-body">
+              {/* ── AI Suggestions Section ── */}
               <div className="lnx-nav-ai-column">
                 {loadingAi ? (
-                  <div className="lnx-ai-loading-box">
-                    <div className="lnx-ai-loading-header">
+                  /* Initial compact AI searching skeleton */
+                  <div className="lnx-ai-initial-skeleton">
+                    <div className="lnx-ai-skeleton-header">
                       <span className="lnx-ai-sparkle-dot pulse" />
                       <FiZap size={14} className="lnx-ai-zap-icon" />
-                      <span>AI is finding suggestions for &ldquo;{submittedTerm}&rdquo;...</span>
+                      <span>AI is searching & recommending resources for &ldquo;{submittedTerm}&rdquo;...</span>
                     </div>
-                    <div className="lnx-ai-loading-shimmer-row" />
-                    <div className="lnx-ai-loading-shimmer-row lnx-ai-loading-shimmer-row--short" />
+                    <div className="lnx-ai-skeleton-card">
+                      <div className="lnx-ai-skel-line lnx-ai-skel-badge" />
+                      <div className="lnx-ai-skel-line lnx-ai-skel-title" />
+                      <div className="lnx-ai-skel-line lnx-ai-skel-meta" />
+                    </div>
                   </div>
                 ) : aiResults && aiResults.length > 0 ? (
                   <div className="lnx-ai-section">
@@ -604,7 +602,7 @@ export default function NavbarSearch() {
                       )}
                     </div>
 
-                    {/* AI Results Cards */}
+                    {/* AI Results Cards: Cascading Animation one below another */}
                     <div className="lnx-ai-cards-list">
                       {filteredAiResults.map((item, idx) => {
                         const normType = normalizeResourceType(item.resource_type, item.source_file);
@@ -616,7 +614,8 @@ export default function NavbarSearch() {
                         return (
                           <div
                             key={item.resource_id || `ai-${idx}`}
-                            className="lnx-ai-card"
+                            className="lnx-ai-card lnx-ai-card--animate"
+                            style={{ animationDelay: `${idx * 60}ms` }}
                             onClick={(e) => handleItemClick(e, item)}
                             role="button"
                             tabIndex={0}

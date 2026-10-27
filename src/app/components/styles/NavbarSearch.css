@@ -222,10 +222,11 @@
   left: 50%;
   transform: translateX(-50%);
   width: calc(100vw - 32px);
-  max-width: 960px;
+  max-width: 620px;
   max-height: min(88vh, 720px);
   display: flex;
   flex-direction: column;
+  transition: max-height 0.3s ease;
   background: #ffffff;
   border: 2px solid #e2e8f0;
   border-radius: 20px;
@@ -465,7 +466,165 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   Popup Body & Scrollbar (2-column layout on Desktop)
+   In-Popup Search Bar (Integrated inside popup above results)
+   ───────────────────────────────────────────────────────────────────────── */
+.lnx-popup-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  background: #f8fafc;
+  border: 1.5px solid #2563eb;
+  border-radius: 999px;
+  padding: 0 6px 0 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.lnx-popup-search-bar:focus-within {
+  background: #ffffff;
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18);
+}
+
+.lnx-popup-search-icon {
+  color: #2563eb;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.lnx-popup-search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #0f172a;
+  font-family: inherit;
+  padding: 0;
+}
+
+.lnx-popup-search-input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.lnx-popup-search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: #e2e8f0;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.lnx-popup-search-clear:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+.lnx-popup-search-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: #2563eb;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.lnx-popup-search-submit:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: scale(1.05);
+}
+
+.lnx-popup-search-submit:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Top Row: Direct Catalog Results (Single Row across all screens)
+   ───────────────────────────────────────────────────────────────────────── */
+.lnx-nav-direct-row-wrap {
+  width: 100%;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.lnx-nav-direct-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 2px 0 4px 0;
+}
+
+.lnx-nav-cat-pill {
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  font-size: 0.77rem;
+  font-weight: 600;
+  color: #1e293b;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all 0.16s ease;
+}
+
+.lnx-nav-cat-pill:hover {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+}
+
+.lnx-nav-cat-pill-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.lnx-nav-cat-pill-count {
+  color: #2563eb;
+  font-weight: 700;
+  font-size: 0.74rem;
+}
+
+.lnx-nav-cat-pill--empty {
+  opacity: 0.65;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Popup Body & Scrollbar (Flowing top-to-bottom layout)
    ───────────────────────────────────────────────────────────────────────── */
 .lnx-nav-search-popup-body {
   overflow-y: auto;
@@ -473,16 +632,10 @@
   -webkit-overflow-scrolling: touch;
   flex: 1;
   padding-right: 4px;
-  display: grid;
-  grid-template-columns: 290px 1fr;
-  gap: 20px;
-  align-items: start;
-}
-
-.lnx-nav-search-popup-body--full-ai {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
+  max-height: calc(85vh - 150px);
 }
 
 .lnx-nav-search-popup-body::-webkit-scrollbar {
@@ -503,82 +656,67 @@
   background: #94a3b8;
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
-   Mobile Single-Row Direct Results
-   ───────────────────────────────────────────────────────────────────────── */
-.lnx-nav-mobile-cats-wrap {
-  display: none;
-}
-
-.lnx-nav-mobile-cats-row {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  overflow-x: auto;
-  padding: 2px 2px 6px 2px;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-
-.lnx-nav-mobile-cats-row::-webkit-scrollbar {
-  display: none;
-}
-
-.lnx-nav-mobile-cat-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 11px;
-  border-radius: 999px;
-  background: #f8fafc;
-  border: 1.5px solid #e2e8f0;
-  font-size: 0.77rem;
-  font-weight: 600;
-  color: #1e293b;
-  text-decoration: none;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: all 0.16s ease;
-}
-
-.lnx-nav-mobile-cat-pill:hover {
-  background: #eff6ff;
-  border-color: #3b82f6;
-  color: #1d4ed8;
-}
-
-.lnx-nav-mobile-cat-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-}
-
-.lnx-nav-mobile-cat-count {
-  color: #2563eb;
-  font-weight: 700;
-}
-
-.lnx-nav-mobile-cat-pill--empty {
-  opacity: 0.65;
-}
-
-/* ─────────────────────────────────────────────────────────────────────────
-   Desktop Column Wrap & Direct Results
-   ───────────────────────────────────────────────────────────────────────── */
-.lnx-nav-desktop-cats-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .lnx-nav-ai-column {
   display: flex;
   flex-direction: column;
   gap: 10px;
   min-width: 0;
+  width: 100%;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Initial Compact AI Searching Skeleton Loader
+   ───────────────────────────────────────────────────────────────────────── */
+.lnx-ai-initial-skeleton {
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1.5px dashed #c7d2fe;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: lnxNavFadeIn 0.2s ease both;
+}
+
+.lnx-ai-skeleton-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #4f46e5;
+}
+
+.lnx-ai-skeleton-card {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.lnx-ai-skel-line {
+  border-radius: 4px;
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: lnxAiShimmer 1.5s infinite linear;
+}
+
+.lnx-ai-skel-badge {
+  width: 75px;
+  height: 12px;
+}
+
+.lnx-ai-skel-title {
+  width: 70%;
+  height: 15px;
+}
+
+.lnx-ai-skel-meta {
+  width: 40%;
+  height: 11px;
 }
 
 /* Spinner small */
@@ -749,8 +887,27 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   AI Result Cards
+   AI Result Cards & Progressive Cascading Animations
    ───────────────────────────────────────────────────────────────────────── */
+@keyframes lnxCardCascadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  65% {
+    opacity: 0.95;
+    transform: translateY(-2px) scale(1.004);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.lnx-ai-card--animate {
+  animation: lnxCardCascadeIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 .lnx-ai-cards-list {
   display: flex;
   flex-direction: column;
@@ -1100,24 +1257,24 @@
     transform: none;
   }
 
-  /* Switch from 2-column desktop grid to single-column flex on mobile */
-  .lnx-nav-search-popup-body {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  /* Direct search pills on small screens: keep compact scrollable as it was */
+  .lnx-nav-direct-pills-row {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
 
-  /* Hide desktop vertical categories list on mobile */
-  .lnx-nav-desktop-cats-wrap {
+  .lnx-nav-direct-pills-row::-webkit-scrollbar {
     display: none;
   }
 
-  /* Show single-row direct categories on mobile */
-  .lnx-nav-mobile-cats-wrap {
-    display: block;
-    padding-bottom: 8px;
-    margin-bottom: 4px;
-    border-bottom: 1.5px solid #f1f5f9;
+  .lnx-nav-cat-pill {
+    flex: 0 0 auto;
+    padding: 6px 11px;
+    border-radius: 999px;
   }
 
   @keyframes lnxNavPopupRise {
