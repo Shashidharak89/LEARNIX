@@ -964,10 +964,10 @@
 /* Content */
 .upl-content {
   color: var(--upl-text);
-  font-size: 15px;
-  line-height: 1.6;
-  margin: 0 0 12px 0;
-  white-space: pre-wrap;
+  font-size: 14.5px;
+  line-height: 1.52;
+  margin: 0 0 8px 0;
+  white-space: normal;
   word-break: break-word;
 }
 

@@ -1,15 +1,17 @@
 /* MarkdownRenderer.css — Formatting styles for updates description */
 
 .markdown-content {
-  font-size: 0.95rem;
-  line-height: 1.65;
+  font-size: 0.92rem;
+  line-height: 1.52;
   color: #334155;
   word-break: break-word;
+  white-space: normal;
 }
 
 /* Normal Paragraph Gaps */
 .markdown-content p {
-  margin: 0 0 0.85em 0;
+  margin: 0 0 0.45em 0;
+  line-height: 1.52;
 }
 
 .markdown-content p:last-child {
@@ -25,8 +27,8 @@
 .markdown-content h6 {
   color: #0f172a;
   font-weight: 700;
-  margin: 1.2em 0 0.5em 0;
-  line-height: 1.35;
+  margin: 0.85em 0 0.35em 0;
+  line-height: 1.32;
   letter-spacing: -0.01em;
 }
 
@@ -73,16 +75,17 @@
 /* Lists */
 .markdown-content ul,
 .markdown-content ol {
-  margin: 0.5em 0 0.85em 0;
-  padding-left: 24px;
+  margin: 0.35em 0 0.5em 0;
+  padding-left: 22px;
 }
 
 .markdown-content li {
-  margin-bottom: 4px;
+  margin-bottom: 2px;
+  line-height: 1.5;
 }
 
 .markdown-content li > p {
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .markdown-content li::marker {

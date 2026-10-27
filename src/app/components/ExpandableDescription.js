@@ -20,15 +20,20 @@ export default function ExpandableDescription({ content, className = "" }) {
 
     checkOverflow();
 
-    const resizeObserver = new ResizeObserver(() => {
-      checkOverflow();
-    });
-    resizeObserver.observe(el);
+    let resizeObserver = null;
+    if (typeof window !== 'undefined' && window.ResizeObserver) {
+      resizeObserver = new window.ResizeObserver(() => {
+        checkOverflow();
+      });
+      resizeObserver.observe(el);
+    }
 
     window.addEventListener('resize', checkOverflow);
 
     return () => {
-      resizeObserver.disconnect();
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
       window.removeEventListener('resize', checkOverflow);
     };
   }, [content]);

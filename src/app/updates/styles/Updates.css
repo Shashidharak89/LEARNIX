@@ -643,10 +643,10 @@
 /* Card Content */
 .upd-content {
   color: var(--upd-text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.7;
+  font-size: 0.92rem;
+  line-height: 1.52;
   margin: 0 0 8px 0;
-  white-space: pre-wrap;
+  white-space: normal;
   word-break: break-word;
 }
 

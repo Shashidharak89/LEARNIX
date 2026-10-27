@@ -21,7 +21,10 @@ export default function MarkdownRenderer({ content, className = "" }) {
     normalized = normalized.replace(/\\n/g, "\n");
   }
 
-  // Preprocess HTML image tags and <br> into standard markdown
+  // Collapse 3 or more consecutive newlines down to standard double newline to prevent cavernous gaps
+  normalized = normalized.replace(/\n{3,}/g, "\n\n");
+
+  // Preprocess HTML image tags and <br> into standard markdown (br converts to single newline with remarkBreaks)
   const normalizedContent = normalized
     .replace(
       /<img\s+[^>]*src=["']([^"']+)["'][^>]*alt=["']([^"']*)["'][^>]*\/?>/gi,
@@ -32,7 +35,7 @@ export default function MarkdownRenderer({ content, className = "" }) {
       "![$1]($2)"
     )
     .replace(/<img\s+[^>]*src=["']([^"']+)["'][^>]*\/?>/gi, "![]($1)")
-    .replace(/<br\s*\/?>/gi, "\n\n");
+    .replace(/<br\s*\/?>/gi, "\n");
 
   return (
     <div className={`markdown-content ${className}`}>
