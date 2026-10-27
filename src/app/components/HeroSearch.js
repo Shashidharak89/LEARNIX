@@ -54,7 +54,7 @@ const ICON_MAP = {
 
 // ── Category meta ──────────────────────────────────────────────────────────
 const CATEGORIES = [
-  { key: "works", label: "Works", icon: FiFolder, href: "/works", theme: "works", paramKey: "q" },
+  { key: "works", label: "Resources", icon: FiFolder, href: "/works", theme: "works", paramKey: "q" },
   { key: "updates", label: "Updates", icon: FiBell, href: "/updates", theme: "updates", paramKey: "q" },
   { key: "materials", label: "Materials", icon: FiBookOpen, href: "/materials", theme: "materials", paramKey: "q" },
   { key: "questionPapers", label: "Question Papers", icon: FiFileText, href: "/qp", theme: "qp", paramKey: "q" },

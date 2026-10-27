@@ -14,7 +14,7 @@ import "./styles/NavbarSearch.css";
 
 const CATEGORIES = [
   { key: "updates", label: "Updates", icon: FiBell, href: "/updates" },
-  { key: "works", label: "Works", icon: FiFolder, href: "/works" },
+  { key: "works", label: "Resources", icon: FiFolder, href: "/works" },
   { key: "materials", label: "Study Materials", icon: FiBookOpen, href: "/materials" },
   { key: "questionPapers", label: "Question Papers", icon: FiFileText, href: "/qp" },
 ];
