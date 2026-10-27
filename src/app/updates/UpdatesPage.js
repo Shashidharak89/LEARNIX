@@ -70,7 +70,7 @@ export default function UpdatesPage({ initialUpdateId }) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setIsLoggedIn(!!localStorage.getItem('token'));
+      setIsLoggedIn(!!(localStorage.getItem('token') || localStorage.getItem('usn')));
     }
   }, []);
 
@@ -204,33 +204,29 @@ export default function UpdatesPage({ initialUpdateId }) {
                 <Bell className="upd-title-icon" size={24} />
                 UPDATES
               </h1>
-              <div className="upd-action-buttons">
-                <button
-                  type="button"
-                  className="upd-action-btn upd-action-btn-primary"
-                  onClick={() => {
-                    if (!isLoggedIn) {
-                      router.push('/login?redirect=/updates');
-                      return;
-                    }
-                    setShowAddModal(true);
-                  }}
-                  title="Add Update"
-                  aria-label="Add Update"
-                >
-                  <FiPlus className="upd-action-icon" />
-                  <span className="upd-action-text">Add Update</span>
-                </button>
-                <Link
-                  href="/upload/updates"
-                  className="upd-action-btn upd-action-btn-secondary"
-                  title="Manage Updates"
-                  aria-label="Manage Updates"
-                >
-                  <FiList className="upd-action-icon" />
-                  <span className="upd-action-text">Manage</span>
-                </Link>
-              </div>
+              {isLoggedIn && (
+                <div className="upd-action-buttons">
+                  <button
+                    type="button"
+                    className="upd-action-btn upd-action-btn-primary"
+                    onClick={() => setShowAddModal(true)}
+                    title="Add Update"
+                    aria-label="Add Update"
+                  >
+                    <FiPlus className="upd-action-icon" />
+                    <span className="upd-action-text">Add Update</span>
+                  </button>
+                  <Link
+                    href="/upload/updates"
+                    className="upd-action-btn upd-action-btn-secondary"
+                    title="Manage Updates"
+                    aria-label="Manage Updates"
+                  >
+                    <FiList className="upd-action-icon" />
+                    <span className="upd-action-text">Manage</span>
+                  </Link>
+                </div>
+              )}
             </div>
 
             <form className="upd-search-form" onSubmit={handleSearchSubmit}>
@@ -323,7 +319,13 @@ export default function UpdatesPage({ initialUpdateId }) {
                     <div className="upd-user-sub-row">
                       {u.title && (
                         <div className="upd-user-title">
-                          <span>{u.title}</span>
+                          <Link
+                            href={`/updates/${u._id}`}
+                            className="upd-title-clickable-link"
+                            title={`Open update: ${u.title}`}
+                          >
+                            <span>{u.title}</span>
+                          </Link>
                         </div>
                       )}
                       <div className="upd-timestamp">

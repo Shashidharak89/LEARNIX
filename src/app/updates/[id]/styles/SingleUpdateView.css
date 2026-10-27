@@ -171,6 +171,322 @@
   to { transform: translateY(0); opacity: 1; }
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   AI Recommendations Section (End of Update)
+   Theme: Updates Color Palette + Apple Minimalist Aesthetics
+   ───────────────────────────────────────────────────────────────────────── */
+.suv-ai-rec-section {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1.5px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.suv-ai-rec-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.suv-ai-rec-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Light purple AI badge with Apple-style subtle glass effect */
+.suv-ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  color: #7c3aed;
+  border: 1px solid #ddd6fe;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+  box-shadow: 0 1px 6px rgba(124, 58, 237, 0.08);
+}
+
+.suv-ai-sparkle-icon {
+  animation: suvAiPulse 2s infinite ease-in-out;
+}
+
+@keyframes suvAiPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.18); opacity: 0.85; }
+}
+
+.suv-ai-count-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.suv-ai-rec-heading {
+  font-size: 1.05rem;
+  font-weight: 750;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.015em;
+}
+
+.suv-ai-rec-sub {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* AI Skeleton loader */
+.suv-ai-skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.suv-ai-skeleton-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px dashed #cbd5e1;
+}
+
+.suv-ai-skel-line {
+  border-radius: 4px;
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: suvAiShimmer 1.5s infinite linear;
+}
+
+@keyframes suvAiShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.suv-ai-skel-pill {
+  width: 70px;
+  height: 14px;
+}
+
+.suv-ai-skel-title {
+  width: 65%;
+  height: 16px;
+}
+
+.suv-ai-skel-meta {
+  width: 35%;
+  height: 12px;
+}
+
+/* AI Recommendation Cards */
+.suv-ai-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.suv-ai-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1.5px solid #edf2f7;
+  background: #ffffff;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+}
+
+.suv-ai-card:hover {
+  border-color: #cbd5e1;
+  background: #fafafa;
+  box-shadow: 0 6px 22px rgba(15, 23, 42, 0.08);
+  transform: translateY(-1px);
+}
+
+.suv-ai-card:focus-visible {
+  outline: 2px solid #0b74ff;
+  outline-offset: 1px;
+}
+
+.suv-ai-card-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.suv-ai-card-meta-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.suv-ai-type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.suv-ai-pill--study {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.suv-ai-pill--update {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.suv-ai-pill--resource {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+
+.suv-ai-pill--qp {
+  background: #f5f3ff;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+}
+
+.suv-ai-similarity-badge {
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: #7c3aed;
+  background: #f5f3ff;
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+.suv-ai-card-title {
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: #0f172a;
+  line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.suv-ai-card:hover .suv-ai-card-title {
+  color: #0b74ff;
+}
+
+.suv-ai-card-details {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+.suv-ai-card-subject {
+  font-weight: 600;
+  color: #334155;
+}
+
+.suv-ai-card-sem,
+.suv-ai-card-course {
+  background: #f1f5f9;
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: #475569;
+  font-size: 0.68rem;
+}
+
+/* Card Actions */
+.suv-ai-card-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.suv-ai-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.suv-ai-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.16s ease;
+  white-space: nowrap;
+}
+
+.suv-ai-btn--view {
+  background: #eff6ff;
+  color: #0b74ff;
+  border-color: #bfdbfe;
+}
+
+.suv-ai-btn--view:hover {
+  background: #0b74ff;
+  color: #ffffff;
+  border-color: #0b74ff;
+  box-shadow: 0 2px 8px rgba(11, 116, 255, 0.25);
+}
+
+.suv-ai-btn--download {
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
+}
+
+.suv-ai-btn--download:hover:not(:disabled) {
+  background: #f59e0b;
+  color: #ffffff;
+  border-color: #f59e0b;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+}
+
+.suv-ai-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.suv-ai-card-arrow {
+  color: #cbd5e1;
+  transition: transform 0.18s ease, color 0.18s ease;
+}
+
+.suv-ai-card:hover .suv-ai-card-arrow {
+  color: #0b74ff;
+  transform: translateX(3px);
+}
+
 @media (max-width: 640px) {
   .suv-container {
     padding-top: 16px;
@@ -178,5 +494,19 @@
   .suv-card {
     padding: 18px 16px;
     border-radius: 16px;
+  }
+  .suv-ai-rec-heading {
+    font-size: 0.95rem;
+  }
+  .suv-ai-card {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  .suv-ai-card-title {
+    font-size: 0.82rem;
+  }
+  .suv-ai-btn {
+    padding: 4px 8px;
+    font-size: 0.7rem;
   }
 }

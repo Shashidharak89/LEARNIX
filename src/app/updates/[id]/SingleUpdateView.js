@@ -11,6 +11,11 @@ import {
   FiCheck,
   FiChevronRight,
   FiLock,
+  FiZap,
+  FiFolder,
+  FiBell,
+  FiBookOpen,
+  FiFileText,
 } from "react-icons/fi";
 import { Share2 } from "lucide-react";
 import { authFetch } from "@/lib/clientAuth";
@@ -25,6 +30,90 @@ import "./styles/SingleUpdateView.css";
 const DEFAULT_PROFILE_IMAGE =
   "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp";
 
+function normalizeResourceType(type, sourceFile) {
+  const t = (type || "").toLowerCase().trim();
+  const s = (sourceFile || "").toLowerCase().trim();
+
+  if (
+    t === "topic" ||
+    t === "topics" ||
+    t === "work" ||
+    t === "works" ||
+    t === "resource" ||
+    t === "resources" ||
+    s === "resources"
+  ) {
+    return "resource";
+  }
+
+  if (t === "update" || t === "updates" || s === "updates") {
+    return "update";
+  }
+
+  if (t === "study_material" || t === "materials" || t === "material" || s === "study_materials") {
+    return "study_material";
+  }
+
+  if (t === "question_paper" || t === "qp" || t === "questionpapers") {
+    return "question_paper";
+  }
+
+  return t || "resource";
+}
+
+const TYPE_CONFIG = {
+  resource: {
+    label: "Resource",
+    icon: FiFolder,
+    badgeClass: "suv-ai-pill--resource",
+  },
+  update: {
+    label: "Update",
+    icon: FiBell,
+    badgeClass: "suv-ai-pill--update",
+  },
+  study_material: {
+    label: "Study Material",
+    icon: FiBookOpen,
+    badgeClass: "suv-ai-pill--study",
+  },
+  question_paper: {
+    label: "Question Paper",
+    icon: FiFileText,
+    badgeClass: "suv-ai-pill--qp",
+  },
+};
+
+function getRecItemHref(item) {
+  const normType = normalizeResourceType(item.resource_type, item.source_file);
+  const cleanId = item.resource_id ? String(item.resource_id).replace(/^["']|["']$/g, "").trim() : "";
+
+  if (normType === "resource") {
+    if (cleanId) {
+      if (cleanId.startsWith("sub-only-")) {
+        return `/works/subject/${cleanId.replace("sub-only-", "")}`;
+      }
+      return `/works/${cleanId}`;
+    }
+    return item.resource_url || "/works";
+  }
+
+  if (normType === "update") {
+    return cleanId ? `/updates/${cleanId}` : item.resource_url || "/updates";
+  }
+
+  if (normType === "study_material") {
+    if (item.resource_url) return item.resource_url;
+    return item.subject_name ? `/materials?q=${encodeURIComponent(item.subject_name)}` : "/materials";
+  }
+
+  if (normType === "question_paper") {
+    return cleanId ? `/qp/${cleanId}` : "/qp";
+  }
+
+  return item.resource_url || (cleanId ? `/works/${cleanId}` : "/works");
+}
+
 export default function SingleUpdateView({ updateId }) {
   const [update, setUpdate] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -32,11 +121,116 @@ export default function SingleUpdateView({ updateId }) {
   const [errorMessage, setErrorMessage] = useState("");
   const [toastMessage, setToastMessage] = useState("");
 
+  // AI recommendations state
+  const [recommendations, setRecommendations] = useState(null);
+  const [loadingRecs, setLoadingRecs] = useState(false);
+  const [downloadingRecId, setDownloadingRecId] = useState(null);
+
   const showToast = (msg) => {
     setToastMessage(msg);
     setTimeout(() => {
       setToastMessage("");
     }, 3000);
+  };
+
+  // Automatically fetch recommendations when update loads, combining title and description
+  useEffect(() => {
+    if (!update) return;
+
+    const combinedQuery = [update.title, update.content].filter(Boolean).join(" ").trim();
+    if (!combinedQuery) return;
+
+    setLoadingRecs(true);
+    fetch("/api/ai-recommend", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: combinedQuery.slice(0, 300), limit: 5 }),
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Recommendation fetch failed");
+        const data = await res.json();
+        const currentId = String(updateId).replace(/^["']|["']$/g, "").trim();
+        const filtered = (data.results || []).filter((item) => {
+          const itemCleanId = item.resource_id
+            ? String(item.resource_id).replace(/^["']|["']$/g, "").trim()
+            : "";
+          return itemCleanId !== currentId;
+        });
+        setRecommendations(filtered.slice(0, 3));
+      })
+      .catch((err) => {
+        console.error("AI recommendations error:", err);
+        setRecommendations([]);
+      })
+      .finally(() => {
+        setLoadingRecs(false);
+      });
+  }, [update, updateId]);
+
+  // View study material in Google Docs viewer
+  const handleRecViewMaterial = (e, item) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const rawUrl = item.resource_url;
+    if (rawUrl) {
+      const googleViewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(rawUrl)}`;
+      window.open(googleViewUrl, "_blank", "noopener,noreferrer");
+    } else {
+      const href = getRecItemHref(item);
+      window.open(href, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  // Download study material file directly
+  const handleRecDownloadMaterial = async (e, item) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = item.resource_url;
+    if (!url) {
+      handleRecViewMaterial(e, item);
+      return;
+    }
+
+    const downloadKey = item.resource_id || url;
+    setDownloadingRecId(downloadKey);
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Download request failed");
+      const blob = await res.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      const cleanTitle = (item.title || "study-material").trim();
+      a.download = cleanTitle.toLowerCase().endsWith(".pdf") ? cleanTitle : `${cleanTitle}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
+    } catch (err) {
+      console.warn("Direct blob download failed, opening in new tab:", err);
+      window.open(url, "_blank", "noopener,noreferrer");
+    } finally {
+      setDownloadingRecId(null);
+    }
+  };
+
+  const handleRecCardClick = (e, item) => {
+    if (
+      e.target.closest("button.suv-ai-btn--download") ||
+      e.target.closest("button.suv-ai-btn--view")
+    ) {
+      return;
+    }
+
+    const normType = normalizeResourceType(item.resource_type, item.source_file);
+    if (normType === "study_material" && item.resource_url) {
+      const googleViewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(item.resource_url)}`;
+      window.open(googleViewUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    const href = getRecItemHref(item);
+    window.open(href, "_blank", "noopener,noreferrer");
   };
 
   useEffect(() => {
@@ -454,6 +648,127 @@ export default function SingleUpdateView({ updateId }) {
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {/* AI Recommended Section at the end of the update */}
+          {(loadingRecs || (recommendations && recommendations.length > 0)) && (
+            <div className="suv-ai-rec-section">
+              <div className="suv-ai-rec-header">
+                <div className="suv-ai-rec-badge-row">
+                  <span className="suv-ai-badge">
+                    <FiZap size={13} className="suv-ai-sparkle-icon" />
+                    <span>AI Suggestions</span>
+                  </span>
+                  <span className="suv-ai-count-tag">
+                    {recommendations ? `${recommendations.length} recommended` : "Finding reads..."}
+                  </span>
+                </div>
+                <h3 className="suv-ai-rec-heading">Recommended to Read Next</h3>
+                <p className="suv-ai-rec-sub">
+                  Curated resources, materials & related updates based on this topic
+                </p>
+              </div>
+
+              {loadingRecs ? (
+                <div className="suv-ai-skeleton-list">
+                  {[1, 2].map((k) => (
+                    <div key={k} className="suv-ai-skeleton-card">
+                      <div className="suv-ai-skel-line suv-ai-skel-pill" />
+                      <div className="suv-ai-skel-line suv-ai-skel-title" />
+                      <div className="suv-ai-skel-line suv-ai-skel-meta" />
+                    </div>
+                  ))}
+                </div>
+              ) : recommendations && recommendations.length > 0 ? (
+                <div className="suv-ai-cards-list">
+                  {recommendations.map((item, idx) => {
+                    const normType = normalizeResourceType(item.resource_type, item.source_file);
+                    const config = TYPE_CONFIG[normType] || TYPE_CONFIG.resource;
+                    const Icon = config.icon;
+                    const isStudyMaterial = normType === "study_material";
+                    const hasUrl = !!item.resource_url;
+
+                    return (
+                      <div
+                        key={item.resource_id || `rec-${idx}`}
+                        className="suv-ai-card"
+                        onClick={(e) => handleRecCardClick(e, item)}
+                        role="button"
+                        tabIndex={0}
+                        title="Click to open in new tab"
+                        onKeyDown={(e) => e.key === "Enter" && handleRecCardClick(e, item)}
+                      >
+                        <div className="suv-ai-card-main">
+                          <div className="suv-ai-card-meta-top">
+                            <span className={`suv-ai-type-pill ${config.badgeClass}`}>
+                              <Icon size={12} />
+                              <span>{config.label}</span>
+                            </span>
+                            {item.similarity && (
+                              <span className="suv-ai-similarity-badge">
+                                {Math.round(item.similarity * 100)}% match
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="suv-ai-card-title">{item.title}</div>
+
+                          {(item.subject_name || item.course_name || item.semester_number) && (
+                            <div className="suv-ai-card-details">
+                              {item.subject_name && (
+                                <span className="suv-ai-card-subject">{item.subject_name}</span>
+                              )}
+                              {item.semester_number && (
+                                <span className="suv-ai-card-sem">Sem {item.semester_number}</span>
+                              )}
+                              {item.course_name && (
+                                <span className="suv-ai-card-course">{item.course_name}</span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="suv-ai-card-actions">
+                          {isStudyMaterial && hasUrl ? (
+                            <div className="suv-ai-actions-group">
+                              <button
+                                type="button"
+                                className="suv-ai-btn suv-ai-btn--view"
+                                onClick={(e) => handleRecViewMaterial(e, item)}
+                                title="View in Google Docs viewer"
+                              >
+                                <FiEye size={12} />
+                                <span>View</span>
+                              </button>
+                              <button
+                                type="button"
+                                className="suv-ai-btn suv-ai-btn--download"
+                                onClick={(e) => handleRecDownloadMaterial(e, item)}
+                                disabled={
+                                  downloadingRecId === (item.resource_id || item.resource_url)
+                                }
+                                title="Download file directly"
+                              >
+                                <FiDownload size={12} />
+                                <span>
+                                  {downloadingRecId === (item.resource_id || item.resource_url)
+                                    ? "..."
+                                    : "Download"}
+                                </span>
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="suv-ai-card-arrow" title="Open in new tab">
+                              <FiChevronRight size={18} />
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
             </div>
           )}
         </div>
