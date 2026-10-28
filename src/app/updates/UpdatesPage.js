@@ -3,13 +3,14 @@ import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
 import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiChevronDown, FiChevronUp, FiEye, FiDownload, FiSearch, FiPlus, FiList, FiX, FiCheckCircle, FiAlertCircle, FiInfo, FiFolder, FiBookOpen, FiFileText } from 'react-icons/fi';
-import { Share2, Bell, Sparkles } from 'lucide-react';
+import { Share2, Bell, Sparkles, MoreVertical, Bookmark } from 'lucide-react';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
 import { getYouTubeVideoId, groupConsecutiveLinks } from '../utils/youtube';
 import LinkPreview from '../components/LinkPreview';
 import YouTubeEmbed from '../components/YouTubeEmbed';
 import FileIcon from '../components/FileIcon';
 import ExpandableDescription from '../components/ExpandableDescription';
+import { toggleLearnLaterClient } from '@/lib/clientLearnLater';
 import './styles/Updates.css';
 
 function useIsLargeScreen() {
@@ -131,6 +132,41 @@ function UpdateCard({
   const [recommendations, setRecommendations] = useState(null);
   const [loadingRecs, setLoadingRecs] = useState(false);
   const [downloadingRecId, setDownloadingRecId] = useState(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+    if (isMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isMenuOpen]);
+
+  const handleLearnLaterToggle = async (e) => {
+    e.stopPropagation();
+    setIsMenuOpen(false);
+    const res = await toggleLearnLaterClient({
+      type: "update",
+      targetId: u._id,
+      title: u.title || "Update",
+      subtitle: u.name || (u.usn ? `By ${u.usn}` : "Learnix Update"),
+      description: u.content || "",
+      url: `/updates/${u._id}`,
+      metadata: {
+        usn: u.usn,
+        userName: u.name,
+      },
+    });
+    if (res && res.success !== false) {
+      setIsSavedInLearnLater(res.isSaved);
+    }
+  };
 
   const fetchRecommendations = async () => {
     if (recommendations !== null || loadingRecs) return;
@@ -346,6 +382,44 @@ function UpdateCard({
               >
                 <Share2 size={15} />
               </button>
+              <div className="upd-more-menu-container" ref={menuRef}>
+                <button
+                  type="button"
+                  className={`upd-more-btn ${isMenuOpen ? 'is-active' : ''}`}
+                  title="More options"
+                  aria-label="More options"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsMenuOpen(!isMenuOpen);
+                  }}
+                >
+                  <MoreVertical size={16} />
+                </button>
+                {isMenuOpen && (
+                  <div className="upd-dropdown-menu">
+                    <button
+                      type="button"
+                      className="upd-dropdown-item"
+                      onClick={handleLearnLaterToggle}
+                    >
+                      <Bookmark size={14} className={isSavedInLearnLater ? "upd-item-saved" : ""} />
+                      <span>{isSavedInLearnLater ? "Saved in Learn Later" : "Add to Learn Later"}</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="upd-dropdown-item"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsMenuOpen(false);
+                        window.open(`/updates/${u._id}`, "_blank", "noopener,noreferrer");
+                      }}
+                    >
+                      <FiExternalLink size={14} />
+                      <span>Open in new tab</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { FiChevronRight, FiChevronDown, FiFolder, FiFileText } from "react-icons/fi";
+import { FiChevronRight, FiChevronDown, FiFolder, FiFileText, FiBookmark } from "react-icons/fi";
+import { toggleLearnLaterClient } from "@/lib/clientLearnLater";
 
 export default function DirectoryNode({ 
     level = 0, 
@@ -141,7 +142,7 @@ export default function DirectoryNode({
                                 {groupedBatches[batchId].exams.map((exam, idx) => {
                                     const url = `/qp/compiled?collegeId=${parentParams.collegeId}&courseId=${parentParams.courseId}&semesterId=${data._id}&batchId=${exam.batchId || ''}&examTypeId=${exam.examTypeId}`;
                                     return (
-                                        <div key={idx} style={{ marginTop: "6px", marginBottom: "6px" }}>
+                                        <div key={idx} style={{ marginTop: "6px", marginBottom: "6px", display: "inline-flex", alignItems: "center", gap: "8px" }}>
                                             <a 
                                                 href={url} target="_blank" rel="noopener noreferrer" 
                                                 style={{ 
@@ -155,6 +156,36 @@ export default function DirectoryNode({
                                             >
                                                 <FiFileText /> View {exam.name}
                                             </a>
+                                            <button
+                                                type="button"
+                                                title="Add to Learn Later"
+                                                aria-label={`Save ${exam.name} to Learn Later`}
+                                                onClick={async (e) => {
+                                                    e.stopPropagation();
+                                                    await toggleLearnLaterClient({
+                                                        type: "question-paper",
+                                                        targetId: `${exam.batchId || 'batch'}-${exam.examTypeId}`,
+                                                        title: `${exam.name} - Batch ${groupedBatches[batchId]?.name || ''}`,
+                                                        subtitle: `Semester ${data.semesterNumber || ''}`,
+                                                        description: `Compiled Question Papers for ${exam.name}`,
+                                                        url,
+                                                        metadata: {
+                                                            batchId: exam.batchId,
+                                                            examTypeId: exam.examTypeId,
+                                                        }
+                                                    });
+                                                }}
+                                                style={{
+                                                    display: "inline-flex", alignItems: "center", justifyContent: "center",
+                                                    width: "32px", height: "32px", borderRadius: "6px",
+                                                    border: "1px solid #e2e8f0", background: "#fff", color: "#64748b",
+                                                    cursor: "pointer", transition: "0.2s"
+                                                }}
+                                                onMouseOver={(e) => { e.currentTarget.style.borderColor = "#0b74ff"; e.currentTarget.style.color = "#0b74ff"; }}
+                                                onMouseOut={(e) => { e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.color = "#64748b"; }}
+                                            >
+                                                <FiBookmark size={14} />
+                                            </button>
                                         </div>
                                     );
                                 })}

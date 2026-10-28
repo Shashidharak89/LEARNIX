@@ -23,6 +23,7 @@ import { FaChevronDown } from "react-icons/fa6";
 import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
 import TopicReviews from "./TopicReviews";
 import Ads from "../../components/ads/Ads";
+import { toggleLearnLaterClient } from "@/lib/clientLearnLater";
 import ImageLoader from "../../components/ImageLoader";
 import { authFetch } from "@/lib/clientAuth";
 import "./styles/WorkTopicPage.css";
@@ -425,6 +426,28 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
           >
             {isSaved ? <FaBookmark /> : <FaRegBookmark />}
             <span className="wtpc-btn-text">{isSaved ? 'Saved' : 'Save'}</span>
+          </button>
+          <button 
+            onClick={async () => {
+              await toggleLearnLaterClient({
+                type: 'resource',
+                targetId: topicId,
+                title: topic.topic,
+                subtitle: subject?.subject,
+                description: topic.content,
+                url: `/works/${topicId}`,
+                metadata: {
+                  userName: user?.name,
+                  usn: user?.usn,
+                  subjectName: subject?.subject,
+                }
+              });
+            }}
+            className="wtpc-action-btn wtpc-learn-later-btn"
+            title="Save to Learn Later (DynamoDB)"
+          >
+            <FaBookmark />
+            <span className="wtpc-btn-text">Learn Later</span>
           </button>
         </div>
 

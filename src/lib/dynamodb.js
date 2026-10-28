@@ -28,4 +28,5 @@ export const TESTCASES_TABLE = process.env.DYNAMODB_TESTCASES_TABLE || "LearnixC
 export const SUBMISSIONS_TABLE = process.env.DYNAMODB_SUBMISSIONS_TABLE || "LearnixCodingSubmissions";
 export const LANGUAGES_TABLE = process.env.DYNAMODB_LANGUAGES_TABLE || "LearnixCodingLanguages";
 export const TOPICS_TABLE = process.env.DYNAMODB_TOPICS_TABLE || "LearnixCodingTopics";
+export const LEARN_LATER_TABLE = process.env.DYNAMODB_LEARN_LATER_TABLE || "LearnixLearnLater";
 

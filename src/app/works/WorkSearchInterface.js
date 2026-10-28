@@ -3,13 +3,14 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiBook, FiShare2, FiMoreVertical, FiExternalLink, FiFilter, FiCheck, FiZap, FiX, FiUpload, FiFolder, FiPlus, FiChevronRight } from 'react-icons/fi';
+import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiBook, FiShare2, FiMoreVertical, FiExternalLink, FiFilter, FiCheck, FiZap, FiX, FiUpload, FiFolder, FiPlus, FiChevronRight, FiBookmark } from 'react-icons/fi';
 import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
 import SubjectTopicFilter from './SubjectTopicFilter';
 import Ads from '../components/ads/Ads';
 import ImageLoader from '../components/ImageLoader';
 import './styles/WorkSearchInterface.css';
 import { authFetch } from '@/lib/clientAuth';
+import { toggleLearnLaterClient } from '@/lib/clientLearnLater';
 
 // LocalStorage key for saved topics (same as in /works/[id])
 const SAVED_TOPICS_KEY = 'learnix_saved_topics';
@@ -657,6 +658,23 @@ const WorkSearchInterface = () => {
       handleSaveToggle(topic);
     };
 
+    const handleLearnLaterClick = async () => {
+      setOpenMenuId(null);
+      await toggleLearnLaterClient({
+        type: 'resource',
+        targetId: topic.topicId || topic._id,
+        title: topic.topic,
+        subtitle: topic.subjectName,
+        description: topic.content,
+        url: `/works/${topic.topicId || topic._id}`,
+        metadata: {
+          userName: topic.userName,
+          usn: topic.usn,
+          subjectName: topic.subjectName,
+        },
+      });
+    };
+
     return (
       <div key={`${topicKey}-${index}`} className={`ws-topic-card ${isSaved ? 'ws-saved-card' : ''}`} data-topic-index={index}>
         <div className="ws-card-header">
@@ -704,6 +722,10 @@ const WorkSearchInterface = () => {
                   <button className="ws-menu-item" onClick={handleOpenClick}>
                     <FiExternalLink className="ws-menu-icon" />
                     <span>Open</span>
+                  </button>
+                  <button className="ws-menu-item" onClick={handleLearnLaterClick}>
+                    <FiBookmark className="ws-menu-icon" />
+                    <span>Learn Later</span>
                   </button>
                   <button className="ws-menu-item" onClick={handleShareClick}>
                     <FiShare2 className="ws-menu-icon" />

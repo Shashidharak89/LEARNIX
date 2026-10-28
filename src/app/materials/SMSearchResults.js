@@ -15,8 +15,10 @@ import {
     Users,
     Award,
     BookMarked,
+    Bookmark,
     Eye
 } from "lucide-react";
+import { toggleLearnLaterClient } from "@/lib/clientLearnLater";
 
 const highlightText = (text, keyword) => {
     if (!keyword || !text) return <span>{text}</span>;
@@ -195,6 +197,29 @@ function SMSearchDirectoryNode({
                     </div>
                 </a>
                 <div className="sm-file-actions">
+                    <button
+                        type="button"
+                        className="sm-action-btn sm-bookmark-btn"
+                        title="Add to Learn Later"
+                        aria-label={`Save ${fileName} to Learn Later`}
+                        onClick={async (e) => {
+                            e.stopPropagation();
+                            await toggleLearnLaterClient({
+                                type: "study-material",
+                                targetId: data._id,
+                                title: fileName,
+                                subtitle: parentParams?.subjectName || "Study Material",
+                                description: `Format: ${data.format || "PDF"} | Type: ${data.type || "material"}`,
+                                url: viewUrl || data.fileurl,
+                                metadata: {
+                                    fileurl: data.fileurl,
+                                    format: data.format,
+                                }
+                            });
+                        }}
+                    >
+                        <Bookmark size={14} />
+                    </button>
                     <button
                         type="button"
                         className="sm-action-btn sm-share-btn"

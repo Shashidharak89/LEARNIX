@@ -10,9 +10,11 @@ import {
   FaImage,
   FaListOl,
   FaExternalLinkAlt,
-  FaClipboardList
+  FaClipboardList,
+  FaBookmark,
 } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
+import { toggleLearnLaterClient } from "@/lib/clientLearnLater";
 import "./styles/QuestionPaperDetail.css";
 
 // Skeleton Components
@@ -372,6 +374,28 @@ const QuestionPaperDetail = ({ id, paperInfo }) => {
           >
             <FaShare />
             <span className="qpd-btn-text">Share</span>
+          </button>
+          <button 
+            onClick={async () => {
+              await toggleLearnLaterClient({
+                type: "question-paper",
+                targetId: id || String(paperInfo?._id || ""),
+                title: `${examType || "Question Paper"} - Semester ${semester || ""}`.trim(),
+                subtitle: batch ? `Batch ${batch}` : 'Question Paper',
+                description: `${examType || ""} ${semester ? `Sem ${semester}` : ""} ${batch ? `(${batch})` : ""}`.trim(),
+                url: `/qp/${id || paperInfo?._id}`,
+                metadata: {
+                  examType,
+                  semester,
+                  batch,
+                }
+              });
+            }}
+            className="qpd-action-btn qpd-learn-later-btn"
+            title="Save to Learn Later"
+          >
+            <FaBookmark />
+            <span className="qpd-btn-text">Learn Later</span>
           </button>
         </div>
 

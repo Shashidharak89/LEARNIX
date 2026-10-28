@@ -676,6 +676,84 @@
   outline-offset: 2px;
 }
 
+/* 3-dot menu in Updates Card */
+.upd-more-menu-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.upd-more-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.upd-more-btn:hover,
+.upd-more-btn.is-active {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.upd-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 100;
+  min-width: 190px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: updFadeIn 0.15s ease-out;
+}
+
+@keyframes updFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.upd-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #334155;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.upd-dropdown-item:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.upd-dropdown-item svg.upd-item-saved {
+  color: #007aff;
+  fill: #007aff;
+}
+
 /* Card Content */
 .upd-content {
   color: var(--upd-text-secondary);

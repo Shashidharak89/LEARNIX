@@ -3,9 +3,10 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { FaArrowLeft, FaImage, FaDownload, FaShare } from "react-icons/fa";
+import { FaArrowLeft, FaImage, FaDownload, FaShare, FaBookmark } from "react-icons/fa";
 import { Navbar } from "../../components/Navbar";
 import ImageLoader from "../../components/ImageLoader";
+import { toggleLearnLaterClient } from "@/lib/clientLearnLater";
 import "../../works/[id]/styles/WorkTopicPage.css"; 
 
 export default function QPCompiledClient() {
@@ -22,7 +23,7 @@ export default function QPCompiledClient() {
         const fetchCompiledData = async () => {
             try {
                 // Reconstruct query parameters
-                const params = new URLSearchParams(searchParams);
+                const params = new window.URLSearchParams(searchParams);
                 params.set("limit", "100"); // Fetch maximum possible images for the grouping
                 
                 const res = await fetch(`/api/qp/v1/images?${params.toString()}`);
@@ -180,6 +181,27 @@ export default function QPCompiledClient() {
                         >
                             <FaShare />
                             <span className="wtpc-btn-text">Share</span>
+                        </button>
+                        
+                        <button 
+                            className="wtpc-action-btn wtpc-bookmark-btn" 
+                            title="Add to Learn Later"
+                            onClick={async () => {
+                                await toggleLearnLaterClient({
+                                    type: "question-paper",
+                                    targetId: searchParams.toString() || "compiled-qp",
+                                    title,
+                                    subtitle: "Compiled Question Papers",
+                                    description: `Compiled question paper containing ${images.length} pages`,
+                                    url: `/qp/compiled?${searchParams.toString()}`,
+                                    metadata: {
+                                        pageCount: images.length,
+                                    }
+                                });
+                            }}
+                        >
+                            <FaBookmark />
+                            <span className="wtpc-btn-text">Learn Later</span>
                         </button>
                     </div>
 

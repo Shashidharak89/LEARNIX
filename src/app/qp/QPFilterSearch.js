@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { FiChevronDown, FiFileText, FiExternalLink, FiX } from "react-icons/fi";
+import { FiChevronDown, FiFileText, FiExternalLink, FiX, FiBookmark } from "react-icons/fi";
+import { toggleLearnLaterClient } from "@/lib/clientLearnLater";
 
 // Custom Dropdown Component
 const CustomDropdown = ({ label, options, value, onChange, onLoadMore, hasMore, loading, placeholder }) => {
@@ -154,6 +155,25 @@ export default function QPFilterSearch() {
     const [resultsTotalPages, setResultsTotalPages] = useState(1);
     const [loadingResults, setLoadingResults] = useState(false);
 
+    const fetchDropdownData = async (type, endpoint, append = false) => {
+        try {
+            const res = await fetch(endpoint);
+            const json = await res.json();
+            if (json.success) {
+                setData(prev => ({
+                    ...prev,
+                    [type]: append ? [...prev[type], ...json.data] : json.data
+                }));
+                setPages(prev => ({
+                    ...prev,
+                    [type]: { current: json.pagination.page, total: json.pagination.totalPages }
+                }));
+            }
+        } catch (err) {
+            console.error(`Error fetching ${type}:`, err);
+        }
+    };
+
     // Initial Fetch for Top-Level Dropdowns
     useEffect(() => {
         fetchDropdownData("universities", `/api/qp/v1/universities?page=1&limit=20`);
@@ -197,25 +217,6 @@ export default function QPFilterSearch() {
     const handleSearch = () => {
         setResultsPage(1);
         fetchResults(1, true);
-    };
-
-    const fetchDropdownData = async (type, endpoint, append = false) => {
-        try {
-            const res = await fetch(endpoint);
-            const json = await res.json();
-            if (json.success) {
-                setData(prev => ({
-                    ...prev,
-                    [type]: append ? [...prev[type], ...json.data] : json.data
-                }));
-                setPages(prev => ({
-                    ...prev,
-                    [type]: { current: json.pagination.page, total: json.pagination.totalPages }
-                }));
-            }
-        } catch (err) {
-            console.error(`Error fetching ${type}:`, err);
-        }
     };
 
     const handleDropdownLoadMore = (type) => {
@@ -396,16 +397,47 @@ export default function QPFilterSearch() {
                                                         Contains compiled papers ({group.recordCount} records) for this subject.
                                                     </p>
                                                 </div>
-                                                <a 
-                                                    href={group.subject ? `/qp/${group.subject._id}` : "#"} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer"
-                                                    style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", textDecoration: "none", color: "#fff", background: "#0b74ff", padding: "12px 20px", borderRadius: "8px", fontSize: "15px", fontWeight: "600", transition: "all 0.2s" }}
-                                                    onMouseOver={(e) => { e.currentTarget.style.background = "#0958c2"; }}
-                                                    onMouseOut={(e) => { e.currentTarget.style.background = "#0b74ff"; }}
-                                                >
-                                                    <FiFileText size={18} /> View Compiled Papers
-                                                </a>
+                                                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                                                    <a 
+                                                        href={group.subject ? `/qp/${group.subject._id}` : "#"} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", textDecoration: "none", color: "#fff", background: "#0b74ff", padding: "12px 20px", borderRadius: "8px", fontSize: "15px", fontWeight: "600", transition: "all 0.2s" }}
+                                                        onMouseOver={(e) => { e.currentTarget.style.background = "#0958c2"; }}
+                                                        onMouseOut={(e) => { e.currentTarget.style.background = "#0b74ff"; }}
+                                                    >
+                                                        <FiFileText size={18} /> View Compiled Papers
+                                                    </a>
+                                                    <button
+                                                        type="button"
+                                                        title="Add to Learn Later"
+                                                        aria-label="Add to Learn Later"
+                                                        onClick={async (e) => {
+                                                            e.stopPropagation();
+                                                            await toggleLearnLaterClient({
+                                                                type: "question-paper",
+                                                                targetId: group.subject?._id || `subj-${i}`,
+                                                                title: `${group.subject?.name || 'Subject'} - Question Papers`,
+                                                                subtitle: "Question Papers",
+                                                                description: `Compiled question papers for ${group.subject?.name || 'Subject'}`,
+                                                                url: `/qp/${group.subject?._id || ''}`,
+                                                                metadata: {
+                                                                    subjectName: group.subject?.name,
+                                                                }
+                                                            });
+                                                        }}
+                                                        style={{
+                                                            display: "inline-flex", alignItems: "center", justifyContent: "center",
+                                                            width: "44px", height: "44px", borderRadius: "8px",
+                                                            border: "1px solid #e2e8f0", background: "#f8fafc", color: "#475569",
+                                                            cursor: "pointer", transition: "all 0.2s"
+                                                        }}
+                                                        onMouseOver={(e) => { e.currentTarget.style.borderColor = "#0b74ff"; e.currentTarget.style.color = "#0b74ff"; e.currentTarget.style.background = "#eff6ff"; }}
+                                                        onMouseOut={(e) => { e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.color = "#475569"; e.currentTarget.style.background = "#f8fafc"; }}
+                                                    >
+                                                        <FiBookmark size={18} />
+                                                    </button>
+                                                </div>
                                             </div>
                                         );
                                     } else {
@@ -413,7 +445,7 @@ export default function QPFilterSearch() {
                                         const examName = group.examtype ? group.examtype.name : "Exam";
                                         
                                         // Build query parameters for compiled view
-                                        const queryParams = new URLSearchParams();
+                                        const queryParams = new window.URLSearchParams();
                                         if (group.batch) queryParams.set("batchId", group.batch._id);
                                         if (group.examtype) queryParams.set("examTypeId", group.examtype._id);
                                         if (filters.college) queryParams.set("collegeId", filters.college);
@@ -433,16 +465,49 @@ export default function QPFilterSearch() {
                                                         Contains compiled papers ({group.recordCount} records) for all selected filters.
                                                     </p>
                                                 </div>
-                                                <a 
-                                                    href={`/qp/compiled?${queryParams.toString()}`} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer"
-                                                    style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", textDecoration: "none", color: "#fff", background: "#0b74ff", padding: "12px 20px", borderRadius: "8px", fontSize: "15px", fontWeight: "600", transition: "all 0.2s" }}
-                                                    onMouseOver={(e) => { e.currentTarget.style.background = "#0958c2"; }}
-                                                    onMouseOut={(e) => { e.currentTarget.style.background = "#0b74ff"; }}
-                                                >
-                                                    <FiFileText size={18} /> View Compiled Papers
-                                                </a>
+                                                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                                                    <a 
+                                                        href={`/qp/compiled?${queryParams.toString()}`} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", textDecoration: "none", color: "#fff", background: "#0b74ff", padding: "12px 20px", borderRadius: "8px", fontSize: "15px", fontWeight: "600", transition: "all 0.2s" }}
+                                                        onMouseOver={(e) => { e.currentTarget.style.background = "#0958c2"; }}
+                                                        onMouseOut={(e) => { e.currentTarget.style.background = "#0b74ff"; }}
+                                                    >
+                                                        <FiFileText size={18} /> View Compiled Papers
+                                                    </a>
+                                                    <button
+                                                        type="button"
+                                                        title="Add to Learn Later"
+                                                        aria-label="Add to Learn Later"
+                                                        onClick={async (e) => {
+                                                            e.stopPropagation();
+                                                            await toggleLearnLaterClient({
+                                                                type: "question-paper",
+                                                                targetId: group.batch?._id ? `${group.batch._id}-${group.examtype?._id || 'exam'}` : `qp-${i}`,
+                                                                title: `${examName} - Batch ${batchName}`,
+                                                                subtitle: "Question Papers",
+                                                                description: `Contains compiled papers (${group.recordCount} records)`,
+                                                                url: `/qp/compiled?${queryParams.toString()}`,
+                                                                metadata: {
+                                                                    batchName,
+                                                                    examName,
+                                                                    recordCount: group.recordCount,
+                                                                }
+                                                            });
+                                                        }}
+                                                        style={{
+                                                            display: "inline-flex", alignItems: "center", justifyContent: "center",
+                                                            width: "44px", height: "44px", borderRadius: "8px",
+                                                            border: "1px solid #e2e8f0", background: "#f8fafc", color: "#475569",
+                                                            cursor: "pointer", transition: "all 0.2s"
+                                                        }}
+                                                        onMouseOver={(e) => { e.currentTarget.style.borderColor = "#0b74ff"; e.currentTarget.style.color = "#0b74ff"; e.currentTarget.style.background = "#eff6ff"; }}
+                                                        onMouseOut={(e) => { e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.color = "#475569"; e.currentTarget.style.background = "#f8fafc"; }}
+                                                    >
+                                                        <FiBookmark size={18} />
+                                                    </button>
+                                                </div>
                                             </div>
                                         );
                                     }

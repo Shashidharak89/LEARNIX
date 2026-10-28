@@ -18,6 +18,7 @@ import {
   FiBell,
   FiClipboard,
   FiShield,
+  FiBookmark,
 } from "react-icons/fi";
 import "./styles/Navbar.css";
 import { Fill } from "./Fill";
@@ -358,6 +359,18 @@ const NavbarContent = ({ searchParams }) => {
               <FiClipboard size={18} />
             </span>
             <span className="learnix-nav-text">Question Papers</span>
+          </Link>
+
+          <Link
+            href="/learn-later"
+            className="learnix-nav-item"
+            onClick={closeSidebar}
+            tabIndex={isOpen ? 0 : -1}
+          >
+            <span className="learnix-nav-icon">
+              <FiBookmark size={18} />
+            </span>
+            <span className="learnix-nav-text">Learn Later</span>
           </Link>
 
           <Link
