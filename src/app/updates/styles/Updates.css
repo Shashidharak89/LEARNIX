@@ -540,9 +540,8 @@
   margin-left: auto;
 }
 
-/* AI Rectangular Star Button — Light Purple with Hover Animation & Tooltip */
+/* AI Rectangular Star Button — Light Purple with Glow on Hover */
 .upd-ai-btn {
-  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -561,95 +560,30 @@
 
 .upd-ai-btn-icon {
   color: #a855f7;
-  transition: transform 220ms ease, color 220ms ease, filter 220ms ease;
+  transition: color 220ms ease, filter 220ms ease;
 }
 
-/* Hover effect with sparkling animation */
+/* Hover effect — subtle light purple glow */
 @media (hover: hover) and (pointer: fine) {
   .upd-ai-btn:hover {
-    background: rgba(168, 85, 247, 0.18);
-    border-color: rgba(168, 85, 247, 0.55);
-    box-shadow: 0 4px 14px rgba(168, 85, 247, 0.28);
-    transform: translateY(-1px);
+    background: rgba(168, 85, 247, 0.12);
+    border-color: rgba(168, 85, 247, 0.45);
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.2);
   }
 
   .upd-ai-btn:hover .upd-ai-btn-icon {
     color: #9333ea;
-    animation: updStarSparkle 0.75s ease-in-out infinite alternate;
-  }
-
-  .upd-ai-btn:hover .upd-ai-tooltip {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(50%) translateY(0);
+    filter: drop-shadow(0 0 3px rgba(168, 85, 247, 0.45));
   }
 }
 
 .upd-ai-btn:active {
-  transform: scale(0.92);
+  transform: scale(0.95);
 }
 
 .upd-ai-btn:focus-visible {
   outline: 2px solid #a855f7;
   outline-offset: 2px;
-}
-
-/* Animated star sparkle keyframes */
-@keyframes updStarSparkle {
-  0% {
-    transform: rotate(0deg) scale(1);
-    filter: drop-shadow(0 0 2px rgba(192, 132, 252, 0.5));
-  }
-  25% {
-    transform: rotate(-18deg) scale(1.22);
-    filter: drop-shadow(0 0 6px rgba(192, 132, 252, 0.8));
-  }
-  50% {
-    transform: rotate(18deg) scale(1.28);
-    filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.95));
-  }
-  75% {
-    transform: rotate(-10deg) scale(1.2);
-    filter: drop-shadow(0 0 6px rgba(192, 132, 252, 0.8));
-  }
-  100% {
-    transform: rotate(0deg) scale(1.15);
-    filter: drop-shadow(0 0 4px rgba(192, 132, 252, 0.5));
-  }
-}
-
-/* Floating tooltip description on hover */
-.upd-ai-tooltip {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  right: 50%;
-  transform: translateX(50%) translateY(4px);
-  background: #1e1b4b;
-  color: #f3e8ff;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 5px 10px;
-  border-radius: 6px;
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
-  z-index: 100;
-  line-height: 1.2;
-}
-
-.upd-ai-tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border-width: 4px;
-  border-style: solid;
-  border-color: #1e1b4b transparent transparent transparent;
 }
 
 /* Share button */

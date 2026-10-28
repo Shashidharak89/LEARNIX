@@ -117,12 +117,11 @@ function UpdateCard({
               <Link
                 href={`/updates/${u._id}`}
                 className="upd-ai-btn"
-                title="Suggest relevant resources"
-                aria-label="Suggest relevant resources"
+                title="AI suggestions"
+                aria-label="AI suggestions"
                 onClick={(e) => e.stopPropagation()}
               >
                 <Sparkles size={16} className="upd-ai-btn-icon" />
-                <span className="upd-ai-tooltip">Suggest relevant resources</span>
               </Link>
               <button
                 type="button"
