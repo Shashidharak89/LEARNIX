@@ -21,11 +21,11 @@ import { authFetch } from "@/lib/clientAuth";
 import "./styles/LearnLater.css";
 
 const CATEGORIES = [
-  { id: "all", label: "All Items", icon: FiLayers, color: "#007aff", bg: "#eff6ff" },
-  { id: "resource", label: "Resources", icon: FiFolder, color: "#0284c7", bg: "#e0f2fe" },
-  { id: "update", label: "Updates", icon: FiBell, color: "#8b5cf6", bg: "#f3e8ff" },
-  { id: "study-material", label: "Study Materials", icon: FiBookOpen, color: "#10b981", bg: "#ecfdf5" },
-  { id: "question-paper", label: "Question Papers", icon: FiClipboard, color: "#f59e0b", bg: "#fffbeb" },
+  { id: "all", label: "All Items", icon: FiLayers, color: "#007aff", bg: "#eff6ff", border: "#bfdbfe" },
+  { id: "resource", label: "Resources", icon: FiFolder, color: "#0284c7", bg: "#e0f2fe", border: "#bae6fd" },
+  { id: "update", label: "Updates", icon: FiBell, color: "#b45309", bg: "#fef3c7", border: "#fde68a" },
+  { id: "study-material", label: "Study Materials", icon: FiBookOpen, color: "#1d4ed8", bg: "#eff6ff", border: "#bfdbfe" },
+  { id: "question-paper", label: "Question Papers", icon: FiClipboard, color: "#d97706", bg: "#fffbeb", border: "#fde68a" },
 ];
 
 export default function LearnLaterClient() {
@@ -209,7 +209,7 @@ export default function LearnLaterClient() {
             tabIndex={0}
           >
             <div className="ll-widget-top">
-              <span className="ll-widget-icon-pill" style={{ background: "#007aff", color: "#ffffff" }}>
+              <span className="ll-widget-icon-pill ll-widget-icon-pill--primary">
                 <FiLayers size={18} />
               </span>
               <span className="ll-widget-pill-badge">DynamoDB Synced</span>
@@ -251,7 +251,7 @@ export default function LearnLaterClient() {
             tabIndex={0}
           >
             <div className="ll-widget-top">
-              <span className="ll-widget-icon-pill" style={{ background: "#f3e8ff", color: "#8b5cf6" }}>
+              <span className="ll-widget-icon-pill" style={{ background: "#fef3c7", color: "#d97706" }}>
                 <FiBell size={18} />
               </span>
               <span className="ll-widget-counter">{counts.update}</span>
@@ -270,7 +270,7 @@ export default function LearnLaterClient() {
             tabIndex={0}
           >
             <div className="ll-widget-top">
-              <span className="ll-widget-icon-pill" style={{ background: "#ecfdf5", color: "#10b981" }}>
+              <span className="ll-widget-icon-pill" style={{ background: "#eff6ff", color: "#1d4ed8" }}>
                 <FiBookOpen size={18} />
               </span>
               <span className="ll-widget-counter">{counts["study-material"]}</span>
@@ -426,7 +426,11 @@ export default function LearnLaterClient() {
                   <div className="ll-card-header">
                     <span
                       className="ll-type-badge"
-                      style={{ background: meta.bg, color: meta.color }}
+                      style={{
+                        background: meta.bg,
+                        color: meta.color,
+                        border: `1px solid ${meta.border || "transparent"}`,
+                      }}
                     >
                       <Icon size={13} className="ll-badge-type-icon" />
                       <span>{meta.label}</span>

@@ -1,14 +1,21 @@
-/* LearnLater.css - iPhone Widget Style Aesthetics */
+/* LearnLater.css - Apple Light Theme with Blue, Yellow, White & Black Palette */
+
+.learn-later-root-layout {
+  min-height: 100vh;
+  background-color: #fbfbfd;
+}
 
 .ll-container {
   max-width: 1240px;
   margin: 0 auto;
   padding: 28px 20px 80px;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: #0f172a;
+  color: #000000;
+  background-color: transparent;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Toast */
+/* Toast Notification */
 .ll-toast {
   position: fixed;
   bottom: 28px;
@@ -17,18 +24,20 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 20px;
-  background: #0f172a;
-  color: #ffffff;
+  padding: 12px 22px;
+  background: #ffffff;
+  color: #000000;
+  border: 1.5px solid #007aff;
   border-radius: 9999px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 30px -4px rgba(0, 122, 255, 0.2), 0 4px 10px rgba(0, 0, 0, 0.05);
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   animation: llSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ll-toast-icon {
-  color: #10b981;
+  color: #007aff;
+  font-size: 1.1rem;
 }
 
 @keyframes llSlideUp {
@@ -42,7 +51,7 @@
   }
 }
 
-/* Header */
+/* Header Section */
 .ll-header {
   margin-bottom: 28px;
 }
@@ -55,39 +64,41 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
-  background: #f1f5f9;
-  color: #475569;
+  padding: 6px 14px;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
   border-radius: 9999px;
   font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   margin-bottom: 12px;
 }
 
 .ll-badge-icon {
-  color: #007aff;
+  color: #d97706;
 }
 
 .ll-title {
-  font-size: 2.25rem;
+  font-size: 2.4rem;
   font-weight: 800;
-  letter-spacing: -0.03em;
-  color: #0f172a;
+  letter-spacing: -0.035em;
+  color: #000000;
   margin: 0 0 8px;
-  line-height: 1.15;
+  line-height: 1.12;
 }
 
 .ll-subtitle {
-  font-size: 1rem;
-  line-height: 1.5;
-  color: #64748b;
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: #475569;
   max-width: 680px;
   margin: 0;
+  font-weight: 400;
 }
 
-/* iOS Widget Grid */
+/* Apple iOS Widget Grid */
 .ll-widgets-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -98,13 +109,13 @@
 .ll-widget {
   background: #ffffff;
   border-radius: 24px;
-  padding: 20px;
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+  padding: 20px 22px;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 4px 18px -2px rgba(15, 23, 42, 0.04), 0 1px 4px rgba(15, 23, 42, 0.02);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 140px;
+  min-height: 146px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
@@ -113,28 +124,47 @@
 
 .ll-widget:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.08);
-  border-color: #cbd5e1;
+  border-color: #007aff;
+  box-shadow: 0 12px 30px -4px rgba(0, 122, 255, 0.12), 0 4px 10px rgba(0, 0, 0, 0.03);
 }
 
 .ll-widget.is-selected {
   border-color: #007aff;
-  box-shadow: 0 0 0 2px #007aff, 0 12px 28px -4px rgba(0, 122, 255, 0.15);
+  box-shadow: 0 0 0 2.5px #007aff, 0 12px 30px -4px rgba(0, 122, 255, 0.16);
+  background: #ffffff;
 }
 
+/* Primary Total Widget - Apple Light Featured Card */
 .ll-widget--primary {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  color: #ffffff;
-  border: none;
+  background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
+  border: 1.5px solid #bfdbfe;
+  box-shadow: 0 6px 22px -2px rgba(0, 122, 255, 0.08), 0 2px 6px rgba(15, 23, 42, 0.03);
+}
+
+.ll-widget--primary:hover {
+  border-color: #007aff;
+  box-shadow: 0 14px 32px -4px rgba(0, 122, 255, 0.18);
+}
+
+.ll-widget--primary .ll-widget-value {
+  color: #000000;
+  font-weight: 900;
 }
 
 .ll-widget--primary .ll-widget-label {
-  color: #94a3b8;
+  color: #0f172a;
+  font-weight: 700;
 }
 
 .ll-widget--primary .ll-widget-footer {
-  color: #38bdf8;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #007aff;
+  font-weight: 700;
+  border-top: 1px solid #dbeafe;
+}
+
+.ll-widget-icon-pill--primary {
+  background: #007aff !important;
+  color: #ffffff !important;
 }
 
 .ll-widget-top {
@@ -145,30 +175,34 @@
 }
 
 .ll-widget-icon-pill {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .ll-widget-pill-badge {
   font-size: 0.7rem;
-  font-weight: 600;
-  padding: 3px 8px;
+  font-weight: 700;
+  padding: 4px 10px;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.15);
-  color: #93c5fd;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  letter-spacing: 0.02em;
 }
 
 .ll-widget-counter {
-  font-size: 1.5rem;
+  font-size: 1.65rem;
   font-weight: 800;
-  color: #0f172a;
-  letter-spacing: -0.02em;
+  color: #000000;
+  letter-spacing: -0.025em;
+  line-height: 1;
 }
 
 .ll-widget-body {
@@ -177,24 +211,26 @@
 }
 
 .ll-widget-value {
-  font-size: 2.25rem;
+  font-size: 2.35rem;
   font-weight: 900;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
   line-height: 1;
-  color: #ffffff;
+  color: #000000;
   margin-bottom: 4px;
 }
 
 .ll-widget-label {
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 600;
+  color: #475569;
 }
 
 .ll-widget-name {
   font-size: 1.05rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: 800;
+  color: #000000;
   margin-bottom: 2px;
+  letter-spacing: -0.015em;
 }
 
 .ll-widget-sub {
@@ -209,8 +245,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #007aff;
+  border-top: 1px solid #f1f5f9;
 }
 
 .ll-widget-arrow {
@@ -218,17 +256,18 @@
 }
 
 .ll-widget:hover .ll-widget-arrow {
-  transform: translateX(3px);
+  transform: translateX(4px);
 }
 
-/* Controls */
+/* Controls Section */
 .ll-controls {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
+/* Apple iOS-Style Searchbar */
 .ll-search-wrapper {
   position: relative;
   width: 100%;
@@ -236,31 +275,38 @@
 
 .ll-search-icon {
   position: absolute;
-  left: 18px;
+  left: 20px;
   top: 50%;
   transform: translateY(-50%);
-  color: #94a3b8;
+  color: #64748b;
   pointer-events: none;
-  font-size: 18px;
+  font-size: 19px;
 }
 
 .ll-search-input {
   width: 100%;
   height: 52px;
-  padding: 0 48px 0 50px;
-  background: #f8fafc;
+  padding: 0 48px 0 52px;
+  background: #ffffff;
   border: 1.5px solid #e2e8f0;
   border-radius: 9999px;
   font-size: 0.95rem;
-  color: #0f172a;
+  color: #000000;
+  font-weight: 500;
   outline: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
   transition: all 0.2s ease;
+}
+
+.ll-search-input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
 }
 
 .ll-search-input:focus {
   background: #ffffff;
   border-color: #007aff;
-  box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.12);
+  box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.12), 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
 .ll-search-clear {
@@ -268,12 +314,12 @@
   right: 16px;
   top: 50%;
   transform: translateY(-50%);
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: #e2e8f0;
-  color: #64748b;
-  border: none;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -282,18 +328,19 @@
 }
 
 .ll-search-clear:hover {
-  background: #cbd5e1;
-  color: #0f172a;
+  background: #e2e8f0;
+  color: #000000;
 }
 
-/* Segmented Control Bar */
+/* Apple Segmented Control Bar */
 .ll-segmented-bar {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 6px;
   background: #f1f5f9;
-  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -306,11 +353,11 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
-  border-radius: 12px;
-  border: none;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  border: 1px solid transparent;
   background: transparent;
-  color: #64748b;
+  color: #475569;
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
@@ -319,34 +366,37 @@
 }
 
 .ll-segment-btn:hover {
-  color: #0f172a;
+  color: #000000;
 }
 
 .ll-segment-btn.is-active {
   background: #ffffff;
   color: #007aff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  font-weight: 700;
+  border-color: #bfdbfe;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .ll-segment-count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
   border-radius: 9999px;
-  background: rgba(0, 0, 0, 0.06);
+  background: #e2e8f0;
+  color: #0f172a;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .ll-segment-btn.is-active .ll-segment-count {
-  background: #eff6ff;
-  color: #007aff;
+  background: #007aff;
+  color: #ffffff;
 }
 
-/* Cards Grid */
+/* Apple Cards Grid */
 .ll-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -355,10 +405,10 @@
 
 .ll-card {
   background: #ffffff;
-  border-radius: 22px;
-  padding: 20px;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.03), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+  border-radius: 24px;
+  padding: 22px;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 4px 18px -2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.02);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -367,32 +417,33 @@
 }
 
 .ll-card:hover {
-  transform: translateY(-2px);
-  border-color: #cbd5e1;
-  box-shadow: 0 10px 24px -3px rgba(15, 23, 42, 0.06);
+  transform: translateY(-3px);
+  border-color: #bfdbfe;
+  box-shadow: 0 14px 32px -4px rgba(0, 122, 255, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .ll-card.is-removing {
-  opacity: 0.4;
+  opacity: 0.3;
   pointer-events: none;
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 .ll-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .ll-type-badge {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
+  gap: 6px;
+  padding: 5px 12px;
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 700;
+  letter-spacing: 0.015em;
 }
 
 .ll-badge-type-icon {
@@ -402,23 +453,24 @@
 .ll-card-date {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   font-size: 0.75rem;
-  color: #94a3b8;
-  font-weight: 500;
+  color: #64748b;
+  font-weight: 600;
 }
 
 .ll-card-body {
   flex: 1;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .ll-card-title {
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-size: 1.12rem;
+  font-weight: 800;
   line-height: 1.35;
-  color: #0f172a;
+  color: #000000;
   margin: 0 0 6px;
+  letter-spacing: -0.015em;
 }
 
 .ll-card-link {
@@ -432,19 +484,19 @@
 }
 
 .ll-card-subtitle {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: #0284c7;
-  margin-bottom: 8px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #007aff;
+  margin-bottom: 10px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .ll-card-description {
-  font-size: 0.85rem;
-  line-height: 1.45;
-  color: #64748b;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: #475569;
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -461,33 +513,35 @@
   gap: 10px;
 }
 
+/* High-Contrast Apple Blue Button */
 .ll-action-view {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
-  background: #f1f5f9;
-  color: #0f172a;
-  border-radius: 12px;
+  padding: 9px 18px;
+  background: #007aff;
+  color: #ffffff;
+  border-radius: 9999px;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.22);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ll-action-view:hover {
-  background: #007aff;
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
+  background: #0062cc;
+  box-shadow: 0 6px 16px rgba(0, 122, 255, 0.35);
+  transform: translateY(-1px);
 }
 
 .ll-action-delete {
   width: 36px;
   height: 36px;
-  border-radius: 12px;
-  border: 1px solid transparent;
+  border-radius: 50%;
+  border: 1px solid #fecaca;
   background: #fef2f2;
-  color: #ef4444;
+  color: #dc2626;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -496,12 +550,14 @@
 }
 
 .ll-action-delete:hover {
-  background: #ef4444;
+  background: #dc2626;
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+  border-color: #dc2626;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+  transform: translateY(-1px);
 }
 
-/* Skeletons */
+/* Loading Skeletons */
 .ll-card--skeleton {
   min-height: 180px;
   pointer-events: none;
@@ -520,7 +576,7 @@
   width: 75%;
   height: 20px;
   background: #f1f5f9;
-  border-radius: 6px;
+  border-radius: 8px;
   margin-bottom: 10px;
   animation: llPulse 1.5s infinite ease-in-out;
 }
@@ -529,16 +585,16 @@
   width: 100%;
   height: 36px;
   background: #f1f5f9;
-  border-radius: 6px;
+  border-radius: 8px;
   margin-bottom: 14px;
   animation: llPulse 1.5s infinite ease-in-out;
 }
 
 .ll-skeleton-footer {
   width: 100%;
-  height: 32px;
+  height: 34px;
   background: #f1f5f9;
-  border-radius: 10px;
+  border-radius: 9999px;
   animation: llPulse 1.5s infinite ease-in-out;
 }
 
@@ -551,134 +607,142 @@
 /* Empty State */
 .ll-empty-state {
   text-align: center;
-  padding: 60px 20px;
+  padding: 60px 24px;
   background: #ffffff;
-  border-radius: 24px;
-  border: 1px dashed #cbd5e1;
+  border-radius: 28px;
+  border: 2px dashed #bfdbfe;
   max-width: 620px;
   margin: 40px auto;
+  box-shadow: 0 8px 24px rgba(0, 122, 255, 0.04);
 }
 
 .ll-empty-icon-wrap {
-  width: 72px;
-  height: 72px;
-  border-radius: 20px;
-  background: #eff6ff;
-  color: #007aff;
+  width: 76px;
+  height: 76px;
+  border-radius: 24px;
+  background: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fde68a;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .ll-empty-title {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #000000;
   margin: 0 0 8px;
+  letter-spacing: -0.02em;
 }
 
 .ll-empty-desc {
-  font-size: 0.92rem;
-  color: #64748b;
-  line-height: 1.55;
-  margin: 0 0 24px;
+  font-size: 0.94rem;
+  color: #475569;
+  line-height: 1.6;
+  margin: 0 0 26px;
 }
 
 .ll-empty-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   justify-content: center;
 }
 
 .ll-empty-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 18px;
-  background: #f8fafc;
-  color: #334155;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  gap: 8px;
+  padding: 10px 20px;
+  background: #ffffff;
+  color: #000000;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9999px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
   transition: all 0.2s ease;
 }
 
 .ll-empty-btn:hover {
-  background: #f1f5f9;
-  color: #0f172a;
-  border-color: #cbd5e1;
+  background: #f8fafc;
+  color: #007aff;
+  border-color: #bfdbfe;
 }
 
 .ll-empty-btn--primary {
   background: #007aff;
   color: #ffffff;
   border-color: #007aff;
+  box-shadow: 0 4px 14px rgba(0, 122, 255, 0.25);
 }
 
 .ll-empty-btn--primary:hover {
-  background: #0066d6;
+  background: #0062cc;
   color: #ffffff;
+  border-color: #0062cc;
 }
 
 /* Auth Required Card */
 .ll-auth-card {
   text-align: center;
-  padding: 60px 24px;
+  padding: 60px 28px;
   background: #ffffff;
-  border-radius: 24px;
-  border: 1px solid #e2e8f0;
+  border-radius: 28px;
+  border: 1.5px solid #e2e8f0;
   max-width: 480px;
   margin: 40px auto;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.05);
 }
 
 .ll-auth-icon-wrap {
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
+  width: 68px;
+  height: 68px;
+  border-radius: 22px;
   background: #fef3c7;
   color: #d97706;
+  border: 1px solid #fde68a;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .ll-auth-title {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #000000;
   margin: 0 0 8px;
+  letter-spacing: -0.02em;
 }
 
 .ll-auth-desc {
-  font-size: 0.9rem;
-  color: #64748b;
-  line-height: 1.5;
-  margin: 0 0 20px;
+  font-size: 0.92rem;
+  color: #475569;
+  line-height: 1.55;
+  margin: 0 0 24px;
 }
 
 .ll-auth-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 28px;
+  padding: 12px 30px;
   background: #007aff;
   color: #ffffff;
-  border-radius: 14px;
-  font-size: 0.92rem;
-  font-weight: 600;
+  border-radius: 9999px;
+  font-size: 0.94rem;
+  font-weight: 700;
   text-decoration: none;
-  box-shadow: 0 4px 14px rgba(0, 122, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 122, 255, 0.3);
   transition: all 0.2s ease;
 }
 
 .ll-auth-btn:hover {
-  background: #0066d6;
+  background: #0062cc;
+  box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
 }
 
 /* Responsive adjustments */
@@ -688,7 +752,7 @@
   }
 
   .ll-title {
-    font-size: 1.85rem;
+    font-size: 1.95rem;
   }
 
   .ll-widgets-grid {
