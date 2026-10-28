@@ -693,6 +693,42 @@
   transform: translateX(3px);
 }
 
+/* Expand/collapse button for links and attachments */
+.upd-toggle-items-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--upd-blue-light);
+  color: var(--upd-blue);
+  border: 1px solid rgba(11, 116, 255, 0.2);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+  width: fit-content;
+}
+
+.upd-toggle-items-btn:hover {
+  background: var(--upd-blue);
+  color: #ffffff;
+  border-color: var(--upd-blue);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(11, 116, 255, 0.2);
+}
+
+.upd-toggle-items-btn:active {
+  transform: scale(0.97);
+}
+
+.upd-toggle-items-btn-icon {
+  font-size: 13px;
+  transition: transform 0.2s ease;
+}
+
 /* ============================================
    Files Section — High Contrast Cards
    ============================================ */

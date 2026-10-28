@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
-import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiEye, FiDownload, FiSearch, FiPlus, FiList, FiX, FiCheckCircle, FiAlertCircle, FiInfo } from 'react-icons/fi';
+import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiChevronDown, FiChevronUp, FiEye, FiDownload, FiSearch, FiPlus, FiList, FiX, FiCheckCircle, FiAlertCircle, FiInfo } from 'react-icons/fi';
 import { Share2, Bell } from 'lucide-react';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
 import { getYouTubeVideoId, groupConsecutiveLinks } from '../utils/youtube';
@@ -12,11 +12,272 @@ import FileIcon from '../components/FileIcon';
 import ExpandableDescription from '../components/ExpandableDescription';
 import './styles/Updates.css';
 
+function useIsLargeScreen() {
+  const [isLarge, setIsLarge] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const media = window.matchMedia('(min-width: 640px)');
+    setIsLarge(media.matches);
+
+    const handler = (e) => setIsLarge(e.matches);
+    if (media.addEventListener) {
+      media.addEventListener('change', handler);
+      return () => media.removeEventListener('change', handler);
+    } else if (media.addListener) {
+      media.addListener(handler);
+      return () => media.removeListener(handler);
+    }
+  }, []);
+
+  return isLarge;
+}
+
+function UpdateCard({
+  u,
+  isHighlighted,
+  highlightedCardRef,
+  isLargeScreen,
+  handleShareUpdate,
+  formatExactTimestamp,
+}) {
+  const [isFilesExpanded, setIsFilesExpanded] = useState(false);
+  const [isLinksExpanded, setIsLinksExpanded] = useState(false);
+
+  const totalFiles = u.files?.length || 0;
+  const FILES_LIMIT = 2;
+  const hasMoreFiles = totalFiles > FILES_LIMIT;
+  const visibleFiles = isFilesExpanded || !hasMoreFiles
+    ? (u.files || [])
+    : (u.files || []).slice(0, FILES_LIMIT);
+
+  const totalLinks = u.links?.length || 0;
+  const groups = groupConsecutiveLinks(u.links || []);
+
+  let hasMoreLinks = false;
+  let visibleGroups = groups;
+
+  if (!isLinksExpanded && totalLinks > 0) {
+    if (isLargeScreen) {
+      // Large screen: 2 YouTube videos can fit in 1 row (upd-youtube-grid-2).
+      if (groups[0]?.type === 'youtube-group' && groups[0]?.items?.length === 2) {
+        if (groups.length > 1) {
+          hasMoreLinks = true;
+          visibleGroups = [groups[0]];
+        }
+      } else if (groups.length > 1 || (groups[0]?.items?.length || 1) > 1) {
+        hasMoreLinks = true;
+        visibleGroups = [groups[0]];
+      }
+    } else {
+      // Default / small screens: 1 video or 1 link fits cleanly.
+      if (groups[0]?.type === 'youtube-group') {
+        if (groups[0]?.items?.length > 1 || groups.length > 1) {
+          hasMoreLinks = true;
+          visibleGroups = [{
+            type: 'youtube-group',
+            items: [groups[0].items[0]],
+          }];
+        }
+      } else if (groups.length > 1) {
+        hasMoreLinks = true;
+        visibleGroups = [groups[0]];
+      }
+    }
+  }
+
+  return (
+    <div
+      ref={isHighlighted ? highlightedCardRef : null}
+      className={`upd-card ${isHighlighted ? 'upd-card-highlighted' : ''}`}
+    >
+      <div className="upd-card-header">
+        <Link href={`/users/${u.usn || ''}`}>
+          <img
+            src={u.profileUrl || '/default-profile.png'}
+            alt={u.name || 'user'}
+            className="upd-avatar"
+          />
+        </Link>
+        <div className="upd-user-info">
+          <div className="upd-user-top-row">
+            <div className="upd-user-name-usn" title={`${u.name || ''}${u.usn ? ` • ${u.usn}` : ''}`}>
+              <Link href={`/users/${u.usn || ''}`} className="upd-user-name-link">
+                <FiUser className="upd-user-icon" />
+                <span className="upd-user-name-text">{u.name}</span>
+              </Link>
+              {u.usn && (
+                <Link href={`/users/${u.usn}`} className="upd-usn-link">
+                  • {u.usn}
+                </Link>
+              )}
+            </div>
+            <button
+              type="button"
+              className="upd-share-btn"
+              title="Share update"
+              aria-label="Share update"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleShareUpdate(u._id, u.title || 'Update');
+              }}
+            >
+              <Share2 size={15} />
+            </button>
+          </div>
+
+          <div className="upd-user-sub-row">
+            {u.title && (
+              <div className="upd-user-title">
+                <Link
+                  href={`/updates/${u._id}`}
+                  className="upd-title-clickable-link"
+                  title={`Open update: ${u.title}`}
+                >
+                  <span>{u.title}</span>
+                </Link>
+              </div>
+            )}
+            <div className="upd-timestamp">
+              <FiClock className="upd-time-icon" />
+              <span>{formatExactTimestamp(u.createdAt)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ExpandableDescription content={u.content} className="upd-content" />
+
+      {u.links && u.links.length > 0 && (
+        <div className="upd-links">
+          {visibleGroups.map((group, groupIdx) => {
+            if (group.type === 'youtube-group') {
+              if (group.items.length === 2) {
+                return (
+                  <div key={groupIdx} className="upd-youtube-grid-2">
+                    {group.items.map((item, itemIdx) => (
+                      <YouTubeEmbed
+                        key={itemIdx}
+                        ytId={item.ytId}
+                        wrapperClass="upd-youtube-embed-wrapper upd-youtube-grid-item"
+                        iframeClass="upd-youtube-iframe"
+                      />
+                    ))}
+                  </div>
+                );
+              }
+              const item = group.items[0];
+              return (
+                <YouTubeEmbed
+                  key={groupIdx}
+                  ytId={item.ytId}
+                  wrapperClass="upd-youtube-embed-wrapper"
+                  iframeClass="upd-youtube-iframe"
+                />
+              );
+            }
+
+            if (group.type === 'internal') {
+              return (
+                <Link key={groupIdx} href={group.raw} className="upd-link upd-link-internal">
+                  <span>Visit</span>
+                  <FiChevronRight className="upd-link-icon" />
+                </Link>
+              );
+            }
+            return <LinkPreview key={groupIdx} url={group.raw} />;
+          })}
+
+          {hasMoreLinks && (
+            <button
+              type="button"
+              className="upd-toggle-items-btn"
+              onClick={() => setIsLinksExpanded(!isLinksExpanded)}
+            >
+              {isLinksExpanded ? (
+                <>
+                  <span>Show less links</span>
+                  <FiChevronUp className="upd-toggle-items-btn-icon" />
+                </>
+              ) : (
+                <>
+                  <span>View all links ({totalLinks})</span>
+                  <FiChevronDown className="upd-toggle-items-btn-icon" />
+                </>
+              )}
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Files section */}
+      {u.files && u.files.length > 0 && (
+        <div className="upd-files">
+          <div className="upd-files-label">Attachments</div>
+          {visibleFiles.map((f, i) => {
+            const url = f.url || f;
+            const name = f.name || url.split('/').pop();
+            const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
+
+            let downloadUrl = url;
+            const isPdf = typeof url === 'string' && url.toLowerCase().endsWith('.pdf');
+            if (isPdf && url.includes('res.cloudinary.com')) {
+              downloadUrl = url.replace('/upload/', '/upload/fl_attachment/');
+            }
+
+            return (
+              <div
+                key={i}
+                className="upd-file-card"
+                onClick={() => window.open(viewUrl, '_blank', 'noopener,noreferrer')}
+              >
+                <div className="upd-file-card-name" title={`View ${name}`}>
+                  <FileIcon filename={name || url} />
+                  <span className="upd-file-card-label">{name}</span>
+                </div>
+                <div className="upd-file-card-actions" onClick={(e) => e.stopPropagation()}>
+                  <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-view" title="View">
+                    <FiEye />
+                  </a>
+                  <a href={downloadUrl} download={isPdf ? undefined : name} target={isPdf ? undefined : "_blank"} rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-download" title="Download">
+                    <FiDownload />
+                  </a>
+                </div>
+              </div>
+            );
+          })}
+
+          {hasMoreFiles && (
+            <button
+              type="button"
+              className="upd-toggle-items-btn"
+              onClick={() => setIsFilesExpanded(!isFilesExpanded)}
+            >
+              {isFilesExpanded ? (
+                <>
+                  <span>Show less attachments</span>
+                  <FiChevronUp className="upd-toggle-items-btn-icon" />
+                </>
+              ) : (
+                <>
+                  <span>View all attachments ({totalFiles})</span>
+                  <FiChevronDown className="upd-toggle-items-btn-icon" />
+                </>
+              )}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function UpdatesPage({ initialUpdateId }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const params = useParams();
+  const isLargeScreen = useIsLargeScreen();
   const keywordFromUrl = (searchParams.get('q') || '').trim();
   const sharedUpdateId = initialUpdateId || params?.id || searchParams.get('update') || null;
 
@@ -275,150 +536,15 @@ export default function UpdatesPage({ initialUpdateId }) {
             )}
 
             {sortedUpdates.map((u) => (
-              <div
+              <UpdateCard
                 key={u._id}
-                ref={sharedUpdateId === u._id ? highlightedCardRef : null}
-                className={`upd-card ${sharedUpdateId === u._id ? 'upd-card-highlighted' : ''}`}
-              >
-                <div className="upd-card-header">
-                  <Link href={`/users/${u.usn || ''}`}>
-                    <img
-                      src={u.profileUrl || '/default-profile.png'}
-                      alt={u.name || 'user'}
-                      className="upd-avatar"
-                    />
-                  </Link>
-                  <div className="upd-user-info">
-                    <div className="upd-user-top-row">
-                      <div className="upd-user-name-usn" title={`${u.name || ''}${u.usn ? ` • ${u.usn}` : ''}`}>
-                        <Link href={`/users/${u.usn || ''}`} className="upd-user-name-link">
-                          <FiUser className="upd-user-icon" />
-                          <span className="upd-user-name-text">{u.name}</span>
-                        </Link>
-                        {u.usn && (
-                          <Link href={`/users/${u.usn}`} className="upd-usn-link">
-                            • {u.usn}
-                          </Link>
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        className="upd-share-btn"
-                        title="Share update"
-                        aria-label="Share update"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleShareUpdate(u._id, u.title || 'Update');
-                        }}
-                      >
-                        <Share2 size={15} />
-                      </button>
-                    </div>
-
-                    <div className="upd-user-sub-row">
-                      {u.title && (
-                        <div className="upd-user-title">
-                          <Link
-                            href={`/updates/${u._id}`}
-                            className="upd-title-clickable-link"
-                            title={`Open update: ${u.title}`}
-                          >
-                            <span>{u.title}</span>
-                          </Link>
-                        </div>
-                      )}
-                      <div className="upd-timestamp">
-                        <FiClock className="upd-time-icon" />
-                        <span>{formatExactTimestamp(u.createdAt)}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <ExpandableDescription content={u.content} className="upd-content" />
-
-                {u.links && u.links.length > 0 && (
-                  <div className="upd-links">
-                    {groupConsecutiveLinks(u.links).map((group, groupIdx) => {
-                      if (group.type === 'youtube-group') {
-                        if (group.items.length === 2) {
-                          return (
-                            <div key={groupIdx} className="upd-youtube-grid-2">
-                              {group.items.map((item, itemIdx) => (
-                                <YouTubeEmbed
-                                  key={itemIdx}
-                                  ytId={item.ytId}
-                                  wrapperClass="upd-youtube-embed-wrapper upd-youtube-grid-item"
-                                  iframeClass="upd-youtube-iframe"
-                                />
-                              ))}
-                            </div>
-                          );
-                        }
-                        const item = group.items[0];
-                        return (
-                          <YouTubeEmbed
-                            key={groupIdx}
-                            ytId={item.ytId}
-                            wrapperClass="upd-youtube-embed-wrapper"
-                            iframeClass="upd-youtube-iframe"
-                          />
-                        );
-                      }
-
-                      if (group.type === 'internal') {
-                        return (
-                          <Link key={groupIdx} href={group.raw} className="upd-link upd-link-internal">
-                            <span>Visit</span>
-                            <FiChevronRight className="upd-link-icon" />
-                          </Link>
-                        );
-                      }
-                      return <LinkPreview key={groupIdx} url={group.raw} />;
-                    })}
-                  </div>
-                )}
-
-                {/* Files section */}
-                {u.files && u.files.length > 0 && (
-                  <div className="upd-files">
-                    <div className="upd-files-label">Attachments</div>
-                    {u.files.map((f, i) => {
-                      const url = f.url || f;
-                      const name = f.name || url.split('/').pop();
-                      const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
-
-                      // If it is a Cloudinary PDF, we transform the link to force direct download
-                      let downloadUrl = url;
-                      const isPdf = typeof url === 'string' && url.toLowerCase().endsWith('.pdf');
-                      if (isPdf && url.includes('res.cloudinary.com')) {
-                        downloadUrl = url.replace('/upload/', '/upload/fl_attachment/');
-                      }
-
-                      return (
-                        <div
-                          key={i}
-                          className="upd-file-card"
-                          onClick={() => window.open(viewUrl, '_blank', 'noopener,noreferrer')}
-                        >
-                          <div className="upd-file-card-name" title={`View ${name}`}>
-                            <FileIcon filename={name || url} />
-                            <span className="upd-file-card-label">{name}</span>
-                          </div>
-                          <div className="upd-file-card-actions" onClick={(e) => e.stopPropagation()}>
-                            <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-view" title="View">
-                              <FiEye />
-                            </a>
-                            <a href={downloadUrl} download={isPdf ? undefined : name} target={isPdf ? undefined : "_blank"} rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-download" title="Download">
-                              <FiDownload />
-                            </a>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+                u={u}
+                isHighlighted={sharedUpdateId === u._id}
+                highlightedCardRef={highlightedCardRef}
+                isLargeScreen={isLargeScreen}
+                handleShareUpdate={handleShareUpdate}
+                formatExactTimestamp={formatExactTimestamp}
+              />
             ))}
 
             {hasMore && updates.length > 0 && (
