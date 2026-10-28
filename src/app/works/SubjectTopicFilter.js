@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { FiX } from 'react-icons/fi';
+import { FiX, FiChevronDown } from 'react-icons/fi';
 import './SubjectTopicFilter.css';
 import { authFetch } from '@/lib/clientAuth';
 
@@ -267,7 +267,7 @@ const SubjectTopicFilter = ({ onFilterChange, initialSubjects = [], initialTopic
                   {isLoadingMoreSubjects ? (
                     <span className="stf-more-spinner" />
                   ) : (
-                    <span className="stf-more-icon">&gt;&gt;</span>
+                    <FiChevronDown className="stf-more-icon" size={16} />
                   )}
                 </button>
               )}
@@ -319,7 +319,7 @@ const SubjectTopicFilter = ({ onFilterChange, initialSubjects = [], initialTopic
                     {isLoadingMoreTopics ? (
                       <span className="stf-more-spinner" />
                     ) : (
-                      <span className="stf-more-icon">&gt;&gt;</span>
+                      <FiChevronDown className="stf-more-icon" size={16} />
                     )}
                   </button>
                 )}

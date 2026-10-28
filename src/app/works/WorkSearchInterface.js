@@ -909,7 +909,7 @@ const WorkSearchInterface = () => {
                   ) : (
                     <>
                       <span>View More</span>
-                      <FiChevronRight className="ws-btn-icon" />
+                      <FiChevronDown className="ws-btn-icon" />
                     </>
                   )}
                 </button>

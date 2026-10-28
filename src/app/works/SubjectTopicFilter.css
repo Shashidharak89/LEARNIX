@@ -177,7 +177,7 @@
   background-color: #2563eb;
   color: #ffffff;
   border-color: #1d4ed8;
-  transform: translateX(2px);
+  transform: translateY(-1px);
   box-shadow: 0 3px 8px rgba(37, 99, 235, 0.25);
 }
 
@@ -187,9 +187,15 @@
 }
 
 .stf-more-icon {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
-  font-family: inherit;
+  transition: transform 0.2s ease;
+}
+
+.stf-more-btn:hover:not(:disabled) .stf-more-icon {
+  transform: translateY(2px);
 }
 
 .stf-more-spinner {

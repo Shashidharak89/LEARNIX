@@ -914,7 +914,7 @@ export default function UpdatesPage({ initialUpdateId }) {
                   {loading ? (
                     <><span className="upd-spinner"></span><span>Loading...</span></>
                   ) : (
-                    <><span>View More</span><FiChevronRight className="upd-btn-icon" /></>
+                    <><span>View More</span><FiChevronDown className="upd-btn-icon" /></>
                   )}
                 </button>
               </div>

@@ -1154,7 +1154,7 @@
 }
 
 .upd-load-more-btn:hover:not(:disabled) .upd-btn-icon {
-  transform: translateX(4px);
+  transform: translateY(3px);
 }
 
 /* ============================================
