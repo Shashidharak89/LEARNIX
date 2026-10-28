@@ -532,6 +532,10 @@ export default function SingleUpdateView({ updateId }) {
                     </span>
                   )}
                 </div>
+                <div className="upd-header-views-badge" title={`${update.views ?? 0} views`}>
+                  <FiEye className="upd-views-icon" />
+                  <span className="upd-views-count">{update.views ?? 0}</span>
+                </div>
                 <button
                   type="button"
                   className="upd-share-btn"
@@ -549,15 +553,9 @@ export default function SingleUpdateView({ updateId }) {
                     <span>{update.title}</span>
                   </div>
                 )}
-                <div className="upd-user-meta-right">
-                  <span className="upd-views-badge" title={`${update.views ?? 0} views`}>
-                    <FiEye className="upd-views-icon" />
-                    <span>{update.views ?? 0}</span>
-                  </span>
-                  <div className="upd-timestamp">
-                    <FiClock className="upd-time-icon" />
-                    <span>{formatExactTimestamp(update.createdAt)}</span>
-                  </div>
+                <div className="upd-timestamp">
+                  <FiClock className="upd-time-icon" />
+                  <span>{formatExactTimestamp(update.createdAt)}</span>
                 </div>
               </div>
             </div>

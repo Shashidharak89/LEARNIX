@@ -513,43 +513,6 @@
   text-decoration: underline;
 }
 
-/* User Meta Right Container */
-.upd-user-meta-right {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-left: auto;
-  flex-shrink: 0;
-}
-
-/* Views badge */
-.upd-views-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: #1e40af;
-  background-color: #eff6ff;
-  border: 1px solid #dbeafe;
-  padding: 2px 8px;
-  border-radius: 9999px;
-  font-size: 0.74rem;
-  font-weight: 600;
-  white-space: nowrap;
-  letter-spacing: 0.01em;
-  transition: transform 0.15s ease, background-color 0.15s ease;
-}
-
-.upd-views-badge:hover {
-  background-color: #dbeafe;
-  transform: translateY(-1px);
-}
-
-.upd-views-icon {
-  font-size: 13px;
-  color: #2563eb;
-  flex-shrink: 0;
-}
-
 /* Timestamp */
 .upd-timestamp {
   display: inline-flex;
@@ -559,6 +522,7 @@
   font-size: 0.76rem;
   font-weight: 600;
   white-space: nowrap;
+  margin-left: auto;
 }
 
 .upd-time-icon {
@@ -574,6 +538,50 @@
   gap: 8px;
   flex-shrink: 0;
   margin-left: auto;
+}
+
+/* Views badge positioned immediately left to AI suggestions button */
+.upd-header-views-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 9px;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  border: 1px solid #f1f5f9;
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 500;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  user-select: none;
+  flex-shrink: 0;
+  box-shadow: none;
+  transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.upd-header-views-badge:hover {
+  background-color: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #475569;
+  transform: translateY(-1px);
+}
+
+.upd-header-views-badge .upd-views-icon {
+  font-size: 13px;
+  color: #94a3b8;
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+
+.upd-header-views-badge:hover .upd-views-icon {
+  color: #64748b;
+}
+
+.upd-header-views-badge .upd-views-count {
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
 /* AI Rectangular Star Button — Light Purple with Glow on Hover */

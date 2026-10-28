@@ -318,6 +318,10 @@ function UpdateCard({
               )}
             </div>
             <div className="upd-card-header-actions">
+              <div className="upd-header-views-badge" title={`${u.views ?? 0} views`}>
+                <FiEye className="upd-views-icon" />
+                <span className="upd-views-count">{u.views ?? 0}</span>
+              </div>
               <button
                 type="button"
                 className={`upd-ai-btn ${showAiSuggestions ? 'is-active' : ''}`}
@@ -357,15 +361,9 @@ function UpdateCard({
                 </Link>
               </div>
             )}
-            <div className="upd-user-meta-right">
-              <span className="upd-views-badge" title={`${u.views ?? 0} views`}>
-                <FiEye className="upd-views-icon" />
-                <span>{u.views ?? 0}</span>
-              </span>
-              <div className="upd-timestamp">
-                <FiClock className="upd-time-icon" />
-                <span>{formatExactTimestamp(u.createdAt)}</span>
-              </div>
+            <div className="upd-timestamp">
+              <FiClock className="upd-time-icon" />
+              <span>{formatExactTimestamp(u.createdAt)}</span>
             </div>
           </div>
         </div>
