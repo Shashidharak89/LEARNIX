@@ -99,7 +99,7 @@
 .upd-title {
   font-size: 1.75rem;
   font-weight: 800;
-  color: var(--upd-text);
+  color: var(--upd-blue);
   margin: 0;
   line-height: 1.15;
   letter-spacing: -0.02em;
@@ -111,7 +111,8 @@
 .upd-title-icon {
   display: inline-flex;
   color: var(--upd-blue);
-  margin-right: 6px;
+  font-size: 1.5rem;
+  margin-right: 4px;
   vertical-align: middle;
 }
 
@@ -173,7 +174,7 @@
 }
 
 /* ============================================
-   Search Bar — Clean, Fast, High-Performance
+   Search Bar — Rounded Border Pill Design
    ============================================ */
 
 .upd-search-form {
@@ -190,7 +191,7 @@
   position: relative;
   flex: 1;
   min-width: 0;
-  border-radius: 12px;
+  border-radius: 999px;
   background: #ffffff;
   border: 1.5px solid #e2e8f0;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -204,7 +205,7 @@
 
 .upd-search-icon {
   position: absolute;
-  left: 14px;
+  left: 16px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--upd-blue);
@@ -218,9 +219,9 @@
   z-index: 1;
   width: 100%;
   height: 44px;
-  border-radius: 12px;
+  border-radius: 999px;
   border: none;
-  padding: 0 38px 0 40px;
+  padding: 0 42px 0 44px;
   font-size: 0.9rem;
   font-weight: 500;
   color: var(--upd-text);
@@ -238,7 +239,7 @@
 
 .upd-search-clear-inline {
   position: absolute;
-  right: 12px;
+  right: 14px;
   top: 50%;
   transform: translateY(-50%);
   z-index: 3;
@@ -1134,6 +1135,20 @@
   .upd-search-wrap {
     flex: 1;
     min-width: 0;
+  }
+
+  .upd-search-input {
+    padding: 0 34px 0 38px;
+    font-size: 0.85rem;
+  }
+
+  .upd-search-icon {
+    left: 14px;
+    font-size: 0.95rem;
+  }
+
+  .upd-search-clear-inline {
+    right: 12px;
   }
 
   .upd-search-btn {

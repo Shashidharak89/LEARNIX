@@ -202,7 +202,7 @@ export default function UpdatesPage({ initialUpdateId }) {
             <div className="upd-intro-header">
               <h1 className="upd-title">
                 <Bell className="upd-title-icon" size={24} />
-                UPDATES
+                Updates
               </h1>
               {isLoggedIn && (
                 <div className="upd-action-buttons">
