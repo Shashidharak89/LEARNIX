@@ -693,40 +693,126 @@
   transform: translateX(3px);
 }
 
-/* Expand/collapse button for links and attachments */
+/* ============================================
+   Links & Files Collapsible Wrappers & Fade Overlay
+   ============================================ */
+
+.upd-links-section {
+  width: 100%;
+}
+
+.upd-links-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.upd-links-wrapper.is-collapsed {
+  padding-bottom: 22px;
+}
+
+.upd-files-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.upd-files-wrapper.is-collapsed {
+  padding-bottom: 22px;
+}
+
+.upd-files-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Subtle faded effect over bottom of collapsed items — matching description */
+.upd-items-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.7) 40%,
+    rgba(255, 255, 255, 0.98) 75%,
+    rgba(255, 255, 255, 1) 100%
+  );
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 4px;
+  pointer-events: none;
+  z-index: 5;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+/* Centered collapse wrapper when expanded */
+.upd-items-collapse-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* Expand/collapse button for links and attachments — centered, clean, matching description button */
 .upd-toggle-items-btn {
+  pointer-events: auto;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 6px 14px;
-  background: var(--upd-blue-light);
+  padding: 7px 16px;
+  background: #ffffff;
   color: var(--upd-blue);
-  border: 1px solid rgba(11, 116, 255, 0.2);
+  border: 1px solid rgba(11, 116, 255, 0.25);
   border-radius: 999px;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
-  margin-top: 6px;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(11, 116, 255, 0.12);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   font-family: inherit;
   width: fit-content;
 }
 
-.upd-toggle-items-btn:hover {
-  background: var(--upd-blue);
-  color: #ffffff;
-  border-color: var(--upd-blue);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(11, 116, 255, 0.2);
+@media (hover: hover) and (pointer: fine) {
+  .upd-toggle-items-btn:hover {
+    background: var(--upd-blue);
+    color: #ffffff;
+    border-color: var(--upd-blue);
+    box-shadow: 0 4px 14px rgba(11, 116, 255, 0.25);
+    transform: translateY(-1px);
+  }
 }
 
 .upd-toggle-items-btn:active {
-  transform: scale(0.97);
+  transform: translateY(0);
 }
 
 .upd-toggle-items-btn-icon {
-  font-size: 13px;
+  font-size: 15px;
   transition: transform 0.2s ease;
+}
+
+.upd-toggle-items-btn-collapse {
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .upd-toggle-items-btn-collapse:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+    border-color: #94a3b8;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+  }
 }
 
 /* ============================================

@@ -148,64 +148,75 @@ function UpdateCard({
 
       <ExpandableDescription content={u.content} className="upd-content" />
 
+      {/* Links section */}
       {u.links && u.links.length > 0 && (
-        <div className="upd-links">
-          {visibleGroups.map((group, groupIdx) => {
-            if (group.type === 'youtube-group') {
-              if (group.items.length === 2) {
-                return (
-                  <div key={groupIdx} className="upd-youtube-grid-2">
-                    {group.items.map((item, itemIdx) => (
-                      <YouTubeEmbed
-                        key={itemIdx}
-                        ytId={item.ytId}
-                        wrapperClass="upd-youtube-embed-wrapper upd-youtube-grid-item"
-                        iframeClass="upd-youtube-iframe"
-                      />
-                    ))}
-                  </div>
-                );
-              }
-              const item = group.items[0];
-              return (
-                <YouTubeEmbed
-                  key={groupIdx}
-                  ytId={item.ytId}
-                  wrapperClass="upd-youtube-embed-wrapper"
-                  iframeClass="upd-youtube-iframe"
-                />
-              );
-            }
+        <div className="upd-links-section">
+          <div className={`upd-links-wrapper ${hasMoreLinks && !isLinksExpanded ? 'is-collapsed' : ''}`}>
+            <div className="upd-links">
+              {visibleGroups.map((group, groupIdx) => {
+                if (group.type === 'youtube-group') {
+                  if (group.items.length === 2) {
+                    return (
+                      <div key={groupIdx} className="upd-youtube-grid-2">
+                        {group.items.map((item, itemIdx) => (
+                          <YouTubeEmbed
+                            key={itemIdx}
+                            ytId={item.ytId}
+                            wrapperClass="upd-youtube-embed-wrapper upd-youtube-grid-item"
+                            iframeClass="upd-youtube-iframe"
+                          />
+                        ))}
+                      </div>
+                    );
+                  }
+                  const item = group.items[0];
+                  return (
+                    <YouTubeEmbed
+                      key={groupIdx}
+                      ytId={item.ytId}
+                      wrapperClass="upd-youtube-embed-wrapper"
+                      iframeClass="upd-youtube-iframe"
+                    />
+                  );
+                }
 
-            if (group.type === 'internal') {
-              return (
-                <Link key={groupIdx} href={group.raw} className="upd-link upd-link-internal">
-                  <span>Visit</span>
-                  <FiChevronRight className="upd-link-icon" />
-                </Link>
-              );
-            }
-            return <LinkPreview key={groupIdx} url={group.raw} />;
-          })}
+                if (group.type === 'internal') {
+                  return (
+                    <Link key={groupIdx} href={group.raw} className="upd-link upd-link-internal">
+                      <span>Visit</span>
+                      <FiChevronRight className="upd-link-icon" />
+                    </Link>
+                  );
+                }
+                return <LinkPreview key={groupIdx} url={group.raw} />;
+              })}
+            </div>
 
-          {hasMoreLinks && (
-            <button
-              type="button"
-              className="upd-toggle-items-btn"
-              onClick={() => setIsLinksExpanded(!isLinksExpanded)}
-            >
-              {isLinksExpanded ? (
-                <>
-                  <span>Show less links</span>
-                  <FiChevronUp className="upd-toggle-items-btn-icon" />
-                </>
-              ) : (
-                <>
-                  <span>View all links ({totalLinks})</span>
+            {hasMoreLinks && !isLinksExpanded && (
+              <div className="upd-items-fade">
+                <button
+                  type="button"
+                  className="upd-toggle-items-btn"
+                  onClick={() => setIsLinksExpanded(true)}
+                >
+                  <span>View all links</span>
                   <FiChevronDown className="upd-toggle-items-btn-icon" />
-                </>
-              )}
-            </button>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {hasMoreLinks && isLinksExpanded && (
+            <div className="upd-items-collapse-wrapper">
+              <button
+                type="button"
+                className="upd-toggle-items-btn upd-toggle-items-btn-collapse"
+                onClick={() => setIsLinksExpanded(false)}
+              >
+                <span>Show less links</span>
+                <FiChevronUp className="upd-toggle-items-btn-icon" />
+              </button>
+            </div>
           )}
         </div>
       )}
@@ -214,57 +225,67 @@ function UpdateCard({
       {u.files && u.files.length > 0 && (
         <div className="upd-files">
           <div className="upd-files-label">Attachments</div>
-          {visibleFiles.map((f, i) => {
-            const url = f.url || f;
-            const name = f.name || url.split('/').pop();
-            const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
+          <div className={`upd-files-wrapper ${hasMoreFiles && !isFilesExpanded ? 'is-collapsed' : ''}`}>
+            <div className="upd-files-list">
+              {visibleFiles.map((f, i) => {
+                const url = f.url || f;
+                const name = f.name || url.split('/').pop();
+                const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
 
-            let downloadUrl = url;
-            const isPdf = typeof url === 'string' && url.toLowerCase().endsWith('.pdf');
-            if (isPdf && url.includes('res.cloudinary.com')) {
-              downloadUrl = url.replace('/upload/', '/upload/fl_attachment/');
-            }
+                let downloadUrl = url;
+                const isPdf = typeof url === 'string' && url.toLowerCase().endsWith('.pdf');
+                if (isPdf && url.includes('res.cloudinary.com')) {
+                  downloadUrl = url.replace('/upload/', '/upload/fl_attachment/');
+                }
 
-            return (
-              <div
-                key={i}
-                className="upd-file-card"
-                onClick={() => window.open(viewUrl, '_blank', 'noopener,noreferrer')}
-              >
-                <div className="upd-file-card-name" title={`View ${name}`}>
-                  <FileIcon filename={name || url} />
-                  <span className="upd-file-card-label">{name}</span>
-                </div>
-                <div className="upd-file-card-actions" onClick={(e) => e.stopPropagation()}>
-                  <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-view" title="View">
-                    <FiEye />
-                  </a>
-                  <a href={downloadUrl} download={isPdf ? undefined : name} target={isPdf ? undefined : "_blank"} rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-download" title="Download">
-                    <FiDownload />
-                  </a>
-                </div>
-              </div>
-            );
-          })}
+                return (
+                  <div
+                    key={i}
+                    className="upd-file-card"
+                    onClick={() => window.open(viewUrl, '_blank', 'noopener,noreferrer')}
+                  >
+                    <div className="upd-file-card-name" title={`View ${name}`}>
+                      <FileIcon filename={name || url} />
+                      <span className="upd-file-card-label">{name}</span>
+                    </div>
+                    <div className="upd-file-card-actions" onClick={(e) => e.stopPropagation()}>
+                      <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-view" title="View">
+                        <FiEye />
+                      </a>
+                      <a href={downloadUrl} download={isPdf ? undefined : name} target={isPdf ? undefined : "_blank"} rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-download" title="Download">
+                        <FiDownload />
+                      </a>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
 
-          {hasMoreFiles && (
-            <button
-              type="button"
-              className="upd-toggle-items-btn"
-              onClick={() => setIsFilesExpanded(!isFilesExpanded)}
-            >
-              {isFilesExpanded ? (
-                <>
-                  <span>Show less attachments</span>
-                  <FiChevronUp className="upd-toggle-items-btn-icon" />
-                </>
-              ) : (
-                <>
-                  <span>View all attachments ({totalFiles})</span>
+            {hasMoreFiles && !isFilesExpanded && (
+              <div className="upd-items-fade">
+                <button
+                  type="button"
+                  className="upd-toggle-items-btn"
+                  onClick={() => setIsFilesExpanded(true)}
+                >
+                  <span>View all attachments</span>
                   <FiChevronDown className="upd-toggle-items-btn-icon" />
-                </>
-              )}
-            </button>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {hasMoreFiles && isFilesExpanded && (
+            <div className="upd-items-collapse-wrapper">
+              <button
+                type="button"
+                className="upd-toggle-items-btn upd-toggle-items-btn-collapse"
+                onClick={() => setIsFilesExpanded(false)}
+              >
+                <span>Show less attachments</span>
+                <FiChevronUp className="upd-toggle-items-btn-icon" />
+              </button>
+            </div>
           )}
         </div>
       )}
