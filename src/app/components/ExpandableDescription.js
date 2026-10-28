@@ -13,29 +13,9 @@ export default function ExpandableDescription({ content, className = "" }) {
     const el = contentRef.current;
     if (!el) return;
 
-    const checkOverflow = () => {
-      const thresholdHeight = window.innerHeight * 0.3;
-      setIsOverflowing(el.scrollHeight > thresholdHeight);
-    };
-
-    checkOverflow();
-
-    let resizeObserver = null;
-    if (typeof window !== 'undefined' && window.ResizeObserver) {
-      resizeObserver = new window.ResizeObserver(() => {
-        checkOverflow();
-      });
-      resizeObserver.observe(el);
-    }
-
-    window.addEventListener('resize', checkOverflow);
-
-    return () => {
-      if (resizeObserver) {
-        resizeObserver.disconnect();
-      }
-      window.removeEventListener('resize', checkOverflow);
-    };
+    // Use a stable height limit (240px) to prevent layout thrashing on mobile browser address bar collapse/expand
+    const thresholdHeight = 240;
+    setIsOverflowing(el.scrollHeight > thresholdHeight);
   }, [content]);
 
   if (!content) return null;
@@ -46,7 +26,7 @@ export default function ExpandableDescription({ content, className = "" }) {
         ref={contentRef}
         className={`expandable-desc-content ${className}`}
         style={{
-          maxHeight: (!isExpanded && isOverflowing) ? '30vh' : 'none',
+          maxHeight: (!isExpanded && isOverflowing) ? '240px' : 'none',
           overflow: (!isExpanded && isOverflowing) ? 'hidden' : 'visible',
           position: 'relative',
         }}

@@ -153,43 +153,15 @@
   position: relative;
   flex: 1;
   border-radius: 12px;
-  padding: 2px;
-  background: #e2e8f0;
-  transition: background 0.3s ease;
-}
-
-/* Orbiting light effect — conic gradient that rotates */
-.upd-search-wrap::before {
-  content: '';
-  position: absolute;
-  inset: -1.5px;
-  border-radius: 13px;
-  background: conic-gradient(
-    from var(--upd-search-angle, 0deg),
-    transparent 0%,
-    transparent 70%,
-    rgba(11, 116, 255, 0.3) 80%,
-    #0b74ff 90%,
-    transparent 100%
-  );
-  animation: upd-orbitLight 3s linear infinite;
-  z-index: 0;
-  opacity: 0.6;
-  transition: opacity 0.3s ease;
-}
-
-.upd-search-wrap:focus-within::before {
-  opacity: 1;
-}
-
-/* Inner background to mask the gradient behind input */
-.upd-search-wrap::after {
-  content: '';
-  position: absolute;
-  inset: 2px;
-  border-radius: 10px;
   background: #ffffff;
-  z-index: 0;
+  border: 1.5px solid #e2e8f0;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.upd-search-wrap:focus-within {
+  border-color: var(--upd-blue);
+  box-shadow: 0 0 0 3px rgba(11, 116, 255, 0.12);
 }
 
 .upd-search-icon {
@@ -199,13 +171,8 @@
   transform: translateY(-50%);
   color: var(--upd-blue);
   font-size: 16px;
+  pointer-events: none;
   z-index: 2;
-  transition: transform 0.25s var(--upd-ease);
-}
-
-.upd-search-wrap:focus-within .upd-search-icon {
-  transform: translateY(-50%) scale(1.15);
-  color: var(--upd-blue-dark);
 }
 
 .upd-search-input {
@@ -316,48 +283,7 @@
    Keyframes & Properties
    ============================================ */
 
-@property --upd-search-angle {
-  syntax: '<angle>';
-  initial-value: 0deg;
-  inherits: false;
-}
 
-@keyframes upd-orbitLight {
-  to {
-    --upd-search-angle: 360deg;
-  }
-}
-
-@supports not (background: paint(something)) {
-  @keyframes upd-orbitLight {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  .upd-search-wrap::before {
-    inset: -2px;
-    animation: upd-orbitLight 3s linear infinite;
-    transform-origin: center;
-  }
-}
-
-@keyframes upd-bellRing {
-  0%, 100% { transform: rotate(0); }
-  10%, 30% { transform: rotate(14deg); }
-  20%, 40% { transform: rotate(-14deg); }
-  50% { transform: rotate(0); }
-}
-
-@keyframes upd-slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 /* ============================================
    Responsive Styles

@@ -7,8 +7,7 @@
 }
 
 .expandable-desc-content {
-  transition: max-height 0.35s cubic-bezier(0.2, 0.9, 0.3, 1);
-  will-change: max-height;
+  transition: max-height 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
 }
 
 .expandable-desc-fade {
@@ -39,25 +38,26 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 18px;
+  padding: 7px 16px;
   background: #ffffff;
   color: #0b74ff;
   border: 1px solid rgba(11, 116, 255, 0.25);
   border-radius: 20px;
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(11, 116, 255, 0.15), 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: all 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
-  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 8px rgba(11, 116, 255, 0.12);
+  transition: all 0.2s ease;
 }
 
-.expandable-desc-btn:hover {
-  background: #0b74ff;
-  color: #ffffff;
-  border-color: #0b74ff;
-  box-shadow: 0 6px 18px rgba(11, 116, 255, 0.28);
-  transform: translateY(-2px);
+@media (hover: hover) and (pointer: fine) {
+  .expandable-desc-btn:hover {
+    background: #0b74ff;
+    color: #ffffff;
+    border-color: #0b74ff;
+    box-shadow: 0 4px 14px rgba(11, 116, 255, 0.25);
+    transform: translateY(-1px);
+  }
 }
 
 .expandable-desc-btn:active {

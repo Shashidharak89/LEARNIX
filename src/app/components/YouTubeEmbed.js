@@ -23,6 +23,7 @@ export default function YouTubeEmbed({ ytId, wrapperClass = "", iframeClass = ""
         className={`yt-embed-iframe ${iframeClass}`}
         src={`https://www.youtube.com/embed/${ytId}`}
         title="YouTube video player"
+        loading="lazy"
         frameBorder="0"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         referrerPolicy="strict-origin-when-cross-origin"

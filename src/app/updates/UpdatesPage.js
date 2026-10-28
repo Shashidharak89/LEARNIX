@@ -274,12 +274,11 @@ export default function UpdatesPage({ initialUpdateId }) {
               </>
             )}
 
-            {sortedUpdates.map((u, idx) => (
+            {sortedUpdates.map((u) => (
               <div
                 key={u._id}
                 ref={sharedUpdateId === u._id ? highlightedCardRef : null}
                 className={`upd-card ${sharedUpdateId === u._id ? 'upd-card-highlighted' : ''}`}
-                style={{ animationDelay: `${(idx % 10) * 40}ms` }}
               >
                 <div className="upd-card-header">
                   <Link href={`/users/${u.usn || ''}`}>
