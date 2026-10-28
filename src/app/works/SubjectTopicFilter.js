@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { FiX, FiChevronDown } from 'react-icons/fi';
+import { FiX, FiChevronDown, FiFilter } from 'react-icons/fi';
 import './SubjectTopicFilter.css';
 import { authFetch } from '@/lib/clientAuth';
 
@@ -24,45 +24,45 @@ const SubjectTopicFilter = ({ onFilterChange, initialSubjects = [], initialTopic
 
   const subjectsScrollRef = useRef(null);
   const topicsScrollRef = useRef(null);
+  const hasFetchedSubjectsRef = useRef(false);
 
-  // Fetch initial subjects (Page 1, limit 10)
-  useEffect(() => {
-    let isMounted = true;
+  // Fetch subjects lazily on user interaction or if initialSubjects were passed in URL
+  const fetchInitialSubjects = useCallback(async () => {
+    if (hasFetchedSubjectsRef.current) return;
+    hasFetchedSubjectsRef.current = true;
 
-    const fetchInitialSubjects = async () => {
-      setIsLoadingSubjects(true);
-      try {
-        const response = await authFetch(`/api/resources/suggestions/subjects?page=1&limit=${PAGE_SIZE}`);
-        const data = await response.json();
+    setIsLoadingSubjects(true);
+    try {
+      const response = await authFetch(`/api/resources/suggestions/subjects?page=1&limit=${PAGE_SIZE}`);
+      const data = await response.json();
 
-        if (isMounted && data.subjects) {
-          // If initialSubjects are provided (e.g. from URL), make sure they exist in the subjects list
-          let combinedSubjects = [...data.subjects];
-          if (initialSubjects && initialSubjects.length > 0) {
-            initialSubjects.forEach((initSubj) => {
-              if (!combinedSubjects.some((s) => s.name === initSubj)) {
-                combinedSubjects.push({ name: initSubj });
-              }
-            });
-          }
-
-          setSubjects(combinedSubjects);
-          setSubjectPage(1);
-          setHasMoreSubjects(Boolean(data.hasMore));
+      if (data && data.subjects) {
+        let combinedSubjects = [...data.subjects];
+        if (initialSubjects && initialSubjects.length > 0) {
+          initialSubjects.forEach((initSubj) => {
+            if (!combinedSubjects.some((s) => s.name === initSubj)) {
+              combinedSubjects.push({ name: initSubj });
+            }
+          });
         }
-      } catch (error) {
-        console.error('Error fetching subjects suggestions:', error);
-      } finally {
-        if (isMounted) setIsLoadingSubjects(false);
+
+        setSubjects(combinedSubjects);
+        setSubjectPage(1);
+        setHasMoreSubjects(Boolean(data.hasMore));
       }
-    };
+    } catch (error) {
+      console.error('Error fetching subjects suggestions:', error);
+    } finally {
+      setIsLoadingSubjects(false);
+    }
+  }, [initialSubjects]);
 
-    fetchInitialSubjects();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  // Only auto-fetch if initialSubjects were explicitly restored from URL
+  useEffect(() => {
+    if (initialSubjects && initialSubjects.length > 0) {
+      fetchInitialSubjects();
+    }
+  }, [initialSubjects, fetchInitialSubjects]);
 
   // Load next page of subjects (Paging with size 10)
   const handleLoadMoreSubjects = async () => {
@@ -272,6 +272,18 @@ const SubjectTopicFilter = ({ onFilterChange, initialSubjects = [], initialTopic
                 </button>
               )}
             </>
+          ) : !hasFetchedSubjectsRef.current ? (
+            <button
+              type="button"
+              className="stf-chip stf-filter-trigger"
+              onClick={fetchInitialSubjects}
+              onMouseEnter={fetchInitialSubjects}
+              onFocus={fetchInitialSubjects}
+              title="Click to load subjects for filtering"
+            >
+              <FiFilter size={14} className="stf-trigger-icon" />
+              <span>Filter by Subject</span>
+            </button>
           ) : (
             <div className="stf-empty-state">No subjects found</div>
           )}

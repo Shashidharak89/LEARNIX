@@ -116,8 +116,10 @@ const WorkSearchInterface = () => {
   const [showSavedOnly, setShowSavedOnly] = useState(false);
   const menuRef = useRef(null);
   const filterRef = useRef(null);
+  const initialLoadedRef = useRef(false);
+  const isFirstRender = useRef(true);
 
-  const ITEMS_PER_LOAD = 8;
+  const ITEMS_PER_LOAD = 10;
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchPage, setSearchPage] = useState(1);
@@ -183,25 +185,28 @@ const WorkSearchInterface = () => {
   }, []);
 
   useEffect(() => {
+    if (initialLoadedRef.current) return;
+    initialLoadedRef.current = true;
+
     if (initialQuery || initialSubjects.length > 0 || initialTopics.length > 0) {
       // Restore search from URL params
       handleSearch(initialQuery, 1, initialSubjects, initialTopics);
     } else {
-      fetchPagedTopics(1, true);
+      fetchResources(1, true, "");
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-
-
-  const fetchPagedTopics = async (pageToFetch = 1, reset = false) => {
+  const fetchResources = async (pageToFetch = 1, reset = false, searchParam = "") => {
     // Only show the full-page skeleton when doing an initial/reset load.
     if (reset) setIsLoading(true);
     else setIsLoadingMore(true);
     try {
-      // Use oldest API when sortOrder is 'oldest', otherwise use default (latest first)
-      const apiEndpoint = sortOrder === 'oldest' ? '/api/work/oldest/paged' : '/api/work/paged';
-      const response = await authFetch(`${apiEndpoint}?page=${pageToFetch}&pageSize=${ITEMS_PER_LOAD}`);
+      const searchVal = searchParam && searchParam.trim() ? encodeURIComponent(searchParam.trim()) : '""';
+      let queryStr = `page=${pageToFetch}&size=${ITEMS_PER_LOAD}&search=${searchVal}`;
+      if (sortOrder === 'oldest') queryStr += '&sort=oldest';
+
+      const response = await authFetch(`/api/resources?${queryStr}`);
       const data = await response.json();
       if (data && Array.isArray(data.topics)) {
         const newTopics = data.topics.map(topic => ({
@@ -227,7 +232,7 @@ const WorkSearchInterface = () => {
         setHasMore(data.page < data.totalPages);
       }
     } catch (error) {
-      console.error('Error fetching paged topics:', error);
+      console.error('Error fetching resources:', error);
     } finally {
       if (reset) setIsLoading(false);
       else setIsLoadingMore(false);
@@ -243,7 +248,7 @@ const WorkSearchInterface = () => {
     setSearchTotal(0);
     setShowRelevant(false);
     setRelevantResults([]);
-    fetchPagedTopics(1, true);
+    fetchResources(1, true, "");
     window.history.replaceState({}, '', pathname);
   };
 
@@ -282,19 +287,20 @@ const WorkSearchInterface = () => {
     } else setIsLoadingMore(true);
     try {
       // Build URL with query, subjects, and topics params
-      const urlParams = new globalThis.URLSearchParams();
-      if (targetQuery.trim()) urlParams.set('q', targetQuery);
-      if (activeSubjects.length > 0) urlParams.set('subjects', activeSubjects.join(','));
-      if (activeTopics.length > 0) urlParams.set('topics', activeTopics.join(','));
-      urlParams.set('page', pageNum.toString());
-      urlParams.set('pageSize', ITEMS_PER_LOAD.toString());
+      const searchVal = targetQuery && targetQuery.trim() ? encodeURIComponent(targetQuery.trim()) : '""';
+      let queryStr = `page=${pageNum}&size=${ITEMS_PER_LOAD}&search=${searchVal}`;
+      if (activeSubjects.length > 0) queryStr += `&subjects=${encodeURIComponent(activeSubjects.join(','))}`;
+      if (activeTopics.length > 0) queryStr += `&topics=${encodeURIComponent(activeTopics.join(','))}`;
+      if (sortOrder === 'oldest') queryStr += '&sort=oldest';
 
-      const browserUrl = `${pathname}?${urlParams.toString()}`;
+      const browserUrlParams = new globalThis.URLSearchParams();
+      if (targetQuery.trim()) browserUrlParams.set('q', targetQuery);
+      if (activeSubjects.length > 0) browserUrlParams.set('subjects', activeSubjects.join(','));
+      if (activeTopics.length > 0) browserUrlParams.set('topics', activeTopics.join(','));
+      const browserUrl = browserUrlParams.toString() ? `${pathname}?${browserUrlParams.toString()}` : pathname;
       window.history.replaceState({}, '', browserUrl);
 
-      // Use oldest API when sortOrder is 'oldest', otherwise use default (latest first)
-      const apiEndpoint = sortOrder === 'oldest' ? '/api/work/search-oldest' : '/api/work/search';
-      const response = await authFetch(`${apiEndpoint}?${urlParams.toString()}`);
+      const response = await authFetch(`/api/resources?${queryStr}`);
       const data = await response.json();
       if (data && Array.isArray(data.topics)) {
         const newTopics = data.topics.map(topic => ({
@@ -318,7 +324,6 @@ const WorkSearchInterface = () => {
           // Append for subsequent pages (View More)
           setSearchResults(prev => [...prev, ...newTopics]);
           setDisplayedTopics(prev => [...prev, ...newTopics]);
-          // keep searchTotal unchanged — it was set on page 1
         }
         setSearchPage(data.page);
         setSearchTotalPages(data.totalPages);
@@ -334,9 +339,12 @@ const WorkSearchInterface = () => {
 
   const loadMoreTopics = useCallback(() => {
     if (isLoadingMore || !hasMore) return;
-    setIsLoadingMore(true);
-    fetchPagedTopics(page + 1);
-  }, [hasMore, isLoadingMore, page]);
+    if (searchQuery.trim() || selectedSubjects.length > 0 || selectedTopics.length > 0) {
+      handleSearch(searchQuery, searchPage + 1);
+    } else {
+      fetchResources(page + 1, false, "");
+    }
+  }, [hasMore, isLoadingMore, page, searchPage, searchQuery, selectedSubjects, selectedTopics]);
 
   const fetchRelevant = async (pageNum = 1, queryOverride) => {
     const query = queryOverride || searchParams.get('q') || searchQuery;
@@ -435,6 +443,12 @@ const WorkSearchInterface = () => {
   // Apply filters when they change (subject/topic filters trigger search immediately)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    // Skip initial mount so only ONE request fires
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
     // If subject or topic filters are applied, trigger search with current query
     if (selectedSubjects.length > 0 || selectedTopics.length > 0) {
       handleSearch(searchQuery, 1);
@@ -447,11 +461,10 @@ const WorkSearchInterface = () => {
       setHasMore(filteredTopics.length > ITEMS_PER_LOAD);
     } else if (!searchQuery) {
       // No filters and no search query - fetch fresh from backend based on sortOrder
-      // Reset to page 1 and fetch from appropriate API (latest or oldest)
       setPage(1);
-      fetchPagedTopics(1, true);
+      fetchResources(1, true, "");
     }
-  }, [selectedSubjects, selectedTopics, sortOrder, showSavedOnly, savedTopicIds]);
+  }, [selectedSubjects, selectedTopics, sortOrder, showSavedOnly]);
 
   const toggleImageExpansion = (topicKey) => {
     if (!expandedImages[topicKey]) {
