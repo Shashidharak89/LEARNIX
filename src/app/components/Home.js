@@ -49,7 +49,7 @@ export default function Home() {
             <br />
             <br />
             <DownloadAppBanner />
-            <br />
+            <br />0
             <br />
             <br />
             <br />

@@ -1,12 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
 
 .ws-container {
-  width: 92%;
+  width: 90%;
   max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px 16px 60px 16px;
+  margin: 0 auto 56px;
+  padding: 24px 0 0;
   background-color: #ffffff;
   min-height: 100vh;
+  box-sizing: border-box;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Outfit", "Inter", sans-serif;
 }
 
@@ -14,7 +15,7 @@
 .res-intro-card {
   width: 100%;
   max-width: 1200px;
-  margin: 0 auto 24px auto;
+  margin: 0 auto 12px auto;
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 24px;
@@ -282,7 +283,7 @@
 
 .ws-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 12px;
 }
 
 .ws-updates-banner-wrap {
@@ -612,7 +613,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 25px;
+  margin-bottom: 14px;
   gap: 16px;
 }
 
@@ -624,7 +625,7 @@
   font-size: 1.8rem;
   font-weight: 600;
   color: #1f2937;
-  margin-bottom: 25px;
+  margin-bottom: 14px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -1405,12 +1406,18 @@
   }
 }
 
+@media (min-width: 769px) and (max-width: 1024px) {
+  .ws-container {
+    width: 92%;
+  }
+}
+
 @media (max-width: 768px) {
   .ws-container {
-    width: 98%;
-    max-width: 98%;
+    width: 96%;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 12px 6px 40px 6px;
+    padding: 20px 8px 0;
     box-sizing: border-box;
   }
 
@@ -1419,6 +1426,15 @@
     max-width: 100%;
     padding: 18px 12px 16px;
     border-radius: 18px;
+    margin-bottom: 10px;
+  }
+
+  .ws-header {
+    margin-bottom: 10px;
+  }
+
+  .ws-section-header {
+    margin-bottom: 12px;
   }
 
   .res-search-container {
@@ -1508,13 +1524,32 @@
   }
 }
 
+@media (max-width: 640px) {
+  .ws-container {
+    width: 98%;
+    padding: 16px 4px 0;
+  }
+}
+
 @media (max-width: 480px) {
   .ws-container {
     width: 98%;
-    max-width: 98%;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 10px 4px 30px 4px;
+    padding: 16px 4px 0;
     box-sizing: border-box;
+  }
+
+  .res-intro-card {
+    margin-bottom: 8px;
+  }
+
+  .ws-header {
+    margin-bottom: 8px;
+  }
+
+  .ws-section-header {
+    margin-bottom: 10px;
   }
 
   .ws-search-input {
@@ -1572,9 +1607,9 @@
 @media (max-width: 360px) {
   .ws-container {
     width: 98%;
-    max-width: 98%;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 8px 2px 20px 2px;
+    padding: 12px 2px 0;
     box-sizing: border-box;
   }
 
