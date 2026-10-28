@@ -10,6 +10,18 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Introducing Learn Later — Save & Revisit Any Resource",
+      date: "Oct 28, 2026",
+      description:
+        "Never lose track of important study materials or announcements! Introducing Learn Later, a dedicated personal hub powered by DynamoDB where you can bookmark Campus Updates, Resources & Notes, Study Materials, and Question Papers with a single tap. Access your collection anytime from the sidebar navigation (/learn-later), search with instant keyword filtering, and manage your saved items with responsive iPhone-style widget cards.",
+    },
+    {
+      title: "Views on Resources and Updates Added",
+      date: "Oct 28, 2026",
+      description:
+        "You can now track engagement directly across Learnix! Real-time view counts have been added to both Campus Updates and Resources cards with an eye icon badge, allowing you to see how many peers have viewed and interacted with specific topics and announcements.",
+    },
+    {
       title: "Introducing Learnix Code — Interactive Coding Playground",
       date: "Oct 20, 2026",
       description:
