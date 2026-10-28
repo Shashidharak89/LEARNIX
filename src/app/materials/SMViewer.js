@@ -6,6 +6,7 @@ import { FiFileText, FiSearch, FiX, FiCheck, FiFilter } from "react-icons/fi";
 import SMDirectoryNode from "@/app/admin/study-materials/SMDirectoryNode";
 import SMAdminSearchResults from "@/app/admin/study-materials/SMAdminSearchResults";
 import SMPreferenceCard from "./SMPreferenceCard";
+import "@/app/updates/styles/Updates.css";
 import "./SMViewer.css";
 
 const CATEGORY_OPTIONS = [
@@ -132,29 +133,29 @@ export default function SMViewer() {
     return (
         <section className="sm-viewer-section" aria-labelledby="sm-papers-section">
             {/* Search & Intro Card */}
-            <div className="sm-search-card">
-                <div className="sm-section-header">
-                    <h1 id="sm-papers-section" className="sm-subtitle">
-                        <FiFileText className="sm-section-icon" />
+            <div className="upd-intro-card sm-search-card">
+                <div className="upd-intro-header sm-section-header">
+                    <h1 id="sm-papers-section" className="upd-title sm-subtitle">
+                        <FiFileText className="upd-title-icon sm-section-icon" size={24} />
                         Browse Study Materials Directory
                     </h1>
                 </div>
                 
-                <form onSubmit={handleSearchSubmit} className="sm-search-form">
-                    <div className="sm-search-wrap">
-                        <FiSearch className="sm-search-icon" />
+                <form className="upd-search-form" onSubmit={handleSearchSubmit}>
+                    <div className="upd-search-wrap">
+                        <FiSearch className="upd-search-icon" />
                         <input
                             type="text"
-                            placeholder="Search study materials (e.g. Physics, Mathematics...)"
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
-                            className="sm-search-input"
+                            className="upd-search-input"
+                            placeholder="Search study materials (e.g. Physics, Mathematics...)"
                             aria-label="Search study materials"
                         />
                         {searchInput && (
                             <button
                                 type="button"
-                                className="sm-search-clear-inline"
+                                className="upd-search-clear-inline"
                                 onClick={handleClearSearch}
                                 aria-label="Clear search"
                             >
@@ -162,15 +163,9 @@ export default function SMViewer() {
                             </button>
                         )}
                     </div>
-                    
-                    <button
-                        type="submit"
-                        className="sm-search-btn"
-                        disabled={!searchInput.trim()}
-                        aria-label="Search study materials"
-                    >
-                        <FiSearch className="sm-search-btn-icon" />
-                        <span className="sm-search-btn-text">Search</span>
+                    <button type="submit" className="upd-search-btn" disabled={!searchInput.trim()}>
+                        <FiSearch className="upd-search-btn-icon" />
+                        <span className="upd-search-btn-text">Search</span>
                     </button>
                 </form>
 
