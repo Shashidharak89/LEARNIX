@@ -663,6 +663,10 @@ const WorkSearchInterface = () => {
                 <FiCalendar className="ws-meta-icon" />
                 {new Date(topic.timestamp).toLocaleDateString('en-GB')}
               </span>
+              <span className="ws-meta-item ws-meta-views" title={`${topic.views ?? 0} views`}>
+                <FiEye className="ws-meta-icon" />
+                <span>{topic.views ?? 0}</span>
+              </span>
             </div>
           </div>
           <div className="ws-card-actions">

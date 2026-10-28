@@ -5,6 +5,7 @@ import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
 import { formatGithubRawUrl } from "@/lib/githubUrlHelper";
+import { getResourceViews } from "@/lib/interactions";
 
 // GET /api/admin/works?page=1&pageSize=10
 export const GET = async (req) => {
@@ -41,6 +42,9 @@ export const GET = async (req) => {
 
     const total = await Topic.countDocuments({});
 
+    const topicIds = topics.map((t) => t._id);
+    const viewsMap = await getResourceViews(topicIds);
+
     const topicsWithDetails = await Promise.all(
       topics.map(async (topic) => {
         const subject = await Subject.findById(topic.subjectId).lean();
@@ -57,6 +61,7 @@ export const GET = async (req) => {
           usn: user ? user.usn : null,
           profileimg: user ? user.profileimg : null,
           userId: user ? user._id : null,
+          views: viewsMap[topic._id.toString()] ?? 0,
         };
       })
     );

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Update from "@/models/Update";
 import User from "@/models/User";
+import { recordUpdateViews } from "@/lib/interactions";
 
 export async function GET(req) {
   try {
@@ -44,6 +45,9 @@ export async function GET(req) {
     const userMap = {};
     users.forEach(u => { userMap[u._id.toString()] = u; });
 
+    const updateIds = updates.map(u => u._id);
+    const viewsMap = await recordUpdateViews(updateIds);
+
     const enriched = updates.map(u => {
       const uid = u.userId ? u.userId.toString() : null;
       const user = uid ? userMap[uid] : null;
@@ -60,6 +64,7 @@ export async function GET(req) {
         usn: user?.usn || null,
         name: user?.name || null,
         profileUrl: user?.profileimg || null,
+        views: viewsMap[u._id.toString()] ?? 0,
       };
     });
 

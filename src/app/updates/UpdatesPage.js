@@ -357,9 +357,15 @@ function UpdateCard({
                 </Link>
               </div>
             )}
-            <div className="upd-timestamp">
-              <FiClock className="upd-time-icon" />
-              <span>{formatExactTimestamp(u.createdAt)}</span>
+            <div className="upd-user-meta-right">
+              <span className="upd-views-badge" title={`${u.views ?? 0} views`}>
+                <FiEye className="upd-views-icon" />
+                <span>{u.views ?? 0}</span>
+              </span>
+              <div className="upd-timestamp">
+                <FiClock className="upd-time-icon" />
+                <span>{formatExactTimestamp(u.createdAt)}</span>
+              </div>
             </div>
           </div>
         </div>

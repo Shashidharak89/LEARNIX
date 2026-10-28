@@ -6,6 +6,7 @@ import Topic from "@/models/Topic";
 import RequestMetric from "@/models/RequestMetric";
 import { getVisibility } from "@/lib/visibility";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
+import { recordSingleResourceView } from "@/lib/interactions";
 
 // GET /api/work/getbytopicid/:id
 export const GET = async (req, { params }) => {
@@ -76,6 +77,9 @@ export const GET = async (req, { params }) => {
       { upsert: true }
     ).catch(() => {});
 
+    // Increment view interaction for this single resource
+    const views = await recordSingleResourceView(topic._id);
+
     return NextResponse.json({
       viewer: caller
         ? {
@@ -103,7 +107,8 @@ export const GET = async (req, { params }) => {
         images: topic.images,
         visibility: topicVisibility,
         downloadlink: topic.downloadlink || "",
-        timestamp: topic.timestamp
+        timestamp: topic.timestamp,
+        views: views ?? 1,
       },
     });
   } catch (err) {

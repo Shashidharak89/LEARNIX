@@ -882,6 +882,25 @@
   flex-shrink: 0;
 }
 
+.ws-meta-views {
+  background: #f8fafc;
+  color: #0f172a;
+  border-color: #e2e8f0;
+  font-weight: 600;
+  transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.ws-meta-views:hover {
+  background: #eff6ff;
+  color: #1e40af;
+  border-color: #bfdbfe;
+  transform: translateY(-1px);
+}
+
+.ws-meta-views .ws-meta-icon {
+  color: #2563eb;
+}
+
 /* Action Buttons */
 .ws-card-actions {
   display: flex;

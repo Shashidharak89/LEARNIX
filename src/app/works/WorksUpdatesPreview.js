@@ -67,10 +67,16 @@ export default function WorksUpdatesPreview() {
                       {update.visibility === 'private' ? '🔒 Private' : update.visibility === 'unlisted' ? '🔗 Unlisted' : '🌐 Public'}
                     </span>
                   </div>
-                  <span className="wup-time">
-                    <FiClock />
-                    {formatTime(update.createdAt)}
-                  </span>
+                  <div className="wup-item-meta-right">
+                    <span className="wup-views" title={`${update.views ?? 0} views`}>
+                      <FiEye size={12} />
+                      {update.views ?? 0}
+                    </span>
+                    <span className="wup-time">
+                      <FiClock />
+                      {formatTime(update.createdAt)}
+                    </span>
+                  </div>
                 </div>
 
                 {update.content ? <p className="wup-content">{update.content}</p> : null}

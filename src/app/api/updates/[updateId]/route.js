@@ -4,6 +4,7 @@ import Update from "@/models/Update";
 import User from "@/models/User";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
 import mongoose from "mongoose";
+import { recordSingleUpdateView } from "@/lib/interactions";
 
 export async function GET(req, { params }) {
   try {
@@ -47,6 +48,9 @@ export async function GET(req, { params }) {
       author = await User.findById(updateDoc.userId).lean();
     }
 
+    // Increment & record view for this specific update
+    const views = await recordSingleUpdateView(updateDoc._id);
+
     const enriched = {
       _id: updateDoc._id,
       title: updateDoc.title,
@@ -61,6 +65,7 @@ export async function GET(req, { params }) {
       name: author?.name || null,
       profileUrl: author?.profileimg || null,
       isOwner: Boolean(isOwner),
+      views: views ?? 1,
     };
 
     return NextResponse.json({ success: true, update: enriched }, { status: 200 });

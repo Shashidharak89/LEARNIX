@@ -450,6 +450,10 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
                   minute: '2-digit'
                 })}</span>
               </div>
+              <div className="wtpc-meta-item wtpc-meta-views" title={`${topic.views ?? 0} views`}>
+                <FaEye className="wtpc-meta-icon" />
+                <span>{topic.views ?? 0} views</span>
+              </div>
             </div>
           </div>
 

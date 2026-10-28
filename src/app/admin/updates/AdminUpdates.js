@@ -13,6 +13,7 @@ import {
     FiHash,
     FiTrash2,
     FiBook,
+    FiEye,
 } from "react-icons/fi";
 import "../styles/AdminDashboard.css";
 import "../users/AdminUsers.css";
@@ -208,6 +209,9 @@ export default function AdminUpdates() {
 
                                         <div className="au-update-time">
                                             <FiCalendar size={12} /> {formatDateTime(item.createdAt)}
+                                            <span style={{ display: "inline-flex", alignItems: "center", gap: "3px", marginLeft: "10px", color: "#2563eb", fontWeight: 600 }}>
+                                                <FiEye size={12} /> {item.views ?? 0} views
+                                            </span>
                                         </div>
                                     </div>
 

@@ -206,6 +206,9 @@ export default function AdminWorks() {
                       <span className="aw-meta-chip">
                         Date: {new Date(topic.timestamp).toLocaleDateString()}
                       </span>
+                      <span className="aw-meta-chip" title={`${topic.views ?? 0} views`} style={{ color: "#1e40af", background: "#eff6ff" }}>
+                        <FiEye size={12} /> {topic.views ?? 0} views
+                      </span>
                       <Link
                         href={`/works/${topic._id}`}
                         target="_blank"

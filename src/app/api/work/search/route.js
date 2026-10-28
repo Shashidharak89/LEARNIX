@@ -5,6 +5,7 @@ import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
 import { buildKeywordConditions } from "@/lib/searchHelper";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
+import { recordResourceViews } from "@/lib/interactions";
 
 // GET /api/work/search?q=keyword&page=1&pageSize=8&subjects=sub1,sub2&topics=topic1,topic2
 export const GET = async (req) => {
@@ -73,6 +74,9 @@ export const GET = async (req) => {
       .limit(pageSize)
       .lean();
 
+    const topicIds = topics.map((t) => t._id);
+    const viewsMap = await recordResourceViews(topicIds);
+
     // For each topic, get subject and user
     const topicsWithDetails = await Promise.all(
       topics.map(async (topic) => {
@@ -87,6 +91,7 @@ export const GET = async (req) => {
           usn: user ? user.usn : null,
           profileimg: user ? user.profileimg : null,
           userId: user ? user._id : null,
+          views: viewsMap[topic._id.toString()] ?? 0,
         };
       })
     );

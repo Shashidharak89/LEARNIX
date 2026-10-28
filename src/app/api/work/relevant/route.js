@@ -4,6 +4,7 @@ import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
+import { recordResourceViews } from "@/lib/interactions";
 
 const HF_SEARCH_URL = "https://shashidharak99-keyword-search-lernix.hf.space/search";
 const PAGE_SIZE = 8;
@@ -106,6 +107,9 @@ export const GET = async (req) => {
       .limit(PAGE_SIZE)
       .lean();
 
+    const topicIds = topics.map((t) => t._id);
+    const viewsMap = await recordResourceViews(topicIds);
+
     // ── 4. Populate subject + user details (same as normal search) ────────────
     const topicsWithDetails = await Promise.all(
       topics.map(async (topic) => {
@@ -120,6 +124,7 @@ export const GET = async (req) => {
           usn: user?.usn ?? null,
           profileimg: user?.profileimg ?? null,
           userId: user?._id ?? null,
+          views: viewsMap[topic._id.toString()] ?? 0,
         };
       })
     );

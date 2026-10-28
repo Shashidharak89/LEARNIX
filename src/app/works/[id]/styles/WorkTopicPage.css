@@ -533,6 +533,19 @@
   font-size: 1rem;
 }
 
+.wtpc-meta-views {
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1e40af;
+  font-weight: 600;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.wtpc-meta-views:hover {
+  background-color: #dbeafe;
+  transform: translateY(-1px);
+}
+
 .wtpc-topic-content {
   margin-bottom: 32px;
   padding: 24px;

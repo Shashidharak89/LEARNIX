@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import Update from "@/models/Update";
 import User from "@/models/User";
 import mongoose from "mongoose";
+import { recordUpdateViews } from "@/lib/interactions";
 
 function escapeRegex(value = "") {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -93,6 +94,10 @@ export async function GET(req) {
       userMap[u._id.toString()] = u;
     });
 
+    // Increment & retrieve atomic view counts for the fetched updates
+    const updateIds = updates.map((u) => u._id);
+    const viewsMap = await recordUpdateViews(updateIds);
+
     const enriched = updates.map(u => {
       const uid = u.userId ? u.userId.toString() : null;
       const user = uid ? userMap[uid] : null;
@@ -109,6 +114,7 @@ export async function GET(req) {
         usn: user?.usn || null,
         name: user?.name || null,
         profileUrl: user?.profileimg || null,
+        views: viewsMap[u._id.toString()] ?? 0,
       };
     });
 
