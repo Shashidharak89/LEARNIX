@@ -1,10 +1,13 @@
 .sm-viewer-section {
+    width: 90%;
+    max-width: 1200px;
+    margin: 24px auto 60px;
+    box-sizing: border-box;
     background: #ffffff;
-    border: 1px solid #e0f2fe;
-    border-radius: 24px;
-    padding: 32px;
-    box-shadow: 0 6px 24px -4px rgba(14, 165, 233, 0.08);
-    margin-top: 32px;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -536,12 +539,14 @@
 /* ── Responsive: Tablet ≤768px ── */
 @media (max-width: 768px) {
     .sm-viewer-section {
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 10px 4px !important;
-        margin-top: 10px !important;
-        border-radius: 14px !important;
+        width: 96% !important;
+        max-width: 1200px !important;
+        margin: 16px auto 40px !important;
+        padding: 20px 16px !important;
+        border-radius: 18px !important;
         box-sizing: border-box !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03) !important;
     }
 
     .sm-subtitle {
@@ -549,49 +554,50 @@
     }
 
     .sm-section-icon {
-        padding: 6px;
+        padding: 8px;
         font-size: 1.2rem;
+        border-radius: 12px;
     }
 
     .sm-section-header {
         gap: 8px !important;
-        margin-bottom: 12px !important;
+        margin-bottom: 14px !important;
         padding: 0 4px !important;
     }
 
     .sm-search-container {
-        padding: 10px 8px !important;
-        border-radius: 12px !important;
-        margin-bottom: 10px !important;
+        padding: 12px 12px !important;
+        border-radius: 16px !important;
+        margin-bottom: 12px !important;
     }
 
     .sm-search-form {
         gap: 8px !important;
     }
 
-    /* Content wrapper: maximize width, eliminate extra side padding */
+    /* Content wrapper: Apple-rounded border with clean spacing */
     .sm-content {
         width: 100% !important;
-        padding: 6px 2px !important;
-        border-radius: 12px !important;
+        padding: 12px 10px !important;
+        border-radius: 16px !important;
         box-sizing: border-box !important;
     }
 
     .sm-pref-card-body {
-        padding: 6px 2px !important;
+        padding: 10px 8px !important;
         box-sizing: border-box !important;
     }
 
-    /* Stretched Cards: acquire maximum width */
+    /* Stretched Cards: acquire maximum width with Apple-rounded corners */
     .sm-tree-card,
     .sm-tree-ext-btn,
     .sm-tree-file-card,
     .sm-admin-search-card,
     .sm-admin-search-file-card {
         width: 100% !important;
-        min-height: 46px !important;
-        padding: 10px 10px !important;
-        border-radius: 10px !important;
+        min-height: 48px !important;
+        padding: 11px 12px !important;
+        border-radius: 14px !important;
         box-sizing: border-box !important;
     }
 
@@ -601,20 +607,20 @@
     .sm-admin-search-node,
     .sm-admin-search-file {
         margin-left: 0 !important;
-        margin-top: 3px !important;
-        margin-bottom: 3px !important;
+        margin-top: 4px !important;
+        margin-bottom: 4px !important;
         width: 100% !important;
         box-sizing: border-box !important;
     }
 
-    /* When user expands it: exactly 3% (3 from 100) horizontal shift, and 3px vertical gap below parent */
+    /* Horizontal shift and border on expansion */
     .sm-tree-children,
     .sm-tree-ext-children,
     .sm-admin-search-children {
         margin-left: 3% !important;
-        padding-left: 3px !important;
-        margin-top: 3px !important;
-        margin-bottom: 3px !important;
+        padding-left: 4px !important;
+        margin-top: 4px !important;
+        margin-bottom: 4px !important;
         border-left: 2px solid #7dd3fc !important;
         width: 97% !important;
         box-sizing: border-box !important;
@@ -625,30 +631,30 @@
     }
 
     .sm-tree-pref-btn {
-        padding: 4px 6px;
-        border-radius: 50%;
+        padding: 5px 8px;
+        border-radius: 8px;
     }
 
     .sm-pref-card-title {
-        font-size: 12px;
-    }
-
-    .sm-pref-card-sub {
-        font-size: 10px;
-    }
-
-    .sm-pref-badge-icon {
-        width: 26px;
-        height: 26px;
-        border-radius: 6px;
-    }
-
-    .sm-pref-list-title {
         font-size: 13px;
     }
 
+    .sm-pref-card-sub {
+        font-size: 11px;
+    }
+
+    .sm-pref-badge-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+    }
+
+    .sm-pref-list-title {
+        font-size: 14px;
+    }
+
     .sm-category-pill {
-        padding: 3px 8px;
+        padding: 4px 10px;
         font-size: 11px;
     }
 }
@@ -656,12 +662,14 @@
 /* ── Responsive: Mobile ≤550px ── */
 @media (max-width: 550px) {
     .sm-viewer-section {
-        width: 100% !important;
-        padding: 6px 2px !important;
-        border-radius: 10px !important;
-        margin-top: 8px !important;
-        box-shadow: none !important;
-        border: 1px solid #e0f2fe !important;
+        width: 98% !important;
+        max-width: 1200px !important;
+        margin: 12px auto 30px !important;
+        padding: 14px 10px !important;
+        border-radius: 16px !important;
+        box-sizing: border-box !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03) !important;
+        border: 1px solid #e2e8f0 !important;
     }
 
     .sm-subtitle {
@@ -670,8 +678,8 @@
 
     .sm-section-icon {
         font-size: 1rem;
-        padding: 5px;
-        border-radius: 7px;
+        padding: 6px;
+        border-radius: 10px;
     }
 
     .sm-section-header {
@@ -681,15 +689,16 @@
     }
 
     .sm-content {
-        padding: 4px 1px !important;
-        border-radius: 8px !important;
+        padding: 10px 8px !important;
+        border-radius: 14px !important;
     }
 
     .sm-tree-card,
     .sm-tree-ext-btn,
     .sm-tree-file-card {
-        padding: 9px 8px !important;
+        padding: 9px 10px !important;
         min-height: 44px !important;
+        border-radius: 12px !important;
     }
 
     .sm-tree-node,
@@ -715,78 +724,82 @@
     }
 
     .sm-tree-pref-btn {
-        padding: 3px 5px;
-    }
-
-    .sm-pref-list-container {
-        padding: 6px 6px;
+        padding: 4px 6px;
         border-radius: 8px;
     }
 
+    .sm-pref-list-container {
+        padding: 10px 10px;
+        border-radius: 14px !important;
+    }
+
     .sm-pref-list-title {
-        font-size: 12px;
+        font-size: 13px;
         gap: 4px;
     }
 
     .sm-pref-card-header {
-        padding: 8px 8px;
+        padding: 10px 10px;
+        border-radius: 12px;
     }
 
     .sm-pref-card-title {
-        font-size: 11px;
-    }
-
-    .sm-pref-card-sub {
-        font-size: 10px;
-    }
-
-    .sm-pref-badge-icon {
-        width: 22px;
-        height: 22px;
-        border-radius: 5px;
-    }
-
-    .sm-pref-action-btn {
-        padding: 4px 6px;
-        font-size: 10px;
-    }
-
-    .sm-pref-empty-card {
-        padding: 8px 10px;
-        flex-direction: column;
-        gap: 6px;
-        text-align: center;
-        border-radius: 8px;
-    }
-
-    .sm-pref-empty-title {
         font-size: 12px;
     }
 
+    .sm-pref-card-sub {
+        font-size: 11px;
+    }
+
+    .sm-pref-badge-icon {
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+    }
+
+    .sm-pref-action-btn {
+        padding: 5px 8px;
+        font-size: 11px;
+        border-radius: 8px;
+    }
+
+    .sm-pref-empty-card {
+        padding: 12px 14px;
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+        border-radius: 14px !important;
+    }
+
+    .sm-pref-empty-title {
+        font-size: 13px;
+    }
+
     .sm-pref-empty-sub {
-        font-size: 10px;
+        font-size: 11px;
     }
 
     .sm-pref-add-btn {
-        padding: 5px 10px;
-        font-size: 11px;
+        padding: 6px 12px;
+        font-size: 12px;
+        border-radius: 8px;
     }
 
     .sm-pref-modal {
         max-width: 100%;
-        border-radius: 12px;
+        border-radius: 18px !important;
     }
 
     .sm-pref-modal-header {
-        padding: 12px 14px;
+        padding: 14px 16px;
     }
 
     .sm-pref-modal-body {
-        padding: 12px 14px;
+        padding: 14px 16px;
     }
 
     .sm-pref-modal-footer {
-        padding: 10px 14px;
+        padding: 12px 16px;
     }
 
     .sm-pref-modal-title {
@@ -795,19 +808,20 @@
 
     .sm-pref-select {
         font-size: 13px;
-        padding: 8px 10px;
+        padding: 9px 12px;
+        border-radius: 10px;
     }
 
     .sm-category-pill {
-        padding: 3px 7px;
-        font-size: 10px;
+        padding: 4px 8px;
+        font-size: 11px;
         gap: 3px;
     }
 
     .sm-search-container {
-        padding: 8px 6px !important;
-        border-radius: 8px !important;
-        margin-bottom: 8px !important;
+        padding: 10px 10px !important;
+        border-radius: 14px !important;
+        margin-bottom: 10px !important;
     }
 
     .sm-search-btn-text {
@@ -815,36 +829,41 @@
     }
 
     .sm-search-scope {
-        margin-top: 6px !important;
-        gap: 4px !important;
+        margin-top: 8px !important;
+        gap: 6px !important;
     }
 }
 
 /* ── Responsive: Small Mobile ≤400px ── */
 @media (max-width: 400px) {
     .sm-viewer-section {
-        padding: 4px 1px !important;
-        border-radius: 6px !important;
-        margin-top: 6px !important;
+        width: 98% !important;
+        max-width: 1200px !important;
+        margin: 8px auto 20px !important;
+        padding: 12px 8px !important;
+        border-radius: 16px !important;
     }
 
     .sm-subtitle {
-        font-size: 0.85rem;
+        font-size: 0.88rem;
     }
 
     .sm-section-icon {
-        font-size: 0.9rem;
-        padding: 4px;
+        font-size: 0.95rem;
+        padding: 5px;
+        border-radius: 8px;
     }
 
     .sm-content {
-        padding: 2px 0 !important;
+        padding: 8px 6px !important;
+        border-radius: 14px !important;
     }
 
     .sm-tree-card,
     .sm-tree-ext-btn,
     .sm-tree-file-card {
-        padding: 8px 6px !important;
+        padding: 8px 8px !important;
+        border-radius: 12px !important;
     }
 
     .sm-tree-node,
@@ -859,31 +878,33 @@
     .sm-tree-children,
     .sm-tree-ext-children {
         margin-left: 3% !important;
-        padding-left: 2px !important;
+        padding-left: 3px !important;
         margin-top: 3px !important;
         margin-bottom: 3px !important;
         width: 97% !important;
     }
 
     .sm-pref-list-container {
-        padding: 4px 4px;
+        padding: 8px 8px;
+        border-radius: 12px !important;
     }
 
     .sm-pref-card-header {
-        padding: 6px 6px;
+        padding: 8px 8px;
+        border-radius: 10px;
     }
 
     .sm-pref-card-title {
-        font-size: 10px;
+        font-size: 11px;
     }
 
     .sm-pref-type-tag {
-        font-size: 8px;
-        padding: 1px 4px;
+        font-size: 9px;
+        padding: 2px 5px;
     }
 
     .sm-category-pill {
-        padding: 2px 5px;
-        font-size: 9px;
+        padding: 3px 6px;
+        font-size: 10px;
     }
 }

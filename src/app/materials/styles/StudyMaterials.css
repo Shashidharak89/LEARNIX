@@ -7,8 +7,10 @@
 }
 
 .sm-container {
-  max-width: 1000px;
+  width: 90%;
+  max-width: 1200px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 /* Header Section */
@@ -698,9 +700,9 @@
   }
 
   .sm-container {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
+    width: 96% !important;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
     padding: 0 !important;
     box-sizing: border-box !important;
   }
