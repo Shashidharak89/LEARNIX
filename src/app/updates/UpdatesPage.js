@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
 import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiChevronDown, FiChevronUp, FiEye, FiDownload, FiSearch, FiPlus, FiList, FiX, FiCheckCircle, FiAlertCircle, FiInfo } from 'react-icons/fi';
-import { Share2, Bell } from 'lucide-react';
+import { Share2, Bell, Sparkles } from 'lucide-react';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
 import { getYouTubeVideoId, groupConsecutiveLinks } from '../utils/youtube';
 import LinkPreview from '../components/LinkPreview';
@@ -112,18 +112,30 @@ function UpdateCard({
                 </Link>
               )}
             </div>
-            <button
-              type="button"
-              className="upd-share-btn"
-              title="Share update"
-              aria-label="Share update"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleShareUpdate(u._id, u.title || 'Update');
-              }}
-            >
-              <Share2 size={15} />
-            </button>
+            <div className="upd-card-header-actions">
+              <Link
+                href={`/updates/${u._id}`}
+                className="upd-ai-btn"
+                title="View with AI insights"
+                aria-label="View with AI insights"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Sparkles size={13} className="upd-ai-btn-icon" />
+                <span className="upd-ai-btn-text">AI</span>
+              </Link>
+              <button
+                type="button"
+                className="upd-share-btn"
+                title="Share update"
+                aria-label="Share update"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleShareUpdate(u._id, u.title || 'Update');
+                }}
+              >
+                <Share2 size={15} />
+              </button>
+            </div>
           </div>
 
           <div className="upd-user-sub-row">
@@ -452,6 +464,27 @@ export default function UpdatesPage({ initialUpdateId }) {
     }
   };
 
+  const handleSharePage = () => {
+    const shareUrl = typeof window !== 'undefined' ? window.location.href : 'https://learnix.in/updates';
+    const shareTitle = searchQuery ? `Learnix Updates - "${searchQuery}"` : 'Learnix Updates';
+
+    if (navigator.share) {
+      navigator
+        .share({
+          title: shareTitle,
+          text: 'Check out the latest updates and announcements on Learnix',
+          url: shareUrl,
+        })
+        .then(() => showToast("Shared successfully!", "success"))
+        .catch(() => { });
+    } else {
+      navigator.clipboard
+        .writeText(shareUrl)
+        .then(() => showToast("Updates page link copied to clipboard!", "success"))
+        .catch(() => showToast("Failed to copy link", "error"));
+    }
+  };
+
   const UpdateSkeleton = () => (
     <div className="upd-card upd-skeleton">
       <div className="upd-card-header">
@@ -486,29 +519,41 @@ export default function UpdatesPage({ initialUpdateId }) {
                 <Bell className="upd-title-icon" size={24} />
                 Updates
               </h1>
-              {isLoggedIn && (
-                <div className="upd-action-buttons">
-                  <button
-                    type="button"
-                    className="upd-action-btn upd-action-btn-primary"
-                    onClick={() => setShowAddModal(true)}
-                    title="Add Update"
-                    aria-label="Add Update"
-                  >
-                    <FiPlus className="upd-action-icon" />
-                    <span className="upd-action-text">Add Update</span>
-                  </button>
-                  <Link
-                    href="/upload/updates"
-                    className="upd-action-btn upd-action-btn-secondary"
-                    title="Manage Updates"
-                    aria-label="Manage Updates"
-                  >
-                    <FiList className="upd-action-icon" />
-                    <span className="upd-action-text">Manage</span>
-                  </Link>
-                </div>
-              )}
+              <div className="upd-header-right-actions">
+                {isLoggedIn && (
+                  <div className="upd-action-buttons">
+                    <button
+                      type="button"
+                      className="upd-action-btn upd-action-btn-primary"
+                      onClick={() => setShowAddModal(true)}
+                      title="Add Update"
+                      aria-label="Add Update"
+                    >
+                      <FiPlus className="upd-action-icon" />
+                      <span className="upd-action-text">Add Update</span>
+                    </button>
+                    <Link
+                      href="/upload/updates"
+                      className="upd-action-btn upd-action-btn-secondary"
+                      title="Manage Updates"
+                      aria-label="Manage Updates"
+                    >
+                      <FiList className="upd-action-icon" />
+                      <span className="upd-action-text">Manage</span>
+                    </Link>
+                  </div>
+                )}
+                <button
+                  type="button"
+                  className="upd-header-share-btn"
+                  onClick={handleSharePage}
+                  title="Share Updates Page"
+                  aria-label="Share Updates Page"
+                >
+                  <Share2 size={16} />
+                  <span className="upd-header-share-text">Share</span>
+                </button>
+              </div>
             </div>
 
             <form className="upd-search-form" onSubmit={handleSearchSubmit}>

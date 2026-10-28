@@ -119,6 +119,58 @@
 
 /* subtitle removed from design */
 
+/* Header right actions (Add, Manage, and Page Share) */
+.upd-header-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.upd-header-share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 220ms var(--upd-ease);
+  background: var(--upd-blue-tint);
+  color: var(--upd-blue);
+  border: 1.5px solid rgba(11, 116, 255, 0.2);
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.upd-header-share-btn:hover {
+  background: var(--upd-blue);
+  color: #ffffff;
+  border-color: var(--upd-blue);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(11, 116, 255, 0.25);
+}
+
+.upd-header-share-btn:active {
+  transform: scale(0.97);
+}
+
+@media (max-width: 480px) {
+  .upd-header-share-text {
+    display: none;
+  }
+  .upd-header-share-btn {
+    padding: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+  }
+}
+
 /* Action buttons */
 .upd-action-buttons {
   display: flex;
@@ -426,6 +478,7 @@
   color: var(--upd-text);
   min-width: 0;
   flex: 1;
+  overflow: hidden;
 }
 
 .upd-user-name-link {
@@ -436,11 +489,13 @@
   color: inherit;
   transition: color 0.2s ease;
   cursor: pointer;
-  flex-shrink: 0;
-  white-space: nowrap;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .upd-user-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -528,6 +583,74 @@
   opacity: 0.7;
 }
 
+/* Card header actions container */
+.upd-card-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* AI Rectangular Badge/Button — Star icon + AI, stays solid on both small and large widths */
+.upd-ai-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1.5px solid rgba(11, 116, 255, 0.25);
+  color: var(--upd-blue);
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 220ms var(--upd-ease);
+  flex-shrink: 0;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(11, 116, 255, 0.06);
+}
+
+.upd-ai-btn-icon {
+  color: var(--upd-blue);
+  transition: transform 220ms var(--upd-ease), color 220ms var(--upd-ease);
+}
+
+.upd-ai-btn-text {
+  font-family: inherit;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .upd-ai-btn:hover {
+    background: linear-gradient(135deg, #0b74ff 0%, #6366f1 100%);
+    color: #ffffff;
+    border-color: transparent;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(11, 116, 255, 0.28);
+  }
+
+  .upd-ai-btn:hover .upd-ai-btn-icon {
+    color: #ffffff;
+    transform: rotate(15deg) scale(1.1);
+  }
+}
+
+.upd-ai-btn:active {
+  transform: scale(0.95);
+}
+
+.upd-ai-btn:focus-visible {
+  outline: 2px solid var(--upd-blue);
+  outline-offset: 2px;
+}
+
 /* Share button */
 .upd-share-btn {
   display: inline-flex;
@@ -542,7 +665,7 @@
   cursor: pointer;
   transition: all 220ms var(--upd-ease);
   flex-shrink: 0;
-  margin-left: auto;
+  margin-left: 0;
 }
 
 .upd-share-btn:hover {
