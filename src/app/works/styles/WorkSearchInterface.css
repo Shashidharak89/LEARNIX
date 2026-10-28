@@ -217,10 +217,10 @@
 }
 
 .res-search-submit-btn:disabled {
-  background: #cbd5e1;
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
   box-shadow: none;
+  transform: none;
 }
 
 @media (max-width: 768px) {
