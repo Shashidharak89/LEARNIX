@@ -194,8 +194,8 @@ export default function SMViewer() {
                 </div>
             </div>
 
-            {/* Preference Card (independent card) */}
-            <SMPreferenceCard />
+            {/* Preference Card (hidden when user searches) */}
+            {!activeQuery.trim() && <SMPreferenceCard />}
 
             {/* Directory / Search Results Card (independent card) */}
             <div className="sm-content">
