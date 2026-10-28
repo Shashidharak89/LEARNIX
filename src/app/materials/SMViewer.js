@@ -131,20 +131,13 @@ export default function SMViewer() {
 
     return (
         <section className="sm-viewer-section" aria-labelledby="sm-papers-section">
-            <div className="sm-section-header">
-                <FiFileText className="sm-section-icon" />
-                <h2 id="sm-papers-section" className="sm-subtitle">Browse Study Materials Directory</h2>
-            </div>
-            
-            {/* Search Box & Category Filters */}
-            <div className="sm-search-container" style={{ 
-                marginBottom: "16px", 
-                background: "#ffffff",
-                padding: "18px 20px",
-                borderRadius: "18px",
-                border: "1px solid #e0f2fe",
-                boxShadow: "0 4px 16px rgba(14, 165, 233, 0.06)"
-            }}>
+            {/* Search & Intro Card */}
+            <div className="sm-search-card">
+                <div className="sm-section-header">
+                    <FiFileText className="sm-section-icon" />
+                    <h2 id="sm-papers-section" className="sm-subtitle">Browse Study Materials Directory</h2>
+                </div>
+                
                 <form onSubmit={handleSearchSubmit} className="sm-search-form" style={{ display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" }}>
                     <div style={{ 
                         position: "relative", 
@@ -272,10 +265,11 @@ export default function SMViewer() {
                 </div>
             </div>
 
-            {/* Your Preference Card */}
+            {/* Preference Card (independent card) */}
             <SMPreferenceCard />
 
-            <div className="sm-content" style={{ padding: "20px", background: "#fafcfe", borderRadius: "18px", border: "1px solid #e0f2fe", boxShadow: "0 2px 10px rgba(14, 165, 233, 0.03)" }}>
+            {/* Directory / Search Results Card (independent card) */}
+            <div className="sm-content">
                 {activeQuery.trim() ? (
                     <SMAdminSearchResults 
                         searchQuery={activeQuery}

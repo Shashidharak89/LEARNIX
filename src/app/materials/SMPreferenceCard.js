@@ -102,7 +102,7 @@ export default function SMPreferenceCard() {
     };
 
     return (
-        <div style={{ marginBottom: "14px" }}>
+        <div className="sm-pref-card-section">
             {/* If no preferences are set */}
             {preferences.length === 0 ? (
                 <div 
