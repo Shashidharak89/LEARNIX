@@ -15,17 +15,19 @@
 
 /* ── Card 1: Search & Intro Card ── */
 .sm-search-card {
+    width: 100%;
     background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 20px;
-    padding: 24px 28px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 24px;
+    padding: 24px 24px 20px;
+    box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+    position: relative;
     box-sizing: border-box;
     transition: all 0.25s ease;
 }
 
 .sm-search-card:hover {
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.1), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
 }
 
 /* ── Card 2: Preferences Section ── */
@@ -53,34 +55,194 @@
 .sm-section-header {
     display: flex;
     align-items: center;
-    gap: 14px;
-    margin-bottom: 24px;
-}
-
-.sm-section-icon {
-    font-size: 1.5rem;
-    color: #0ea5e9;
-    background: linear-gradient(135deg, #e0f2fe, #fef9c3);
-    padding: 10px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.12);
+    gap: 8px;
+    margin-bottom: 0;
+    width: 100%;
 }
 
 .sm-subtitle {
-    font-size: 1.4rem;
+    font-size: 1.75rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #0284c7, #0ea5e9);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #0b74ff;
     margin: 0;
-    letter-spacing: -0.3px;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sm-section-icon {
+    display: inline-flex;
+    color: #0b74ff;
+    font-size: 1.5rem;
+    margin-right: 4px;
+    vertical-align: middle;
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    flex-shrink: 0;
+}
+
+/* ── Search Form (Matching Updates & Resources Search Card) ── */
+.sm-search-form {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.sm-search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    box-sizing: border-box;
+}
+
+.sm-search-wrap:focus-within {
+    border-color: #0b74ff;
+    box-shadow: 0 0 0 3px rgba(11, 116, 255, 0.12);
+}
+
+.sm-search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #0b74ff;
+    font-size: 16px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.sm-search-input {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 44px;
+    border-radius: 999px;
+    border: none;
+    padding: 0 42px 0 44px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #0f172a;
+    background: transparent;
+    outline: none;
+    font-family: inherit;
+    caret-color: #0b74ff;
+    box-sizing: border-box;
+}
+
+.sm-search-input::placeholder {
+    color: #64748b;
+    font-weight: 400;
+}
+
+.sm-search-clear-inline {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    background: #e2e8f0;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s ease;
+}
+
+.sm-search-clear-inline:hover {
+    background: #cbd5e1;
+    color: #0f172a;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.sm-search-btn {
+    height: 44px;
+    border: none;
+    border-radius: 999px;
+    background: #0b74ff;
+    color: #fff;
+    padding: 0 20px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 220ms ease;
+    box-shadow: 0 4px 14px rgba(11, 116, 255, 0.22);
+    flex-shrink: 0;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.sm-search-btn-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.sm-search-btn-text {
+    display: inline;
+}
+
+.sm-search-btn:hover:not(:disabled) {
+    background: #0256c9;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(11, 116, 255, 0.35);
+}
+
+.sm-search-btn:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+.sm-search-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
 }
 
 /* ── Category / Search Scope Pills ── */
+.sm-search-scope {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.sm-search-scope-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.sm-search-scope-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
 .sm-category-pill {
     display: inline-flex;
     align-items: center;
@@ -99,17 +261,17 @@
 }
 
 .sm-category-pill:hover {
-    border-color: #7dd3fc;
-    color: #0284c7;
-    background: #f0f9ff;
+    border-color: #93c5fd;
+    color: #0b74ff;
+    background: #eff6ff;
     transform: translateY(-1px);
 }
 
 .sm-category-pill.active {
-    background: #0ea5e9;
+    background: #0b74ff;
     color: #ffffff;
-    border-color: #0ea5e9;
-    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.28);
+    border-color: #0b74ff;
+    box-shadow: 0 2px 8px rgba(11, 116, 255, 0.28);
 }
 
 /* ── Tree Node Inline Set Preference Button ── */
@@ -591,33 +753,80 @@
     }
 
     .sm-search-card {
-        padding: 18px 16px !important;
-        border-radius: 18px !important;
+        padding: 18px 16px 16px !important;
+        border-radius: 20px !important;
     }
 
     .sm-subtitle {
-        font-size: 1.1rem;
+        font-size: 1.25rem !important;
+        white-space: nowrap;
+        flex-shrink: 0;
     }
 
     .sm-section-icon {
-        padding: 8px;
-        font-size: 1.2rem;
-        border-radius: 12px;
+        width: 20px !important;
+        height: 20px !important;
+        font-size: 1.25rem !important;
+        margin-right: 4px !important;
+        padding: 0 !important;
+        background: none !important;
+        box-shadow: none !important;
     }
 
     .sm-section-header {
         gap: 8px !important;
-        margin-bottom: 14px !important;
-        padding: 0 4px !important;
-    }
-
-    .sm-search-container {
-        padding: 12px 12px !important;
-        border-radius: 16px !important;
-        margin-bottom: 12px !important;
+        margin-bottom: 0 !important;
+        padding: 0 !important;
     }
 
     .sm-search-form {
+        margin-top: 14px !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 8px !important;
+        flex-wrap: nowrap !important;
+        width: 100% !important;
+    }
+
+    .sm-search-wrap {
+        flex: 1 !important;
+        min-width: 0 !important;
+    }
+
+    .sm-search-input {
+        padding: 0 34px 0 38px !important;
+        font-size: 0.85rem !important;
+    }
+
+    .sm-search-icon {
+        left: 14px !important;
+        font-size: 0.95rem !important;
+    }
+
+    .sm-search-clear-inline {
+        right: 12px !important;
+    }
+
+    .sm-search-btn {
+        width: 44px !important;
+        min-width: 44px !important;
+        height: 44px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+    }
+
+    .sm-search-btn-text {
+        display: none !important;
+    }
+
+    .sm-search-btn-icon {
+        font-size: 18px !important;
+    }
+
+    .sm-search-scope {
+        margin-top: 12px !important;
         gap: 8px !important;
     }
 
@@ -724,19 +933,23 @@
     }
 
     .sm-subtitle {
-        font-size: 0.95rem;
+        font-size: 1.15rem !important;
+        white-space: normal !important;
     }
 
     .sm-section-icon {
-        font-size: 1rem;
-        padding: 6px;
-        border-radius: 10px;
+        font-size: 1.15rem !important;
+        width: 18px !important;
+        height: 18px !important;
+        padding: 0 !important;
+        background: none !important;
+        box-shadow: none !important;
     }
 
     .sm-section-header {
         gap: 6px !important;
-        margin-bottom: 10px !important;
-        padding: 0 2px !important;
+        margin-bottom: 0 !important;
+        padding: 0 !important;
     }
 
     .sm-content {
@@ -869,16 +1082,6 @@
         gap: 3px;
     }
 
-    .sm-search-container {
-        padding: 10px 10px !important;
-        border-radius: 14px !important;
-        margin-bottom: 10px !important;
-    }
-
-    .sm-search-btn-text {
-        display: none;
-    }
-
     .sm-search-scope {
         margin-top: 8px !important;
         gap: 6px !important;
@@ -904,13 +1107,16 @@
     }
 
     .sm-subtitle {
-        font-size: 0.88rem;
+        font-size: 1.05rem !important;
     }
 
     .sm-section-icon {
-        font-size: 0.95rem;
-        padding: 5px;
-        border-radius: 8px;
+        font-size: 1.05rem !important;
+        width: 16px !important;
+        height: 16px !important;
+        padding: 0 !important;
+        background: none !important;
+        box-shadow: none !important;
     }
 
     .sm-content {

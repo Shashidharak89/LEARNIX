@@ -134,119 +134,53 @@ export default function SMViewer() {
             {/* Search & Intro Card */}
             <div className="sm-search-card">
                 <div className="sm-section-header">
-                    <FiFileText className="sm-section-icon" />
-                    <h2 id="sm-papers-section" className="sm-subtitle">Browse Study Materials Directory</h2>
+                    <h1 id="sm-papers-section" className="sm-subtitle">
+                        <FiFileText className="sm-section-icon" />
+                        Browse Study Materials Directory
+                    </h1>
                 </div>
                 
-                <form onSubmit={handleSearchSubmit} className="sm-search-form" style={{ display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center" }}>
-                    <div style={{ 
-                        position: "relative", 
-                        flex: 1, 
-                        minWidth: "260px",
-                        display: "flex", 
-                        alignItems: "center" 
-                    }}>
-                        <FiSearch style={{ 
-                            position: "absolute", 
-                            left: "16px", 
-                            color: "#0ea5e9", 
-                            fontSize: "19px" 
-                        }} />
+                <form onSubmit={handleSearchSubmit} className="sm-search-form">
+                    <div className="sm-search-wrap">
+                        <FiSearch className="sm-search-icon" />
                         <input
                             type="text"
                             placeholder="Search study materials (e.g. Physics, Mathematics...)"
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
-                            style={{
-                                width: "100%",
-                                padding: "12px 16px 12px 46px",
-                                borderRadius: "12px",
-                                border: "1.5px solid #7dd3fc",
-                                outline: "none",
-                                fontSize: "15px",
-                                background: "#f8fafc",
-                                color: "#1e293b",
-                                transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)"
-                            }}
-                            onFocus={(e) => {
-                                e.target.style.borderColor = "#0ea5e9";
-                                e.target.style.background = "#ffffff";
-                                e.target.style.boxShadow = "0 0 0 4px rgba(14, 165, 233, 0.12)";
-                            }}
-                            onBlur={(e) => {
-                                e.target.style.borderColor = "#7dd3fc";
-                                e.target.style.background = "#f8fafc";
-                                e.target.style.boxShadow = "none";
-                            }}
+                            className="sm-search-input"
+                            aria-label="Search study materials"
                         />
+                        {searchInput && (
+                            <button
+                                type="button"
+                                className="sm-search-clear-inline"
+                                onClick={handleClearSearch}
+                                aria-label="Clear search"
+                            >
+                                <FiX size={14} />
+                            </button>
+                        )}
                     </div>
                     
                     <button
                         type="submit"
-                        style={{
-                            background: "#0ea5e9",
-                            color: "#ffffff",
-                            border: "none",
-                            padding: "0 22px",
-                            height: "46px",
-                            borderRadius: "12px",
-                            cursor: "pointer",
-                            fontSize: "14px",
-                            fontWeight: "600",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "8px",
-                            transition: "all 0.2s ease",
-                            boxShadow: "0 2px 8px rgba(14, 165, 233, 0.25)"
-                        }}
-                        onMouseOver={(e) => {
-                            e.currentTarget.style.background = "#0284c7";
-                            e.currentTarget.style.transform = "translateY(-1px)";
-                        }}
-                        onMouseOut={(e) => {
-                            e.currentTarget.style.background = "#0ea5e9";
-                            e.currentTarget.style.transform = "none";
-                        }}
+                        className="sm-search-btn"
+                        disabled={!searchInput.trim()}
+                        aria-label="Search study materials"
                     >
-                        <FiSearch size={17} />
+                        <FiSearch className="sm-search-btn-icon" />
                         <span className="sm-search-btn-text">Search</span>
                     </button>
-
-                    {(searchInput || activeQuery) && (
-                        <button
-                            type="button"
-                            onClick={handleClearSearch}
-                            style={{
-                                background: "#fef2f2",
-                                color: "#b91c1c",
-                                border: "1px solid #fecaca",
-                                padding: "0 18px",
-                                height: "46px",
-                                borderRadius: "12px",
-                                cursor: "pointer",
-                                fontSize: "14px",
-                                fontWeight: "600",
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "6px",
-                                transition: "all 0.2s ease"
-                            }}
-                            onMouseOver={(e) => e.currentTarget.style.background = "#fecaca"}
-                            onMouseOut={(e) => e.currentTarget.style.background = "#fef2f2"}
-                        >
-                            <FiX size={17} />
-                            <span className="sm-search-btn-text">Clear</span>
-                        </button>
-                    )}
                 </form>
 
                 {/* Category Scope Selection Pills */}
-                <div className="sm-search-scope" style={{ marginTop: "14px", display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", color: "#64748b", fontWeight: "600", whiteSpace: "nowrap" }}>
-                        <FiFilter size={14} color="#0ea5e9" />
+                <div className="sm-search-scope">
+                    <div className="sm-search-scope-label">
+                        <FiFilter size={14} color="#0b74ff" />
                         <span>Scope:</span>
                     </div>
-                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                    <div className="sm-search-scope-pills">
                         {CATEGORY_OPTIONS.map(cat => {
                             const isSelected = selectedCategories.includes(cat.id);
                             return (
