@@ -218,23 +218,22 @@ export default function ManageSubjects() {
 
       {/* Page Header (Apple Card Widget) */}
       <header className="ms-page-header">
-        {/* Same-Row Header: Left = Icon, Middle = Title, Right = + Action */}
+        {/* Same-Row Header: Logo on left, immediate right title & text (left-aligned), + icon right-aligned */}
         <div className="ms-header-row">
-          {/* Left: Icon Badge */}
-          <div className="ms-header-icon-badge" aria-hidden="true">
-            <FiLayers />
+          <div className="ms-header-left">
+            <div className="ms-header-icon-badge" aria-hidden="true">
+              <FiLayers />
+            </div>
+
+            <div className="ms-header-text">
+              <div className="ms-header-tag">WORKSPACE</div>
+              <h1 className="ms-page-title">Upload Resources</h1>
+              <p className="ms-page-subtitle">
+                Upload and manage your subjects, topics, and study resources
+              </p>
+            </div>
           </div>
 
-          {/* Middle: Title Centered */}
-          <div className="ms-header-center">
-            <div className="ms-header-tag">WORKSPACE</div>
-            <h1 className="ms-page-title">Upload Resources</h1>
-            <p className="ms-page-subtitle">
-              Upload and manage your subjects, topics, and study resources
-            </p>
-          </div>
-
-          {/* Right: + Button in the Same Row */}
           <div className="ms-header-right">
             <button
               type="button"
@@ -250,22 +249,22 @@ export default function ManageSubjects() {
           </div>
         </div>
 
-        {/* Searchbar inside Header Card */}
-        <form className="ms-search-form" onSubmit={handleSearchSubmit}>
-          <div className="ms-search-wrap">
-            <FiSearch className="ms-search-icon" />
+        {/* Searchbar inside Header Card (Updates Searchbar Pattern) */}
+        <form className="upd-search-form ms-search-form" onSubmit={handleSearchSubmit}>
+          <div className="upd-search-wrap ms-search-wrap">
+            <FiSearch className="upd-search-icon ms-search-icon" />
             <input
               type="text"
               placeholder="Search your subjects or topics..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="ms-search-input"
+              className="upd-search-input ms-search-input"
               aria-label="Search your subjects or topics"
             />
             {searchInput && (
               <button
                 type="button"
-                className="ms-search-clear-inline"
+                className="upd-search-clear-inline ms-search-clear-inline"
                 onClick={handleClearSearch}
                 aria-label="Clear search"
               >
@@ -275,12 +274,16 @@ export default function ManageSubjects() {
           </div>
           <button
             type="submit"
-            className="ms-search-submit-btn"
-            disabled={isSearching}
+            className="upd-search-btn ms-search-submit-btn"
+            disabled={isSearching || !searchInput.trim()}
             aria-label="Search"
           >
-            {isSearching ? <FiLoader className="ms-search-spinner" /> : <FiSearch />}
-            <span className="ms-search-btn-text">Search</span>
+            {isSearching ? (
+              <FiLoader className="ms-search-spinner" />
+            ) : (
+              <FiSearch className="upd-search-btn-icon" />
+            )}
+            <span className="upd-search-btn-text ms-search-btn-text">Search</span>
           </button>
         </form>
 

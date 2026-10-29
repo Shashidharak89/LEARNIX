@@ -797,14 +797,24 @@
   box-shadow: 0 8px 24px -2px rgba(15, 23, 42, 0.06);
 }
 
-/* Same-row layout: Left (Icon) - Middle (Title) - Right (+) */
+/* Same-row layout: Left (Logo + Text immediate right) - Right (+ icon) */
 .ms-header-row {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  gap: 14px;
+  gap: 16px;
+  flex-wrap: nowrap;
+}
+
+.ms-header-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+  flex: 1;
 }
 
 .ms-header-icon-badge {
@@ -822,15 +832,13 @@
   box-shadow: 0 4px 14px rgba(0, 122, 255, 0.15);
 }
 
-.ms-header-center {
+.ms-header-text {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  align-items: flex-start;
+  text-align: left;
   gap: 3px;
   min-width: 0;
-  flex: 1;
 }
 
 .ms-header-tag {
@@ -849,13 +857,13 @@
 }
 
 .ms-page-title {
-  font-size: clamp(1.25rem, 2.3vw, 1.85rem);
+  font-size: clamp(1.25rem, 2.2vw, 1.85rem);
   font-weight: 800;
   letter-spacing: -0.025em;
   color: #0f172a;
   margin: 0;
-  line-height: 1.2;
-  text-align: center;
+  line-height: 1.15;
+  text-align: left;
 }
 
 .ms-page-subtitle {
@@ -863,7 +871,7 @@
   color: #64748b;
   margin: 0;
   line-height: 1.4;
-  text-align: center;
+  text-align: left;
 }
 
 .ms-header-right {
@@ -872,6 +880,7 @@
   justify-content: flex-end;
   gap: 10px;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 /* ── New Subject toggle button ── */
@@ -913,31 +922,38 @@
 .ms-add-toggle-btn--open .ms-add-toggle-plus { transform: rotate(45deg); }
 
 /* ════════════════════════════════════════
-   SEARCH BAR (Apple Pill Design)
+   SEARCH BAR (Matches Updates Search Bar)
 ════════════════════════════════════════ */
+.upd-search-form,
 .ms-search-form {
+  margin-top: 6px;
   display: flex;
   align-items: center;
   gap: 10px;
   width: 100%;
+  flex-direction: row;
+  flex-wrap: nowrap;
 }
 
+.upd-search-wrap,
 .ms-search-wrap {
   position: relative;
   flex: 1;
-  border-radius: 9999px;
-  background: #f8fafc;
+  min-width: 0;
+  border-radius: 999px;
+  background: #ffffff;
   border: 1.5px solid #e2e8f0;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   box-sizing: border-box;
 }
 
+.upd-search-wrap:focus-within,
 .ms-search-wrap:focus-within {
   border-color: #007aff;
-  background: #ffffff;
   box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.12);
 }
 
+.upd-search-icon,
 .ms-search-icon {
   position: absolute;
   left: 16px;
@@ -946,15 +962,19 @@
   color: #007aff;
   font-size: 16px;
   pointer-events: none;
+  z-index: 2;
 }
 
+.upd-search-input,
 .ms-search-input {
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: 44px;
-  border-radius: 9999px;
+  border-radius: 999px;
   border: none;
-  padding: 0 40px 0 44px;
-  font-size: 0.92rem;
+  padding: 0 42px 0 44px;
+  font-size: 0.9rem;
   font-weight: 500;
   color: #0f172a;
   background: transparent;
@@ -964,16 +984,19 @@
   box-sizing: border-box;
 }
 
+.upd-search-input::placeholder,
 .ms-search-input::placeholder {
   color: #64748b;
   font-weight: 400;
 }
 
+.upd-search-clear-inline,
 .ms-search-clear-inline {
   position: absolute;
   right: 14px;
   top: 50%;
   transform: translateY(-50%);
+  z-index: 3;
   width: 22px;
   height: 22px;
   border-radius: 50%;
@@ -984,30 +1007,50 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  padding: 0;
   transition: all 0.15s ease;
 }
+.upd-search-clear-inline:hover,
 .ms-search-clear-inline:hover {
   background: #cbd5e1;
   color: #0f172a;
 }
 
+.upd-search-btn,
 .ms-search-submit-btn {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  justify-content: center;
+  gap: 6px;
   height: 44px;
   padding: 0 20px;
-  border-radius: 9999px;
-  background: #007aff;
-  color: #ffffff;
-  border: none;
+  border-radius: 999px;
   font-size: 0.88rem;
   font-weight: 700;
   cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
+  border: none;
+  background: #007aff;
+  color: #ffffff;
   box-shadow: 0 4px 14px rgba(0, 122, 255, 0.25);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.upd-search-btn:hover:not(:disabled),
+.ms-search-submit-btn:hover:not(:disabled) {
+  background: #0062cc;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0, 122, 255, 0.35);
+}
+.upd-search-btn:disabled,
+.ms-search-submit-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.upd-search-btn-icon {
+  font-size: 15px;
 }
 .ms-search-submit-btn:hover:not(:disabled) {
   background: #0062cc;
@@ -1351,17 +1394,28 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 14px;
     width: 100%;
+    flex-wrap: nowrap;
+  }
+  .ms-header-left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    flex: 1;
   }
   .ms-header-icon-badge {
     width: 48px;
     height: 48px;
     border-radius: 14px;
     font-size: 22px;
+    flex-shrink: 0;
   }
   .ms-page-title {
     font-size: 1.35rem;
+    text-align: left;
   }
   .ms-add-drawer-inner { 
     padding: 18px 20px 22px; 
@@ -1378,10 +1432,11 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .ms-page-subtitle {
     display: none;
   }
+  /* In small width screens, just show + */
   .ms-add-btn-text {
     display: none;
   }
@@ -1395,9 +1450,11 @@
   .ms-add-toggle-plus {
     font-size: 18px;
   }
+  .upd-search-btn-text,
   .ms-search-btn-text {
     display: none;
   }
+  .upd-search-btn,
   .ms-search-submit-btn {
     width: 44px;
     padding: 0;
@@ -1415,9 +1472,12 @@
     border-radius: 20px;
     gap: 12px;
   }
-  /* Icon on left, Title in middle, + on right strictly on the same row */
+  /* Logo on left, immediate right title left-aligned, + right-aligned on same row */
   .ms-header-row {
     gap: 8px;
+  }
+  .ms-header-left {
+    gap: 10px;
   }
   .ms-header-icon-badge {
     width: 38px;
@@ -1430,7 +1490,9 @@
     padding: 1px 6px;
   }
   .ms-page-title {
-    font-size: 1.05rem;
+    font-size: 1.08rem;
+    line-height: 1.2;
+    text-align: left;
   }
   .ms-add-toggle-btn {
     width: 38px;
