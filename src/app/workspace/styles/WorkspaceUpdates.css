@@ -1,0 +1,659 @@
+/* WorkspaceUpdates.css - Campus Updates Workspace Widget
+   Apple Theme + Learnix Design System
+*/
+
+.wu-section-wrapper {
+  width: 100%;
+  margin: 0 0 28px 0;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Toast Notification (Floating Pill) */
+.wu-toast-notification {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: 0 16px 36px -6px rgba(15, 23, 42, 0.35);
+  z-index: 10000;
+  animation: wu-toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes wu-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Apple Rounded Widget Card */
+.wu-widget-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.06), 0 4px 12px -2px rgba(0, 0, 0, 0.02);
+  padding: 24px 24px 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease;
+}
+
+.wu-widget-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 14px 36px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+}
+
+/* Header Row */
+.wu-widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.wu-header-title-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.wu-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.14) 0%, rgba(217, 119, 6, 0.08) 100%);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.12);
+  transition: transform 0.25s ease;
+}
+
+.wu-widget-card:hover .wu-icon-badge {
+  transform: scale(1.05);
+}
+
+.wu-title-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.wu-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wu-header-tag {
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  color: #d97706;
+  text-transform: uppercase;
+}
+
+.wu-count-pill {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 1px 8px;
+  border-radius: 999px;
+}
+
+.wu-section-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+  line-height: 1.25;
+}
+
+/* Add Update Button (Apple Theme with Strong Amber Accent) */
+.wu-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wu-add-update-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 18px;
+  background: #d97706;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+  border: 1px solid rgba(217, 119, 6, 0.4);
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 650;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.28);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.wu-add-update-btn:hover {
+  background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 18px rgba(217, 119, 6, 0.38);
+}
+
+.wu-add-update-btn:active {
+  transform: scale(0.97);
+}
+
+/* Widget Body */
+.wu-widget-body {
+  width: 100%;
+}
+
+/* Skeleton Loading State */
+.wu-skeleton-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wu-skeleton-card {
+  height: 84px;
+  background: linear-gradient(90deg, #f8fafc 25%, #f1f5f9 50%, #f8fafc 75%);
+  background-size: 200% 100%;
+  animation: wu-shimmer 1.5s infinite;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+}
+
+@keyframes wu-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Empty States */
+.wu-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px 16px;
+  background: #f8fafc;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 20px;
+}
+
+.wu-empty-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.wu-empty-title {
+  margin: 0 0 4px 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.wu-empty-desc {
+  margin: 0 0 16px 0;
+  font-size: 0.85rem;
+  color: #64748b;
+  max-width: 420px;
+  line-height: 1.45;
+}
+
+.wu-empty-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.wu-empty-action-btn:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
+}
+
+/* Cards List */
+.wu-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Individual Update Card (Apple List Item) */
+.wu-update-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.wu-update-card:hover {
+  border-color: #cbd5e1;
+  background: #fafbfd;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.06);
+}
+
+.wu-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wu-card-title {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.015em;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wu-title-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.wu-title-link:hover {
+  color: #0b74ff;
+}
+
+/* Visibility Badges */
+.wu-vis-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.wu-vis-public {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.wu-vis-unlisted {
+  background: rgba(99, 102, 241, 0.1);
+  color: #4f46e5;
+  border: 1px solid rgba(99, 102, 241, 0.25);
+}
+
+.wu-vis-private {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+/* Card Description snippet */
+.wu-card-desc {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #475569;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Card Meta row */
+.wu-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+.wu-meta-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 550;
+  color: #94a3b8;
+}
+
+.wu-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.wu-card-view-link {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  font-weight: 650;
+  color: #0b74ff;
+  text-decoration: none;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(11, 116, 255, 0.06);
+  transition: all 0.15s ease;
+}
+
+.wu-card-view-link:hover {
+  background: rgba(11, 116, 255, 0.14);
+  color: #0056cc;
+  transform: translateX(1px);
+}
+
+/* Footer Button to Main Manage Updates Page */
+.wu-widget-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 4px;
+}
+
+.wu-manage-all-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  padding: 13px 24px;
+  background: #f8fafc;
+  color: #1e293b;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.wu-manage-all-btn:hover {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 20px -2px rgba(15, 23, 42, 0.18);
+}
+
+.wu-manage-all-btn svg {
+  transition: transform 0.2s ease;
+}
+
+.wu-manage-all-btn:hover svg {
+  transform: translateX(4px);
+}
+
+/* ========================================================
+   Add Update Popup Window (Apple Modal)
+   ======================================================== */
+.wu-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 99999;
+  animation: wu-fade-backdrop 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes wu-fade-backdrop {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.wu-modal-window {
+  background: #ffffff;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 28px 70px -12px rgba(15, 23, 42, 0.35), 0 0 1px 1px rgba(15, 23, 42, 0.05);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: wu-scale-modal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes wu-scale-modal {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.wu-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1.5px solid #f1f5f9;
+  background: #fafbfc;
+  flex-shrink: 0;
+}
+
+.wu-modal-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wu-modal-tag {
+  font-size: 10.5px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  color: #d97706;
+  text-transform: uppercase;
+}
+
+.wu-modal-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+}
+
+.wu-modal-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.wu-modal-close-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  transform: rotate(90deg);
+}
+
+.wu-modal-body {
+  padding: 16px 24px 24px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+/* Seamless styling for AddUpdateForm inside the modal */
+.wu-modal-body .auf-container {
+  margin: 0;
+}
+
+.wu-modal-body .auf-header {
+  display: none;
+}
+
+.wu-modal-body .auf-card {
+  box-shadow: none;
+  border: none;
+  padding: 0;
+  background: transparent;
+}
+
+/* Custom Modal Scrollbar */
+.wu-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.wu-modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.wu-modal-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+.wu-modal-body::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .wu-widget-card {
+    padding: 18px 16px 16px;
+    border-radius: 20px;
+    gap: 16px;
+  }
+
+  .wu-widget-header {
+    gap: 12px;
+  }
+
+  .wu-section-title {
+    font-size: 1.12rem;
+  }
+
+  .wu-add-update-btn {
+    padding: 8px 14px;
+    font-size: 0.82rem;
+  }
+
+  .wu-update-card {
+    padding: 14px 14px;
+    border-radius: 16px;
+  }
+
+  .wu-card-title {
+    font-size: 0.96rem;
+  }
+
+  .wu-card-meta {
+    gap: 8px;
+  }
+
+  .wu-modal-overlay {
+    padding: 12px;
+  }
+
+  .wu-modal-window {
+    max-height: 94vh;
+    border-radius: 22px;
+  }
+
+  .wu-modal-header {
+    padding: 16px 18px;
+  }
+
+  .wu-modal-body {
+    padding: 12px 16px 20px;
+  }
+}

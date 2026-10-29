@@ -18,7 +18,7 @@ import { RiGraduationCapLine } from "react-icons/ri";
 import { LayersIcon } from "../components/icons/LayersIcon";
 import "./styles/Workspace.css";
 import WhatsNew from "../components/WhatsNew";
-import WorkspaceNavCards from "./WorkspaceNavCards";
+import WorkspaceUpdates from "./WorkspaceUpdates";
 
 function GreetingBadge({ greeting }) {
   const clockRef = useRef(null);
@@ -230,8 +230,8 @@ export default function Workspace() {
         />
       </section>
 
-      {/* Navigation Quick Cards */}
-      <WorkspaceNavCards loggedIn={!!usn} />
+      {/* Campus Updates Workspace Widget */}
+      <WorkspaceUpdates loggedIn={!!usn} />
 
       {/* What's New banner */}
       <WhatsNew />
