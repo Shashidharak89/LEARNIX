@@ -1,17 +1,18 @@
 /* DashBoard.css - Apple Widget Aesthetics for Learnix Workspace */
 
-/* Base Styles - Pure White Background */
+/* Base Styles - Pure White Background matching Updates and Works page width */
 .learnix-dashboard-wrapper {
-  min-height: 100vh;
-  background-color: #ffffff;
-  padding: 2rem 1.5rem;
+  width: 90%;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0 auto 56px;
+  padding: 24px 0 0;
+  background-color: #ffffff;
+  min-height: 100vh;
+  box-sizing: border-box;
   opacity: 0;
   transform: translateY(16px);
   transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Outfit", "Inter", sans-serif;
 }
 
 .learnix-dashboard-loaded {
@@ -19,29 +20,34 @@
   transform: translateY(0);
 }
 
-/* Apple Rounded Widget: Welcome Header */
+/* Apple Rounded Widget: Welcome Header (aligned exactly with Updates / Resources search cards) */
 .learnix-dashboard-header {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto 24px auto;
   background: #ffffff;
-  border-radius: 26px;
-  border: 1.5px solid #e2e8f0;
-  padding: 2.25rem 2.5rem;
-  margin-bottom: 1.75rem;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 24px 24px 22px;
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.06), 0 4px 12px -2px rgba(0, 0, 0, 0.02);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
               border-color 0.2s ease;
-  animation: learnix-fade-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: learnix-fade-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .learnix-dashboard-header:hover {
   border-color: #cbd5e1;
-  box-shadow: 0 10px 28px -4px rgba(15, 23, 42, 0.07), 0 4px 10px -2px rgba(15, 23, 42, 0.03);
+  box-shadow: 0 14px 36px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
 }
 
 @keyframes learnix-fade-in {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -53,13 +59,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 .learnix-header-left {
   display: flex;
   align-items: center;
-  gap: 1.75rem;
+  gap: 1.5rem;
   flex: 1;
 }
 
@@ -86,7 +92,7 @@
   align-items: center;
   gap: 0.65rem;
   flex-wrap: wrap;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.25rem;
 }
 
 /* Apple Tag Badge */
@@ -102,7 +108,13 @@
   border-radius: 9999px;
   display: inline-flex;
   align-items: center;
+  gap: 0.35rem;
   line-height: 1;
+}
+
+.learnix-workspace-tag-icon {
+  display: inline-flex;
+  color: #0284c7;
 }
 
 /* Apple Pill Greeting Badge */
@@ -141,7 +153,7 @@
   line-height: 1.55;
   margin: 0;
   font-weight: 450;
-  max-width: 600px;
+  max-width: 620px;
 }
 
 .learnix-header-decoration {
@@ -192,33 +204,36 @@
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.2);
 }
 
-/* Apple Rounded Widgets: Quick Stats (3 balanced cards) */
+/* ────────────────────────────────────────────────────────────
+   Quick Stats: ALWAYS on the exact same row (3 columns)
+   ──────────────────────────────────────────────────────────── */
 .learnix-quick-stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
-  margin-bottom: 2.25rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 14px;
+  width: 100%;
+  margin-bottom: 24px;
+  box-sizing: border-box;
 }
 
 .learnix-stat-card {
   background-color: #ffffff;
   border: 1.5px solid #e2e8f0;
-  border-radius: 26px;
-  padding: 1.5rem 1.75rem;
+  border-radius: 24px;
+  padding: 16px 20px;
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 14px;
+  min-width: 0;
   box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
               border-color 0.22s ease;
   cursor: default;
-  animation: learnix-fade-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--delay, 1) * 0.08s) both;
+  box-sizing: border-box;
+  overflow: hidden;
+  animation: learnix-fade-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-
-.learnix-stat-card:nth-child(1) { --delay: 1; }
-.learnix-stat-card:nth-child(2) { --delay: 2; }
-.learnix-stat-card:nth-child(3) { --delay: 3; }
 
 .learnix-stat-card:hover {
   transform: translateY(-3px);
@@ -228,9 +243,9 @@
 
 /* Apple Squircle Icon Wrappers */
 .learnix-stat-icon-wrapper {
-  width: 52px;
-  height: 52px;
-  border-radius: 18px;
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -263,43 +278,49 @@
 .learnix-stat-info {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .learnix-stat-value {
-  font-size: 1.85rem;
-  font-weight: 750;
+  font-size: 1.65rem;
+  font-weight: 800;
   color: #0f172a;
   line-height: 1.1;
   letter-spacing: -0.035em;
+  white-space: nowrap;
 }
 
 .learnix-stat-label {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: #64748b;
-  margin-top: 0.25rem;
+  margin-top: 3px;
   font-weight: 500;
   letter-spacing: -0.01em;
+  line-height: 1.25;
+  white-space: normal;
+  word-break: break-word;
 }
 
 /* Secondary Actions */
 .learnix-secondary-actions {
-  margin-top: 2rem;
-  margin-bottom: 2rem;
-  animation: learnix-fade-in 0.5s ease 0.3s both;
+  margin-top: 24px;
+  margin-bottom: 24px;
+  animation: learnix-fade-in 0.45s ease 0.2s both;
 }
 
 .learnix-section-title {
   font-size: 1.25rem;
   font-weight: 700;
   color: #0f172a;
-  margin-bottom: 1rem;
+  margin-bottom: 12px;
   letter-spacing: -0.02em;
 }
 
 .learnix-secondary-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1rem;
+  gap: 12px;
 }
 
 .learnix-secondary-item {
@@ -357,15 +378,15 @@
 /* Footer CTA Section - Clean White Card */
 .learnix-footer-cta {
   background-color: #ffffff;
-  border-radius: 26px;
-  border: 1.5px solid #e2e8f0;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
-  margin-top: 2rem;
-  animation: learnix-fade-in 0.5s ease 0.4s both;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.06), 0 4px 12px -2px rgba(0, 0, 0, 0.02);
+  margin-top: 24px;
+  animation: learnix-fade-in 0.45s ease 0.3s both;
 }
 
 .learnix-footer-cta-content {
-  padding: 2.75rem 2rem;
+  padding: 2.5rem 2rem;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -415,35 +436,47 @@
   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.22);
 }
 
-/* Responsive Breakpoints */
+/* ────────────────────────────────────────────────────────────
+   Responsive Design (Same width & alignment as Updates & Works)
+   ──────────────────────────────────────────────────────────── */
+
 @media (max-width: 900px) {
-  .learnix-dashboard-wrapper {
-    padding: 1.5rem 1rem;
-  }
-
-  .learnix-dashboard-header {
-    padding: 1.75rem 1.5rem;
-    border-radius: 22px;
-  }
-
-  .learnix-dashboard-title {
-    font-size: 1.85rem;
+  .learnix-quick-stats {
+    gap: 10px;
   }
 
   .learnix-stat-card {
-    border-radius: 22px;
-    padding: 1.25rem 1.35rem;
+    border-radius: 20px;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .learnix-stat-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
   }
 
   .learnix-stat-value {
-    font-size: 1.6rem;
+    font-size: 1.35rem;
+  }
+
+  .learnix-stat-label {
+    font-size: 0.75rem;
   }
 }
 
-@media (max-width: 720px) {
-  .learnix-quick-stats {
-    grid-template-columns: 1fr;
-    gap: 0.85rem;
+/* Tablets (matches .upd-main and .ws-container width: 95%) */
+@media (max-width: 768px) {
+  .learnix-dashboard-wrapper {
+    width: 95%;
+    padding: 16px 0 0;
+  }
+
+  .learnix-dashboard-header {
+    padding: 18px 16px;
+    border-radius: 20px;
+    margin-bottom: 18px;
   }
 
   .learnix-header-content {
@@ -459,8 +492,6 @@
   }
 
   .learnix-welcome-section {
-    display: flex;
-    flex-direction: column;
     align-items: center;
   }
 
@@ -477,12 +508,7 @@
   }
 
   .learnix-header-auth {
-    margin-top: 0.5rem;
-  }
-
-  .learnix-stat-card {
-    padding: 1.15rem 1.25rem;
-    border-radius: 20px;
+    margin-top: 0.25rem;
   }
 
   .learnix-secondary-grid {
@@ -498,28 +524,85 @@
   }
 }
 
+/* Mobile Screens (500+ , 200+ , 5.0 ★ always on SAME ROW) */
+@media (max-width: 640px) {
+  .learnix-quick-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .learnix-stat-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 10px 6px;
+    border-radius: 18px;
+    gap: 6px;
+  }
+
+  .learnix-stat-icon-wrapper {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+  }
+
+  .learnix-stat-info {
+    align-items: center;
+    width: 100%;
+  }
+
+  .learnix-stat-value {
+    font-size: 1.05rem;
+    line-height: 1.15;
+  }
+
+  .learnix-stat-label {
+    font-size: 0.65rem;
+    line-height: 1.2;
+    margin-top: 2px;
+  }
+}
+
+/* Small Mobile Screens (<= 440px) */
 @media (max-width: 440px) {
   .learnix-dashboard-wrapper {
-    padding: 1rem 0.75rem;
+    width: 95%;
+    padding: 12px 0 0;
   }
 
   .learnix-dashboard-header {
-    padding: 1.35rem 1.15rem;
-    border-radius: 20px;
+    padding: 16px 12px;
+    border-radius: 18px;
   }
 
   .learnix-dashboard-title {
     font-size: 1.45rem;
   }
 
-  .learnix-stat-value {
-    font-size: 1.45rem;
+  .learnix-quick-stats {
+    gap: 6px;
+  }
+
+  .learnix-stat-card {
+    padding: 8px 4px;
+    border-radius: 14px;
+    gap: 4px;
   }
 
   .learnix-stat-icon-wrapper {
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+  }
+
+  .learnix-stat-value {
+    font-size: 0.92rem;
+  }
+
+  .learnix-stat-label {
+    font-size: 0.58rem;
+    line-height: 1.15;
   }
 }
 

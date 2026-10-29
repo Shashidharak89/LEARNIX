@@ -4,8 +4,8 @@ import React, { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { FiX } from "react-icons/fi";
+import { LayersIcon } from "./icons/LayersIcon";
 import {
-  LayersIcon,
   ShieldCheckIcon,
   LogInIcon,
   FolderIcon,

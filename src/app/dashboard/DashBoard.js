@@ -15,6 +15,7 @@ import {
   RocketIcon,
 } from "@animateicons/react/lucide";
 import { RiGraduationCapLine } from "react-icons/ri";
+import { LayersIcon } from "../components/icons/LayersIcon";
 import "./styles/DashBoard.css";
 import WhatsNew from "../components/WhatsNew";
 import DashboardNavCards from "./DashboardNavCards";
@@ -175,7 +176,10 @@ export default function DashBoard() {
             </div>
             <div className="learnix-welcome-section">
               <div className="learnix-header-badges">
-                <span className="learnix-workspace-tag">WORKSPACE</span>
+                <span className="learnix-workspace-tag">
+                  <LayersIcon size={13} className="learnix-workspace-tag-icon" />
+                  WORKSPACE
+                </span>
                 <GreetingBadge greeting={getGreeting()} />
               </div>
               <h1 className="learnix-dashboard-title">
