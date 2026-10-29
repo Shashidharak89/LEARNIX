@@ -448,51 +448,18 @@
 }
 
 /* ============================================
-   Apple-Themed Directory Widget & Tree Nodes
+   Apple-Themed Independent Directory Cards
    ============================================ */
 
-.qp-directory-card {
-  border-radius: 26px;
-  background: #ffffff;
-  border: 1.5px solid #e2e8f0;
-  padding: 30px;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.qp-directory-card:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 8px 26px -4px rgba(15, 23, 42, 0.06);
+.qp-dir-section {
+  width: 100%;
 }
 
 .qp-dir-header {
-  margin-bottom: 22px;
+  margin-bottom: 20px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.qp-dir-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 14px;
-  border-radius: 9999px;
-  background: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fde68a;
-  font-size: 0.76rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  width: fit-content;
-  max-width: 100%;
-  line-height: 1.4;
-}
-
-.qp-dir-badge-icon {
-  color: #d97706;
-  font-size: 14px;
-  flex-shrink: 0;
+  gap: 4px;
 }
 
 .qp-dir-title {
@@ -500,31 +467,39 @@
   font-weight: 800;
   color: #000000;
   letter-spacing: -0.025em;
-  margin: 4px 0 2px;
+  margin: 0 0 4px;
   line-height: 1.2;
 }
 
 .qp-dir-subtitle {
-  font-size: clamp(0.85rem, 1.2vw, 0.95rem);
+  font-size: clamp(0.88rem, 1.3vw, 1rem);
   color: #64748b;
   margin: 0;
   line-height: 1.5;
 }
 
-.qp-dir-canvas {
-  background: #f8fafc;
-  border: 1.5px solid #eef2f6;
-  border-radius: 22px;
-  padding: 18px 20px;
+.qp-dir-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.qp-dir-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .qp-dir-state-loading,
 .qp-dir-state-error,
 .qp-dir-empty-msg {
   text-align: center;
-  padding: 30px 16px;
+  padding: 34px 20px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 22px;
   color: #64748b;
-  font-size: 0.92rem;
+  font-size: 0.94rem;
   font-weight: 500;
 }
 
@@ -532,17 +507,62 @@
   color: #ef4444;
 }
 
-/* Tree Nodes */
-.qp-dir-node {
+/* Standalone Top-Level Card (University) */
+.qp-dir-node--toplevel {
+  margin-top: 0;
+}
+
+.qp-dir-node-btn--toplevel {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-height: 64px;
+  padding: 16px 22px;
+  border-radius: 22px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 18px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+  text-align: left;
+  font-family: inherit;
+  color: #000000;
+  box-sizing: border-box;
+}
+
+.qp-dir-node-btn--toplevel:hover {
+  transform: translateY(-2px);
+  border-color: #007aff;
+  box-shadow: 0 10px 26px -4px rgba(0, 122, 255, 0.12);
+}
+
+.qp-dir-node-btn--toplevel.is-expanded {
+  border-color: #007aff;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.15), 0 10px 26px -4px rgba(0, 122, 255, 0.12);
+}
+
+.qp-dir-node-btn--toplevel .qp-dir-node-name {
+  font-size: clamp(1.05rem, 1.4vw, 1.18rem);
+  font-weight: 750;
+  color: #000000;
+  letter-spacing: -0.015em;
+  flex: 1;
+}
+
+/* Nested Child Nodes (Colleges, Courses, Semesters) */
+.qp-dir-node--nested {
   margin-top: 8px;
 }
 
-.qp-dir-node-btn {
+.qp-dir-node-btn--nested {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-  padding: 10px 16px;
+  min-height: 52px;
+  padding: 12px 18px;
   border-radius: 16px;
   background: #ffffff;
   border: 1.5px solid #e2e8f0;
@@ -551,19 +571,20 @@
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
   text-align: left;
   font-family: inherit;
-  font-size: 0.92rem;
-  color: #000000;
-  font-weight: 600;
+  font-size: 0.94rem;
+  color: #0f172a;
+  font-weight: 650;
+  box-sizing: border-box;
 }
 
-.qp-dir-node-btn:hover {
+.qp-dir-node-btn--nested:hover {
   border-color: #007aff;
   background: #fbfdff;
-  transform: translateX(3px);
+  transform: translateX(2px);
   box-shadow: 0 4px 12px rgba(0, 122, 255, 0.08);
 }
 
-.qp-dir-node-btn.is-expanded {
+.qp-dir-node-btn--nested.is-expanded {
   background: #eff6ff;
   border-color: #007aff;
   color: #007aff;
@@ -571,38 +592,76 @@
   box-shadow: 0 4px 14px rgba(0, 122, 255, 0.12);
 }
 
-.qp-dir-chevron {
-  color: #64748b;
-  font-size: 16px;
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-  transition: transform 0.2s ease;
-}
-
-.qp-dir-folder-icon {
-  color: #f59e0b;
-  font-size: 18px;
-  display: inline-flex;
-  align-items: center;
-  flex-shrink: 0;
-  transition: color 0.2s ease;
-}
-
-.qp-dir-folder-icon.is-expanded {
-  color: #007aff;
-}
-
-.qp-dir-node-name {
+.qp-dir-node-btn--nested .qp-dir-node-name {
   flex: 1;
   word-break: break-word;
 }
 
+/* Icon Badges */
+.qp-dir-icon-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.qp-dir-icon-badge.is-toplevel {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: #fef3c7;
+  color: #d97706;
+  font-size: 20px;
+}
+
+.qp-dir-icon-badge.is-toplevel.is-expanded {
+  background: #007aff;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
+}
+
+.qp-dir-icon-badge:not(.is-toplevel) {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #fffbeb;
+  color: #f59e0b;
+  font-size: 16px;
+}
+
+.qp-dir-icon-badge:not(.is-toplevel).is-expanded {
+  background: #007aff;
+  color: #ffffff;
+}
+
+/* Chevron Indicators */
+.qp-dir-chevron {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  margin-left: auto;
+}
+
+.qp-dir-chevron.is-expanded {
+  background: #007aff;
+  color: #ffffff;
+}
+
+/* Expanded Children: Compact Left Indentation */
 .qp-dir-children {
-  border-left: 2px solid #bfdbfe;
-  margin-left: 18px;
-  padding-left: 12px;
-  margin-top: 8px;
+  border-left: 2px solid #e2e8f0;
+  margin-left: 8px;
+  padding-left: 8px;
+  margin-top: 10px;
   margin-bottom: 8px;
   animation: qp-slideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -626,6 +685,7 @@
   margin-right: 6px;
 }
 
+/* Batch Group & Exams */
 .qp-dir-batch-group {
   margin-top: 10px;
   margin-bottom: 10px;
@@ -653,7 +713,7 @@
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
-  margin-left: 8px;
+  margin-left: 4px;
 }
 
 .qp-dir-exam-item {

@@ -16,7 +16,7 @@ export default function DirectoryNode({
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     
-    // For Semester level, we group combinations of Batch+ExamType locally from the paginated groups endpoint
+    // For Semester level, group combinations of Batch+ExamType
     const [groupedBatches, setGroupedBatches] = useState({});
 
     const fetchChildren = async (pageNum, append = false) => {
@@ -93,21 +93,26 @@ export default function DirectoryNode({
     let displayName = data.name;
     if (type === "semester") displayName = `Semester ${data.semesterNumber}`;
 
+    const isTopLevel = level === 0;
+
     return (
-        <div className="qp-dir-node" style={{ marginLeft: level > 0 ? "clamp(10px, 2vw, 18px)" : "0" }}>
+        <div 
+            className={`qp-dir-node ${isTopLevel ? "qp-dir-node--toplevel" : "qp-dir-node--nested"}`} 
+            style={{ marginLeft: level > 0 ? "8px" : "0" }}
+        >
             <button 
                 type="button"
                 onClick={handleToggle}
-                className={`qp-dir-node-btn ${expanded ? "is-expanded" : ""}`}
+                className={`qp-dir-node-btn ${isTopLevel ? "qp-dir-node-btn--toplevel" : "qp-dir-node-btn--nested"} ${expanded ? "is-expanded" : ""}`}
                 aria-expanded={expanded}
             >
-                <span className="qp-dir-chevron" aria-hidden="true">
+                <div className={`qp-dir-icon-badge ${isTopLevel ? "is-toplevel" : ""} ${expanded ? "is-expanded" : ""}`} aria-hidden="true">
+                    <FiFolder />
+                </div>
+                <span className="qp-dir-node-name">{displayName}</span>
+                <span className={`qp-dir-chevron ${expanded ? "is-expanded" : ""}`} aria-hidden="true">
                     {expanded ? <FiChevronDown /> : <FiChevronRight />}
                 </span>
-                <span className={`qp-dir-folder-icon ${expanded ? "is-expanded" : ""}`} aria-hidden="true">
-                    <FiFolder />
-                </span>
-                <span className="qp-dir-node-name">{displayName}</span>
             </button>
 
             {expanded && (
@@ -115,7 +120,7 @@ export default function DirectoryNode({
                     {loading && page === 1 && (
                         <div className="qp-dir-loading">
                             <span className="qp-spinner-sm" aria-hidden="true" />
-                            <span>Loading...</span>
+                            <span>Loading items...</span>
                         </div>
                     )}
                     

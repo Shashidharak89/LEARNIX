@@ -1,11 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  FiFileText,
-  FiFolder,
-  FiMessageSquare,
-} from "react-icons/fi";
+import { FiMessageSquare } from "react-icons/fi";
 import DirectoryNode from "./DirectoryNode";
 
 export default function QuestionPapers() {
@@ -60,34 +56,32 @@ export default function QuestionPapers() {
   return (
     <div className="qp-page-container">
       <main className="qp-main" role="main">
-        {/* Apple Widget: Tree Directory Section */}
-        <section className="qp-card qp-directory-card" aria-labelledby="qp-papers-section">
+        {/* Standalone Directory Section - Free, independent individual cards */}
+        <section className="qp-dir-section" aria-labelledby="qp-papers-section">
           <header className="qp-dir-header">
-            <div className="qp-dir-badge">
-              <FiFolder className="qp-dir-badge-icon" aria-hidden="true" />
-              <span>Hierarchy: University → College → Course → Semester → Batch → Exam Type</span>
-            </div>
             <h2 id="qp-papers-section" className="qp-dir-title">Browse Question Papers Directory</h2>
             <p className="qp-dir-subtitle">
               Explore university archives through structured interactive folders.
             </p>
           </header>
           
-          <div className="qp-dir-canvas">
+          <div className="qp-dir-cards-list">
             {loading && page === 1 ? (
               <div className="qp-dir-state-loading">
                 <span className="qp-spinner-sm" aria-hidden="true" />
-                <p>Loading directory tree...</p>
+                <p>Loading directory...</p>
               </div>
             ) : error ? (
               <div className="qp-dir-state-error">
                 <p>{error}</p>
               </div>
             ) : universities.length > 0 ? (
-              <div className="qp-dir-tree">
-                {universities.map(uni => (
-                    <DirectoryNode key={uni._id} type="university" data={uni} />
-                ))}
+              <>
+                <div className="qp-dir-tree">
+                  {universities.map(uni => (
+                      <DirectoryNode key={uni._id} type="university" data={uni} level={0} />
+                  ))}
+                </div>
                 
                 {page < totalPages && (
                     <div className="qp-dir-loadmore-wrap">
@@ -110,7 +104,7 @@ export default function QuestionPapers() {
                         </button>
                     </div>
                 )}
-              </div>
+              </>
             ) : (
               <p className="qp-dir-empty-msg">No universities found in directory.</p>
             )}
