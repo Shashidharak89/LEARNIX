@@ -350,60 +350,6 @@ export default function SubjectsGrid({
     }
   };
 
-  // Inline style helpers (Apple aesthetic: rounded widgets, clean borders & subtle shadows)
-  const cardStyle = {
-    background: "#ffffff",
-    borderRadius: 22,
-    padding: "18px 22px",
-    marginBottom: 16,
-    boxShadow: "0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02)",
-    border: "1.5px solid #e2e8f0",
-    transition: "all 0.22s cubic-bezier(0.16, 1, 0.3, 1)"
-  };
-
-  const headerStyle = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-    cursor: "pointer"
-  };
-
-  const leftHeaderStyle = { display: "flex", alignItems: "center", gap: 12 };
-
-  const subjectTitleStyle = { fontWeight: 750, fontSize: 16.5, margin: 0, letterSpacing: "-0.01em", color: "#0f172a" };
-
-  const addTopicSectionStyle = { marginTop: 14, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" };
-
-  const inputSmallStyle = {
-    padding: "9px 14px",
-    borderRadius: 14,
-    border: "1.5px solid #e2e8f0",
-    minWidth: 180,
-    fontSize: 14,
-    fontWeight: 500,
-    outline: "none"
-  };
-
-  const btnStyle = {
-    padding: "9px 18px",
-    borderRadius: 9999,
-    border: "none",
-    cursor: "pointer",
-    background: "#007aff",
-    color: "#fff",
-    fontWeight: 700,
-    fontSize: 13.5,
-    display: "inline-flex",
-    gap: 6,
-    alignItems: "center",
-    boxShadow: "0 3px 10px rgba(0, 122, 255, 0.25)",
-    transition: "all 0.2s ease"
-  };
-
-  const topicsContainerStyle = { marginTop: 14 };
-
-  const emptyTopicsStyle = { display: "flex", gap: 8, alignItems: "center", color: "#64748b" };
   const portalModal = (node) => (typeof document !== "undefined" ? createPortal(node, document.body) : null);
 
   return (
@@ -497,25 +443,36 @@ export default function SubjectsGrid({
         const isExpanded = expandedSubjects.has(subjectKey);
 
         return (
-          <div key={idx} style={cardStyle}>
+          <div key={idx} className={`sg-card${isExpanded ? " sg-card--expanded" : ""}`}>
             <div
-              style={headerStyle}
-              // clicking header toggles expand/collapse
+              className="sg-header"
               onClick={() => toggleExpand(subjectKey)}
               role="button"
               aria-expanded={isExpanded}
             >
-              <div style={leftHeaderStyle}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div className="sg-header-left">
+                <span className={`sg-chevron${isExpanded ? " sg-chevron--expanded" : ""}`}>
                   {isExpanded ? <FiChevronDown /> : <FiChevronRight />}
+                </span>
+                <div className="sg-book-icon-badge" aria-hidden="true">
+                  <FiBook />
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <FiBook style={{ color: "#0ea5e9" }} />
-                  <h3 style={subjectTitleStyle}>{sub.subject}</h3>
+                <div className="sg-title-container">
+                  <h3 className="sg-subject-title" title={sub.subject}>
+                    {sub.subject}
+                  </h3>
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <div className="sg-header-right">
+                <span
+                  className="sg-topic-count-pill"
+                  title={`${topicsForThisSubject.length} total topics in this subject`}
+                >
+                  <span className="sg-topic-count-dot" />
+                  {topicsForThisSubject.length} {topicsForThisSubject.length === 1 ? "topic" : "topics"}
+                </span>
+
                 <span
                   className={`mse-visibility-badge is-${subjectVisibility}`}
                   onClick={(e) => e.stopPropagation()}
@@ -525,6 +482,7 @@ export default function SubjectsGrid({
                 >
                   {visibilityLabel(subjectVisibility)}
                 </span>
+
                 <div className="mse-subject-options" ref={openMenuFor === sub._id ? menuRef : null}>
                   <button
                     className="mse-options-btn"
@@ -607,7 +565,7 @@ export default function SubjectsGrid({
             {/* Expanded area: add-topic + topics list (only rendered when expanded) */}
             {isExpanded && (
               <div style={{ marginTop: 10 }}>
-                {/* Add Topic Toggle Button */}
+                {/* Add Topic Toggle Button (Yellow Highlighting Pill) */}
                 <button
                   className={`sg-add-topic-toggle${addTopicOpen[subjectKey] ? " sg-add-topic-toggle--open" : ""}`}
                   onClick={(e) => { e.stopPropagation(); toggleAddTopic(subjectKey); }}
@@ -673,16 +631,16 @@ export default function SubjectsGrid({
                 </div>
 
                 {/* Topics List */}
-                <div style={topicsContainerStyle}>
+                <div className="sg-topics-container">
                   {paged.loading ? (
-                    <div style={emptyTopicsStyle}>Loading topics...</div>
+                    <div className="sg-empty-topics">Loading topics...</div>
                   ) : (!paged.topics || paged.topics.length === 0) ? (
-                    <div style={emptyTopicsStyle}>
+                    <div className="sg-empty-topics">
                       <FiFileText />
-                      <span>No topics yet</span>
+                      <span>No topics yet. Click &quot;Add Topics&quot; above to create one.</span>
                     </div>
                   ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                       {paged.topics.map((topicObj, tIdx) => (
                         <TopicCard
                           key={topicObj._id || `${tIdx}-${topicObj.topic || topicObj}`}
@@ -697,13 +655,13 @@ export default function SubjectsGrid({
                       ))}
 
                       {paged.hasMore && (
-                        <div style={{ marginTop: 8 }}>
+                        <div style={{ marginTop: 8, textAlign: "center" }}>
                           <button
                             onClick={() => fetchTopicsForSubject(subjectKey, (paged.page || 1) + 1, paged.limit || 10)}
-                            style={{ ...btnStyle, padding: "6px 10px" }}
+                            className="sg-load-more-btn"
                             disabled={paged.loading}
                           >
-                            View more topics
+                            {paged.loading ? "Loading..." : "Load more topics"}
                           </button>
                         </div>
                       )}

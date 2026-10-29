@@ -689,9 +689,16 @@
   margin: 28px auto 60px;
   padding: 0;
   box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--ms-text);
   animation: ms-fade-in 0.35s ease both;
+}
+
+.ms-wrapper button,
+.ms-wrapper input,
+.ms-wrapper select,
+.ms-wrapper textarea {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 @keyframes ms-fade-in {
@@ -883,39 +890,51 @@
   margin-left: auto;
 }
 
-/* ── New Subject toggle button ── */
+/* ── New Subject toggle button (Highlighting Yellow Apple Pill) ── */
 .ms-add-toggle-btn {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  justify-content: center;
+  gap: 8px;
   height: 44px;
-  padding: 0 18px;
-  background: #007aff;
-  color: #ffffff;
-  border: none;
+  padding: 0 20px;
+  background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%);
+  color: #0f172a;
+  border: 1px solid rgba(217, 119, 6, 0.45);
   border-radius: 9999px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 0.88rem;
-  font-weight: 700;
+  font-weight: 750;
+  letter-spacing: -0.01em;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 4px 14px rgba(0, 122, 255, 0.25);
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.38), 0 1px 3px rgba(0, 0, 0, 0.08);
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  margin-left: auto;
 }
 .ms-add-toggle-btn:hover {
-  background: #0062cc;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 22px rgba(0, 122, 255, 0.35);
+  background: linear-gradient(135deg, #fde047 0%, #f59e0b 100%);
+  transform: translateY(-1.5px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.48), 0 2px 6px rgba(0, 0, 0, 0.1);
+  color: #000000;
+}
+.ms-add-toggle-btn:active {
+  transform: translateY(0) scale(0.98);
 }
 .ms-add-toggle-btn--open {
   background: #0f172a;
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2);
+  color: #fcd34d;
+  border: 1.5px solid #f59e0b;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.25);
 }
 .ms-add-toggle-btn--open:hover {
   background: #1e293b;
+  color: #fde047;
 }
 .ms-add-toggle-plus {
-  font-size: 16px;
+  font-size: 17px;
+  font-weight: 800;
   flex-shrink: 0;
   transition: transform var(--ms-tr);
 }
@@ -1238,11 +1257,11 @@
   align-items: center;
   padding: 4px 12px;
   border-radius: 9999px;
-  background: #eff6ff;
-  color: #007aff;
+  background: #fefce8;
+  color: #b45309;
   font-size: 0.8rem;
-  font-weight: 700;
-  border: 1px solid #bfdbfe;
+  font-weight: 750;
+  border: 1.5px solid #fde047;
 }
 
 .ms-panel-body { 
@@ -1461,15 +1480,17 @@
     width: auto !important;
   }
   .ms-add-toggle-btn {
-    width: 42px;
-    height: 42px;
-    padding: 0;
-    justify-content: center;
-    border-radius: 9999px;
+    width: 42px !important;
+    min-width: 42px !important;
+    height: 42px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
     margin-left: auto !important;
+    flex-shrink: 0 !important;
   }
   .ms-add-toggle-plus {
-    font-size: 18px;
+    font-size: 19px;
   }
   .upd-search-btn-text,
   .ms-search-btn-text {
@@ -1510,10 +1531,12 @@
     gap: 10px;
     min-width: 0 !important;
     flex: 1 1 auto !important;
+    overflow: hidden !important;
   }
   .ms-header-text {
     min-width: 0 !important;
     flex: 1 1 auto !important;
+    overflow: hidden !important;
   }
   .ms-header-icon-badge {
     width: 38px;
@@ -1530,10 +1553,10 @@
     font-size: 1.08rem;
     line-height: 1.2;
     text-align: left;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
   }
   .ms-header-right {
     display: flex !important;
@@ -1544,12 +1567,17 @@
     width: auto !important;
   }
   .ms-add-toggle-btn {
-    width: 38px;
-    height: 38px;
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
     margin-left: auto !important;
+    flex-shrink: 0 !important;
   }
   .ms-add-toggle-plus {
-    font-size: 17px;
+    font-size: 18px;
   }
   .ms-add-drawer-inner,
   .ms-panel {

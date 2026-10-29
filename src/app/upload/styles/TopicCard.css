@@ -54,6 +54,14 @@
   z-index: 1;                 /* base stacking context */
   transition: box-shadow var(--tc-tr), border-color var(--tc-tr);
   animation: tc-slide-up 0.3s cubic-bezier(0.22,1,0.36,1) both;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.tc-card button,
+.tc-card input,
+.tc-card select,
+.tc-card textarea {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 /* Elevate the card whose menu is open so the dropdown floats above all sibling cards */
@@ -865,8 +873,21 @@
    RESPONSIVE
 ════════════════════════════════════════ */
 @media (max-width: 640px) {
-  .tc-header { padding: 11px 13px 11px 18px; flex-wrap: wrap; gap: 8px; }
-  .tc-header-right { width: 100%; justify-content: flex-end; }
+  .tc-header {
+    padding: 11px 12px 11px 16px;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  .tc-header-left {
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+  }
+  .tc-header-right {
+    flex-shrink: 0;
+    justify-content: flex-end;
+    gap: 6px;
+  }
   .tc-date { display: none; }
   .tc-body { padding: 13px 13px 16px 16px; gap: 16px; }
   .tc-images-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
