@@ -29,6 +29,25 @@ const highlightText = (text, keyword) => {
     );
 };
 
+const SubjectsSkeleton = ({ count = 6 }) => (
+    <ul className="qp-results-list qp-results-skeleton-list" aria-label="Loading subjects">
+        {[...Array(count)].map((_, i) => (
+            <li className="qp-result-item qp-skeleton-item" key={i}>
+                <div className="qp-skeleton-link">
+                    <div className="qp-skeleton-icon qp-skeleton-shimmer" />
+                    <div className="qp-skeleton-text-wrap">
+                        <div
+                            className="qp-skeleton-line qp-skeleton-shimmer"
+                            style={{ width: i % 3 === 0 ? "70%" : i % 3 === 1 ? "48%" : "82%" }}
+                        />
+                    </div>
+                    <div className="qp-skeleton-arrow qp-skeleton-shimmer" />
+                </div>
+            </li>
+        ))}
+    </ul>
+);
+
 function QPSearchContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -163,11 +182,8 @@ function QPSearchContent() {
             </div>
 
             <div className="qp-results" aria-live="polite">
-                {!hasInitialFetched && loadingSubjects ? (
-                    <div className="qp-state qp-state--loading">
-                        <span className="qp-spinner" aria-hidden="true" />
-                        <p>Loading subjects...</p>
-                    </div>
+                {loadingSubjects ? (
+                    <SubjectsSkeleton count={6} />
                 ) : subjects.length === 0 ? (
                     <div className="qp-state qp-state--empty">
                         <FiInbox className="qp-state__icon" aria-hidden="true" />
@@ -235,9 +251,21 @@ export default function QPSearch() {
         <Suspense
             fallback={
                 <section className="qp-search-wrap">
-                    <div className="qp-state qp-state--loading">
-                        <span className="qp-spinner" aria-hidden="true" />
-                        <p>Loading subject search...</p>
+                    <div className="qp-search-card">
+                        <header className="qp-search-head">
+                            <h2 className="qp-search-title">Search Subjects</h2>
+                            <p className="qp-search-subtitle">
+                                Instantly find and download past exam papers for any subject.
+                            </p>
+                        </header>
+                        <div className="qp-search-form">
+                            <div className="qp-search-bar">
+                                <div className="qp-search-bar__input qp-skeleton-shimmer" style={{ height: "54px", borderRadius: "9999px" }} />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="qp-results">
+                        <SubjectsSkeleton count={6} />
                     </div>
                 </section>
             }
