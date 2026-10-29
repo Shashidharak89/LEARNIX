@@ -51,6 +51,17 @@ export default function SubjectsGrid({
     subjectName: "",
     nextVisibility: "public",
   });
+  const [subjectZIndices, setSubjectZIndices] = useState({});
+  const zCounterRef = useRef(100);
+
+  const bringSubjectToFront = (subjectId) => {
+    zCounterRef.current += 1;
+    setSubjectZIndices((prev) => ({
+      ...prev,
+      [subjectId]: zCounterRef.current,
+    }));
+  };
+
   const menuRef = useRef(null);
 
   const toggleAddTopic = (subjectKey) => {
@@ -444,13 +455,33 @@ export default function SubjectsGrid({
 
         return (
           <div
-            key={idx}
+            key={sub._id || idx}
             className={`sg-card${isExpanded ? " sg-card--expanded" : ""}${openMenuFor === sub._id ? " sg-card--menu-open" : ""}`}
+            style={{
+              zIndex: subjectZIndices[sub._id] ? subjectZIndices[sub._id] : (isExpanded ? 2 : 1),
+              position: "relative",
+            }}
+            onClick={() => {
+              // Click anywhere on collapsed card expands it
+              if (!isExpanded) {
+                toggleExpand(subjectKey);
+              }
+            }}
           >
             <div
               className="sg-header"
-              onClick={() => toggleExpand(subjectKey)}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleExpand(subjectKey);
+              }}
               role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  toggleExpand(subjectKey);
+                }
+              }}
               aria-expanded={isExpanded}
             >
               <div className="sg-header-left">
@@ -481,9 +512,16 @@ export default function SubjectsGrid({
                   onClick={(e) => e.stopPropagation()}
                   onMouseDown={(e) => e.stopPropagation()}
                   role="status"
+                  title={`Visibility: ${visibilityLabel(subjectVisibility)}`}
                   aria-label={`Subject visibility: ${visibilityLabel(subjectVisibility)}`}
                 >
-                  {visibilityLabel(subjectVisibility)}
+                  {subjectVisibility === "private" ? (
+                    <FiLock />
+                  ) : subjectVisibility === "unlisted" ? (
+                    <FiUnlock />
+                  ) : (
+                    <FiGlobe />
+                  )}
                 </span>
 
                 <div className="mse-subject-options" ref={openMenuFor === sub._id ? menuRef : null}>
@@ -491,6 +529,7 @@ export default function SubjectsGrid({
                     className="mse-options-btn"
                     onClick={(e) => {
                       e.stopPropagation();
+                      bringSubjectToFront(sub._id);
                       setOpenMenuFor((prev) => (prev === sub._id ? null : sub._id));
                     }}
                     aria-label="More options"
@@ -582,56 +621,58 @@ export default function SubjectsGrid({
                   {addTopicOpen[subjectKey] ? <FiChevronDown className="sg-add-topic-toggle-caret" /> : <FiChevronRight className="sg-add-topic-toggle-caret" />}
                 </button>
 
-                {/* Collapsible Add Topic Form */}
-                <div className={`sg-add-topic-drawer${addTopicOpen[subjectKey] ? " sg-add-topic-drawer--open" : ""}`}>
-                  <div className="sg-add-topic-drawer-inner">
-                    <div className="sg-add-topic-section">
-                      <select
-                        value={newTopicVisibility[subjectKey] || "public"}
-                        onChange={(e) =>
-                          setNewTopicVisibility((prev) => ({ ...prev, [subjectKey]: e.target.value }))
-                        }
-                        className="sg-add-topic-select"
-                        disabled={isLoading}
-                      >
-                        <option value="public">Public</option>
-                        <option value="private">Private</option>
-                        <option value="unlisted">Unlisted</option>
-                      </select>
+                {/* Collapsible Add Topic Form (Only rendered when opened to avoid any half-rendered border ghost) */}
+                {addTopicOpen[subjectKey] && (
+                  <div className="sg-add-topic-drawer sg-add-topic-drawer--open">
+                    <div className="sg-add-topic-drawer-inner">
+                      <div className="sg-add-topic-section">
+                        <select
+                          value={newTopicVisibility[subjectKey] || "public"}
+                          onChange={(e) =>
+                            setNewTopicVisibility((prev) => ({ ...prev, [subjectKey]: e.target.value }))
+                          }
+                          className="sg-add-topic-select"
+                          disabled={isLoading}
+                        >
+                          <option value="public">Public</option>
+                          <option value="private">Private</option>
+                          <option value="unlisted">Unlisted</option>
+                        </select>
 
-                      <select
-                        value=""
-                        onChange={handleTopicSelectForSubject}
-                        className="sg-add-topic-select"
-                        disabled={isLoading}
-                      >
-                        <option value="">Select existing topic…</option>
-                        {topicsForThisSubject.map(topic => (
-                          <option key={topic} value={topic}>{topic}</option>
-                        ))}
-                      </select>
+                        <select
+                          value=""
+                          onChange={handleTopicSelectForSubject}
+                          className="sg-add-topic-select"
+                          disabled={isLoading}
+                        >
+                          <option value="">Select existing topic…</option>
+                          {topicsForThisSubject.map(topic => (
+                            <option key={topic} value={topic}>{topic}</option>
+                          ))}
+                        </select>
 
-                      <input
-                        type="text"
-                        placeholder="Or enter new topic name…"
-                        value={topicName}
-                        onChange={(e) => setTopicName(e.target.value)}
-                        className="sg-add-topic-input"
-                        disabled={isLoading}
-                      />
+                        <input
+                          type="text"
+                          placeholder="Or enter new topic name…"
+                          value={topicName}
+                          onChange={(e) => setTopicName(e.target.value)}
+                          className="sg-add-topic-input"
+                          disabled={isLoading}
+                        />
 
-                      <button
-                        onClick={() => { handleAddTopicWithReset(subjectKey, sub.subject); toggleAddTopic(subjectKey); }}
-                        className="sg-add-topic-btn"
-                        disabled={isLoading || !topicName.trim()}
-                        onMouseDown={(e) => e.stopPropagation()}
-                      >
-                        <FiPlus />
-                        <span>Add Topic</span>
-                      </button>
+                        <button
+                          onClick={() => { handleAddTopicWithReset(subjectKey, sub.subject); toggleAddTopic(subjectKey); }}
+                          className="sg-add-topic-btn"
+                          disabled={isLoading || !topicName.trim()}
+                          onMouseDown={(e) => e.stopPropagation()}
+                        >
+                          <FiPlus />
+                          <span>Add Topic</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Topics List */}
                 <div className="sg-topics-container">
@@ -654,6 +695,11 @@ export default function SubjectsGrid({
                           onTopicDelete={onTopicDelete}
                           onRefreshSubjects={onRefreshSubjects}
                           showMessage={showMessage}
+                          onMenuToggle={(isOpen) => {
+                            if (isOpen) {
+                              bringSubjectToFront(sub._id);
+                            }
+                          }}
                         />
                       ))}
 

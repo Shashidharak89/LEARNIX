@@ -90,36 +90,37 @@
   color: #9ca3af;
 }
 
-/* Immutable visibility badge (next to 3-dot menu) */
+/* Immutable visibility badge (next to 3-dot menu: Icon only) */
 .mse-visibility-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 36px;
-  padding: 0 12px;
-  border-radius: 999px;
-  font-weight: 800;
-  font-size: 0.85rem;
-  border: 1px solid rgba(15, 23, 42, 0.08);
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 14px;
+  border: 1.5px solid transparent;
   user-select: none;
+  flex-shrink: 0;
 }
 
 .mse-visibility-badge.is-public {
-  background: rgba(14, 165, 233, 0.10);
-  color: #0c4a6e;
-  border-color: rgba(14, 165, 233, 0.18);
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
 }
 
 .mse-visibility-badge.is-private {
-  background: rgba(251, 191, 36, 0.14);
-  color: #92400e;
-  border-color: rgba(251, 191, 36, 0.24);
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
 }
 
 .mse-visibility-badge.is-unlisted {
-  background: rgba(16, 185, 129, 0.12);
-  color: #065f46;
-  border-color: rgba(16, 185, 129, 0.24);
+  background: #eff6ff;
+  color: #0284c7;
+  border-color: #bae6fd;
 }
 
 .mse-container.dark .mse-visibility-badge {
@@ -864,7 +865,7 @@
 }
 
 .ms-page-title {
-  font-size: clamp(1.25rem, 2.2vw, 1.85rem);
+  font-size: clamp(1.35rem, 2.2vw, 1.7rem);
   font-weight: 800;
   letter-spacing: -0.025em;
   color: #0f172a;
@@ -1216,38 +1217,39 @@
 }
 
 .ms-section-header-row {
+.ms-section-header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 6px 4px 18px;
+  padding: 4px 4px 12px;
   width: 100%;
 }
 
 .ms-section-title-group {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .ms-section-icon-badge {
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
+  border-radius: 10px;
   background: #eff6ff;
   color: #007aff;
-  font-size: 18px;
+  font-size: 16px;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.12);
+  box-shadow: 0 2px 6px rgba(0, 122, 255, 0.12);
 }
 
 .ms-section-title {
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-size: 1.05rem; /* Distinctly smaller than Upload Resources ms-page-title */
+  font-weight: 700;
+  letter-spacing: -0.015em;
   color: #0f172a;
   margin: 0;
 }
@@ -1255,11 +1257,11 @@
 .ms-section-count-pill {
   display: inline-flex;
   align-items: center;
-  padding: 4px 12px;
+  padding: 3px 10px;
   border-radius: 9999px;
   background: #fefce8;
   color: #854d0e;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 750;
   border: 1.5px solid #fef08a;
   white-space: nowrap;
@@ -1589,5 +1591,24 @@
   }
   .ms-panel-body {
     padding: 16px 14px;
+  }
+  .ms-section-title {
+    font-size: 0.92rem !important;
+  }
+  .ms-section-icon-badge {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 14px !important;
+    border-radius: 9px !important;
+  }
+  .ms-section-count-pill {
+    font-size: 0.72rem !important;
+    padding: 2.5px 8px !important;
+  }
+}
+
+@media (max-width: 440px) {
+  .ms-section-title {
+    font-size: 0.85rem !important;
   }
 }

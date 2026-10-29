@@ -4,11 +4,11 @@
    Font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
    ============================================================ */
 
-/* ── Container (Clean, Individual Card Spacing) ── */
+/* ── Container (Clean, Individual Card Spacing - QP Subject Directory Style) ── */
 .mse-subjects-grid {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px; /* Tight, elegant spacing matching Question Papers cards */
   width: 100%;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
@@ -17,30 +17,30 @@
   box-sizing: border-box;
 }
 
-/* ── Subject Card (Individual Apple Widget, No Dark Corner Shading) ── */
+/* ── Subject Card (Individual Apple Widget, Clean QP Spacing) ── */
 .sg-card {
   position: relative;
   background: #ffffff;
-  border-radius: 22px;
-  padding: 18px 22px;
-  margin-bottom: 16px;
-  border: 1.5px solid #e2e8f0; /* Uniform, smooth Apple border */
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+  border-radius: 20px;
+  padding: 14px 18px; /* Compact padding matching QP cards */
+  margin-bottom: 0;   /* Clean gap handling with no excess spacing */
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 2px 10px -2px rgba(15, 23, 42, 0.04), 0 1px 3px -1px rgba(15, 23, 42, 0.02);
   transition: box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease, transform 0.22s ease;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   overflow: visible;
-  animation: sg-card-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: sg-card-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes sg-card-in {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
 .sg-card:hover {
-  transform: translateY(-1.5px);
+  transform: translateY(-1px);
   border-color: #cbd5e1;
-  box-shadow: 0 10px 28px -4px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 6px 20px -3px rgba(15, 23, 42, 0.07);
 }
 
 .sg-card--expanded {
@@ -53,38 +53,44 @@
   position: relative !important;
 }
 
-/* ── Card Header ── */
+/* ── Card Header (Interactive across entire row) ── */
 .sg-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
   min-width: 0;
   cursor: pointer;
   user-select: none;
-  border-radius: 16px;
-  padding: 2px 0;
-  transition: opacity 0.2s ease;
+  border-radius: 14px;
+  padding: 4px 6px;
+  margin: -4px -6px;
+  transition: background 0.15s ease, opacity 0.2s ease;
+}
+
+.sg-header:hover {
+  background: rgba(248, 250, 252, 0.9);
 }
 
 .sg-header:focus-visible {
   outline: 2px solid #007aff;
-  outline-offset: 4px;
+  outline-offset: 2px;
 }
 
 /* ── Left Side: Chevron + Book Badge + Subject Title ── */
 .sg-header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
   flex: 1 1 auto;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .sg-chevron {
-  font-size: 16px;
+  font-size: 15px;
   color: #94a3b8;
   flex-shrink: 0;
   display: flex;
@@ -107,13 +113,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
   background: #fefce8;
   border: 1.5px solid #fef08a;
   color: #a16207;
-  font-size: 18px;
+  font-size: 17px;
   flex-shrink: 0;
   box-shadow: 0 2px 6px rgba(254, 240, 138, 0.2);
   transition: transform 0.2s ease;
@@ -129,12 +135,13 @@
   min-width: 0;
   flex: 1 1 auto;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .sg-subject-title {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 1.05rem;
-  font-weight: 750;
+  font-size: 0.98rem;
+  font-weight: 700;
   color: #0f172a;
   margin: 0;
   line-height: 1.25;
@@ -145,9 +152,10 @@
   max-width: 100%;
   min-width: 0;
   flex: 1 1 auto;
+  cursor: pointer;
 }
 
-/* ── Right Side: Topic Count Pill + Visibility + 3-Dot Menu ── */
+/* ── Right Side: Topic Count Pill + Visibility Icon + 3-Dot Menu ── */
 .sg-header-right {
   display: flex;
   align-items: center;
@@ -161,7 +169,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 3.5px 10px;
+  padding: 3px 9px;
   border-radius: 9999px;
   background: #fefce8;
   color: #854d0e;
@@ -171,6 +179,7 @@
   letter-spacing: 0.02em;
   white-space: nowrap;
   flex-shrink: 0;
+  cursor: pointer;
 }
 
 .sg-topic-count-dot {
@@ -180,27 +189,30 @@
   background: #fde047;
 }
 
-/* Visibility Badge (Apple Pill) */
+/* Visibility Badge: ICON ONLY with representing background color */
 .mse-visibility-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 28px;
-  padding: 0 11px;
-  border-radius: 9999px;
-  font-size: 0.72rem;
-  font-weight: 750;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 14px;
   flex-shrink: 0;
-  border: 1px solid transparent;
-  transition: all 0.2s ease;
+  border: 1.5px solid transparent;
+  user-select: none;
+  cursor: default;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease;
+}
+
+.mse-visibility-badge:hover {
+  transform: scale(1.08);
 }
 
 .mse-visibility-badge.is-public {
-  background: #f0fdf4;
-  color: #16a34a;
-  border-color: #bbf7d0;
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
 }
 
 .mse-visibility-badge.is-private {
@@ -226,8 +238,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   border: 1.5px solid transparent;
   background: transparent;
@@ -236,6 +248,12 @@
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
+}
+
+.mse-options-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #e2e8f0;
 }
 
 .mse-options-btn:hover {
@@ -369,19 +387,18 @@
 
 /* ── Collapsible Add Topic Drawer ── */
 .sg-add-topic-drawer {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-  overflow: hidden;
+  overflow: visible;
+  animation: sg-drawer-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.sg-add-topic-drawer--open {
-  grid-template-rows: 1fr;
+@keyframes sg-drawer-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .sg-add-topic-drawer-inner {
   min-height: 0;
-  padding: 4px 0 10px;
+  padding: 6px 0 10px;
 }
 
 /* ── Add Topic Form Card ── */
@@ -525,99 +542,140 @@
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
 }
 
-/* ── Responsive Rules (Proper Spacing Between Cards on Mobile) ── */
+/* ── Responsive Rules (Tight QP Spacing & Reduced Fonts on Mobile) ── */
 @media (max-width: 640px) {
   .mse-subjects-grid {
-    gap: 16px;
+    gap: 10px;
   }
 
   .sg-card {
-    padding: 16px 16px;
-    margin-bottom: 16px;
-    border-radius: 18px;
+    padding: 12px 14px;
+    margin-bottom: 0;
+    border-radius: 16px;
   }
 
   .sg-header {
     gap: 8px;
+    padding: 3px 4px;
+    margin: -3px -4px;
   }
 
   .sg-header-left {
     gap: 8px;
   }
 
+  .sg-chevron {
+    font-size: 14px;
+  }
+
   .sg-book-icon-badge {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
     border-radius: 10px;
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .sg-subject-title {
-    font-size: 0.98rem;
+    font-size: 0.88rem;
+    font-weight: 700;
   }
 
   .sg-topic-count-pill {
-    padding: 2.5px 8px;
-    font-size: 0.68rem;
+    padding: 2.5px 7px;
+    font-size: 0.65rem;
+    gap: 4px;
+  }
+
+  .sg-topic-count-dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  .mse-visibility-badge {
+    width: 26px;
+    height: 26px;
+    font-size: 12px;
+  }
+
+  .mse-options-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+
+  .sg-add-topic-toggle {
+    font-size: 11.5px;
+    padding: 5px 12px 5px 6px;
+    margin-top: 8px;
   }
 
   .sg-add-topic-section {
     flex-direction: column;
     align-items: stretch;
-    padding: 12px;
+    padding: 10px 12px;
+    gap: 8px;
   }
 
   .sg-add-topic-select,
   .sg-add-topic-input {
     flex: 1 1 auto;
     width: 100%;
+    font-size: 12px;
+    padding: 8px 10px;
   }
 
   .sg-add-topic-btn {
     width: 100%;
     justify-content: center;
+    font-size: 12px;
+    padding: 8px 14px;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 440px) {
   .mse-subjects-grid {
-    gap: 14px;
+    gap: 8px;
   }
 
   .sg-card {
-    padding: 14px 14px;
-    margin-bottom: 14px;
-    border-radius: 16px;
+    padding: 10px 12px;
+    margin-bottom: 0;
+    border-radius: 14px;
   }
 
   .sg-header-left {
-    gap: 7px;
-  }
-
-  .sg-book-icon-badge {
-    width: 32px;
-    height: 32px;
-    border-radius: 9px;
-    font-size: 15px;
-  }
-
-  .sg-subject-title {
-    font-size: 0.92rem;
-  }
-
-  .sg-header-right {
     gap: 6px;
   }
 
-  .mse-visibility-badge {
-    height: 24px;
-    padding: 0 8px;
-    font-size: 0.65rem;
+  .sg-book-icon-badge {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    font-size: 14px;
   }
 
-  .sg-add-topic-toggle {
-    font-size: 12px;
-    padding: 5px 12px 5px 6px;
+  .sg-subject-title {
+    font-size: 0.82rem;
+  }
+
+  .sg-header-right {
+    gap: 5px;
+  }
+
+  .sg-topic-count-pill {
+    display: none; /* Hide topic count on extremely small screens to preserve title and action buttons */
+  }
+
+  .mse-visibility-badge {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+
+  .mse-options-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 13px;
   }
 }
 

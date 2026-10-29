@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
@@ -15,7 +15,7 @@ import {
 import PDFProcessor from "./PDFProcessor";
 import "./styles/TopicCard.css";
 
-export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelete, onRefreshSubjects, showMessage }) {
+export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelete, onRefreshSubjects, showMessage, onMenuToggle }) {
   const router = useRouter();
   const [isCollapsed, setIsCollapsed]       = useState(true);
   const [uploadingStates, setUploadingStates]   = useState({});
@@ -44,10 +44,15 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
   const cameraInputRefs = useRef({});
   const topicKey = `${subject}-${topic.topic}`;
 
+  const closeMenu = useCallback(() => {
+    setOpenMenu(false);
+    if (onMenuToggle) onMenuToggle(false);
+  }, [onMenuToggle]);
+
   /* ── collapse ── */
   const toggleCollapse = (e) => {
     if (e) { e.preventDefault(); e.stopPropagation(); }
-    setOpenMenu(false);
+    closeMenu();
     setIsCollapsed((p) => !p);
   };
 
@@ -68,10 +73,14 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
 
   /* ── close menu on outside click ── */
   useEffect(() => {
-    const close = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setOpenMenu(false); };
+    const close = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        closeMenu();
+      }
+    };
     if (openMenu) document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
-  }, [openMenu]);
+  }, [openMenu, closeMenu]);
 
   // keep local visibility state in sync when parent updates topic prop
   useEffect(() => {
@@ -228,7 +237,7 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
   };
 
   const requestVisibilityChange = (nextVisibility) => {
-    setOpenMenu(false);
+    closeMenu();
     setVisibilityModal({ open: true, nextVisibility });
   };
 
@@ -261,9 +270,9 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
       .catch(() => showMessage("Failed to copy link", "error"));
   };
 
-  const handleOpenTopic   = () => { setOpenMenu(false); router.push(`/works/${topic._id}`); };
-  const handleOpenReviews = () => { setOpenMenu(false); router.push(`/reviews/${topic._id}`); };
-  const requestRenameTopic = () => { setOpenMenu(false); setRenameValue(topic.topic || ""); setRenameModal(true); };
+  const handleOpenTopic   = () => { closeMenu(); router.push(`/works/${topic._id}`); };
+  const handleOpenReviews = () => { closeMenu(); router.push(`/reviews/${topic._id}`); };
+  const requestRenameTopic = () => { closeMenu(); setRenameValue(topic.topic || ""); setRenameModal(true); };
   const cancelRenameTopic  = () => { if (isRenamingTopic) return; setRenameModal(false); setRenameValue(""); };
 
   const confirmRenameTopic = async () => {
@@ -282,7 +291,7 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
     finally { setIsRenamingTopic(false); }
   };
 
-  const requestDeleteTopic = () => { setOpenMenu(false); setDeleteModal(true); };
+  const requestDeleteTopic = () => { closeMenu(); setDeleteModal(true); };
   const cancelDeleteTopic  = () => { if (isDeletingTopic) return; setDeleteModal(false); };
 
   const confirmDeleteTopic = async () => {
@@ -427,7 +436,15 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
             <button
               type="button"
               className={`tc-menu-btn${openMenu ? " tc-menu-btn--active" : ""}`}
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpenMenu((p) => !p); }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setOpenMenu((p) => {
+                  const next = !p;
+                  if (onMenuToggle) onMenuToggle(next);
+                  return next;
+                });
+              }}
               aria-label="More options"
               aria-expanded={openMenu}
             >
@@ -439,7 +456,7 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
                 <button className="tc-dropdown-item" onClick={handleOpenTopic}>
                   <FiFileText className="tc-dropdown-icon" /><span>Open</span>
                 </button>
-                <button className="tc-dropdown-item" onClick={() => { setOpenMenu(false); router.push(`/upload/topic/edit/${topic._id}`); }}>
+                <button className="tc-dropdown-item" onClick={() => { closeMenu(); router.push(`/upload/topic/edit/${topic._id}`); }}>
                   <FiEdit3 className="tc-dropdown-icon" /><span>Open in Edit Mode</span>
                 </button>
                 <button className="tc-dropdown-item" onClick={handleOpenReviews}>
