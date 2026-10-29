@@ -228,6 +228,7 @@ export default function WorkspaceResources({ loggedIn }) {
             </div>
             <div className="wr-title-text-group">
               <h3 className="wr-section-title">Resources</h3>
+              <span className="wr-section-subtitle">Academic notes, study syllabus & materials</span>
             </div>
             <span
               className={`wr-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}

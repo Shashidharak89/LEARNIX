@@ -131,6 +131,18 @@
   text-overflow: ellipsis;
 }
 
+.wr-section-subtitle {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #64748b;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Add Resources Button */
 .wr-header-actions {
   display: flex !important;
@@ -619,6 +631,11 @@
     font-size: 1.05rem;
   }
 
+  .wr-section-subtitle {
+    font-size: 0.72rem;
+    max-width: 170px;
+  }
+
   .wr-add-resource-btn {
     padding: 7px 11px;
     font-size: 0.76rem;
@@ -660,6 +677,11 @@
 @media (max-width: 360px) {
   .wr-section-title {
     font-size: 0.95rem;
+  }
+
+  .wr-section-subtitle {
+    font-size: 0.68rem;
+    max-width: 125px;
   }
 
   .wr-add-resource-btn {

@@ -132,6 +132,18 @@
   text-overflow: ellipsis;
 }
 
+.wt-section-subtitle {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #64748b;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Top Action Button - Try Now */
 .wt-header-actions {
   display: flex !important;
@@ -496,6 +508,11 @@
     font-size: 1.05rem;
   }
 
+  .wt-section-subtitle {
+    font-size: 0.72rem;
+    max-width: 170px;
+  }
+
   .wt-top-visit-btn {
     padding: 7px 11px;
     font-size: 0.76rem;
@@ -539,6 +556,11 @@
 @media (max-width: 360px) {
   .wt-section-title {
     font-size: 0.95rem;
+  }
+
+  .wt-section-subtitle {
+    font-size: 0.68rem;
+    max-width: 125px;
   }
 
   .wt-top-visit-btn {

@@ -73,7 +73,6 @@ export default function WorkspaceQuestionPapers() {
 
   const clipboardIconRef = useRef(null);
   const topActionRef = useRef(null);
-  const footerActionRef = useRef(null);
 
   const fetchQuestionPapers = useCallback(async () => {
     try {
@@ -168,6 +167,7 @@ export default function WorkspaceQuestionPapers() {
             </div>
             <div className="wqp-title-text-group">
               <h3 className="wqp-section-title">Question Papers</h3>
+              <span className="wqp-section-subtitle">Previous semester exam papers & reference solutions</span>
             </div>
             <span
               className={`wqp-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
@@ -209,20 +209,6 @@ export default function WorkspaceQuestionPapers() {
             )}
           </div>
         )}
-
-        {/* Footer Navigation Button - strictly 1 row, single button: Explore Question Papers */}
-        <div className="wqp-widget-footer">
-          <Link
-            href="/qp"
-            className="wqp-footer-btn wqp-btn-explore"
-            onMouseEnter={() => footerActionRef.current?.startAnimation?.()}
-            onMouseLeave={() => footerActionRef.current?.stopAnimation?.()}
-            title="Browse all previous semester question papers and solutions"
-          >
-            <span>Explore Question Papers</span>
-            <ArrowRightIcon ref={footerActionRef} size={16} />
-          </Link>
-        </div>
       </div>
     </section>
   );

@@ -113,7 +113,6 @@ export default function WorkspaceTools() {
 
   const settingsIconRef = useRef(null);
   const topActionRef = useRef(null);
-  const footerActionRef = useRef(null);
 
   const toggleExpand = () => {
     setIsExpanded((prev) => !prev);
@@ -147,6 +146,7 @@ export default function WorkspaceTools() {
             </div>
             <div className="wt-title-text-group">
               <h3 className="wt-section-title">Tools</h3>
+              <span className="wt-section-subtitle">Instant file drop, text share & utilities</span>
             </div>
             <span
               className={`wt-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
@@ -180,20 +180,6 @@ export default function WorkspaceTools() {
             </div>
           </div>
         )}
-
-        {/* Footer Navigation Button - strictly 1 row, single button: Visit Tools */}
-        <div className="wt-widget-footer">
-          <Link
-            href="/tools"
-            className="wt-footer-btn wt-btn-visit"
-            onMouseEnter={() => footerActionRef.current?.startAnimation?.()}
-            onMouseLeave={() => footerActionRef.current?.stopAnimation?.()}
-            title="Visit all tools and document utilities"
-          >
-            <span>Visit Tools</span>
-            <ArrowRightIcon ref={footerActionRef} size={16} />
-          </Link>
-        </div>
       </div>
     </section>
   );

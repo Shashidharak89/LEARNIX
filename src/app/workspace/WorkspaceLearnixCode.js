@@ -108,7 +108,6 @@ export default function WorkspaceLearnixCode() {
   const [hasFetched, setHasFetched] = useState(false);
 
   const topActionRef = useRef(null);
-  const footerActionRef = useRef(null);
 
   const fetchProblems = useCallback(async () => {
     try {
@@ -171,6 +170,7 @@ export default function WorkspaceLearnixCode() {
             </div>
             <div className="wlc-title-text-group">
               <h3 className="wlc-section-title">Learnix Code</h3>
+              <span className="wlc-section-subtitle">Interactive coding arena & algorithm challenges</span>
             </div>
             <span
               className={`wlc-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
@@ -216,20 +216,6 @@ export default function WorkspaceLearnixCode() {
             )}
           </div>
         )}
-
-        {/* Footer Navigation Button - strictly 1 row, single button: Explore Learnix Code */}
-        <div className="wlc-widget-footer">
-          <Link
-            href="/learnix-code"
-            className="wlc-footer-btn wlc-btn-explore"
-            onMouseEnter={() => footerActionRef.current?.startAnimation?.()}
-            onMouseLeave={() => footerActionRef.current?.stopAnimation?.()}
-            title="Explore all coding challenges and the interactive editor"
-          >
-            <span>Explore Learnix Code</span>
-            <ArrowRightIcon ref={footerActionRef} size={16} />
-          </Link>
-        </div>
       </div>
     </section>
   );

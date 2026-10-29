@@ -142,8 +142,6 @@ export default function WorkspaceLearnLater({ loggedIn }) {
   const loginIconRef = useRef(null);
   const emptyBookmarkRef = useRef(null);
   const emptyExploreRef = useRef(null);
-  const queueFooterRef = useRef(null);
-  const visitFooterRef = useRef(null);
 
   const fetchLatestSavedItems = useCallback(async () => {
     if (!loggedIn) {
@@ -221,6 +219,7 @@ export default function WorkspaceLearnLater({ loggedIn }) {
             </div>
             <div className="wll-title-text-group">
               <h3 className="wll-section-title">Learn Later</h3>
+              <span className="wll-section-subtitle">Saved materials & topics queued for revision</span>
             </div>
             <span
               className={`wll-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
@@ -236,9 +235,9 @@ export default function WorkspaceLearnLater({ loggedIn }) {
               className="wll-top-visit-btn"
               onMouseEnter={() => topActionIconRef.current?.startAnimation?.()}
               onMouseLeave={() => topActionIconRef.current?.stopAnimation?.()}
-              title="Visit Learn Later queue"
+              title="Visit your complete Learn Later page"
             >
-              <span>View Queue</span>
+              <span>Visit Learn Later</span>
               <ArrowRightIcon ref={topActionIconRef} size={15} />
             </Link>
           </div>
@@ -317,31 +316,6 @@ export default function WorkspaceLearnLater({ loggedIn }) {
             )}
           </div>
         )}
-
-        {/* Footer Navigation Buttons: All Saved Items & Visit Learn Later - strictly 1 row */}
-        <div className="wll-widget-footer">
-          <Link
-            href="/works"
-            className="wll-footer-btn wll-btn-explore"
-            onMouseEnter={() => queueFooterRef.current?.startAnimation?.()}
-            onMouseLeave={() => queueFooterRef.current?.stopAnimation?.()}
-            title="Browse all academic resources to save"
-          >
-            <FolderIcon ref={queueFooterRef} size={16} />
-            <span>Explore Resources</span>
-          </Link>
-
-          <Link
-            href="/learn-later"
-            className="wll-footer-btn wll-btn-visit"
-            onMouseEnter={() => visitFooterRef.current?.startAnimation?.()}
-            onMouseLeave={() => visitFooterRef.current?.stopAnimation?.()}
-            title="Visit your complete Learn Later page"
-          >
-            <span>Visit Learn Later</span>
-            <ArrowRightIcon ref={visitFooterRef} size={16} />
-          </Link>
-        </div>
       </div>
     </section>
   );

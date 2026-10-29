@@ -129,7 +129,6 @@ export default function WorkspaceStudyMaterials() {
 
   const bookIconRef = useRef(null);
   const topActionRef = useRef(null);
-  const footerActionRef = useRef(null);
 
   const toggleExpand = () => {
     setIsExpanded((prev) => !prev);
@@ -163,6 +162,7 @@ export default function WorkspaceStudyMaterials() {
             </div>
             <div className="wsm-title-text-group">
               <h3 className="wsm-section-title">Study Materials</h3>
+              <span className="wsm-section-subtitle">Semester modules, syllabus & study notes</span>
             </div>
             <span
               className={`wsm-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
@@ -196,20 +196,6 @@ export default function WorkspaceStudyMaterials() {
             </div>
           </div>
         )}
-
-        {/* Footer Navigation Button - strictly 1 row, single button: Explore Study Materials */}
-        <div className="wsm-widget-footer">
-          <Link
-            href="/materials"
-            className="wsm-footer-btn wsm-btn-explore"
-            onMouseEnter={() => footerActionRef.current?.startAnimation?.()}
-            onMouseLeave={() => footerActionRef.current?.stopAnimation?.()}
-            title="Browse all courses, semesters, and study materials"
-          >
-            <span>Explore Study Materials</span>
-            <ArrowRightIcon ref={footerActionRef} size={16} />
-          </Link>
-        </div>
       </div>
     </section>
   );

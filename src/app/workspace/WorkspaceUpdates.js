@@ -274,6 +274,7 @@ export default function WorkspaceUpdates({ loggedIn }) {
               </div>
               <div className="wu-title-text-group">
                 <h3 className="wu-section-title">Updates</h3>
+                <span className="wu-section-subtitle">Campus announcements, events & notices</span>
               </div>
               <span
                 className={`wu-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
