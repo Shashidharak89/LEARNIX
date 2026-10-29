@@ -38,7 +38,10 @@ const CustomDropdown = ({ label, options, value, onChange, onLoadMore, hasMore, 
                 aria-haspopup="listbox"
                 aria-expanded={isOpen}
             >
-                <span className={`qp-dropdown-trigger__text ${!selectedText ? "is-placeholder" : ""}`}>
+                <span 
+                    className={`qp-dropdown-trigger__text ${!selectedText ? "is-placeholder" : ""}`}
+                    title={selectedText || placeholder}
+                >
                     {selectedText || placeholder}
                 </span>
                 <div className="qp-dropdown-trigger__actions">
