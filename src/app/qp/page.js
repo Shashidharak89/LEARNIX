@@ -2,6 +2,7 @@ import { Navbar } from "../components/Navbar";
 import QPSearch from "./QPSearch";
 import QPFilterSearch from "./QPFilterSearch";
 import QuestionPapers from "./QuestionPapers";
+import QPFeedback from "./QPFeedback";
 import "./styles/QuestionPapers.css";
 
 export const metadata = {
@@ -25,6 +26,7 @@ export default function QuestionPapersPage() {
             <QPSearch />
             <QuestionPapers />
             <QPFilterSearch />
+            <QPFeedback />
         </div>
     );
 }
