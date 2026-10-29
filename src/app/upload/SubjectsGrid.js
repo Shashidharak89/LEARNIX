@@ -515,13 +515,18 @@ export default function SubjectsGrid({
                   title={`Visibility: ${visibilityLabel(subjectVisibility)}`}
                   aria-label={`Subject visibility: ${visibilityLabel(subjectVisibility)}`}
                 >
-                  {subjectVisibility === "private" ? (
-                    <FiLock />
-                  ) : subjectVisibility === "unlisted" ? (
-                    <FiUnlock />
-                  ) : (
-                    <FiGlobe />
-                  )}
+                  <span className="mse-visibility-icon">
+                    {subjectVisibility === "private" ? (
+                      <FiLock />
+                    ) : subjectVisibility === "unlisted" ? (
+                      <FiUnlock />
+                    ) : (
+                      <FiGlobe />
+                    )}
+                  </span>
+                  <span className="mse-visibility-text">
+                    {visibilityLabel(subjectVisibility)}
+                  </span>
                 </span>
 
                 <div className="mse-subject-options" ref={openMenuFor === sub._id ? menuRef : null}>

@@ -10,7 +10,7 @@ import {
   FiFileText, FiUpload, FiTrash2, FiImage, FiCalendar, FiCheck,
   FiChevronDown, FiChevronUp, FiX, FiAlertTriangle, FiCamera, FiFile,
   FiCheckCircle, FiLoader, FiShare2, FiMessageSquare, FiMoreVertical,
-  FiEdit2, FiLock, FiUnlock, FiChevronRight, FiEdit3,
+  FiEdit2, FiLock, FiUnlock, FiChevronRight, FiEdit3, FiGlobe,
 } from "react-icons/fi";
 import PDFProcessor from "./PDFProcessor";
 import "./styles/TopicCard.css";
@@ -315,7 +315,7 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
   const portalModal = (node) => (typeof document !== "undefined" ? createPortal(node, document.body) : null);
 
   return (
-    <div className={`tc-card${openMenu ? " tc-card--menu-open" : ""}`}>
+    <div className={`tc-card${openMenu ? " tc-card--menu-open" : ""}${!isCollapsed ? " tc-card--expanded" : ""}`}>
 
       {/* ── Rename Modal ── */}
       {renameModal && portalModal(
@@ -428,8 +428,13 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
             {new Date(topic.timestamp).toLocaleDateString()}
           </span>
 
-          <span className={`tc-badge tc-badge--${topicVisibility}`}>
-            {visibilityLabel(topicVisibility)}
+          <span className={`tc-badge tc-badge--${topicVisibility}`} title={`Visibility: ${visibilityLabel(topicVisibility)}`}>
+            <span className="tc-badge-icon">
+              {topicVisibility === "private" ? <FiLock /> : topicVisibility === "unlisted" ? <FiUnlock /> : <FiGlobe />}
+            </span>
+            <span className="tc-badge-text">
+              {visibilityLabel(topicVisibility)}
+            </span>
           </span>
 
           <div className="tc-menu-wrap" ref={menuRef}>

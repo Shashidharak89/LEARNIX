@@ -17,16 +17,19 @@
   box-sizing: border-box;
 }
 
-/* ── Subject Card (Individual Apple Widget, Clean QP Spacing) ── */
+/* ── Subject Card (Individual Apple Widget, 26px Roundness, Smooth Hover) ── */
 .sg-card {
   position: relative;
   background: #ffffff;
-  border-radius: 20px;
-  padding: 14px 18px; /* Compact padding matching QP cards */
-  margin-bottom: 0;   /* Clean gap handling with no excess spacing */
+  border-radius: 26px; /* Enhanced Apple roundness */
+  padding: 14px 18px;
+  margin-bottom: 0;
   border: 1.5px solid #e2e8f0;
   box-shadow: 0 2px 10px -2px rgba(15, 23, 42, 0.04), 0 1px 3px -1px rgba(15, 23, 42, 0.02);
-  transition: box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease, transform 0.22s ease;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease,
+              background-color 0.25s ease;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   overflow: visible;
   animation: sg-card-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -38,9 +41,9 @@
 }
 
 .sg-card:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   border-color: #cbd5e1;
-  box-shadow: 0 6px 20px -3px rgba(15, 23, 42, 0.07);
+  box-shadow: 0 10px 24px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.03);
 }
 
 .sg-card--expanded {
@@ -63,7 +66,7 @@
   min-width: 0;
   cursor: pointer;
   user-select: none;
-  border-radius: 14px;
+  border-radius: 18px;
   padding: 4px 6px;
   margin: -4px -6px;
   transition: background 0.15s ease, opacity 0.2s ease;
@@ -108,14 +111,14 @@
   color: #007aff;
 }
 
-/* Light & Smooth Yellow Subject Book Badge */
+/* Light & Smooth Yellow Subject Book Badge (14px Roundness) */
 .sg-book-icon-badge {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 38px;
   height: 38px;
-  border-radius: 11px;
+  border-radius: 14px;
   background: #fefce8;
   border: 1.5px solid #fef08a;
   color: #a16207;
@@ -189,15 +192,17 @@
   background: #fde047;
 }
 
-/* Visibility Badge: ICON ONLY with representing background color */
+/* Visibility Badge: Icon + Text on large screens, Icon only on mobile */
 .mse-visibility-badge {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 30px;
+  gap: 6px;
   height: 30px;
-  border-radius: 50%;
-  font-size: 14px;
+  padding: 0 11px 0 8px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.02em;
   flex-shrink: 0;
   border: 1.5px solid transparent;
   user-select: none;
@@ -205,8 +210,20 @@
   transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.18s ease;
 }
 
+.mse-visibility-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+
+.mse-visibility-text {
+  display: inline;
+  white-space: nowrap;
+}
+
 .mse-visibility-badge:hover {
-  transform: scale(1.08);
+  transform: scale(1.04);
 }
 
 .mse-visibility-badge.is-public {
@@ -542,22 +559,20 @@
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
 }
 
-/* ── Responsive Rules (Tight QP Spacing & Reduced Fonts on Mobile) ── */
+/* ── Responsive Rules (Consistent 12px Gap, Apple Roundness & Icon-Only Badges) ── */
 @media (max-width: 640px) {
-  .mse-subjects-grid {
-    gap: 10px;
-  }
-
+  /* Keep the exact same 12px gap consistently across all screen sizes */
   .sg-card {
     padding: 12px 14px;
     margin-bottom: 0;
-    border-radius: 16px;
+    border-radius: 22px; /* Enhanced Apple roundness on mobile */
   }
 
   .sg-header {
     gap: 8px;
     padding: 3px 4px;
     margin: -3px -4px;
+    border-radius: 16px;
   }
 
   .sg-header-left {
@@ -571,7 +586,7 @@
   .sg-book-icon-badge {
     width: 34px;
     height: 34px;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 15px;
   }
 
@@ -591,10 +606,18 @@
     height: 5px;
   }
 
+  /* In small devices: JUST SHOW THE ICON */
   .mse-visibility-badge {
-    width: 26px;
-    height: 26px;
-    font-size: 12px;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+    font-size: 13px;
+  }
+
+  .mse-visibility-text {
+    display: none !important;
   }
 
   .mse-options-btn {
@@ -614,6 +637,7 @@
     align-items: stretch;
     padding: 10px 12px;
     gap: 8px;
+    border-radius: 18px;
   }
 
   .sg-add-topic-select,
@@ -633,14 +657,11 @@
 }
 
 @media (max-width: 440px) {
-  .mse-subjects-grid {
-    gap: 8px;
-  }
-
+  /* Consistent gap preserved - no separate gapping logic */
   .sg-card {
-    padding: 10px 12px;
+    padding: 11px 12px;
     margin-bottom: 0;
-    border-radius: 14px;
+    border-radius: 20px;
   }
 
   .sg-header-left {
@@ -648,9 +669,9 @@
   }
 
   .sg-book-icon-badge {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
     font-size: 14px;
   }
 
@@ -667,9 +688,12 @@
   }
 
   .mse-visibility-badge {
-    width: 24px;
-    height: 24px;
-    font-size: 11px;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+    font-size: 12px;
   }
 
   .mse-options-btn {
