@@ -1,7 +1,6 @@
 "use client";
 
-import "./styles/ManageSubjectsSkeleton.css";
-import "./styles/ManageSubSkel.css"
+import "./styles/ManageSubSkel.css";
 
 /* ── Reusable shimmer block ── */
 function Bone({ className = "" }) {
