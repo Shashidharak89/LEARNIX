@@ -3,7 +3,7 @@
 import { useState } from "react";
 import HeroSection from "./HeroSection";
 import HeroSearch from "./HeroSearch";
-import DashboardNavCards from "../dashboard/DashboardNavCards";
+import WorkspaceNavCards from "../workspace/WorkspaceNavCards";
 import DownloadAppBanner from "./DownloadAppBanner";
 import LearnixCodeBanner from "./LearnixCodeBanner";
 import RandomQuote from "./home/RandomQuote";
@@ -35,9 +35,9 @@ export default function Home() {
         <HeroSearch />
       </section>
 
-      {/* Dashboard Navigation Cards */}
+      {/* Workspace Navigation Cards */}
       <section className="learnix-home-nav-cards-wrapper" style={{ padding: "40px 16px 20px 16px", width: "100%", boxSizing: "border-box" }}>
-        <DashboardNavCards loggedIn={loggedIn} />
+        <WorkspaceNavCards loggedIn={loggedIn} />
       </section>
 
       {/* Secondary Content */}

@@ -26,13 +26,13 @@ export default function Login({ googleClientId = "" }) {
 
   const searchParams = useSearchParams();
   const redirectFromQuery = searchParams.get("redirect") || searchParams.get("returnUrl") || searchParams.get("from");
-  const [targetRedirect, setTargetRedirect] = useState("/dashboard");
+  const [targetRedirect, setTargetRedirect] = useState("/workspace");
 
   useEffect(() => {
     if (redirectFromQuery) {
       setTargetRedirect(redirectFromQuery);
     } else if (typeof window !== "undefined") {
-      const lastPage = sessionStorage.getItem("learnix_last_page");
+      const lastPage = window.sessionStorage.getItem("learnix_last_page");
       if (lastPage && lastPage !== "/login" && lastPage !== "/signup") {
         setTargetRedirect(lastPage);
       } else if (document.referrer) {

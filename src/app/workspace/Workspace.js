@@ -16,9 +16,9 @@ import {
 } from "@animateicons/react/lucide";
 import { RiGraduationCapLine } from "react-icons/ri";
 import { LayersIcon } from "../components/icons/LayersIcon";
-import "./styles/DashBoard.css";
+import "./styles/Workspace.css";
 import WhatsNew from "../components/WhatsNew";
-import DashboardNavCards from "./DashboardNavCards";
+import WorkspaceNavCards from "./WorkspaceNavCards";
 
 function GreetingBadge({ greeting }) {
   const clockRef = useRef(null);
@@ -129,7 +129,7 @@ function FooterCtaBtn({ href, text }) {
   );
 }
 
-export default function DashBoard() {
+export default function Workspace() {
   const [usn, setUsn] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -231,7 +231,7 @@ export default function DashBoard() {
       </section>
 
       {/* Navigation Quick Cards */}
-      <DashboardNavCards loggedIn={!!usn} />
+      <WorkspaceNavCards loggedIn={!!usn} />
 
       {/* What's New banner */}
       <WhatsNew />

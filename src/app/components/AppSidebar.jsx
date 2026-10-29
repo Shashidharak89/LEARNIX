@@ -137,7 +137,7 @@ export default function AppSidebar({
         {/* Sidebar Navigation Items */}
         <nav className="learnix-sidebar-menu">
           <SidebarLink
-            href="/dashboard"
+            href="/workspace"
             onClick={onClose}
             icon={LayersIcon}
             text="Workspace"

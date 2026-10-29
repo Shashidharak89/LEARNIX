@@ -31,7 +31,7 @@ function VerifyOtpContent() {
 
     verifyTokenAndSyncAuth({ redirectOnFailure: false }).finally(() => {
       setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/workspace");
       }, 1200);
     });
   }, [router]);

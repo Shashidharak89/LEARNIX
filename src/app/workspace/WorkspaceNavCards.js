@@ -12,7 +12,7 @@ import {
   FiFolder,
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
-import "./styles/DashboardNavCards.css";
+import "./styles/WorkspaceNavCards.css";
 
 const navItems = [
   { href: "/learn",     Icon: HiAcademicCap, label: "Learn",           theme: "learn",     title: "Interactive Hub", description: "Explore study modules, concept cards & daily quizzes." },
@@ -22,11 +22,11 @@ const navItems = [
   { href: "/tools",     Icon: FiTool,        label: "Tools",           theme: "tools",     title: "Practice Tools",  description: "Use document converters, quizzes & utility tools." },
   { href: "/help",      Icon: FiHelpCircle,  label: "Help",            theme: "help",      title: "Help Center",     description: "Get quick assistance, guides & platform support." },
   { href: "/resources/upload", Icon: FiUpload, label: "Upload", theme: "upload", title: "Share Work", description: "Upload your notes & manage your subjects easily.", authRequired: true },
-  { href: "/dashboard", Icon: FiTrendingUp,  label: "Workspace",       theme: "dashboard", title: "Workspace",    description: "Track saved materials, progress & workspace resources." },
+  { href: "/workspace", Icon: FiTrendingUp,  label: "Workspace",       theme: "dashboard", title: "Workspace",    description: "Track saved materials, progress & workspace resources." },
   { href: "/updates",   Icon: FiBell,        label: "Updates",         theme: "updates",   title: "Study Updates",   description: "Stay informed with real-time academic announcements." },
 ];
 
-export default function DashboardNavCards({ loggedIn }) {
+export default function WorkspaceNavCards({ loggedIn }) {
   return (
     <nav className="dash-lnx-grid" aria-label="Quick navigation">
       {navItems.map(({ href, Icon, label, theme, title, description, authRequired }) => {

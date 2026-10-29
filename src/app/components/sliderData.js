@@ -1,13 +1,13 @@
 // /components/SliderData.js
 const sliderData = [
   {
-    title: "Dashboard",
+    title: "Workspace",
     description: "Comprehensive analytics and insights at your fingertips",
     images: [
       "https://res.cloudinary.com/dsojdpkgh/image/upload/v1758819911/dashboard-opening_l1reqs.jpg",
       "https://res.cloudinary.com/dsojdpkgh/image/upload/v1758819907/dashboard_s0ftxp.jpg"
     ],
-    route: "/dashboard",
+    route: "/workspace",
   },
   {
     title: "Works",

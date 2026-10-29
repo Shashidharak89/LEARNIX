@@ -1,18 +1,13 @@
 "use client";
 
-import Footer from "../components/Footer";
 import { Navbar } from "../components/Navbar";
-import WorkSearchInterface from "../works/WorkSearchInterface";
-import AllUsersRecords from "./AllUsersRecords";
-import DashBoard from "./DashBoard";
+import Workspace from "./Workspace";
 
-export default function dashboard() {
-
+export default function WorkspacePage() {
   return (
-    <div >
+    <div>
       <Navbar />
-      <DashBoard />
-   
+      <Workspace />
     </div>
   );
 }
