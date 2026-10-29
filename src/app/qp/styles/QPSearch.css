@@ -1,40 +1,49 @@
-/*
-  Optional: for production, load these with next/font instead of @import
-  (next/font avoids the extra network round-trip this @import causes).
-  Spectral gives the headline a bit of academic/archival character;
-  Inter keeps the UI text clean and legible.
+/* QPSearch.css — Apple Themed Subject Search Component
+   Harmonized with Updates and Resources layout (90% width, 1200px max-width)
+   Colors: Apple Blue (#007aff), Apple Amber/Yellow (#f59e0b), Pure White (#ffffff), Apple Black (#000000)
 */
-@import url("https://fonts.googleapis.com/css2?family=Spectral:wght@500;600&family=Inter:wght@400;500;600&display=swap");
 
 .qp-search-wrap {
-    --qp-ink: #14151a;
-    --qp-paper: #ffffff;
-    --qp-blue: #2451d6;
-    --qp-blue-dark: #1b3aa3;
-    --qp-yellow: #f0b90b;
-    --qp-yellow-dark: #c79200;
-    --qp-line: #e4e1d8;
-    --qp-muted: #6b6f76;
-    --qp-surface: #fafaf8;
+    --qp-bg: #ffffff;
+    --qp-surface: #fbfbfd;
+    --qp-ink: #000000;
+    --qp-ink-subtle: #475569;
+    --qp-muted: #64748b;
+    --qp-blue: #007aff;
+    --qp-blue-dark: #0062cc;
+    --qp-blue-light: #eff6ff;
+    --qp-blue-border: #bfdbfe;
+    --qp-yellow: #f59e0b;
+    --qp-yellow-light: #fef9c3;
+    --qp-yellow-dark: #854d0e;
+    --qp-line: #e2e8f0;
+    --qp-line-hover: #cbd5e1;
 
-    width: 98%;
-    max-width: 1600px;
-    margin: 30px auto 0;
-    padding: 0 16px 10px;
+    width: 90%;
+    max-width: 1200px;
+    margin: 28px auto 0;
+    padding: 0 0 10px;
     box-sizing: border-box;
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: var(--qp-ink);
+    -webkit-font-smoothing: antialiased;
 }
 
-/* ---------- Card & Header ---------- */
+/* ---------- Apple Search Card ---------- */
 
 .qp-search-card {
-    background: var(--qp-paper);
+    background: var(--qp-bg);
     border: 1.5px solid var(--qp-line);
-    border-radius: 16px;
-    padding: 32px 28px 24px;
+    border-radius: 26px;
+    padding: 32px 30px 28px;
     margin-bottom: 24px;
-    box-shadow: 0 4px 18px rgba(20, 21, 26, 0.03);
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.qp-search-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 8px 26px -4px rgba(15, 23, 42, 0.06);
 }
 
 .qp-search-head {
@@ -43,60 +52,35 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    gap: 10px;
-}
-
-.qp-search-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 16px;
-    background: #e0f2fe;
-    border: 1.5px solid #bae6fd;
-    border-radius: 24px;
-    color: var(--qp-blue);
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    text-align: center;
-}
-
-.qp-badge-icon {
-    font-size: 0.88rem;
-    color: var(--qp-blue);
-    flex-shrink: 0;
+    gap: 8px;
 }
 
 .qp-search-title {
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: clamp(1.65rem, 3.2vw, 2.25rem);
     font-weight: 800;
-    font-size: 32px;
-    line-height: 1.2;
-    margin: 2px 0 0;
+    line-height: 1.15;
+    margin: 0;
     color: var(--qp-ink);
-    letter-spacing: -0.025em;
+    letter-spacing: -0.03em;
     text-align: center;
 }
 
 .qp-search-subtitle {
-    font-family: "Inter", sans-serif;
-    font-size: 15px;
-    line-height: 1.5;
-    color: var(--qp-muted);
-    font-weight: 450;
+    font-size: clamp(0.88rem, 1.4vw, 1rem);
+    line-height: 1.55;
+    color: var(--qp-ink-subtle);
+    font-weight: 400;
     margin: 0;
-    max-width: 64ch;
+    max-width: 62ch;
     text-align: center;
 }
 
-/* ---------- Form & Search Bar ---------- */
+/* ---------- Form & Pill Search Bar ---------- */
 
 .qp-search-form {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 8px;
     width: 100%;
 }
 
@@ -109,33 +93,37 @@
 
 .qp-search-bar__icon {
     position: absolute;
-    left: 16px;
-    font-size: 18px;
+    left: 20px;
+    font-size: 19px;
     color: var(--qp-muted);
-    transition: color 0.18s ease;
+    transition: color 0.2s ease;
     pointer-events: none;
 }
 
 .qp-search-bar__input {
     width: 100%;
-    padding: 13px 40px 13px 46px;
-    font-size: 15px;
+    height: 52px;
+    padding: 0 48px 0 52px;
+    font-size: clamp(0.88rem, 1.2vw, 0.95rem);
     font-family: inherit;
     color: var(--qp-ink);
-    background: var(--qp-paper);
+    font-weight: 500;
+    background: var(--qp-bg);
     border: 1.5px solid var(--qp-line);
-    border-radius: 12px;
+    border-radius: 9999px;
     outline: none;
-    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .qp-search-bar__input::placeholder {
-    color: #9a9da3;
+    color: #94a3b8;
+    font-weight: 400;
 }
 
 .qp-search-bar__input:focus {
     border-color: var(--qp-blue);
-    box-shadow: 0 0 0 3px rgba(36, 81, 214, 0.12);
+    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.12), 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
 .qp-search-bar:focus-within .qp-search-bar__icon {
@@ -144,48 +132,51 @@
 
 .qp-search-clear-btn {
     position: absolute;
-    right: 12px;
+    right: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 22px;
-    height: 22px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
-    background: #e4e1d8;
-    color: #14151a;
-    border: none;
+    background: #f1f5f9;
+    color: var(--qp-ink-subtle);
+    border: 1px solid var(--qp-line);
     cursor: pointer;
     font-size: 13px;
-    transition: background 0.18s ease, color 0.18s ease;
+    transition: all 0.18s ease;
 }
 
 .qp-search-clear-btn:hover {
-    background: #14151a;
-    color: #ffffff;
+    background: #e2e8f0;
+    color: var(--qp-ink);
 }
 
-/* Friendly Search Button */
+/* Apple Blue Submit Button */
 .qp-search-submit-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    padding: 13px 24px;
+    height: 52px;
+    padding: 0 28px;
     font-family: inherit;
-    font-size: 15px;
-    font-weight: 650;
+    font-size: 0.95rem;
+    font-weight: 700;
     color: #ffffff;
     background: var(--qp-blue);
     border: 1.5px solid var(--qp-blue);
-    border-radius: 12px;
+    border-radius: 9999px;
     cursor: pointer;
     flex-shrink: 0;
-    transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+    box-shadow: 0 4px 14px rgba(0, 122, 255, 0.28);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .qp-search-submit-btn:hover:not(:disabled) {
     background: var(--qp-blue-dark);
     border-color: var(--qp-blue-dark);
+    box-shadow: 0 6px 18px rgba(0, 122, 255, 0.38);
     transform: translateY(-1px);
 }
 
@@ -202,28 +193,31 @@
     font-size: 17px;
 }
 
-/* ---------- States: loading / empty ---------- */
+/* ---------- States: Loading / Empty ---------- */
 
 .qp-state {
     text-align: center;
-    padding: 46px 20px;
+    padding: 50px 24px;
     color: var(--qp-muted);
-    font-size: 15px;
-    background: var(--qp-surface);
-    border: 1px dashed var(--qp-line);
-    border-radius: 10px;
+    font-size: 0.95rem;
+    background: var(--qp-bg);
+    border: 2px dashed #bfdbfe;
+    border-radius: 26px;
+    margin: 16px 0;
+    box-shadow: 0 6px 20px rgba(0, 122, 255, 0.03);
 }
 
 .qp-state p {
     margin: 0;
+    font-weight: 500;
 }
 
 .qp-state--loading .qp-spinner {
     display: inline-block;
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     margin-bottom: 12px;
-    border: 3px solid var(--qp-line);
+    border: 3px solid #e2e8f0;
     border-top-color: var(--qp-blue);
     border-radius: 50%;
     animation: qp-spin 0.8s linear infinite;
@@ -231,12 +225,12 @@
 
 .qp-state__icon {
     display: block;
-    margin: 0 auto 10px;
-    font-size: 22px;
-    color: var(--qp-yellow-dark);
+    margin: 0 auto 12px;
+    font-size: 26px;
+    color: var(--qp-yellow);
 }
 
-/* ---------- Results list ---------- */
+/* ---------- Results List with Apple Squircle Cards ---------- */
 
 .qp-results-list {
     list-style: none;
@@ -244,32 +238,39 @@
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    animation: qp-fade-in 0.28s ease-out;
+    gap: 12px;
+    animation: qp-fade-in 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .qp-result-item {
-    border: 1px solid var(--qp-line);
-    border-radius: 8px;
-    background: var(--qp-paper);
+    border: 1.5px solid var(--qp-line);
+    border-radius: 20px;
+    background: var(--qp-bg);
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     overflow: hidden;
+}
+
+.qp-result-item:hover {
+    transform: translateY(-2px);
+    border-color: var(--qp-blue-border);
+    box-shadow: 0 10px 24px -4px rgba(0, 122, 255, 0.12), 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
 .qp-result-link {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 15px 18px 15px 22px;
+    gap: 16px;
+    padding: 16px 20px;
     text-decoration: none;
     color: var(--qp-ink);
-    transition: background-color 0.16s ease, transform 0.16s ease;
+    transition: background-color 0.18s ease;
 }
 
 .qp-result-link:hover,
 .qp-result-link:focus-visible {
-    background-color: var(--qp-surface);
-    transform: translateX(2px);
+    background-color: #f8fafc;
 }
 
 .qp-result-link:focus-visible {
@@ -277,56 +278,71 @@
     outline-offset: -2px;
 }
 
-/* left accent tab: yellow at rest, blue on hover — the one deliberate motion detail */
-.qp-result-tab {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: var(--qp-yellow);
-    transition: background-color 0.16s ease;
+.qp-result-icon-wrap {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--qp-blue-light);
+    color: var(--qp-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
 }
 
-.qp-result-link:hover .qp-result-tab,
-.qp-result-link:focus-visible .qp-result-tab {
+.qp-result-item:hover .qp-result-icon-wrap {
     background: var(--qp-blue);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.28);
 }
 
 .qp-result-icon {
-    flex-shrink: 0;
-    font-size: 17px;
-    color: var(--qp-muted);
+    font-size: 18px;
 }
 
 .qp-result-name {
     flex: 1;
-    font-size: 15.5px;
-    font-weight: 500;
-    line-height: 1.4;
+    font-size: clamp(0.92rem, 1.25vw, 1.05rem);
+    font-weight: 700;
+    line-height: 1.38;
+    color: var(--qp-ink);
+    letter-spacing: -0.01em;
+}
+
+.qp-result-arrow-wrap {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: var(--qp-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.qp-result-item:hover .qp-result-arrow-wrap {
+    background: var(--qp-blue);
+    color: #ffffff;
+    transform: translate(2px, -2px);
 }
 
 .qp-result-arrow {
-    flex-shrink: 0;
-    font-size: 17px;
-    color: var(--qp-muted);
-    transition: color 0.16s ease;
-}
-
-.qp-result-link:hover .qp-result-arrow,
-.qp-result-link:focus-visible .qp-result-arrow {
-    color: var(--qp-blue);
+    font-size: 16px;
 }
 
 .qp-highlight {
-    background: var(--qp-yellow);
-    color: var(--qp-ink);
-    padding: 0 2px;
-    border-radius: 2px;
-    font-weight: 600;
+    background: var(--qp-yellow-light);
+    color: var(--qp-yellow-dark);
+    padding: 2px 6px;
+    border-radius: 6px;
+    border: 1px solid #fde68a;
+    font-weight: 700;
 }
 
-/* ---------- Load more ---------- */
+/* ---------- Apple View More Button & Dots Loader ---------- */
 
 .qp-loadmore {
     text-align: center;
@@ -335,26 +351,80 @@
 
 .qp-loadmore__btn {
     font-family: inherit;
-    font-size: 14.5px;
-    font-weight: 600;
+    font-size: 0.92rem;
+    font-weight: 700;
     color: var(--qp-blue);
-    background: var(--qp-paper);
+    background: var(--qp-bg);
     border: 1.5px solid var(--qp-blue);
-    padding: 11px 26px;
-    border-radius: 7px;
+    padding: 12px 34px;
+    min-height: 46px;
+    min-width: 190px;
+    border-radius: 9999px;
     cursor: pointer;
-    transition: background-color 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+    box-shadow: 0 4px 14px rgba(0, 122, 255, 0.1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .qp-loadmore__btn:hover:not(:disabled) {
     background: var(--qp-blue);
-    color: var(--qp-paper);
+    color: #ffffff;
+    box-shadow: 0 6px 18px rgba(0, 122, 255, 0.26);
+    transform: translateY(-1px);
 }
 
 .qp-loadmore__btn:disabled {
-    color: var(--qp-muted);
-    border-color: var(--qp-line);
-    cursor: default;
+    cursor: not-allowed;
+    opacity: 0.85;
+}
+
+.qp-loadmore__btn.is-loading {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: var(--qp-blue);
+}
+
+/* Apple Animated Dots Loader (..'. style) */
+.qp-dots-loader {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 20px;
+}
+
+.qp-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: currentColor;
+    display: inline-block;
+    animation: qpAppleBounce 1.2s infinite ease-in-out both;
+}
+
+.qp-dot:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.qp-dot:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+.qp-dot:nth-child(3) {
+    animation-delay: 0s;
+}
+
+@keyframes qpAppleBounce {
+    0%, 80%, 100% {
+        transform: scale(0.4);
+        opacity: 0.3;
+    }
+    40% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
 }
 
 /* ---------- Keyframes ---------- */
@@ -368,98 +438,59 @@
 @keyframes qp-fade-in {
     from {
         opacity: 0;
-        transform: translateY(6px);
+        transform: translateY(8px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-/* ---------- Responsive ---------- */
+/* ---------- Responsive Adjustments ---------- */
 
-/* Large screens (1024px and up): width 95% */
-@media (min-width: 1024px) {
+@media (max-width: 768px) {
     .qp-search-wrap {
-        width: 95%;
-    }
-}
-
-/* Small screens (640px and below): width 100% */
-@media (max-width: 640px) {
-    .qp-search-wrap {
-        width: 100%;
+        width: 92%;
         margin-top: 18px;
-        padding: 0 12px 8px;
     }
 
     .qp-search-card {
-        padding: 20px 16px 18px;
-        border-radius: 14px;
-        margin-bottom: 18px;
-    }
-
-    .qp-search-badge {
-        font-size: 0.72rem;
-        padding: 5px 12px;
-    }
-
-    .qp-search-title {
-        font-size: 24px;
-    }
-
-    .qp-search-subtitle {
-        font-size: 14px;
+        padding: 24px 18px 20px;
+        border-radius: 22px;
     }
 
     .qp-search-form {
-        gap: 8px;
-    }
-
-    .qp-search-bar__input {
-        padding: 12px 36px 12px 42px;
-        font-size: 14.5px;
-    }
-
-    .qp-search-submit-btn {
-        width: 44px;
-        height: 44px;
-        padding: 0;
-        border-radius: 10px;
-        flex-shrink: 0;
-    }
-
-    .qp-submit-btn-text {
-        display: none;
-    }
-
-    .qp-submit-btn-icon {
-        font-size: 19px;
-    }
-
-    .qp-result-link {
-        padding: 13px 14px 13px 18px;
+        flex-direction: column;
         gap: 10px;
     }
 
-    .qp-result-name {
-        font-size: 14.5px;
+    .qp-search-submit-btn {
+        width: 100%;
+        height: 48px;
+    }
+
+    .qp-search-bar__input {
+        height: 48px;
+    }
+
+    .qp-result-link {
+        padding: 14px 16px;
+        gap: 12px;
+    }
+
+    .qp-result-icon-wrap {
+        width: 36px;
+        height: 36px;
     }
 }
 
-/* ---------- Reduced motion ---------- */
+@media (max-width: 480px) {
+    .qp-search-wrap {
+        width: 94%;
+        margin-top: 14px;
+    }
 
-@media (prefers-reduced-motion: reduce) {
-
-    .qp-results-list,
-    .qp-result-link,
-    .qp-result-tab,
-    .qp-result-arrow,
-    .qp-loadmore__btn,
-    .qp-search-bar__input,
-    .qp-state--loading .qp-spinner {
-        animation: none !important;
-        transition: none !important;
+    .qp-result-item {
+        border-radius: 16px;
     }
 }

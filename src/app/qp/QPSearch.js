@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FiSearch, FiFileText, FiArrowUpRight, FiInbox, FiStar, FiX } from "react-icons/fi";
+import { FiSearch, FiFileText, FiArrowUpRight, FiInbox, FiX } from "react-icons/fi";
 import "./styles/QPSearch.css";
 
 const highlightText = (text, keyword) => {
@@ -40,19 +40,51 @@ function QPSearchContent() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [loadingSubjects, setLoadingSubjects] = useState(false);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [hasInitialFetched, setHasInitialFetched] = useState(false);
+
+    const fetchSubjects = async (pageNum, searchQuery, isNewSearch = false, isLoadMore = false) => {
+        if (isLoadMore) {
+            setLoadingMore(true);
+        } else {
+            setLoadingSubjects(true);
+        }
+        try {
+            const endpoint = searchQuery && searchQuery.trim()
+                ? `/api/qp/v1/search/subjects?q=${encodeURIComponent(searchQuery.trim())}&page=${pageNum}&limit=10`
+                : `/api/qp/v1/subjects?page=${pageNum}&limit=10`;
+
+            const res = await fetch(endpoint);
+            const json = await res.json();
+
+            if (json.success) {
+                if (isNewSearch || pageNum === 1) {
+                    setSubjects(json.data || []);
+                } else {
+                    setSubjects((prev) => [...prev, ...(json.data || [])]);
+                }
+                setTotalPages(json.pagination?.totalPages || 1);
+            }
+        } catch (err) {
+            console.error("Error fetching subjects:", err);
+        } finally {
+            setLoadingSubjects(false);
+            setLoadingMore(false);
+            setHasInitialFetched(true);
+        }
+    };
 
     // Initial fetch and sync when URL q parameter is present
     useEffect(() => {
         const currentUrlQ = searchParams.get("q") || "";
         setQuery(currentUrlQ);
         setActiveQuery(currentUrlQ);
-        fetchSubjects(1, currentUrlQ, true);
+        fetchSubjects(1, currentUrlQ, true, false);
     }, [searchParams]);
 
     const updateUrlQuery = (newQuery) => {
         const trimmed = newQuery.trim();
-        const params = new URLSearchParams(window.location.search);
+        const params = new window.URLSearchParams(window.location.search);
         if (trimmed) {
             params.set("q", trimmed);
         } else {
@@ -62,37 +94,12 @@ function QPSearchContent() {
         router.replace(newUrl, { scroll: false });
     };
 
-    const fetchSubjects = async (pageNum, searchQuery, isNewSearch = false) => {
-        setLoadingSubjects(true);
-        try {
-            const endpoint = searchQuery && searchQuery.trim()
-                ? `/api/qp/v1/search/subjects?q=${encodeURIComponent(searchQuery.trim())}&page=${pageNum}&limit=20`
-                : `/api/qp/v1/subjects?page=${pageNum}&limit=20`;
-
-            const res = await fetch(endpoint);
-            const json = await res.json();
-
-            if (json.success) {
-                if (isNewSearch || pageNum === 1) {
-                    setSubjects(json.data);
-                } else {
-                    setSubjects((prev) => [...prev, ...json.data]);
-                }
-                setTotalPages(json.pagination?.totalPages || 1);
-            }
-        } catch (err) {
-            console.error("Error fetching subjects:", err);
-        }
-        setLoadingSubjects(false);
-        setHasInitialFetched(true);
-    };
-
     const handleSearchSubmit = (e) => {
         if (e) e.preventDefault();
         setPage(1);
         setActiveQuery(query);
         updateUrlQuery(query);
-        fetchSubjects(1, query, true);
+        fetchSubjects(1, query, true, false);
     };
 
     const handleClearQuery = () => {
@@ -100,14 +107,14 @@ function QPSearchContent() {
         setActiveQuery("");
         setPage(1);
         updateUrlQuery("");
-        fetchSubjects(1, "", true);
+        fetchSubjects(1, "", true, false);
     };
 
     const handleLoadMore = () => {
-        if (page < totalPages) {
+        if (page < totalPages && !loadingMore) {
             const nextPage = page + 1;
             setPage(nextPage);
-            fetchSubjects(nextPage, activeQuery, false);
+            fetchSubjects(nextPage, activeQuery, false, true);
         }
     };
 
@@ -115,10 +122,6 @@ function QPSearchContent() {
         <section className="qp-search-wrap">
             <div className="qp-search-card">
                 <header className="qp-search-head">
-                    <div className="qp-search-badge">
-                        <FiStar className="qp-badge-icon" aria-hidden="true" />
-                        <span>Search Previous Year Question Papers by Subject Name</span>
-                    </div>
                     <h2 className="qp-search-title">Search Subjects</h2>
                     <p className="qp-search-subtitle">
                         Instantly find and download past exam papers for any subject.
@@ -151,7 +154,7 @@ function QPSearchContent() {
                         type="submit"
                         className="qp-search-submit-btn"
                         aria-label="Submit search"
-                        disabled={loadingSubjects}
+                        disabled={loadingSubjects || loadingMore}
                     >
                         <FiSearch className="qp-submit-btn-icon" aria-hidden="true" />
                         <span className="qp-submit-btn-text">Search</span>
@@ -185,12 +188,15 @@ function QPSearchContent() {
                                         rel="noopener noreferrer"
                                         className="qp-result-link"
                                     >
-                                        <span className="qp-result-tab" aria-hidden="true" />
-                                        <FiFileText className="qp-result-icon" aria-hidden="true" />
+                                        <div className="qp-result-icon-wrap" aria-hidden="true">
+                                            <FiFileText className="qp-result-icon" />
+                                        </div>
                                         <span className="qp-result-name">
                                             {highlightText(sub.name, activeQuery)}
                                         </span>
-                                        <FiArrowUpRight className="qp-result-arrow" aria-hidden="true" />
+                                        <div className="qp-result-arrow-wrap" aria-hidden="true">
+                                            <FiArrowUpRight className="qp-result-arrow" />
+                                        </div>
                                     </a>
                                 </li>
                             ))}
@@ -201,10 +207,19 @@ function QPSearchContent() {
                                 <button
                                     type="button"
                                     onClick={handleLoadMore}
-                                    disabled={loadingSubjects}
-                                    className="qp-loadmore__btn"
+                                    disabled={loadingMore}
+                                    className={`qp-loadmore__btn ${loadingMore ? "is-loading" : ""}`}
+                                    aria-label={loadingMore ? "Loading more subjects" : "View more subjects"}
                                 >
-                                    {loadingSubjects ? "Loading more..." : "View more subjects"}
+                                    {loadingMore ? (
+                                        <span className="qp-dots-loader" aria-hidden="true">
+                                            <span className="qp-dot" />
+                                            <span className="qp-dot" />
+                                            <span className="qp-dot" />
+                                        </span>
+                                    ) : (
+                                        <span>View more subjects</span>
+                                    )}
                                 </button>
                             </div>
                         )}

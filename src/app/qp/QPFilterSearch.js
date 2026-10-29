@@ -275,8 +275,9 @@ export default function QPFilterSearch() {
     };
 
     return (
-        <div className="qp-page-container" style={{ paddingBottom: "30px", marginTop: "30px" }}>
-            <section className="qp-card">
+        <div className="qp-page-container" style={{ paddingBottom: "20px" }}>
+            <div className="qp-main" style={{ margin: "16px auto", padding: 0 }}>
+                <section className="qp-card">
                 <div className="qp-section-header" style={{ marginBottom: "25px" }}>
                     <h2 style={{ fontSize: "24px", color: "#111", marginBottom: "8px" }}>Advanced Filter Search</h2>
                     <p style={{ color: "#666", fontSize: "15px", margin: 0 }}>Narrow down question papers by selecting specific criteria.</p>
@@ -539,6 +540,7 @@ export default function QPFilterSearch() {
                     )}
                 </div>
             </section>
+            </div>
         </div>
     );
 }

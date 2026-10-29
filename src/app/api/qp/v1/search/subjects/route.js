@@ -8,7 +8,7 @@ export async function GET(req) {
         const url = new URL(req.url);
         const q = url.searchParams.get("q") || "";
         const page = parseInt(url.searchParams.get("page")) || 1;
-        const limit = parseInt(url.searchParams.get("limit")) || 20;
+        const limit = parseInt(url.searchParams.get("limit")) || 10;
         const skip = (page - 1) * limit;
 
         const words = q.toLowerCase().trim().split(/\s+/).filter(Boolean);

@@ -101,10 +101,10 @@ export default function QuestionPapers() {
                                   background: loading ? "#e9ecef" : "#fff",
                                   color: loading ? "#888" : "#0b74ff",
                                   border: "1px solid #0b74ff",
-                                  padding: "8px 20px",
-                                  borderRadius: "6px",
+                                  padding: "10px 26px",
+                                  borderRadius: "9999px",
                                   cursor: loading ? "default" : "pointer",
-                                  fontWeight: "600"
+                                  fontWeight: "700"
                               }}
                           >
                               {loading ? "Loading..." : "Load More Universities"}

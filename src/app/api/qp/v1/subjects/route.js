@@ -7,7 +7,7 @@ export async function GET(req) {
         await connectDB();
         const url = new URL(req.url);
         const page = parseInt(url.searchParams.get("page")) || 1;
-        const limit = parseInt(url.searchParams.get("limit")) || 20;
+        const limit = parseInt(url.searchParams.get("limit")) || 10;
         const skip = (page - 1) * limit;
 
         const [records, total] = await Promise.all([
