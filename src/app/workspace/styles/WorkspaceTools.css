@@ -1,0 +1,518 @@
+/* WorkspaceTools.css - Tools Workspace Widget
+   Apple Theme + Learnix Emerald/Teal Design
+*/
+
+.wt-section-wrapper {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto 28px auto;
+  position: relative;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+@media (max-width: 768px) {
+  .wt-section-wrapper {
+    width: 95%;
+    margin-bottom: 20px;
+  }
+}
+
+/* Apple Rounded Widget Card */
+.wt-widget-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.06), 0 4px 12px -2px rgba(0, 0, 0, 0.02);
+  padding: 24px 24px 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease;
+}
+
+.wt-widget-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 14px 36px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+}
+
+/* Header Row - strictly 1 row on ALL screen widths */
+.wt-widget-header {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px;
+  flex-wrap: nowrap !important;
+  width: 100%;
+}
+
+.wt-header-title-group {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+.wt-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.08) 100%);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0 !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.12);
+  transition: transform 0.25s ease;
+}
+
+.wt-widget-card:hover .wt-icon-badge {
+  transform: scale(1.05);
+}
+
+.wt-title-text-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px;
+  min-width: 0 !important;
+  overflow: hidden;
+}
+
+/* Bold Section Title - color kept ONLY for main title */
+.wt-section-title {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #059669;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Top Action Button - Try Now */
+.wt-header-actions {
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+.wt-top-visit-btn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px;
+  padding: 9px 16px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.28);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+.wt-top-visit-btn:hover {
+  background: linear-gradient(135deg, #34d399 0%, #047857 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.38);
+}
+
+.wt-top-visit-btn:active {
+  transform: scale(0.97);
+}
+
+/* Widget Body */
+.wt-widget-body {
+  width: 100%;
+}
+
+/* Cards List */
+.wt-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Individual Tool Card - Solid black text on title */
+.wt-tool-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.wt-tool-card:hover {
+  border-color: #cbd5e1;
+  background: #fafbfd;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.06);
+}
+
+/* Card Header - vertical stacking of badges and title with zero text overlapping */
+.wt-card-header {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+}
+
+.wt-header-titles {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 5px;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  overflow: hidden;
+}
+
+.wt-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  overflow: hidden;
+  flex-wrap: nowrap;
+}
+
+/* Category Pill */
+.wt-category-pill {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2.5px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 650;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.wt-badge-blue {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+}
+
+.wt-badge-emerald {
+  background: #d1fae5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.wt-badge-purple {
+  background: #ede9fe;
+  color: #7c3aed;
+  border: 1px solid #ddd6fe;
+}
+
+/* Tag Pill */
+.wt-tag-pill {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #334155;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 1;
+}
+
+.wt-tag-pill span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Card Title - pure black text with single line ellipsis */
+.wt-card-title {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 750;
+  line-height: 1.35;
+  color: #0f172a;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wt-title-link {
+  color: #0f172a !important;
+  text-decoration: none;
+  transition: color 0.15s ease;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wt-title-link:hover {
+  color: #000000 !important;
+  text-decoration: underline;
+}
+
+/* Card Description snippet - black/slate text */
+.wt-card-desc {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: #334155;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+/* Card Meta row */
+.wt-card-meta {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.wt-meta-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.wt-meta-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.76rem;
+  font-weight: 550;
+  color: #64748b;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Launch Button - clean attractive pill linking to /tools */
+.wt-card-launch-btn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: #0f172a;
+  text-decoration: none;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.wt-card-launch-btn:hover {
+  background: #e2e8f0;
+  color: #000000;
+  transform: translateX(1px);
+}
+
+/* Footer Navigation Button - strictly 1 row, single button: Visit Tools */
+.wt-widget-footer {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  padding-top: 4px;
+  width: 100%;
+  flex-wrap: nowrap !important;
+}
+
+.wt-footer-btn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  width: 100% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.wt-footer-btn span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Visit Tools - Vibrant Emerald Gradient */
+.wt-btn-visit {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.32);
+}
+
+.wt-btn-visit:hover {
+  background: linear-gradient(135deg, #34d399 0%, #047857 100%);
+  color: #ffffff;
+  border-color: #047857;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.44);
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .wt-widget-card {
+    padding: 16px 14px 14px;
+    border-radius: 20px;
+    gap: 14px;
+  }
+
+  .wt-tool-card {
+    padding: 12px 12px;
+    border-radius: 14px;
+    gap: 8px;
+  }
+
+  .wt-card-title {
+    font-size: 0.94rem;
+  }
+
+  .wt-card-desc {
+    font-size: 0.82rem;
+    line-height: 1.4;
+  }
+}
+
+@media (max-width: 480px) {
+  .wt-widget-header {
+    gap: 8px;
+  }
+
+  .wt-header-title-group {
+    gap: 8px;
+  }
+
+  .wt-icon-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+
+  .wt-icon-badge svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .wt-section-title {
+    font-size: 1.05rem;
+  }
+
+  .wt-top-visit-btn {
+    padding: 7px 11px;
+    font-size: 0.76rem;
+    gap: 4px;
+  }
+
+  .wt-top-visit-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .wt-footer-btn {
+    padding: 10px 10px;
+    font-size: 0.82rem;
+    gap: 6px;
+    border-radius: 11px;
+  }
+
+  .wt-footer-btn svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+
+  .wt-category-pill {
+    font-size: 0.68rem;
+    padding: 2px 6px;
+  }
+
+  .wt-tag-pill {
+    font-size: 0.68rem;
+    padding: 1.5px 5px;
+    max-width: 110px;
+  }
+
+  .wt-card-title {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .wt-section-title {
+    font-size: 0.95rem;
+  }
+
+  .wt-top-visit-btn {
+    padding: 6px 9px;
+    font-size: 0.72rem;
+  }
+
+  .wt-footer-btn {
+    padding: 9px 8px;
+    font-size: 0.76rem;
+    gap: 5px;
+  }
+}

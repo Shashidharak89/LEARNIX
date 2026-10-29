@@ -22,6 +22,7 @@ import WorkspaceUpdates from "./WorkspaceUpdates";
 import WorkspaceResources from "./WorkspaceResources";
 import WorkspaceLearnLater from "./WorkspaceLearnLater";
 import WorkspaceLearnixCode from "./WorkspaceLearnixCode";
+import WorkspaceTools from "./WorkspaceTools";
 
 function GreetingBadge({ greeting }) {
   const clockRef = useRef(null);
@@ -244,6 +245,9 @@ export default function Workspace() {
 
       {/* Learnix Code Workspace Widget */}
       <WorkspaceLearnixCode loggedIn={!!usn} />
+
+      {/* Tools Workspace Widget */}
+      <WorkspaceTools />
 
       {/* What's New banner */}
       <WhatsNew />
