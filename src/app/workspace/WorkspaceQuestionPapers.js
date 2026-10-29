@@ -42,14 +42,8 @@ const FALLBACK_PAPERS = [
 ];
 
 function QuestionPaperCard({ paper }) {
-  const targetUrl = `/qp/${paper.paperId || paper.id}`;
-
   return (
-    <Link
-      href={targetUrl}
-      className="wqp-paper-card"
-      title={`Open ${paper.subject} question paper`}
-    >
+    <div className="wqp-paper-card">
       <div className="wqp-card-header">
         <div className="wqp-header-titles">
           <div className="wqp-badges-row">
@@ -60,13 +54,13 @@ function QuestionPaperCard({ paper }) {
           </div>
 
           <h4 className="wqp-card-title">
-            <span className="wqp-title-link">
+            <span className="wqp-title-text">
               {paper.subject || "Question Paper"}
             </span>
           </h4>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
 

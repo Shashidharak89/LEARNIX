@@ -184,8 +184,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  text-decoration: none;
-  cursor: pointer;
+  cursor: default;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   min-width: 0;
@@ -195,13 +194,7 @@
 .wqp-paper-card:hover {
   border-color: #cbd5e1;
   background: #fafbfd;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.06);
-}
-
-.wqp-paper-card:hover .wqp-title-link {
-  color: #000000 !important;
-  text-decoration: underline;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04);
 }
 
 /* Card Header - vertical stacking of badges and title with zero text overlapping */
@@ -289,10 +282,8 @@
   white-space: nowrap;
 }
 
-.wqp-title-link {
-  color: #0f172a !important;
-  text-decoration: none;
-  transition: color 0.15s ease;
+.wqp-title-text {
+  color: #0f172a;
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
