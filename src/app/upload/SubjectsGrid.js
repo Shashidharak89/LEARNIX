@@ -443,7 +443,10 @@ export default function SubjectsGrid({
         const isExpanded = expandedSubjects.has(subjectKey);
 
         return (
-          <div key={idx} className={`sg-card${isExpanded ? " sg-card--expanded" : ""}`}>
+          <div
+            key={idx}
+            className={`sg-card${isExpanded ? " sg-card--expanded" : ""}${openMenuFor === sub._id ? " sg-card--menu-open" : ""}`}
+          >
             <div
               className="sg-header"
               onClick={() => toggleExpand(subjectKey)}

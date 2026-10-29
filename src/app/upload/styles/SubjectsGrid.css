@@ -1,10 +1,10 @@
 /* ============================================================
    SubjectsGrid.css
-   Apple Theme: Rounded widgets, smooth borders, and yellow highlighting
+   Apple Theme: Individual cards, smooth borders, light pastel yellow accents
    Font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
    ============================================================ */
 
-/* ── Container ── */
+/* ── Container (Clean, Individual Card Spacing) ── */
 .mse-subjects-grid {
   display: flex;
   flex-direction: column;
@@ -17,16 +17,16 @@
   box-sizing: border-box;
 }
 
-/* ── Subject Card (Apple Rounded Widget with Yellow Highlighting) ── */
+/* ── Subject Card (Individual Apple Widget, No Dark Corner Shading) ── */
 .sg-card {
   position: relative;
   background: #ffffff;
   border-radius: 22px;
   padding: 18px 22px;
-  border: 1.5px solid #e2e8f0;
-  border-left: 5px solid #f5c400; /* Highlighting Yellow Accent */
+  margin-bottom: 16px;
+  border: 1.5px solid #e2e8f0; /* Uniform, smooth Apple border */
   box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease, transform 0.22s ease;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   overflow: visible;
   animation: sg-card-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -38,18 +38,22 @@
 }
 
 .sg-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1.5px);
   border-color: #cbd5e1;
-  border-left-color: #f59e0b;
-  box-shadow: 0 10px 28px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(245, 158, 11, 0.08);
+  box-shadow: 0 10px 28px -4px rgba(15, 23, 42, 0.08);
 }
 
 .sg-card--expanded {
-  border-color: #bfdbfe;
-  border-left-color: #f59e0b;
+  border-color: #cbd5e1;
 }
 
-/* ── Card Header (Always Single-Row, Responsive, No Overflow) ── */
+/* When 3-dot menu popup is open, elevate this card above all siblings */
+.sg-card--menu-open {
+  z-index: 99999 !important;
+  position: relative !important;
+}
+
+/* ── Card Header ── */
 .sg-header {
   display: flex;
   align-items: center;
@@ -65,7 +69,7 @@
 }
 
 .sg-header:focus-visible {
-  outline: 2px solid #f59e0b;
+  outline: 2px solid #007aff;
   outline-offset: 4px;
 }
 
@@ -98,7 +102,7 @@
   color: #007aff;
 }
 
-/* Highlighting Yellow Subject Icon Badge */
+/* Light & Smooth Yellow Subject Book Badge */
 .sg-book-icon-badge {
   display: flex;
   align-items: center;
@@ -106,12 +110,12 @@
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #fefce8 0%, #fef08a 100%);
-  border: 1.5px solid #fde047;
-  color: #d97706;
+  background: #fefce8;
+  border: 1.5px solid #fef08a;
+  color: #a16207;
   font-size: 18px;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(245, 196, 0, 0.18);
+  box-shadow: 0 2px 6px rgba(254, 240, 138, 0.2);
   transition: transform 0.2s ease;
 }
 
@@ -152,7 +156,7 @@
   margin-left: auto;
 }
 
-/* Highlighting Yellow Topic Count Pill */
+/* Light Smooth Yellow Topic Count Pill */
 .sg-topic-count-pill {
   display: inline-flex;
   align-items: center;
@@ -160,21 +164,20 @@
   padding: 3.5px 10px;
   border-radius: 9999px;
   background: #fefce8;
-  color: #b45309;
-  border: 1.5px solid #fde047;
+  color: #854d0e;
+  border: 1.5px solid #fef08a;
   font-size: 0.72rem;
   font-weight: 750;
   letter-spacing: 0.02em;
   white-space: nowrap;
   flex-shrink: 0;
-  box-shadow: 0 1px 4px rgba(245, 196, 0, 0.12);
 }
 
 .sg-topic-count-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #f59e0b;
+  background: #fde047;
 }
 
 /* Visibility Badge (Apple Pill) */
@@ -241,17 +244,17 @@
   border-color: #e2e8f0;
 }
 
-/* Options Dropdown Menu */
+/* Options Dropdown Menu (Always floats on top with highest z-index) */
 .mse-options-menu {
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
-  z-index: 999;
-  min-width: 190px;
+  z-index: 999999 !important;
+  min-width: 200px;
   background: #ffffff;
   border: 1.5px solid #e2e8f0;
   border-radius: 16px;
-  box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.12), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 16px 40px -4px rgba(15, 23, 42, 0.16), 0 6px 16px -2px rgba(15, 23, 42, 0.08);
   padding: 6px;
   animation: mse-menu-in 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -303,16 +306,16 @@
   flex-shrink: 0;
 }
 
-/* ── Add Topic Toggle Button (Apple Yellow Pill) ── */
+/* ── Add Topic Toggle Button (Smooth Light Yellow Apple Pill) ── */
 .sg-add-topic-toggle {
   display: inline-flex;
   align-items: center;
   gap: 7px;
   padding: 6px 14px 6px 7px;
   border-radius: 9999px;
-  border: 1.5px solid #fde047;
+  border: 1.5px solid #fef08a;
   background: #fefce8;
-  color: #92400e;
+  color: #854d0e;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 12.5px;
   font-weight: 750;
@@ -320,21 +323,21 @@
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   margin-top: 12px;
   margin-bottom: 6px;
-  box-shadow: 0 2px 8px rgba(245, 196, 0, 0.12);
+  box-shadow: 0 1px 4px rgba(254, 240, 138, 0.2);
 }
 
 .sg-add-topic-toggle:hover:not(:disabled) {
   background: #fef08a;
-  border-color: #f59e0b;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+  border-color: #fde047;
+  box-shadow: 0 3px 10px rgba(250, 204, 21, 0.2);
   transform: translateY(-1px);
-  color: #78350f;
+  color: #713f12;
 }
 
 .sg-add-topic-toggle--open {
   background: #fef08a;
-  border-color: #d97706;
-  color: #78350f;
+  border-color: #fde047;
+  color: #713f12;
 }
 
 .sg-add-topic-toggle:disabled {
@@ -350,12 +353,11 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #f5c400;
-  color: #0f172a;
+  background: #fde047;
+  color: #1e293b;
   font-size: 12px;
   font-weight: 800;
   flex-shrink: 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .sg-add-topic-toggle-caret {
@@ -423,13 +425,13 @@
 
 .sg-add-topic-select:hover:not(:disabled),
 .sg-add-topic-input:hover:not(:disabled) {
-  border-color: #f59e0b;
+  border-color: #cbd5e1;
 }
 
 .sg-add-topic-select:focus,
 .sg-add-topic-input:focus {
-  border-color: #f59e0b;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+  border-color: #007aff;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.12);
 }
 
 .sg-add-topic-select:disabled,
@@ -444,7 +446,7 @@
   font-weight: 400;
 }
 
-/* Highlighting Yellow Add Topic Submit Button */
+/* Smooth Light Yellow Add Topic Submit Button */
 .sg-add-topic-btn {
   flex-shrink: 0;
   display: inline-flex;
@@ -452,22 +454,22 @@
   gap: 6px;
   padding: 9px 18px;
   border-radius: 9999px;
-  border: 1px solid rgba(217, 119, 6, 0.35);
+  border: 1.5px solid #fde047;
   cursor: pointer;
-  background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%);
-  color: #0f172a;
+  background: #fef08a;
+  color: #1e293b;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-weight: 750;
   font-size: 13px;
-  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 2px 8px rgba(253, 224, 71, 0.25);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .sg-add-topic-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #fde047 0%, #f59e0b 100%);
+  background: #fde047;
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.42);
-  color: #000;
+  box-shadow: 0 4px 14px rgba(250, 204, 21, 0.35);
+  color: #0f172a;
 }
 
 .sg-add-topic-btn:active:not(:disabled) {
@@ -523,12 +525,16 @@
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
 }
 
-/* ── Responsive Rules (Flawless on Mobile) ── */
+/* ── Responsive Rules (Proper Spacing Between Cards on Mobile) ── */
 @media (max-width: 640px) {
+  .mse-subjects-grid {
+    gap: 16px;
+  }
+
   .sg-card {
-    padding: 14px 16px;
+    padding: 16px 16px;
+    margin-bottom: 16px;
     border-radius: 18px;
-    border-left-width: 4px;
   }
 
   .sg-header {
@@ -574,8 +580,13 @@
 }
 
 @media (max-width: 480px) {
+  .mse-subjects-grid {
+    gap: 14px;
+  }
+
   .sg-card {
-    padding: 12px 14px;
+    padding: 14px 14px;
+    margin-bottom: 14px;
     border-radius: 16px;
   }
 
@@ -614,13 +625,11 @@
 .ms-wrapper.dark .sg-card {
   background: #1e293b;
   border-color: #334155;
-  border-left-color: #f5c400;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 .ms-wrapper.dark .sg-card:hover {
   border-color: #475569;
-  border-left-color: #f59e0b;
 }
 
 .ms-wrapper.dark .sg-subject-title {
@@ -628,9 +637,26 @@
 }
 
 .ms-wrapper.dark .sg-book-icon-badge {
-  background: rgba(245, 196, 0, 0.15);
-  border-color: rgba(245, 196, 0, 0.35);
-  color: #fcd34d;
+  background: rgba(254, 240, 138, 0.12);
+  border-color: rgba(254, 240, 138, 0.3);
+  color: #fef08a;
+}
+
+.ms-wrapper.dark .sg-topic-count-pill {
+  background: rgba(254, 240, 138, 0.12);
+  border-color: rgba(254, 240, 138, 0.3);
+  color: #fef08a;
+}
+
+.ms-wrapper.dark .sg-add-topic-toggle {
+  background: rgba(254, 240, 138, 0.12);
+  border-color: rgba(254, 240, 138, 0.3);
+  color: #fef08a;
+}
+
+.ms-wrapper.dark .sg-add-topic-toggle-plus {
+  background: #fde047;
+  color: #0f172a;
 }
 
 .ms-wrapper.dark .sg-add-topic-section {
@@ -645,6 +671,11 @@
   color: #f8fafc;
 }
 
+.ms-wrapper.dark .sg-add-topic-btn {
+  background: #fde047;
+  color: #0f172a;
+}
+
 .ms-wrapper.dark .sg-empty-topics {
   background: #0f172a;
   border-color: #334155;
@@ -654,7 +685,7 @@
 .ms-wrapper.dark .mse-options-menu {
   background: #1e293b;
   border-color: #334155;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
 }
 
 .ms-wrapper.dark .mse-options-item {

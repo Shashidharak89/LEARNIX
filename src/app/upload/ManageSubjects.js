@@ -325,84 +325,80 @@ export default function ManageSubjects() {
         </div>
       </div>
 
-      {/* Subjects & Topics */}
+      {/* Subjects & Topics (Individual Apple Cards) */}
       <main className="ms-main">
-        <section className="ms-panel ms-panel--list">
-          <div className="ms-panel-header">
-            <div className="ms-panel-title-row">
-              <span className="ms-panel-icon-wrap ms-panel-icon-wrap--blue">
-                <FiFolder />
-              </span>
-              <h2 className="ms-panel-title">Subjects &amp; Topics</h2>
-            </div>
-            {subjects.length > 0 && (
-              <span className="ms-panel-count-badge">
-                {subjects.length} Subject{subjects.length === 1 ? "" : "s"}
-              </span>
-            )}
+        <div className="ms-section-header-row">
+          <div className="ms-section-title-group">
+            <span className="ms-section-icon-badge" aria-hidden="true">
+              <FiFolder />
+            </span>
+            <h2 className="ms-section-title">Subjects &amp; Topics</h2>
           </div>
+          {subjects.length > 0 && (
+            <span className="ms-section-count-pill">
+              {subjects.length} {subjects.length === 1 ? "Subject" : "Subjects"}
+            </span>
+          )}
+        </div>
 
-          <div className="ms-panel-body">
-            {isLoading && subjects.length === 0 && (
-              <div className="ms-state ms-state--loading">
-                <FiLoader className="ms-spinner-icon" />
-                <span>Loading subjects…</span>
-              </div>
-            )}
+        {isLoading && subjects.length === 0 && (
+          <div className="ms-state ms-state--loading">
+            <FiLoader className="ms-spinner-icon" />
+            <span>Loading subjects…</span>
+          </div>
+        )}
 
-            {subjects.length === 0 && !isLoading && (
-              <div className="ms-state ms-state--empty">
-                {activeQuery ? (
-                  <div className="ms-search-empty-content">
-                    <FiSearch className="ms-empty-icon" />
-                    <h3 className="ms-empty-title">No subjects or topics match &ldquo;{activeQuery}&rdquo;</h3>
-                    <p className="ms-empty-desc">
-                      Try checking for spelling errors or search with different keywords.
-                    </p>
-                    <button
-                      type="button"
-                      className="ms-reset-search-btn"
-                      onClick={handleClearSearch}
-                    >
-                      Clear search
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <FiInbox className="ms-empty-icon" />
-                    <p>No subjects yet. Hit <strong>New Subject</strong> above to get started.</p>
-                  </>
-                )}
-              </div>
-            )}
-
-            <SubjectsGrid
-              subjects={subjects}
-              allUsers={allUsers}
-              usn={usn}
-              isLoading={isLoading}
-              onAddTopic={handleAddTopic}
-              onSubjectDelete={handleSubjectDelete}
-              onTopicDelete={handleTopicDelete}
-              onRefreshSubjects={refreshSubjects}
-              showMessage={showMessage}
-            />
-
-            {hasMore && (
-              <div className="ms-load-more-wrap">
+        {subjects.length === 0 && !isLoading && (
+          <div className="ms-state ms-state--empty">
+            {activeQuery ? (
+              <div className="ms-search-empty-content">
+                <FiSearch className="ms-empty-icon" />
+                <h3 className="ms-empty-title">No subjects or topics match &ldquo;{activeQuery}&rdquo;</h3>
+                <p className="ms-empty-desc">
+                  Try checking for spelling errors or search with different keywords.
+                </p>
                 <button
-                  onClick={() => fetchSubjects(usn, page + 1, true)}
-                  disabled={loadingMore}
-                  className="ms-load-more-btn"
+                  type="button"
+                  className="ms-reset-search-btn"
+                  onClick={handleClearSearch}
                 >
-                  {loadingMore
-                    ? <><FiLoader className="ms-spinner-icon" /> Loading…</>
-                    : <><FiChevronDown /> View more subjects</>}
+                  Clear search
                 </button>
               </div>
+            ) : (
+              <>
+                <FiInbox className="ms-empty-icon" />
+                <p>No subjects yet. Hit <strong>New Subject</strong> above to get started.</p>
+              </>
             )}
           </div>
-        </section>
+        )}
+
+        <SubjectsGrid
+          subjects={subjects}
+          allUsers={allUsers}
+          usn={usn}
+          isLoading={isLoading}
+          onAddTopic={handleAddTopic}
+          onSubjectDelete={handleSubjectDelete}
+          onTopicDelete={handleTopicDelete}
+          onRefreshSubjects={refreshSubjects}
+          showMessage={showMessage}
+        />
+
+        {hasMore && (
+          <div className="ms-load-more-wrap">
+            <button
+              onClick={() => fetchSubjects(usn, page + 1, true)}
+              disabled={loadingMore}
+              className="ms-load-more-btn"
+            >
+              {loadingMore
+                ? <><FiLoader className="ms-spinner-icon" /> Loading…</>
+                : <><FiChevronDown /> View more subjects</>}
+            </button>
+          </div>
+        )}
       </main>
     </div>
   );

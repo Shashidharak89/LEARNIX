@@ -8,47 +8,38 @@
 
 /* ── Design tokens ── */
 :root {
-  --tc-sky:         #0ea5e9;
-  --tc-sky-dark:    #0284c7;
-  --tc-sky-pale:    #e0f2fe;
-  --tc-yellow:      #f5c400;
-  --tc-yellow-dark: #d4a900;
+  --tc-sky:         #007aff;
+  --tc-sky-dark:    #0062cc;
+  --tc-sky-pale:    #eff6ff;
+  --tc-yellow:      #fef08a;
+  --tc-yellow-dark: #ca8a04;
   --tc-yellow-pale: #fefce8;
   --tc-black:       #0d0d0d;
   --tc-white:       #ffffff;
   --tc-gray-1:      #f8fafc;
-  --tc-gray-2:      #e8edf3;
+  --tc-gray-2:      #e2e8f0;
   --tc-gray-3:      #94a3b8;
   --tc-green:       #16a34a;
   --tc-red:         #dc2626;
   --tc-text:        #0f172a;
 
-  /* dot-grid pattern — tiny sky dots on white */
-  --tc-dot-color:   rgba(14, 165, 233, 0.18);
-  --tc-dot-size:    18px;
-
-  --tc-radius:      20px;
-  --tc-radius-sm:   14px;
-  --tc-shadow:      0 4px 20px -2px rgba(15, 23, 42, 0.04);
-  --tc-shadow-md:   0 8px 28px -2px rgba(15, 23, 42, 0.08);
+  --tc-radius:      18px;
+  --tc-radius-sm:   12px;
+  --tc-shadow:      0 2px 10px rgba(15, 23, 42, 0.03);
+  --tc-shadow-md:   0 8px 24px -2px rgba(15, 23, 42, 0.08);
   --tc-tr:          0.2s ease;
 }
 
 /* ════════════════════════════════════════
-   CARD  —  dot-grid background
+   CARD  —  Clean Solid Apple Surface (No Dotted BG)
 ════════════════════════════════════════ */
 .tc-card {
   position: relative;
-  background-color: var(--tc-white);
-  background-image: radial-gradient(
-    circle,
-    var(--tc-dot-color) 1.2px,
-    transparent 1.2px
-  );
-  background-size: var(--tc-dot-size) var(--tc-dot-size);
-  border: 1.5px solid var(--tc-gray-2);
+  background-color: #ffffff;
+  background-image: none !important;
+  border: 1.5px solid #e2e8f0;
   border-radius: var(--tc-radius);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   box-shadow: var(--tc-shadow);
   overflow: visible;
   z-index: 1;                 /* base stacking context */
@@ -65,35 +56,19 @@
 }
 
 /* Elevate the card whose menu is open so the dropdown floats above all sibling cards */
+.tc-card--menu-open,
 .tc-card:has(.tc-menu-btn--active) {
-  z-index: 100;
+  z-index: 99999 !important;
+  position: relative !important;
 }
 
 .tc-card:hover {
   box-shadow: var(--tc-shadow-md);
-  border-color: #bfdbfe;
-}
-
-/* Subtle yellow left-edge accent bar */
-.tc-card::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 12px;
-  bottom: 12px;
-  width: 4px;
-  background: var(--tc-yellow);
-  border-radius: 0 3px 3px 0;
-  transition: top var(--tc-tr), bottom var(--tc-tr);
-}
-
-.tc-card:hover::before {
-  top: 6px;
-  bottom: 6px;
+  border-color: #cbd5e1;
 }
 
 @keyframes tc-slide-up {
-  from { opacity: 0; transform: translateY(10px); }
+  from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
@@ -257,19 +232,18 @@
   transform: scale(1.06);
 }
 
-/* Dropdown */
+/* Dropdown (Elevated above all components) */
 .tc-dropdown {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  min-width: 192px;
-  background: var(--tc-white);
-  border: 1.5px solid var(--tc-gray-2);
-  border-top: 3px solid var(--tc-sky);
-  border-radius: var(--tc-radius-sm);
-  box-shadow: var(--tc-shadow-md);
-  padding: 5px;
-  z-index: 999999;            /* always on top of everything */
+  min-width: 196px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 16px 40px -4px rgba(15, 23, 42, 0.16), 0 6px 16px -2px rgba(15, 23, 42, 0.08);
+  padding: 6px;
+  z-index: 999999 !important;
   animation: tc-pop-in 0.18s cubic-bezier(0.22,1,0.36,1) both;
 }
 
@@ -918,4 +892,38 @@
   .tc-spin { animation: none; }
   .tc-progress-bar::after { animation: none; }
   .tc-card::before { transition: none; }
+}
+
+/* ── Dark Theme Support ── */
+.ms-wrapper.dark .tc-card {
+  background-color: #0f172a;
+  border-color: #334155;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.ms-wrapper.dark .tc-header:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.ms-wrapper.dark .tc-title {
+  color: #f8fafc;
+}
+
+.ms-wrapper.dark .tc-dropdown {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+}
+
+.ms-wrapper.dark .tc-dropdown-item {
+  color: #f8fafc;
+}
+
+.ms-wrapper.dark .tc-dropdown-item:hover {
+  background: #334155;
+}
+
+.ms-wrapper.dark .tc-menu-btn:hover {
+  background: #334155;
+  color: #f8fafc;
 }

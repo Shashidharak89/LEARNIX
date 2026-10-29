@@ -306,7 +306,7 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
   const portalModal = (node) => (typeof document !== "undefined" ? createPortal(node, document.body) : null);
 
   return (
-    <div className="tc-card">
+    <div className={`tc-card${openMenu ? " tc-card--menu-open" : ""}`}>
 
       {/* ── Rename Modal ── */}
       {renameModal && portalModal(
