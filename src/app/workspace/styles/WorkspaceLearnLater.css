@@ -58,6 +58,37 @@
   gap: 12px;
   min-width: 0 !important;
   flex: 1 1 auto !important;
+  cursor: pointer;
+  user-select: none;
+}
+
+.wll-chevron-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+
+.wll-header-title-group:hover .wll-chevron-toggle {
+  background: #ede9fe;
+  color: #7c3aed;
+  border-color: rgba(124, 58, 237, 0.25);
+}
+
+.wll-chevron-toggle svg {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wll-chevron-toggle.is-expanded svg {
+  transform: rotate(180deg);
 }
 
 .wll-icon-badge {
@@ -561,6 +592,11 @@
 
   .wll-header-title-group {
     gap: 8px;
+  }
+
+  .wll-chevron-toggle {
+    width: 24px;
+    height: 24px;
   }
 
   .wll-icon-badge {

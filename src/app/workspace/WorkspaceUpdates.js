@@ -14,6 +14,7 @@ import {
   ExternalLinkIcon,
   ArrowRightIcon,
   LogInIcon,
+  ChevronDownIcon,
 } from "@animateicons/react/lucide";
 import { FiX, FiCheckCircle } from "react-icons/fi";
 import { authFetch } from "@/lib/clientAuth";
@@ -157,6 +158,7 @@ export default function WorkspaceUpdates({ loggedIn }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
   const [mounted, setMounted] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
 
   const bellIconRef = useRef(null);
   const plusIconRef = useRef(null);
@@ -249,20 +251,37 @@ export default function WorkspaceUpdates({ loggedIn }) {
       {/* Main Apple Card Widget */}
       <div className="wu-widget-card">
         {/* Header Row - strictly 1 row on all devices */}
-        <div className="wu-widget-header">
-          <div className="wu-header-title-group">
+          <div className="wu-widget-header">
             <div
-              className="wu-icon-badge"
-              aria-hidden="true"
-              onMouseEnter={() => bellIconRef.current?.startAnimation?.()}
-              onMouseLeave={() => bellIconRef.current?.stopAnimation?.()}
+              className="wu-header-title-group"
+              onClick={() => setIsExpanded((prev) => !prev)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setIsExpanded((prev) => !prev);
+                }
+              }}
             >
-              <BellIcon ref={bellIconRef} size={22} />
+              <div
+                className="wu-icon-badge"
+                aria-hidden="true"
+                onMouseEnter={() => bellIconRef.current?.startAnimation?.()}
+                onMouseLeave={() => bellIconRef.current?.stopAnimation?.()}
+              >
+                <BellIcon ref={bellIconRef} size={22} />
+              </div>
+              <div className="wu-title-text-group">
+                <h3 className="wu-section-title">Updates</h3>
+              </div>
+              <span
+                className={`wu-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
+                aria-hidden="true"
+              >
+                <ChevronDownIcon size={16} />
+              </span>
             </div>
-            <div className="wu-title-text-group">
-              <h3 className="wu-section-title">Updates</h3>
-            </div>
-          </div>
 
           <div className="wu-header-actions">
             <button
@@ -280,7 +299,8 @@ export default function WorkspaceUpdates({ loggedIn }) {
         </div>
 
         {/* Content Body */}
-        <div className="wu-widget-body">
+        {isExpanded && (
+          <div className="wu-widget-body">
           {isLoading && (
             <div className="wu-skeleton-stack">
               <div className="wu-skeleton-card" />
@@ -348,6 +368,7 @@ export default function WorkspaceUpdates({ loggedIn }) {
             </div>
           )}
         </div>
+      )}
 
         {/* Footer Navigation Buttons: Public Updates & Manage Updates - strictly 1 row */}
         <div className="wu-widget-footer">

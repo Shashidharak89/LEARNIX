@@ -58,6 +58,37 @@
   gap: 12px;
   min-width: 0 !important;
   flex: 1 1 auto !important;
+  cursor: pointer;
+  user-select: none;
+}
+
+.wt-chevron-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+
+.wt-header-title-group:hover .wt-chevron-toggle {
+  background: #d1fae5;
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.wt-chevron-toggle svg {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wt-chevron-toggle.is-expanded svg {
+  transform: rotate(180deg);
 }
 
 .wt-icon-badge {
@@ -443,6 +474,11 @@
 
   .wt-header-title-group {
     gap: 8px;
+  }
+
+  .wt-chevron-toggle {
+    width: 24px;
+    height: 24px;
   }
 
   .wt-icon-badge {

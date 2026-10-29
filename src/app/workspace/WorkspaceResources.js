@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import {
   FolderIcon,
@@ -14,6 +14,7 @@ import {
   ArrowRightIcon,
   LogInIcon,
   BookOpenIcon,
+  ChevronDownIcon,
 } from "@animateicons/react/lucide";
 import { authFetch } from "@/lib/clientAuth";
 import "./styles/WorkspaceResources.css";
@@ -152,7 +153,9 @@ function ResourceTopicCard({ topic }) {
 
 export default function WorkspaceResources({ loggedIn }) {
   const [topics, setTopics] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
 
   const folderIconRef = useRef(null);
   const plusIconRef = useRef(null);
@@ -186,9 +189,16 @@ export default function WorkspaceResources({ loggedIn }) {
     }
   }, [loggedIn]);
 
-  useEffect(() => {
-    fetchLatestResources();
-  }, [fetchLatestResources]);
+  const toggleExpand = () => {
+    setIsExpanded((prev) => {
+      const next = !prev;
+      if (next && !hasFetched && loggedIn) {
+        fetchLatestResources();
+        setHasFetched(true);
+      }
+      return next;
+    });
+  };
 
   return (
     <section className="wr-section-wrapper" aria-label="Resources">
@@ -196,7 +206,18 @@ export default function WorkspaceResources({ loggedIn }) {
       <div className="wr-widget-card">
         {/* Header Row - strictly 1 row on all devices */}
         <div className="wr-widget-header">
-          <div className="wr-header-title-group">
+          <div
+            className="wr-header-title-group"
+            onClick={toggleExpand}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggleExpand();
+              }
+            }}
+          >
             <div
               className="wr-icon-badge"
               aria-hidden="true"
@@ -208,6 +229,12 @@ export default function WorkspaceResources({ loggedIn }) {
             <div className="wr-title-text-group">
               <h3 className="wr-section-title">Resources</h3>
             </div>
+            <span
+              className={`wr-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
+              aria-hidden="true"
+            >
+              <ChevronDownIcon size={16} />
+            </span>
           </div>
 
           <div className="wr-header-actions">
@@ -225,7 +252,8 @@ export default function WorkspaceResources({ loggedIn }) {
         </div>
 
         {/* Content Body */}
-        <div className="wr-widget-body">
+        {isExpanded && (
+          <div className="wr-widget-body">
           {isLoading && (
             <div className="wr-skeleton-stack">
               <div className="wr-skeleton-card" />
@@ -292,6 +320,7 @@ export default function WorkspaceResources({ loggedIn }) {
             </div>
           )}
         </div>
+      )}
 
         {/* Footer Navigation Buttons: Public Resources & Manage Resources - strictly 1 row */}
         <div className="wr-widget-footer">

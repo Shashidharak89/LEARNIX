@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import {
   SettingsIcon,
@@ -9,6 +9,7 @@ import {
   ZapIcon,
   FileTextIcon,
   ExternalLinkIcon,
+  ChevronDownIcon,
 } from "@animateicons/react/lucide";
 import "./styles/WorkspaceTools.css";
 
@@ -108,9 +109,15 @@ function ToolCard({ tool }) {
 }
 
 export default function WorkspaceTools() {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const settingsIconRef = useRef(null);
   const topActionRef = useRef(null);
   const footerActionRef = useRef(null);
+
+  const toggleExpand = () => {
+    setIsExpanded((prev) => !prev);
+  };
 
   return (
     <section className="wt-section-wrapper" aria-label="Tools">
@@ -118,7 +125,18 @@ export default function WorkspaceTools() {
       <div className="wt-widget-card">
         {/* Header Row - strictly 1 row on ALL screen widths */}
         <div className="wt-widget-header">
-          <div className="wt-header-title-group">
+          <div
+            className="wt-header-title-group"
+            onClick={toggleExpand}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggleExpand();
+              }
+            }}
+          >
             <div
               className="wt-icon-badge"
               aria-hidden="true"
@@ -130,6 +148,12 @@ export default function WorkspaceTools() {
             <div className="wt-title-text-group">
               <h3 className="wt-section-title">Tools</h3>
             </div>
+            <span
+              className={`wt-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
+              aria-hidden="true"
+            >
+              <ChevronDownIcon size={16} />
+            </span>
           </div>
 
           <div className="wt-header-actions">
@@ -147,13 +171,15 @@ export default function WorkspaceTools() {
         </div>
 
         {/* Content Body - 3 Hardcoded Tools */}
-        <div className="wt-widget-body">
-          <div className="wt-cards-list">
-            {HARDCODED_TOOLS.map((tool) => (
-              <ToolCard key={tool.id} tool={tool} />
-            ))}
+        {isExpanded && (
+          <div className="wt-widget-body">
+            <div className="wt-cards-list">
+              {HARDCODED_TOOLS.map((tool) => (
+                <ToolCard key={tool.id} tool={tool} />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Footer Navigation Button - strictly 1 row, single button: Visit Tools */}
         <div className="wt-widget-footer">

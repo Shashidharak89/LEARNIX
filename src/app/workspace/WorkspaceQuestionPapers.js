@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import {
   ClipboardIcon,
   ArrowRightIcon,
+  ChevronDownIcon,
 } from "@animateicons/react/lucide";
 import "./styles/WorkspaceQuestionPapers.css";
 
@@ -66,7 +67,9 @@ function QuestionPaperCard({ paper }) {
 
 export default function WorkspaceQuestionPapers() {
   const [papers, setPapers] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
 
   const clipboardIconRef = useRef(null);
   const topActionRef = useRef(null);
@@ -126,9 +129,16 @@ export default function WorkspaceQuestionPapers() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchQuestionPapers();
-  }, [fetchQuestionPapers]);
+  const toggleExpand = () => {
+    setIsExpanded((prev) => {
+      const next = !prev;
+      if (next && !hasFetched) {
+        fetchQuestionPapers();
+        setHasFetched(true);
+      }
+      return next;
+    });
+  };
 
   return (
     <section className="wqp-section-wrapper" aria-label="Question Papers">
@@ -136,7 +146,18 @@ export default function WorkspaceQuestionPapers() {
       <div className="wqp-widget-card">
         {/* Header Row - strictly 1 row on ALL screen widths */}
         <div className="wqp-widget-header">
-          <div className="wqp-header-title-group">
+          <div
+            className="wqp-header-title-group"
+            onClick={toggleExpand}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggleExpand();
+              }
+            }}
+          >
             <div
               className="wqp-icon-badge"
               aria-hidden="true"
@@ -148,6 +169,12 @@ export default function WorkspaceQuestionPapers() {
             <div className="wqp-title-text-group">
               <h3 className="wqp-section-title">Question Papers</h3>
             </div>
+            <span
+              className={`wqp-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
+              aria-hidden="true"
+            >
+              <ChevronDownIcon size={16} />
+            </span>
           </div>
 
           <div className="wqp-header-actions">
@@ -165,21 +192,23 @@ export default function WorkspaceQuestionPapers() {
         </div>
 
         {/* Content Body - Latest 3 Subjects */}
-        <div className="wqp-widget-body">
-          {isLoading ? (
-            <div className="wqp-skeleton-stack">
-              <div className="wqp-skeleton-card" />
-              <div className="wqp-skeleton-card" />
-              <div className="wqp-skeleton-card" />
-            </div>
-          ) : (
-            <div className="wqp-cards-list">
-              {papers.map((paper) => (
-                <QuestionPaperCard key={paper.id} paper={paper} />
-              ))}
-            </div>
-          )}
-        </div>
+        {isExpanded && (
+          <div className="wqp-widget-body">
+            {isLoading ? (
+              <div className="wqp-skeleton-stack">
+                <div className="wqp-skeleton-card" />
+                <div className="wqp-skeleton-card" />
+                <div className="wqp-skeleton-card" />
+              </div>
+            ) : (
+              <div className="wqp-cards-list">
+                {papers.map((paper) => (
+                  <QuestionPaperCard key={paper.id} paper={paper} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Footer Navigation Button - strictly 1 row, single button: Explore Question Papers */}
         <div className="wqp-widget-footer">

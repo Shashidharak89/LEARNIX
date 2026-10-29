@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowRightIcon,
   PlayIcon,
   SparklesIcon,
+  ChevronDownIcon,
 } from "@animateicons/react/lucide";
 import "./styles/WorkspaceLearnixCode.css";
 
@@ -102,7 +103,9 @@ function ProblemCard({ problem, index }) {
 
 export default function WorkspaceLearnixCode() {
   const [problems, setProblems] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [hasFetched, setHasFetched] = useState(false);
 
   const topActionRef = useRef(null);
   const footerActionRef = useRef(null);
@@ -127,9 +130,16 @@ export default function WorkspaceLearnixCode() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchProblems();
-  }, [fetchProblems]);
+  const toggleExpand = () => {
+    setIsExpanded((prev) => {
+      const next = !prev;
+      if (next && !hasFetched) {
+        fetchProblems();
+        setHasFetched(true);
+      }
+      return next;
+    });
+  };
 
   return (
     <section className="wlc-section-wrapper" aria-label="Learnix Code">
@@ -137,7 +147,18 @@ export default function WorkspaceLearnixCode() {
       <div className="wlc-widget-card">
         {/* Header Row - strictly 1 row on ALL screen widths */}
         <div className="wlc-widget-header">
-          <div className="wlc-header-title-group">
+          <div
+            className="wlc-header-title-group"
+            onClick={toggleExpand}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggleExpand();
+              }
+            }}
+          >
             <div className="wlc-icon-badge" aria-hidden="true">
               <Image
                 src="/learnix-code-logo.png"
@@ -151,6 +172,12 @@ export default function WorkspaceLearnixCode() {
             <div className="wlc-title-text-group">
               <h3 className="wlc-section-title">Learnix Code</h3>
             </div>
+            <span
+              className={`wlc-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
+              aria-hidden="true"
+            >
+              <ChevronDownIcon size={16} />
+            </span>
           </div>
 
           <div className="wlc-header-actions">
@@ -168,25 +195,27 @@ export default function WorkspaceLearnixCode() {
         </div>
 
         {/* Content Body - Problems 1, 2, 3 */}
-        <div className="wlc-widget-body">
-          {isLoading ? (
-            <div className="wlc-skeleton-stack">
-              <div className="wlc-skeleton-card" />
-              <div className="wlc-skeleton-card" />
-              <div className="wlc-skeleton-card" />
-            </div>
-          ) : (
-            <div className="wlc-cards-list">
-              {problems.map((problem, index) => (
-                <ProblemCard
-                  key={problem.problemId || problem.order || index}
-                  problem={problem}
-                  index={index}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        {isExpanded && (
+          <div className="wlc-widget-body">
+            {isLoading ? (
+              <div className="wlc-skeleton-stack">
+                <div className="wlc-skeleton-card" />
+                <div className="wlc-skeleton-card" />
+                <div className="wlc-skeleton-card" />
+              </div>
+            ) : (
+              <div className="wlc-cards-list">
+                {problems.map((problem, index) => (
+                  <ProblemCard
+                    key={problem.problemId || problem.order || index}
+                    problem={problem}
+                    index={index}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Footer Navigation Button - strictly 1 row, single button: Explore Learnix Code */}
         <div className="wlc-widget-footer">

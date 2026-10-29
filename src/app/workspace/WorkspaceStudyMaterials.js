@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import {
   BookOpenIcon,
@@ -8,6 +8,7 @@ import {
   EyeIcon,
   DownloadIcon,
   FileTextIcon,
+  ChevronDownIcon,
 } from "@animateicons/react/lucide";
 import "./styles/WorkspaceStudyMaterials.css";
 
@@ -124,9 +125,15 @@ function StudyMaterialSubjectCard({ item }) {
 }
 
 export default function WorkspaceStudyMaterials() {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const bookIconRef = useRef(null);
   const topActionRef = useRef(null);
   const footerActionRef = useRef(null);
+
+  const toggleExpand = () => {
+    setIsExpanded((prev) => !prev);
+  };
 
   return (
     <section className="wsm-section-wrapper" aria-label="Study Materials">
@@ -134,7 +141,18 @@ export default function WorkspaceStudyMaterials() {
       <div className="wsm-widget-card">
         {/* Header Row - strictly 1 row on ALL screen widths */}
         <div className="wsm-widget-header">
-          <div className="wsm-header-title-group">
+          <div
+            className="wsm-header-title-group"
+            onClick={toggleExpand}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toggleExpand();
+              }
+            }}
+          >
             <div
               className="wsm-icon-badge"
               aria-hidden="true"
@@ -146,6 +164,12 @@ export default function WorkspaceStudyMaterials() {
             <div className="wsm-title-text-group">
               <h3 className="wsm-section-title">Study Materials</h3>
             </div>
+            <span
+              className={`wsm-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
+              aria-hidden="true"
+            >
+              <ChevronDownIcon size={16} />
+            </span>
           </div>
 
           <div className="wsm-header-actions">
@@ -163,13 +187,15 @@ export default function WorkspaceStudyMaterials() {
         </div>
 
         {/* Content Body - Latest 3 Subjects */}
-        <div className="wsm-widget-body">
-          <div className="wsm-cards-list">
-            {LATEST_STUDY_MATERIALS.map((item) => (
-              <StudyMaterialSubjectCard key={item.id} item={item} />
-            ))}
+        {isExpanded && (
+          <div className="wsm-widget-body">
+            <div className="wsm-cards-list">
+              {LATEST_STUDY_MATERIALS.map((item) => (
+                <StudyMaterialSubjectCard key={item.id} item={item} />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Footer Navigation Button - strictly 1 row, single button: Explore Study Materials */}
         <div className="wsm-widget-footer">
