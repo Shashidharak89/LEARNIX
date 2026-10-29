@@ -335,12 +335,12 @@
 }
 
 .qp-highlight {
-    background: var(--qp-yellow-light);
-    color: var(--qp-yellow-dark);
-    padding: 2px 6px;
-    border-radius: 6px;
-    border: 1px solid #fde68a;
-    font-weight: 700;
+    background: #fef08a;
+    color: inherit;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    font-weight: inherit;
 }
 
 /* ---------- Apple View More Button & Dots Loader ---------- */
