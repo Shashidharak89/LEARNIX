@@ -121,25 +121,37 @@
   }
 }
 
-/* Skeleton Chip Loader */
+/* ── Skeleton Chip Loader (Lightweight, pure gray & white palette) ── */
 .stf-skeleton-row {
   display: flex;
+  align-items: center;
   gap: 8px;
   width: 100%;
-  overflow: hidden;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 4px 0;
+}
+
+.stf-skeleton-row::-webkit-scrollbar {
+  display: none;
 }
 
 .stf-skeleton-chip {
   display: inline-flex;
   height: 32px;
-  flex: 1 1 80px;
-  min-width: 60px;
-  max-width: 120px;
-  border-radius: 18px;
-  background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+  border-radius: 9999px;
+  border: 1.5px solid #e2e8f0;
+  background: linear-gradient(
+    90deg,
+    #edf2f7 0%,
+    #ffffff 50%,
+    #edf2f7 100%
+  );
   background-size: 200% 100%;
-  animation: stf-skeleton-shimmer 1.5s infinite ease-in-out;
+  animation: stf-skeleton-shimmer 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 @keyframes stf-skeleton-shimmer {
@@ -236,14 +248,11 @@
 
   .stf-skeleton-row {
     gap: 6px;
+    padding: 3px 0;
   }
 
   .stf-skeleton-chip {
     height: 28px;
-    min-width: 50px;
-    max-width: 100px;
-    border-radius: 16px;
-    flex: 1 1 60px;
   }
 }
 
@@ -277,58 +286,24 @@
 
   .stf-skeleton-row {
     gap: 5px;
+    padding: 2px 0;
   }
 
   .stf-skeleton-chip {
     height: 24px;
-    min-width: 40px;
-    max-width: 80px;
-    border-radius: 14px;
-    flex: 1 1 50px;
+    border-width: 1px;
   }
 }
 
 @media (max-width: 360px) {
   .stf-skeleton-row {
     gap: 4px;
+    padding: 2px 0;
   }
 
   .stf-skeleton-chip {
     height: 22px;
-    min-width: 35px;
-    max-width: 70px;
-    border-radius: 12px;
-    flex: 1 1 40px;
   }
-}
-
-.stf-filter-trigger {
-  border: 1.5px dashed #cbd5e1;
-  background-color: #f8fafc;
-  color: #475569;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.stf-filter-trigger:hover {
-  border-style: solid;
-  border-color: #3b82f6;
-  color: #3b82f6;
-  background-color: #eff6ff;
-  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
-}
-
-.stf-trigger-icon {
-  color: #64748b;
-  transition: color 0.2s ease;
-}
-
-.stf-filter-trigger:hover .stf-trigger-icon {
-  color: #3b82f6;
 }
 
 

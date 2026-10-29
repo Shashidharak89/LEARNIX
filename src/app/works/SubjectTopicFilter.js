@@ -1,18 +1,32 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { FiX, FiChevronDown, FiFilter } from 'react-icons/fi';
+import { FiX, FiChevronDown } from 'react-icons/fi';
 import './SubjectTopicFilter.css';
 import { authFetch } from '@/lib/clientAuth';
 
 const PAGE_SIZE = 10;
+
+const SKELETON_CHIP_WIDTHS = [115, 85, 140, 95, 125, 80, 130, 105, 120, 90];
+
+const SkeletonChips = () => (
+  <div className="stf-skeleton-row" aria-busy="true" aria-label="Loading suggestions">
+    {SKELETON_CHIP_WIDTHS.map((width, idx) => (
+      <div
+        key={idx}
+        className="stf-skeleton-chip"
+        style={{ width: `${width}px` }}
+      />
+    ))}
+  </div>
+);
 
 const SubjectTopicFilter = ({ onFilterChange, initialSubjects = [], initialTopics = [] }) => {
   const [subjects, setSubjects] = useState([]);
   const [selectedSubjects, setSelectedSubjects] = useState(initialSubjects);
   const [subjectPage, setSubjectPage] = useState(1);
   const [hasMoreSubjects, setHasMoreSubjects] = useState(false);
-  const [isLoadingSubjects, setIsLoadingSubjects] = useState(false);
+  const [isLoadingSubjects, setIsLoadingSubjects] = useState(true);
   const [isLoadingMoreSubjects, setIsLoadingMoreSubjects] = useState(false);
 
   const [topics, setTopics] = useState([]);
@@ -26,7 +40,7 @@ const SubjectTopicFilter = ({ onFilterChange, initialSubjects = [], initialTopic
   const topicsScrollRef = useRef(null);
   const hasFetchedSubjectsRef = useRef(false);
 
-  // Fetch subjects lazily on user interaction or if initialSubjects were passed in URL
+  // Fetch subjects suggestions
   const fetchInitialSubjects = useCallback(async () => {
     if (hasFetchedSubjectsRef.current) return;
     hasFetchedSubjectsRef.current = true;
@@ -57,12 +71,10 @@ const SubjectTopicFilter = ({ onFilterChange, initialSubjects = [], initialTopic
     }
   }, [initialSubjects]);
 
-  // Only auto-fetch if initialSubjects were explicitly restored from URL
+  // Immediately auto-fetch on mount so skeleton loader displays right below search card
   useEffect(() => {
-    if (initialSubjects && initialSubjects.length > 0) {
-      fetchInitialSubjects();
-    }
-  }, [initialSubjects, fetchInitialSubjects]);
+    fetchInitialSubjects();
+  }, [fetchInitialSubjects]);
 
   // Load next page of subjects (Paging with size 10)
   const handleLoadMoreSubjects = async () => {
@@ -208,21 +220,7 @@ const SubjectTopicFilter = ({ onFilterChange, initialSubjects = [], initialTopic
     notifyParent(selectedSubjects, next);
   };
 
-  // Skeleton loader for chips - fills full width
-  const SkeletonChips = () => (
-    <div className="stf-skeleton-row">
-      <div className="stf-skeleton-chip"></div>
-      <div className="stf-skeleton-chip"></div>
-      <div className="stf-skeleton-chip"></div>
-      <div className="stf-skeleton-chip"></div>
-      <div className="stf-skeleton-chip"></div>
-      <div className="stf-skeleton-chip"></div>
-      <div className="stf-skeleton-chip"></div>
-      <div className="stf-skeleton-chip"></div>
-      <div className="stf-skeleton-chip"></div>
-      <div className="stf-skeleton-chip"></div>
-    </div>
-  );
+
 
   return (
     <div className="stf-container">
@@ -272,21 +270,7 @@ const SubjectTopicFilter = ({ onFilterChange, initialSubjects = [], initialTopic
                 </button>
               )}
             </>
-          ) : !hasFetchedSubjectsRef.current ? (
-            <button
-              type="button"
-              className="stf-chip stf-filter-trigger"
-              onClick={fetchInitialSubjects}
-              onMouseEnter={fetchInitialSubjects}
-              onFocus={fetchInitialSubjects}
-              title="Click to load subjects for filtering"
-            >
-              <FiFilter size={14} className="stf-trigger-icon" />
-              <span>Filter by Subject</span>
-            </button>
-          ) : (
-            <div className="stf-empty-state">No subjects found</div>
-          )}
+          ) : null}
         </div>
       </div>
 
