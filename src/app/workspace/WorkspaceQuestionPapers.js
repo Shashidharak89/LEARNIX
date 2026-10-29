@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   ClipboardIcon,
   ArrowRightIcon,
-  FileTextIcon,
 } from "@animateicons/react/lucide";
 import "./styles/WorkspaceQuestionPapers.css";
 
@@ -43,14 +42,13 @@ const FALLBACK_PAPERS = [
 ];
 
 function QuestionPaperCard({ paper }) {
-  const extRef = useRef(null);
   const targetUrl = `/qp/${paper.paperId || paper.id}`;
 
   return (
-    <div
+    <Link
+      href={targetUrl}
       className="wqp-paper-card"
-      onMouseEnter={() => extRef.current?.startAnimation?.()}
-      onMouseLeave={() => extRef.current?.stopAnimation?.()}
+      title={`Open ${paper.subject} question paper`}
     >
       <div className="wqp-card-header">
         <div className="wqp-header-titles">
@@ -62,38 +60,13 @@ function QuestionPaperCard({ paper }) {
           </div>
 
           <h4 className="wqp-card-title">
-            <Link
-              href={targetUrl}
-              className="wqp-title-link"
-              title={`Navigate to ${paper.subject} question paper`}
-            >
+            <span className="wqp-title-link">
               {paper.subject || "Question Paper"}
-            </Link>
+            </span>
           </h4>
         </div>
       </div>
-
-      <div className="wqp-card-meta">
-        <div className="wqp-meta-left">
-          <span className="wqp-meta-pill">
-            <FileTextIcon size={12} />
-            <span>
-              {paper.totalImages || paper.imageCount || 1}{" "}
-              {(paper.totalImages || paper.imageCount || 1) === 1 ? "Sheet" : "Sheets"}
-            </span>
-          </span>
-        </div>
-
-        <Link
-          href={targetUrl}
-          className="wqp-card-nav-btn"
-          title={`Open ${paper.subject} question paper`}
-        >
-          <span>Navigate</span>
-          <ArrowRightIcon ref={extRef} size={14} />
-        </Link>
-      </div>
-    </div>
+    </Link>
   );
 }
 
