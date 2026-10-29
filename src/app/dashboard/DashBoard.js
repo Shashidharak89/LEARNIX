@@ -193,14 +193,16 @@ export default function DashBoard() {
               </p>
             </div>
           </div>
-          <div className="learnix-header-decoration">
-            <RiGraduationCapLine className="learnix-decoration-icon" />
-          </div>
-          {!usn && (
-            <div className="learnix-header-auth">
-              <HeaderLoginBtn href="/login" />
+          <div className="learnix-header-right">
+            {!usn && (
+              <div className="learnix-header-auth">
+                <HeaderLoginBtn href="/login" />
+              </div>
+            )}
+            <div className="learnix-header-decoration">
+              <RiGraduationCapLine className="learnix-decoration-icon" />
             </div>
-          )}
+          </div>
         </div>
       </header>
 
