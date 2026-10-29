@@ -206,9 +206,6 @@ export default function WorkspaceResources({ loggedIn }) {
               <FolderIcon ref={folderIconRef} size={22} />
             </div>
             <div className="wr-title-text-group">
-              <div className="wr-badge-row">
-                <span className="wr-header-tag">RESOURCES</span>
-              </div>
               <h3 className="wr-section-title">Resources</h3>
             </div>
           </div>

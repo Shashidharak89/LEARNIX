@@ -260,9 +260,6 @@ export default function WorkspaceUpdates({ loggedIn }) {
               <BellIcon ref={bellIconRef} size={22} />
             </div>
             <div className="wu-title-text-group">
-              <div className="wu-badge-row">
-                <span className="wu-header-tag">UPDATES</span>
-              </div>
               <h3 className="wu-section-title">Updates</h3>
             </div>
           </div>

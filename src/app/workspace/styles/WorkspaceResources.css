@@ -63,14 +63,14 @@
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(2, 132, 199, 0.14) 0%, rgba(14, 165, 233, 0.08) 100%);
-  color: #0284c7;
-  border: 1px solid rgba(2, 132, 199, 0.25);
+  background: linear-gradient(135deg, rgba(11, 116, 255, 0.12) 0%, rgba(2, 132, 199, 0.08) 100%);
+  color: #0b74ff;
+  border: 1px solid rgba(11, 116, 255, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0 !important;
-  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.12);
+  box-shadow: 0 4px 12px rgba(11, 116, 255, 0.12);
   transition: transform 0.25s ease;
 }
 
@@ -86,27 +86,14 @@
   overflow: hidden;
 }
 
-.wr-badge-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.wr-header-tag {
-  font-size: 11px;
-  font-weight: 750;
-  letter-spacing: 0.08em;
-  color: #0284c7;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
+/* Bold Section Title matching Resources page font */
 .wr-section-title {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 750;
-  letter-spacing: -0.02em;
-  color: #0f172a;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #0b74ff;
   line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
@@ -121,28 +108,29 @@
 }
 
 .wr-add-resource-btn {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   display: inline-flex !important;
   align-items: center !important;
   gap: 6px;
   padding: 9px 16px;
-  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  background: linear-gradient(135deg, #0b74ff 0%, #0056cc 100%);
   color: #ffffff;
-  border: 1px solid rgba(2, 132, 199, 0.4);
+  border: 1px solid rgba(11, 116, 255, 0.4);
   border-radius: 999px;
   font-size: 0.86rem;
-  font-weight: 650;
+  font-weight: 700;
   text-decoration: none;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.28);
+  box-shadow: 0 4px 14px rgba(11, 116, 255, 0.28);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap !important;
   flex-shrink: 0 !important;
 }
 
 .wr-add-resource-btn:hover {
-  background: linear-gradient(135deg, #0284c7 0%, #075985 100%);
+  background: linear-gradient(135deg, #2583ff 0%, #00439e 100%);
   transform: translateY(-1.5px);
-  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.38);
+  box-shadow: 0 6px 18px rgba(11, 116, 255, 0.38);
 }
 
 .wr-add-resource-btn:active {
@@ -198,7 +186,7 @@
   border-radius: 50%;
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  color: #0284c7;
+  color: #0b74ff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -207,9 +195,10 @@
 }
 
 .wr-empty-title {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   margin: 0 0 4px 0;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 1.05rem;
+  font-weight: 750;
   color: #1e293b;
 }
 
@@ -222,6 +211,7 @@
 }
 
 .wr-empty-action-btn {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -230,7 +220,7 @@
   color: #ffffff;
   border-radius: 999px;
   font-size: 0.84rem;
-  font-weight: 600;
+  font-weight: 650;
   border: none;
   cursor: pointer;
   text-decoration: none;
@@ -299,9 +289,9 @@
   border-radius: 6px;
   font-size: 0.72rem;
   font-weight: 650;
-  color: #0284c7;
-  background: rgba(2, 132, 199, 0.08);
-  border: 1px solid rgba(2, 132, 199, 0.2);
+  color: #0b74ff;
+  background: rgba(11, 116, 255, 0.08);
+  border: 1px solid rgba(11, 116, 255, 0.2);
   text-decoration: none;
   max-width: 100%;
   overflow: hidden;
@@ -318,14 +308,15 @@
 }
 
 .wr-subject-badge:hover {
-  background: rgba(2, 132, 199, 0.16);
-  color: #0369a1;
+  background: rgba(11, 116, 255, 0.16);
+  color: #0056cc;
 }
 
 .wr-card-title {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   margin: 0;
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 1.05rem;
+  font-weight: 750;
   color: #0f172a;
   letter-spacing: -0.015em;
   width: 100%;
@@ -337,7 +328,8 @@
 }
 
 .wr-title-link {
-  color: inherit;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #0b74ff;
   text-decoration: none;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -347,7 +339,7 @@
 }
 
 .wr-title-link:hover {
-  color: #0284c7;
+  color: #0056cc;
 }
 
 /* Visibility Badges */
@@ -448,23 +440,23 @@
   gap: 4px;
   font-size: 0.78rem;
   font-weight: 650;
-  color: #0284c7;
+  color: #0b74ff;
   text-decoration: none;
   padding: 3px 8px;
   border-radius: 6px;
-  background: rgba(2, 132, 199, 0.06);
+  background: rgba(11, 116, 255, 0.06);
   white-space: nowrap;
   flex-shrink: 0;
   transition: all 0.15s ease;
 }
 
 .wr-card-view-link:hover {
-  background: rgba(2, 132, 199, 0.14);
-  color: #0369a1;
+  background: rgba(11, 116, 255, 0.14);
+  color: #0056cc;
   transform: translateX(1px);
 }
 
-/* Footer Buttons: Public Resources & Manage Resources - strictly 1 row */
+/* Footer Buttons: Public Resources & Manage Resources - Colored & Highly Attractive */
 .wr-widget-footer {
   display: flex !important;
   flex-direction: row !important;
@@ -476,6 +468,7 @@
 }
 
 .wr-footer-btn {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
   flex: 1 1 0% !important;
   min-width: 0 !important;
   display: inline-flex !important;
@@ -501,34 +494,36 @@
   white-space: nowrap;
 }
 
+/* Public Resources - Crisp Tinted Blue Pill Button */
 .wr-btn-public {
-  background: #ffffff;
-  color: #1e293b;
-  border: 1.5px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  background: rgba(11, 116, 255, 0.08);
+  color: #0b74ff;
+  border: 1.5px solid rgba(11, 116, 255, 0.28);
+  box-shadow: 0 2px 8px rgba(11, 116, 255, 0.08);
 }
 
 .wr-btn-public:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #0284c7;
-  transform: translateY(-1.5px);
-  box-shadow: 0 6px 16px -2px rgba(15, 23, 42, 0.08);
+  background: rgba(11, 116, 255, 0.16);
+  border-color: rgba(11, 116, 255, 0.45);
+  color: #0056cc;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -2px rgba(11, 116, 255, 0.22);
 }
 
+/* Manage Resources - Vibrant Gradient, Highly Eye-Catching */
 .wr-btn-manage {
-  background: #f8fafc;
-  color: #1e293b;
-  border: 1.5px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  background: linear-gradient(135deg, #0b74ff 0%, #0056cc 100%);
+  color: #ffffff;
+  border: 1px solid rgba(11, 116, 255, 0.45);
+  box-shadow: 0 4px 16px rgba(11, 116, 255, 0.32);
 }
 
 .wr-btn-manage:hover {
-  background: #0f172a;
+  background: linear-gradient(135deg, #2583ff 0%, #00439e 100%);
   color: #ffffff;
-  border-color: #0f172a;
-  transform: translateY(-1.5px);
-  box-shadow: 0 6px 20px -2px rgba(15, 23, 42, 0.18);
+  border-color: #00439e;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(11, 116, 255, 0.44);
 }
 
 /* Mobile Responsive */
@@ -577,10 +572,6 @@
   .wr-icon-badge svg {
     width: 18px;
     height: 18px;
-  }
-
-  .wr-header-tag {
-    font-size: 9.5px;
   }
 
   .wr-section-title {
