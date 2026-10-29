@@ -1,22 +1,21 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
-  FiBell,
-  FiPlus,
-  FiX,
-  FiClock,
-  FiGlobe,
-  FiLock,
-  FiLink2,
-  FiArrowRight,
-  FiFileText,
-  FiExternalLink,
-  FiLogIn,
-  FiCheckCircle,
-} from "react-icons/fi";
+  BellIcon,
+  PlusIcon,
+  GlobeIcon,
+  LockIcon,
+  LinkIcon,
+  ClockIcon,
+  FileTextIcon,
+  ExternalLinkIcon,
+  ArrowRightIcon,
+  LogInIcon,
+} from "@animateicons/react/lucide";
+import { FiX, FiCheckCircle } from "react-icons/fi";
 import { authFetch } from "@/lib/clientAuth";
 import AddUpdateForm from "../upload/updates/AddUpdateForm";
 import "./styles/WorkspaceUpdates.css";
@@ -36,29 +35,117 @@ function formatTimeAgo(dateString) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-function renderVisibilityBadge(visibility = "public") {
+function VisibilityBadge({ visibility = "public" }) {
   const norm = String(visibility || "public").toLowerCase();
+  const iconRef = useRef(null);
+
   if (norm === "private") {
     return (
-      <span className="wu-vis-pill wu-vis-private">
-        <FiLock size={11} />
+      <span
+        className="wu-vis-pill wu-vis-private"
+        onMouseEnter={() => iconRef.current?.startAnimation?.()}
+        onMouseLeave={() => iconRef.current?.stopAnimation?.()}
+      >
+        <LockIcon ref={iconRef} size={12} />
         <span>Private</span>
       </span>
     );
   }
   if (norm === "unlisted") {
     return (
-      <span className="wu-vis-pill wu-vis-unlisted">
-        <FiLink2 size={11} />
+      <span
+        className="wu-vis-pill wu-vis-unlisted"
+        onMouseEnter={() => iconRef.current?.startAnimation?.()}
+        onMouseLeave={() => iconRef.current?.stopAnimation?.()}
+      >
+        <LinkIcon ref={iconRef} size={12} />
         <span>Unlisted</span>
       </span>
     );
   }
   return (
-    <span className="wu-vis-pill wu-vis-public">
-      <FiGlobe size={11} />
+    <span
+      className="wu-vis-pill wu-vis-public"
+      onMouseEnter={() => iconRef.current?.startAnimation?.()}
+      onMouseLeave={() => iconRef.current?.stopAnimation?.()}
+    >
+      <GlobeIcon ref={iconRef} size={12} />
       <span>Public</span>
     </span>
+  );
+}
+
+function UpdateCardItem({ update }) {
+  const clockRef = useRef(null);
+  const extRef = useRef(null);
+  const fileRef = useRef(null);
+  const linkRef = useRef(null);
+
+  return (
+    <div
+      className="wu-update-card"
+      onMouseEnter={() => {
+        clockRef.current?.startAnimation?.();
+        extRef.current?.startAnimation?.();
+      }}
+      onMouseLeave={() => {
+        clockRef.current?.stopAnimation?.();
+        extRef.current?.stopAnimation?.();
+      }}
+    >
+      <div className="wu-card-header">
+        <h4 className="wu-card-title">
+          <Link href={`/updates/${update._id}`} className="wu-title-link">
+            {update.title || "Update"}
+          </Link>
+        </h4>
+        <VisibilityBadge visibility={update.visibility} />
+      </div>
+
+      {update.content && <p className="wu-card-desc">{update.content}</p>}
+
+      <div className="wu-card-meta">
+        <span className="wu-meta-time">
+          <ClockIcon ref={clockRef} size={13} />
+          <span>{formatTimeAgo(update.createdAt)}</span>
+        </span>
+
+        {Array.isArray(update.files) && update.files.length > 0 && (
+          <span
+            className="wu-meta-pill"
+            onMouseEnter={() => fileRef.current?.startAnimation?.()}
+            onMouseLeave={() => fileRef.current?.stopAnimation?.()}
+          >
+            <FileTextIcon ref={fileRef} size={13} />
+            <span>
+              {update.files.length} {update.files.length === 1 ? "file" : "files"}
+            </span>
+          </span>
+        )}
+
+        {Array.isArray(update.links) && update.links.length > 0 && (
+          <span
+            className="wu-meta-pill"
+            onMouseEnter={() => linkRef.current?.startAnimation?.()}
+            onMouseLeave={() => linkRef.current?.stopAnimation?.()}
+          >
+            <LinkIcon ref={linkRef} size={13} />
+            <span>
+              {update.links.length} {update.links.length === 1 ? "link" : "links"}
+            </span>
+          </span>
+        )}
+
+        <Link
+          href={`/updates/${update._id}`}
+          className="wu-card-view-link"
+          title="View update details"
+        >
+          <span>View</span>
+          <ExternalLinkIcon ref={extRef} size={13} />
+        </Link>
+      </div>
+    </div>
   );
 }
 
@@ -68,6 +155,15 @@ export default function WorkspaceUpdates({ loggedIn }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
   const [mounted, setMounted] = useState(false);
+
+  const bellIconRef = useRef(null);
+  const plusIconRef = useRef(null);
+  const lockEmptyRef = useRef(null);
+  const loginIconRef = useRef(null);
+  const emptyBellRef = useRef(null);
+  const emptyPlusRef = useRef(null);
+  const publicIconRef = useRef(null);
+  const manageIconRef = useRef(null);
 
   useEffect(() => {
     setMounted(true);
@@ -153,8 +249,13 @@ export default function WorkspaceUpdates({ loggedIn }) {
         {/* Header Row */}
         <div className="wu-widget-header">
           <div className="wu-header-title-group">
-            <div className="wu-icon-badge" aria-hidden="true">
-              <FiBell size={20} />
+            <div
+              className="wu-icon-badge"
+              aria-hidden="true"
+              onMouseEnter={() => bellIconRef.current?.startAnimation?.()}
+              onMouseLeave={() => bellIconRef.current?.stopAnimation?.()}
+            >
+              <BellIcon ref={bellIconRef} size={22} />
             </div>
             <div className="wu-title-text-group">
               <div className="wu-badge-row">
@@ -172,9 +273,11 @@ export default function WorkspaceUpdates({ loggedIn }) {
               type="button"
               className="wu-add-update-btn"
               onClick={handleOpenModal}
+              onMouseEnter={() => plusIconRef.current?.startAnimation?.()}
+              onMouseLeave={() => plusIconRef.current?.stopAnimation?.()}
               title="Post a new update"
             >
-              <FiPlus size={16} />
+              <PlusIcon ref={plusIconRef} size={16} />
               <span>Add Update</span>
             </button>
           </div>
@@ -191,25 +294,38 @@ export default function WorkspaceUpdates({ loggedIn }) {
           )}
 
           {!isLoading && !loggedIn && (
-            <div className="wu-empty-state wu-empty-guest">
+            <div
+              className="wu-empty-state wu-empty-guest"
+              onMouseEnter={() => lockEmptyRef.current?.startAnimation?.()}
+              onMouseLeave={() => lockEmptyRef.current?.stopAnimation?.()}
+            >
               <div className="wu-empty-icon-wrap">
-                <FiLock size={22} />
+                <LockIcon ref={lockEmptyRef} size={22} />
               </div>
               <h4 className="wu-empty-title">Sign in to manage your updates</h4>
               <p className="wu-empty-desc">
                 Post announcements, study materials, and assignments to your fellow students.
               </p>
-              <Link href="/login?redirect=/workspace" className="wu-empty-action-btn">
-                <FiLogIn size={15} />
+              <Link
+                href="/login?redirect=/workspace"
+                className="wu-empty-action-btn"
+                onMouseEnter={() => loginIconRef.current?.startAnimation?.()}
+                onMouseLeave={() => loginIconRef.current?.stopAnimation?.()}
+              >
+                <LogInIcon ref={loginIconRef} size={15} />
                 <span>Sign In to Continue</span>
               </Link>
             </div>
           )}
 
           {!isLoading && loggedIn && updates.length === 0 && (
-            <div className="wu-empty-state">
+            <div
+              className="wu-empty-state"
+              onMouseEnter={() => emptyBellRef.current?.startAnimation?.()}
+              onMouseLeave={() => emptyBellRef.current?.stopAnimation?.()}
+            >
               <div className="wu-empty-icon-wrap">
-                <FiBell size={22} />
+                <BellIcon ref={emptyBellRef} size={22} />
               </div>
               <h4 className="wu-empty-title">No updates posted yet</h4>
               <p className="wu-empty-desc">
@@ -219,8 +335,10 @@ export default function WorkspaceUpdates({ loggedIn }) {
                 type="button"
                 className="wu-empty-action-btn"
                 onClick={handleOpenModal}
+                onMouseEnter={() => emptyPlusRef.current?.startAnimation?.()}
+                onMouseLeave={() => emptyPlusRef.current?.stopAnimation?.()}
               >
-                <FiPlus size={16} />
+                <PlusIcon ref={emptyPlusRef} size={16} />
                 <span>Post Your First Update</span>
               </button>
             </div>
@@ -229,62 +347,34 @@ export default function WorkspaceUpdates({ loggedIn }) {
           {!isLoading && loggedIn && updates.length > 0 && (
             <div className="wu-cards-list">
               {updates.map((u) => (
-                <div key={u._id} className="wu-update-card">
-                  <div className="wu-card-header">
-                    <h4 className="wu-card-title">
-                      <Link href={`/updates/${u._id}`} className="wu-title-link">
-                        {u.title || "Update"}
-                      </Link>
-                    </h4>
-                    {renderVisibilityBadge(u.visibility)}
-                  </div>
-
-                  {u.content && (
-                    <p className="wu-card-desc">
-                      {u.content}
-                    </p>
-                  )}
-
-                  <div className="wu-card-meta">
-                    <span className="wu-meta-time">
-                      <FiClock size={12} />
-                      <span>{formatTimeAgo(u.createdAt)}</span>
-                    </span>
-
-                    {Array.isArray(u.files) && u.files.length > 0 && (
-                      <span className="wu-meta-pill">
-                        <FiFileText size={12} />
-                        <span>{u.files.length} {u.files.length === 1 ? "file" : "files"}</span>
-                      </span>
-                    )}
-
-                    {Array.isArray(u.links) && u.links.length > 0 && (
-                      <span className="wu-meta-pill">
-                        <FiLink2 size={12} />
-                        <span>{u.links.length} {u.links.length === 1 ? "link" : "links"}</span>
-                      </span>
-                    )}
-
-                    <Link
-                      href={`/updates/${u._id}`}
-                      className="wu-card-view-link"
-                      title="View update details"
-                    >
-                      <span>View</span>
-                      <FiExternalLink size={12} />
-                    </Link>
-                  </div>
-                </div>
+                <UpdateCardItem key={u._id} update={u} />
               ))}
             </div>
           )}
         </div>
 
-        {/* Footer Navigation Button to Main Manage Updates Page */}
+        {/* Footer Navigation Buttons: Public Updates & Manage Updates */}
         <div className="wu-widget-footer">
-          <Link href="/upload/updates" className="wu-manage-all-btn">
-            <span>Manage All Updates</span>
-            <FiArrowRight size={16} />
+          <Link
+            href="/updates"
+            className="wu-footer-btn wu-btn-public"
+            onMouseEnter={() => publicIconRef.current?.startAnimation?.()}
+            onMouseLeave={() => publicIconRef.current?.stopAnimation?.()}
+            title="Browse all public updates"
+          >
+            <GlobeIcon ref={publicIconRef} size={16} />
+            <span>Public Updates</span>
+          </Link>
+
+          <Link
+            href="/upload/updates"
+            className="wu-footer-btn wu-btn-manage"
+            onMouseEnter={() => manageIconRef.current?.startAnimation?.()}
+            onMouseLeave={() => manageIconRef.current?.stopAnimation?.()}
+            title="Manage all your updates"
+          >
+            <span>Manage Updates</span>
+            <ArrowRightIcon ref={manageIconRef} size={16} />
           </Link>
         </div>
       </div>

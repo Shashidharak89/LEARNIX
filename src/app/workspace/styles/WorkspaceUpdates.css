@@ -425,34 +425,53 @@
   transform: translateX(1px);
 }
 
-/* Footer Button to Main Manage Updates Page */
+/* Footer Buttons: Public Updates & Manage Updates */
 .wu-widget-footer {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 12px;
   padding-top: 4px;
 }
 
-.wu-manage-all-btn {
+.wu-footer-btn {
+  flex: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 9px;
-  width: 100%;
-  padding: 13px 24px;
-  background: #f8fafc;
-  color: #1e293b;
-  border: 1.5px solid #e2e8f0;
+  padding: 12px 20px;
   border-radius: 16px;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.wu-btn-public {
+  background: #ffffff;
+  color: #1e293b;
+  border: 1.5px solid #e2e8f0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
-.wu-manage-all-btn:hover {
+.wu-btn-public:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0b74ff;
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 16px -2px rgba(15, 23, 42, 0.08);
+}
+
+.wu-btn-manage {
+  background: #f8fafc;
+  color: #1e293b;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.wu-btn-manage:hover {
   background: #0f172a;
   color: #ffffff;
   border-color: #0f172a;
@@ -460,12 +479,15 @@
   box-shadow: 0 6px 20px -2px rgba(15, 23, 42, 0.18);
 }
 
-.wu-manage-all-btn svg {
-  transition: transform 0.2s ease;
-}
+@media (max-width: 580px) {
+  .wu-widget-footer {
+    flex-direction: column;
+    gap: 10px;
+  }
 
-.wu-manage-all-btn:hover svg {
-  transform: translateX(4px);
+  .wu-footer-btn {
+    width: 100%;
+  }
 }
 
 /* ========================================================

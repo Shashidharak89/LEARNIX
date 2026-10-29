@@ -19,6 +19,7 @@ import { LayersIcon } from "../components/icons/LayersIcon";
 import "./styles/Workspace.css";
 import WhatsNew from "../components/WhatsNew";
 import WorkspaceUpdates from "./WorkspaceUpdates";
+import WorkspaceResources from "./WorkspaceResources";
 
 function GreetingBadge({ greeting }) {
   const clockRef = useRef(null);
@@ -230,8 +231,11 @@ export default function Workspace() {
         />
       </section>
 
-      {/* Campus Updates Workspace Widget */}
+      {/* Updates Workspace Widget */}
       <WorkspaceUpdates loggedIn={!!usn} />
+
+      {/* Resources Workspace Widget */}
+      <WorkspaceResources loggedIn={!!usn} />
 
       {/* What's New banner */}
       <WhatsNew />
