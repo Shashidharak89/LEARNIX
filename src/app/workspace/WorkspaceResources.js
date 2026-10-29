@@ -106,7 +106,7 @@ function ResourceTopicCard({ topic }) {
             </Link>
           )}
           <h4 className="wr-card-title">
-            <Link href={`/works/${topic._id}`} className="wr-title-link">
+            <Link href={`/works/${topic._id}`} className="wr-title-link" title={topic.topic}>
               {topic.topic || "Resource Topic"}
             </Link>
           </h4>
@@ -117,23 +117,25 @@ function ResourceTopicCard({ topic }) {
       {topic.content && <p className="wr-card-desc">{topic.content}</p>}
 
       <div className="wr-card-meta">
-        <span className="wr-meta-time">
-          <ClockIcon ref={clockRef} size={13} />
-          <span>{formatTimeAgo(topic.timestamp)}</span>
-        </span>
-
-        {topic.imagesCount > 0 && (
-          <span
-            className="wr-meta-pill"
-            onMouseEnter={() => fileRef.current?.startAnimation?.()}
-            onMouseLeave={() => fileRef.current?.stopAnimation?.()}
-          >
-            <FileTextIcon ref={fileRef} size={13} />
-            <span>
-              {topic.imagesCount} {topic.imagesCount === 1 ? "page" : "pages"}
-            </span>
+        <div className="wr-meta-left">
+          <span className="wr-meta-time">
+            <ClockIcon ref={clockRef} size={13} />
+            <span>{formatTimeAgo(topic.timestamp)}</span>
           </span>
-        )}
+
+          {topic.imagesCount > 0 && (
+            <span
+              className="wr-meta-pill"
+              onMouseEnter={() => fileRef.current?.startAnimation?.()}
+              onMouseLeave={() => fileRef.current?.stopAnimation?.()}
+            >
+              <FileTextIcon ref={fileRef} size={13} />
+              <span>
+                {topic.imagesCount} {topic.imagesCount === 1 ? "page" : "pages"}
+              </span>
+            </span>
+          )}
+        </div>
 
         <Link
           href={`/works/${topic._id}`}
@@ -192,7 +194,7 @@ export default function WorkspaceResources({ loggedIn }) {
     <section className="wr-section-wrapper" aria-label="Resources">
       {/* Main Apple Card Widget */}
       <div className="wr-widget-card">
-        {/* Header Row */}
+        {/* Header Row - strictly 1 row on all devices */}
         <div className="wr-widget-header">
           <div className="wr-header-title-group">
             <div
@@ -206,9 +208,6 @@ export default function WorkspaceResources({ loggedIn }) {
             <div className="wr-title-text-group">
               <div className="wr-badge-row">
                 <span className="wr-header-tag">RESOURCES</span>
-                {loggedIn && topics.length > 0 && (
-                  <span className="wr-count-pill">{topics.length} Latest</span>
-                )}
               </div>
               <h3 className="wr-section-title">Resources</h3>
             </div>
@@ -297,7 +296,7 @@ export default function WorkspaceResources({ loggedIn }) {
           )}
         </div>
 
-        {/* Footer Navigation Buttons: Public Resources & Manage Resources */}
+        {/* Footer Navigation Buttons: Public Resources & Manage Resources - strictly 1 row */}
         <div className="wr-widget-footer">
           <Link
             href="/works"

@@ -105,36 +105,38 @@ function UpdateCardItem({ update }) {
       {update.content && <p className="wu-card-desc">{update.content}</p>}
 
       <div className="wu-card-meta">
-        <span className="wu-meta-time">
-          <ClockIcon ref={clockRef} size={13} />
-          <span>{formatTimeAgo(update.createdAt)}</span>
-        </span>
-
-        {Array.isArray(update.files) && update.files.length > 0 && (
-          <span
-            className="wu-meta-pill"
-            onMouseEnter={() => fileRef.current?.startAnimation?.()}
-            onMouseLeave={() => fileRef.current?.stopAnimation?.()}
-          >
-            <FileTextIcon ref={fileRef} size={13} />
-            <span>
-              {update.files.length} {update.files.length === 1 ? "file" : "files"}
-            </span>
+        <div className="wu-meta-left">
+          <span className="wu-meta-time">
+            <ClockIcon ref={clockRef} size={13} />
+            <span>{formatTimeAgo(update.createdAt)}</span>
           </span>
-        )}
 
-        {Array.isArray(update.links) && update.links.length > 0 && (
-          <span
-            className="wu-meta-pill"
-            onMouseEnter={() => linkRef.current?.startAnimation?.()}
-            onMouseLeave={() => linkRef.current?.stopAnimation?.()}
-          >
-            <LinkIcon ref={linkRef} size={13} />
-            <span>
-              {update.links.length} {update.links.length === 1 ? "link" : "links"}
+          {Array.isArray(update.files) && update.files.length > 0 && (
+            <span
+              className="wu-meta-pill"
+              onMouseEnter={() => fileRef.current?.startAnimation?.()}
+              onMouseLeave={() => fileRef.current?.stopAnimation?.()}
+            >
+              <FileTextIcon ref={fileRef} size={13} />
+              <span>
+                {update.files.length} {update.files.length === 1 ? "file" : "files"}
+              </span>
             </span>
-          </span>
-        )}
+          )}
+
+          {Array.isArray(update.links) && update.links.length > 0 && (
+            <span
+              className="wu-meta-pill"
+              onMouseEnter={() => linkRef.current?.startAnimation?.()}
+              onMouseLeave={() => linkRef.current?.stopAnimation?.()}
+            >
+              <LinkIcon ref={linkRef} size={13} />
+              <span>
+                {update.links.length} {update.links.length === 1 ? "link" : "links"}
+              </span>
+            </span>
+          )}
+        </div>
 
         <Link
           href={`/updates/${update._id}`}
@@ -246,7 +248,7 @@ export default function WorkspaceUpdates({ loggedIn }) {
 
       {/* Main Apple Card Widget */}
       <div className="wu-widget-card">
-        {/* Header Row */}
+        {/* Header Row - strictly 1 row on all devices */}
         <div className="wu-widget-header">
           <div className="wu-header-title-group">
             <div
@@ -260,9 +262,6 @@ export default function WorkspaceUpdates({ loggedIn }) {
             <div className="wu-title-text-group">
               <div className="wu-badge-row">
                 <span className="wu-header-tag">UPDATES</span>
-                {loggedIn && updates.length > 0 && (
-                  <span className="wu-count-pill">{updates.length} Latest</span>
-                )}
               </div>
               <h3 className="wu-section-title">Updates</h3>
             </div>
@@ -353,7 +352,7 @@ export default function WorkspaceUpdates({ loggedIn }) {
           )}
         </div>
 
-        {/* Footer Navigation Buttons: Public Updates & Manage Updates */}
+        {/* Footer Navigation Buttons: Public Updates & Manage Updates - strictly 1 row */}
         <div className="wu-widget-footer">
           <Link
             href="/updates"
@@ -379,7 +378,7 @@ export default function WorkspaceUpdates({ loggedIn }) {
         </div>
       </div>
 
-      {/* Add Update Popup Window Modal (Portaled directly to document.body for full-screen takeover & blur) */}
+      {/* Add Update Popup Window Modal */}
       {mounted && isModalOpen && createPortal(
         <div
           className="wu-modal-overlay"
