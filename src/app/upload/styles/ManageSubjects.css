@@ -1626,3 +1626,340 @@
     font-size: 0.85rem !important;
   }
 }
+
+/* ════════════════════════════════════════
+   UNAUTHENTICATED / GUEST WORKSPACE (Apple Theme)
+════════════════════════════════════════ */
+.ms-guest-card {
+  position: relative;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 28px;
+  padding: 40px 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 10px 30px -4px rgba(15, 23, 42, 0.05), 0 2px 8px -2px rgba(15, 23, 42, 0.02);
+  margin-bottom: 28px;
+  overflow: hidden;
+}
+
+.ms-guest-icon-badge {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #0f172a;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.ms-guest-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.ms-guest-title {
+  font-size: 1.45rem;
+  font-weight: 750;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin: 0 0 10px;
+  max-width: 540px;
+  line-height: 1.25;
+}
+
+.ms-guest-description {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin: 0 0 24px;
+  max-width: 520px;
+  line-height: 1.55;
+}
+
+.ms-guest-features {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 28px;
+  max-width: 600px;
+}
+
+.ms-guest-feature-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 9999px;
+  color: #334155;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.ms-guest-feature-pill svg {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.ms-guest-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.ms-guest-primary-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 9999px;
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 650;
+  text-decoration: none;
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+}
+
+.ms-guest-primary-btn:hover {
+  background: #000000;
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.22);
+}
+
+.ms-guest-secondary-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 9999px;
+  background: #ffffff;
+  color: #0f172a;
+  border: 1.5px solid #cbd5e1;
+  font-size: 0.9rem;
+  font-weight: 650;
+  text-decoration: none;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.ms-guest-secondary-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  transform: translateY(-1.5px);
+}
+
+.ms-guest-quick-login-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 650;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.ms-guest-quick-login-btn:hover {
+  background: #000000;
+  transform: translateY(-1px);
+}
+
+/* Guest preview cards */
+.ms-guest-preview-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  opacity: 0.78;
+}
+
+.ms-guest-preview-card {
+  position: relative;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 26px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  user-select: none;
+}
+
+.ms-guest-preview-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.ms-guest-preview-title {
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: #334155;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ms-guest-preview-lock-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 0.74rem;
+  font-weight: 650;
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+/* Dark mode for guest view */
+.ms-wrapper.dark .ms-guest-card {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+}
+
+.ms-wrapper.dark .ms-guest-icon-badge {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+.ms-wrapper.dark .ms-guest-badge-pill {
+  background: #0f172a;
+  color: #94a3b8;
+  border: 1px solid #334155;
+}
+
+.ms-wrapper.dark .ms-guest-title {
+  color: #f8fafc;
+}
+
+.ms-wrapper.dark .ms-guest-description {
+  color: #94a3b8;
+}
+
+.ms-wrapper.dark .ms-guest-feature-pill {
+  background: #0f172a;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+.ms-wrapper.dark .ms-guest-primary-btn {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.ms-wrapper.dark .ms-guest-primary-btn:hover {
+  background: #ffffff;
+}
+
+.ms-wrapper.dark .ms-guest-secondary-btn {
+  background: #1e293b;
+  border-color: #475569;
+  color: #f8fafc;
+}
+
+.ms-wrapper.dark .ms-guest-secondary-btn:hover {
+  background: #334155;
+}
+
+.ms-wrapper.dark .ms-guest-quick-login-btn {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.ms-wrapper.dark .ms-guest-preview-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.ms-wrapper.dark .ms-guest-preview-title {
+  color: #cbd5e1;
+}
+
+.ms-wrapper.dark .ms-guest-preview-lock-pill {
+  background: #0f172a;
+  border-color: #334155;
+  color: #94a3b8;
+}
+
+@media (max-width: 640px) {
+  .ms-guest-card {
+    padding: 26px 18px;
+    border-radius: 22px;
+  }
+  .ms-guest-title {
+    font-size: 1.2rem;
+  }
+  .ms-guest-description {
+    font-size: 0.88rem;
+    margin-bottom: 20px;
+  }
+  .ms-guest-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .ms-guest-primary-btn,
+  .ms-guest-secondary-btn {
+    width: 100%;
+  }
+  .ms-guest-preview-stack {
+    gap: 10px;
+  }
+  .ms-guest-preview-card {
+    padding: 12px 14px;
+    border-radius: 22px;
+  }
+}
+
+@media (max-width: 440px) {
+  .ms-guest-card {
+    padding: 22px 14px;
+    border-radius: 20px;
+  }
+  .ms-guest-preview-stack {
+    gap: 8px;
+  }
+  .ms-guest-preview-card {
+    padding: 11px 12px;
+    border-radius: 20px;
+  }
+}

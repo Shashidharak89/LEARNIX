@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import axios from "axios";
 import { useTheme } from "@/context/ThemeContext";
 import {
   FiPlus,
   FiFolder,
   FiChevronDown,
+  FiChevronRight,
   FiLoader,
   FiInbox,
   FiLayers,
@@ -14,13 +17,19 @@ import {
   FiAlertCircle,
   FiX,
   FiSearch,
+  FiLock,
+  FiLogIn,
+  FiUserPlus,
+  FiBook,
+  FiFileText,
+  FiGlobe,
 } from "react-icons/fi";
 import AddSubjectForm from "./AddSubjectForm";
 import SubjectsGrid from "./SubjectsGrid";
 import Portal from "./components/Portal";
 import "./styles/ManageSubjects.css";
-import LoginRequired from "../components/LoginRequired";
 import ManageSubjectsSkeleton from "./ManageSubjectsSkeleton";
+import { verifyTokenAndSyncAuth } from "@/lib/clientAuth";
 
 /* ─────────────────────────────────────────
    Toast — rendered via Portal into body
@@ -56,6 +65,12 @@ let _toastId = 0;
    Main Component
 ───────────────────────────────────────── */
 export default function ManageSubjects() {
+  const pathname = usePathname();
+  const currentPath = pathname || "/resources/upload";
+  const loginHref = `/login?redirect=${encodeURIComponent(currentPath)}`;
+  const signupHref = `/signup?redirect=${encodeURIComponent(currentPath)}`;
+
+  const [authStatus, setAuthStatus] = useState("verifying"); // "verifying" | "authenticated" | "unauthenticated"
   const [usn, setUsn] = useState("");
   const [subjects, setSubjects] = useState([]);
   const [page, setPage] = useState(1);
@@ -74,10 +89,44 @@ export default function ManageSubjects() {
   const { theme } = useTheme();
 
   useEffect(() => {
-    const storedUsn = localStorage.getItem("usn");
-    if (storedUsn) setUsn(storedUsn);
-    fetchSubjects(storedUsn, 1, false, "");
-    fetchAllUsers();
+    async function verifyAuthAndInit() {
+      const storedToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const storedUsn = typeof window !== "undefined" ? localStorage.getItem("usn") : null;
+
+      if (!storedToken && !storedUsn) {
+        setAuthStatus("unauthenticated");
+        return;
+      }
+
+      try {
+        const user = await verifyTokenAndSyncAuth({ redirectOnFailure: false });
+        if (user && user.usn) {
+          const userUsn = String(user.usn).toUpperCase();
+          setUsn(userUsn);
+          setAuthStatus("authenticated");
+          fetchSubjects(userUsn, 1, false, "");
+          fetchAllUsers();
+        } else if (storedUsn) {
+          setUsn(storedUsn);
+          setAuthStatus("authenticated");
+          fetchSubjects(storedUsn, 1, false, "");
+          fetchAllUsers();
+        } else {
+          setAuthStatus("unauthenticated");
+        }
+      } catch {
+        if (storedUsn) {
+          setUsn(storedUsn);
+          setAuthStatus("authenticated");
+          fetchSubjects(storedUsn, 1, false, "");
+          fetchAllUsers();
+        } else {
+          setAuthStatus("unauthenticated");
+        }
+      }
+    }
+
+    verifyAuthAndInit();
   }, []);
 
   useEffect(() => {
@@ -206,8 +255,126 @@ export default function ManageSubjects() {
 
   const refreshSubjects = () => fetchSubjects(usn, 1);
 
-  const usnl = typeof window !== "undefined" ? localStorage.getItem("usn") : null;
-  if (!usnl) return <LoginRequired />;
+  if (authStatus === "verifying") {
+    return <ManageSubjectsSkeleton />;
+  }
+
+  if (authStatus === "unauthenticated") {
+    return (
+      <div className={`ms-wrapper ${theme}`}>
+        {/* Page Header (Apple Card Widget) */}
+        <header className="ms-page-header">
+          <div className="ms-header-row">
+            <div className="ms-header-left">
+              <div className="ms-header-icon-badge" aria-hidden="true">
+                <FiLayers />
+              </div>
+
+              <div className="ms-header-text">
+                <div className="ms-header-tag">WORKSPACE</div>
+                <h1 className="ms-page-title">Upload Resources</h1>
+                <p className="ms-page-subtitle">
+                  Upload and manage your subjects, topics, and study resources
+                </p>
+              </div>
+            </div>
+
+            <div className="ms-header-right">
+              <Link
+                href={loginHref}
+                className="ms-guest-quick-login-btn"
+                title="Sign in to your account"
+              >
+                <FiLogIn />
+                <span className="ms-add-btn-text">Sign In</span>
+              </Link>
+            </div>
+          </div>
+        </header>
+
+        {/* Gentle Apple-Themed Guest Callout */}
+        <main className="ms-main">
+          <div className="ms-guest-card">
+            <div className="ms-guest-icon-badge" aria-hidden="true">
+              <FiLock />
+            </div>
+
+            <div className="ms-guest-badge-pill">
+              Workspace Access
+            </div>
+
+            <h2 className="ms-guest-title">Ready to manage your study resources?</h2>
+
+            <p className="ms-guest-description">
+              Sign in or create a Learnix account to create subjects, upload notes and topics, and share study materials with your classmates.
+            </p>
+
+            <div className="ms-guest-features">
+              <div className="ms-guest-feature-pill">
+                <FiFolder />
+                <span>Create Subjects &amp; Topics</span>
+              </div>
+              <div className="ms-guest-feature-pill">
+                <FiFileText />
+                <span>Upload Notes &amp; PDF Resources</span>
+              </div>
+              <div className="ms-guest-feature-pill">
+                <FiGlobe />
+                <span>Public &amp; Private Visibility</span>
+              </div>
+            </div>
+
+            <div className="ms-guest-actions">
+              <Link href={loginHref} className="ms-guest-primary-btn">
+                <FiLogIn />
+                <span>Log In</span>
+              </Link>
+              <Link href={signupHref} className="ms-guest-secondary-btn">
+                <FiUserPlus />
+                <span>Create Account</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Gentle Preview Section */}
+          <div className="ms-section-header-row">
+            <div className="ms-section-title-group">
+              <span className="ms-section-icon-badge" aria-hidden="true">
+                <FiFolder />
+              </span>
+              <h2 className="ms-section-title">Workspace Preview</h2>
+            </div>
+            <span className="ms-section-count-pill">Preview Mode</span>
+          </div>
+
+          <div className="ms-guest-preview-stack">
+            <div className="ms-guest-preview-card">
+              <div className="ms-guest-preview-left">
+                <span className="sg-chevron"><FiChevronRight /></span>
+                <div className="sg-book-icon-badge"><FiBook /></div>
+                <span className="ms-guest-preview-title">Data Structures &amp; Algorithms</span>
+              </div>
+              <span className="ms-guest-preview-lock-pill">
+                <FiLock size={12} /> Sign in to view
+              </span>
+            </div>
+
+            <div className="ms-guest-preview-card">
+              <div className="ms-guest-preview-left">
+                <span className="sg-chevron"><FiChevronRight /></span>
+                <div className="sg-book-icon-badge"><FiBook /></div>
+                <span className="ms-guest-preview-title">Computer Networks &amp; Security</span>
+              </div>
+              <span className="ms-guest-preview-lock-pill">
+                <FiLock size={12} /> Sign in to view
+              </span>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   if (isLoading && subjects.length === 0 && !isSearching) return <ManageSubjectsSkeleton />;
 
   return (
