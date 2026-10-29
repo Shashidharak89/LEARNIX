@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { FiChevronRight, FiChevronDown, FiFolder, FiFileText, FiBookmark } from "react-icons/fi";
 import { toggleLearnLaterClient } from "@/lib/clientLearnLater";
 
@@ -33,8 +33,6 @@ export default function DirectoryNode({
             
             if (json.success) {
                 if (type === "semester") {
-                    // For semesters, we receive grouped Batch+ExamType combinations.
-                    // We need to group them by Batch to display Batch -> ExamType
                     const newGroups = append ? { ...groupedBatches } : {};
                     json.data.forEach(item => {
                         if (item.type === "group") {
@@ -96,30 +94,33 @@ export default function DirectoryNode({
     if (type === "semester") displayName = `Semester ${data.semesterNumber}`;
 
     return (
-        <div style={{ marginLeft: level > 0 ? "20px" : "0", marginTop: "8px" }}>
-            <div 
+        <div className="qp-dir-node" style={{ marginLeft: level > 0 ? "clamp(10px, 2vw, 18px)" : "0" }}>
+            <button 
+                type="button"
                 onClick={handleToggle}
-                style={{ 
-                    display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", 
-                    padding: "8px 12px", background: expanded ? "#f0f7ff" : "#fff", 
-                    border: "1px solid #eaeaea", borderRadius: "8px", transition: "0.2s",
-                    fontWeight: expanded ? "600" : "500", color: "#333",
-                    boxShadow: expanded ? "0 2px 8px rgba(11, 116, 255, 0.1)" : "none"
-                }}
+                className={`qp-dir-node-btn ${expanded ? "is-expanded" : ""}`}
+                aria-expanded={expanded}
             >
-                {expanded ? <FiChevronDown color="#0b74ff" /> : <FiChevronRight color="#888" />}
-                <FiFolder color={expanded ? "#0b74ff" : "#f2c200"} />
-                <span>{displayName}</span>
-            </div>
+                <span className="qp-dir-chevron" aria-hidden="true">
+                    {expanded ? <FiChevronDown /> : <FiChevronRight />}
+                </span>
+                <span className={`qp-dir-folder-icon ${expanded ? "is-expanded" : ""}`} aria-hidden="true">
+                    <FiFolder />
+                </span>
+                <span className="qp-dir-node-name">{displayName}</span>
+            </button>
 
             {expanded && (
-                <div style={{ borderLeft: "2px solid #eaeaea", marginLeft: "14px", paddingLeft: "10px", marginTop: "5px" }}>
+                <div className="qp-dir-children">
                     {loading && page === 1 && (
-                        <div style={{ padding: "8px", color: "#888", fontSize: "14px" }}>Loading...</div>
+                        <div className="qp-dir-loading">
+                            <span className="qp-spinner-sm" aria-hidden="true" />
+                            <span>Loading...</span>
+                        </div>
                     )}
                     
                     {!loading && type !== "semester" && children.length === 0 && (
-                        <div style={{ padding: "8px", color: "#888", fontSize: "14px" }}>No items found.</div>
+                        <div className="qp-dir-empty">No items found.</div>
                     )}
 
                     {type !== "semester" && children.map(child => (
@@ -133,28 +134,25 @@ export default function DirectoryNode({
                     ))}
 
                     {type === "semester" && Object.keys(groupedBatches).map(batchId => (
-                        <div key={batchId} style={{ marginLeft: "20px", marginTop: "8px" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 0", fontWeight: "600", color: "#444" }}>
-                                <FiFolder color="#ff6b00" />
-                                <span>Batch {groupedBatches[batchId].name}</span>
+                        <div key={batchId} className="qp-dir-batch-group">
+                            <div className="qp-dir-batch-header">
+                                <span className="qp-dir-batch-badge">
+                                    Batch {groupedBatches[batchId].name}
+                                </span>
                             </div>
-                            <div style={{ borderLeft: "2px solid #eaeaea", marginLeft: "6px", paddingLeft: "14px", marginTop: "4px" }}>
+                            <div className="qp-dir-exams-list">
                                 {groupedBatches[batchId].exams.map((exam, idx) => {
                                     const url = `/qp/compiled?collegeId=${parentParams.collegeId}&courseId=${parentParams.courseId}&semesterId=${data._id}&batchId=${exam.batchId || ''}&examTypeId=${exam.examTypeId}`;
                                     return (
-                                        <div key={idx} style={{ marginTop: "6px", marginBottom: "6px", display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                                        <div key={idx} className="qp-dir-exam-item">
                                             <a 
-                                                href={url} target="_blank" rel="noopener noreferrer" 
-                                                style={{ 
-                                                    display: "inline-flex", alignItems: "center", gap: "8px", 
-                                                    textDecoration: "none", color: "#0b74ff", fontWeight: "600", 
-                                                    padding: "6px 12px", background: "#f8faff", borderRadius: "6px", 
-                                                    border: "1px solid #0b74ff", fontSize: "14px", transition: "0.2s" 
-                                                }}
-                                                onMouseOver={(e) => { e.currentTarget.style.background = "#0b74ff"; e.currentTarget.style.color = "#fff"; }} 
-                                                onMouseOut={(e) => { e.currentTarget.style.background = "#f8faff"; e.currentTarget.style.color = "#0b74ff"; }}
+                                                href={url} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer" 
+                                                className="qp-dir-exam-link"
                                             >
-                                                <FiFileText /> View {exam.name}
+                                                <FiFileText size={15} />
+                                                <span>View {exam.name}</span>
                                             </a>
                                             <button
                                                 type="button"
@@ -175,14 +173,7 @@ export default function DirectoryNode({
                                                         }
                                                     });
                                                 }}
-                                                style={{
-                                                    display: "inline-flex", alignItems: "center", justifyContent: "center",
-                                                    width: "32px", height: "32px", borderRadius: "6px",
-                                                    border: "1px solid #e2e8f0", background: "#fff", color: "#64748b",
-                                                    cursor: "pointer", transition: "0.2s"
-                                                }}
-                                                onMouseOver={(e) => { e.currentTarget.style.borderColor = "#0b74ff"; e.currentTarget.style.color = "#0b74ff"; }}
-                                                onMouseOut={(e) => { e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.color = "#64748b"; }}
+                                                className="qp-dir-bookmark-btn"
                                             >
                                                 <FiBookmark size={14} />
                                             </button>
@@ -195,13 +186,10 @@ export default function DirectoryNode({
 
                     {page < totalPages && (
                         <button 
+                            type="button"
                             onClick={handleLoadMore}
                             disabled={loading}
-                            style={{
-                                marginTop: "10px", marginLeft: "20px", background: "none", border: "none",
-                                color: "#0b74ff", fontWeight: "600", cursor: "pointer", fontSize: "14px",
-                                textDecoration: "underline"
-                            }}
+                            className="qp-dir-sub-loadmore"
                         >
                             {loading ? "Loading..." : "Load More"}
                         </button>

@@ -23,8 +23,8 @@ export default function QuestionPapersPage() {
         <div>
             <Navbar/>
             <QPSearch />
-            <QPFilterSearch />
             <QuestionPapers />
+            <QPFilterSearch />
         </div>
     );
 }
