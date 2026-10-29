@@ -4,6 +4,7 @@ import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
 import { getVisibility } from "@/lib/visibility";
+import { resolveAuthenticatedUser } from "@/lib/authUser";
 
 export const GET = async (request) => {
   try {
@@ -25,8 +26,9 @@ export const GET = async (request) => {
       }
 
       // Determine requester (if provided) and whether they're the owner
+      const auth = await resolveAuthenticatedUser(request);
       const usn = request.headers.get("x-usn");
-      const currentUser = usn ? await User.findOne({ usn: usn.toUpperCase() }).lean() : null;
+      const currentUser = auth || (usn ? await User.findOne({ usn: usn.toUpperCase() }).lean() : null);
       const isOwner = currentUser && subjectObj.userId.toString() === currentUser._id.toString();
 
       const subjectVisibility = getVisibility(subjectObj);

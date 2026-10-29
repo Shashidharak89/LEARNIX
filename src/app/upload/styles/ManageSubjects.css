@@ -781,9 +781,8 @@
   width: 100%;
   box-sizing: border-box;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
+  flex-direction: column;
+  gap: 18px;
   padding: 24px 28px;
   margin-bottom: 24px;
   background: #ffffff;
@@ -798,24 +797,38 @@
   box-shadow: 0 8px 24px -2px rgba(15, 23, 42, 0.06);
 }
 
+/* Same-row layout: Left (Icon) - Middle (Title) - Right (+) */
+.ms-header-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 14px;
+}
+
 .ms-header-icon-badge {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 58px;
-  height: 58px;
-  border-radius: 18px;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
   background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
   color: #007aff;
   border: 1.5px solid #bfdbfe;
   flex-shrink: 0;
+  font-size: 24px;
   box-shadow: 0 4px 14px rgba(0, 122, 255, 0.15);
 }
 
-.ms-header-content {
+.ms-header-center {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 3px;
   min-width: 0;
   flex: 1;
 }
@@ -824,39 +837,40 @@
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  padding: 3px 10px;
+  padding: 2px 9px;
   border-radius: 9999px;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 750;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   background: #eff6ff;
   color: #007aff;
   border: 1px solid #bfdbfe;
-  margin-bottom: 2px;
 }
 
 .ms-page-title {
-  font-size: clamp(1.4rem, 2.6vw, 2rem);
+  font-size: clamp(1.25rem, 2.3vw, 1.85rem);
   font-weight: 800;
   letter-spacing: -0.025em;
-  color: #000000;
+  color: #0f172a;
   margin: 0;
   line-height: 1.2;
-  word-break: break-word;
+  text-align: center;
 }
 
 .ms-page-subtitle {
-  font-size: clamp(0.85rem, 1.25vw, 0.98rem);
+  font-size: clamp(0.82rem, 1.1vw, 0.92rem);
   color: #64748b;
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.4;
+  text-align: center;
 }
 
 .ms-header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: flex-end;
+  gap: 10px;
   flex-shrink: 0;
 }
 
@@ -864,14 +878,14 @@
 .ms-add-toggle-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  height: 46px;
-  padding: 0 22px;
+  gap: 7px;
+  height: 44px;
+  padding: 0 18px;
   background: #007aff;
   color: #ffffff;
   border: none;
   border-radius: 9999px;
-  font-size: 0.94rem;
+  font-size: 0.88rem;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
@@ -892,12 +906,201 @@
   background: #1e293b;
 }
 .ms-add-toggle-plus {
-  font-size: 15px;
+  font-size: 16px;
   flex-shrink: 0;
   transition: transform var(--ms-tr);
 }
 .ms-add-toggle-btn--open .ms-add-toggle-plus { transform: rotate(45deg); }
-.ms-add-toggle-caret { font-size: 14px; flex-shrink: 0; }
+
+/* ════════════════════════════════════════
+   SEARCH BAR (Apple Pill Design)
+════════════════════════════════════════ */
+.ms-search-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.ms-search-wrap {
+  position: relative;
+  flex: 1;
+  border-radius: 9999px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-sizing: border-box;
+}
+
+.ms-search-wrap:focus-within {
+  border-color: #007aff;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.12);
+}
+
+.ms-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #007aff;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.ms-search-input {
+  width: 100%;
+  height: 44px;
+  border-radius: 9999px;
+  border: none;
+  padding: 0 40px 0 44px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: #0f172a;
+  background: transparent;
+  outline: none;
+  font-family: inherit;
+  caret-color: #007aff;
+  box-sizing: border-box;
+}
+
+.ms-search-input::placeholder {
+  color: #64748b;
+  font-weight: 400;
+}
+
+.ms-search-clear-inline {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: #e2e8f0;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ms-search-clear-inline:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+.ms-search-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 9999px;
+  background: #007aff;
+  color: #ffffff;
+  border: none;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(0, 122, 255, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ms-search-submit-btn:hover:not(:disabled) {
+  background: #0062cc;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(0, 122, 255, 0.35);
+}
+.ms-search-submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.ms-search-spinner {
+  animation: ms-spin 0.8s linear infinite;
+  font-size: 15px;
+}
+
+.ms-search-active-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  font-size: 0.82rem;
+  color: #1e40af;
+}
+
+.ms-search-active-text {
+  color: #1e40af;
+}
+
+.ms-search-clear-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 1px solid #bfdbfe;
+  color: #007aff;
+  font-size: 0.76rem;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ms-search-clear-badge:hover {
+  background: #007aff;
+  color: #ffffff;
+  border-color: #007aff;
+}
+
+.ms-search-empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 440px;
+  margin: 0 auto;
+}
+.ms-empty-title {
+  font-size: 1.15rem;
+  font-weight: 750;
+  color: #0f172a;
+  margin: 0;
+}
+.ms-empty-desc {
+  font-size: 0.88rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+.ms-reset-search-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 8px 20px;
+  border-radius: 9999px;
+  background: #007aff;
+  color: #ffffff;
+  border: none;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 122, 255, 0.25);
+  transition: all 0.2s ease;
+}
+.ms-reset-search-btn:hover {
+  background: #0062cc;
+  transform: translateY(-1px);
+}
 
 /* ════════════════════════════════════════
    COLLAPSIBLE ADD DRAWER
@@ -1086,8 +1289,50 @@
 }
 .ms-wrapper.dark .ms-toast-text { color: #f8fafc; }
 
+/* Dark mode for searchbar */
+.ms-wrapper.dark .ms-search-wrap {
+  background: #131d2e;
+  border-color: #334155;
+}
+.ms-wrapper.dark .ms-search-wrap:focus-within {
+  border-color: #007aff;
+  background: #1a273e;
+}
+.ms-wrapper.dark .ms-search-input {
+  color: #f8fafc;
+}
+.ms-wrapper.dark .ms-search-input::placeholder {
+  color: #94a3b8;
+}
+.ms-wrapper.dark .ms-search-clear-inline {
+  background: #334155;
+  color: #cbd5e1;
+}
+.ms-wrapper.dark .ms-search-active-pill {
+  background: #131d2e;
+  border-color: #334155;
+}
+.ms-wrapper.dark .ms-search-active-text {
+  color: #93c5fd;
+}
+.ms-wrapper.dark .ms-search-clear-badge {
+  background: #0f172a;
+  border-color: #334155;
+  color: #60a5fa;
+}
+.ms-wrapper.dark .ms-search-clear-badge:hover {
+  background: #007aff;
+  color: #ffffff;
+}
+.ms-wrapper.dark .ms-empty-title {
+  color: #f8fafc;
+}
+.ms-wrapper.dark .ms-empty-desc {
+  color: #94a3b8;
+}
+
 /* ════════════════════════════════════════
-   RESPONSIVE (Apple UI)
+   RESPONSIVE (Apple UI — Same Row Header)
 ════════════════════════════════════════ */
 @media (max-width: 768px) {
   .ms-wrapper { 
@@ -1096,22 +1341,27 @@
     padding: 0; 
   }
   .ms-page-header { 
-    flex-direction: column; 
-    align-items: flex-start; 
-    gap: 18px; 
     padding: 20px 20px; 
     border-radius: 22px; 
+    gap: 16px;
   }
-  .ms-header-left {
+  /* Single row principle preserved across all viewports */
+  .ms-header-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
     width: 100%;
   }
-  .ms-header-right { 
-    width: 100%; 
-    justify-content: flex-start; 
+  .ms-header-icon-badge {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    font-size: 22px;
   }
-  .ms-add-toggle-btn {
-    width: 100%;
-    justify-content: center;
+  .ms-page-title {
+    font-size: 1.35rem;
   }
   .ms-add-drawer-inner { 
     padding: 18px 20px 22px; 
@@ -1128,19 +1378,66 @@
   }
 }
 
+@media (max-width: 600px) {
+  .ms-page-subtitle {
+    display: none;
+  }
+  .ms-add-btn-text {
+    display: none;
+  }
+  .ms-add-toggle-btn {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 9999px;
+  }
+  .ms-add-toggle-plus {
+    font-size: 18px;
+  }
+  .ms-search-btn-text {
+    display: none;
+  }
+  .ms-search-submit-btn {
+    width: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+}
+
 @media (max-width: 480px) {
   .ms-wrapper {
     width: 94%;
     margin: 16px auto 40px;
   }
   .ms-page-header {
-    padding: 18px 16px;
+    padding: 16px 14px;
     border-radius: 20px;
+    gap: 12px;
+  }
+  /* Icon on left, Title in middle, + on right strictly on the same row */
+  .ms-header-row {
+    gap: 8px;
   }
   .ms-header-icon-badge {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    font-size: 18px;
+  }
+  .ms-header-tag {
+    font-size: 0.6rem;
+    padding: 1px 6px;
+  }
+  .ms-page-title {
+    font-size: 1.05rem;
+  }
+  .ms-add-toggle-btn {
+    width: 38px;
+    height: 38px;
+  }
+  .ms-add-toggle-plus {
+    font-size: 17px;
   }
   .ms-add-drawer-inner,
   .ms-panel {

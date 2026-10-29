@@ -7,13 +7,13 @@ import {
   FiPlus,
   FiFolder,
   FiChevronDown,
-  FiChevronUp,
   FiLoader,
   FiInbox,
   FiLayers,
   FiCheckCircle,
   FiAlertCircle,
   FiX,
+  FiSearch,
 } from "react-icons/fi";
 import AddSubjectForm from "./AddSubjectForm";
 import SubjectsGrid from "./SubjectsGrid";
@@ -66,6 +66,9 @@ export default function ManageSubjects() {
   const [isLoading, setIsLoading] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
   const [addOpen, setAddOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [activeQuery, setActiveQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
   const drawerRef = useRef(null);
 
   const { theme } = useTheme();
@@ -73,7 +76,7 @@ export default function ManageSubjects() {
   useEffect(() => {
     const storedUsn = localStorage.getItem("usn");
     if (storedUsn) setUsn(storedUsn);
-    fetchSubjects(storedUsn, 1);
+    fetchSubjects(storedUsn, 1, false, "");
     fetchAllUsers();
   }, []);
 
@@ -100,12 +103,23 @@ export default function ManageSubjects() {
   const showMessage = (text, type = "") =>
     pushToast(text, type === "error" ? "error" : "success");
 
-  /* ── API ── */
-  const fetchSubjects = async (usn, pageNum = 1, append = false) => {
+  /* ── API with Auth Headers ── */
+  const fetchSubjects = async (userUsn, pageNum = 1, append = false, query = activeQuery) => {
     if (pageNum === 1) setIsLoading(true);
     else setLoadingMore(true);
     try {
-      const res = await axios.get("/api/work/get", { params: { usn, page: pageNum, limit } });
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const params = {
+        usn: userUsn || usn,
+        page: pageNum,
+        limit,
+      };
+      if (typeof query === "string" && query.trim()) {
+        params.q = query.trim();
+      }
+
+      const res = await axios.get("/api/work/get", { params, headers });
       const fetched = res.data.subjects || [];
       const total = res.data.paging?.total || 0;
       if (append) setSubjects((prev) => [...prev, ...fetched]);
@@ -118,6 +132,7 @@ export default function ManageSubjects() {
     } finally {
       setIsLoading(false);
       setLoadingMore(false);
+      setIsSearching(false);
     }
   };
 
@@ -128,6 +143,21 @@ export default function ManageSubjects() {
     } catch (err) {
       console.error("Failed to fetch all users:", err);
     }
+  };
+
+  const handleSearchSubmit = (e) => {
+    if (e) e.preventDefault();
+    const q = searchInput.trim();
+    setActiveQuery(q);
+    setIsSearching(true);
+    fetchSubjects(usn, 1, false, q);
+  };
+
+  const handleClearSearch = () => {
+    setSearchInput("");
+    setActiveQuery("");
+    setIsSearching(true);
+    fetchSubjects(usn, 1, false, "");
   };
 
   const handleSubjectDelete = () => {
@@ -143,7 +173,9 @@ export default function ManageSubjects() {
   const handleAddSubject = async (subjectName, visibility) => {
     setIsLoading(true);
     try {
-      await axios.post("/api/subject", { usn, subject: subjectName, visibility });
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      await axios.post("/api/subject", { usn, subject: subjectName, visibility }, { headers });
       fetchSubjects(usn, 1);
       pushToast("Subject added successfully!");
       setAddOpen(false);
@@ -159,7 +191,9 @@ export default function ManageSubjects() {
     if (!subject || !topicName.trim()) return;
     setIsLoading(true);
     try {
-      await axios.post("/api/topic", { usn, subject, topic: topicName, images: [], visibility });
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      await axios.post("/api/topic", { usn, subject, topic: topicName, images: [], visibility }, { headers });
       fetchSubjects(usn, 1);
       pushToast("Topic added successfully!");
     } catch (err) {
@@ -174,7 +208,7 @@ export default function ManageSubjects() {
 
   const usnl = typeof window !== "undefined" ? localStorage.getItem("usn") : null;
   if (!usnl) return <LoginRequired />;
-  if (isLoading && subjects.length === 0) return <ManageSubjectsSkeleton />;
+  if (isLoading && subjects.length === 0 && !isSearching) return <ManageSubjectsSkeleton />;
 
   return (
     <div className={`ms-wrapper ${theme}`}>
@@ -182,34 +216,91 @@ export default function ManageSubjects() {
       {/* Toast — portaled to body, always above everything */}
       <Toast toasts={toasts} onDismiss={dismissToast} />
 
-      {/* Page Header */}
+      {/* Page Header (Apple Card Widget) */}
       <header className="ms-page-header">
-        <div className="ms-header-icon-badge" aria-hidden="true">
-          <FiLayers size={26} />
+        {/* Same-Row Header: Left = Icon, Middle = Title, Right = + Action */}
+        <div className="ms-header-row">
+          {/* Left: Icon Badge */}
+          <div className="ms-header-icon-badge" aria-hidden="true">
+            <FiLayers />
+          </div>
+
+          {/* Middle: Title Centered */}
+          <div className="ms-header-center">
+            <div className="ms-header-tag">WORKSPACE</div>
+            <h1 className="ms-page-title">Upload Resources</h1>
+            <p className="ms-page-subtitle">
+              Upload and manage your subjects, topics, and study resources
+            </p>
+          </div>
+
+          {/* Right: + Button in the Same Row */}
+          <div className="ms-header-right">
+            <button
+              type="button"
+              className={`ms-add-toggle-btn${addOpen ? " ms-add-toggle-btn--open" : ""}`}
+              onClick={() => setAddOpen((v) => !v)}
+              aria-expanded={addOpen}
+              aria-controls="ms-add-drawer"
+              title={addOpen ? "Close Add Drawer" : "Create New Subject"}
+            >
+              <FiPlus className="ms-add-toggle-plus" />
+              <span className="ms-add-btn-text">New Subject</span>
+            </button>
+          </div>
         </div>
 
-        <div className="ms-header-content">
-          <div className="ms-header-tag">WORKSPACE</div>
-          <h1 className="ms-page-title">Upload Resources</h1>
-          <p className="ms-page-subtitle">
-            Upload and manage your subjects, topics, and study resources.
-          </p>
-        </div>
-
-        <div className="ms-header-right">
+        {/* Searchbar inside Header Card */}
+        <form className="ms-search-form" onSubmit={handleSearchSubmit}>
+          <div className="ms-search-wrap">
+            <FiSearch className="ms-search-icon" />
+            <input
+              type="text"
+              placeholder="Search your subjects or topics..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="ms-search-input"
+              aria-label="Search your subjects or topics"
+            />
+            {searchInput && (
+              <button
+                type="button"
+                className="ms-search-clear-inline"
+                onClick={handleClearSearch}
+                aria-label="Clear search"
+              >
+                <FiX size={14} />
+              </button>
+            )}
+          </div>
           <button
-            className={`ms-add-toggle-btn${addOpen ? " ms-add-toggle-btn--open" : ""}`}
-            onClick={() => setAddOpen((v) => !v)}
-            aria-expanded={addOpen}
-            aria-controls="ms-add-drawer"
+            type="submit"
+            className="ms-search-submit-btn"
+            disabled={isSearching}
+            aria-label="Search"
           >
-            <FiPlus className="ms-add-toggle-plus" />
-            <span>New Subject</span>
-            {addOpen
-              ? <FiChevronUp className="ms-add-toggle-caret" />
-              : <FiChevronDown className="ms-add-toggle-caret" />}
+            {isSearching ? <FiLoader className="ms-search-spinner" /> : <FiSearch />}
+            <span className="ms-search-btn-text">Search</span>
           </button>
-        </div>
+        </form>
+
+        {activeQuery && (
+          <div className="ms-search-active-pill">
+            <span className="ms-search-active-text">
+              Showing results for: <strong>&ldquo;{activeQuery}&rdquo;</strong>
+              {!isLoading && ` (${subjects.length} subject${subjects.length === 1 ? "" : "s"} found)`}
+            </span>
+            <button
+              type="button"
+              className="ms-search-clear-badge"
+              onClick={handleClearSearch}
+              title="Clear search filter"
+            >
+              <FiX size={13} />
+              <span>Clear</span>
+            </button>
+          </div>
+        )}
       </header>
 
       {/* Collapsible Add Drawer */}
@@ -258,8 +349,27 @@ export default function ManageSubjects() {
 
             {subjects.length === 0 && !isLoading && (
               <div className="ms-state ms-state--empty">
-                <FiInbox className="ms-empty-icon" />
-                <p>No subjects yet. Hit <strong>New Subject</strong> above to get started.</p>
+                {activeQuery ? (
+                  <div className="ms-search-empty-content">
+                    <FiSearch className="ms-empty-icon" />
+                    <h3 className="ms-empty-title">No subjects or topics match &ldquo;{activeQuery}&rdquo;</h3>
+                    <p className="ms-empty-desc">
+                      Try checking for spelling errors or search with different keywords.
+                    </p>
+                    <button
+                      type="button"
+                      className="ms-reset-search-btn"
+                      onClick={handleClearSearch}
+                    >
+                      Clear search
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <FiInbox className="ms-empty-icon" />
+                    <p>No subjects yet. Hit <strong>New Subject</strong> above to get started.</p>
+                  </>
+                )}
               </div>
             )}
 

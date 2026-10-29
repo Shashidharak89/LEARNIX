@@ -124,6 +124,8 @@ export default function SubjectsGrid({
       const url = `/api/topic/by-subject?subjectId=${encodeURIComponent(subjectId)}&page=${page}&limit=${limit}`;
       const headers = {};
       if (usn) headers['x-usn'] = usn;
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      if (token) headers['Authorization'] = `Bearer ${token}`;
       const res = await fetch(url, { headers });
       const data = await res.json();
       if (!res.ok) {
