@@ -1,28 +1,26 @@
 /* DashBoard.css - Apple Widget Aesthetics for Learnix Workspace */
 
-/* Base Styles - Pure White Background matching Updates and Works page width */
+/* Base Styles - Pure White Background taking over entire page 100% */
 .learnix-dashboard-wrapper {
-  width: 90%;
-  max-width: 1200px;
-  margin: 0 auto 56px;
-  padding: 24px 0 0;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 24px 0 56px 0;
   background-color: #ffffff;
   min-height: 100vh;
   box-sizing: border-box;
   opacity: 0;
-  transform: translateY(16px);
-  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Outfit", "Inter", sans-serif;
 }
 
 .learnix-dashboard-loaded {
   opacity: 1;
-  transform: translateY(0);
 }
 
-/* Apple Rounded Widget: Welcome Header (aligned exactly with Updates / Resources search cards) */
+/* Apple Rounded Widget: Welcome Header (separate component matching QP page architecture) */
 .learnix-dashboard-header {
-  width: 100%;
+  width: 90%;
   max-width: 1200px;
   margin: 0 auto 24px auto;
   background: #ffffff;
@@ -245,8 +243,9 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   gap: 14px;
-  width: 100%;
-  margin-bottom: 24px;
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto 24px auto;
   box-sizing: border-box;
 }
 
@@ -336,11 +335,21 @@
   word-break: break-word;
 }
 
+/* WhatsNew section inside Workspace */
+.learnix-dashboard-wrapper .wn__section_wrapper {
+  width: 90% !important;
+  max-width: 1200px !important;
+  margin: 0 auto 28px auto !important;
+  padding: 0 !important;
+}
+
 /* Secondary Actions */
 .learnix-secondary-actions {
-  margin-top: 24px;
-  margin-bottom: 24px;
+  width: 90%;
+  max-width: 1200px;
+  margin: 24px auto;
   animation: learnix-fade-in 0.45s ease 0.2s both;
+  box-sizing: border-box;
 }
 
 .learnix-section-title {
@@ -411,12 +420,15 @@
 
 /* Footer CTA Section - Clean White Card */
 .learnix-footer-cta {
+  width: 90%;
+  max-width: 1200px;
+  margin: 24px auto 0 auto;
   background-color: #ffffff;
   border-radius: 24px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.06), 0 4px 12px -2px rgba(0, 0, 0, 0.02);
-  margin-top: 24px;
   animation: learnix-fade-in 0.45s ease 0.3s both;
+  box-sizing: border-box;
 }
 
 .learnix-footer-cta-content {
@@ -503,8 +515,18 @@
 /* Tablets (matches .upd-main and .ws-container width: 95%) */
 @media (max-width: 768px) {
   .learnix-dashboard-wrapper {
-    width: 95%;
-    padding: 16px 0 0;
+    width: 100% !important;
+    padding: 16px 0 40px 0;
+  }
+
+  .learnix-dashboard-header,
+  .learnix-quick-stats,
+  .learnix-dashboard-wrapper .wn__section_wrapper,
+  .learnix-secondary-actions,
+  .learnix-footer-cta {
+    width: 95% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
   }
 
   .learnix-dashboard-header {
@@ -712,8 +734,18 @@
 /* Extra Small Mobile (<= 440px) */
 @media (max-width: 440px) {
   .learnix-dashboard-wrapper {
-    width: 95%;
-    padding: 12px 0 0;
+    width: 100% !important;
+    padding: 12px 0 32px 0;
+  }
+
+  .learnix-dashboard-header,
+  .learnix-quick-stats,
+  .learnix-dashboard-wrapper .wn__section_wrapper,
+  .learnix-secondary-actions,
+  .learnix-footer-cta {
+    width: 95% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
   }
 
   .learnix-dashboard-header {

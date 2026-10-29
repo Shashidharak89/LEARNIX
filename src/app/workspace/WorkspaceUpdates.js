@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
   FiBell,
@@ -66,6 +67,11 @@ export default function WorkspaceUpdates({ loggedIn }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fetchLatestUpdates = useCallback(async () => {
     if (!loggedIn) {
@@ -94,6 +100,17 @@ export default function WorkspaceUpdates({ loggedIn }) {
     fetchLatestUpdates();
   }, [fetchLatestUpdates]);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    if (isModalOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isModalOpen]);
+
   // Close modal on Escape
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -121,13 +138,14 @@ export default function WorkspaceUpdates({ loggedIn }) {
   };
 
   return (
-    <section className="wu-section-wrapper" aria-label="Campus Updates Workspace">
-      {/* Toast Notification */}
-      {toastMessage && (
+    <section className="wu-section-wrapper" aria-label="Updates">
+      {/* Toast Notification (Portaled to body) */}
+      {mounted && toastMessage && createPortal(
         <div className="wu-toast-notification" role="status">
           <FiCheckCircle size={16} />
           <span>{toastMessage}</span>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Main Apple Card Widget */}
@@ -140,12 +158,12 @@ export default function WorkspaceUpdates({ loggedIn }) {
             </div>
             <div className="wu-title-text-group">
               <div className="wu-badge-row">
-                <span className="wu-header-tag">UPDATES WORKSPACE</span>
+                <span className="wu-header-tag">UPDATES</span>
                 {loggedIn && updates.length > 0 && (
                   <span className="wu-count-pill">{updates.length} Latest</span>
                 )}
               </div>
-              <h3 className="wu-section-title">My Campus Updates</h3>
+              <h3 className="wu-section-title">Updates</h3>
             </div>
           </div>
 
@@ -179,7 +197,7 @@ export default function WorkspaceUpdates({ loggedIn }) {
               </div>
               <h4 className="wu-empty-title">Sign in to manage your updates</h4>
               <p className="wu-empty-desc">
-                Post campus announcements, study materials, and assignments to your fellow students.
+                Post announcements, study materials, and assignments to your fellow students.
               </p>
               <Link href="/login?redirect=/workspace" className="wu-empty-action-btn">
                 <FiLogIn size={15} />
@@ -195,7 +213,7 @@ export default function WorkspaceUpdates({ loggedIn }) {
               </div>
               <h4 className="wu-empty-title">No updates posted yet</h4>
               <p className="wu-empty-desc">
-                Keep fellow learners informed with syllabus changes, notes, or academic announcements.
+                Keep fellow learners informed with syllabus changes, notes, or announcements.
               </p>
               <button
                 type="button"
@@ -215,7 +233,7 @@ export default function WorkspaceUpdates({ loggedIn }) {
                   <div className="wu-card-header">
                     <h4 className="wu-card-title">
                       <Link href={`/updates/${u._id}`} className="wu-title-link">
-                        {u.title || "Campus Update"}
+                        {u.title || "Update"}
                       </Link>
                     </h4>
                     {renderVisibilityBadge(u.visibility)}
@@ -271,8 +289,8 @@ export default function WorkspaceUpdates({ loggedIn }) {
         </div>
       </div>
 
-      {/* Add Update Popup Window Modal */}
-      {isModalOpen && (
+      {/* Add Update Popup Window Modal (Portaled directly to document.body for full-screen takeover & blur) */}
+      {mounted && isModalOpen && createPortal(
         <div
           className="wu-modal-overlay"
           onClick={() => setIsModalOpen(false)}
@@ -288,7 +306,7 @@ export default function WorkspaceUpdates({ loggedIn }) {
               <div className="wu-modal-header-left">
                 <span className="wu-modal-tag">POST UPDATE</span>
                 <h3 id="wu-modal-title" className="wu-modal-title">
-                  New Campus Update
+                  New Update
                 </h3>
               </div>
               <button
@@ -308,7 +326,8 @@ export default function WorkspaceUpdates({ loggedIn }) {
               />
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </section>
   );
