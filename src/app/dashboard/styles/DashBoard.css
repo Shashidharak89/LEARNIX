@@ -542,7 +542,8 @@
   }
 
   .learnix-dashboard-title {
-    font-size: 1.45rem;
+    font-size: 1.65rem;
+    font-weight: 800;
     text-align: left;
   }
 
@@ -632,7 +633,8 @@
   }
 
   .learnix-dashboard-title {
-    font-size: 1.15rem;
+    font-size: 1.45rem;
+    font-weight: 800;
     text-align: left;
     white-space: nowrap;
     overflow: hidden;
@@ -749,7 +751,8 @@
   }
 
   .learnix-dashboard-title {
-    font-size: 1rem;
+    font-size: 1.28rem;
+    font-weight: 800;
     text-align: left;
   }
 

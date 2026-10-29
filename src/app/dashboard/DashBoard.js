@@ -183,7 +183,7 @@ export default function DashBoard() {
                 <GreetingBadge greeting={getGreeting()} />
               </div>
               <h1 className="learnix-dashboard-title">
-                Learnix <span className="learnix-title-highlight">Workspace</span>
+                My <span className="learnix-title-highlight">Workspace</span>
               </h1>
               <p className="learnix-dashboard-subtitle">
                 Welcome to Learnix! {usn
