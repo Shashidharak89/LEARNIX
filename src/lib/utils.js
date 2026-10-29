@@ -1,5 +1,9 @@
 // Utility functions for the application
 
+export function cn(...inputs) {
+  return inputs.flat().filter(Boolean).join(" ");
+}
+
 /**
  * Formats active time in minutes to a human-readable string
  * @param {number} minutes - Active time in minutes

@@ -7,7 +7,6 @@ import axios from "axios";
 import {
   FiMenu,
   FiX,
-  FiHome,
   FiLogIn,
   FiUpload,
   FiUser,
@@ -15,7 +14,6 @@ import {
   FiBookOpen,
   FiFolder,
   FiTool,
-  FiBell,
   FiClipboard,
   FiShield,
   FiBookmark,
@@ -25,6 +23,8 @@ import { Fill } from "./Fill";
 import { verifyTokenAndSyncAuth, signOutFromBrowser } from "@/lib/clientAuth";
 
 import NavbarSearch from "./NavbarSearch";
+import { HouseIcon } from "./icons/HouseIcon";
+import { BellIcon } from "./icons/BellIcon";
 
 function NavbarSearchParamsWrapper({ children }) {
   const searchParams = useSearchParams();
@@ -54,6 +54,8 @@ const NavbarContent = ({ searchParams }) => {
   const [userRole, setUserRole] = useState("");
   const [navHidden, setNavHidden] = useState(false);
   const lastScrollY = useRef(0);
+  const houseIconRef = useRef(null);
+  const bellIconRef = useRef(null);
 
   useEffect(() => {
     // verify token and sync local auth state on page load/refresh
@@ -277,10 +279,12 @@ const NavbarContent = ({ searchParams }) => {
             href="/dashboard"
             className="learnix-nav-item"
             onClick={closeSidebar}
+            onMouseEnter={() => houseIconRef.current?.startAnimation()}
+            onMouseLeave={() => houseIconRef.current?.stopAnimation()}
             tabIndex={isOpen ? 0 : -1}
           >
             <span className="learnix-nav-icon">
-              <FiHome size={18} />
+              <HouseIcon ref={houseIconRef} size={18} />
             </span>
             <span className="learnix-nav-text">Dashboard</span>
           </Link>
@@ -329,10 +333,12 @@ const NavbarContent = ({ searchParams }) => {
             href="/updates"
             className="learnix-nav-item"
             onClick={closeSidebar}
+            onMouseEnter={() => bellIconRef.current?.startAnimation()}
+            onMouseLeave={() => bellIconRef.current?.stopAnimation()}
             tabIndex={isOpen ? 0 : -1}
           >
             <span className="learnix-nav-icon">
-              <FiBell size={18} />
+              <BellIcon ref={bellIconRef} size={18} />
             </span>
             <span className="learnix-nav-text">Updates</span>
           </Link>
