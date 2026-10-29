@@ -4,27 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
 import axios from "axios";
-import {
-  FiMenu,
-  FiX,
-  FiLogIn,
-  FiUpload,
-  FiUser,
-  FiLogOut,
-  FiBookOpen,
-  FiFolder,
-  FiTool,
-  FiClipboard,
-  FiShield,
-  FiBookmark,
-} from "react-icons/fi";
+import { FiMenu, FiX } from "react-icons/fi";
 import "./styles/Navbar.css";
-import { Fill } from "./Fill";
 import { verifyTokenAndSyncAuth, signOutFromBrowser } from "@/lib/clientAuth";
 
 import NavbarSearch from "./NavbarSearch";
-import { HouseIcon } from "./icons/HouseIcon";
-import { BellIcon } from "./icons/BellIcon";
+import AppSidebar from "./AppSidebar";
 
 function NavbarSearchParamsWrapper({ children }) {
   const searchParams = useSearchParams();
@@ -54,8 +39,6 @@ const NavbarContent = ({ searchParams }) => {
   const [userRole, setUserRole] = useState("");
   const [navHidden, setNavHidden] = useState(false);
   const lastScrollY = useRef(0);
-  const houseIconRef = useRef(null);
-  const bellIconRef = useRef(null);
 
   useEffect(() => {
     // verify token and sync local auth state on page load/refresh
@@ -239,214 +222,15 @@ const NavbarContent = ({ searchParams }) => {
         </div>
       </nav>
 
-      {/* Sidebar Overlay */}
-      {isOpen && (
-        <div
-          className="learnix-sidebar-backdrop"
-          onClick={closeSidebar}
-          aria-label="Close navigation menu"
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside
-        className={`learnix-navigation-sidebar ${isOpen ? "learnix-sidebar-active" : ""}`}
-        aria-hidden={!isOpen}
-      >
-        {/* Sidebar Header */}
-        <div className="learnix-sidebar-top">
-          <div className="learnix-sidebar-logo">
-            <Image
-              src="https://res.cloudinary.com/ddycnd409/image/upload/v1758341529/Picsart_25-09-18_21-28-57-720-removebg-preview_hjouiw.png"
-              alt="Learnix"
-              width={120}
-              height={41}
-              className="learnix-sidebar-logo-img"
-            />
-          </div>
-          <button
-            className="learnix-sidebar-close-button"
-            onClick={closeSidebar}
-            aria-label="Close navigation menu"
-          >
-            <FiX size={18} />
-          </button>
-        </div>
-
-        {/* Sidebar Navigation Links */}
-        <nav className="learnix-sidebar-menu">
-          <Link
-            href="/dashboard"
-            className="learnix-nav-item"
-            onClick={closeSidebar}
-            onMouseEnter={() => houseIconRef.current?.startAnimation()}
-            onMouseLeave={() => houseIconRef.current?.stopAnimation()}
-            tabIndex={isOpen ? 0 : -1}
-          >
-            <span className="learnix-nav-icon">
-              <HouseIcon ref={houseIconRef} size={18} />
-            </span>
-            <span className="learnix-nav-text">Dashboard</span>
-          </Link>
-
-          {hasUSN && (userRole === "admin" || userRole === "superadmin") && (
-            <Link
-              href="/admin"
-              className="learnix-nav-item learnix-nav-admin"
-              onClick={closeSidebar}
-              tabIndex={isOpen ? 0 : -1}
-            >
-              <span className="learnix-nav-icon">
-                <FiShield size={18} />
-              </span>
-              <span className="learnix-nav-text">Admin Dashboard</span>
-            </Link>
-          )}
-
-          {!hasUSN && (
-            <Link
-              href={getLoginHref()}
-              className="learnix-nav-item"
-              onClick={closeSidebar}
-              tabIndex={isOpen ? 0 : -1}
-            >
-              <span className="learnix-nav-icon">
-                <FiLogIn size={18} />
-              </span>
-              <span className="learnix-nav-text">Login / Register</span>
-            </Link>
-          )}
-
-          <Link
-            href="/works"
-            className="learnix-nav-item"
-            onClick={closeSidebar}
-            tabIndex={isOpen ? 0 : -1}
-          >
-            <span className="learnix-nav-icon">
-              <FiFolder size={18} />
-            </span>
-            <span className="learnix-nav-text">Resources</span>
-          </Link>
-
-          <Link
-            href="/updates"
-            className="learnix-nav-item"
-            onClick={closeSidebar}
-            onMouseEnter={() => bellIconRef.current?.startAnimation()}
-            onMouseLeave={() => bellIconRef.current?.stopAnimation()}
-            tabIndex={isOpen ? 0 : -1}
-          >
-            <span className="learnix-nav-icon">
-              <BellIcon ref={bellIconRef} size={18} />
-            </span>
-            <span className="learnix-nav-text">Updates</span>
-          </Link>
-
-          <Link
-            href="/materials"
-            className="learnix-nav-item"
-            onClick={closeSidebar}
-            tabIndex={isOpen ? 0 : -1}
-          >
-            <span className="learnix-nav-icon">
-              <FiBookOpen size={18} />
-            </span>
-            <span className="learnix-nav-text">Study Materials</span>
-          </Link>
-
-          <Link
-            href="/qp"
-            className="learnix-nav-item"
-            onClick={closeSidebar}
-            tabIndex={isOpen ? 0 : -1}
-          >
-            <span className="learnix-nav-icon">
-              <FiClipboard size={18} />
-            </span>
-            <span className="learnix-nav-text">Question Papers</span>
-          </Link>
-
-          <Link
-            href="/learn-later"
-            className="learnix-nav-item"
-            onClick={closeSidebar}
-            tabIndex={isOpen ? 0 : -1}
-          >
-            <span className="learnix-nav-icon">
-              <FiBookmark size={18} />
-            </span>
-            <span className="learnix-nav-text">Learn Later</span>
-          </Link>
-
-          <Link
-            href="/learnix-code"
-            className="learnix-nav-item"
-            onClick={closeSidebar}
-            tabIndex={isOpen ? 0 : -1}
-          >
-            <span className="learnix-nav-icon">
-              <Image
-                src="/learnix-code-logo.png"
-                alt="Learnix Code"
-                width={20}
-                height={20}
-                style={{ objectFit: "contain", verticalAlign: "middle" }}
-              />
-            </span>
-            <span className="learnix-nav-text">Learnix Code</span>
-          </Link>
-
-          <Link
-            href="/tools"
-            className="learnix-nav-item"
-            onClick={closeSidebar}
-            tabIndex={isOpen ? 0 : -1}
-          >
-            <span className="learnix-nav-icon">
-              <FiTool size={18} />
-            </span>
-            <span className="learnix-nav-text">Tools</span>
-          </Link>
-
-          <Link
-            href="/resources/upload"
-            className="learnix-nav-item"
-            onClick={closeSidebar}
-            tabIndex={isOpen ? 0 : -1}
-          >
-            <span className="learnix-nav-icon">
-              <FiUpload size={18} />
-            </span>
-            <span className="learnix-nav-text">Upload</span>
-          </Link>
-
-          <Link
-            href="/profile"
-            className="learnix-nav-item"
-            onClick={closeSidebar}
-            tabIndex={isOpen ? 0 : -1}
-          >
-            <span className="learnix-nav-icon">
-              <FiUser size={18} />
-            </span>
-            <span className="learnix-nav-text">Profile</span>
-          </Link>
-
-          {hasUSN && (
-            <button
-              onClick={handleSignout}
-              className="learnix-nav-item learnix-signout-btn"
-              tabIndex={isOpen ? 0 : -1}
-            >
-              <span className="learnix-nav-icon">
-                <FiLogOut size={18} />
-              </span>
-              <span className="learnix-nav-text">Signout</span>
-            </button>
-          )}
-        </nav>
-      </aside>
+      {/* App Sidebar */}
+      <AppSidebar
+        isOpen={isOpen}
+        onClose={closeSidebar}
+        hasUSN={hasUSN}
+        userRole={userRole}
+        getLoginHref={getLoginHref}
+        handleSignout={handleSignout}
+      />
     </>
   );
 };
