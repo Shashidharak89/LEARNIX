@@ -21,6 +21,7 @@ import WhatsNew from "../components/WhatsNew";
 import WorkspaceUpdates from "./WorkspaceUpdates";
 import WorkspaceResources from "./WorkspaceResources";
 import WorkspaceLearnLater from "./WorkspaceLearnLater";
+import WorkspaceLearnixCode from "./WorkspaceLearnixCode";
 
 function GreetingBadge({ greeting }) {
   const clockRef = useRef(null);
@@ -240,6 +241,9 @@ export default function Workspace() {
 
       {/* Learn Later Workspace Widget */}
       <WorkspaceLearnLater loggedIn={!!usn} />
+
+      {/* Learnix Code Workspace Widget */}
+      <WorkspaceLearnixCode loggedIn={!!usn} />
 
       {/* What's New banner */}
       <WhatsNew />

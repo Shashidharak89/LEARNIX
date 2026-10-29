@@ -13,7 +13,6 @@ import {
   BookOpenIcon,
   ClipboardIcon,
   BookmarkIcon,
-  CodeXmlIcon,
   SettingsIcon,
   UploadIcon,
   UserIcon,
@@ -24,6 +23,7 @@ function SidebarLink({
   href,
   onClick,
   icon: Icon,
+  logoSrc,
   text,
   tabIndex,
   className = "",
@@ -48,7 +48,17 @@ function SidebarLink({
       tabIndex={tabIndex}
     >
       <span className="learnix-nav-icon">
-        <Icon ref={iconRef} size={18} />
+        {logoSrc ? (
+          <Image
+            src={logoSrc}
+            alt={text}
+            width={18}
+            height={18}
+            style={{ objectFit: "contain", borderRadius: "4px" }}
+          />
+        ) : (
+          Icon && <Icon ref={iconRef} size={18} />
+        )}
       </span>
       <span className="learnix-nav-text">{text}</span>
     </Link>
@@ -208,7 +218,7 @@ export default function AppSidebar({
           <SidebarLink
             href="/learnix-code"
             onClick={onClose}
-            icon={CodeXmlIcon}
+            logoSrc="/learnix-code-logo.png"
             text="Learnix Code"
             tabIndex={isOpen ? 0 : -1}
           />

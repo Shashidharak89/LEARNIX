@@ -1,0 +1,545 @@
+/* WorkspaceLearnixCode.css - Learnix Code Workspace Widget
+   Apple Theme + Learnix Code Orange Branding
+*/
+
+.wlc-section-wrapper {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto 28px auto;
+  position: relative;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+@media (max-width: 768px) {
+  .wlc-section-wrapper {
+    width: 95%;
+    margin-bottom: 20px;
+  }
+}
+
+/* Apple Rounded Widget Card */
+.wlc-widget-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.06), 0 4px 12px -2px rgba(0, 0, 0, 0.02);
+  padding: 24px 24px 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease;
+}
+
+.wlc-widget-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 14px 36px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+}
+
+/* Header Row - strictly 1 row on ALL screen widths */
+.wlc-widget-header {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px;
+  flex-wrap: nowrap !important;
+  width: 100%;
+}
+
+.wlc-header-title-group {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+.wlc-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.12) 0%, rgba(234, 88, 12, 0.08) 100%);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0 !important;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.12);
+  transition: transform 0.25s ease;
+  overflow: hidden;
+}
+
+.wlc-widget-card:hover .wlc-icon-badge {
+  transform: scale(1.05);
+}
+
+.wlc-title-text-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px;
+  min-width: 0 !important;
+  overflow: hidden;
+}
+
+/* Bold Section Title - color kept ONLY for main title */
+.wlc-section-title {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #f97316;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Top Visit Button - Check it out */
+.wlc-header-actions {
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+.wlc-top-visit-btn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px;
+  padding: 9px 16px;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: #ffffff;
+  border: 1px solid rgba(249, 115, 22, 0.4);
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.28);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+.wlc-top-visit-btn:hover {
+  background: linear-gradient(135deg, #fb923c 0%, #c2410c 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.38);
+}
+
+.wlc-top-visit-btn:active {
+  transform: scale(0.97);
+}
+
+/* Widget Body */
+.wlc-widget-body {
+  width: 100%;
+}
+
+/* Skeleton Loading State */
+.wlc-skeleton-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wlc-skeleton-card {
+  height: 84px;
+  background: linear-gradient(90deg, #f8fafc 25%, #f1f5f9 50%, #f8fafc 75%);
+  background-size: 200% 100%;
+  animation: wlc-shimmer 1.5s infinite;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+}
+
+@keyframes wlc-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Cards List */
+.wlc-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Individual Problem Card - Pure black text on item title */
+.wlc-problem-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.wlc-problem-card:hover {
+  border-color: #cbd5e1;
+  background: #fafbfd;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.06);
+}
+
+/* Card Header - vertical stacking of badges and title with zero text overlapping */
+.wlc-card-header {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+}
+
+.wlc-header-titles {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 5px;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  overflow: hidden;
+}
+
+.wlc-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  overflow: hidden;
+  flex-wrap: nowrap;
+}
+
+/* Order Badge */
+.wlc-order-badge {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 750;
+  color: #475569;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Difficulty Pills */
+.wlc-diff-pill {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: inline-flex;
+  align-items: center;
+  padding: 2.5px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.wlc-diff-easy {
+  color: #00b8a3;
+  background: rgba(0, 184, 163, 0.12);
+  border: 1px solid rgba(0, 184, 163, 0.28);
+}
+
+.wlc-diff-medium {
+  color: #d97706;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+}
+
+.wlc-diff-hard {
+  color: #dc2626;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+}
+
+/* Tag Pills */
+.wlc-tag-pill {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #334155;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 1;
+}
+
+.wlc-tag-pill span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Card Title - pure black text with single line ellipsis */
+.wlc-card-title {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 750;
+  line-height: 1.35;
+  color: #0f172a;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wlc-title-link {
+  color: #0f172a !important;
+  text-decoration: none;
+  transition: color 0.15s ease;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wlc-title-link:hover {
+  color: #000000 !important;
+  text-decoration: underline;
+}
+
+/* Card Meta row */
+.wlc-card-meta {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.wlc-meta-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.wlc-meta-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.76rem;
+  font-weight: 550;
+  color: #64748b;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Solve Button - clean attractive pill linking to problem page */
+.wlc-card-solve-btn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #ea580c;
+  background: rgba(249, 115, 22, 0.08);
+  border: 1px solid rgba(249, 115, 22, 0.28);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.wlc-card-solve-btn:hover {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: #ffffff;
+  border-color: #ea580c;
+  transform: translateX(1px);
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25);
+}
+
+/* Footer Navigation Button - strictly 1 row, single button: Explore Learnix Code */
+.wlc-widget-footer {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  padding-top: 4px;
+  width: 100%;
+  flex-wrap: nowrap !important;
+}
+
+.wlc-footer-btn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  width: 100% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.wlc-footer-btn span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Explore Learnix Code - Signature Vibrant Orange Gradient */
+.wlc-btn-explore {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: #ffffff;
+  border: 1px solid rgba(249, 115, 22, 0.45);
+  box-shadow: 0 4px 16px rgba(249, 115, 22, 0.32);
+}
+
+.wlc-btn-explore:hover {
+  background: linear-gradient(135deg, #fb923c 0%, #c2410c 100%);
+  color: #ffffff;
+  border-color: #c2410c;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(249, 115, 22, 0.44);
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .wlc-widget-card {
+    padding: 16px 14px 14px;
+    border-radius: 20px;
+    gap: 14px;
+  }
+
+  .wlc-problem-card {
+    padding: 12px 12px;
+    border-radius: 14px;
+    gap: 8px;
+  }
+
+  .wlc-card-title {
+    font-size: 0.94rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .wlc-widget-header {
+    gap: 8px;
+  }
+
+  .wlc-header-title-group {
+    gap: 8px;
+  }
+
+  .wlc-icon-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+
+  .wlc-icon-badge img {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .wlc-section-title {
+    font-size: 1.05rem;
+  }
+
+  .wlc-top-visit-btn {
+    padding: 7px 11px;
+    font-size: 0.76rem;
+    gap: 4px;
+  }
+
+  .wlc-top-visit-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .wlc-footer-btn {
+    padding: 10px 10px;
+    font-size: 0.82rem;
+    gap: 6px;
+    border-radius: 11px;
+  }
+
+  .wlc-footer-btn svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+
+  .wlc-order-badge {
+    font-size: 0.68rem;
+    padding: 1.5px 5px;
+  }
+
+  .wlc-diff-pill {
+    font-size: 0.68rem;
+    padding: 2px 6px;
+  }
+
+  .wlc-tag-pill {
+    font-size: 0.68rem;
+    padding: 1.5px 5px;
+    max-width: 100px;
+  }
+
+  .wlc-card-title {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .wlc-section-title {
+    font-size: 0.95rem;
+  }
+
+  .wlc-top-visit-btn {
+    padding: 6px 9px;
+    font-size: 0.72rem;
+  }
+
+  .wlc-footer-btn {
+    padding: 9px 8px;
+    font-size: 0.76rem;
+    gap: 5px;
+  }
+}
