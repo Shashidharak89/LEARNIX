@@ -1,0 +1,640 @@
+/* WorkspaceLearnLater.css - Learn Later Workspace Widget
+   Apple Theme + Learnix Design System
+*/
+
+.wll-section-wrapper {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto 28px auto;
+  position: relative;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+@media (max-width: 768px) {
+  .wll-section-wrapper {
+    width: 95%;
+    margin-bottom: 20px;
+  }
+}
+
+/* Apple Rounded Widget Card */
+.wll-widget-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.06), 0 4px 12px -2px rgba(0, 0, 0, 0.02);
+  padding: 24px 24px 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease;
+}
+
+.wll-widget-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 14px 36px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+}
+
+/* Header Row - strictly 1 row on ALL screen widths */
+.wll-widget-header {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px;
+  flex-wrap: nowrap !important;
+  width: 100%;
+}
+
+.wll-header-title-group {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+.wll-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(109, 40, 217, 0.08) 100%);
+  color: #7c3aed;
+  border: 1px solid rgba(124, 58, 237, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0 !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.12);
+  transition: transform 0.25s ease;
+}
+
+.wll-widget-card:hover .wll-icon-badge {
+  transform: scale(1.05);
+}
+
+.wll-title-text-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px;
+  min-width: 0 !important;
+  overflow: hidden;
+}
+
+/* Bold Section Title - color kept ONLY for main title */
+.wll-section-title {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #7c3aed;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Header Actions */
+.wll-header-actions {
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+.wll-top-visit-btn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px;
+  padding: 9px 16px;
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  color: #ffffff;
+  border: 1px solid rgba(124, 58, 237, 0.4);
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.28);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+.wll-top-visit-btn:hover {
+  background: linear-gradient(135deg, #8b5cf6 0%, #5b21b6 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.38);
+}
+
+.wll-top-visit-btn:active {
+  transform: scale(0.97);
+}
+
+/* Widget Body */
+.wll-widget-body {
+  width: 100%;
+}
+
+/* Skeleton Loading State */
+.wll-skeleton-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wll-skeleton-card {
+  height: 84px;
+  background: linear-gradient(90deg, #f8fafc 25%, #f1f5f9 50%, #f8fafc 75%);
+  background-size: 200% 100%;
+  animation: wll-shimmer 1.5s infinite;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+}
+
+@keyframes wll-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Empty States */
+.wll-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 32px 16px;
+  background: #f8fafc;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 20px;
+}
+
+.wll-empty-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #7c3aed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.wll-empty-title {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0 0 4px 0;
+  font-size: 1.05rem;
+  font-weight: 750;
+  color: #0f172a;
+}
+
+.wll-empty-desc {
+  margin: 0 0 16px 0;
+  font-size: 0.85rem;
+  color: #334155;
+  max-width: 420px;
+  line-height: 1.45;
+}
+
+.wll-empty-action-btn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  background: #0f172a;
+  color: #ffffff;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 650;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.wll-empty-action-btn:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
+}
+
+/* Cards List */
+.wll-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Individual Saved Card - Black text everywhere on item cards */
+.wll-item-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.wll-item-card:hover {
+  border-color: #cbd5e1;
+  background: #fafbfd;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.06);
+}
+
+/* Card Header - vertical stacking of tags and title with no text overlapping */
+.wll-card-header {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+}
+
+.wll-header-titles {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 5px;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  overflow: hidden;
+}
+
+.wll-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  overflow: hidden;
+  flex-wrap: nowrap;
+}
+
+/* Type Pill */
+.wll-type-pill {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2.5px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 650;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.wll-type-resource {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+}
+
+.wll-type-update {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.wll-type-material {
+  background: #e0e7ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+}
+
+.wll-type-qp {
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fde68a;
+}
+
+/* Subtitle badge - clean slate/black text */
+.wll-subtitle-pill {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: #1e293b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 1;
+}
+
+.wll-subtitle-pill span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Card Title - pure black text with single line ellipsis */
+.wll-card-title {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 750;
+  line-height: 1.35;
+  color: #0f172a;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wll-title-link {
+  color: #0f172a !important;
+  text-decoration: none;
+  transition: color 0.15s ease;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wll-title-link:hover {
+  color: #000000 !important;
+  text-decoration: underline;
+}
+
+/* Card Description snippet - black/slate text */
+.wll-card-desc {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: #334155;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+/* Card Meta row */
+.wll-card-meta {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.wll-meta-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.wll-meta-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.76rem;
+  font-weight: 550;
+  color: #64748b;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* View Link - clean dark/black pill */
+.wll-card-view-link {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 650;
+  color: #0f172a;
+  text-decoration: none;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.wll-card-view-link:hover {
+  background: #e2e8f0;
+  color: #000000;
+  transform: translateX(1px);
+}
+
+/* Footer Buttons: Explore Resources & Visit Learn Later - Colored & Highly Attractive */
+.wll-widget-footer {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px;
+  padding-top: 4px;
+  width: 100%;
+  flex-wrap: nowrap !important;
+}
+
+.wll-footer-btn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px;
+  padding: 11px 14px;
+  border-radius: 14px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.wll-footer-btn span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Explore Resources - Crisp Tinted Violet Pill Button */
+.wll-btn-explore {
+  background: rgba(124, 58, 237, 0.08);
+  color: #7c3aed;
+  border: 1.5px solid rgba(124, 58, 237, 0.28);
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.08);
+}
+
+.wll-btn-explore:hover {
+  background: rgba(124, 58, 237, 0.16);
+  border-color: rgba(124, 58, 237, 0.45);
+  color: #6d28d9;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px -2px rgba(124, 58, 237, 0.22);
+}
+
+/* Visit Learn Later - Vibrant Violet Gradient, Highly Eye-Catching */
+.wll-btn-visit {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  color: #ffffff;
+  border: 1px solid rgba(124, 58, 237, 0.45);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.32);
+}
+
+.wll-btn-visit:hover {
+  background: linear-gradient(135deg, #8b5cf6 0%, #5b21b6 100%);
+  color: #ffffff;
+  border-color: #5b21b6;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.44);
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .wll-widget-card {
+    padding: 16px 14px 14px;
+    border-radius: 20px;
+    gap: 14px;
+  }
+
+  .wll-item-card {
+    padding: 12px 12px;
+    border-radius: 14px;
+    gap: 8px;
+  }
+
+  .wll-card-title {
+    font-size: 0.94rem;
+  }
+
+  .wll-card-desc {
+    font-size: 0.82rem;
+    line-height: 1.4;
+  }
+
+  .wll-card-meta {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .wll-widget-header {
+    gap: 8px;
+  }
+
+  .wll-header-title-group {
+    gap: 8px;
+  }
+
+  .wll-icon-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+
+  .wll-icon-badge svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .wll-section-title {
+    font-size: 1.05rem;
+  }
+
+  .wll-top-visit-btn {
+    padding: 7px 11px;
+    font-size: 0.76rem;
+    gap: 4px;
+  }
+
+  .wll-top-visit-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .wll-widget-footer {
+    gap: 7px;
+  }
+
+  .wll-footer-btn {
+    padding: 9px 8px;
+    font-size: 0.78rem;
+    gap: 5px;
+    border-radius: 11px;
+  }
+
+  .wll-footer-btn svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .wll-type-pill {
+    font-size: 0.68rem;
+    padding: 2px 6px;
+  }
+
+  .wll-subtitle-pill {
+    font-size: 0.68rem;
+    padding: 1.5px 6px;
+    max-width: 140px;
+  }
+
+  .wll-card-title {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .wll-section-title {
+    font-size: 0.95rem;
+  }
+
+  .wll-top-visit-btn {
+    padding: 6px 9px;
+    font-size: 0.72rem;
+  }
+
+  .wll-footer-btn {
+    padding: 8px 5px;
+    font-size: 0.72rem;
+    gap: 4px;
+  }
+}
