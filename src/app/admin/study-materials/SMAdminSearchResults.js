@@ -443,8 +443,19 @@ export default function SMAdminSearchResults({ searchQuery, selectedCategories =
 
     if (isLoadingAny) {
         return (
-            <div style={{ textAlign: "center", padding: "40px", color: "#888" }}>
-                <p>Searching all categories...</p>
+            <div className="sm-dir-skeleton-list" aria-label="Searching categories">
+                {[...Array(5)].map((_, i) => (
+                    <div key={i} className="sm-dir-skeleton-card">
+                        <div className="sm-dir-skeleton-icon" />
+                        <div className="sm-dir-skeleton-text-wrap">
+                            <div
+                                className="sm-dir-skeleton-line"
+                                style={{ width: i % 3 === 0 ? "65%" : i % 3 === 1 ? "40%" : "75%" }}
+                            />
+                        </div>
+                        <div className="sm-dir-skeleton-chevron" />
+                    </div>
+                ))}
             </div>
         );
     }

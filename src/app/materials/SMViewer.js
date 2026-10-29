@@ -18,6 +18,23 @@ const CATEGORY_OPTIONS = [
     { id: "batches", label: "Batches" },
 ];
 
+export const SMDirectorySkeleton = ({ count = 5 }) => (
+    <div className="sm-dir-skeleton-list" aria-label="Loading directory">
+        {[...Array(count)].map((_, i) => (
+            <div key={i} className="sm-dir-skeleton-card">
+                <div className="sm-dir-skeleton-icon" />
+                <div className="sm-dir-skeleton-text-wrap">
+                    <div
+                        className="sm-dir-skeleton-line"
+                        style={{ width: i % 3 === 0 ? "65%" : i % 3 === 1 ? "40%" : "75%" }}
+                    />
+                </div>
+                <div className="sm-dir-skeleton-chevron" />
+            </div>
+        ))}
+    </div>
+);
+
 export default function SMViewer() {
     const router = useRouter();
     const pathname = usePathname();
@@ -46,7 +63,8 @@ export default function SMViewer() {
     }, [searchParams]);
 
     const updateUrlQueryParam = (query) => {
-        const params = new URLSearchParams(searchParams.toString());
+        if (typeof window === "undefined") return;
+        const params = new window.URLSearchParams(searchParams ? searchParams.toString() : "");
         if (query) {
             params.set("q", query);
         } else {
@@ -206,7 +224,7 @@ export default function SMViewer() {
                         onClearSearch={handleClearSearch} 
                     />
                 ) : loading && page === 1 ? (
-                    <p style={{ textAlign: "center", color: "#64748b", padding: "24px", fontSize: "15px" }}>Loading directory...</p>
+                    <SMDirectorySkeleton count={5} />
                 ) : error ? (
                     <p style={{ color: "#ef4444", textAlign: "center", padding: "24px", fontSize: "15px" }}>{error}</p>
                 ) : universities.length > 0 ? (

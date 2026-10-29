@@ -4,6 +4,23 @@ import { useState, useEffect } from "react";
 import { FiFolder } from "react-icons/fi";
 import DirectoryNode from "./DirectoryNode";
 
+const QPDirectorySkeleton = ({ count = 5 }) => (
+  <div className="qp-dir-tree qp-dir-skeleton-tree" aria-label="Loading directory">
+    {[...Array(count)].map((_, i) => (
+      <div key={i} className="qp-dir-skeleton-card">
+        <div className="qp-dir-skeleton-icon" />
+        <div className="qp-dir-skeleton-text-wrap">
+          <div
+            className="qp-dir-skeleton-line"
+            style={{ width: i % 3 === 0 ? "60%" : i % 3 === 1 ? "42%" : "72%" }}
+          />
+        </div>
+        <div className="qp-dir-skeleton-chevron" />
+      </div>
+    ))}
+  </div>
+);
+
 export default function QuestionPapers() {
   const [universities, setUniversities] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -73,10 +90,7 @@ export default function QuestionPapers() {
         <section className="qp-dir-section" aria-labelledby="qp-papers-section">
           <div className="qp-dir-cards-list">
             {loading && page === 1 ? (
-              <div className="qp-dir-state-loading">
-                <span className="qp-spinner-sm" aria-hidden="true" />
-                <p>Loading directory...</p>
-              </div>
+              <QPDirectorySkeleton count={5} />
             ) : error ? (
               <div className="qp-dir-state-error">
                 <p>{error}</p>
