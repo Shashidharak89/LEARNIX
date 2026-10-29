@@ -559,9 +559,12 @@
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
 }
 
-/* ── Responsive Rules (Consistent 12px Gap, Apple Roundness & Icon-Only Badges) ── */
+/* ── Responsive Rules (Clean Mobile Gap & Apple Roundness) ── */
 @media (max-width: 640px) {
-  /* Keep the exact same 12px gap consistently across all screen sizes */
+  .mse-subjects-grid {
+    gap: 10px;
+  }
+
   .sg-card {
     padding: 12px 14px;
     margin-bottom: 0;
@@ -657,7 +660,10 @@
 }
 
 @media (max-width: 440px) {
-  /* Consistent gap preserved - no separate gapping logic */
+  .mse-subjects-grid {
+    gap: 8px;
+  }
+
   .sg-card {
     padding: 11px 12px;
     margin-bottom: 0;
