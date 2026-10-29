@@ -1,0 +1,513 @@
+/* WorkspaceQuestionPapers.css - Question Papers Workspace Widget
+   Apple Theme + Warm Amber Accent
+*/
+
+.wqp-section-wrapper {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto 28px auto;
+  position: relative;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+@media (max-width: 768px) {
+  .wqp-section-wrapper {
+    width: 95%;
+    margin-bottom: 20px;
+  }
+}
+
+/* Apple Rounded Widget Card */
+.wqp-widget-card {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.06), 0 4px 12px -2px rgba(0, 0, 0, 0.02);
+  padding: 24px 24px 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.2s ease;
+}
+
+.wqp-widget-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 14px 36px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+}
+
+/* Header Row - strictly 1 row on ALL screen widths */
+.wqp-widget-header {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px;
+  flex-wrap: nowrap !important;
+  width: 100%;
+}
+
+.wqp-header-title-group {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px;
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+.wqp-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.12) 0%, rgba(180, 83, 9, 0.08) 100%);
+  color: #d97706;
+  border: 1px solid rgba(217, 119, 6, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0 !important;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.12);
+  transition: transform 0.25s ease;
+}
+
+.wqp-widget-card:hover .wqp-icon-badge {
+  transform: scale(1.05);
+}
+
+.wqp-title-text-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px;
+  min-width: 0 !important;
+  overflow: hidden;
+}
+
+/* Bold Section Title - color kept ONLY for main title */
+.wqp-section-title {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #d97706;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Top Action Button - View All */
+.wqp-header-actions {
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+}
+
+.wqp-top-visit-btn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px;
+  padding: 9px 16px;
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  color: #ffffff;
+  border: 1px solid rgba(217, 119, 6, 0.4);
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.28);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+.wqp-top-visit-btn:hover {
+  background: linear-gradient(135deg, #f59e0b 0%, #92400e 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 18px rgba(217, 119, 6, 0.38);
+}
+
+.wqp-top-visit-btn:active {
+  transform: scale(0.97);
+}
+
+/* Widget Body */
+.wqp-widget-body {
+  width: 100%;
+}
+
+/* Skeleton Loading State */
+.wqp-skeleton-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wqp-skeleton-card {
+  height: 84px;
+  background: linear-gradient(90deg, #f8fafc 25%, #f1f5f9 50%, #f8fafc 75%);
+  background-size: 200% 100%;
+  animation: wqp-shimmer 1.5s infinite;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+}
+
+@keyframes wqp-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Cards List */
+.wqp-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Individual Paper Card - Pure black text on title */
+.wqp-paper-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.wqp-paper-card:hover {
+  border-color: #cbd5e1;
+  background: #fafbfd;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.06);
+}
+
+/* Card Header - vertical stacking of badges and title with zero text overlapping */
+.wqp-card-header {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+}
+
+.wqp-header-titles {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 5px;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  overflow: hidden;
+}
+
+.wqp-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  overflow: hidden;
+  flex-wrap: nowrap;
+}
+
+/* Exam Pill */
+.wqp-exam-pill {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: inline-flex;
+  align-items: center;
+  padding: 2.5px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 750;
+  color: #d97706;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Semester Pill */
+.wqp-sem-pill {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: #1e293b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 1;
+}
+
+.wqp-sem-pill span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Card Title - pure black text with single line ellipsis */
+.wqp-card-title {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 750;
+  line-height: 1.35;
+  color: #0f172a;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wqp-title-link {
+  color: #0f172a !important;
+  text-decoration: none;
+  transition: color 0.15s ease;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wqp-title-link:hover {
+  color: #000000 !important;
+  text-decoration: underline;
+}
+
+/* Card Meta row */
+.wqp-card-meta {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.wqp-meta-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.wqp-meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #475569;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 2.5px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Navigate Button - clean attractive pill linking to QP viewer */
+.wqp-card-nav-btn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #d97706;
+  background: rgba(217, 119, 6, 0.08);
+  border: 1px solid rgba(217, 119, 6, 0.28);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.wqp-card-nav-btn:hover {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  color: #ffffff;
+  border-color: #b45309;
+  transform: translateX(1px);
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.25);
+}
+
+/* Footer Navigation Button - strictly 1 row, single button: Explore Question Papers */
+.wqp-widget-footer {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  padding-top: 4px;
+  width: 100%;
+  flex-wrap: nowrap !important;
+}
+
+.wqp-footer-btn {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  width: 100% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.wqp-footer-btn span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Explore Question Papers - Vibrant Amber Gradient */
+.wqp-btn-explore {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  color: #ffffff;
+  border: 1px solid rgba(217, 119, 6, 0.45);
+  box-shadow: 0 4px 16px rgba(217, 119, 6, 0.32);
+}
+
+.wqp-btn-explore:hover {
+  background: linear-gradient(135deg, #f59e0b 0%, #92400e 100%);
+  color: #ffffff;
+  border-color: #92400e;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(217, 119, 6, 0.44);
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+  .wqp-widget-card {
+    padding: 16px 14px 14px;
+    border-radius: 20px;
+    gap: 14px;
+  }
+
+  .wqp-paper-card {
+    padding: 12px 12px;
+    border-radius: 14px;
+    gap: 8px;
+  }
+
+  .wqp-card-title {
+    font-size: 0.94rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .wqp-widget-header {
+    gap: 8px;
+  }
+
+  .wqp-header-title-group {
+    gap: 8px;
+  }
+
+  .wqp-icon-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+
+  .wqp-icon-badge svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .wqp-section-title {
+    font-size: 1.05rem;
+  }
+
+  .wqp-top-visit-btn {
+    padding: 7px 11px;
+    font-size: 0.76rem;
+    gap: 4px;
+  }
+
+  .wqp-top-visit-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .wqp-footer-btn {
+    padding: 10px 10px;
+    font-size: 0.82rem;
+    gap: 6px;
+    border-radius: 11px;
+  }
+
+  .wqp-footer-btn svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+
+  .wqp-exam-pill {
+    font-size: 0.68rem;
+    padding: 2px 6px;
+  }
+
+  .wqp-sem-pill {
+    font-size: 0.68rem;
+    padding: 1.5px 5px;
+    max-width: 150px;
+  }
+
+  .wqp-card-title {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .wqp-section-title {
+    font-size: 0.95rem;
+  }
+
+  .wqp-top-visit-btn {
+    padding: 6px 9px;
+    font-size: 0.72rem;
+  }
+
+  .wqp-footer-btn {
+    padding: 9px 8px;
+    font-size: 0.76rem;
+    gap: 5px;
+  }
+}

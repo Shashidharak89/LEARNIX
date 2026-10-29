@@ -23,6 +23,8 @@ import WorkspaceResources from "./WorkspaceResources";
 import WorkspaceLearnLater from "./WorkspaceLearnLater";
 import WorkspaceLearnixCode from "./WorkspaceLearnixCode";
 import WorkspaceTools from "./WorkspaceTools";
+import WorkspaceStudyMaterials from "./WorkspaceStudyMaterials";
+import WorkspaceQuestionPapers from "./WorkspaceQuestionPapers";
 
 function GreetingBadge({ greeting }) {
   const clockRef = useRef(null);
@@ -248,6 +250,12 @@ export default function Workspace() {
 
       {/* Tools Workspace Widget */}
       <WorkspaceTools />
+
+      {/* Study Materials Workspace Widget */}
+      <WorkspaceStudyMaterials />
+
+      {/* Question Papers Workspace Widget */}
+      <WorkspaceQuestionPapers />
 
       {/* What's New banner */}
       <WhatsNew />
