@@ -661,7 +661,7 @@
 
 @media (max-width: 440px) {
   .mse-subjects-grid {
-    gap: 8px;
+    gap: 12px;
   }
 
   .sg-card {

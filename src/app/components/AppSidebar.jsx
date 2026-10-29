@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { FiX } from "react-icons/fi";
 import {
-  HouseIcon,
+  LayersIcon,
   ShieldCheckIcon,
   LogInIcon,
   FolderIcon,
@@ -139,8 +139,8 @@ export default function AppSidebar({
           <SidebarLink
             href="/dashboard"
             onClick={onClose}
-            icon={HouseIcon}
-            text="Dashboard"
+            icon={LayersIcon}
+            text="Workspace"
             tabIndex={isOpen ? 0 : -1}
           />
 

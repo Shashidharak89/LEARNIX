@@ -4,25 +4,20 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  FiUpload,
-  FiUser,
-  FiLogIn,
   FiBookOpen,
-  FiTrendingUp,
   FiStar,
-  FiFolder,
-  FiMessageCircle,
-  FiActivity,
-  FiClock,
   FiUsers,
-  FiArrowRight
+  FiMessageCircle,
+  FiUser,
+  FiArrowRight,
+  FiLogIn,
+  FiClock,
 } from "react-icons/fi";
-import { MdDashboard, MdOutlineSchool } from "react-icons/md";
-import { IoRocketOutline, IoLibraryOutline } from "react-icons/io5";
+import { MdOutlineSchool } from "react-icons/md";
 import { RiGraduationCapLine } from "react-icons/ri";
+import { IoRocketOutline } from "react-icons/io5";
 import "./styles/DashBoard.css";
 import WhatsNew from "../components/WhatsNew";
-import ProUpgradeOffer from "./ProUpgradeOffer";
 import DashboardNavCards from "./DashboardNavCards";
 
 export default function DashBoard() {
@@ -31,21 +26,21 @@ export default function DashBoard() {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
-    // Check for stored USN - this will be null if user not logged in
-    const storedUsn = localStorage.getItem("usn");
-    setUsn(storedUsn);
+    // Check for stored USN and add smooth appearance delay
+    const loadTimer = setTimeout(() => {
+      setUsn(localStorage.getItem("usn"));
+      setIsLoaded(true);
+    }, 50);
 
     // Update time every minute
     const timeInterval = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000);
 
-    // Add loading animation delay
-    setTimeout(() => {
-      setIsLoaded(true);
-    }, 100);
-
-    return () => clearInterval(timeInterval);
+    return () => {
+      clearTimeout(loadTimer);
+      clearInterval(timeInterval);
+    };
   }, []);
 
   const getGreeting = () => {
@@ -56,8 +51,8 @@ export default function DashBoard() {
   };
 
   return (
-    <div className={`learnix-dashboard-wrapper ${isLoaded ? 'learnix-dashboard-loaded' : ''}`}>
-      {/* Header Section */}
+    <div className={`learnix-dashboard-wrapper ${isLoaded ? "learnix-dashboard-loaded" : ""}`}>
+      {/* Welcome to Learnix - Apple Widget Header */}
       <header className="learnix-dashboard-header">
         <div className="learnix-header-content">
           <div className="learnix-header-left">
@@ -72,7 +67,7 @@ export default function DashBoard() {
             </div>
             <div className="learnix-welcome-section">
               <div className="learnix-greeting-badge">
-                <MdDashboard size={14} />
+                <FiClock size={13} />
                 <span>{getGreeting()}</span>
               </div>
               <h1 className="learnix-dashboard-title">
@@ -92,7 +87,7 @@ export default function DashBoard() {
           {!usn && (
             <div className="learnix-header-auth">
               <Link href="/login" className="learnix-header-login-btn">
-                <FiLogIn size={16} />
+                <FiLogIn size={15} />
                 <span>Sign In</span>
               </Link>
             </div>
@@ -100,152 +95,42 @@ export default function DashBoard() {
         </div>
       </header>
 
-
-
-      {/* Quick Stats */}
-      <section className="learnix-quick-stats">
+      {/* Quick Stats - Apple Style Rounded Widgets (500+ Resources, 200+ Learnix Users, 5 Avg Rating) */}
+      <section className="learnix-quick-stats" aria-label="Learnix platform statistics">
         <div className="learnix-stat-card">
           <div className="learnix-stat-icon-wrapper learnix-stat-blue">
-            <FiBookOpen size={20} />
+            <FiBookOpen size={22} />
           </div>
           <div className="learnix-stat-info">
-            <span className="learnix-stat-value">100+</span>
+            <span className="learnix-stat-value">500+</span>
             <span className="learnix-stat-label">Study Resources</span>
           </div>
         </div>
+
         <div className="learnix-stat-card">
           <div className="learnix-stat-icon-wrapper learnix-stat-yellow">
-            <FiUsers size={20} />
+            <FiUsers size={22} />
           </div>
           <div className="learnix-stat-info">
-            <span className="learnix-stat-value">120+</span>
-            <span className="learnix-stat-label">Active Users</span>
+            <span className="learnix-stat-value">200+</span>
+            <span className="learnix-stat-label">Learnix Users</span>
           </div>
         </div>
+
         <div className="learnix-stat-card">
-          <div className="learnix-stat-icon-wrapper learnix-stat-blue">
-            <FiStar size={20} />
+          <div className="learnix-stat-icon-wrapper learnix-stat-amber">
+            <FiStar size={22} />
           </div>
           <div className="learnix-stat-info">
-            <span className="learnix-stat-value">4.8</span>
-            <span className="learnix-stat-label">Average Rating</span>
-          </div>
-        </div>
-        <div className="learnix-stat-card">
-          <div className="learnix-stat-icon-wrapper learnix-stat-yellow">
-            <FiActivity size={20} />
-          </div>
-          <div className="learnix-stat-info">
-            <span className="learnix-stat-value">95%</span>
-            <span className="learnix-stat-label">Success Rate</span>
+            <span className="learnix-stat-value">5</span>
+            <span className="learnix-stat-label">Avg Rating</span>
           </div>
         </div>
       </section>
 
-      {/* <main className="learnix-main-actions">
-
-
-        {/* <h2 className="learnix-section-title">
-          {usn ? "Your Dashboard" : "Explore Features"}
-        </h2>
-        <div className="learnix-action-grid">
-          <Link href="/works" className="learnix-action-item learnix-primary-action">
-            <div className="learnix-action-header">
-              <div className="learnix-action-icon-container">
-                <FiFolder size={24} />
-              </div>
-              <span className="learnix-action-badge">Most Popular</span>
-            </div>
-            <div className="learnix-action-body">
-              <h3 className="learnix-action-title">Browse Works</h3>
-              <p className="learnix-action-desc">
-                Explore homework solutions, assignments, and projects shared by students
-              </p>
-            </div>
-            <div className="learnix-action-arrow">
-              <FiArrowRight size={18} />
-            </div>
-          </Link>
-
-          <Link href="/search" className="learnix-action-item learnix-secondary-action">
-            <div className="learnix-action-header">
-              <div className="learnix-action-icon-container">
-                <FiUsers size={24} />
-              </div>
-              <span className="learnix-action-badge">Connect</span>
-            </div>
-            <div className="learnix-action-body">
-              <h3 className="learnix-action-title">Student Profiles</h3>
-              <p className="learnix-action-desc">
-                Discover fellow students and view their academic contributions
-              </p>
-            </div>
-            <div className="learnix-action-arrow">
-              <FiArrowRight size={18} />
-            </div>
-          </Link>
-
-          <Link href="/materials" className="learnix-action-item learnix-tertiary-action">
-            <div className="learnix-action-header">
-              <div className="learnix-action-icon-container">
-                <IoLibraryOutline size={24} />
-              </div>
-              <span className="learnix-action-badge">Study Hub</span>
-            </div>
-            <div className="learnix-action-body">
-              <h3 className="learnix-action-title">Study Materials</h3>
-              <p className="learnix-action-desc">
-                Access textbooks, reference materials, and comprehensive study guides
-              </p>
-            </div>
-            <div className="learnix-action-arrow">
-              <FiArrowRight size={18} />
-            </div>
-          </Link>
-
-          {usn ? (
-            <Link href="/resources/upload" className="learnix-action-item learnix-quaternary-action">
-              <div className="learnix-action-header">
-                <div className="learnix-action-icon-container">
-                  <FiUpload size={24} />
-                </div>
-                <span className="learnix-action-badge">Contribute</span>
-              </div>
-              <div className="learnix-action-body">
-                <h3 className="learnix-action-title">Upload Resources</h3>
-                <p className="learnix-action-desc">
-                  Share your homework, assignments, and study materials to help others
-                </p>
-              </div>
-              <div className="learnix-action-arrow">
-                <FiArrowRight size={18} />
-              </div>
-            </Link>
-          ) : (
-            <div className="learnix-action-item learnix-quaternary-action learnix-disabled-action">
-              <div className="learnix-action-header">
-                <div className="learnix-action-icon-container">
-                  <FiUpload size={24} />
-                </div>
-                <span className="learnix-action-badge">Login Required</span>
-              </div>
-              <div className="learnix-action-body">
-                <h3 className="learnix-action-title">Upload Resources</h3>
-                <p className="learnix-action-desc">
-                  Sign in to share your homework and study materials with the community
-                </p>
-              </div>
-              <div className="learnix-action-arrow">
-                <FiLogIn size={18} />
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
-      <ProUpgradeOffer isLoggedIn={Boolean(usn)} /> */} 
-
-
+      {/* Navigation Quick Cards */}
       <DashboardNavCards loggedIn={!!usn} />
+
       {/* What's New banner */}
       <WhatsNew />
 
@@ -272,12 +157,6 @@ export default function DashBoard() {
               <FiArrowRight size={16} />
             </Link>
           )}
-
-          {/* <Link href="/help" className="learnix-secondary-item">
-            <FiBookOpen size={20} />
-            <span>Help & Support</span>
-            <FiArrowRight size={16} />
-          </Link> */}
         </div>
       </section>
 
@@ -297,7 +176,6 @@ export default function DashBoard() {
           </div>
         </section>
       )}
-
     </div>
   );
 }
