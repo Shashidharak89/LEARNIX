@@ -60,7 +60,6 @@ export default function QuestionPapers() {
             <FiFolder size={26} />
           </div>
           <div className="qp-dir-title-content">
-            <div className="qp-dir-tag">ARCHIVES</div>
             <h2 id="qp-papers-section" className="qp-dir-title">
               Browse Question Papers Directory
             </h2>
