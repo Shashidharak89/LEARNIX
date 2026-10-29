@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { FiChevronDown, FiFileText, FiExternalLink, FiX, FiBookmark } from "react-icons/fi";
+import { FiChevronDown, FiFileText, FiX, FiBookmark, FiSliders, FiInbox } from "react-icons/fi";
 import { toggleLearnLaterClient } from "@/lib/clientLearnLater";
+import "./styles/QPFilterSearch.css";
 
 // Custom Dropdown Component
 const CustomDropdown = ({ label, options, value, onChange, onLoadMore, hasMore, loading, placeholder }) => {
@@ -21,106 +22,79 @@ const CustomDropdown = ({ label, options, value, onChange, onLoadMore, hasMore, 
     }, []);
 
     const selectedOption = options.find(opt => opt._id === value);
+    const selectedText = selectedOption
+        ? (selectedOption.name || (selectedOption.semesterNumber ? `Semester ${selectedOption.semesterNumber}` : "") || (selectedOption.startYear ? `${selectedOption.startYear}-${selectedOption.endYear}` : ""))
+        : null;
 
     return (
-        <div className="qp-custom-dropdown" ref={dropdownRef} style={{ position: "relative", width: "100%", marginBottom: "15px" }}>
-            <label style={{ display: "block", fontSize: "14px", fontWeight: "600", color: "#444", marginBottom: "6px" }}>{label}</label>
+        <div className="qp-custom-dropdown" ref={dropdownRef}>
+            <label className="qp-dropdown-label">{label}</label>
             <div 
                 onClick={() => setIsOpen(!isOpen)}
-                style={{
-                    padding: "12px 16px",
-                    background: "#fff",
-                    border: "2px solid #e1e4e8",
-                    borderRadius: "10px",
-                    cursor: "pointer",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    boxShadow: isOpen ? "0 4px 12px rgba(11, 116, 255, 0.1)" : "none",
-                    borderColor: isOpen ? "#0b74ff" : "#e1e4e8",
-                    transition: "all 0.2s"
-                }}
+                className={`qp-dropdown-trigger ${isOpen ? "is-open" : ""}`}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setIsOpen(!isOpen); } }}
+                aria-haspopup="listbox"
+                aria-expanded={isOpen}
             >
-                <span style={{ color: selectedOption ? "#111" : "#888", fontWeight: "500", fontSize: "15px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                    {selectedOption ? (selectedOption.name || `Semester ${selectedOption.semesterNumber}` || `${selectedOption.startYear}-${selectedOption.endYear}`) : placeholder}
+                <span className={`qp-dropdown-trigger__text ${!selectedText ? "is-placeholder" : ""}`}>
+                    {selectedText || placeholder}
                 </span>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div className="qp-dropdown-trigger__actions">
                     {value && (
                         <button 
+                            type="button"
                             onClick={(e) => { e.stopPropagation(); onChange(""); setIsOpen(false); }}
-                            style={{ background: "none", border: "none", cursor: "pointer", color: "#888", display: "flex", alignItems: "center" }}
+                            className="qp-dropdown-clear-btn"
                             title="Clear selection"
+                            aria-label="Clear selection"
                         >
-                            <FiX size={18} />
+                            <FiX size={16} />
                         </button>
                     )}
-                    <FiChevronDown style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "0.3s", color: "#888" }} />
+                    <FiChevronDown size={17} className="qp-dropdown-chevron" />
                 </div>
             </div>
 
             {isOpen && (
-                <div style={{
-                    position: "absolute",
-                    top: "100%",
-                    left: 0,
-                    right: 0,
-                    marginTop: "6px",
-                    background: "#fff",
-                    border: "1px solid #e1e4e8",
-                    borderRadius: "10px",
-                    boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-                    maxHeight: "300px",
-                    overflowY: "auto",
-                    zIndex: 100
-                }}>
+                <div className="qp-dropdown-menu" role="listbox">
                     <div 
                         onClick={() => { onChange(""); setIsOpen(false); }}
-                        style={{ padding: "12px 16px", cursor: "pointer", borderBottom: "1px solid #f0f0f0", color: "#888", fontSize: "15px" }}
-                        onMouseOver={(e) => e.target.style.background = "#f8f9fa"}
-                        onMouseOut={(e) => e.target.style.background = "#fff"}
+                        className="qp-dropdown-item is-placeholder"
+                        role="option"
+                        aria-selected={!value}
                     >
                         {placeholder}
                     </div>
                     {options.map(opt => {
-                        const displayName = opt.name || `Semester ${opt.semesterNumber}` || `${opt.startYear}-${opt.endYear}`;
+                        const displayName = opt.name || (opt.semesterNumber ? `Semester ${opt.semesterNumber}` : "") || `${opt.startYear}-${opt.endYear}`;
                         const isSelected = value === opt._id;
                         return (
                             <div 
                                 key={opt._id}
                                 onClick={() => { onChange(opt._id); setIsOpen(false); }}
-                                style={{
-                                    padding: "12px 16px",
-                                    cursor: "pointer",
-                                    borderBottom: "1px solid #f0f0f0",
-                                    background: isSelected ? "#f0f7ff" : "#fff",
-                                    color: isSelected ? "#0b74ff" : "#333",
-                                    fontWeight: isSelected ? "600" : "500",
-                                    fontSize: "15px"
-                                }}
-                                onMouseOver={(e) => { if (!isSelected) e.target.style.background = "#f8f9fa"; }}
-                                onMouseOut={(e) => { if (!isSelected) e.target.style.background = "#fff"; }}
+                                className={`qp-dropdown-item ${isSelected ? "is-selected" : ""}`}
+                                role="option"
+                                aria-selected={isSelected}
                             >
                                 {displayName}
                             </div>
                         );
                     })}
                     
-                    {loading && <div style={{ padding: "12px 16px", textAlign: "center", color: "#888", fontSize: "14px" }}>Loading...</div>}
+                    {loading && (
+                        <div className="qp-dropdown-loading">
+                            Loading options...
+                        </div>
+                    )}
                     
                     {!loading && hasMore && (
                         <div 
                             onClick={(e) => { e.stopPropagation(); onLoadMore(); }}
-                            style={{
-                                padding: "12px 16px",
-                                textAlign: "center",
-                                cursor: "pointer",
-                                color: "#0b74ff",
-                                fontWeight: "600",
-                                fontSize: "14px",
-                                background: "#f8faff"
-                            }}
-                            onMouseOver={(e) => e.target.style.background = "#e6f0ff"}
-                            onMouseOut={(e) => e.target.style.background = "#f8faff"}
+                            className="qp-dropdown-loadmore"
+                            role="button"
+                            tabIndex={0}
                         >
                             View More...
                         </div>
@@ -154,6 +128,7 @@ export default function QPFilterSearch() {
     const [resultsPage, setResultsPage] = useState(1);
     const [resultsTotalPages, setResultsTotalPages] = useState(1);
     const [loadingResults, setLoadingResults] = useState(false);
+    const [hasSearched, setHasSearched] = useState(false);
 
     const fetchDropdownData = async (type, endpoint, append = false) => {
         try {
@@ -216,6 +191,7 @@ export default function QPFilterSearch() {
     // Manual Fetch Results Trigger
     const handleSearch = () => {
         setResultsPage(1);
+        setHasSearched(true);
         fetchResults(1, true);
     };
 
@@ -254,11 +230,11 @@ export default function QPFilterSearch() {
             
             if (json.success) {
                 if (isNewSearch) {
-                    setResults(json.data);
+                    setResults(json.data || []);
                 } else {
-                    setResults(prev => [...prev, ...json.data]);
+                    setResults(prev => [...prev, ...(json.data || [])]);
                 }
-                setResultsTotalPages(json.pagination.totalPages);
+                setResultsTotalPages(json.pagination?.totalPages || 1);
             }
         } catch (err) {
             console.error("Error fetching results:", err);
@@ -267,7 +243,7 @@ export default function QPFilterSearch() {
     };
 
     const handleLoadMoreResults = () => {
-        if (resultsPage < resultsTotalPages) {
+        if (resultsPage < resultsTotalPages && !loadingResults) {
             const nextPage = resultsPage + 1;
             setResultsPage(nextPage);
             fetchResults(nextPage, false);
@@ -275,15 +251,25 @@ export default function QPFilterSearch() {
     };
 
     return (
-        <div className="qp-page-container" style={{ paddingBottom: "20px" }}>
-            <div className="qp-main" style={{ margin: "16px auto", padding: 0 }}>
-                <section className="qp-card">
-                <div className="qp-section-header" style={{ marginBottom: "25px" }}>
-                    <h2 style={{ fontSize: "24px", color: "#111", marginBottom: "8px" }}>Advanced Filter Search</h2>
-                    <p style={{ color: "#666", fontSize: "15px", margin: 0 }}>Narrow down question papers by selecting specific criteria.</p>
+        <section className="qp-filter-search-wrap" aria-labelledby="qp-filter-heading">
+            {/* Title Card */}
+            <header className="qp-filter-title-card">
+                <div className="qp-filter-title-badge" aria-hidden="true">
+                    <FiSliders size={26} />
                 </div>
+                <div className="qp-filter-title-content">
+                    <h2 id="qp-filter-heading" className="qp-filter-title">
+                        Advanced Filter Search
+                    </h2>
+                    <p className="qp-filter-subtitle">
+                        Narrow down question papers by selecting specific criteria.
+                    </p>
+                </div>
+            </header>
 
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "15px", marginBottom: "30px", padding: "20px", background: "#f8f9fa", borderRadius: "12px", border: "1px solid #eaeaea" }}>
+            {/* Filter Selection Card */}
+            <div className="qp-filter-card">
+                <div className="qp-filter-grid">
                     <CustomDropdown 
                         label="University" 
                         placeholder="All Universities"
@@ -345,69 +331,82 @@ export default function QPFilterSearch() {
                     />
                 </div>
                 
-                <div style={{ textAlign: "center", marginBottom: "30px" }}>
+                <div className="qp-filter-action-wrap">
                     <button 
+                        type="button"
                         onClick={handleSearch}
                         disabled={loadingResults}
-                        style={{
-                            background: "#0b74ff",
-                            color: "#fff",
-                            border: "none",
-                            padding: "12px 30px",
-                            borderRadius: "8px",
-                            cursor: loadingResults ? "default" : "pointer",
-                            fontWeight: "bold",
-                            fontSize: "16px",
-                            transition: "all 0.2s ease",
-                            boxShadow: "0 4px 12px rgba(11, 116, 255, 0.2)"
-                        }}
-                        onMouseOver={(e) => { if (!loadingResults) e.currentTarget.style.background = "#0958c2"; }}
-                        onMouseOut={(e) => { if (!loadingResults) e.currentTarget.style.background = "#0b74ff"; }}
+                        className="qp-filter-search-btn"
+                        aria-label="Search Question Papers"
                     >
-                        {loadingResults ? "Searching..." : "Search Question Papers"}
+                        {loadingResults ? (
+                            <span className="qp-dots-loader" aria-hidden="true">
+                                <span className="qp-dot" />
+                                <span className="qp-dot" />
+                                <span className="qp-dot" />
+                            </span>
+                        ) : (
+                            <span>Search Question Papers</span>
+                        )}
                     </button>
                 </div>
+            </div>
 
-                <div className="qp-results-container">
-                    <h3 style={{ fontSize: "20px", color: "#111", borderBottom: "2px solid #eaeaea", paddingBottom: "15px", marginBottom: "20px" }}>Filtered Question Papers</h3>
+            {/* Results Section */}
+            {(hasSearched || results.length > 0) && (
+                <div className="qp-filter-results">
+                    <div className="qp-filter-results-head">
+                        <h3 className="qp-filter-results-title">Filtered Question Papers</h3>
+                        {results.length > 0 && (
+                            <span className="qp-filter-results-badge">
+                                {results.length} result{results.length === 1 ? "" : "s"}
+                            </span>
+                        )}
+                    </div>
                     
                     {loadingResults && results.length === 0 ? (
-                        <div style={{ textAlign: "center", padding: "40px", color: "#888", fontSize: "16px" }}>
-                            Loading records...
+                        <div className="qp-filter-state-card">
+                            <span className="qp-spinner-sm" aria-hidden="true" />
+                            <p className="qp-filter-state-title">Loading Question Papers...</p>
+                            <p className="qp-filter-state-desc">Searching records matching your selected filter criteria.</p>
                         </div>
                     ) : results.length === 0 ? (
-                        <div style={{ textAlign: "center", padding: "40px", color: "#888", fontSize: "16px", background: "#f8f9fa", borderRadius: "12px", border: "1px dashed #ddd" }}>
-                            No question papers found for the selected filters.
+                        <div className="qp-filter-state-card">
+                            <div className="qp-filter-state-icon" aria-hidden="true">
+                                <FiInbox />
+                            </div>
+                            <h4 className="qp-filter-state-title">No question papers found</h4>
+                            <p className="qp-filter-state-desc">
+                                No question papers found for the selected filters. Try adjusting or clearing some filters above.
+                            </p>
                         </div>
                     ) : (
                         <div>
-                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px" }}>
+                            <div className="qp-filter-results-grid">
                                 {results.map((group, i) => {
                                     if (group.type === "subject") {
                                         const subName = group.subject ? group.subject.name : "Unknown Subject";
                                         return (
-                                            <div key={i} style={{ border: "1px solid #eaeaea", borderRadius: "12px", overflow: "hidden", background: "#fff", padding: "24px", boxShadow: "0 4px 15px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                                                <div>
-                                                    <div style={{ display: "inline-block", background: "#0b74ff", color: "#fff", padding: "6px 10px", borderRadius: "6px", fontSize: "13px", fontWeight: "bold", marginBottom: "12px" }}>
+                                            <div key={i} className="qp-filter-res-card">
+                                                <div className="qp-filter-res-top">
+                                                    <span className="qp-filter-res-tag qp-filter-res-tag--blue">
                                                         Subject Match
-                                                    </div>
-                                                    <h4 style={{ fontSize: "20px", color: "#111", margin: "0 0 10px 0" }}>
+                                                    </span>
+                                                    <h4 className="qp-filter-res-name">
                                                         {subName}
                                                     </h4>
-                                                    <p style={{ color: "#666", fontSize: "14px", margin: "0 0 20px 0" }}>
-                                                        Contains compiled papers ({group.recordCount} records) for this subject.
+                                                    <p className="qp-filter-res-desc">
+                                                        Contains compiled papers ({group.recordCount || 0} records) for this subject.
                                                     </p>
                                                 </div>
-                                                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                                                <div className="qp-filter-res-actions">
                                                     <a 
                                                         href={group.subject ? `/qp/${group.subject._id}` : "#"} 
                                                         target="_blank" 
                                                         rel="noopener noreferrer"
-                                                        style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", textDecoration: "none", color: "#fff", background: "#0b74ff", padding: "12px 20px", borderRadius: "8px", fontSize: "15px", fontWeight: "600", transition: "all 0.2s" }}
-                                                        onMouseOver={(e) => { e.currentTarget.style.background = "#0958c2"; }}
-                                                        onMouseOut={(e) => { e.currentTarget.style.background = "#0b74ff"; }}
+                                                        className="qp-filter-view-btn"
                                                     >
-                                                        <FiFileText size={18} /> View Compiled Papers
+                                                        <FiFileText size={17} /> View Compiled Papers
                                                     </a>
                                                     <button
                                                         type="button"
@@ -427,14 +426,7 @@ export default function QPFilterSearch() {
                                                                 }
                                                             });
                                                         }}
-                                                        style={{
-                                                            display: "inline-flex", alignItems: "center", justifyContent: "center",
-                                                            width: "44px", height: "44px", borderRadius: "8px",
-                                                            border: "1px solid #e2e8f0", background: "#f8fafc", color: "#475569",
-                                                            cursor: "pointer", transition: "all 0.2s"
-                                                        }}
-                                                        onMouseOver={(e) => { e.currentTarget.style.borderColor = "#0b74ff"; e.currentTarget.style.color = "#0b74ff"; e.currentTarget.style.background = "#eff6ff"; }}
-                                                        onMouseOut={(e) => { e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.color = "#475569"; e.currentTarget.style.background = "#f8fafc"; }}
+                                                        className="qp-filter-bookmark-btn"
                                                     >
                                                         <FiBookmark size={18} />
                                                     </button>
@@ -454,28 +446,26 @@ export default function QPFilterSearch() {
                                         if (filters.semester) queryParams.set("semesterId", filters.semester);
 
                                         return (
-                                            <div key={i} style={{ border: "1px solid #eaeaea", borderRadius: "12px", overflow: "hidden", background: "#fff", padding: "24px", boxShadow: "0 4px 15px rgba(0,0,0,0.03)", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                                                <div>
-                                                    <div style={{ display: "inline-block", background: "#f2c200", color: "#111", padding: "6px 10px", borderRadius: "6px", fontSize: "13px", fontWeight: "bold", marginBottom: "12px" }}>
+                                            <div key={i} className="qp-filter-res-card">
+                                                <div className="qp-filter-res-top">
+                                                    <span className="qp-filter-res-tag qp-filter-res-tag--yellow">
                                                         Batch: {batchName}
-                                                    </div>
-                                                    <h4 style={{ fontSize: "20px", color: "#111", margin: "0 0 10px 0" }}>
+                                                    </span>
+                                                    <h4 className="qp-filter-res-name">
                                                         {examName}
                                                     </h4>
-                                                    <p style={{ color: "#666", fontSize: "14px", margin: "0 0 20px 0" }}>
-                                                        Contains compiled papers ({group.recordCount} records) for all selected filters.
+                                                    <p className="qp-filter-res-desc">
+                                                        Contains compiled papers ({group.recordCount || 0} records) for all selected filters.
                                                     </p>
                                                 </div>
-                                                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                                                <div className="qp-filter-res-actions">
                                                     <a 
                                                         href={`/qp/compiled?${queryParams.toString()}`} 
                                                         target="_blank" 
                                                         rel="noopener noreferrer"
-                                                        style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", textDecoration: "none", color: "#fff", background: "#0b74ff", padding: "12px 20px", borderRadius: "8px", fontSize: "15px", fontWeight: "600", transition: "all 0.2s" }}
-                                                        onMouseOver={(e) => { e.currentTarget.style.background = "#0958c2"; }}
-                                                        onMouseOut={(e) => { e.currentTarget.style.background = "#0b74ff"; }}
+                                                        className="qp-filter-view-btn"
                                                     >
-                                                        <FiFileText size={18} /> View Compiled Papers
+                                                        <FiFileText size={17} /> View Compiled Papers
                                                     </a>
                                                     <button
                                                         type="button"
@@ -497,14 +487,7 @@ export default function QPFilterSearch() {
                                                                 }
                                                             });
                                                         }}
-                                                        style={{
-                                                            display: "inline-flex", alignItems: "center", justifyContent: "center",
-                                                            width: "44px", height: "44px", borderRadius: "8px",
-                                                            border: "1px solid #e2e8f0", background: "#f8fafc", color: "#475569",
-                                                            cursor: "pointer", transition: "all 0.2s"
-                                                        }}
-                                                        onMouseOver={(e) => { e.currentTarget.style.borderColor = "#0b74ff"; e.currentTarget.style.color = "#0b74ff"; e.currentTarget.style.background = "#eff6ff"; }}
-                                                        onMouseOut={(e) => { e.currentTarget.style.borderColor = "#e2e8f0"; e.currentTarget.style.color = "#475569"; e.currentTarget.style.background = "#f8fafc"; }}
+                                                        className="qp-filter-bookmark-btn"
                                                     >
                                                         <FiBookmark size={18} />
                                                     </button>
@@ -516,21 +499,13 @@ export default function QPFilterSearch() {
                             </div>
                             
                             {resultsPage < resultsTotalPages && (
-                                <div style={{ textAlign: "center", marginTop: "30px" }}>
+                                <div className="qp-filter-loadmore-wrap">
                                     <button 
+                                        type="button"
                                         onClick={handleLoadMoreResults}
                                         disabled={loadingResults}
-                                        style={{
-                                            background: loadingResults ? "#e9ecef" : "#f8f9fa",
-                                            color: loadingResults ? "#888" : "#0b74ff",
-                                            border: "1px solid #0b74ff",
-                                            padding: "12px 30px",
-                                            borderRadius: "8px",
-                                            cursor: loadingResults ? "default" : "pointer",
-                                            fontWeight: "600",
-                                            fontSize: "15px",
-                                            transition: "all 0.2s ease"
-                                        }}
+                                        className="qp-filter-loadmore-btn"
+                                        aria-label="Load More Groups"
                                     >
                                         {loadingResults ? "Loading..." : "Load More Groups"}
                                     </button>
@@ -539,8 +514,7 @@ export default function QPFilterSearch() {
                         </div>
                     )}
                 </div>
-            </section>
-            </div>
-        </div>
+            )}
+        </section>
     );
 }
