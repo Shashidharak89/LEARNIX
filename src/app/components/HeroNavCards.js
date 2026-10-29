@@ -97,7 +97,7 @@ const navItems = [
   },
   {
     id: "upload",
-    href: "/upload",
+    href: "/resources/upload",
     Icon: FiUpload,
     label: "Upload",
     subtitle: "Collaborative Workspace",

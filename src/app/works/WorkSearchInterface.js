@@ -802,7 +802,7 @@ const WorkSearchInterface = () => {
 
           {isLoggedIn && (
             <div className="res-intro-actions">
-              <Link href="/upload" className="res-upload-btn" title="Upload new resource">
+              <Link href="/resources/upload" className="res-upload-btn" title="Upload new resource">
                 <FiPlus className="res-upload-btn-icon" />
                 <span className="res-upload-btn-text">Upload Resource</span>
               </Link>

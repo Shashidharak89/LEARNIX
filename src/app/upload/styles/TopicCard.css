@@ -27,10 +27,10 @@
   --tc-dot-color:   rgba(14, 165, 233, 0.18);
   --tc-dot-size:    18px;
 
-  --tc-radius:      12px;
-  --tc-radius-sm:   8px;
-  --tc-shadow:      0 2px 12px rgba(14,165,233,0.08);
-  --tc-shadow-md:   0 6px 24px rgba(14,165,233,0.14);
+  --tc-radius:      20px;
+  --tc-radius-sm:   14px;
+  --tc-shadow:      0 4px 20px -2px rgba(15, 23, 42, 0.04);
+  --tc-shadow-md:   0 8px 28px -2px rgba(15, 23, 42, 0.08);
   --tc-tr:          0.2s ease;
 }
 

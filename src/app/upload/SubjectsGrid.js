@@ -348,14 +348,15 @@ export default function SubjectsGrid({
     }
   };
 
-  // Inline style helpers (kept simple, following your theme)
+  // Inline style helpers (Apple aesthetic: rounded widgets, clean borders & subtle shadows)
   const cardStyle = {
-    background: "rgba(255,255,255,0.95)",
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 12,
-    boxShadow: "0 6px 18px rgba(14,165,233,0.06)",
-    border: "1px solid rgba(14,165,233,0.06)"
+    background: "#ffffff",
+    borderRadius: 22,
+    padding: "18px 22px",
+    marginBottom: 16,
+    boxShadow: "0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02)",
+    border: "1.5px solid #e2e8f0",
+    transition: "all 0.22s cubic-bezier(0.16, 1, 0.3, 1)"
   };
 
   const headerStyle = {
@@ -366,33 +367,39 @@ export default function SubjectsGrid({
     cursor: "pointer"
   };
 
-  const leftHeaderStyle = { display: "flex", alignItems: "center", gap: 10 };
+  const leftHeaderStyle = { display: "flex", alignItems: "center", gap: 12 };
 
-  const subjectTitleStyle = { fontWeight: 700, fontSize: 16, margin: 0 };
+  const subjectTitleStyle = { fontWeight: 750, fontSize: 16.5, margin: 0, letterSpacing: "-0.01em", color: "#0f172a" };
 
-  const addTopicSectionStyle = { marginTop: 10, display: "flex", gap: 8, alignItems: "center" };
+  const addTopicSectionStyle = { marginTop: 14, display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" };
 
   const inputSmallStyle = {
-    padding: "8px 10px",
-    borderRadius: 8,
-    border: "1px solid rgba(15,23,42,0.06)",
-    minWidth: 160
+    padding: "9px 14px",
+    borderRadius: 14,
+    border: "1.5px solid #e2e8f0",
+    minWidth: 180,
+    fontSize: 14,
+    fontWeight: 500,
+    outline: "none"
   };
 
   const btnStyle = {
-    padding: "8px 10px",
-    borderRadius: 8,
+    padding: "9px 18px",
+    borderRadius: 9999,
     border: "none",
     cursor: "pointer",
-    background: "linear-gradient(90deg,#0ea5e9,#60a5fa)",
+    background: "#007aff",
     color: "#fff",
     fontWeight: 700,
+    fontSize: 13.5,
     display: "inline-flex",
     gap: 6,
-    alignItems: "center"
+    alignItems: "center",
+    boxShadow: "0 3px 10px rgba(0, 122, 255, 0.25)",
+    transition: "all 0.2s ease"
   };
 
-  const topicsContainerStyle = { marginTop: 12 };
+  const topicsContainerStyle = { marginTop: 14 };
 
   const emptyTopicsStyle = { display: "flex", gap: 8, alignItems: "center", color: "#64748b" };
   const portalModal = (node) => (typeof document !== "undefined" ? createPortal(node, document.body) : null);

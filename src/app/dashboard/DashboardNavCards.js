@@ -21,7 +21,7 @@ const navItems = [
   { href: "/qp",        Icon: FiFileText,    label: "Question Papers", theme: "qp",        title: "Past Papers",     description: "Practice authentic past exam papers for top marks." },
   { href: "/tools",     Icon: FiTool,        label: "Tools",           theme: "tools",     title: "Practice Tools",  description: "Use document converters, quizzes & utility tools." },
   { href: "/help",      Icon: FiHelpCircle,  label: "Help",            theme: "help",      title: "Help Center",     description: "Get quick assistance, guides & platform support." },
-  { href: "/upload",    Icon: FiUpload,      label: "Upload",          theme: "upload",    title: "Share Work",      description: "Upload your notes & manage your subjects easily.", authRequired: true },
+  { href: "/resources/upload", Icon: FiUpload, label: "Upload", theme: "upload", title: "Share Work", description: "Upload your notes & manage your subjects easily.", authRequired: true },
   { href: "/dashboard", Icon: FiTrendingUp,  label: "Dashboard",       theme: "dashboard", title: "My Dashboard",    description: "Track saved materials, progress & contribution metrics." },
   { href: "/updates",   Icon: FiBell,        label: "Updates",         theme: "updates",   title: "Study Updates",   description: "Stay informed with real-time academic announcements." },
 ];

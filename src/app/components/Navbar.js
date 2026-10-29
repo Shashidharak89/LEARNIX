@@ -404,7 +404,7 @@ const NavbarContent = ({ searchParams }) => {
           </Link>
 
           <Link
-            href="/upload"
+            href="/resources/upload"
             className="learnix-nav-item"
             onClick={closeSidebar}
             tabIndex={isOpen ? 0 : -1}

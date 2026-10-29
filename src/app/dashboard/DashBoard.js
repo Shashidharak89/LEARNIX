@@ -204,7 +204,7 @@ export default function DashBoard() {
           </Link>
 
           {usn ? (
-            <Link href="/upload" className="learnix-action-item learnix-quaternary-action">
+            <Link href="/resources/upload" className="learnix-action-item learnix-quaternary-action">
               <div className="learnix-action-header">
                 <div className="learnix-action-icon-container">
                   <FiUpload size={24} />

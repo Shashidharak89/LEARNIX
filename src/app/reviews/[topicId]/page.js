@@ -524,7 +524,7 @@ const ManageReviewsPage = () => {
               <FaExclamationTriangle className="mr-error-icon" />
               <h2>Access Denied</h2>
               <p>{error}</p>
-              <Link href="/upload" className="mr-back-link">
+              <Link href="/resources/upload" className="mr-back-link">
                 <FaArrowLeft /> Back to Upload
               </Link>
             </div>
@@ -540,7 +540,7 @@ const ManageReviewsPage = () => {
       <div className="mr-container">
         {/* Header Section */}
         <div className="mr-header-section">
-          <Link href="/upload" className="mr-back-btn">
+          <Link href="/resources/upload" className="mr-back-btn">
             <FaArrowLeft /> Back to Upload
           </Link>
 

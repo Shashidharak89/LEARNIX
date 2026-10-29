@@ -302,7 +302,7 @@ export default function TopicEditPage({ params }) {
 
       {/* ── Slim header ── */}
       <header className="tep-header">
-        <Link href="/upload" className="tep-back-link">
+        <Link href="/resources/upload" className="tep-back-link">
           <FiArrowLeft size={14} /> Back to Upload
         </Link>
         <div className="tep-header-right">

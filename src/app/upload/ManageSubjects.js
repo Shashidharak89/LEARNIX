@@ -184,22 +184,19 @@ export default function ManageSubjects() {
 
       {/* Page Header */}
       <header className="ms-page-header">
-        <div className="ms-header-accent" />
+        <div className="ms-header-icon-badge" aria-hidden="true">
+          <FiLayers size={26} />
+        </div>
 
         <div className="ms-header-content">
-          <div className="ms-header-label">
-            <FiLayers className="ms-header-label-icon" />
-            <span>Workspace</span>
-          </div>
-          <h1 className="ms-page-title">Manage Subjects</h1>
+          <div className="ms-header-tag">WORKSPACE</div>
+          <h1 className="ms-page-title">Upload Resources</h1>
+          <p className="ms-page-subtitle">
+            Upload and manage your subjects, topics, and study resources.
+          </p>
         </div>
 
         <div className="ms-header-right">
-          {/* <div className="ms-header-stat">
-            <span className="ms-stat-num">{subjects.length}</span>
-            <span className="ms-stat-label">subjects</span>
-          </div> */}
-
           <button
             className={`ms-add-toggle-btn${addOpen ? " ms-add-toggle-btn--open" : ""}`}
             onClick={() => setAddOpen((v) => !v)}
@@ -244,6 +241,11 @@ export default function ManageSubjects() {
               </span>
               <h2 className="ms-panel-title">Subjects &amp; Topics</h2>
             </div>
+            {subjects.length > 0 && (
+              <span className="ms-panel-count-badge">
+                {subjects.length} Subject{subjects.length === 1 ? "" : "s"}
+              </span>
+            )}
           </div>
 
           <div className="ms-panel-body">

@@ -26,7 +26,7 @@ const sliderData = [
       "https://res.cloudinary.com/dsojdpkgh/image/upload/v1758819924/upload-sub-delete_cbl5e7.jpg",
       "https://res.cloudinary.com/dsojdpkgh/image/upload/v1758819923/upload-topic-add_j3qhbc.jpg"
     ],
-    route: "/upload",
+    route: "/resources/upload",
   },
   {
     title: "Materials",

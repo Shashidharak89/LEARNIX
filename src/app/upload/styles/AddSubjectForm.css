@@ -3,11 +3,12 @@
 .asf-compact-form {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 14px;
+  gap: 12px;
+  padding: 18px;
   background: #ffffff;
-  border: 2px solid #e5e7eb;
-  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 20px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
   animation: asf-fade-in 0.3s ease-out;
 }
 
@@ -27,8 +28,8 @@
   font-weight: 600;
   color: #111827;
   background: #ffffff;
-  border: 2px solid #e5e7eb;
-  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
   outline: none;
@@ -41,12 +42,12 @@
 }
 
 .asf-select:hover:not(:disabled) {
-  border-color: #1e40af;
+  border-color: #007aff;
   background-color: #eff6ff;
 }
 
 .asf-select:focus {
-  border-color: #1e40af;
+  border-color: #007aff;
   background-color: #eff6ff;
   box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
 }
@@ -66,7 +67,7 @@
 
 .asf-select option:first-child {
   font-weight: 700;
-  color: #1e40af;
+  color: #007aff;
 }
 
 .asf-select option:disabled {
@@ -82,8 +83,8 @@
   font-weight: 700;
   color: #111827;
   background: #ffffff;
-  border: 2px solid #e5e7eb;
-  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
   cursor: pointer;
   transition: all 0.2s ease;
   outline: none;
@@ -97,12 +98,12 @@
 }
 
 .asf-visibility-select:hover:not(:disabled) {
-  border-color: #1e40af;
+  border-color: #007aff;
   background-color: #eff6ff;
 }
 
 .asf-visibility-select:focus {
-  border-color: #1e40af;
+  border-color: #007aff;
   background-color: #eff6ff;
   box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
 }
@@ -122,9 +123,10 @@
   height: 42px;
   font-size: 18px;
   color: #ffffff;
-  background: #1e40af;
-  border: 2px solid #1e40af;
-  border-radius: 10px;
+  background: #007aff;
+  border: none;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
@@ -155,15 +157,15 @@
   font-weight: 500;
   color: #111827;
   background: #ffffff;
-  border: 2px solid #e5e7eb;
-  border-radius: 10px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
   outline: none;
   transition: all 0.2s ease;
   animation: asf-slide-down 0.3s ease-out;
 }
 
 .asf-input:focus {
-  border-color: #1e40af;
+  border-color: #007aff;
   background: #eff6ff;
   box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
 }
@@ -207,7 +209,7 @@
 .asf-visibility-select:focus-visible,
 .asf-add-btn:focus-visible,
 .asf-input:focus-visible {
-  outline: 2px solid #1e40af;
+  outline: 2px solid #007aff;
   outline-offset: 2px;
 }
 
