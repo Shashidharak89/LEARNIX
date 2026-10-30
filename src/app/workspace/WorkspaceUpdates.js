@@ -18,6 +18,7 @@ import {
 import { FiX, FiCheckCircle } from "react-icons/fi";
 import { authFetch } from "@/lib/clientAuth";
 import AddUpdateForm from "../upload/updates/AddUpdateForm";
+import ExpandableDescription from "../components/ExpandableDescription";
 import "./styles/WorkspaceUpdates.css";
 
 function formatTimeAgo(dateString) {
@@ -102,7 +103,15 @@ function UpdateCardItem({ update }) {
         <VisibilityBadge visibility={update.visibility} />
       </div>
 
-      {update.content && <p className="wu-card-desc">{update.content}</p>}
+      {update.content && (
+        <div className="wu-card-desc-wrap">
+          <ExpandableDescription
+            content={update.content}
+            className="wu-card-desc"
+            maxHeight={140}
+          />
+        </div>
+      )}
 
       <div className="wu-card-meta">
         <div className="wu-meta-left">
