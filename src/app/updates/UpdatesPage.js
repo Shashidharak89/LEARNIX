@@ -2,8 +2,25 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
-import { FiClock, FiUser, FiExternalLink, FiChevronRight, FiChevronDown, FiChevronUp, FiEye, FiDownload, FiSearch, FiPlus, FiList, FiX, FiCheckCircle, FiAlertCircle, FiInfo, FiFolder, FiBookOpen, FiFileText } from 'react-icons/fi';
-import { Share2, Bell, Sparkles, MoreVertical, Bookmark } from 'lucide-react';
+import { FiChevronRight, FiChevronDown, FiChevronUp, FiX, FiCheckCircle, FiAlertCircle, FiInfo } from 'react-icons/fi';
+import {
+  BellIcon,
+  BookmarkIcon,
+  SearchIcon,
+  PlusIcon,
+  ListIcon,
+  EyeIcon,
+  DownloadIcon,
+  ShareIcon,
+  SparklesIcon,
+  ClockIcon,
+  UserIcon,
+  ExternalLinkIcon,
+  EllipsisVerticalIcon,
+  FolderIcon,
+  BookOpenIcon,
+  FileTextIcon,
+} from "@animateicons/react/lucide";
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
 import { getYouTubeVideoId, groupConsecutiveLinks } from '../utils/youtube';
 import LinkPreview from '../components/LinkPreview';
@@ -68,22 +85,22 @@ function normalizeResourceType(type, sourceFile) {
 const TYPE_CONFIG = {
   resource: {
     label: "Resource",
-    icon: FiFolder,
+    icon: FolderIcon,
     badgeClass: "suv-ai-pill--resource",
   },
   update: {
     label: "Update",
-    icon: Bell,
+    icon: BellIcon,
     badgeClass: "suv-ai-pill--update",
   },
   study_material: {
     label: "Study Material",
-    icon: FiBookOpen,
+    icon: BookOpenIcon,
     badgeClass: "suv-ai-pill--study",
   },
   question_paper: {
     label: "Question Paper",
-    icon: FiFileText,
+    icon: FileTextIcon,
     badgeClass: "suv-ai-pill--qp",
   },
 };
@@ -135,6 +152,14 @@ function UpdateCard({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(false);
   const menuRef = useRef(null);
+  const userIconRef = useRef(null);
+  const viewsIconRef = useRef(null);
+  const aiBtnIconRef = useRef(null);
+  const moreRef = useRef(null);
+  const bookmarkRef = useRef(null);
+  const shareRef = useRef(null);
+  const externalLinkRef = useRef(null);
+  const timeIconRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -343,8 +368,13 @@ function UpdateCard({
         <div className="upd-user-info">
           <div className="upd-user-top-row">
             <div className="upd-user-name-usn" title={`${u.name || ''}${u.usn ? ` • ${u.usn}` : ''}`}>
-              <Link href={`/users/${u.usn || ''}`} className="upd-user-name-link">
-                <FiUser className="upd-user-icon" />
+              <Link
+                href={`/users/${u.usn || ''}`}
+                className="upd-user-name-link"
+                onMouseEnter={() => userIconRef.current?.startAnimation?.()}
+                onMouseLeave={() => userIconRef.current?.stopAnimation?.()}
+              >
+                <UserIcon ref={userIconRef} className="upd-user-icon" size={14} />
                 <span className="upd-user-name-text">{u.name}</span>
               </Link>
               {u.usn && (
@@ -354,8 +384,13 @@ function UpdateCard({
               )}
             </div>
             <div className="upd-card-header-actions">
-              <div className="upd-header-views-badge" title={`${u.views ?? 0} views`}>
-                <FiEye className="upd-views-icon" />
+              <div
+                className="upd-header-views-badge"
+                title={`${u.views ?? 0} views`}
+                onMouseEnter={() => viewsIconRef.current?.startAnimation?.()}
+                onMouseLeave={() => viewsIconRef.current?.stopAnimation?.()}
+              >
+                <EyeIcon ref={viewsIconRef} className="upd-views-icon" size={14} />
                 <span className="upd-views-count">{u.views ?? 0}</span>
               </div>
               <button
@@ -363,24 +398,14 @@ function UpdateCard({
                 className={`upd-ai-btn ${showAiSuggestions ? 'is-active' : ''}`}
                 title="AI suggestions"
                 aria-label="AI suggestions"
+                onMouseEnter={() => aiBtnIconRef.current?.startAnimation?.()}
+                onMouseLeave={() => aiBtnIconRef.current?.stopAnimation?.()}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleToggleAiSuggestions();
                 }}
               >
-                <Sparkles size={16} className="upd-ai-btn-icon" />
-              </button>
-              <button
-                type="button"
-                className="upd-share-btn"
-                title="Share update"
-                aria-label="Share update"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleShareUpdate(u._id, u.title || 'Update');
-                }}
-              >
-                <Share2 size={15} />
+                <SparklesIcon ref={aiBtnIconRef} size={16} className="upd-ai-btn-icon" />
               </button>
               <div className="upd-more-menu-container" ref={menuRef}>
                 <button
@@ -388,12 +413,14 @@ function UpdateCard({
                   className={`upd-more-btn ${isMenuOpen ? 'is-active' : ''}`}
                   title="More options"
                   aria-label="More options"
+                  onMouseEnter={() => moreRef.current?.startAnimation?.()}
+                  onMouseLeave={() => moreRef.current?.stopAnimation?.()}
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsMenuOpen(!isMenuOpen);
                   }}
                 >
-                  <MoreVertical size={16} />
+                  <EllipsisVerticalIcon ref={moreRef} size={16} />
                 </button>
                 {isMenuOpen && (
                   <div className="upd-dropdown-menu">
@@ -401,9 +428,25 @@ function UpdateCard({
                       type="button"
                       className="upd-dropdown-item"
                       onClick={handleLearnLaterToggle}
+                      onMouseEnter={() => bookmarkRef.current?.startAnimation?.()}
+                      onMouseLeave={() => bookmarkRef.current?.stopAnimation?.()}
                     >
-                      <Bookmark size={14} className={isSavedInLearnLater ? "upd-item-saved" : ""} />
+                      <BookmarkIcon ref={bookmarkRef} size={14} className={isSavedInLearnLater ? "upd-item-saved" : ""} />
                       <span>{isSavedInLearnLater ? "Saved in Learn Later" : "Add to Learn Later"}</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="upd-dropdown-item"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsMenuOpen(false);
+                        handleShareUpdate(u._id, u.title || 'Update');
+                      }}
+                      onMouseEnter={() => shareRef.current?.startAnimation?.()}
+                      onMouseLeave={() => shareRef.current?.stopAnimation?.()}
+                    >
+                      <ShareIcon ref={shareRef} size={14} />
+                      <span>Share update</span>
                     </button>
                     <button
                       type="button"
@@ -413,8 +456,10 @@ function UpdateCard({
                         setIsMenuOpen(false);
                         window.open(`/updates/${u._id}`, "_blank", "noopener,noreferrer");
                       }}
+                      onMouseEnter={() => externalLinkRef.current?.startAnimation?.()}
+                      onMouseLeave={() => externalLinkRef.current?.stopAnimation?.()}
                     >
-                      <FiExternalLink size={14} />
+                      <ExternalLinkIcon ref={externalLinkRef} size={14} />
                       <span>Open in new tab</span>
                     </button>
                   </div>
@@ -435,8 +480,12 @@ function UpdateCard({
                 </Link>
               </div>
             )}
-            <div className="upd-timestamp">
-              <FiClock className="upd-time-icon" />
+            <div
+              className="upd-timestamp"
+              onMouseEnter={() => timeIconRef.current?.startAnimation?.()}
+              onMouseLeave={() => timeIconRef.current?.stopAnimation?.()}
+            >
+              <ClockIcon ref={timeIconRef} className="upd-time-icon" size={13} />
               <span>{formatExactTimestamp(u.createdAt)}</span>
             </div>
           </div>
@@ -547,10 +596,10 @@ function UpdateCard({
                     </div>
                     <div className="upd-file-card-actions" onClick={(e) => e.stopPropagation()}>
                       <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-view" title="View">
-                        <FiEye />
+                        <EyeIcon size={14} />
                       </a>
                       <a href={downloadUrl} download={isPdf ? undefined : name} target={isPdf ? undefined : "_blank"} rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-download" title="Download">
-                        <FiDownload />
+                        <DownloadIcon size={14} />
                       </a>
                     </div>
                   </div>
@@ -592,7 +641,7 @@ function UpdateCard({
         <div className="upd-ai-inline-section">
           <div className="upd-ai-inline-header">
             <div className="upd-ai-inline-title-wrap">
-              <Sparkles size={14} className="upd-ai-inline-sparkle" />
+              <SparklesIcon size={14} className="upd-ai-inline-sparkle" />
               <span className="upd-ai-inline-title">AI suggestions on this update</span>
             </div>
             <span className="upd-ai-inline-count">
@@ -672,7 +721,7 @@ function UpdateCard({
                             onClick={(e) => handleRecViewMaterial(e, item)}
                             title="View in Google Docs viewer"
                           >
-                            <FiEye size={12} />
+                            <EyeIcon size={12} />
                             <span>View</span>
                           </button>
                           <button
@@ -682,7 +731,7 @@ function UpdateCard({
                             disabled={downloadingRecId === (item.resource_id || item.resource_url)}
                             title="Download file directly"
                           >
-                            <FiDownload size={12} />
+                            <DownloadIcon size={12} />
                             <span>
                               {downloadingRecId === (item.resource_id || item.resource_url)
                                 ? "..."
@@ -730,6 +779,10 @@ export default function UpdatesPage({ initialUpdateId }) {
   const [toast, setToast] = useState(null);
   const toastTimeoutRef = useRef(null);
   const highlightedCardRef = useRef(null);
+  const titleBellRef = useRef(null);
+  const addIconRef = useRef(null);
+  const manageIconRef = useRef(null);
+  const searchBtnRef = useRef(null);
 
   const showToast = (message, type = 'info') => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
@@ -900,8 +953,12 @@ export default function UpdatesPage({ initialUpdateId }) {
         <main className="upd-main">
           <div className="upd-intro-card">
             <div className="upd-intro-header">
-              <h1 className="upd-title">
-                <Bell className="upd-title-icon" size={24} />
+              <h1
+                className="upd-title"
+                onMouseEnter={() => titleBellRef.current?.startAnimation?.()}
+                onMouseLeave={() => titleBellRef.current?.stopAnimation?.()}
+              >
+                <BellIcon ref={titleBellRef} className="upd-title-icon" size={24} />
                 Updates
               </h1>
               {isLoggedIn && (
@@ -910,19 +967,23 @@ export default function UpdatesPage({ initialUpdateId }) {
                     type="button"
                     className="upd-action-btn upd-action-btn-primary"
                     onClick={() => setShowAddModal(true)}
+                    onMouseEnter={() => addIconRef.current?.startAnimation?.()}
+                    onMouseLeave={() => addIconRef.current?.stopAnimation?.()}
                     title="Add Update"
                     aria-label="Add Update"
                   >
-                    <FiPlus className="upd-action-icon" />
+                    <PlusIcon ref={addIconRef} className="upd-action-icon" size={16} />
                     <span className="upd-action-text">Add Update</span>
                   </button>
                   <Link
                     href="/upload/updates"
                     className="upd-action-btn upd-action-btn-secondary"
+                    onMouseEnter={() => manageIconRef.current?.startAnimation?.()}
+                    onMouseLeave={() => manageIconRef.current?.stopAnimation?.()}
                     title="Manage Updates"
                     aria-label="Manage Updates"
                   >
-                    <FiList className="upd-action-icon" />
+                    <ListIcon ref={manageIconRef} className="upd-action-icon" size={16} />
                     <span className="upd-action-text">Manage</span>
                   </Link>
                 </div>
@@ -931,7 +992,7 @@ export default function UpdatesPage({ initialUpdateId }) {
 
             <form className="upd-search-form" onSubmit={handleSearchSubmit}>
               <div className="upd-search-wrap">
-                <FiSearch className="upd-search-icon" />
+                <SearchIcon className="upd-search-icon" size={16} />
                 <input
                   type="text"
                   value={searchQuery}
@@ -951,8 +1012,14 @@ export default function UpdatesPage({ initialUpdateId }) {
                   </button>
                 )}
               </div>
-              <button type="submit" className="upd-search-btn" disabled={!searchQuery.trim()}>
-                <FiSearch className="upd-search-btn-icon" />
+              <button
+                type="submit"
+                className="upd-search-btn"
+                disabled={!searchQuery.trim()}
+                onMouseEnter={() => searchBtnRef.current?.startAnimation?.()}
+                onMouseLeave={() => searchBtnRef.current?.stopAnimation?.()}
+              >
+                <SearchIcon ref={searchBtnRef} className="upd-search-btn-icon" size={16} />
                 <span className="upd-search-btn-text">Search</span>
               </button>
             </form>
@@ -961,7 +1028,7 @@ export default function UpdatesPage({ initialUpdateId }) {
           <div className="upd-list">
             {updates.length === 0 && !loading && (
               <div className="upd-empty-state">
-                <FiClock className="upd-empty-icon" />
+                <ClockIcon className="upd-empty-icon" size={40} />
                 <p className="upd-empty-text">{keywordFromUrl ? 'No updates found for this keyword.' : 'No updates yet.'}</p>
               </div>
             )}
