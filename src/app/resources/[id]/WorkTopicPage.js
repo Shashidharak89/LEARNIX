@@ -4,23 +4,22 @@
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
-import { 
-  FaUser, 
-  FaCalendarAlt, 
-  FaBook, 
-  FaDownload, 
-  FaShare, 
-  FaArrowLeft,
-  FaImage,
-  FaClock,
-  FaIdCard,
-  FaListOl,
-  FaBookmark,
-  FaRegBookmark,
-  FaEye
-} from "react-icons/fa";
-import { FaChevronDown } from "react-icons/fa6";
-import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
+import { FaListOl } from "react-icons/fa";
+import {
+  ArrowLeftIcon,
+  DownloadIcon,
+  ShareIcon,
+  BookmarkIcon,
+  ChevronDownIcon,
+  ClockIcon,
+  EyeIcon,
+  ImageIcon,
+  ContactRoundIcon,
+  BookOpenIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  XIcon,
+} from "@animateicons/react/lucide";
 import TopicReviews from "./TopicReviews";
 import Ads from "../../components/ads/Ads";
 import { toggleLearnLaterClient, checkLearnLaterStatusClient } from "@/lib/clientLearnLater";
@@ -38,11 +37,11 @@ const UserProfileSkeleton = () => (
       <div className="wtpc-skeleton-user-name"></div>
       <div className="wtpc-user-details">
         <div className="wtpc-detail-item wtpc-skeleton-detail">
-          <FaIdCard className="wtpc-detail-icon wtpc-skeleton-icon" />
+          <ContactRoundIcon className="wtpc-detail-icon wtpc-skeleton-icon" size={16} />
           <div className="wtpc-skeleton-text"></div>
         </div>
         <div className="wtpc-detail-item wtpc-skeleton-detail">
-          <FaBook className="wtpc-detail-icon wtpc-skeleton-icon" />
+          <BookOpenIcon className="wtpc-detail-icon wtpc-skeleton-icon" size={16} />
           <div className="wtpc-skeleton-text"></div>
         </div>
       </div>
@@ -53,15 +52,15 @@ const UserProfileSkeleton = () => (
 const ActionButtonsSkeleton = () => (
   <div className="wtpc-action-buttons-container wtpc-skeleton-container">
     <div className="wtpc-action-btn wtpc-back-btn wtpc-skeleton-btn">
-      <FaArrowLeft className="wtpc-skeleton-icon" />
+      <ArrowLeftIcon className="wtpc-skeleton-icon" size={16} />
       <span className="wtpc-btn-text wtpc-skeleton-btn-text">Back</span>
     </div>
     <div className="wtpc-action-btn wtpc-download-btn wtpc-skeleton-btn">
-      <FaDownload className="wtpc-skeleton-icon" />
+      <DownloadIcon className="wtpc-skeleton-icon" size={16} />
       <span className="wtpc-btn-text wtpc-skeleton-btn-text">Download</span>
     </div>
     <div className="wtpc-action-btn wtpc-share-btn wtpc-skeleton-btn">
-      <FaShare className="wtpc-skeleton-icon" />
+      <ShareIcon className="wtpc-skeleton-icon" size={16} />
       <span className="wtpc-btn-text wtpc-skeleton-btn-text">Share</span>
     </div>
   </div>
@@ -73,7 +72,7 @@ const TopicContentSkeleton = () => (
       <div className="wtpc-skeleton-topic-title"></div>
       <div className="wtpc-topic-meta">
         <div className="wtpc-meta-item wtpc-skeleton-meta">
-          <FaClock className="wtpc-meta-icon wtpc-skeleton-icon" />
+          <ClockIcon className="wtpc-meta-icon wtpc-skeleton-icon" size={16} />
           <div className="wtpc-skeleton-text-small"></div>
         </div>
       </div>
@@ -91,7 +90,7 @@ const TopicContentSkeleton = () => (
     <div className="wtpc-images-section">
       <div className="wtpc-images-header">
         <h3>
-          <FaImage className="wtpc-section-icon wtpc-skeleton-icon" />
+          <ImageIcon className="wtpc-section-icon wtpc-skeleton-icon" size={16} />
           <span className="wtpc-skeleton-images-title"></span>
         </h3>
       </div>
@@ -126,6 +125,9 @@ const WtpcLightbox = ({ images, startIndex, onClose }) => {
   const [idx, setIdx] = useState(startIndex);
   const prev = () => setIdx(i => (i - 1 + images.length) % images.length);
   const next = () => setIdx(i => (i + 1) % images.length);
+  const prevRef = useRef(null);
+  const nextRef = useRef(null);
+  const closeRef = useRef(null);
 
   useEffect(() => {
     const handler = (e) => {
@@ -139,17 +141,37 @@ const WtpcLightbox = ({ images, startIndex, onClose }) => {
 
   return (
     <div className="wtpc-lb-overlay" onClick={onClose}>
-      <button className="wtpc-lb-close" onClick={onClose} aria-label="Close"><FiX size={22} /></button>
-      <button className="wtpc-lb-nav wtpc-lb-prev" onClick={e => { e.stopPropagation(); prev(); }} aria-label="Previous">
-        <FiChevronLeft size={26} />
+      <button
+        className="wtpc-lb-close"
+        onClick={onClose}
+        aria-label="Close"
+        onMouseEnter={() => closeRef.current?.startAnimation?.()}
+        onMouseLeave={() => closeRef.current?.stopAnimation?.()}
+      >
+        <XIcon ref={closeRef} size={22} />
+      </button>
+      <button
+        className="wtpc-lb-nav wtpc-lb-prev"
+        onClick={e => { e.stopPropagation(); prev(); }}
+        aria-label="Previous"
+        onMouseEnter={() => prevRef.current?.startAnimation?.()}
+        onMouseLeave={() => prevRef.current?.stopAnimation?.()}
+      >
+        <ChevronLeftIcon ref={prevRef} size={26} />
       </button>
       <div className="wtpc-lb-img-wrap" onClick={e => e.stopPropagation()}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={images[idx]} alt={`Page ${idx + 1}`} className="wtpc-lb-img" />
         <div className="wtpc-lb-counter">Page {idx + 1} / {images.length}</div>
       </div>
-      <button className="wtpc-lb-nav wtpc-lb-next" onClick={e => { e.stopPropagation(); next(); }} aria-label="Next">
-        <FiChevronRight size={26} />
+      <button
+        className="wtpc-lb-nav wtpc-lb-next"
+        onClick={e => { e.stopPropagation(); next(); }}
+        aria-label="Next"
+        onMouseEnter={() => nextRef.current?.startAnimation?.()}
+        onMouseLeave={() => nextRef.current?.stopAnimation?.()}
+      >
+        <ChevronRightIcon ref={nextRef} size={26} />
       </button>
     </div>
   );
@@ -168,6 +190,18 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
   const [endPage, setEndPage] = useState(1);
   const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(false);
   const [isLearnLaterLoading, setIsLearnLaterLoading] = useState(false);
+
+  const usnRef = useRef(null);
+  const subjectRef = useRef(null);
+  const backBtnRef = useRef(null);
+  const downloadBtnRef = useRef(null);
+  const shareBtnRef = useRef(null);
+  const learnLaterBtnRef = useRef(null);
+  const clockRef = useRef(null);
+  const viewsRef = useRef(null);
+  const imageHeaderRef = useRef(null);
+  const slideshowRef = useRef(null);
+  const modalDownloadRef = useRef(null);
 
   useEffect(() => {
     let mounted = true;
@@ -332,7 +366,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
           <h2>Error Loading Topic</h2>
           <p>{error}</p>
           <Link href="/resources" className="wtpc-back-link">
-            <FaArrowLeft /> Back to Resources
+            <ArrowLeftIcon size={16} /> Back to Resources
           </Link>
         </div>
       </div>
@@ -346,7 +380,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
           <h2>Topic Not Found</h2>
           <p>The requested topic could not be found.</p>
           <Link href="/resources" className="wtpc-back-link">
-            <FaArrowLeft /> Back to Resources
+            <ArrowLeftIcon size={16} /> Back to Resources
           </Link>
         </div>
       </div>
@@ -379,12 +413,20 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
               <h1 className="wtpc-user-name">{user.name}</h1>
             </Link>
             <div className="wtpc-user-details">
-              <div className="wtpc-detail-item">
-                <FaIdCard className="wtpc-detail-icon" />
+              <div
+                className="wtpc-detail-item"
+                onMouseEnter={() => usnRef.current?.startAnimation?.()}
+                onMouseLeave={() => usnRef.current?.stopAnimation?.()}
+              >
+                <ContactRoundIcon ref={usnRef} size={15} className="wtpc-detail-icon" />
                 <span>{user.usn}</span>
               </div>
-              <div className="wtpc-detail-item">
-                <FaBook className="wtpc-detail-icon" />
+              <div
+                className="wtpc-detail-item"
+                onMouseEnter={() => subjectRef.current?.startAnimation?.()}
+                onMouseLeave={() => subjectRef.current?.stopAnimation?.()}
+              >
+                <BookOpenIcon ref={subjectRef} size={15} className="wtpc-detail-icon" />
                 <span>{subject.subject}</span>
               </div>
             </div>
@@ -393,8 +435,13 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
 
         {/* Action Buttons */}
         <div className="wtpc-action-buttons-container">
-          <Link href="/resources" className="wtpc-action-btn wtpc-back-btn">
-            <FaArrowLeft />
+          <Link
+            href="/resources"
+            className="wtpc-action-btn wtpc-back-btn"
+            onMouseEnter={() => backBtnRef.current?.startAnimation?.()}
+            onMouseLeave={() => backBtnRef.current?.stopAnimation?.()}
+          >
+            <ArrowLeftIcon ref={backBtnRef} size={16} />
             <span className="wtpc-btn-text">Back</span>
           </Link>
           <div className="wtpc-download-wrapper">
@@ -403,8 +450,10 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
               className="wtpc-action-btn wtpc-download-btn wtpc-download-primary"
               disabled={!hasImages || !validImages.length}
               title={!hasImages || !validImages.length ? "No images available for download" : "Download as PDF"}
+              onMouseEnter={() => downloadBtnRef.current?.startAnimation?.()}
+              onMouseLeave={() => downloadBtnRef.current?.stopAnimation?.()}
             >
-              <FaDownload />
+              <DownloadIcon ref={downloadBtnRef} size={16} />
               <span className="wtpc-btn-text">Download</span>
             </button>
             <button
@@ -414,15 +463,17 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
               disabled={!hasImages || !validImages.length}
               title="Download selected pages"
             >
-              <FaChevronDown />
+              <ChevronDownIcon size={14} />
             </button>
           </div>
           <button 
             onClick={handleShare}
             className="wtpc-action-btn wtpc-share-btn"
             title="Share Topic"
+            onMouseEnter={() => shareBtnRef.current?.startAnimation?.()}
+            onMouseLeave={() => shareBtnRef.current?.stopAnimation?.()}
           >
-            <FaShare />
+            <ShareIcon ref={shareBtnRef} size={16} />
             <span className="wtpc-btn-text">Share</span>
           </button>
           <button 
@@ -430,8 +481,10 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
             className={`wtpc-action-btn wtpc-learn-later-btn ${isSavedInLearnLater ? 'wtpc-saved' : ''}`}
             title={isSavedInLearnLater ? "Remove from Learn Later" : "Save to Learn Later"}
             disabled={isLearnLaterLoading}
+            onMouseEnter={() => learnLaterBtnRef.current?.startAnimation?.()}
+            onMouseLeave={() => learnLaterBtnRef.current?.stopAnimation?.()}
           >
-            {isSavedInLearnLater ? <FaBookmark /> : <FaRegBookmark />}
+            <BookmarkIcon ref={learnLaterBtnRef} size={16} />
             <span className="wtpc-btn-text">{isSavedInLearnLater ? 'Saved' : 'Learn Later'}</span>
           </button>
         </div>
@@ -448,8 +501,12 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
           <div className="wtpc-topic-header">
             <h2 className="wtpc-topic-title">{topic.topic}</h2>
             <div className="wtpc-topic-meta">
-              <div className="wtpc-meta-item">
-                <FaClock className="wtpc-meta-icon" />
+              <div
+                className="wtpc-meta-item"
+                onMouseEnter={() => clockRef.current?.startAnimation?.()}
+                onMouseLeave={() => clockRef.current?.stopAnimation?.()}
+              >
+                <ClockIcon ref={clockRef} size={15} className="wtpc-meta-icon" />
                 <span>{new Date(topic.timestamp).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
@@ -458,8 +515,13 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
                   minute: '2-digit'
                 })}</span>
               </div>
-              <div className="wtpc-meta-item wtpc-meta-views" title={`${topic.views ?? 0} views`}>
-                <FaEye className="wtpc-meta-icon" />
+              <div
+                className="wtpc-meta-item wtpc-meta-views"
+                title={`${topic.views ?? 0} views`}
+                onMouseEnter={() => viewsRef.current?.startAnimation?.()}
+                onMouseLeave={() => viewsRef.current?.stopAnimation?.()}
+              >
+                <EyeIcon ref={viewsRef} size={15} className="wtpc-meta-icon" />
                 <span>{topic.views ?? 0} views</span>
               </div>
             </div>
@@ -476,8 +538,11 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
           {hasImages && validImages.length > 0 && (
             <div className="wtpc-images-section">
               <div className="wtpc-images-header">
-                <h3>
-                  <FaImage className="wtpc-section-icon" />
+                <h3
+                  onMouseEnter={() => imageHeaderRef.current?.startAnimation?.()}
+                  onMouseLeave={() => imageHeaderRef.current?.stopAnimation?.()}
+                >
+                  <ImageIcon ref={imageHeaderRef} size={18} className="wtpc-section-icon" />
                   Images ({validImages.length})
                 </h3>
                 <div className="wtpc-images-header-controls">
@@ -486,8 +551,10 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
                     onClick={() => setLightboxIndex(0)}
                     className="wtpc-slideshow-btn"
                     title="View slideshow"
+                    onMouseEnter={() => slideshowRef.current?.startAnimation?.()}
+                    onMouseLeave={() => slideshowRef.current?.stopAnimation?.()}
                   >
-                    <FaEye className="wtpc-toggle-icon" aria-hidden="true" />
+                    <EyeIcon ref={slideshowRef} size={14} className="wtpc-toggle-icon" aria-hidden="true" />
                     <span className="wtpc-toggle-label">Slideshow</span>
                   </button>
                   <button
@@ -542,7 +609,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
 
           {!hasImages && (
             <div className="wtpc-no-images">
-              <FaImage className="wtpc-no-images-icon" />
+              <ImageIcon className="wtpc-no-images-icon" size={48} />
               <p>No images available for this topic</p>
             </div>
           )}
@@ -656,8 +723,13 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
 
               <div className="wtpc-modal-actions">
                 <button type="button" className="wtpc-secondary-btn" onClick={closeRangeModal}>Cancel</button>
-                <button type="submit" className="wtpc-primary-btn">
-                  <FaDownload />
+                <button
+                  type="submit"
+                  className="wtpc-primary-btn"
+                  onMouseEnter={() => modalDownloadRef.current?.startAnimation?.()}
+                  onMouseLeave={() => modalDownloadRef.current?.stopAnimation?.()}
+                >
+                  <DownloadIcon ref={modalDownloadRef} size={16} />
                   <span className="wtpc-btn-text">Download</span>
                 </button>
               </div>

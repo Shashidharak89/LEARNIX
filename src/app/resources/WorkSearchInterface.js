@@ -3,9 +3,28 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { FiSearch, FiDownload, FiEye, FiChevronDown, FiCalendar, FiBook, FiShare2, FiMoreVertical, FiExternalLink, FiFilter, FiCheck, FiZap, FiX, FiUpload, FiFolder, FiPlus, FiChevronRight, FiBookmark, FiBookOpen, FiFileText } from 'react-icons/fi';
-import { FaBookmark, FaRegBookmark } from 'react-icons/fa';
-import { Sparkles, Bell } from 'lucide-react';
+import { FiCheck } from 'react-icons/fi';
+import {
+  FolderIcon,
+  PlusIcon,
+  SearchIcon,
+  XIcon,
+  FilterIcon,
+  BookOpenIcon,
+  CalendarIcon,
+  EyeIcon,
+  SparklesIcon,
+  EllipsisVerticalIcon,
+  ExternalLinkIcon,
+  BookmarkIcon,
+  ShareIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  ZapIcon,
+  BellIcon,
+  FileTextIcon,
+  DownloadIcon,
+} from '@animateicons/react/lucide';
 import SubjectTopicFilter from './SubjectTopicFilter';
 import Ads from '../components/ads/Ads';
 import ImageLoader from '../components/ImageLoader';
@@ -120,6 +139,11 @@ const WorkSearchInterface = () => {
   const filterRef = useRef(null);
   const initialLoadedRef = useRef(false);
   const isFirstRender = useRef(true);
+  const titleFolderRef = useRef(null);
+  const uploadPlusRef = useRef(null);
+  const searchInputRef = useRef(null);
+  const searchSubmitRef = useRef(null);
+  const filterIconRef = useRef(null);
 
   const ITEMS_PER_LOAD = 10;
   const [page, setPage] = useState(1);
@@ -663,22 +687,22 @@ function normalizeResourceType(type, sourceFile) {
 const TYPE_CONFIG = {
   resource: {
     label: "Resource",
-    icon: FiFolder,
+    icon: FolderIcon,
     badgeClass: "suv-ai-pill--resource",
   },
   update: {
     label: "Update",
-    icon: Bell,
+    icon: BellIcon,
     badgeClass: "suv-ai-pill--update",
   },
   study_material: {
     label: "Study Material",
-    icon: FiBookOpen,
+    icon: BookOpenIcon,
     badgeClass: "suv-ai-pill--study",
   },
   question_paper: {
     label: "Question Paper",
-    icon: FiFileText,
+    icon: FileTextIcon,
     badgeClass: "suv-ai-pill--qp",
   },
 };
@@ -872,6 +896,15 @@ function TopicCard({
   };
 
   const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(false);
+  const bookIconRef = useRef(null);
+  const calIconRef = useRef(null);
+  const viewsIconRef = useRef(null);
+  const aiBtnIconRef = useRef(null);
+  const moreRef = useRef(null);
+  const openRef = useRef(null);
+  const bookmarkRef = useRef(null);
+  const shareRef = useRef(null);
+  const viewMoreRef = useRef(null);
 
   useEffect(() => {
     let mounted = true;
@@ -944,16 +977,29 @@ function TopicCard({
             <p className="ws-user-name">{topic.userName} ({topic.usn})</p>
           </Link>
           <div className="ws-topic-meta">
-            <span className="ws-meta-item">
-              <FiBook className="ws-meta-icon" />
+            <span
+              className="ws-meta-item"
+              onMouseEnter={() => bookIconRef.current?.startAnimation?.()}
+              onMouseLeave={() => bookIconRef.current?.stopAnimation?.()}
+            >
+              <BookOpenIcon ref={bookIconRef} size={14} className="ws-meta-icon" />
               {topic.subjectName}
             </span>
-            <span className="ws-meta-item">
-              <FiCalendar className="ws-meta-icon" />
+            <span
+              className="ws-meta-item"
+              onMouseEnter={() => calIconRef.current?.startAnimation?.()}
+              onMouseLeave={() => calIconRef.current?.stopAnimation?.()}
+            >
+              <CalendarIcon ref={calIconRef} size={14} className="ws-meta-icon" />
               {new Date(topic.timestamp).toLocaleDateString('en-GB')}
             </span>
-            <span className="ws-meta-item ws-meta-views" title={`${topic.views ?? 0} views`}>
-              <FiEye className="ws-meta-icon" />
+            <span
+              className="ws-meta-item ws-meta-views"
+              title={`${topic.views ?? 0} views`}
+              onMouseEnter={() => viewsIconRef.current?.startAnimation?.()}
+              onMouseLeave={() => viewsIconRef.current?.stopAnimation?.()}
+            >
+              <EyeIcon ref={viewsIconRef} size={14} className="ws-meta-icon" />
               <span>{topic.views ?? 0}</span>
             </span>
           </div>
@@ -965,34 +1011,53 @@ function TopicCard({
             className={`ws-action-btn ws-ai-btn ${showAiSuggestions ? 'is-active' : ''}`}
             title="AI suggestions"
             aria-label="AI suggestions"
+            onMouseEnter={() => aiBtnIconRef.current?.startAnimation?.()}
+            onMouseLeave={() => aiBtnIconRef.current?.stopAnimation?.()}
             onClick={(e) => {
               e.stopPropagation();
               handleToggleAiSuggestions();
             }}
           >
-            <Sparkles size={16} className="ws-ai-btn-icon" />
+            <SparklesIcon ref={aiBtnIconRef} size={16} className="ws-ai-btn-icon" />
           </button>
 
           <div className="ws-menu-container" ref={isMenuOpen ? menuRef : null}>
             <button
               onClick={handleMenuToggle}
-              className="ws-action-btn ws-more-btn"
+              className={`ws-action-btn ws-more-btn ${isMenuOpen ? 'is-active' : ''}`}
               title="More options"
+              onMouseEnter={() => moreRef.current?.startAnimation?.()}
+              onMouseLeave={() => moreRef.current?.stopAnimation?.()}
             >
-              <FiMoreVertical />
+              <EllipsisVerticalIcon ref={moreRef} size={16} />
             </button>
             {isMenuOpen && (
               <div className="ws-dropdown-menu">
-                <button className="ws-menu-item" onClick={handleOpenClick}>
-                  <FiExternalLink className="ws-menu-icon" />
+                <button
+                  className="ws-menu-item"
+                  onClick={handleOpenClick}
+                  onMouseEnter={() => openRef.current?.startAnimation?.()}
+                  onMouseLeave={() => openRef.current?.stopAnimation?.()}
+                >
+                  <ExternalLinkIcon ref={openRef} size={15} className="ws-menu-icon" />
                   <span>Open</span>
                 </button>
-                <button className="ws-menu-item" onClick={handleLearnLaterClick}>
-                  <FiBookmark className={`ws-menu-icon ${isSavedInLearnLater ? 'ws-item-saved' : ''}`} />
+                <button
+                  className="ws-menu-item"
+                  onClick={handleLearnLaterClick}
+                  onMouseEnter={() => bookmarkRef.current?.startAnimation?.()}
+                  onMouseLeave={() => bookmarkRef.current?.stopAnimation?.()}
+                >
+                  <BookmarkIcon ref={bookmarkRef} size={15} className={`ws-menu-icon ${isSavedInLearnLater ? 'ws-item-saved' : ''}`} />
                   <span>{isSavedInLearnLater ? 'Saved in Learn Later' : 'Learn Later'}</span>
                 </button>
-                <button className="ws-menu-item" onClick={handleShareClick}>
-                  <FiShare2 className="ws-menu-icon" />
+                <button
+                  className="ws-menu-item"
+                  onClick={handleShareClick}
+                  onMouseEnter={() => shareRef.current?.startAnimation?.()}
+                  onMouseLeave={() => shareRef.current?.stopAnimation?.()}
+                >
+                  <ShareIcon ref={shareRef} size={15} className="ws-menu-icon" />
                   <span>Share</span>
                 </button>
               </div>
@@ -1026,20 +1091,22 @@ function TopicCard({
               onClick={() => onToggleImageExpansion(topicKey)}
               className={`ws-view-more-btn ${expandingTopic[topicKey] ? 'is-expanding' : ''}`}
               disabled={expandingTopic[topicKey]}
+              onMouseEnter={() => viewMoreRef.current?.startAnimation?.()}
+              onMouseLeave={() => viewMoreRef.current?.stopAnimation?.()}
             >
               {expandingTopic[topicKey] ? (
                 <span className="ws-mini-spinner" />
               ) : isExpanded ? (
                 <>
-                  <FiEye />
+                  <EyeIcon ref={viewMoreRef} size={15} />
                   <span>Show Less</span>
-                  <FiChevronDown className="ws-chevron ws-rotated" />
+                  <ChevronDownIcon size={15} className="ws-chevron ws-rotated" />
                 </>
               ) : (
                 <>
-                  <FiEye />
+                  <EyeIcon ref={viewMoreRef} size={15} />
                   <span>View More ({validImages.length - 2} more)</span>
-                  <FiChevronDown className="ws-chevron" />
+                  <ChevronDownIcon size={15} className="ws-chevron" />
                 </>
               )}
             </button>
@@ -1052,7 +1119,7 @@ function TopicCard({
         <div className="ws-ai-inline-section">
           <div className="upd-ai-inline-header">
             <div className="upd-ai-inline-title-wrap">
-              <Sparkles size={14} className="upd-ai-inline-sparkle" />
+              <SparklesIcon size={14} className="upd-ai-inline-sparkle" />
               <span className="upd-ai-inline-title">AI suggestions on this resource</span>
             </div>
             <span className="upd-ai-inline-count">
@@ -1132,7 +1199,7 @@ function TopicCard({
                             onClick={(e) => handleRecViewMaterial(e, item)}
                             title="View in Google Docs viewer"
                           >
-                            <FiEye size={12} />
+                            <EyeIcon size={12} />
                             <span>View</span>
                           </button>
                           <button
@@ -1142,7 +1209,7 @@ function TopicCard({
                             disabled={downloadingRecId === (item.resource_id || item.resource_url)}
                             title="Download file directly"
                           >
-                            <FiDownload size={12} />
+                            <DownloadIcon size={12} />
                             <span>
                               {downloadingRecId === (item.resource_id || item.resource_url)
                                 ? "..."
@@ -1152,7 +1219,7 @@ function TopicCard({
                         </div>
                       ) : (
                         <span className="suv-ai-card-arrow" title="Open in new tab">
-                          <FiChevronRight size={18} />
+                          <ChevronRightIcon size={18} />
                         </span>
                       )}
                     </div>
@@ -1196,15 +1263,25 @@ function TopicCard({
       {/* Integrated Header Card (Updates Page Style) */}
       <div className="res-intro-card">
         <div className="res-intro-header">
-          <h1 className="res-intro-title">
-            <FiFolder className="res-title-icon" />
+          <h1
+            className="res-intro-title"
+            onMouseEnter={() => titleFolderRef.current?.startAnimation?.()}
+            onMouseLeave={() => titleFolderRef.current?.stopAnimation?.()}
+          >
+            <FolderIcon ref={titleFolderRef} size={24} className="res-title-icon" />
             Resources
           </h1>
 
           {isLoggedIn && (
             <div className="res-intro-actions">
-              <Link href="/resources/upload" className="res-upload-btn" title="Upload new resource">
-                <FiPlus className="res-upload-btn-icon" />
+              <Link
+                href="/resources/upload"
+                className="res-upload-btn"
+                title="Upload new resource"
+                onMouseEnter={() => uploadPlusRef.current?.startAnimation?.()}
+                onMouseLeave={() => uploadPlusRef.current?.stopAnimation?.()}
+              >
+                <PlusIcon ref={uploadPlusRef} size={16} className="res-upload-btn-icon" />
                 <span className="res-upload-btn-text">Upload Resource</span>
               </Link>
             </div>
@@ -1219,8 +1296,11 @@ function TopicCard({
             handleSearch(searchInput, 1);
           }}
         >
-          <div className="res-search-wrap">
-            <FiSearch className="res-search-icon" />
+          <div
+            className="res-search-wrap"
+            onMouseEnter={() => searchInputRef.current?.startAnimation?.()}
+          >
+            <SearchIcon ref={searchInputRef} size={18} className="res-search-icon" />
             <input
               type="text"
               placeholder="Search notes, materials, USN, subject, or topic..."
@@ -1242,7 +1322,7 @@ function TopicCard({
                 onClick={handleClearSearch}
                 aria-label="Clear search"
               >
-                <FiX size={14} />
+                <XIcon size={14} />
               </button>
             )}
           </div>
@@ -1251,8 +1331,10 @@ function TopicCard({
             className="res-search-submit-btn"
             disabled={!searchInput.trim()}
             aria-label="Search resources"
+            onMouseEnter={() => searchSubmitRef.current?.startAnimation?.()}
+            onMouseLeave={() => searchSubmitRef.current?.stopAnimation?.()}
           >
-            <FiSearch className="res-search-btn-icon" />
+            <SearchIcon ref={searchSubmitRef} size={16} className="res-search-btn-icon" />
             <span className="res-search-btn-text">Search</span>
           </button>
         </form>
@@ -1272,7 +1354,7 @@ function TopicCard({
         {isLoading && cachedSavedTopics.length > 0 && (
           <div className="ws-saved-section">
             <h2 className="ws-section-title ws-saved-title">
-              <FaBookmark className="ws-saved-icon" />
+              <BookmarkIcon size={18} className="ws-saved-icon" />
               Your Saved Topics
             </h2>
             <div className="ws-topics-grid">
@@ -1295,8 +1377,10 @@ function TopicCard({
                   className={`ws-filter-btn ${(sortOrder !== 'latest' || showSavedOnly) ? 'ws-filter-active' : ''}`}
                   onClick={() => setShowFilterPopup(!showFilterPopup)}
                   title="Filter & Sort"
+                  onMouseEnter={() => filterIconRef.current?.startAnimation?.()}
+                  onMouseLeave={() => filterIconRef.current?.stopAnimation?.()}
                 >
-                  <FiFilter />
+                  <FilterIcon ref={filterIconRef} size={16} />
                 </button>
                 {showFilterPopup && (
                   <div className="ws-filter-popup">
@@ -1349,7 +1433,7 @@ function TopicCard({
                   ) : (
                     <>
                       <span>View More</span>
-                      <FiChevronDown className="ws-btn-icon" />
+                      <ChevronDownIcon size={16} className="ws-btn-icon" />
                     </>
                   )}
                 </button>
@@ -1383,7 +1467,7 @@ function TopicCard({
                       ) : (
                         <>
                           <span>View More</span>
-                          <FiChevronRight className="ws-btn-icon" />
+                          <ChevronRightIcon size={16} className="ws-btn-icon" />
                         </>
                       )}
                     </button>
@@ -1404,7 +1488,7 @@ function TopicCard({
                       {isLoadingRelevant ? (
                         <span className="ws-load-more-dots"><span /><span /><span /></span>
                       ) : (
-                        <><FiZap className="ws-relevant-btn-icon" /> Show Relevant</>)
+                        <><ZapIcon size={14} className="ws-relevant-btn-icon" /> Show Relevant</>)
                       }
                     </button>
                     <p className="ws-relevant-hint">Find related topics using AI</p>
@@ -1418,14 +1502,14 @@ function TopicCard({
                   <div className="ws-relevant-inline-loading">
                     <span className="ws-load-more-dots"><span /><span /><span /></span>
                     <p className="ws-relevant-auto-hint">
-                      <FiZap className="ws-relevant-auto-hint-icon" /> Finding relevant topics…
+                      <ZapIcon size={14} className="ws-relevant-auto-hint-icon" /> Finding relevant topics…
                     </p>
                   </div>
                 ) : relevantResults.length > 0 ? (
                   <>
                     <div className="ws-relevant-header">
                       <h3 className="ws-relevant-inline-title">
-                        <FiZap className="ws-relevant-title-icon" /> Relevant Results
+                        <ZapIcon size={16} className="ws-relevant-title-icon" /> Relevant Results
                         <span className="ws-relevant-count">({relevantTotal} found)</span>
                       </h3>
                       {relevantKeywords.length > 0 && (
@@ -1453,7 +1537,7 @@ function TopicCard({
                           ) : (
                             <>
                               <span>View More Relevant</span>
-                              <FiChevronRight className="ws-btn-icon" />
+                              <ChevronRightIcon size={16} className="ws-btn-icon" />
                             </>
                           )}
                         </button>
@@ -1466,7 +1550,7 @@ function TopicCard({
                 ) : showRelevant ? (
                   /* AI ran but found nothing */
                   <div className="ws-no-results">
-                    <FiZap className="ws-no-results-icon" />
+                    <ZapIcon size={32} className="ws-no-results-icon" />
                     <h3>No relevant results found</h3>
                     <p>The AI could not find related topics for this query</p>
                   </div>
@@ -1481,7 +1565,7 @@ function TopicCard({
           <div className="ws-relevant-section">
             <div className="ws-relevant-header">
               <h2 className="ws-section-title">
-                <FiZap className="ws-relevant-title-icon" />
+                <ZapIcon size={16} className="ws-relevant-title-icon" />
                 Relevant Results
                 <span className="ws-relevant-count">({relevantTotal} found)</span>
               </h2>
@@ -1512,7 +1596,7 @@ function TopicCard({
                       ) : (
                         <>
                           <span>View More Relevant</span>
-                          <FiChevronRight className="ws-btn-icon" />
+                          <ChevronRightIcon size={16} className="ws-btn-icon" />
                         </>
                       )}
                     </button>
@@ -1524,7 +1608,7 @@ function TopicCard({
               </>
             ) : (
               <div className="ws-no-results">
-                <FiZap className="ws-no-results-icon" />
+                <ZapIcon size={32} className="ws-no-results-icon" />
                 <h3>No relevant results found</h3>
                 <p>The AI could not find related topics for this query</p>
               </div>
