@@ -14,7 +14,6 @@ import {
   ExternalLinkIcon,
   ArrowRightIcon,
   LogInIcon,
-  ChevronDownIcon,
 } from "@animateicons/react/lucide";
 import { FiX, FiCheckCircle } from "react-icons/fi";
 import { authFetch } from "@/lib/clientAuth";
@@ -276,12 +275,6 @@ export default function WorkspaceUpdates({ loggedIn }) {
                 <h3 className="wu-section-title">Updates</h3>
                 <span className="wu-section-subtitle">Campus announcements, events & notices</span>
               </div>
-              <span
-                className={`wu-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
-                aria-hidden="true"
-              >
-                <ChevronDownIcon size={16} />
-              </span>
             </div>
 
           <div className="wu-header-actions">

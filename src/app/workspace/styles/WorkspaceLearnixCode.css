@@ -62,35 +62,6 @@
   user-select: none;
 }
 
-.wlc-chevron-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  color: #64748b;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-  flex-shrink: 0;
-  margin-left: 2px;
-}
-
-.wlc-header-title-group:hover .wlc-chevron-toggle {
-  background: #ffedd5;
-  color: #ea580c;
-  border-color: rgba(234, 88, 12, 0.25);
-}
-
-.wlc-chevron-toggle svg {
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.wlc-chevron-toggle.is-expanded svg {
-  transform: rotate(180deg);
-}
-
 .wlc-icon-badge {
   width: 44px;
   height: 44px;
@@ -510,11 +481,6 @@
 
   .wlc-header-title-group {
     gap: 8px;
-  }
-
-  .wlc-chevron-toggle {
-    width: 24px;
-    height: 24px;
   }
 
   .wlc-icon-badge {

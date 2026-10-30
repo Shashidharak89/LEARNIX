@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   ClipboardIcon,
   ArrowRightIcon,
-  ChevronDownIcon,
 } from "@animateicons/react/lucide";
 import "./styles/WorkspaceQuestionPapers.css";
 
@@ -169,12 +168,6 @@ export default function WorkspaceQuestionPapers() {
               <h3 className="wqp-section-title">Question Papers</h3>
               <span className="wqp-section-subtitle">Previous semester exam papers & reference solutions</span>
             </div>
-            <span
-              className={`wqp-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
-              aria-hidden="true"
-            >
-              <ChevronDownIcon size={16} />
-            </span>
           </div>
 
           <div className="wqp-header-actions">

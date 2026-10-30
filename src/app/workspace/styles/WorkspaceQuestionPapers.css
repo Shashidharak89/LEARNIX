@@ -62,35 +62,6 @@
   user-select: none;
 }
 
-.wqp-chevron-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  color: #64748b;
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-  flex-shrink: 0;
-  margin-left: 2px;
-}
-
-.wqp-header-title-group:hover .wqp-chevron-toggle {
-  background: #fef3c7;
-  color: #d97706;
-  border-color: rgba(217, 119, 6, 0.25);
-}
-
-.wqp-chevron-toggle svg {
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.wqp-chevron-toggle.is-expanded svg {
-  transform: rotate(180deg);
-}
-
 .wqp-icon-badge {
   width: 44px;
   height: 44px;
@@ -413,11 +384,6 @@
 
   .wqp-header-title-group {
     gap: 8px;
-  }
-
-  .wqp-chevron-toggle {
-    width: 24px;
-    height: 24px;
   }
 
   .wqp-icon-badge {

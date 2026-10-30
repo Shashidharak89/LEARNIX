@@ -14,7 +14,6 @@ import {
   ArrowRightIcon,
   LogInIcon,
   BookOpenIcon,
-  ChevronDownIcon,
 } from "@animateicons/react/lucide";
 import { authFetch } from "@/lib/clientAuth";
 import "./styles/WorkspaceResources.css";
@@ -230,12 +229,6 @@ export default function WorkspaceResources({ loggedIn }) {
               <h3 className="wr-section-title">Resources</h3>
               <span className="wr-section-subtitle">Academic notes, study syllabus & materials</span>
             </div>
-            <span
-              className={`wr-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
-              aria-hidden="true"
-            >
-              <ChevronDownIcon size={16} />
-            </span>
           </div>
 
           <div className="wr-header-actions">

@@ -8,7 +8,6 @@ import {
   EyeIcon,
   DownloadIcon,
   FileTextIcon,
-  ChevronDownIcon,
 } from "@animateicons/react/lucide";
 import "./styles/WorkspaceStudyMaterials.css";
 
@@ -164,12 +163,6 @@ export default function WorkspaceStudyMaterials() {
               <h3 className="wsm-section-title">Study Materials</h3>
               <span className="wsm-section-subtitle">Semester modules, syllabus & study notes</span>
             </div>
-            <span
-              className={`wsm-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
-              aria-hidden="true"
-            >
-              <ChevronDownIcon size={16} />
-            </span>
           </div>
 
           <div className="wsm-header-actions">

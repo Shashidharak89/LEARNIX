@@ -12,7 +12,6 @@ import {
   BellIcon,
   BookOpenIcon,
   FileTextIcon,
-  ChevronDownIcon,
 } from "@animateicons/react/lucide";
 import { authFetch } from "@/lib/clientAuth";
 import "./styles/WorkspaceLearnLater.css";
@@ -221,12 +220,6 @@ export default function WorkspaceLearnLater({ loggedIn }) {
               <h3 className="wll-section-title">Learn Later</h3>
               <span className="wll-section-subtitle">Saved materials & topics queued for revision</span>
             </div>
-            <span
-              className={`wll-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
-              aria-hidden="true"
-            >
-              <ChevronDownIcon size={16} />
-            </span>
           </div>
 
           <div className="wll-header-actions">

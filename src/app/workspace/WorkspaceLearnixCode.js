@@ -7,7 +7,6 @@ import {
   ArrowRightIcon,
   PlayIcon,
   SparklesIcon,
-  ChevronDownIcon,
 } from "@animateicons/react/lucide";
 import "./styles/WorkspaceLearnixCode.css";
 
@@ -172,12 +171,6 @@ export default function WorkspaceLearnixCode() {
               <h3 className="wlc-section-title">Learnix Code</h3>
               <span className="wlc-section-subtitle">Interactive coding arena & algorithm challenges</span>
             </div>
-            <span
-              className={`wlc-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
-              aria-hidden="true"
-            >
-              <ChevronDownIcon size={16} />
-            </span>
           </div>
 
           <div className="wlc-header-actions">

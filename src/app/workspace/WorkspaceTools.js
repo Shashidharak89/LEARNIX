@@ -9,7 +9,6 @@ import {
   ZapIcon,
   FileTextIcon,
   ExternalLinkIcon,
-  ChevronDownIcon,
 } from "@animateicons/react/lucide";
 import "./styles/WorkspaceTools.css";
 
@@ -148,12 +147,6 @@ export default function WorkspaceTools() {
               <h3 className="wt-section-title">Tools</h3>
               <span className="wt-section-subtitle">Instant file drop, text share & utilities</span>
             </div>
-            <span
-              className={`wt-chevron-toggle ${isExpanded ? "is-expanded" : ""}`}
-              aria-hidden="true"
-            >
-              <ChevronDownIcon size={16} />
-            </span>
           </div>
 
           <div className="wt-header-actions">
