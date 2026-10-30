@@ -155,25 +155,27 @@
   display: inline-flex !important;
   align-items: center !important;
   gap: 6px;
-  padding: 9px 16px;
-  background: linear-gradient(135deg, #0b74ff 0%, #0056cc 100%);
-  color: #ffffff;
-  border: 1px solid rgba(11, 116, 255, 0.4);
+  padding: 8px 15px;
+  background: rgba(11, 116, 255, 0.08);
+  color: #0b74ff;
+  border: 1px solid rgba(11, 116, 255, 0.28);
   border-radius: 999px;
-  font-size: 0.86rem;
-  font-weight: 700;
+  font-size: 0.84rem;
+  font-weight: 600;
   text-decoration: none;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(11, 116, 255, 0.28);
+  box-shadow: none;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap !important;
   flex-shrink: 0 !important;
 }
 
 .wr-add-resource-btn:hover {
-  background: linear-gradient(135deg, #2583ff 0%, #00439e 100%);
+  background: linear-gradient(135deg, #0b74ff 0%, #0056cc 100%);
+  color: #ffffff;
+  border-color: #0056cc;
   transform: translateY(-1.5px);
-  box-shadow: 0 6px 18px rgba(11, 116, 255, 0.38);
+  box-shadow: 0 4px 14px rgba(11, 116, 255, 0.25);
 }
 
 .wr-add-resource-btn:active {
@@ -547,36 +549,36 @@
   white-space: nowrap;
 }
 
-/* Public Resources - Crisp Tinted Blue Pill Button */
+/* Public Resources - Softer Tinted Blue Pill Button */
 .wr-btn-public {
-  background: rgba(11, 116, 255, 0.08);
-  color: #0b74ff;
-  border: 1.5px solid rgba(11, 116, 255, 0.28);
-  box-shadow: 0 2px 8px rgba(11, 116, 255, 0.08);
+  background: rgba(11, 116, 255, 0.06);
+  color: #0056cc;
+  border: 1px solid rgba(11, 116, 255, 0.22);
+  box-shadow: none;
 }
 
 .wr-btn-public:hover {
-  background: rgba(11, 116, 255, 0.16);
+  background: rgba(11, 116, 255, 0.14);
   border-color: rgba(11, 116, 255, 0.45);
-  color: #0056cc;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px -2px rgba(11, 116, 255, 0.22);
+  color: #003e99;
+  transform: translateY(-1.5px);
+  box-shadow: 0 3px 10px rgba(11, 116, 255, 0.15);
 }
 
-/* Manage Resources - Vibrant Gradient, Highly Eye-Catching */
+/* Manage Resources - Soft Pill by Default, High Contrast on Hover */
 .wr-btn-manage {
-  background: linear-gradient(135deg, #0b74ff 0%, #0056cc 100%);
-  color: #ffffff;
-  border: 1px solid rgba(11, 116, 255, 0.45);
-  box-shadow: 0 4px 16px rgba(11, 116, 255, 0.32);
+  background: rgba(11, 116, 255, 0.10);
+  color: #0056cc;
+  border: 1px solid rgba(11, 116, 255, 0.3);
+  box-shadow: none;
 }
 
 .wr-btn-manage:hover {
-  background: linear-gradient(135deg, #2583ff 0%, #00439e 100%);
+  background: linear-gradient(135deg, #0b74ff 0%, #0056cc 100%);
   color: #ffffff;
-  border-color: #00439e;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(11, 116, 255, 0.44);
+  border-color: #0056cc;
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 16px rgba(11, 116, 255, 0.28);
 }
 
 /* Mobile Responsive */

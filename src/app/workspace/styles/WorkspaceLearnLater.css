@@ -156,25 +156,27 @@
   display: inline-flex !important;
   align-items: center !important;
   gap: 6px;
-  padding: 9px 16px;
-  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-  color: #ffffff;
-  border: 1px solid rgba(124, 58, 237, 0.4);
+  padding: 8px 15px;
+  background: rgba(124, 58, 237, 0.08);
+  color: #7c3aed;
+  border: 1px solid rgba(124, 58, 237, 0.28);
   border-radius: 999px;
-  font-size: 0.86rem;
-  font-weight: 700;
+  font-size: 0.84rem;
+  font-weight: 600;
   text-decoration: none;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.28);
+  box-shadow: none;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap !important;
   flex-shrink: 0 !important;
 }
 
 .wll-top-visit-btn:hover {
-  background: linear-gradient(135deg, #8b5cf6 0%, #5b21b6 100%);
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+  color: #ffffff;
+  border-color: #6d28d9;
   transform: translateY(-1.5px);
-  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.38);
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.25);
 }
 
 .wll-top-visit-btn:active {
