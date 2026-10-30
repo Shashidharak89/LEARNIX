@@ -190,6 +190,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .learnix-decoration-icon {
@@ -197,6 +198,21 @@
   color: #f59e0b;
   filter: drop-shadow(0 2px 8px rgba(245, 158, 11, 0.2));
   animation: learnix-float 3.5s ease-in-out infinite;
+}
+
+.learnix-decoration-svg {
+  width: auto;
+  height: 120px;
+  max-width: 175px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 14px rgba(2, 132, 199, 0.12));
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  animation: learnix-float 4.5s ease-in-out infinite;
+}
+
+.learnix-header-decoration:hover .learnix-decoration-svg {
+  transform: scale(1.05);
 }
 
 @keyframes learnix-float {
@@ -590,6 +606,11 @@
     font-size: 2.25rem;
   }
 
+  .learnix-decoration-svg {
+    height: 92px;
+    max-width: 130px;
+  }
+
   .learnix-secondary-grid {
     grid-template-columns: 1fr;
   }
@@ -691,6 +712,11 @@
 
   .learnix-decoration-icon {
     font-size: 1.85rem;
+  }
+
+  .learnix-decoration-svg {
+    height: 72px;
+    max-width: 100px;
   }
 
   .learnix-header-login-btn {
@@ -819,6 +845,11 @@
     font-size: 1.45rem;
   }
 
+  .learnix-decoration-svg {
+    height: 52px;
+    max-width: 75px;
+  }
+
   .learnix-quick-stats {
     gap: 6px;
   }
@@ -852,6 +883,7 @@
   .learnix-secondary-item,
   .learnix-header-logo-img,
   .learnix-decoration-icon,
+  .learnix-decoration-svg,
   .learnix-stat-icon-wrapper,
   .learnix-footer-cta-btn,
   .learnix-header-login-btn {

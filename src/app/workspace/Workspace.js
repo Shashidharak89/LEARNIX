@@ -14,7 +14,7 @@ import {
   LogInIcon,
   RocketIcon,
 } from "@animateicons/react/lucide";
-import { RiGraduationCapLine } from "react-icons/ri";
+import workingOnlineSvg from "../../animated-icons/Working Online.svg";
 import { LayersIcon } from "../components/icons/LayersIcon";
 import "./styles/Workspace.css";
 import WhatsNew from "../components/WhatsNew";
@@ -206,7 +206,13 @@ export default function Workspace() {
               </div>
             )}
             <div className="learnix-header-decoration">
-              <RiGraduationCapLine className="learnix-decoration-icon" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={workingOnlineSvg.src || workingOnlineSvg}
+                alt="Working Online"
+                className="learnix-decoration-svg"
+                loading="eager"
+              />
             </div>
           </div>
         </div>
