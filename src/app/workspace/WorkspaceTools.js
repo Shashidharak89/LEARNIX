@@ -2,8 +2,8 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import { WrenchIcon } from "../components/icons/WrenchIcon";
 import {
-  SettingsIcon,
   ArrowRightIcon,
   UploadIcon,
   ZapIcon,
@@ -110,7 +110,7 @@ function ToolCard({ tool }) {
 export default function WorkspaceTools() {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const settingsIconRef = useRef(null);
+  const wrenchIconRef = useRef(null);
   const topActionRef = useRef(null);
 
   const toggleExpand = () => {
@@ -138,10 +138,10 @@ export default function WorkspaceTools() {
             <div
               className="wt-icon-badge"
               aria-hidden="true"
-              onMouseEnter={() => settingsIconRef.current?.startAnimation?.()}
-              onMouseLeave={() => settingsIconRef.current?.stopAnimation?.()}
+              onMouseEnter={() => wrenchIconRef.current?.startAnimation?.()}
+              onMouseLeave={() => wrenchIconRef.current?.stopAnimation?.()}
             >
-              <SettingsIcon ref={settingsIconRef} size={22} />
+              <WrenchIcon ref={wrenchIconRef} size={22} />
             </div>
             <div className="wt-title-text-group">
               <h3 className="wt-section-title">Tools</h3>

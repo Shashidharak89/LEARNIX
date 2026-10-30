@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { FiX } from "react-icons/fi";
 import { LayersIcon } from "./icons/LayersIcon";
+import { WrenchIcon } from "./icons/WrenchIcon";
 import {
   ShieldCheckIcon,
   LogInIcon,
@@ -13,7 +14,6 @@ import {
   BookOpenIcon,
   ClipboardIcon,
   BookmarkIcon,
-  SettingsIcon,
   UploadIcon,
   UserIcon,
   LogOutIcon,
@@ -226,7 +226,7 @@ export default function AppSidebar({
           <SidebarLink
             href="/tools"
             onClick={onClose}
-            icon={SettingsIcon}
+            icon={WrenchIcon}
             text="Tools"
             tabIndex={isOpen ? 0 : -1}
           />
