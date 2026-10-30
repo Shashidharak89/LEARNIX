@@ -115,7 +115,7 @@ export default function AdminRequestMetrics({ role }) {
 
   const metricCards = [
     { key: "works", label: "Works Requests", color: "adm-summary-blue" },
-    { key: "worksmain", label: "Works Main (/works/[id])", color: "adm-summary-green" },
+    { key: "worksmain", label: "Resources Main (/resources/[id])", color: "adm-summary-green" },
     { key: "quote", label: "Quote Requests", color: "adm-summary-yellow" },
   ];
 

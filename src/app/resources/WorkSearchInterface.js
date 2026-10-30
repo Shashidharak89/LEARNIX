@@ -13,7 +13,7 @@ import './styles/WorkSearchInterface.css';
 import { authFetch } from '@/lib/clientAuth';
 import { toggleLearnLaterClient } from '@/lib/clientLearnLater';
 
-// LocalStorage key for saved topics (same as in /works/[id])
+// LocalStorage key for saved topics (same as in /resources/[id])
 const SAVED_TOPICS_KEY = 'learnix_saved_topics';
 
 // Helper functions for localStorage
@@ -555,7 +555,7 @@ const WorkSearchInterface = () => {
   };
 
   const handleShare = (topic) => {
-    const url = `${window.location.origin}/works/${topic.topicId}`;
+    const url = `${window.location.origin}/resources/${topic.topicId}`;
     const title = `${topic.topic} - ${topic.subjectName}`;
     const text = `Check out "${topic.topic}" uploaded by ${topic.userName} on Learnix`;
 
@@ -690,11 +690,11 @@ function getRecItemHref(item) {
   if (normType === "resource") {
     if (cleanId) {
       if (cleanId.startsWith("sub-only-")) {
-        return `/works/subject/${cleanId.replace("sub-only-", "")}`;
+        return `/resources/subject/${cleanId.replace("sub-only-", "")}`;
       }
-      return `/works/${cleanId}`;
+      return `/resources/${cleanId}`;
     }
-    return item.resource_url || "/works";
+    return item.resource_url || "/resources";
   }
 
   if (normType === "update") {
@@ -710,7 +710,7 @@ function getRecItemHref(item) {
     return cleanId ? `/qp/${cleanId}` : "/qp";
   }
 
-  return item.resource_url || (cleanId ? `/works/${cleanId}` : "/works");
+  return item.resource_url || (cleanId ? `/resources/${cleanId}` : "/resources");
 }
 
 function TopicCard({
@@ -873,7 +873,7 @@ function TopicCard({
 
   const handleOpenClick = () => {
     setIsMenuOpen(false);
-    window.open(`/works/${topic.topicId}`, "_blank", "noopener,noreferrer");
+    window.open(`/resources/${topic.topicId}`, "_blank", "noopener,noreferrer");
   };
 
   const handleShareClick = () => {
@@ -894,7 +894,7 @@ function TopicCard({
       title: topic.topic,
       subtitle: topic.subjectName,
       description: topic.content,
-      url: `/works/${topic.topicId || topic._id}`,
+      url: `/resources/${topic.topicId || topic._id}`,
       metadata: {
         userName: topic.userName,
         usn: topic.usn,
@@ -907,7 +907,7 @@ function TopicCard({
     <div className={`ws-topic-card ${isSaved ? 'ws-saved-card' : ''}`} data-topic-index={index}>
       <div className="ws-card-header">
         <div className="ws-topic-info">
-          <Link href={`/works/${topic.topicId}`} className="ws-topic-link" target="_blank" rel="noopener noreferrer">
+          <Link href={`/resources/${topic.topicId}`} className="ws-topic-link" target="_blank" rel="noopener noreferrer">
             <h3 className="ws-topic-title">{topic.topic}</h3>
           </Link>
           <Link href={`/users/${topic.usn.toLowerCase()}`} className="ws-user-link">
@@ -989,7 +989,7 @@ function TopicCard({
         <div className="ws-images-section">
           <div className="ws-images-grid">
             {displayImages.map((imageUrl, imgIndex) => (
-              <Link key={imgIndex} href={`/works/${topic.topicId}`} className="ws-image-link" target="_blank" rel="noopener noreferrer">
+              <Link key={imgIndex} href={`/resources/${topic.topicId}`} className="ws-image-link" target="_blank" rel="noopener noreferrer">
                 <div className="ws-image-container">
                   <div className="ws-image-wrapper">
                     <ImageLoader

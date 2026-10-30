@@ -6,7 +6,7 @@ import Link from "next/link";
 import { FaArrowLeft, FaImage, FaDownload, FaShare } from "react-icons/fa";
 import { Navbar } from "../../components/Navbar";
 import ImageLoader from "../../components/ImageLoader";
-import "../../works/[id]/styles/WorkTopicPage.css"; // Reuse styling from works page
+import "../../resources/[id]/styles/WorkTopicPage.css"; // Reuse styling from resources page
 
 export default function QPSubjectClient() {
     const params = useParams();

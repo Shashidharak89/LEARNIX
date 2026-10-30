@@ -463,7 +463,7 @@ const QuestionPaperDetail = ({ id, paperInfo }) => {
                 {visitLinks.map((link, index) => (
                   <Link
                     key={index}
-                    href={`/works/${link}`}
+                    href={`/resources/${link}`}
                     className="qpd-original-link"
                   >
                     <FaExternalLinkAlt className="qpd-link-icon" />

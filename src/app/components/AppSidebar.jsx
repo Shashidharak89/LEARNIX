@@ -176,7 +176,7 @@ export default function AppSidebar({
           )}
 
           <SidebarLink
-            href="/works"
+            href="/resources"
             onClick={onClose}
             icon={FolderIcon}
             text="Resources"

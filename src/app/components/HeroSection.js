@@ -19,7 +19,7 @@ import TutVideo from "./TutVideo";
 
 /* ── Destinations the Explore button cycles through ────────────────────── */
 const EXPLORE_ITEMS = [
-  { label: "Explore Resources", href: "/works",     Icon: FiFolder   },
+  { label: "Explore Resources", href: "/resources", Icon: FiFolder },
   { label: "Explore Updates",   href: "/updates",   Icon: FiBell     },
   { label: "Question Papers",   href: "/qp",        Icon: FiFileText },
   { label: "Study Materials",   href: "/materials", Icon: FiBookOpen },

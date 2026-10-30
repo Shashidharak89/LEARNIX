@@ -284,7 +284,7 @@ export default function UserDetailsPage({ usn }) {
               <FiUser className="up-error-icon" />
               <h3 className="up-error-title">Student Not Found</h3>
               <p className="up-error-message">{message || "No user found with the provided USN."}</p>
-              <Link href="/works" className="up-login-btn">
+              <Link href="/resources" className="up-login-btn">
                 <FiSearch className="up-login-icon" />
                 Explore Resources
               </Link>
@@ -614,9 +614,9 @@ export default function UserDetailsPage({ usn }) {
                                 {topics.map((topic) => (
                                   <Link
                                     key={topic._id}
-                                    href={`/works/${topic._id}`}
+                                    href={`/resources/${topic._id}`}
                                     className="up-topic-card up-topic-card-link"
-                                    title={`Open ${topic.topic} in works`}
+                                    title={`Open ${topic.topic} in resources`}
                                   >
                                     <div className="up-topic-header">
                                       <div className="up-topic-title">

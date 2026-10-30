@@ -67,7 +67,8 @@ function LearnLaterItemCard({ item }) {
   const typeIconRef = useRef(null);
   const meta = getItemTypeMeta(item.type);
   const TypeIcon = meta.icon;
-  const targetUrl = item.url || "/works";
+  const rawUrl = item.url || "/resources";
+  const targetUrl = rawUrl.startsWith("/works") ? rawUrl.replace("/works", "/resources") : rawUrl;
 
   return (
     <div
@@ -286,7 +287,7 @@ export default function WorkspaceLearnLater({ loggedIn }) {
                   Tap the bookmark icon or Learn Later option on any study material or update to keep it ready for later review.
                 </p>
                 <Link
-                  href="/works"
+                  href="/resources"
                   className="wll-empty-action-btn"
                   onMouseEnter={() => emptyExploreRef.current?.startAnimation?.()}
                   onMouseLeave={() => emptyExploreRef.current?.stopAnimation?.()}

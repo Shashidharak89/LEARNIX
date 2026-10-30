@@ -14,7 +14,7 @@ The PDF generation system:
 
 Run the helper script:
 ```bash
-cd src/app/works/[id]
+cd src/app/resources/[id]
 node extractPlaceholderPositions.js
 ```
 
@@ -92,7 +92,7 @@ const replacements = {
 
 1. Make changes to the positions/fonts in `route.js`
 2. Restart your Next.js dev server
-3. Go to any topic page: `/works/[topicId]`
+3. Go to any topic page: `/resources/[topicId]`
 4. Click the "Download" button
 5. Open the generated PDF
 6. Check if placeholders are properly replaced

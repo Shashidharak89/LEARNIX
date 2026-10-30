@@ -73,13 +73,13 @@ export default function WhatsNew() {
       title: "Topic Summarize Added",
       date: "Apr 13, 2026",
       description:
-        "On topic pages (/works/[id]), you can now summarize the full topic with AI using the Summarize with AI button. This helps you quickly understand long topics in a concise student-friendly format.",
+        "On topic pages (/resources/[id]), you can now summarize the full topic with AI using the Summarize with AI button. This helps you quickly understand long topics in a concise student-friendly format.",
     },
     {
       title: "AI Image Analysis + Advanced Retry Added",
       date: "Apr 13, 2026",
       description:
-        "On topic pages (/works/[id]), you can now tap a small AI Analyze icon on each image to extract text and instantly get a clean summary. After the first summary appears, you will also see an Advanced Retry button at the bottom of that summary area. Advanced Retry refines the extracted text grammar using LanguageTool and then generates an improved summary again.",
+        "On topic pages (/resources/[id]), you can now tap a small AI Analyze icon on each image to extract text and instantly get a clean summary. After the first summary appears, you will also see an Advanced Retry button at the bottom of that summary area. Advanced Retry refines the extracted text grammar using LanguageTool and then generates an improved summary again.",
     },
     {
       title: "Learnix is now available on mobile app",
@@ -91,7 +91,7 @@ export default function WhatsNew() {
       title: "In-App Chat & Share to Learnix Users",
       date: "Apr 07, 2026",
       description:
-        "We added direct user-to-user chat in Learnix. You can now open chats from user profiles, see recent conversations on /chat, send messages in WhatsApp-style flow, and load older messages with View More. We also added Share from /works/[id] to send topic links directly to Learnix users (multi-select), plus Copy Link and external 3-dot share options.",
+        "We added direct user-to-user chat in Learnix. You can now open chats from user profiles, see recent conversations on /chat, send messages in WhatsApp-style flow, and load older messages with View More. We also added Share from /resources/[id] to send topic links directly to Learnix users (multi-select), plus Copy Link and external 3-dot share options.",
     },
     {
       title: "Public Quick Sharing (24h) Added",
@@ -109,7 +109,7 @@ export default function WhatsNew() {
       title: "Unlisted Visibility for Subject & Topic",
       date: "Mar 13, 2026",
       description:
-        "You can now upload Subjects and Topics as Unlisted. Unlisted content stays hidden from /works listings and search, but remains accessible through direct owner-managed links where permitted. This adds better privacy control between Public and Private modes.",
+        "You can now upload Subjects and Topics as Unlisted. Unlisted content stays hidden from /resources listings and search, but remains accessible through direct owner-managed links where permitted. This adds better privacy control between Public and Private modes.",
     },
     {
       title: "View Question Papers by Subject (New!)",

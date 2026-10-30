@@ -294,7 +294,7 @@ export default function LearnLaterClient() {
                     <FiBell size={14} />
                     <span>View Updates</span>
                   </Link>
-                  <Link href="/works" className="ll-empty-btn">
+                  <Link href="/resources" className="ll-empty-btn">
                     <FiFolder size={14} />
                     <span>Explore Resources</span>
                   </Link>
@@ -313,7 +313,8 @@ export default function LearnLaterClient() {
                 const IconComponent = config.icon;
                 const itemId = item.itemId || item.id;
                 const isDeleting = isDeletingId === itemId;
-                const targetUrl = item.url || "/works";
+                const rawUrl = item.url || "/resources";
+                const targetUrl = rawUrl.startsWith("/works") ? rawUrl.replace("/works", "/resources") : rawUrl;
 
                 return (
                   <article

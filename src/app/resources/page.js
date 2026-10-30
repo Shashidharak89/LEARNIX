@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { Navbar } from "../components/Navbar";
 import WorkSearchInterface from "./WorkSearchInterface";
 
-function WorksLoading() {
+function ResourcesLoading() {
     return (
         <div style={{ 
             display: 'flex', 
@@ -23,11 +23,11 @@ function WorksLoading() {
     );
 }
 
-export default function Works() {
+export default function ResourcesPage() {
     return (
         <div>
             <Navbar />
-            <Suspense fallback={<WorksLoading />}>
+            <Suspense fallback={<ResourcesLoading />}>
                 <WorkSearchInterface />
             </Suspense>
         </div>

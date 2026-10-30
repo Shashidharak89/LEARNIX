@@ -35,7 +35,7 @@ export function recordCodingEntry() {
       sessionStorage.setItem("learnix_code_entry_point", "/");
     }
   } else {
-    // We are on a normal Learnix page (e.g. /, /workspace, /qp, /works)
+    // We are on a normal Learnix page (e.g. /, /workspace, /qp, /resources)
     sessionStorage.setItem("learnix_code_entry_point", currentPath + window.location.search);
   }
 }

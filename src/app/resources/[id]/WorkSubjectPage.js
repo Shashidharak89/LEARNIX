@@ -46,7 +46,7 @@ const WorkSubjectPage = ({ data, loading, error, onShare }) => {
         <div className="wsp-error-content">
           <h2>Error Loading Subject</h2>
           <p>{error}</p>
-          <Link href="/works" className="wsp-back-link">
+          <Link href="/resources" className="wsp-back-link">
             <FaArrowLeft /> Back to Resources
           </Link>
         </div>
@@ -60,8 +60,8 @@ const WorkSubjectPage = ({ data, loading, error, onShare }) => {
         <div className="wsp-error-content">
           <h2>Subject Not Found</h2>
           <p>The requested subject could not be found.</p>
-          <Link href="/works" className="wsp-back-link">
-            <FaArrowLeft /> Back to Works
+          <Link href="/resources" className="wsp-back-link">
+            <FaArrowLeft /> Back to Resources
           </Link>
         </div>
       </div>
@@ -104,7 +104,7 @@ const WorkSubjectPage = ({ data, loading, error, onShare }) => {
         </div>
 
         <div className="wsp-action-buttons-container">
-          <Link href="/works" className="wsp-action-btn wsp-back-btn">
+          <Link href="/resources" className="wsp-action-btn wsp-back-btn">
             <FaArrowLeft />
             <span className="wsp-btn-text">Back</span>
           </Link>
@@ -142,7 +142,7 @@ const WorkSubjectPage = ({ data, loading, error, onShare }) => {
             </div>
             <div className="wsp-topics-grid">
               {topics.map((topic) => (
-                <Link key={topic._id} href={`/works/${topic._id}`} className="wsp-topic-card-link">
+                <Link key={topic._id} href={`/resources/${topic._id}`} className="wsp-topic-card-link">
                   <div className="wsp-topic-card">
                     {Array.isArray(topic.images) && topic.images.length > 0 && !imageErrors[topic._id] ? (
                       <div className="wsp-card-image">

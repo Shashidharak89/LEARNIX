@@ -394,7 +394,7 @@ export default function AdminUserProfile({ params }) {
                       </span>
                     </div>
                     <p className="aup-subject-date"><FiCalendar size={10} /> {formatDate(sub.createdAt)}</p>
-                    <Link href={`/works/subject/${sub._id}`} target="_blank" className="aup-subject-link">
+                    <Link href={`/resources/subject/${sub._id}`} target="_blank" className="aup-subject-link">
                       View Subject →
                     </Link>
                   </div>

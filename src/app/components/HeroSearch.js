@@ -54,7 +54,7 @@ const ICON_MAP = {
 
 // ── Category meta ──────────────────────────────────────────────────────────
 const CATEGORIES = [
-  { key: "works", label: "Resources", icon: FiFolder, href: "/works", theme: "works", paramKey: "q" },
+  { key: "works", label: "Resources", icon: FiFolder, href: "/resources", theme: "works", paramKey: "q" },
   { key: "updates", label: "Updates", icon: FiBell, href: "/updates", theme: "updates", paramKey: "q" },
   { key: "materials", label: "Materials", icon: FiBookOpen, href: "/materials", theme: "materials", paramKey: "q" },
   { key: "questionPapers", label: "Question Papers", icon: FiFileText, href: "/qp", theme: "qp", paramKey: "q" },
@@ -104,7 +104,7 @@ function useTypingPlaceholder(captions, typingSpeed = 65, pauseMs = 1600, delete
 function renderWorkItem(item) {
   return (
     <li key={item._id} className="lnx-search-card-item">
-      <Link href={`/works/${item._id}`} className="lnx-search-card-item-link" title={item.topic}>
+      <Link href={`/resources/${item._id}`} className="lnx-search-card-item-link" title={item.topic}>
         <span className="lnx-search-card-item-dot" />
         <span className="lnx-search-card-item-text">{item.topic}</span>
       </Link>

@@ -559,7 +559,7 @@ const ManageReviewsPage = () => {
                   <FaCommentDots className="mr-detail-icon" />
                   <span>{topicData.topic?.topic}</span>
                 </div>
-                <Link href={`/works/${topicId}`} className="mr-view-topic-btn">
+                <Link href={`/resources/${topicId}`} className="mr-view-topic-btn">
                   <FaEye /> View Topic
                 </Link>
               </div>

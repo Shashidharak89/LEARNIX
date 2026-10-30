@@ -97,7 +97,7 @@ function ResourceTopicCard({ topic }) {
         <div className="wr-header-titles">
           {topic.subjectName && (
             <Link
-              href={`/works/subject/${topic.subjectId}`}
+              href={`/resources/subject/${topic.subjectId}`}
               className="wr-subject-badge"
               title={`View subject: ${topic.subjectName}`}
             >
@@ -106,7 +106,7 @@ function ResourceTopicCard({ topic }) {
             </Link>
           )}
           <h4 className="wr-card-title">
-            <Link href={`/works/${topic._id}`} className="wr-title-link" title={topic.topic}>
+            <Link href={`/resources/${topic._id}`} className="wr-title-link" title={topic.topic}>
               {topic.topic || "Resource Topic"}
             </Link>
           </h4>
@@ -138,7 +138,7 @@ function ResourceTopicCard({ topic }) {
         </div>
 
         <Link
-          href={`/works/${topic._id}`}
+          href={`/resources/${topic._id}`}
           className="wr-card-view-link"
           title="Open and study resource topic"
         >
@@ -319,7 +319,7 @@ export default function WorkspaceResources({ loggedIn }) {
         {/* Footer Navigation Buttons: Public Resources & Manage Resources - strictly 1 row */}
         <div className="wr-widget-footer">
           <Link
-            href="/works"
+            href="/resources"
             className="wr-footer-btn wr-btn-public"
             onMouseEnter={() => publicIconRef.current?.startAnimation?.()}
             onMouseLeave={() => publicIconRef.current?.stopAnimation?.()}

@@ -11,7 +11,7 @@ export async function generateMetadata({ params }, parent) {
     
     if (res.ok) {
       const data = await res.json();
-      const topicTitle = data?.topic?.topic || "Work Topic";
+      const topicTitle = data?.topic?.topic || "Resource Topic";
       const subjectTitle = data?.subject?.subject || "Learnix";
       const description = data?.topic?.content?.substring(0, 150) || `Check out "${topicTitle}" uploaded by ${data?.user?.name || "a user"} on Learnix.`;
       const imageUrl = (data?.topic?.images && data.topic.images.length > 0) ? data.topic.images[0] : `${baseUrl}/favicon.ico`;
@@ -38,8 +38,8 @@ export async function generateMetadata({ params }, parent) {
   }
 
   return {
-    title: "Work Topic | Learnix",
-    description: "Check out this work topic on Learnix",
+    title: "Resource Topic | Learnix",
+    description: "Check out this resource topic on Learnix",
   };
 }
 

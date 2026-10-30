@@ -16,7 +16,7 @@ import {
 import "./styles/NavbarSearch.css";
 
 const CATEGORIES = [
-  { key: "works", label: "Resources", icon: FiFolder, href: "/works" },
+  { key: "works", label: "Resources", icon: FiFolder, href: "/resources" },
   { key: "updates", label: "Updates", icon: FiBell, href: "/updates" },
   { key: "materials", label: "Study Materials", icon: FiBookOpen, href: "/materials" },
   { key: "questionPapers", label: "Question Papers", icon: FiFileText, href: "/qp" },
@@ -88,16 +88,16 @@ function getAiItemHref(item) {
   const normType = normalizeResourceType(item.resource_type, item.source_file);
   const cleanId = item.resource_id ? String(item.resource_id).replace(/^["']|["']$/g, "").trim() : "";
 
-  // Topic / Resource navigation -> /works/[id]
+  // Topic / Resource navigation -> /resources/[id]
   if (normType === "resource") {
     if (cleanId) {
       if (cleanId.startsWith("sub-only-")) {
-        return `/works/subject/${cleanId.replace("sub-only-", "")}`;
+        return `/resources/subject/${cleanId.replace("sub-only-", "")}`;
       }
-      return `/works/${cleanId}`;
+      return `/resources/${cleanId}`;
     }
     if (item.resource_url) return item.resource_url;
-    return "/works";
+    return "/resources";
   }
 
   // Update navigation -> /updates/[id]
@@ -121,7 +121,7 @@ function getAiItemHref(item) {
     return "/qp";
   }
 
-  return item.resource_url || (cleanId ? `/works/${cleanId}` : "/works");
+  return item.resource_url || (cleanId ? `/resources/${cleanId}` : "/resources");
 }
 
 export default function NavbarSearch() {
@@ -288,7 +288,7 @@ export default function NavbarSearch() {
   // When user clicks on an AI suggestion:
   // 1. Replaces the keyword in the search bar
   // 2. Automatically searches that keyword
-  // 3. Opens the resource in a new tab (Google view for study materials, /works/[id], /updates/[id], etc.)
+  // 3. Opens the resource in a new tab (Google view for study materials, /resources/[id], /updates/[id], etc.)
   const handleItemClick = (e, item) => {
     if (
       e.target.closest("button.lnx-ai-btn--download") ||

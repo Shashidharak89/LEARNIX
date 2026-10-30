@@ -7,7 +7,7 @@ import materialsData from "@/app/materials/materialsData";
 import { listQuestionPapers } from "@/app/api/question-papers/store";
 
 const PAGES = [
-  { name: "Resources & Notes", href: "/works", icon: "FiFolder", keywords: ["resource", "resources", "work", "works", "note", "notes", "topic", "subject"] },
+  { name: "Resources & Notes", href: "/resources", icon: "FiFolder", keywords: ["resource", "resources", "work", "works", "note", "notes", "topic", "subject"] },
   { name: "Study Materials", href: "/materials", icon: "FiBookOpen", keywords: ["material", "materials", "study", "syllabus", "notes", "pdf", "file"] },
   { name: "Question Papers", href: "/qp", icon: "FiFileText", keywords: ["question", "paper", "papers", "exam", "qp", "pyq", "test", "vtu"] },
   { name: "Campus Updates", href: "/updates", icon: "FiBell", keywords: ["update", "updates", "news", "notice", "announcement"] },

@@ -7,7 +7,7 @@ import { FaArrowLeft, FaImage, FaDownload, FaShare, FaBookmark } from "react-ico
 import { Navbar } from "../../components/Navbar";
 import ImageLoader from "../../components/ImageLoader";
 import { toggleLearnLaterClient } from "@/lib/clientLearnLater";
-import "../../works/[id]/styles/WorkTopicPage.css"; 
+import "../../resources/[id]/styles/WorkTopicPage.css"; 
 
 export default function QPCompiledClient() {
     const searchParams = useSearchParams();

@@ -310,7 +310,7 @@ export default function TopicEditPage({ params }) {
             <FiImage size={15} /> Edit Mode
           </span>
           {topic && (
-            <Link href={`/works/${topicId}`} className="tep-view-link" target="_blank">
+            <Link href={`/resources/${topicId}`} className="tep-view-link" target="_blank">
               <FiEye size={13} /> View
             </Link>
           )}

@@ -263,14 +263,14 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
   };
 
   const handleShare = async () => {
-    const url = `${window.location.origin}/works/${topic._id}`;
+    const url = `${window.location.origin}/resources/${topic._id}`;
     if (navigator.share) { try { await navigator.share({ title: topic.topic, url }); return; } catch {} }
     navigator.clipboard.writeText(url)
       .then(() => showMessage("Link copied to clipboard!", "success"))
       .catch(() => showMessage("Failed to copy link", "error"));
   };
 
-  const handleOpenTopic   = () => { closeMenu(); router.push(`/works/${topic._id}`); };
+  const handleOpenTopic   = () => { closeMenu(); router.push(`/resources/${topic._id}`); };
   const handleOpenReviews = () => { closeMenu(); router.push(`/reviews/${topic._id}`); };
   const requestRenameTopic = () => { closeMenu(); setRenameValue(topic.topic || ""); setRenameModal(true); };
   const cancelRenameTopic  = () => { if (isRenamingTopic) return; setRenameModal(false); setRenameValue(""); };
@@ -415,7 +415,7 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
             {isCollapsed ? (
               <h4 className="tc-title">{topic.topic}</h4>
             ) : (
-              <Link href={`/works/${topic._id}`} className="tc-title-link" onClick={(e) => e.stopPropagation()}>
+              <Link href={`/resources/${topic._id}`} className="tc-title-link" onClick={(e) => e.stopPropagation()}>
                 <h4 className="tc-title">{topic.topic}</h4>
               </Link>
             )}

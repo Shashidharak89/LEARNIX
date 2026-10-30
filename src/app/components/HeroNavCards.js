@@ -49,7 +49,7 @@ const navItems = [
   },
   {
     id: "works",
-    href: "/works",
+    href: "/resources",
     Icon: FiFolder,
     label: "Resources",
     subtitle: "Browse Academic Resources",

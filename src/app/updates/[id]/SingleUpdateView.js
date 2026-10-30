@@ -91,11 +91,11 @@ function getRecItemHref(item) {
   if (normType === "resource") {
     if (cleanId) {
       if (cleanId.startsWith("sub-only-")) {
-        return `/works/subject/${cleanId.replace("sub-only-", "")}`;
+        return `/resources/subject/${cleanId.replace("sub-only-", "")}`;
       }
-      return `/works/${cleanId}`;
+      return `/resources/${cleanId}`;
     }
-    return item.resource_url || "/works";
+    return item.resource_url || "/resources";
   }
 
   if (normType === "update") {
@@ -111,7 +111,7 @@ function getRecItemHref(item) {
     return cleanId ? `/qp/${cleanId}` : "/qp";
   }
 
-  return item.resource_url || (cleanId ? `/works/${cleanId}` : "/works");
+  return item.resource_url || (cleanId ? `/resources/${cleanId}` : "/resources");
 }
 
 export default function SingleUpdateView({ updateId }) {

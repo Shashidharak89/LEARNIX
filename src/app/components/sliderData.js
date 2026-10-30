@@ -10,14 +10,14 @@ const sliderData = [
     route: "/workspace",
   },
   {
-    title: "Works",
+    title: "Resources",
     description: "Showcase your projects with dynamic presentations",
     images: [
       "https://res.cloudinary.com/dsojdpkgh/image/upload/v1758819929/works-first_vovplj.jpg",
       "https://res.cloudinary.com/dsojdpkgh/image/upload/v1758819926/works-lazyloading_jo3pbn.jpg",
       "https://res.cloudinary.com/dsojdpkgh/image/upload/v1758819926/works-skeleton_tm3zkl.jpg"
     ],
-    route: "/works",
+    route: "/resources",
   },
   {
     title: "Upload",

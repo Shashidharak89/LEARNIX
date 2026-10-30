@@ -253,7 +253,7 @@ export default function SubjectsGrid({
   const handleOpenSubject = (subjectId) => {
     setOpenMenuFor(null);
     if (!subjectId) return;
-    router.push(`/works/subject/${subjectId}`);
+    router.push(`/resources/subject/${subjectId}`);
   };
 
   const requestRenameSubject = (subjectId, currentName) => {
@@ -344,7 +344,7 @@ export default function SubjectsGrid({
 
   const handleShareSubject = (subjectId) => {
     setOpenMenuFor(null);
-    const shareUrl = `${window.location.origin}/works/subject/${subjectId}`;
+    const shareUrl = `${window.location.origin}/resources/subject/${subjectId}`;
     
     if (navigator.share) {
       navigator.share({

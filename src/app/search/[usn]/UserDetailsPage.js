@@ -614,9 +614,9 @@ export default function UserDetailsPage({ usn }) {
                                 {topics.map((topic) => (
                                   <Link
                                     key={topic._id}
-                                    href={`/works/${topic._id}`}
+                                    href={`/resources/${topic._id}`}
                                     className="up-topic-card up-topic-card-link"
-                                    title={`Open ${topic.topic} in works`}
+                                    title={`Open ${topic.topic} in resources`}
                                   >
                                     <div className="up-topic-header">
                                       <div className="up-topic-title">

@@ -303,7 +303,7 @@ const WorkTopicPageWrapper = () => {
         .replace(/[^a-zA-Z0-9]/g, "_") + ".pdf";
 
       // Download it
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const blob = new globalThis.Blob([pdfBytes], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

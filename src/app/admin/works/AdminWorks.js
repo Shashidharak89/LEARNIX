@@ -210,7 +210,7 @@ export default function AdminWorks() {
                         <FiEye size={12} /> {topic.views ?? 0} views
                       </span>
                       <Link
-                        href={`/works/${topic._id}`}
+                        href={`/resources/${topic._id}`}
                         target="_blank"
                         className="aw-meta-chip"
                         style={{ color: "#4f46e5", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "4px" }}

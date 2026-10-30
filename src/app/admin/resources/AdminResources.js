@@ -513,7 +513,7 @@ export default function AdminResources({ defaultTab = "subjects" }) {
                         </span>
                         <div>
                           <Link
-                            href={`/works/subject/${s._id}`}
+                            href={`/resources/subject/${s._id}`}
                             target="_blank"
                             style={{ fontSize: "0.76rem", color: "#6366f1", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 3, marginTop: 2 }}
                           >
@@ -789,7 +789,7 @@ export default function AdminResources({ defaultTab = "subjects" }) {
                       {/* Action View */}
                       <td style={{ textAlign: "right" }}>
                         <Link
-                          href={`/works/${t._id}`}
+                          href={`/resources/${t._id}`}
                           target="_blank"
                           className="ar-btn-view-topics"
                           style={{ textDecoration: "none" }}
@@ -900,7 +900,7 @@ export default function AdminResources({ defaultTab = "subjects" }) {
                         <td>
                           <div style={{ fontWeight: 700, color: "#0f172a" }}>{topic.topic}</div>
                           <Link
-                            href={`/works/${topic._id}`}
+                            href={`/resources/${topic._id}`}
                             target="_blank"
                             style={{ fontSize: "0.76rem", color: "#6366f1", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 3 }}
                           >

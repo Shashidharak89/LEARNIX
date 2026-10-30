@@ -50,7 +50,7 @@ function getLearnixLinksFromText(messageText) {
       if (!isLearnix) return null;
 
       const pathname = parsed.pathname || "/";
-      const isWorksTopic = /^\/works\/.+/i.test(pathname);
+      const isWorksTopic = /^\/(works|resources)\/.+/i.test(pathname);
 
       return {
         href: parsed.toString(),
