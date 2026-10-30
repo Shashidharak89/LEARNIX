@@ -10,6 +10,7 @@ import SubjectTopicFilter from './SubjectTopicFilter';
 import Ads from '../components/ads/Ads';
 import ImageLoader from '../components/ImageLoader';
 import './styles/WorkSearchInterface.css';
+import { authFetch } from '@/lib/clientAuth';
 import { toggleLearnLaterClient, checkLearnLaterStatusClient } from '@/lib/clientLearnLater';
 
 // LocalStorage key for saved topics (same as in /resources/[id])
