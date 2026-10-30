@@ -152,17 +152,6 @@ const WorkTopicPageWrapper = () => {
     fetchData();
   }, [id]);
 
-  const handleSaveToggle = () => {
-    if (!data) return;
-    
-    if (isSaved) {
-      removeSavedTopic(data.topic._id);
-      setIsSaved(false);
-    } else {
-      saveTopic(data);
-      setIsSaved(true);
-    }
-  };
 
   const downloadTopicAsPDF = async (data, options = {}) => {
     const customDownloadLink = data?.topic?.downloadlink?.trim();
@@ -357,8 +346,6 @@ const WorkTopicPageWrapper = () => {
         onDownload={downloadTopicAsPDF}
         onShare={handleShare}
         topicId={id}
-        isSaved={isSaved}
-        onSaveToggle={handleSaveToggle}
         usingCachedData={usingCachedData}
       />
 

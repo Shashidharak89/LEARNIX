@@ -10,8 +10,7 @@ import SubjectTopicFilter from './SubjectTopicFilter';
 import Ads from '../components/ads/Ads';
 import ImageLoader from '../components/ImageLoader';
 import './styles/WorkSearchInterface.css';
-import { authFetch } from '@/lib/clientAuth';
-import { toggleLearnLaterClient } from '@/lib/clientLearnLater';
+import { toggleLearnLaterClient, checkLearnLaterStatusClient } from '@/lib/clientLearnLater';
 
 // LocalStorage key for saved topics (same as in /resources/[id])
 const SAVED_TOPICS_KEY = 'learnix_saved_topics';
@@ -871,6 +870,38 @@ function TopicCard({
     setIsMenuOpen((prev) => !prev);
   };
 
+  const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    const tid = topic.topicId || topic._id;
+    if (tid) {
+      checkLearnLaterStatusClient([{ type: "resource", targetId: tid }])
+        .then((res) => {
+          if (mounted && res && res[`resource:${tid}`]) {
+            setIsSavedInLearnLater(true);
+          }
+        })
+        .catch(() => {});
+    }
+    return () => {
+      mounted = false;
+    };
+  }, [topic.topicId, topic._id]);
+
+  useEffect(() => {
+    const handleUpdate = (e) => {
+      const tid = topic.topicId || topic._id;
+      if (e.detail?.item?.targetId === tid || e.detail?.itemId === `resource:${tid}`) {
+        if (e.detail?.isSaved !== undefined) {
+          setIsSavedInLearnLater(e.detail.isSaved);
+        }
+      }
+    };
+    window.addEventListener("learnix:learn-later-updated", handleUpdate);
+    return () => window.removeEventListener("learnix:learn-later-updated", handleUpdate);
+  }, [topic.topicId, topic._id]);
+
   const handleOpenClick = () => {
     setIsMenuOpen(false);
     window.open(`/resources/${topic.topicId}`, "_blank", "noopener,noreferrer");
@@ -881,14 +912,9 @@ function TopicCard({
     onShare(topic);
   };
 
-  const handleSaveClick = () => {
-    setIsMenuOpen(false);
-    onSaveToggle(topic);
-  };
-
   const handleLearnLaterClick = async () => {
     setIsMenuOpen(false);
-    await toggleLearnLaterClient({
+    const res = await toggleLearnLaterClient({
       type: 'resource',
       targetId: topic.topicId || topic._id,
       title: topic.topic,
@@ -901,10 +927,13 @@ function TopicCard({
         subjectName: topic.subjectName,
       },
     });
+    if (res && res.success !== false) {
+      setIsSavedInLearnLater(res.isSaved);
+    }
   };
 
   return (
-    <div className={`ws-topic-card ${isSaved ? 'ws-saved-card' : ''}`} data-topic-index={index}>
+    <div className={`ws-topic-card ${isSaved || isSavedInLearnLater ? 'ws-saved-card' : ''}`} data-topic-index={index}>
       <div className="ws-card-header">
         <div className="ws-topic-info">
           <Link href={`/resources/${topic.topicId}`} className="ws-topic-link" target="_blank" rel="noopener noreferrer">
@@ -943,14 +972,6 @@ function TopicCard({
             <Sparkles size={16} className="ws-ai-btn-icon" />
           </button>
 
-          <button
-            onClick={() => onDownloadAsPDF(topic, index)}
-            className="ws-action-btn ws-download-btn"
-            disabled={!hasImages}
-            title="Download as PDF"
-          >
-            <FiDownload />
-          </button>
           <div className="ws-menu-container" ref={isMenuOpen ? menuRef : null}>
             <button
               onClick={handleMenuToggle}
@@ -966,16 +987,12 @@ function TopicCard({
                   <span>Open</span>
                 </button>
                 <button className="ws-menu-item" onClick={handleLearnLaterClick}>
-                  <FiBookmark className="ws-menu-icon" />
-                  <span>Learn Later</span>
+                  <FiBookmark className={`ws-menu-icon ${isSavedInLearnLater ? 'ws-item-saved' : ''}`} />
+                  <span>{isSavedInLearnLater ? 'Saved in Learn Later' : 'Learn Later'}</span>
                 </button>
                 <button className="ws-menu-item" onClick={handleShareClick}>
                   <FiShare2 className="ws-menu-icon" />
                   <span>Share</span>
-                </button>
-                <button className="ws-menu-item" onClick={handleSaveClick}>
-                  {isSaved ? <FaBookmark className="ws-menu-icon" /> : <FaRegBookmark className="ws-menu-icon" />}
-                  <span>{isSaved ? 'Unsave' : 'Save'}</span>
                 </button>
               </div>
             )}

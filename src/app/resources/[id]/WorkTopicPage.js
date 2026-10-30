@@ -23,7 +23,7 @@ import { FaChevronDown } from "react-icons/fa6";
 import { FiChevronLeft, FiChevronRight, FiX } from "react-icons/fi";
 import TopicReviews from "./TopicReviews";
 import Ads from "../../components/ads/Ads";
-import { toggleLearnLaterClient } from "@/lib/clientLearnLater";
+import { toggleLearnLaterClient, checkLearnLaterStatusClient } from "@/lib/clientLearnLater";
 import ImageLoader from "../../components/ImageLoader";
 import OpenInApp from "./OpenInApp";
 import "./styles/WorkTopicPage.css";
@@ -155,7 +155,7 @@ const WtpcLightbox = ({ images, startIndex, onClose }) => {
   );
 };
 
-const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isSaved, onSaveToggle, usingCachedData }) => {
+const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usingCachedData }) => {
   const [expandedImages, setExpandedImages] = useState({});
   const [showPageNumbers, setShowPageNumbers] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(null); // lightbox
@@ -166,15 +166,63 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
   const [visiblePageCount, setVisiblePageCount] = useState(10);
   const [startPage, setStartPage] = useState(1);
   const [endPage, setEndPage] = useState(1);
+  const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(false);
+  const [isLearnLaterLoading, setIsLearnLaterLoading] = useState(false);
 
+  useEffect(() => {
+    let mounted = true;
+    if (topicId) {
+      checkLearnLaterStatusClient([{ type: "resource", targetId: topicId }])
+        .then((res) => {
+          if (mounted && res && res[`resource:${topicId}`]) {
+            setIsSavedInLearnLater(true);
+          }
+        })
+        .catch(() => {});
+    }
+    return () => {
+      mounted = false;
+    };
+  }, [topicId]);
+
+  useEffect(() => {
+    const handleUpdate = (e) => {
+      if (e.detail?.item?.targetId === topicId || e.detail?.itemId === `resource:${topicId}`) {
+        if (e.detail?.isSaved !== undefined) {
+          setIsSavedInLearnLater(e.detail.isSaved);
+        }
+      }
+    };
+    window.addEventListener("learnix:learn-later-updated", handleUpdate);
+    return () => window.removeEventListener("learnix:learn-later-updated", handleUpdate);
+  }, [topicId]);
 
   const rawImages = Array.isArray(data?.topic?.images) ? data.topic.images : [];
   const validImages = rawImages.filter((img) => img && img.trim() !== "");
   const hasImages = validImages.length > 0;
 
-  const handleSave = () => {
-    if (onSaveToggle) {
-      onSaveToggle();
+  const handleToggleLearnLater = async () => {
+    if (!data?.topic || isLearnLaterLoading) return;
+    setIsLearnLaterLoading(true);
+    try {
+      const res = await toggleLearnLaterClient({
+        type: 'resource',
+        targetId: topicId,
+        title: data.topic.topic,
+        subtitle: data.subject?.subject,
+        description: data.topic.content,
+        url: `/resources/${topicId}`,
+        metadata: {
+          userName: data.user?.name,
+          usn: data.user?.usn,
+          subjectName: data.subject?.subject,
+        }
+      });
+      if (res && res.success !== false) {
+        setIsSavedInLearnLater(res.isSaved);
+      }
+    } finally {
+      setIsLearnLaterLoading(false);
     }
   };
 
@@ -378,34 +426,13 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, isS
             <span className="wtpc-btn-text">Share</span>
           </button>
           <button 
-            onClick={handleSave}
-            className={`wtpc-action-btn wtpc-save-btn ${isSaved ? 'wtpc-saved' : ''}`}
-            title={isSaved ? "Remove from Saved" : "Save Topic"}
+            onClick={handleToggleLearnLater}
+            className={`wtpc-action-btn wtpc-learn-later-btn ${isSavedInLearnLater ? 'wtpc-saved' : ''}`}
+            title={isSavedInLearnLater ? "Remove from Learn Later" : "Save to Learn Later"}
+            disabled={isLearnLaterLoading}
           >
-            {isSaved ? <FaBookmark /> : <FaRegBookmark />}
-            <span className="wtpc-btn-text">{isSaved ? 'Saved' : 'Save'}</span>
-          </button>
-          <button 
-            onClick={async () => {
-              await toggleLearnLaterClient({
-                type: 'resource',
-                targetId: topicId,
-                title: topic.topic,
-                subtitle: subject?.subject,
-                description: topic.content,
-                url: `/resources/${topicId}`,
-                metadata: {
-                  userName: user?.name,
-                  usn: user?.usn,
-                  subjectName: subject?.subject,
-                }
-              });
-            }}
-            className="wtpc-action-btn wtpc-learn-later-btn"
-            title="Save to Learn Later (DynamoDB)"
-          >
-            <FaBookmark />
-            <span className="wtpc-btn-text">Learn Later</span>
+            {isSavedInLearnLater ? <FaBookmark /> : <FaRegBookmark />}
+            <span className="wtpc-btn-text">{isSavedInLearnLater ? 'Saved' : 'Learn Later'}</span>
           </button>
         </div>
 

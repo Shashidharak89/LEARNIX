@@ -1066,6 +1066,11 @@
   flex-shrink: 0;
 }
 
+.ws-menu-item .ws-item-saved {
+  color: #0b74ff;
+  fill: #0b74ff;
+}
+
 /* Saved Card Styling */
 .ws-topic-card.ws-saved-card {
   border-color: rgba(139, 92, 246, 0.3);
