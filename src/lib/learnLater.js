@@ -121,7 +121,7 @@ export async function toggleLearnLater(userId, payload) {
 /**
  * Fetch all Learn Later items for a user with search and type filter
  */
-export async function getLearnLaterItems(userId, { type, search, sort = "newest" } = {}) {
+export async function getLearnLaterItems(userId, { type, search, sort = "newest", limit } = {}) {
   if (!userId) return { items: [], total: 0, counts: {} };
 
   const queryRes = await docClient.send(
@@ -180,8 +180,13 @@ export async function getLearnLaterItems(userId, { type, search, sort = "newest"
     });
   }
 
+  let result = filtered;
+  if (limit && Number(limit) > 0) {
+    result = result.slice(0, Number(limit));
+  }
+
   return {
-    items: filtered,
+    items: result,
     total: filtered.length,
     counts,
   };

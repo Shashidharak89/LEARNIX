@@ -3,56 +3,88 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
-  FiBookmark,
   FiSearch,
   FiX,
   FiExternalLink,
   FiTrash2,
+  FiCalendar,
+  FiClock,
   FiFolder,
   FiBell,
   FiBookOpen,
-  FiClipboard,
-  FiCalendar,
-  FiLayers,
-  FiArrowRight,
+  FiFileText,
   FiCheck,
 } from "react-icons/fi";
+import { Bookmark } from "lucide-react";
 import { authFetch } from "@/lib/clientAuth";
 import "./styles/LearnLater.css";
 
-const CATEGORIES = [
-  { id: "all", label: "All Items", icon: FiLayers, color: "#007aff", bg: "#eff6ff", border: "#bfdbfe" },
-  { id: "resource", label: "Resources", icon: FiFolder, color: "#0284c7", bg: "#e0f2fe", border: "#bae6fd" },
-  { id: "update", label: "Updates", icon: FiBell, color: "#b45309", bg: "#fef3c7", border: "#fde68a" },
-  { id: "study-material", label: "Study Materials", icon: FiBookOpen, color: "#1d4ed8", bg: "#eff6ff", border: "#bfdbfe" },
-  { id: "question-paper", label: "Question Papers", icon: FiClipboard, color: "#d97706", bg: "#fffbeb", border: "#fde68a" },
-];
+const TYPE_CONFIG = {
+  resource: {
+    label: "Resource",
+    icon: FiFolder,
+    stripeColor: "#0b74ff",
+    badgeClass: "ll-badge--resource",
+  },
+  update: {
+    label: "Update",
+    icon: BellIconWrapper,
+    stripeColor: "#f59e0b",
+    badgeClass: "ll-badge--update",
+  },
+  "study-material": {
+    label: "Study Material",
+    icon: FiBookOpen,
+    stripeColor: "#2563eb",
+    badgeClass: "ll-badge--study",
+  },
+  "question-paper": {
+    label: "Question Paper",
+    icon: FiFileText,
+    stripeColor: "#d97706",
+    badgeClass: "ll-badge--qp",
+  },
+};
+
+function BellIconWrapper(props) {
+  return <FiBell {...props} />;
+}
+
+function normalizeItemType(type) {
+  const t = String(type || "").toLowerCase().trim();
+  if (t.includes("resource") || t.includes("topic") || t.includes("work")) {
+    return "resource";
+  }
+  if (t.includes("update")) {
+    return "update";
+  }
+  if (t.includes("material") || t.includes("sm")) {
+    return "study-material";
+  }
+  if (t.includes("paper") || t.includes("qp")) {
+    return "question-paper";
+  }
+  return "resource";
+}
 
 export default function LearnLaterClient() {
   const [items, setItems] = useState([]);
-  const [counts, setCounts] = useState({
-    all: 0,
-    resource: 0,
-    update: 0,
-    "study-material": 0,
-    "question-paper": 0,
-  });
   const [isLoading, setIsLoading] = useState(true);
   const [isDeletingId, setIsDeletingId] = useState(null);
-  const [activeCategory, setActiveCategory] = useState("all");
   const [searchInput, setSearchInput] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [activeQuery, setActiveQuery] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [toastMessage, setToastMessage] = useState("");
 
   const showToast = useCallback((msg) => {
     setToastMessage(msg);
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setToastMessage("");
     }, 3000);
+    return () => clearTimeout(timer);
   }, []);
 
-  const fetchItems = useCallback(async (cat = activeCategory, query = searchQuery) => {
+  const fetchItems = useCallback(async (query = "") => {
     setIsLoading(true);
     try {
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -64,8 +96,11 @@ export default function LearnLaterClient() {
       setIsLoggedIn(true);
 
       const params = new window.URLSearchParams();
-      if (cat && cat !== "all") params.set("type", cat);
-      if (query.trim()) params.set("q", query.trim());
+      params.set("limit", "10");
+      params.set("sort", "newest");
+      if (query.trim()) {
+        params.set("q", query.trim());
+      }
 
       const res = await authFetch(`/api/learn-later?${params.toString()}`);
       if (res.status === 401) {
@@ -76,39 +111,40 @@ export default function LearnLaterClient() {
 
       const data = await res.json();
       if (data.success) {
-        setItems(data.items || []);
-        if (data.counts) {
-          setCounts(data.counts);
-        }
+        // Enforce maximum 10 latest records
+        const records = (data.items || []).slice(0, 10);
+        setItems(records);
       }
     } catch (err) {
       console.error("Error fetching learn later items:", err);
     } finally {
       setIsLoading(false);
     }
-  }, [activeCategory, searchQuery]);
+  }, []);
 
   // Initial load
   useEffect(() => {
-    fetchItems(activeCategory, searchQuery);
-  }, [activeCategory, searchQuery, fetchItems]);
+    fetchItems(activeQuery);
+  }, [activeQuery, fetchItems]);
 
-  // Listen to cross-component updates
+  // Listen for cross-component sync
   useEffect(() => {
     const handleSync = () => {
-      fetchItems(activeCategory, searchQuery);
+      fetchItems(activeQuery);
     };
     window.addEventListener("learnix:learn-later-updated", handleSync);
     return () => window.removeEventListener("learnix:learn-later-updated", handleSync);
-  }, [activeCategory, searchQuery, fetchItems]);
+  }, [activeQuery, fetchItems]);
 
-  // Debounce search input
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setSearchQuery(searchInput);
-    }, 350);
-    return () => clearTimeout(timer);
-  }, [searchInput]);
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    setActiveQuery(searchInput.trim());
+  };
+
+  const handleClearSearch = () => {
+    setSearchInput("");
+    setActiveQuery("");
+  };
 
   const handleDeleteItem = async (e, item) => {
     e.preventDefault();
@@ -125,20 +161,14 @@ export default function LearnLaterClient() {
       const data = await res.json();
       if (data.success) {
         setItems((prev) => prev.filter((it) => (it.itemId || it.id) !== idToDelete));
-        setCounts((prev) => {
-          const typeKey = itType(item.type);
-          return {
-            ...prev,
-            all: Math.max(0, prev.all - 1),
-            [typeKey]: Math.max(0, (prev[typeKey] || 1) - 1),
-          };
-        });
         showToast("Removed from Learn Later");
         window.dispatchEvent(
           new window.CustomEvent("learnix:learn-later-updated", {
             detail: { itemId: idToDelete, isSaved: false },
           })
         );
+      } else {
+        showToast("Could not remove item. Please try again.");
       }
     } catch (err) {
       console.error("Failed to delete item:", err);
@@ -146,20 +176,6 @@ export default function LearnLaterClient() {
     } finally {
       setIsDeletingId(null);
     }
-  };
-
-  const itType = (rawType) => {
-    const t = String(rawType || "").toLowerCase();
-    if (t.includes("resource") || t.includes("topic") || t.includes("work")) return "resource";
-    if (t.includes("update")) return "update";
-    if (t.includes("material") || t.includes("sm")) return "study-material";
-    if (t.includes("paper") || t.includes("qp")) return "question-paper";
-    return "resource";
-  };
-
-  const getTypeMeta = (type) => {
-    const norm = itType(type);
-    return CATEGORIES.find((c) => c.id === norm) || CATEGORIES[1];
   };
 
   const formatDate = (isoString) => {
@@ -177,7 +193,7 @@ export default function LearnLaterClient() {
   };
 
   return (
-    <div className="ll-container">
+    <div className="ll-page-container">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="ll-toast" role="status" aria-live="polite">
@@ -186,316 +202,198 @@ export default function LearnLaterClient() {
         </div>
       )}
 
-      {/* Hero / Header Section */}
-      <header className="ll-header">
-        <div className="ll-header-meta">
-          <div className="ll-header-badge">
-            <FiBookmark className="ll-badge-icon" />
-            <span>Personal Queue</span>
-          </div>
-          <h1 className="ll-title">Learn Later</h1>
-          <p className="ll-subtitle">
-            Your high-priority learning stack. Review saved resources, updates, study materials, and question papers stored securely in your queue.
-          </p>
-        </div>
-
-        {/* iPhone-Style Summary Widgets */}
-        <div className="ll-widgets-grid">
-          {/* Main Total Widget */}
-          <div
-            className={`ll-widget ll-widget--primary ${activeCategory === "all" ? "is-selected" : ""}`}
-            onClick={() => setActiveCategory("all")}
-            role="button"
-            tabIndex={0}
-          >
-            <div className="ll-widget-top">
-              <span className="ll-widget-icon-pill ll-widget-icon-pill--primary">
-                <FiLayers size={18} />
-              </span>
-              <span className="ll-widget-pill-badge">DynamoDB Synced</span>
-            </div>
-            <div className="ll-widget-body">
-              <span className="ll-widget-value">{counts.all}</span>
-              <span className="ll-widget-label">Total in Queue</span>
-            </div>
-            <div className="ll-widget-footer">
-              <span>View all saved items</span>
-              <FiArrowRight size={14} className="ll-widget-arrow" />
-            </div>
+      <main className="ll-main">
+        {/* Intro Card - Refactored to match Updates Page Header */}
+        <div className="ll-intro-card">
+          <div className="ll-intro-header">
+            <h1 className="ll-title">
+              <Bookmark className="ll-title-icon" size={24} />
+              <span>Learn Later</span>
+            </h1>
           </div>
 
-          {/* Resources Widget */}
-          <div
-            className={`ll-widget ${activeCategory === "resource" ? "is-selected" : ""}`}
-            onClick={() => setActiveCategory("resource")}
-            role="button"
-            tabIndex={0}
-          >
-            <div className="ll-widget-top">
-              <span className="ll-widget-icon-pill" style={{ background: "#e0f2fe", color: "#0284c7" }}>
-                <FiFolder size={18} />
-              </span>
-              <span className="ll-widget-counter">{counts.resource}</span>
+          {/* Search Form - exact Updates Page searchbar design */}
+          <form className="ll-search-form" onSubmit={handleSearchSubmit}>
+            <div className="ll-search-wrap">
+              <FiSearch className="ll-search-icon" />
+              <input
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="ll-search-input"
+                placeholder="Search saved items by title, subject, or keywords..."
+                aria-label="Search saved items"
+              />
+              {searchInput && (
+                <button
+                  type="button"
+                  className="ll-search-clear-inline"
+                  onClick={handleClearSearch}
+                  aria-label="Clear search"
+                >
+                  <FiX size={14} />
+                </button>
+              )}
             </div>
-            <div className="ll-widget-body">
-              <span className="ll-widget-name">Resources</span>
-              <span className="ll-widget-sub">Topics & Notes</span>
-            </div>
-          </div>
-
-          {/* Updates Widget */}
-          <div
-            className={`ll-widget ${activeCategory === "update" ? "is-selected" : ""}`}
-            onClick={() => setActiveCategory("update")}
-            role="button"
-            tabIndex={0}
-          >
-            <div className="ll-widget-top">
-              <span className="ll-widget-icon-pill" style={{ background: "#fef3c7", color: "#d97706" }}>
-                <FiBell size={18} />
-              </span>
-              <span className="ll-widget-counter">{counts.update}</span>
-            </div>
-            <div className="ll-widget-body">
-              <span className="ll-widget-name">Updates</span>
-              <span className="ll-widget-sub">Announcements</span>
-            </div>
-          </div>
-
-          {/* Study Materials Widget */}
-          <div
-            className={`ll-widget ${activeCategory === "study-material" ? "is-selected" : ""}`}
-            onClick={() => setActiveCategory("study-material")}
-            role="button"
-            tabIndex={0}
-          >
-            <div className="ll-widget-top">
-              <span className="ll-widget-icon-pill" style={{ background: "#eff6ff", color: "#1d4ed8" }}>
-                <FiBookOpen size={18} />
-              </span>
-              <span className="ll-widget-counter">{counts["study-material"]}</span>
-            </div>
-            <div className="ll-widget-body">
-              <span className="ll-widget-name">Materials</span>
-              <span className="ll-widget-sub">PDFs & Guides</span>
-            </div>
-          </div>
-
-          {/* Question Papers Widget */}
-          <div
-            className={`ll-widget ${activeCategory === "question-paper" ? "is-selected" : ""}`}
-            onClick={() => setActiveCategory("question-paper")}
-            role="button"
-            tabIndex={0}
-          >
-            <div className="ll-widget-top">
-              <span className="ll-widget-icon-pill" style={{ background: "#fffbeb", color: "#f59e0b" }}>
-                <FiClipboard size={18} />
-              </span>
-              <span className="ll-widget-counter">{counts["question-paper"]}</span>
-            </div>
-            <div className="ll-widget-body">
-              <span className="ll-widget-name">QP Papers</span>
-              <span className="ll-widget-sub">Previous Exams</span>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Controls: Search and Segmented Bar */}
-      <section className="ll-controls">
-        {/* iOS-Style Searchbar */}
-        <div className="ll-search-wrapper">
-          <FiSearch className="ll-search-icon" />
-          <input
-            type="text"
-            placeholder="Search your saved queue by title, subject, or keywords..."
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            className="ll-search-input"
-            aria-label="Search saved items"
-          />
-          {searchInput && (
             <button
-              type="button"
-              className="ll-search-clear"
-              onClick={() => {
-                setSearchInput("");
-                setSearchQuery("");
-              }}
-              aria-label="Clear search"
+              type="submit"
+              className="ll-search-btn"
+              disabled={!searchInput.trim()}
             >
-              <FiX size={14} />
+              <FiSearch className="ll-search-btn-icon" />
+              <span className="ll-search-btn-text">Search</span>
             </button>
-          )}
+          </form>
         </div>
 
-        {/* Segmented Control Bar */}
-        <div className="ll-segmented-bar" role="tablist">
-          {CATEGORIES.map((cat) => {
-            const Icon = cat.icon;
-            const count = counts[cat.id] || 0;
-            const isActive = activeCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                role="tab"
-                aria-selected={isActive}
-                className={`ll-segment-btn ${isActive ? "is-active" : ""}`}
-                onClick={() => setActiveCategory(cat.id)}
-              >
-                <Icon size={15} className="ll-segment-icon" />
-                <span className="ll-segment-label">{cat.label}</span>
-                <span className="ll-segment-count">{count}</span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Main Content Area */}
-      <main className="ll-content">
-        {!isLoggedIn ? (
-          <div className="ll-auth-card">
-            <div className="ll-auth-icon-wrap">
-              <FiBookmark size={32} />
-            </div>
-            <h3 className="ll-auth-title">Authentication Required</h3>
-            <p className="ll-auth-desc">
-              Sign in with your Learnix account to view and manage your personalized Learn Later queue.
-            </p>
-            <Link href="/login?redirect=/learn-later" className="ll-auth-btn">
-              Sign In to Continue
-            </Link>
-          </div>
-        ) : isLoading ? (
-          <div className="ll-cards-grid">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="ll-card ll-card--skeleton">
-                <div className="ll-skeleton-top" />
-                <div className="ll-skeleton-title" />
-                <div className="ll-skeleton-text" />
-                <div className="ll-skeleton-footer" />
+        {/* Content List Area */}
+        <div className="ll-content">
+          {!isLoggedIn ? (
+            <div className="ll-auth-card">
+              <div className="ll-auth-icon-wrap">
+                <Bookmark size={30} />
               </div>
-            ))}
-          </div>
-        ) : items.length === 0 ? (
-          <div className="ll-empty-state">
-            <div className="ll-empty-icon-wrap">
-              <FiBookmark size={36} />
-            </div>
-            <h3 className="ll-empty-title">
-              {searchQuery ? "No matches found" : "Your queue is empty"}
-            </h3>
-            <p className="ll-empty-desc">
-              {searchQuery
-                ? `No saved items match "${searchQuery}". Try a different keyword or category.`
-                : "Whenever you encounter helpful resources, important updates, study materials, or question papers, click the 3-dot menu and select 'Learn Later'."}
-            </p>
-            <div className="ll-empty-actions">
-              <Link href="/works" className="ll-empty-btn ll-empty-btn--primary">
-                <FiFolder size={16} />
-                <span>Explore Resources</span>
-              </Link>
-              <Link href="/updates" className="ll-empty-btn">
-                <FiBell size={16} />
-                <span>Check Updates</span>
-              </Link>
-              <Link href="/materials" className="ll-empty-btn">
-                <FiBookOpen size={16} />
-                <span>Study Materials</span>
-              </Link>
-              <Link href="/qp" className="ll-empty-btn">
-                <FiClipboard size={16} />
-                <span>Question Papers</span>
+              <h3 className="ll-auth-title">Authentication Required</h3>
+              <p className="ll-auth-desc">
+                Sign in with your Learnix account to view and access your saved Learn Later queue.
+              </p>
+              <Link href="/login?redirect=/learn-later" className="ll-auth-btn">
+                Sign In to Continue
               </Link>
             </div>
-          </div>
-        ) : (
-          <div className="ll-cards-grid">
-            {items.map((item) => {
-              const meta = getTypeMeta(item.type);
-              const Icon = meta.icon;
-              const itemId = item.itemId || item.id;
-              const isDeleting = isDeletingId === itemId;
-              const targetUrl = item.url || "/works";
-
-              return (
-                <article key={itemId} className={`ll-card ${isDeleting ? "is-removing" : ""}`}>
-                  {/* Card Header with Category Pill & Date */}
-                  <div className="ll-card-header">
-                    <span
-                      className="ll-type-badge"
-                      style={{
-                        background: meta.bg,
-                        color: meta.color,
-                        border: `1px solid ${meta.border || "transparent"}`,
-                      }}
-                    >
-                      <Icon size={13} className="ll-badge-type-icon" />
-                      <span>{meta.label}</span>
-                    </span>
-                    <div className="ll-card-date">
-                      <FiCalendar size={13} />
-                      <span>{formatDate(item.createdAt)}</span>
-                    </div>
+          ) : isLoading ? (
+            <div className="ll-list">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="ll-card ll-card--skeleton">
+                  <div className="ll-skeleton-header">
+                    <div className="ll-skeleton-pill" />
+                    <div className="ll-skeleton-date" />
                   </div>
+                  <div className="ll-skeleton-line ll-skeleton-title" />
+                  <div className="ll-skeleton-line ll-skeleton-text" />
+                  <div className="ll-skeleton-actions" />
+                </div>
+              ))}
+            </div>
+          ) : items.length === 0 ? (
+            <div className="ll-empty-state">
+              <FiClock className="ll-empty-icon" />
+              <p className="ll-empty-text">
+                {activeQuery
+                  ? `No saved items found matching "${activeQuery}".`
+                  : "Your Learn Later queue is empty."}
+              </p>
+              <p className="ll-empty-subtext">
+                {activeQuery
+                  ? "Try searching with a different keyword."
+                  : "Bookmark updates, resources, study materials, or question papers to review them anytime."}
+              </p>
+              {!activeQuery && (
+                <div className="ll-empty-actions">
+                  <Link href="/updates" className="ll-empty-btn ll-empty-btn-primary">
+                    <FiBell size={14} />
+                    <span>View Updates</span>
+                  </Link>
+                  <Link href="/works" className="ll-empty-btn">
+                    <FiFolder size={14} />
+                    <span>Explore Resources</span>
+                  </Link>
+                  <Link href="/materials" className="ll-empty-btn">
+                    <FiBookOpen size={14} />
+                    <span>Study Materials</span>
+                  </Link>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="ll-list">
+              {items.map((item) => {
+                const normType = normalizeItemType(item.type);
+                const config = TYPE_CONFIG[normType] || TYPE_CONFIG.resource;
+                const IconComponent = config.icon;
+                const itemId = item.itemId || item.id;
+                const isDeleting = isDeletingId === itemId;
+                const targetUrl = item.url || "/works";
 
-                  {/* Title & Subtitle */}
-                  <div className="ll-card-body">
-                    <h2 className="ll-card-title">
+                return (
+                  <article
+                    key={itemId}
+                    className={`ll-card ${isDeleting ? "is-removing" : ""}`}
+                    style={{ "--ll-card-accent": config.stripeColor }}
+                  >
+                    {/* Card Top Accent Stripe */}
+                    <div className="ll-card-stripe" />
+
+                    {/* Card Header Row: Badge & Timestamp */}
+                    <div className="ll-card-header">
+                      <div className="ll-card-header-left">
+                        <span className={`ll-type-pill ${config.badgeClass}`}>
+                          <IconComponent size={13} className="ll-pill-icon" />
+                          <span>{config.label}</span>
+                        </span>
+                        {item.subtitle && (
+                          <span className="ll-subject-tag" title={item.subtitle}>
+                            {item.subtitle}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="ll-card-date">
+                        <FiCalendar size={13} />
+                        <span>{formatDate(item.createdAt)}</span>
+                      </div>
+                    </div>
+
+                    {/* Card Body: Title & Content */}
+                    <div className="ll-card-body">
+                      <h2 className="ll-card-title">
+                        <a
+                          href={targetUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="ll-card-title-link"
+                          title={item.title}
+                        >
+                          {item.title}
+                        </a>
+                      </h2>
+
+                      {item.description && (
+                        <p className="ll-card-desc">{item.description}</p>
+                      )}
+                    </div>
+
+                    {/* Card Footer Actions */}
+                    <div className="ll-card-footer">
                       <a
                         href={targetUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="ll-card-link"
+                        className="ll-action-visit"
+                        title="Open saved item in a new tab"
                       >
-                        {item.title}
+                        <span>Open Item</span>
+                        <FiExternalLink size={13} />
                       </a>
-                    </h2>
 
-                    {item.subtitle && (
-                      <div className="ll-card-subtitle" title={item.subtitle}>
-                        {item.subtitle}
-                      </div>
-                    )}
-
-                    {item.description && (
-                      <p className="ll-card-description">
-                        {item.description}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Card Footer Actions */}
-                  <div className="ll-card-footer">
-                    <a
-                      href={targetUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="ll-action-view"
-                      title="Open item in new tab"
-                    >
-                      <span>Open Now</span>
-                      <FiExternalLink size={14} />
-                    </a>
-
-                    <button
-                      type="button"
-                      className="ll-action-delete"
-                      onClick={(e) => handleDeleteItem(e, item)}
-                      disabled={isDeleting}
-                      title="Remove from Learn Later"
-                      aria-label="Remove from Learn Later"
-                    >
-                      <FiTrash2 size={15} />
-                    </button>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
+                      <button
+                        type="button"
+                        className="ll-action-delete"
+                        onClick={(e) => handleDeleteItem(e, item)}
+                        disabled={isDeleting}
+                        title="Remove from Learn Later"
+                        aria-label="Remove from Learn Later"
+                      >
+                        <FiTrash2 size={14} />
+                        <span>Remove</span>
+                      </button>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );

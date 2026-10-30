@@ -36,8 +36,10 @@ export async function GET(req) {
     const type = searchParams.get("type") || "all";
     const search = searchParams.get("q") || searchParams.get("search") || "";
     const sort = searchParams.get("sort") || "newest";
+    const limitParam = searchParams.get("limit");
+    const limit = limitParam ? parseInt(limitParam, 10) : null;
 
-    const data = await getLearnLaterItems(userId, { type, search, sort });
+    const data = await getLearnLaterItems(userId, { type, search, sort, limit });
 
     return NextResponse.json({
       success: true,
