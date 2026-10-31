@@ -1,7 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { FiChevronRight, FiChevronDown, FiBookmark, FiPlusCircle, FiTrash2 } from "react-icons/fi";
+import React, { useState, useEffect, useRef } from "react";
+import { 
+    ChevronRightIcon, 
+    ChevronDownIcon, 
+    BookmarkIcon, 
+    CirclePlusIcon, 
+    Trash2Icon 
+} from "@animateicons/react/lucide";
 import SMDirectoryNode from "@/app/admin/study-materials/SMDirectoryNode";
 import SMPreferenceSelector from "./SMPreferenceSelector";
 
@@ -101,17 +107,30 @@ export default function SMPreferenceCard() {
         setIsSelectorOpen(false);
     };
 
+    const emptyBookmarkRef = useRef(null);
+    const emptyPlusRef = useRef(null);
+    const listBookmarkRef = useRef(null);
+    const listPlusRef = useRef(null);
+
     return (
         <div className="sm-pref-card-section">
             {/* If no preferences are set */}
             {preferences.length === 0 ? (
                 <div 
                     onClick={() => setIsSelectorOpen(true)}
+                    onMouseEnter={() => {
+                        emptyBookmarkRef.current?.startAnimation?.();
+                        emptyPlusRef.current?.startAnimation?.();
+                    }}
+                    onMouseLeave={() => {
+                        emptyBookmarkRef.current?.stopAnimation?.();
+                        emptyPlusRef.current?.stopAnimation?.();
+                    }}
                     className="sm-pref-empty-card"
                 >
                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                         <div className="sm-pref-badge-icon">
-                            <FiBookmark size={16} color="#0ea5e9" />
+                            <BookmarkIcon ref={emptyBookmarkRef} size={18} color="#0ea5e9" />
                         </div>
                         <div>
                             <span className="sm-pref-empty-title">Your Preferences</span>
@@ -121,16 +140,20 @@ export default function SMPreferenceCard() {
                         </div>
                     </div>
                     <button type="button" className="sm-pref-add-btn">
-                        <FiPlusCircle size={15} />
-                        Set Preference
+                        <CirclePlusIcon ref={emptyPlusRef} size={16} />
+                        <span>Set Preference</span>
                     </button>
                 </div>
             ) : (
                 /* Multiple Preferences List */
                 <div className="sm-pref-list-container">
                     <div className="sm-pref-list-header">
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                            <FiBookmark size={16} color="#0ea5e9" />
+                        <div 
+                            style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
+                            onMouseEnter={() => listBookmarkRef.current?.startAnimation?.()}
+                            onMouseLeave={() => listBookmarkRef.current?.stopAnimation?.()}
+                        >
+                            <BookmarkIcon ref={listBookmarkRef} size={18} color="#0ea5e9" />
                             <h3 className="sm-pref-list-title">
                                 Your Preferences 
                                 <span className="sm-pref-count-tag">{preferences.length}</span>
@@ -139,10 +162,12 @@ export default function SMPreferenceCard() {
                         <button
                             type="button"
                             onClick={() => setIsSelectorOpen(true)}
+                            onMouseEnter={() => listPlusRef.current?.startAnimation?.()}
+                            onMouseLeave={() => listPlusRef.current?.stopAnimation?.()}
                             className="sm-pref-add-btn-sm"
                         >
-                            <FiPlusCircle size={14} />
-                            Add Preference
+                            <CirclePlusIcon ref={listPlusRef} size={15} />
+                            <span>Add Preference</span>
                         </button>
                     </div>
 
@@ -150,49 +175,13 @@ export default function SMPreferenceCard() {
                         {preferences.map((pref) => {
                             const isExpanded = !!expandedMap[pref.id];
                             return (
-                                <div key={pref.id} className="sm-pref-card-container">
-                                    <div 
-                                        onClick={() => toggleExpand(pref.id)}
-                                        className={`sm-pref-card-header ${isExpanded ? "expanded" : ""}`}
-                                    >
-                                        <div style={{ display: "flex", alignItems: "center", gap: "12px", overflow: "hidden" }}>
-                                            <span style={{ color: "#0ea5e9", display: "flex", alignItems: "center" }}>
-                                                {isExpanded ? <FiChevronDown size={20} /> : <FiChevronRight size={20} />}
-                                            </span>
-                                            <div style={{ overflow: "hidden" }}>
-                                                <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                                                    <span className="sm-pref-type-tag">{pref.type}</span>
-                                                    <h4 className="sm-pref-card-title">{pref.title}</h4>
-                                                </div>
-                                                {pref.subtitle && (
-                                                    <p className="sm-pref-card-sub">{pref.subtitle}</p>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        <button
-                                            type="button"
-                                            onClick={(e) => handleRemovePreference(pref.id, e)}
-                                            className="sm-pref-action-btn clear"
-                                            title="Remove Preference"
-                                        >
-                                            <FiTrash2 size={14} />
-                                        </button>
-                                    </div>
-
-                                    {/* Expanded Tree for this Preference */}
-                                    {isExpanded && (
-                                        <div className="sm-pref-card-body">
-                                            <SMDirectoryNode
-                                                level={0}
-                                                type={pref.type}
-                                                data={pref.data}
-                                                parentParams={pref.parentParams || {}}
-                                                autoExpand={true}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
+                                <PreferenceRow
+                                    key={pref.id}
+                                    pref={pref}
+                                    isExpanded={isExpanded}
+                                    toggleExpand={toggleExpand}
+                                    onRemove={handleRemovePreference}
+                                />
                             );
                         })}
                     </div>
@@ -205,6 +194,58 @@ export default function SMPreferenceCard() {
                     onSave={handleSaveFromModal}
                     onClose={() => setIsSelectorOpen(false)}
                 />
+            )}
+        </div>
+    );
+}
+
+function PreferenceRow({ pref, isExpanded, toggleExpand, onRemove }) {
+    const trashRef = useRef(null);
+
+    return (
+        <div className="sm-pref-card-container">
+            <div 
+                onClick={() => toggleExpand(pref.id)}
+                className={`sm-pref-card-header ${isExpanded ? "expanded" : ""}`}
+            >
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", overflow: "hidden" }}>
+                    <span style={{ color: "#0ea5e9", display: "flex", alignItems: "center" }}>
+                        {isExpanded ? <ChevronDownIcon size={20} /> : <ChevronRightIcon size={20} />}
+                    </span>
+                    <div style={{ overflow: "hidden" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                            <span className="sm-pref-type-tag">{pref.type}</span>
+                            <h4 className="sm-pref-card-title">{pref.title}</h4>
+                        </div>
+                        {pref.subtitle && (
+                            <p className="sm-pref-card-sub">{pref.subtitle}</p>
+                        )}
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    onClick={(e) => onRemove(pref.id, e)}
+                    onMouseEnter={() => trashRef.current?.startAnimation?.()}
+                    onMouseLeave={() => trashRef.current?.stopAnimation?.()}
+                    className="sm-pref-action-btn clear"
+                    title="Remove Preference"
+                >
+                    <Trash2Icon ref={trashRef} size={15} />
+                </button>
+            </div>
+
+            {/* Expanded Tree for this Preference */}
+            {isExpanded && (
+                <div className="sm-pref-card-body">
+                    <SMDirectoryNode
+                        level={0}
+                        type={pref.type}
+                        data={pref.data}
+                        parentParams={pref.parentParams || {}}
+                        autoExpand={true}
+                    />
+                </div>
             )}
         </div>
     );

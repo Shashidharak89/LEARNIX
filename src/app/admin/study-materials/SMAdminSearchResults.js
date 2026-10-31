@@ -1,17 +1,19 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
-    FiChevronRight, 
-    FiChevronDown, 
-    FiFolder, 
-    FiFileText, 
-    FiDownload, 
-    FiCalendar, 
-    FiUsers, 
-    FiBookOpen, 
-    FiAward 
-} from "react-icons/fi";
+    ChevronRightIcon, 
+    ChevronDownIcon, 
+    FolderIcon, 
+    FolderOpenIcon, 
+    FileTextIcon, 
+    DownloadIcon, 
+    CalendarIcon, 
+    UsersIcon, 
+    BookOpenIcon, 
+    CompassIcon,
+    LayersIcon 
+} from "@animateicons/react/lucide";
 
 const highlightText = (text, keyword) => {
     if (!keyword || !text) return <span>{text}</span>;
@@ -123,30 +125,34 @@ function SMAdminSearchDirectoryNode({
     if (type === "semester") nextParams.semesterId = data._id;
     if (type === "batch") nextParams.batchId = data._id;
 
+    const dirIconRef = useRef(null);
+    const fileIconRef = useRef(null);
+    const downloadIconRef = useRef(null);
+
     // Display names and icons
     let displayName = data.name;
-    let IconComponent = FiFolder;
+    let IconComponent = FolderIcon;
     let iconColor = "#3b82f6"; // blue
 
     if (type === "university") {
-        IconComponent = FiAward;
+        IconComponent = CompassIcon;
         iconColor = "#2563eb";
     } else if (type === "college") {
-        IconComponent = FiAward;
+        IconComponent = LayersIcon;
         iconColor = "#7c3aed";
     } else if (type === "course") {
-        IconComponent = FiBookOpen;
+        IconComponent = BookOpenIcon;
         iconColor = "#059669";
     } else if (type === "semester") {
         displayName = `Semester ${data.sem}`;
-        IconComponent = FiCalendar;
+        IconComponent = CalendarIcon;
         iconColor = "#d97706";
     } else if (type === "batch") {
         displayName = `Batch ${data.startyear}-${data.endyear}`;
-        IconComponent = FiUsers;
+        IconComponent = UsersIcon;
         iconColor = "#0891b2";
     } else if (type === "subject") {
-        IconComponent = FiFolder;
+        IconComponent = expanded ? FolderOpenIcon : FolderIcon;
         iconColor = "#4f46e5";
     }
 
@@ -160,6 +166,8 @@ function SMAdminSearchDirectoryNode({
             <div style={{ marginTop: "4px", marginBottom: "4px", marginLeft: "20px" }}>
                 <div 
                     onClick={() => window.open(viewUrl, "_blank", "noopener,noreferrer")}
+                    onMouseEnter={() => fileIconRef.current?.startAnimation?.()}
+                    onMouseLeave={() => fileIconRef.current?.stopAnimation?.()}
                     style={{ 
                         display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", 
                         textDecoration: "none", color: "#374151", fontWeight: "500", 
@@ -171,7 +179,7 @@ function SMAdminSearchDirectoryNode({
                     onMouseOut={(e) => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.boxShadow = "none"; }}
                 >
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", overflow: "hidden" }}>
-                        <FiFileText style={{ flexShrink: 0, color: "#7c3aed" }} /> 
+                        <FileTextIcon ref={fileIconRef} size={16} style={{ flexShrink: 0, color: "#7c3aed" }} /> 
                         <span style={{ 
                             textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap",
                             color: "#4b5563"
@@ -200,6 +208,8 @@ function SMAdminSearchDirectoryNode({
                             e.stopPropagation();
                             window.open(data.fileurl, "_blank", "noopener,noreferrer");
                         }}
+                        onMouseEnter={() => downloadIconRef.current?.startAnimation?.()}
+                        onMouseLeave={() => downloadIconRef.current?.stopAnimation?.()}
                         title="Download File"
                         style={{
                             display: "inline-flex", alignItems: "center", justifyContent: "center",
@@ -210,7 +220,7 @@ function SMAdminSearchDirectoryNode({
                         onMouseOver={(e) => { e.currentTarget.style.background = "#7c3aed"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = "#7c3aed"; }}
                         onMouseOut={(e) => { e.currentTarget.style.background = "#f3f4f6"; e.currentTarget.style.color = "#4b5563"; e.currentTarget.style.borderColor = "#e5e7eb"; }}
                     >
-                        <FiDownload size={14} />
+                        <DownloadIcon ref={downloadIconRef} size={14} />
                     </button>
                 </div>
             </div>
@@ -221,6 +231,8 @@ function SMAdminSearchDirectoryNode({
         <div style={{ marginTop: "6px", marginLeft: level > 0 ? "16px" : "0" }}>
             <div 
                 onClick={handleToggle}
+                onMouseEnter={() => dirIconRef.current?.startAnimation?.()}
+                onMouseLeave={() => dirIconRef.current?.stopAnimation?.()}
                 style={{ 
                     display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", 
                     padding: "8px 12px", background: expanded ? "#f5f3ff" : "#fff", 
@@ -232,10 +244,10 @@ function SMAdminSearchDirectoryNode({
                 onMouseOut={(e) => { if (!expanded) e.currentTarget.style.background = "#fff"; }}
             >
                 <span style={{ display: "flex", alignItems: "center", color: "#6b7280" }}>
-                    {expanded ? <FiChevronDown size={16} /> : <FiChevronRight size={16} />}
+                    {expanded ? <ChevronDownIcon size={16} /> : <ChevronRightIcon size={16} />}
                 </span>
                 <span style={{ display: "flex", alignItems: "center" }}>
-                    <IconComponent size={16} color={iconColor} />
+                    <IconComponent ref={dirIconRef} size={16} color={iconColor} />
                 </span>
                 <span style={{ flex: 1, textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
                     {highlightText(displayName, highlightKeyword)}
@@ -267,7 +279,7 @@ function SMAdminSearchDirectoryNode({
                                         }}
                                     >
                                         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                            <FiBookOpen size={14} />
+                                            <BookOpenIcon size={14} />
                                             <span style={{ textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
                                                 External Resources
                                             </span>
@@ -279,7 +291,7 @@ function SMAdminSearchDirectoryNode({
                                             </span>
                                         </div>
                                         <div>
-                                            {externalExpanded ? <FiChevronDown size={14} /> : <FiChevronRight size={14} />}
+                                            {externalExpanded ? <ChevronDownIcon size={14} /> : <ChevronRightIcon size={14} />}
                                         </div>
                                     </button>
 

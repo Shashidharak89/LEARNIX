@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { FiX, FiCheck, FiBookmark, FiChevronRight } from "react-icons/fi";
+import React, { useState, useEffect, useRef } from "react";
+import { FiX } from "react-icons/fi";
+import { BookmarkIcon, CheckIcon } from "@animateicons/react/lucide";
 
 export default function SMPreferenceSelector({ currentPreference, onSave, onClose }) {
     const [universities, setUniversities] = useState([]);
@@ -157,12 +158,19 @@ export default function SMPreferenceSelector({ currentPreference, onSave, onClos
 
     const isComplete = selectedUni && selectedCollege && selectedCourse && selectedSem && selectedBatch;
 
+    const modalBookmarkRef = useRef(null);
+    const saveCheckRef = useRef(null);
+
     return (
         <div className="sm-pref-modal-overlay">
             <div className="sm-pref-modal">
-                <div className="sm-pref-modal-header">
+                <div 
+                    className="sm-pref-modal-header"
+                    onMouseEnter={() => modalBookmarkRef.current?.startAnimation?.()}
+                    onMouseLeave={() => modalBookmarkRef.current?.stopAnimation?.()}
+                >
                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        <FiBookmark className="sm-pref-icon" />
+                        <BookmarkIcon ref={modalBookmarkRef} size={22} color="#0ea5e9" className="sm-pref-icon" />
                         <div>
                             <h3 className="sm-pref-modal-title">Set Your Preference</h3>
                             <p className="sm-pref-modal-subtitle">Quickly jump directly to your course & subjects</p>
@@ -309,9 +317,11 @@ export default function SMPreferenceSelector({ currentPreference, onSave, onClos
                         type="button"
                         onClick={handleSave}
                         disabled={!isComplete}
+                        onMouseEnter={() => saveCheckRef.current?.startAnimation?.()}
+                        onMouseLeave={() => saveCheckRef.current?.stopAnimation?.()}
                         className={`sm-pref-save-btn ${isComplete ? "active" : ""}`}
                     >
-                        <FiCheck size={16} />
+                        <CheckIcon ref={saveCheckRef} size={16} />
                         Save Preference
                     </button>
                 </div>

@@ -1,8 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { FiFileText, FiSearch, FiX, FiCheck, FiFilter } from "react-icons/fi";
+import { FiX } from "react-icons/fi";
+import { 
+    BookOpenIcon, 
+    SearchIcon, 
+    FilterIcon, 
+    CheckIcon, 
+    SparklesIcon 
+} from "@animateicons/react/lucide";
 import SMDirectoryNode from "@/app/admin/study-materials/SMDirectoryNode";
 import SMAdminSearchResults from "@/app/admin/study-materials/SMAdminSearchResults";
 import SMPreferenceCard from "./SMPreferenceCard";
@@ -52,6 +59,12 @@ export default function SMViewer() {
     const [activeQuery, setActiveQuery] = useState("");
     // Selected search category scope (subjects only by default)
     const [selectedCategories, setSelectedCategories] = useState(["subjects"]);
+
+    // Icon animation refs
+    const headerIconRef = useRef(null);
+    const searchIconRef = useRef(null);
+    const searchBtnIconRef = useRef(null);
+    const loadMoreIconRef = useRef(null);
 
     // Initialize search from URL query parameter on mount / URL change
     useEffect(() => {
@@ -153,15 +166,26 @@ export default function SMViewer() {
             {/* Search & Intro Card */}
             <div className="upd-intro-card sm-search-card">
                 <div className="upd-intro-header sm-section-header">
-                    <h1 id="sm-papers-section" className="upd-title sm-subtitle">
-                        <FiFileText className="upd-title-icon sm-section-icon" size={24} />
+                    <h1 
+                        id="sm-papers-section" 
+                        className="upd-title sm-subtitle"
+                        onMouseEnter={() => headerIconRef.current?.startAnimation?.()}
+                        onMouseLeave={() => headerIconRef.current?.stopAnimation?.()}
+                    >
+                        <span className="upd-title-icon sm-section-icon">
+                            <BookOpenIcon ref={headerIconRef} size={26} />
+                        </span>
                         Browse Study Materials Directory
                     </h1>
                 </div>
                 
                 <form className="upd-search-form" onSubmit={handleSearchSubmit}>
-                    <div className="upd-search-wrap">
-                        <FiSearch className="upd-search-icon" />
+                    <div 
+                        className="upd-search-wrap"
+                        onMouseEnter={() => searchIconRef.current?.startAnimation?.()}
+                        onMouseLeave={() => searchIconRef.current?.stopAnimation?.()}
+                    >
+                        <SearchIcon ref={searchIconRef} size={18} className="upd-search-icon" />
                         <input
                             type="text"
                             value={searchInput}
@@ -181,8 +205,14 @@ export default function SMViewer() {
                             </button>
                         )}
                     </div>
-                    <button type="submit" className="upd-search-btn" disabled={!searchInput.trim()}>
-                        <FiSearch className="upd-search-btn-icon" />
+                    <button 
+                        type="submit" 
+                        className="upd-search-btn" 
+                        disabled={!searchInput.trim()}
+                        onMouseEnter={() => searchBtnIconRef.current?.startAnimation?.()}
+                        onMouseLeave={() => searchBtnIconRef.current?.stopAnimation?.()}
+                    >
+                        <SearchIcon ref={searchBtnIconRef} size={16} className="upd-search-btn-icon" />
                         <span className="upd-search-btn-text">Search</span>
                     </button>
                 </form>
@@ -190,7 +220,7 @@ export default function SMViewer() {
                 {/* Category Scope Selection Pills */}
                 <div className="sm-search-scope">
                     <div className="sm-search-scope-label">
-                        <FiFilter size={14} color="#0b74ff" />
+                        <FilterIcon size={14} color="#0b74ff" />
                         <span>Scope:</span>
                     </div>
                     <div className="sm-search-scope-pills">
@@ -203,7 +233,7 @@ export default function SMViewer() {
                                     onClick={() => toggleCategory(cat.id)}
                                     className={`sm-category-pill ${isSelected ? "active" : ""}`}
                                 >
-                                    {isSelected && <FiCheck size={13} />}
+                                    {isSelected && <CheckIcon size={13} />}
                                     {cat.label}
                                 </button>
                             );
@@ -244,7 +274,13 @@ export default function SMViewer() {
                                 <button 
                                     onClick={handleLoadMore}
                                     disabled={loading}
+                                    onMouseEnter={() => loadMoreIconRef.current?.startAnimation?.()}
+                                    onMouseLeave={() => loadMoreIconRef.current?.stopAnimation?.()}
                                     style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        gap: "8px",
                                         background: loading ? "#f0f9ff" : "#ffffff",
                                         color: loading ? "#94a3b8" : "#0ea5e9",
                                         border: "1.5px solid #0ea5e9",
@@ -257,7 +293,8 @@ export default function SMViewer() {
                                         transition: "all 0.2s ease"
                                     }}
                                 >
-                                    {loading ? "Loading..." : "Load More"}
+                                    <SparklesIcon ref={loadMoreIconRef} size={15} />
+                                    <span>{loading ? "Loading..." : "Load More"}</span>
                                 </button>
                             </div>
                         )}

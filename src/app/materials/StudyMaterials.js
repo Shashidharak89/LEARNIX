@@ -2,10 +2,108 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { ChevronDown, ChevronRight, BookOpen, FileText, Download, Eye, FolderOpen, BookMarked, Share2, Search, X } from "lucide-react";
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  BookOpenIcon,
+  FileTextIcon,
+  DownloadIcon,
+  EyeIcon,
+  FolderOpenIcon,
+  ShareIcon,
+  SearchIcon,
+} from "@animateicons/react/lucide";
 import materialsData from "./materialsData";
 import SMSearchResults from "./SMSearchResults";
 import "./styles/StudyMaterials.css";
+
+function FileItem({
+  file,
+  fIndex,
+  semIndex,
+  subjIndex,
+  source,
+  highlightedFileKey,
+  onShareFile,
+}) {
+  const rawFileName = file.name || file.url.split("/").pop().split("?")[0];
+  const fileName = decodeURIComponent(rawFileName);
+  const encodedUrl = encodeURIComponent(file.url);
+  const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodedUrl}`;
+  const fileKey = `${semIndex}-${subjIndex}-${source}-${fIndex}`;
+  const isHighlighted = highlightedFileKey === fileKey;
+
+  const fileIconRef = useRef(null);
+  const shareIconRef = useRef(null);
+  const eyeIconRef = useRef(null);
+  const downloadIconRef = useRef(null);
+
+  return (
+    <div 
+      className={`sm-file-card ${isHighlighted ? "sm-file-card-highlighted" : ""}`}
+      onMouseEnter={() => fileIconRef.current?.startAnimation?.()}
+      onMouseLeave={() => fileIconRef.current?.stopAnimation?.()}
+    >
+      <a
+        href={viewUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="sm-file-link"
+        title="Click to view file"
+        aria-label={`View ${fileName}`}
+      >
+        <div className="sm-file-info">
+          <div className="sm-file-icon">
+            <FileTextIcon ref={fileIconRef} size={18} />
+          </div>
+          <span className="sm-file-name">{fileName}</span>
+        </div>
+      </a>
+      <div className="sm-file-actions">
+        <button
+          type="button"
+          className="sm-action-btn sm-share-btn"
+          title="Share file link"
+          aria-label={`Share ${fileName}`}
+          onMouseEnter={() => shareIconRef.current?.startAnimation?.()}
+          onMouseLeave={() => shareIconRef.current?.stopAnimation?.()}
+          onClick={(e) => {
+            e.stopPropagation();
+            onShareFile(fileKey, fileName);
+          }}
+        >
+          <ShareIcon ref={shareIconRef} size={16} />
+        </button>
+        <a
+          href={viewUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="sm-action-btn sm-view-btn"
+          title="View file"
+          aria-label={`View ${fileName}`}
+          onMouseEnter={() => eyeIconRef.current?.startAnimation?.()}
+          onMouseLeave={() => eyeIconRef.current?.stopAnimation?.()}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <EyeIcon ref={eyeIconRef} size={16} />
+        </a>
+        <a
+          href={file.url}
+          target="_blank"
+          rel="noreferrer"
+          className="sm-action-btn sm-download-btn"
+          title="Download file"
+          aria-label={`Download ${fileName}`}
+          onMouseEnter={() => downloadIconRef.current?.startAnimation?.()}
+          onMouseLeave={() => downloadIconRef.current?.stopAnimation?.()}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <DownloadIcon ref={downloadIconRef} size={16} />
+        </a>
+      </div>
+    </div>
+  );
+}
 
 function FilesList({
   files,
@@ -18,68 +116,18 @@ function FilesList({
 }) {
   return (
     <div className={cssClass}>
-      {files.map((file, fIndex) => {
-        const rawFileName = file.name || file.url.split("/").pop().split("?")[0];
-        const fileName = decodeURIComponent(rawFileName);
-        const encodedUrl = encodeURIComponent(file.url);
-        const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodedUrl}`;
-        const fileKey = `${semIndex}-${subjIndex}-${source}-${fIndex}`;
-        const isHighlighted = highlightedFileKey === fileKey;
-
-        return (
-          <div key={fIndex} className={`sm-file-card ${isHighlighted ? "sm-file-card-highlighted" : ""}`}>
-            <a
-              href={viewUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="sm-file-link"
-              title="Click to view file"
-              aria-label={`View ${fileName}`}
-            >
-              <div className="sm-file-info">
-                <div className="sm-file-icon">📄</div>
-                <span className="sm-file-name">{fileName}</span>
-              </div>
-            </a>
-            <div className="sm-file-actions">
-              <button
-                type="button"
-                className="sm-action-btn sm-share-btn"
-                title="Share file link"
-                aria-label={`Share ${fileName}`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onShareFile(fileKey, fileName);
-                }}
-              >
-                <Share2 size={16} />
-              </button>
-              <a
-                href={viewUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="sm-action-btn sm-view-btn"
-                title="View file"
-                aria-label={`View ${fileName}`}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Eye size={16} />
-              </a>
-              <a
-                href={file.url}
-                target="_blank"
-                rel="noreferrer"
-                className="sm-action-btn sm-download-btn"
-                title="Download file"
-                aria-label={`Download ${fileName}`}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Download size={16} />
-              </a>
-            </div>
-          </div>
-        );
-      })}
+      {files.map((file, fIndex) => (
+        <FileItem
+          key={fIndex}
+          file={file}
+          fIndex={fIndex}
+          semIndex={semIndex}
+          subjIndex={subjIndex}
+          source={source}
+          highlightedFileKey={highlightedFileKey}
+          onShareFile={onShareFile}
+        />
+      ))}
     </div>
   );
 }
@@ -315,14 +363,22 @@ export default function StudyMaterials() {
     }
   };
 
+  const headerBookRef = useRef(null);
+  const searchIconRef = useRef(null);
+  const searchSubmitRef = useRef(null);
+
   return (
     <div className="sm-wrapper">
       <div className="sm-container">
         {/* Header */}
-        <div className="sm-header">
+        <div 
+          className="sm-header"
+          onMouseEnter={() => headerBookRef.current?.startAnimation?.()}
+          onMouseLeave={() => headerBookRef.current?.stopAnimation?.()}
+        >
           <div className="sm-header-content">
             <div className="sm-header-icon">
-              <BookOpen size={28} />
+              <BookOpenIcon ref={headerBookRef} size={28} />
             </div>
             <div className="sm-header-text">
               <h1 className="sm-title">Study Materials</h1>
@@ -334,8 +390,12 @@ export default function StudyMaterials() {
         {/* Search Bar */}
         <div className="sm-search-container">
           <form className="sm-search-form" onSubmit={handleSearchSubmit}>
-            <div className="sm-search-wrapper">
-              <Search className="sm-search-icon" size={20} />
+            <div 
+              className="sm-search-wrapper"
+              onMouseEnter={() => searchIconRef.current?.startAnimation?.()}
+              onMouseLeave={() => searchIconRef.current?.stopAnimation?.()}
+            >
+              <SearchIcon ref={searchIconRef} className="sm-search-icon" size={20} />
               <input
                 type="text"
                 className="sm-search-input"
@@ -349,8 +409,10 @@ export default function StudyMaterials() {
                 className="sm-search-icon-btn"
                 title="Search"
                 aria-label="Search subjects"
+                onMouseEnter={() => searchSubmitRef.current?.startAnimation?.()}
+                onMouseLeave={() => searchSubmitRef.current?.stopAnimation?.()}
               >
-                <Search size={18} />
+                <SearchIcon ref={searchSubmitRef} size={18} />
               </button>
             </div>
             {(searchInput || activeSearchQuery) && (
@@ -379,15 +441,15 @@ export default function StudyMaterials() {
                   onClick={() => toggleSemester(semIndex)}
                 >
                   <div className="sm-semester-left">
-                    <FolderOpen size={20} />
+                    <FolderOpenIcon size={20} />
                     <span className="sm-semester-name">{sem.semester}</span>
                     <span className="sm-subject-count">{sem.subjects.length} subjects</span>
                   </div>
                   <div className="sm-semester-icon">
                     {activeSearchQuery || openSemesterIndex === semIndex ? (
-                      <ChevronDown size={20} />
+                      <ChevronDownIcon size={20} />
                     ) : (
-                      <ChevronRight size={20} />
+                      <ChevronRightIcon size={20} />
                     )}
                   </div>
                 </button>
@@ -409,12 +471,12 @@ export default function StudyMaterials() {
                             onClick={() => toggleSubject(subjIndex)}
                           >
                             <div className="sm-subject-left">
-                              <FileText size={18} />
+                              <FileTextIcon size={18} />
                               <span className="sm-subject-name">{subj.subject}</span>
                               <span className="sm-file-count">{subj.files.length} files</span>
                             </div>
                             <div className="sm-subject-icon">
-                              {isSubjOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                              {isSubjOpen ? <ChevronDownIcon size={18} /> : <ChevronRightIcon size={18} />}
                             </div>
                           </button>
 
@@ -430,12 +492,12 @@ export default function StudyMaterials() {
                                     onClick={() => toggleUnofficial(unofficialKey)}
                                   >
                                     <div className="sm-unofficial-left">
-                                      <BookMarked size={16} />
+                                      <BookOpenIcon size={16} />
                                       <span className="sm-unofficial-label">External Resources</span>
                                       <span className="sm-unofficial-badge">{subj.externalfiles.length} files</span>
                                     </div>
                                     <div className="sm-unofficial-chevron">
-                                      {isUnofficialOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                                      {isUnofficialOpen ? <ChevronDownIcon size={16} /> : <ChevronRightIcon size={16} />}
                                     </div>
                                   </button>
 

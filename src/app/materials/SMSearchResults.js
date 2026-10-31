@@ -1,23 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
-    ChevronRight,
-    ChevronDown,
-    BookOpen,
-    FileText,
-    Download,
-    FolderOpen,
-    Folder,
-    Share2,
-    GraduationCap,
-    Calendar,
-    Users,
-    Award,
-    BookMarked,
-    Bookmark,
-    Eye
-} from "lucide-react";
+    ChevronRightIcon,
+    ChevronDownIcon,
+    BookOpenIcon,
+    FileTextIcon,
+    DownloadIcon,
+    FolderOpenIcon,
+    FolderIcon,
+    ShareIcon,
+    CalendarIcon,
+    UsersIcon,
+    BookmarkIcon,
+    EyeIcon,
+    CompassIcon,
+    LayersIcon
+} from "@animateicons/react/lucide";
 import { toggleLearnLaterClient } from "@/lib/clientLearnLater";
 
 const highlightText = (text, keyword) => {
@@ -134,28 +133,28 @@ function SMSearchDirectoryNode({
 
     // Display names and icons
     let displayName = data.name;
-    let IconComponent = Folder;
+    let IconComponent = FolderIcon;
     let iconColor = "#3b82f6"; // blue
 
     if (type === "university") {
-        IconComponent = GraduationCap;
+        IconComponent = CompassIcon;
         iconColor = "#2563eb";
     } else if (type === "college") {
-        IconComponent = Award;
+        IconComponent = LayersIcon;
         iconColor = "#7c3aed";
     } else if (type === "course") {
-        IconComponent = BookOpen;
+        IconComponent = BookOpenIcon;
         iconColor = "#059669";
     } else if (type === "semester") {
         displayName = `Semester ${data.sem}`;
-        IconComponent = Calendar;
+        IconComponent = CalendarIcon;
         iconColor = "#d97706";
     } else if (type === "batch") {
         displayName = `Batch ${data.startyear}-${data.endyear}`;
-        IconComponent = Users;
+        IconComponent = UsersIcon;
         iconColor = "#0891b2";
     } else if (type === "subject") {
-        IconComponent = FolderOpen;
+        IconComponent = expanded ? FolderOpenIcon : FolderIcon;
         iconColor = "#4f46e5";
     }
 
@@ -177,7 +176,7 @@ function SMSearchDirectoryNode({
                     aria-label={`View ${fileName}`}
                 >
                     <div className="sm-file-info">
-                        <FileText size={16} color="#7c3aed" style={{ marginRight: "6px" }} />
+                        <FileTextIcon size={16} color="#7c3aed" style={{ marginRight: "6px" }} />
                         <span className="sm-file-name">{highlightText(fileName, highlightKeyword)}</span>
                         {data.type === "external" && (
                             <span style={{
@@ -218,7 +217,7 @@ function SMSearchDirectoryNode({
                             });
                         }}
                     >
-                        <Bookmark size={14} />
+                        <BookmarkIcon size={14} />
                     </button>
                     <button
                         type="button"
@@ -230,7 +229,7 @@ function SMSearchDirectoryNode({
                             onShareFile(data._id, fileName);
                         }}
                     >
-                        <Share2 size={14} />
+                        <ShareIcon size={14} />
                     </button>
                     <a
                         href={viewUrl}
@@ -241,7 +240,7 @@ function SMSearchDirectoryNode({
                         aria-label={`View ${fileName}`}
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <Eye size={14} />
+                        <EyeIcon size={14} />
                     </a>
                     <a
                         href={data.fileurl}
@@ -252,7 +251,7 @@ function SMSearchDirectoryNode({
                         aria-label={`Download ${fileName}`}
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <Download size={14} />
+                        <DownloadIcon size={14} />
                     </a>
                 </div>
             </div>
@@ -266,7 +265,7 @@ function SMSearchDirectoryNode({
                 className={`sm-search-node-header ${expanded ? "node-expanded" : ""}`}
             >
                 <span className="sm-search-node-chevron">
-                    {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                    {expanded ? <ChevronDownIcon size={16} /> : <ChevronRightIcon size={16} />}
                 </span>
                 <span className="sm-search-node-icon">
                     <IconComponent size={16} color={iconColor} />
@@ -301,7 +300,7 @@ function SMSearchDirectoryNode({
                                         }}
                                     >
                                         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                            <BookMarked size={14} />
+                                            <BookOpenIcon size={14} />
                                             <span style={{ textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
                                                 External Resources
                                             </span>
@@ -313,7 +312,7 @@ function SMSearchDirectoryNode({
                                             </span>
                                         </div>
                                         <div>
-                                            {externalExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                                            {externalExpanded ? <ChevronDownIcon size={14} /> : <ChevronRightIcon size={14} />}
                                         </div>
                                     </button>
 

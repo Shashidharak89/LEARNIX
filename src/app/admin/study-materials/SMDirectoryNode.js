@@ -1,7 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { FiChevronRight, FiChevronDown, FiFolder, FiFileText, FiDownload, FiStar } from "react-icons/fi";
+import React, { useState, useEffect, useRef } from "react";
+import { 
+    ChevronRightIcon, 
+    ChevronDownIcon, 
+    FolderIcon, 
+    FolderOpenIcon, 
+    FileTextIcon, 
+    DownloadIcon, 
+    StarIcon 
+} from "@animateicons/react/lucide";
 
 const hasMatchingDescendant = (node, type, query) => {
     if (!query) return false;
@@ -56,6 +64,11 @@ export default function SMDirectoryNode({
 
     const prefId = `${type}_${data._id}`;
     const [isPreferred, setIsPreferred] = useState(false);
+
+    const folderIconRef = useRef(null);
+    const starIconRef = useRef(null);
+    const fileIconRef = useRef(null);
+    const downloadIconRef = useRef(null);
 
     const checkPreferenceState = () => {
         if (typeof window !== "undefined") {
@@ -276,6 +289,8 @@ export default function SMDirectoryNode({
                 <>
                     <div 
                         onClick={handleToggle}
+                        onMouseEnter={() => folderIconRef.current?.startAnimation?.()}
+                        onMouseLeave={() => folderIconRef.current?.stopAnimation?.()}
                         className="sm-tree-card"
                         style={{ 
                             display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", cursor: "pointer", 
@@ -289,8 +304,12 @@ export default function SMDirectoryNode({
                         }}
                     >
                         <div style={{ display: "flex", alignItems: "center", gap: "10px", overflow: "hidden" }}>
-                            {expanded ? <FiChevronDown size={18} color="#0ea5e9" /> : <FiChevronRight size={18} color="#94a3b8" />}
-                            <FiFolder size={20} color={expanded ? "#0ea5e9" : "#7dd3fc"} />
+                            {expanded ? <ChevronDownIcon size={18} color="#0ea5e9" /> : <ChevronRightIcon size={18} color="#94a3b8" />}
+                            {expanded ? (
+                                <FolderOpenIcon ref={folderIconRef} size={20} color="#0ea5e9" />
+                            ) : (
+                                <FolderIcon ref={folderIconRef} size={20} color="#7dd3fc" />
+                            )}
                             <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                                 {highlightText(displayName, highlightKeyword)}
                             </span>
@@ -299,6 +318,8 @@ export default function SMDirectoryNode({
                         <button
                             type="button"
                             onClick={handleTogglePreference}
+                            onMouseEnter={() => starIconRef.current?.startAnimation?.()}
+                            onMouseLeave={() => starIconRef.current?.stopAnimation?.()}
                             className={`sm-tree-pref-btn ${isPreferred ? "active" : ""}`}
                             title={isPreferred ? "Remove from preferences" : "Set as preference"}
                             style={{
@@ -310,7 +331,7 @@ export default function SMDirectoryNode({
                                 gap: "5px"
                             }}
                         >
-                            <FiStar size={14} fill={isPreferred ? "#f59e0b" : "none"} color={isPreferred ? "#f59e0b" : "#9ca3af"} />
+                            <StarIcon ref={starIconRef} size={15} fill={isPreferred ? "#f59e0b" : "none"} color={isPreferred ? "#f59e0b" : "#9ca3af"} />
                             <span className="sm-tree-pref-text">{isPreferred ? "Preferred" : "Set Preference"}</span>
                         </button>
                     </div>
@@ -353,11 +374,11 @@ export default function SMDirectoryNode({
                                                         {children.filter(c => c.type === "external").length} files
                                                     </span>
                                                 </div>
-                                                <div>
+                                                <div style={{ display: "flex", alignItems: "center" }}>
                                                     {externalExpanded ? (
-                                                        <span style={{ fontSize: "13px" }}>▼</span>
+                                                        <ChevronDownIcon size={16} />
                                                     ) : (
-                                                        <span style={{ fontSize: "13px" }}>▶</span>
+                                                        <ChevronRightIcon size={16} />
                                                     )}
                                                 </div>
                                             </button>
@@ -449,9 +470,11 @@ export default function SMDirectoryNode({
                             e.currentTarget.style.background = "#ffffff";
                             e.currentTarget.style.boxShadow = "0 2px 6px rgba(15, 23, 42, 0.02)"; 
                         }}
+                        onMouseEnter={() => fileIconRef.current?.startAnimation?.()}
+                        onMouseLeave={() => fileIconRef.current?.stopAnimation?.()}
                     >
                         <div style={{ display: "flex", alignItems: "center", gap: "10px", overflow: "hidden" }}>
-                            <FiFileText size={20} style={{ flexShrink: 0, color: "#0ea5e9" }} /> 
+                            <FileTextIcon ref={fileIconRef} size={20} style={{ flexShrink: 0, color: "#0ea5e9" }} /> 
                             <span style={{ 
                                 textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap",
                                 color: "#334155"
@@ -480,6 +503,8 @@ export default function SMDirectoryNode({
                                 e.stopPropagation();
                                 window.open(data.fileurl, "_blank", "noopener,noreferrer");
                             }}
+                            onMouseEnter={() => downloadIconRef.current?.startAnimation?.()}
+                            onMouseLeave={() => downloadIconRef.current?.stopAnimation?.()}
                             title="Download File"
                             style={{
                                 display: "inline-flex", alignItems: "center", justifyContent: "center",
@@ -490,7 +515,7 @@ export default function SMDirectoryNode({
                             onMouseOver={(e) => { e.currentTarget.style.background = "#0ea5e9"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = "#0ea5e9"; }}
                             onMouseOut={(e) => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "#cbd5e1"; }}
                         >
-                            <FiDownload size={16} />
+                            <DownloadIcon ref={downloadIconRef} size={16} />
                         </button>
                     </div>
                 </div>
