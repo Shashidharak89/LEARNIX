@@ -228,12 +228,39 @@
 
 /* Main Content */
 .wtpc-main-content {
+  width: 90%;
   max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
+  margin: 0 auto 56px;
+  padding: 24px 0 0;
   box-sizing: border-box;
-  padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1rem, 2.5vw, 1.75rem);
   animation: wtpc-fade-in 0.6s ease-out;
+}
+
+@media (min-width: 1200px) {
+  .wtpc-main-content {
+    width: 90%;
+    max-width: 1200px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .wtpc-main-content {
+    width: 92%;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .wtpc-main-content {
+    width: 96%;
+    padding: 20px 8px 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .wtpc-main-content {
+    width: 98%;
+    padding: 16px 4px 0;
+  }
 }
 
 /* User Profile Section */
@@ -252,6 +279,26 @@
 
 .wtpc-user-avatar {
   flex-shrink: 0;
+}
+
+.wtpc-user-avatar-clickable {
+  cursor: pointer;
+  position: relative;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  outline: none;
+}
+
+.wtpc-user-avatar-clickable:hover {
+  transform: scale(1.06);
+}
+
+.wtpc-user-avatar-clickable:hover .wtpc-profile-image {
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.35), 0 8px 24px rgba(37, 99, 235, 0.25);
+}
+
+.wtpc-user-avatar-clickable:focus-visible .wtpc-profile-image {
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.45);
 }
 
 .wtpc-profile-image {
@@ -2106,5 +2153,256 @@
   }
   .wtpc-app-banner-actions {
     justify-content: space-between;
+  }
+}
+
+/* ── Profile Picture Popup Modal Window ── */
+.up-image-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100005;
+  padding: 1.5rem;
+  animation: upFadeIn 0.2s ease-out;
+}
+
+.up-image-modal-content {
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35);
+  max-width: 440px;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  animation: upModalZoom 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes upModalZoom {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes upFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.up-image-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.15rem 1.4rem;
+  border-bottom: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+.up-image-modal-user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.up-image-modal-icon {
+  color: #0b74ff;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.up-image-modal-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.up-image-modal-usn {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.up-image-modal-close-btn {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.up-image-modal-close-btn:hover {
+  background: #fee2e2;
+  color: #ef4444;
+  border-color: #fca5a5;
+  transform: rotate(90deg);
+}
+
+.up-image-modal-body {
+  padding: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.up-image-modal-img {
+  width: 270px;
+  height: 270px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 6px solid #ffffff;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.16);
+  background: #ffffff;
+}
+
+.up-image-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.4rem;
+  background: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+}
+
+.up-image-modal-hint {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.up-image-modal-action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0b74ff;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.up-image-modal-action-link:hover {
+  color: #0256c9;
+  text-decoration: underline;
+}
+
+/* ── Small Devices: Compact Cards & Reduced Font Sizes (matching Updates) ── */
+@media (max-width: 640px) {
+  .wtpc-ai-section {
+    padding: 12px 10px;
+    margin: 1.5rem 0 1rem;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+  }
+
+  .wtpc-ai-header {
+    margin-bottom: 0.65rem;
+    padding-bottom: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .wtpc-ai-icon-bubble {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+  }
+
+  .wtpc-ai-title {
+    font-size: 0.95rem;
+  }
+
+  .wtpc-ai-subtitle {
+    font-size: 0.74rem;
+  }
+
+  .wtpc-ai-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 0.5rem;
+  }
+
+  .wtpc-ai-card {
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+  }
+
+  .wtpc-ai-card-top {
+    margin-bottom: 0.4rem;
+  }
+
+  .wtpc-ai-card-title {
+    font-size: 0.86rem;
+    line-height: 1.35;
+    margin-bottom: 0.4rem;
+  }
+
+  .wtpc-ai-type-pill {
+    font-size: 0.68rem;
+    padding: 2px 6px;
+  }
+
+  .wtpc-ai-match-badge {
+    font-size: 0.68rem;
+    padding: 1px 6px;
+  }
+
+  .wtpc-ai-card-meta {
+    gap: 4px;
+    margin-bottom: 0.45rem;
+  }
+
+  .wtpc-ai-meta-tag {
+    font-size: 0.68rem;
+    padding: 1px 5px;
+  }
+
+  .wtpc-ai-card-action {
+    font-size: 0.74rem;
+    padding-top: 0.35rem;
+  }
+
+  .up-image-modal-content {
+    max-width: 92vw;
+    border-radius: 18px;
+  }
+
+  .up-image-modal-img {
+    width: 200px;
+    height: 200px;
   }
 }

@@ -5,7 +5,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { FaListOl } from "react-icons/fa";
-import { FiPlus, FiMinus, FiMaximize2 } from "react-icons/fi";
+import { FiPlus, FiMinus, FiMaximize2, FiUser, FiX, FiExternalLink } from "react-icons/fi";
 import {
   ArrowLeftIcon,
   DownloadIcon,
@@ -461,9 +461,7 @@ const AiRecommendationsSection = ({ topic, subject, currentId }) => {
           </div>
           <div>
             <h3 className="wtpc-ai-title">AI Suggested Resources</h3>
-            <p className="wtpc-ai-subtitle">
-              Relevant study materials &amp; topics matching <strong>{subject.subject}</strong>: {topic.topic}
-            </p>
+            <p className="wtpc-ai-subtitle">Relevant to this topic</p>
           </div>
         </div>
       </div>
@@ -484,6 +482,7 @@ const AiRecommendationsSection = ({ topic, subject, currentId }) => {
             const normType = normalizeResourceType(item.resource_type, item.source_file);
             const isStudyMaterial = normType === "study_material";
             const isQuestionPaper = normType === "question_paper";
+            const isUpdate = normType === "update";
             const href = getRecItemHref(item);
             const similarityPercent = item.similarity ? Math.round(item.similarity * 100) : null;
 
@@ -498,7 +497,9 @@ const AiRecommendationsSection = ({ topic, subject, currentId }) => {
               >
                 <div className="wtpc-ai-card-top">
                   <span className={`wtpc-ai-type-pill wtpc-ai-pill-${normType}`}>
-                    {isStudyMaterial ? (
+                    {isUpdate ? (
+                      <SparklesIcon size={13} />
+                    ) : isStudyMaterial ? (
                       <FileTextIcon size={13} />
                     ) : isQuestionPaper ? (
                       <FileTextIcon size={13} />
@@ -506,7 +507,9 @@ const AiRecommendationsSection = ({ topic, subject, currentId }) => {
                       <BookOpenIcon size={13} />
                     )}
                     <span>
-                      {isStudyMaterial
+                      {isUpdate
+                        ? "Update"
+                        : isStudyMaterial
                         ? "Study Material"
                         : isQuestionPaper
                         ? "Question Paper"
@@ -562,6 +565,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
   const [endPage, setEndPage] = useState(1);
   const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(false);
   const [isLearnLaterLoading, setIsLearnLaterLoading] = useState(false);
+  const [showProfilePreview, setShowProfilePreview] = useState(false);
 
   const usnRef = useRef(null);
   const subjectRef = useRef(null);
@@ -770,9 +774,21 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
       <div className="wtpc-main-content">
         {/* User Profile Section */}
         <div className="wtpc-user-section">
-          <div className="wtpc-user-avatar">
+          <div
+            className="wtpc-user-avatar wtpc-user-avatar-clickable"
+            onClick={() => setShowProfilePreview(true)}
+            role="button"
+            tabIndex={0}
+            title="Click to preview profile photo"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setShowProfilePreview(true);
+              }
+            }}
+          >
             <img 
-              src={user.profileimg} 
+              src={user.profileimg || '/default-avatar.png'} 
               alt={user.name}
               className="wtpc-profile-image"
               onError={(e) => {
@@ -1129,6 +1145,57 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Profile Picture Popup Modal Window */}
+      {showProfilePreview && (
+        <div
+          className="up-image-modal-backdrop"
+          onClick={() => setShowProfilePreview(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="up-image-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="up-image-modal-header">
+              <div className="up-image-modal-user-info">
+                <FiUser className="up-image-modal-icon" />
+                <span className="up-image-modal-name">{user.name}</span>
+                <span className="up-image-modal-usn">({user.usn})</span>
+              </div>
+              <button
+                type="button"
+                className="up-image-modal-close-btn"
+                onClick={() => setShowProfilePreview(false)}
+                aria-label="Close image preview"
+              >
+                <FiX />
+              </button>
+            </div>
+
+            <div className="up-image-modal-body">
+              <img
+                src={user.profileimg || '/default-avatar.png'}
+                alt={`${user.name}'s profile picture`}
+                className="up-image-modal-img"
+              />
+            </div>
+
+            <div className="up-image-modal-footer">
+              <span className="up-image-modal-hint">Profile Photo Preview</span>
+              <a
+                href={user.profileimg || '/default-avatar.png'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="up-image-modal-action-link"
+              >
+                <FiExternalLink /> Open in Full Resolution
+              </a>
+            </div>
           </div>
         </div>
       )}
