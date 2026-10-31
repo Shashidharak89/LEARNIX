@@ -105,6 +105,7 @@ export async function GET(req, { params }) {
         templates: problem.templates || {},
         boilerplateCode: problem.boilerplateCode || problem.templates?.javascript || "",
         javaBoilerplate: problem.javaBoilerplate || problem.templates?.java || "",
+        pythonBoilerplate: problem.pythonBoilerplate || problem.templates?.python || "",
         totalTestCasesCount: allTestCases.length,
         sampleCases,
       },

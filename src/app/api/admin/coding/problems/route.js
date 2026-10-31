@@ -154,6 +154,7 @@ export async function POST(req) {
       character: "char",
       "number[]": "int[]",
       "int[]": "int[]",
+      "int[][]": "int[][]",
       "string[]": "String[]",
       "boolean[]": "boolean[]",
       array: "int[]",
@@ -162,6 +163,31 @@ export async function POST(req) {
       object: "Map<String, Object>",
       any: "Object",
       void: "void",
+    };
+
+    const pythonTypeMap = {
+      number: "int",
+      int: "int",
+      integer: "int",
+      long: "int",
+      double: "float",
+      float: "float",
+      string: "str",
+      boolean: "bool",
+      bool: "bool",
+      char: "str",
+      character: "str",
+      "number[]": "List[int]",
+      "int[]": "List[int]",
+      "int[][]": "List[List[int]]",
+      "string[]": "List[str]",
+      "boolean[]": "List[bool]",
+      array: "List[int]",
+      "array<number>": "List[int]",
+      "array<string>": "List[str]",
+      object: "Dict[str, Any]",
+      any: "Any",
+      void: "None",
     };
 
     for (let i = 0; i < rawList.length; i++) {
@@ -239,7 +265,34 @@ export async function POST(req) {
 
       const defaultJavaTemplate = `class Solution {\n    public ${jRetType} ${functionName}(${jParams}) {\n        // Write your code here\n        ${jDefaultReturn}\n    }\n}`;
 
-      // Final templates for both JavaScript and Java
+      // Python return type & parameters
+      const pyRetType = pythonTypeMap[normRet] || "Any";
+      const pyDefaultReturn =
+        pyRetType === "int"
+          ? "return 0"
+          : pyRetType === "float"
+          ? "return 0.0"
+          : pyRetType === "bool"
+          ? "return False"
+          : pyRetType === "str"
+          ? 'return ""'
+          : pyRetType === "None"
+          ? "pass"
+          : pyRetType.startsWith("List")
+          ? "return []"
+          : "return None";
+
+      const pyParams = [
+        "self",
+        ...(parameters || []).map((p) => {
+          const pType = pythonTypeMap[String(p.type || "number").toLowerCase()] || "Any";
+          return `${p.name || "arg"}: ${pType}`;
+        }),
+      ].join(", ");
+
+      const defaultPythonTemplate = `class Solution:\n    def ${functionName}(${pyParams}) -> ${pyRetType}:\n        # Write your code here\n        ${pyDefaultReturn}`;
+
+      // Final templates for JavaScript, Java, and Python
       const finalJsBoilerplate =
         templates.javascript ||
         boilerplateCode ||
@@ -250,9 +303,15 @@ export async function POST(req) {
         javaBoilerplate ||
         defaultJavaTemplate;
 
+      const finalPythonBoilerplate =
+        templates.python ||
+        probData.pythonBoilerplate ||
+        defaultPythonTemplate;
+
       const finalTemplates = {
         javascript: finalJsBoilerplate,
         java: finalJavaBoilerplate,
+        python: finalPythonBoilerplate,
         ...templates,
       };
 
@@ -302,6 +361,7 @@ export async function POST(req) {
         templates: finalTemplates,
         boilerplateCode: finalJsBoilerplate,
         javaBoilerplate: finalJavaBoilerplate,
+        pythonBoilerplate: finalPythonBoilerplate,
         order: assignedOrder,
         isActive: Boolean(isActive),
         createdAt: now,

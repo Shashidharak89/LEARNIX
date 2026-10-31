@@ -118,6 +118,49 @@ function generateJavaBoilerplate(funcName, params = [], retType = "number") {
   return `class Solution {\n    public ${jRet} ${funcName || "solution"}(${jParams}) {\n        // Write your code here\n        ${jRetVal}\n    }\n}`;
 }
 
+function getPythonType(typeStr) {
+  if (!typeStr) return "None";
+  const t = String(typeStr).trim().toLowerCase();
+  if (t === "number" || t === "int" || t === "integer" || t === "long") return "int";
+  if (t === "double" || t === "float") return "float";
+  if (t === "string" || t === "char" || t === "character") return "str";
+  if (t === "boolean" || t === "bool") return "bool";
+  if (t === "number[]" || t === "int[]" || t === "integer[]" || t === "array<number>" || t === "array") return "List[int]";
+  if (t === "string[]" || t === "array<string>") return "List[str]";
+  if (t === "boolean[]" || t === "array<boolean>") return "List[bool]";
+  if (t === "int[][]" || t === "number[][]") return "List[List[int]]";
+  if (t === "void") return "None";
+  return "Any";
+}
+
+function generatePythonBoilerplate(funcName, params = [], retType = "number") {
+  const pyRet = getPythonType(retType);
+  const pyRetVal =
+    pyRet === "int"
+      ? "return 0"
+      : pyRet === "float"
+      ? "return 0.0"
+      : pyRet === "bool"
+      ? "return False"
+      : pyRet === "str"
+      ? 'return ""'
+      : pyRet === "None"
+      ? "pass"
+      : pyRet.startsWith("List")
+      ? "return []"
+      : "return None";
+
+  const pyParams = [
+    "self",
+    ...(params || []).map((p) => {
+      const pType = getPythonType(p.type || "number");
+      return `${p.name || "arg"}: ${pType}`;
+    }),
+  ].join(", ");
+
+  return `class Solution:\n    def ${funcName || "solution"}(${pyParams}) -> ${pyRet}:\n        # Write your code here\n        ${pyRetVal}`;
+}
+
 // Dynamic import of Monaco Editor with SSR disabled
 const Editor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
@@ -147,6 +190,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
   const [languages, setLanguages] = useState([
     { languageId: "java", name: "Java", monacoLang: "java", version: "OpenJDK 25" },
     { languageId: "javascript", name: "JavaScript", monacoLang: "javascript", version: "ES6+" },
+    { languageId: "python", name: "Python", monacoLang: "python", version: "3.14" },
   ]);
   const [selectedLanguage, setSelectedLanguage] = useState("java");
   const [cooldown, setCooldown] = useState(0); // 10s cooldown timer
@@ -516,14 +560,23 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     if (prob.templates && prob.templates[lang]) {
       return prob.templates[lang];
     }
+    if (lang === "python" || lang === "py") {
+      return (
+        prob.pythonBoilerplate ||
+        prob.templates?.python ||
+        generatePythonBoilerplate(prob.functionName, prob.parameters, prob.returnType)
+      );
+    }
     if (lang === "java") {
       return (
         prob.javaBoilerplate ||
+        prob.templates?.java ||
         generateJavaBoilerplate(prob.functionName, prob.parameters, prob.returnType)
       );
     }
     return (
       prob.boilerplateCode ||
+      prob.templates?.javascript ||
       `function ${prob.functionName || "solution"}(${(prob.parameters || []).map((p) => p.name || "arg").join(", ")}) {\n  // Write your code here\n}`
     );
   }, []);
@@ -619,13 +672,20 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     if (typeof window !== "undefined" && window.confirm(`Reset ${selectedLanguage.toUpperCase()} code to default boilerplate template?`)) {
       let defaultCode = problem.templates?.[selectedLanguage];
       if (!defaultCode) {
-        if (selectedLanguage === "java") {
+        if (selectedLanguage === "python" || selectedLanguage === "py") {
+          defaultCode =
+            problem.pythonBoilerplate ||
+            problem.templates?.python ||
+            generatePythonBoilerplate(problem.functionName, problem.parameters, problem.returnType);
+        } else if (selectedLanguage === "java") {
           defaultCode =
             problem.javaBoilerplate ||
+            problem.templates?.java ||
             generateJavaBoilerplate(problem.functionName, problem.parameters, problem.returnType);
         } else {
           defaultCode =
             problem.boilerplateCode ||
+            problem.templates?.javascript ||
             `function ${problem.functionName || "solution"}(${(problem.parameters || []).map((p) => p.name || "arg").join(", ")}) {\n  // Write your code here\n}`;
         }
       }
@@ -1590,7 +1650,13 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
             <div className="lc-monaco-wrap">
               <Editor
                 height="100%"
-                language={selectedLanguage === "java" ? "java" : "javascript"}
+                language={
+                  selectedLanguage === "java"
+                    ? "java"
+                    : selectedLanguage === "python" || selectedLanguage === "py"
+                    ? "python"
+                    : "javascript"
+                }
                 theme={theme === "light" ? "vs" : "vs-dark"}
                 value={code}
                 onMount={(editor) => {
@@ -2100,7 +2166,14 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
               <div className="lc-sub-code-editor-box">
                 <Editor
                   height="360px"
-                  language={(selectedSubmission.language || "javascript") === "java" ? "java" : "javascript"}
+                  language={
+                    (selectedSubmission.language || "").toLowerCase().includes("java") &&
+                    !(selectedSubmission.language || "").toLowerCase().includes("script")
+                      ? "java"
+                      : (selectedSubmission.language || "").toLowerCase().includes("python")
+                      ? "python"
+                      : "javascript"
+                  }
                   theme={theme === "light" ? "vs" : "vs-dark"}
                   value={selectedSubmission.code}
                   options={{

@@ -23,6 +23,15 @@ const FALLBACK_LANGUAGES = [
     order: 2,
     isActive: true,
   },
+  {
+    languageId: "python",
+    name: "Python",
+    version: "3.14",
+    monaco: "python",
+    extension: "py",
+    order: 3,
+    isActive: true,
+  },
 ];
 
 export async function GET() {
@@ -36,6 +45,12 @@ export async function GET() {
     let languages = res.Items || [];
     if (languages.length === 0) {
       languages = FALLBACK_LANGUAGES;
+    } else {
+      // Ensure python exists in the list even if DB hasn't been seeded yet
+      const hasPython = languages.some((l) => l.languageId === "python");
+      if (!hasPython) {
+        languages.push(FALLBACK_LANGUAGES.find((l) => l.languageId === "python"));
+      }
     }
 
     languages = languages

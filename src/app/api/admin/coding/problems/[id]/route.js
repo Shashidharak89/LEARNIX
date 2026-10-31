@@ -84,6 +84,7 @@ export async function PUT(req, { params }) {
     };
     if (body.javaBoilerplate) mergedTemplates.java = body.javaBoilerplate;
     if (body.boilerplateCode) mergedTemplates.javascript = body.boilerplateCode;
+    if (body.pythonBoilerplate) mergedTemplates.python = body.pythonBoilerplate;
 
     const updatedItem = {
       ...existing,
@@ -92,6 +93,7 @@ export async function PUT(req, { params }) {
       templates: mergedTemplates,
       boilerplateCode: mergedTemplates.javascript || body.boilerplateCode || existing.boilerplateCode,
       javaBoilerplate: mergedTemplates.java || body.javaBoilerplate || existing.javaBoilerplate,
+      pythonBoilerplate: mergedTemplates.python || body.pythonBoilerplate || existing.pythonBoilerplate,
       updatedAt: now,
     };
 

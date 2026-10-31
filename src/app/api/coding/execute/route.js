@@ -3,6 +3,7 @@ import { docClient, PROBLEMS_TABLE, TESTCASES_TABLE, SUBMISSIONS_TABLE } from "@
 import { GetCommand, QueryCommand, ScanCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { executeCode } from "@/lib/codeRunner";
 import { executeJavaCode } from "@/lib/javaRunner";
+import { executePythonCode } from "@/lib/pythonRunner";
 import { connectDB } from "@/lib/db";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
 
@@ -166,7 +167,15 @@ export async function POST(req) {
     const selectedLang = (language || "javascript").toLowerCase();
     let executionResult;
 
-    if (selectedLang === "java") {
+    if (selectedLang === "python" || selectedLang === "py") {
+      executionResult = await executePythonCode({
+        userCode: code,
+        functionName: problem.functionName || "addTwoNumbers",
+        testCases: targetCases,
+        timeoutMs: 8000,
+        stopOnFailure: false,
+      });
+    } else if (selectedLang === "java") {
       executionResult = await executeJavaCode({
         userCode: code,
         functionName: problem.functionName || "addTwoNumbers",
