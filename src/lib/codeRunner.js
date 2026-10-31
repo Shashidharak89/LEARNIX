@@ -98,9 +98,10 @@ export function executeCode({
       totalRuntime += elapsed;
 
       const actualOutput = sandbox.returnValue;
-      const isMatch = areOutputsEqual(actualOutput, tc.expectedOutput);
+      const hasExpected = tc.expectedOutput !== null && tc.expectedOutput !== undefined;
+      const isMatch = hasExpected ? areOutputsEqual(actualOutput, tc.expectedOutput) : true;
 
-      if (!isMatch) {
+      if (hasExpected && !isMatch) {
         allPassed = false;
       }
 
@@ -108,6 +109,8 @@ export function executeCode({
         testCaseId: tc.testCaseId || `tc_${i + 1}`,
         order: tc.order || i + 1,
         isSample: tc.isSample ?? true,
+        isCustom: Boolean(tc.isCustom),
+        hasExpected,
         input: tc.input,
         rawInput: tc.rawInput || (Array.isArray(tc.input) ? tc.input.join(", ") : String(tc.input)),
         expectedOutput: tc.expectedOutput,
@@ -117,7 +120,7 @@ export function executeCode({
         logs,
       });
 
-      if (!isMatch && stopOnFailure) {
+      if (hasExpected && !isMatch && stopOnFailure) {
         break;
       }
     } catch (err) {
@@ -134,6 +137,8 @@ export function executeCode({
         testCaseId: tc.testCaseId || `tc_${i + 1}`,
         order: tc.order || i + 1,
         isSample: tc.isSample ?? true,
+        isCustom: Boolean(tc.isCustom),
+        hasExpected: tc.expectedOutput !== null && tc.expectedOutput !== undefined,
         input: tc.input,
         rawInput: tc.rawInput || (Array.isArray(tc.input) ? tc.input.join(", ") : String(tc.input)),
         expectedOutput: tc.expectedOutput,

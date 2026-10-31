@@ -553,20 +553,43 @@
   color: #0f172a;
 }
 
-.lc-workspace.lc-theme-light .lc-custom-input {
+.lc-workspace.lc-theme-light .lc-param-input {
   width: 100%;
   background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 6px;
-  padding: 0.6rem 0.85rem;
+  padding: 0.55rem 0.85rem;
   color: #0f172a;
   font-family: monospace;
+  font-size: 0.85rem;
   outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-.lc-workspace.lc-theme-light .lc-custom-input:focus {
+.lc-workspace.lc-theme-light .lc-param-input:focus {
   border-color: #ea580c;
   box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.15);
+}
+
+.lc-workspace.lc-theme-light .lc-param-name {
+  color: #2563eb;
+}
+
+.lc-workspace.lc-theme-light .lc-add-case-chip {
+  background: #f8fafc;
+  border-color: #93c5fd;
+  color: #2563eb;
+}
+
+.lc-workspace.lc-theme-light .lc-reset-cases-chip {
+  border-color: #cbd5e1;
+  color: #64748b;
+}
+
+.lc-workspace.lc-theme-light .lc-custom-notice {
+  background: #f0f9ff;
+  border-color: #bae6fd;
+  color: #0284c7;
 }
 
 .lc-workspace.lc-theme-light .lc-auth-gate-box {
@@ -1387,6 +1410,9 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .lc-case-chip.active {
@@ -1403,8 +1429,95 @@
   border-left: 3px solid var(--lc-hard);
 }
 
+.lc-case-chip.custom-evaluated {
+  border-left: 3px solid #38bdf8;
+}
+
+.lc-chip-custom-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+}
+
+.lc-chip-delete {
+  margin-left: 4px;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: #94a3b8;
+  padding: 0 3px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.lc-chip-delete:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.lc-add-case-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  color: #93c5fd;
+}
+
+.lc-add-case-chip:hover {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: #3b82f6;
+  color: #60a5fa;
+}
+
+.lc-reset-cases-chip {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--lc-text-muted);
+  margin-left: auto;
+}
+
+.lc-reset-cases-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.lc-case-limit-badge {
+  font-size: 0.75rem;
+  color: var(--lc-text-muted);
+  align-self: center;
+  padding: 0.2rem 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+}
+
 .lc-param-block {
   margin-bottom: 0.75rem;
+}
+
+.lc-param-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+
+.lc-param-name {
+  font-family: monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #93c5fd;
+}
+
+.lc-param-type {
+  font-size: 0.72rem;
+  color: var(--lc-text-muted);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: monospace;
 }
 
 .lc-param-label {
@@ -1416,6 +1529,24 @@
   margin-bottom: 0.25rem;
 }
 
+.lc-param-input {
+  width: 100%;
+  background: var(--lc-bg-inner);
+  border: 1px solid var(--lc-border);
+  border-radius: 6px;
+  padding: 0.55rem 0.85rem;
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #ffffff;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.lc-param-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
 .lc-param-box {
   background: var(--lc-bg-inner);
   border: 1px solid var(--lc-border);
@@ -1424,6 +1555,32 @@
   font-family: monospace;
   font-size: 0.85rem;
   color: #ffffff;
+}
+
+.lc-custom-notice {
+  font-size: 0.8rem;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.lc-custom-badge-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.lc-custom-output-note {
+  font-size: 0.8rem;
+  color: var(--lc-text-muted);
+  margin-top: 0.5rem;
+  font-style: italic;
 }
 
 /* Test Result Displays */

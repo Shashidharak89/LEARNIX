@@ -216,8 +216,9 @@ for idx, tc in enumerate(__testcases):
       }
 
       // Check output equality
-      const isMatch = areOutputsEqual(parsed.out, tc.expectedOutput);
-      if (!isMatch) allPassed = false;
+      const hasExpected = tc.expectedOutput !== null && tc.expectedOutput !== undefined;
+      const isMatch = hasExpected ? areOutputsEqual(parsed.out, tc.expectedOutput) : true;
+      if (hasExpected && !isMatch) allPassed = false;
       totalRuntime += parsed.runtime;
 
       const formattedIn =
@@ -229,18 +230,22 @@ for idx, tc in enumerate(__testcases):
         input: formattedIn,
         rawInput: formattedIn,
         expectedOutput:
-          typeof tc.expectedOutput === "string"
+          tc.expectedOutput === null || tc.expectedOutput === undefined
+            ? null
+            : typeof tc.expectedOutput === "string"
             ? tc.expectedOutput
             : JSON.stringify(tc.expectedOutput),
         actualOutput: parsed.out,
         passed: isMatch,
+        isCustom: Boolean(tc.isCustom),
+        hasExpected,
         runtimeMs: parsed.runtime,
         isSample: tc.isSample !== false,
         explanation: tc.explanation || "",
         logs: [],
       });
 
-      if (!isMatch && stopOnFailure) {
+      if (hasExpected && !isMatch && stopOnFailure) {
         break;
       }
     }
@@ -249,7 +254,7 @@ for idx, tc in enumerate(__testcases):
     let finalStatus = "Accepted";
     if (generalError) {
       finalStatus = "Runtime Error";
-    } else if (passedCount < testCases.length) {
+    } else if (!allPassed) {
       finalStatus = "Wrong Answer";
     }
 

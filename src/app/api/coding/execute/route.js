@@ -32,8 +32,7 @@ function checkRateLimit(callerKey) {
 
 export async function POST(req) {
   try {
-    const body = await req.json();
-    const { problemId, code, language = "javascript", mode = "run", customInput } = body;
+    const { problemId, code, language = "javascript", mode = "run", customInput, customCases } = body;
 
     if (!problemId) {
       return NextResponse.json({ success: false, error: "problemId is required" }, { status: 400 });
@@ -140,7 +139,22 @@ export async function POST(req) {
 
     let targetCases = [];
 
-    if (customInput !== undefined && customInput !== null) {
+    if (mode === "run" && Array.isArray(customCases) && customCases.length > 0) {
+      // Run with user custom/sample test cases (capped at 8)
+      targetCases = customCases.slice(0, 8).map((tc, idx) => ({
+        testCaseId: tc.id || tc.testCaseId || `case_${idx + 1}`,
+        order: idx + 1,
+        input: tc.input,
+        rawInput:
+          tc.rawInput ||
+          (Array.isArray(tc.input)
+            ? tc.input.map((x) => (typeof x === "object" ? JSON.stringify(x) : String(x))).join(", ")
+            : String(tc.input)),
+        expectedOutput: tc.expectedOutput !== undefined ? tc.expectedOutput : null,
+        isSample: true,
+        isCustom: Boolean(tc.isCustom),
+      }));
+    } else if (customInput !== undefined && customInput !== null) {
       // Run with custom input
       targetCases = [
         {
@@ -150,6 +164,7 @@ export async function POST(req) {
           rawInput: Array.isArray(customInput) ? customInput.join(", ") : String(customInput),
           expectedOutput: null,
           isSample: true,
+          isCustom: true,
         },
       ];
     } else if (mode === "run") {

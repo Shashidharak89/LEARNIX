@@ -178,6 +178,68 @@ function generatePythonBoilerplate(funcName, params = [], retType = "number") {
   return `class Solution:\n    def ${funcName || "solution"}(${pyParams}) -> ${pyRet}:\n        # Write your code here\n        ${pyRetVal}`;
 }
 
+function parseParamValue(strVal, expectedType) {
+  if (typeof strVal !== "string") return strVal;
+  const trimmed = strVal.trim();
+  if (trimmed === "") return "";
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    const t = (expectedType || "").toLowerCase();
+    if (t.includes("int") || t.includes("number")) {
+      const num = Number(trimmed);
+      if (!isNaN(num)) return num;
+    }
+    if (t.includes("bool")) {
+      if (trimmed.toLowerCase() === "true") return true;
+      if (trimmed.toLowerCase() === "false") return false;
+    }
+    if (
+      (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+      (trimmed.startsWith("'") && trimmed.endsWith("'"))
+    ) {
+      return trimmed.slice(1, -1);
+    }
+    return trimmed;
+  }
+}
+
+function initCasesFromProblem(prob) {
+  if (!prob) return [];
+  const samples = prob.sampleCases || [];
+  const params = prob.parameters || [];
+
+  if (samples.length > 0) {
+    return samples.map((tc, idx) => {
+      let args = tc.input;
+      if (!Array.isArray(args)) {
+        args = [args];
+      }
+      return {
+        id: tc.testCaseId || `sample_${idx + 1}`,
+        order: idx + 1,
+        paramValues: args.map((arg) =>
+          typeof arg === "object" ? JSON.stringify(arg) : String(arg ?? "")
+        ),
+        expectedOutput: tc.expectedOutput ?? null,
+        explanation: tc.explanation || "",
+        isCustom: false,
+      };
+    });
+  }
+
+  return [
+    {
+      id: "case_1",
+      order: 1,
+      paramValues: params.map(() => ""),
+      expectedOutput: null,
+      explanation: "",
+      isCustom: false,
+    },
+  ];
+}
+
 // Dynamic import of Monaco Editor with SSR disabled
 const Editor = dynamic(() => import("@monaco-editor/react"), {
   ssr: false,
@@ -231,9 +293,73 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
   // Execution states
   const [executing, setExecuting] = useState(false);
-  const [execMode, setExecMode] = useState("run"); // "run" | "submit"
   const [executionResult, setExecutionResult] = useState(null);
-  const [useCustomInput, setUseCustomInput] = useState(false);
+  const [editableCases, setEditableCases] = useState([]);
+
+  useEffect(() => {
+    if (problem) {
+      setEditableCases(initCasesFromProblem(problem));
+    }
+  }, [problem?.problemId]);
+
+  function handleAddCustomCase() {
+    if (editableCases.length >= 8) {
+      alert("Maximum of 8 test cases allowed.");
+      return;
+    }
+    const lastCase = editableCases[editableCases.length - 1];
+    const newParamValues = lastCase
+      ? [...lastCase.paramValues]
+      : (problem?.parameters || []).map(() => "");
+
+    const newCase = {
+      id: `custom_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      order: editableCases.length + 1,
+      paramValues: newParamValues,
+      expectedOutput: null,
+      explanation: "",
+      isCustom: true,
+    };
+
+    const nextCases = [...editableCases, newCase];
+    setEditableCases(nextCases);
+    setSelectedCaseIdx(nextCases.length - 1);
+    setActiveConsoleTab("testcase");
+  }
+
+  function handleRemoveCase(indexToRemove, e) {
+    if (e) e.stopPropagation();
+    if (editableCases.length <= 1) {
+      alert("You must keep at least one test case.");
+      return;
+    }
+    const nextCases = editableCases.filter((_, idx) => idx !== indexToRemove);
+    setEditableCases(nextCases);
+    if (selectedCaseIdx >= nextCases.length) {
+      setSelectedCaseIdx(nextCases.length - 1);
+    } else if (selectedCaseIdx === indexToRemove) {
+      setSelectedCaseIdx(Math.max(0, indexToRemove - 1));
+    }
+  }
+
+  function handleResetToSampleCases() {
+    if (problem) {
+      setEditableCases(initCasesFromProblem(problem));
+      setSelectedCaseIdx(0);
+    }
+  }
+
+  function handleParamValueChange(caseIdx, paramIdx, value) {
+    setEditableCases((prev) => {
+      const updated = [...prev];
+      const target = { ...updated[caseIdx] };
+      const newVals = [...(target.paramValues || [])];
+      newVals[paramIdx] = value;
+      target.paramValues = newVals;
+      updated[caseIdx] = target;
+      return updated;
+    });
+  }
 
   // Theme state ("dark" | "light")
   const [theme, setTheme] = useState("dark");
@@ -615,7 +741,8 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
         const templateCode = getLanguageTemplate(prob, selectedLanguage);
         setCode(templateCode);
 
-        // Reset selected case
+        // Initialize editable test cases and reset selected case
+        setEditableCases(initCasesFromProblem(prob));
         setSelectedCaseIdx(0);
         setSelectedResultIdx(0);
         setActiveConsoleTab("testcase");
@@ -751,9 +878,11 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
           const inputArgs = Array.isArray(tc.input) ? tc.input : [tc.input];
           const copiedArgs = JSON.parse(JSON.stringify(inputArgs));
           actualOutput = userFn(...copiedArgs);
-          passed = areOutputsEqual(actualOutput, tc.expectedOutput);
+          const hasExpected = tc.expectedOutput !== null && tc.expectedOutput !== undefined;
+          passed = hasExpected ? areOutputsEqual(actualOutput, tc.expectedOutput) : true;
         } catch (err) {
           error = err.message || String(err);
+          passed = false;
         }
 
         const tcEnd = getTime();
@@ -768,6 +897,8 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
           expectedOutput: tc.expectedOutput,
           actualOutput: actualOutput !== undefined ? actualOutput : null,
           passed,
+          isCustom: Boolean(tc.isCustom),
+          hasExpected: tc.expectedOutput !== null && tc.expectedOutput !== undefined,
           runtime: Math.round((tcEnd - tcStart) * 100) / 100,
           logs: [...capturedLogs],
           error,
@@ -775,16 +906,18 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
       }
 
       const totalRuntime = Math.max(1, Math.round(getTime() - startTime));
-      const passedTestCases = results.filter((r) => r.passed).length;
-      const allPassed = passedTestCases === results.length;
+      const hasErrors = results.some((r) => r.error);
+      const evaluatedCases = results.filter((r) => r.hasExpected);
+      const passedEvaluated = evaluatedCases.filter((r) => r.passed).length;
+      const allPassed = !hasErrors && (evaluatedCases.length === 0 || passedEvaluated === evaluatedCases.length);
 
       return {
         success: true,
         mode: "run",
         language: "javascript",
-        status: allPassed ? "Accepted" : "Wrong Answer",
+        status: hasErrors ? "Runtime Error" : allPassed ? "Accepted" : "Wrong Answer",
         totalTestCases: results.length,
-        passedTestCases,
+        passedTestCases: results.filter((r) => r.passed).length,
         totalRuntime,
         results,
         stdout: capturedLogs.join("\n"),
@@ -836,34 +969,36 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     }
 
     try {
-      let customArgs = undefined;
-      if (mode === "run" && useCustomInput && customInputStr.trim()) {
-        try {
-          customArgs = JSON.parse(customInputStr);
-        } catch {
-          alert("Invalid custom input: must be a valid JSON array of arguments, e.g. [2, 3]");
-          setExecuting(false);
-          return;
-        }
-      }
+      // Prepare active cases for evaluation
+      const preparedCases = editableCases.map((c, idx) => {
+        const parsedArgs = (c.paramValues || []).map((valStr, pIdx) => {
+          const pType = problem?.parameters?.[pIdx]?.type;
+          return parseParamValue(valStr, pType);
+        });
+        return {
+          id: c.id || `case_${idx + 1}`,
+          testCaseId: c.id || `case_${idx + 1}`,
+          order: idx + 1,
+          input: parsedArgs,
+          rawInput: parsedArgs
+            .map((x) => (typeof x === "object" ? JSON.stringify(x) : String(x)))
+            .join(", "),
+          expectedOutput: c.expectedOutput,
+          isSample: true,
+          isCustom: Boolean(c.isCustom),
+        };
+      });
 
       // If JavaScript in "run" mode: run directly in browser
       if (selectedLanguage === "javascript" && mode === "run") {
-        let casesToTest;
-        if (customArgs !== undefined) {
-          casesToTest = [{ input: customArgs, expectedOutput: null }];
-        } else {
-          casesToTest = problem.sampleCases || problem.testCases?.slice(0, 3) || [];
-        }
-
-        const clientResult = executeJavaScriptInBrowser(code, problem.functionName, casesToTest);
+        const clientResult = executeJavaScriptInBrowser(code, problem.functionName, preparedCases);
         setExecutionResult(clientResult);
         setSelectedResultIdx(0);
         setExecuting(false);
         return;
       }
 
-      // For Java (Run or Submit) or JavaScript (Submit mode): execute on server
+      // For Java, Python, or Submit: execute on server
       const headers = { "Content-Type": "application/json" };
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;
@@ -877,7 +1012,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
           language: selectedLanguage,
           code,
           mode,
-          customInput: customArgs,
+          customCases: mode === "run" ? preparedCases : undefined,
         }),
       });
 
@@ -1806,74 +1941,108 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
               {activeConsoleTab === "testcase" && (
                 <div>
                   <div className="lc-case-nav">
-                    {sampleCases.map((tc, idx) => (
+                    {editableCases.map((tc, idx) => (
                       <button
-                        key={tc.testCaseId || idx}
-                        onClick={() => {
-                          setSelectedCaseIdx(idx);
-                          setUseCustomInput(false);
-                        }}
-                        className={`lc-case-chip ${!useCustomInput && selectedCaseIdx === idx ? "active" : ""}`}
+                        key={tc.id || idx}
+                        onClick={() => setSelectedCaseIdx(idx)}
+                        className={`lc-case-chip ${selectedCaseIdx === idx ? "active" : ""} ${tc.isCustom ? "lc-custom-chip" : ""}`}
                       >
-                        Case {idx + 1}
+                        <span>Case {idx + 1}</span>
+                        {tc.isCustom && <span className="lc-chip-custom-badge">Custom</span>}
+                        {tc.isCustom && (
+                          <span
+                            className="lc-chip-delete"
+                            onClick={(e) => handleRemoveCase(idx, e)}
+                            title="Remove this custom test case"
+                          >
+                            ×
+                          </span>
+                        )}
                       </button>
                     ))}
-                    <button
-                      onClick={() => setUseCustomInput(true)}
-                      className={`lc-case-chip ${useCustomInput ? "active" : ""}`}
-                    >
-                      + Custom Testcase
-                    </button>
+
+                    {editableCases.length < 8 ? (
+                      <button
+                        onClick={handleAddCustomCase}
+                        className="lc-case-chip lc-add-case-chip"
+                        title="Add a copy of the last testcase (up to 8 total)"
+                      >
+                        + Custom Testcase
+                      </button>
+                    ) : (
+                      <span className="lc-case-limit-badge" title="Maximum 8 testcases reached">
+                        (Max 8 cases)
+                      </span>
+                    )}
+
+                    {editableCases.some((c) => c.isCustom) && (
+                      <button
+                        onClick={handleResetToSampleCases}
+                        className="lc-case-chip lc-reset-cases-chip"
+                        title="Reset to default sample test cases"
+                      >
+                        ↺ Reset
+                      </button>
+                    )}
                   </div>
 
-                  {!useCustomInput && sampleCases[selectedCaseIdx] && (
+                  {editableCases[selectedCaseIdx] && (
                     <div>
-                      <div className="lc-param-block">
-                        <div className="lc-param-label">Input</div>
-                        <div className="lc-param-box">
-                          {sampleCases[selectedCaseIdx].rawInput ||
-                            (Array.isArray(sampleCases[selectedCaseIdx].input)
-                              ? sampleCases[selectedCaseIdx].input
-                                  .map((v) => (typeof v === "object" ? JSON.stringify(v) : String(v)))
-                                  .join(", ")
-                              : typeof sampleCases[selectedCaseIdx].input === "object"
-                              ? JSON.stringify(sampleCases[selectedCaseIdx].input)
-                              : String(sampleCases[selectedCaseIdx].input ?? "N/A"))}
-                        </div>
-                      </div>
+                      {/* Render each parameter input matching the problem's signature */}
+                      {(() => {
+                        const curCase = editableCases[selectedCaseIdx];
+                        const paramsList =
+                          problem?.parameters && problem.parameters.length > 0
+                            ? problem.parameters
+                            : (curCase.paramValues || []).map((_, i) => ({
+                                name: `param_${i + 1}`,
+                                type: "any",
+                              }));
 
-                      <div className="lc-param-block">
-                        <div className="lc-param-label">Expected Output</div>
-                        <div className="lc-param-box">
-                          {typeof sampleCases[selectedCaseIdx].expectedOutput === "object"
-                            ? JSON.stringify(sampleCases[selectedCaseIdx].expectedOutput)
-                            : String(sampleCases[selectedCaseIdx].expectedOutput ?? "N/A")}
-                        </div>
-                      </div>
+                        return paramsList.map((param, pIdx) => (
+                          <div className="lc-param-block" key={param.name || pIdx}>
+                            <div className="lc-param-header">
+                              <span className="lc-param-name">
+                                {param.name || `param_${pIdx + 1}`} =
+                              </span>
+                              {param.type && <span className="lc-param-type">{param.type}</span>}
+                            </div>
+                            <input
+                              type="text"
+                              className="lc-param-input"
+                              value={curCase.paramValues?.[pIdx] ?? ""}
+                              onChange={(e) => handleParamValueChange(selectedCaseIdx, pIdx, e.target.value)}
+                              placeholder={param.type ? `Enter ${param.name} (${param.type})` : `Enter ${param.name}`}
+                            />
+                          </div>
+                        ));
+                      })()}
 
-                      {sampleCases[selectedCaseIdx].explanation && (
-                        <div style={{ color: "var(--lc-text-muted)", fontSize: "0.85rem", marginTop: "0.5rem" }}>
-                          💡 <em>{sampleCases[selectedCaseIdx].explanation}</em>
+                      {/* Expected Output if provided (sample cases) */}
+                      {editableCases[selectedCaseIdx].expectedOutput !== null &&
+                        editableCases[selectedCaseIdx].expectedOutput !== undefined && (
+                          <div className="lc-param-block">
+                            <div className="lc-param-label">Expected Output</div>
+                            <div className="lc-param-box">
+                              {typeof editableCases[selectedCaseIdx].expectedOutput === "object"
+                                ? JSON.stringify(editableCases[selectedCaseIdx].expectedOutput)
+                                : String(editableCases[selectedCaseIdx].expectedOutput)}
+                            </div>
+                          </div>
+                        )}
+
+                      {/* Custom case notice */}
+                      {editableCases[selectedCaseIdx].isCustom && (
+                        <div className="lc-custom-notice">
+                          💡 Custom test case: Click <strong>Run</strong> to evaluate your code and view the generated output.
                         </div>
                       )}
-                    </div>
-                  )}
 
-                  {useCustomInput && (
-                    <div>
-                      <div className="lc-param-block">
-                        <div className="lc-param-label">Custom Arguments (JSON Array, e.g. [15, 25])</div>
-                        <input
-                          type="text"
-                          value={customInputStr}
-                          onChange={(e) => setCustomInputStr(e.target.value)}
-                          placeholder="e.g. [50, 100]"
-                          className="lc-custom-input"
-                        />
-                      </div>
-                      <p style={{ fontSize: "0.8rem", color: "var(--lc-text-muted)" }}>
-                        Click <strong>Run</strong> to test your code with these custom arguments.
-                      </p>
+                      {editableCases[selectedCaseIdx].explanation && (
+                        <div style={{ color: "var(--lc-text-muted)", fontSize: "0.85rem", marginTop: "0.5rem" }}>
+                          💡 <em>{editableCases[selectedCaseIdx].explanation}</em>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1937,83 +2106,109 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                       {executionResult.results?.length > 0 && (
                         <div>
                           <div className="lc-case-nav">
-                            {executionResult.results.map((r, idx) => (
-                              <button
-                                key={idx}
-                                onClick={() => setSelectedResultIdx(idx)}
-                                className={`lc-case-chip ${selectedResultIdx === idx ? "active" : ""} ${r.passed ? "passed" : "failed"}`}
-                              >
-                                Case {idx + 1}
-                              </button>
-                            ))}
+                            {executionResult.results.map((r, idx) => {
+                              const isCustomWithoutExp = (r.isCustom || r.expectedOutput == null) && !r.error;
+                              let chipState = "failed";
+                              if (r.error) {
+                                chipState = "failed";
+                              } else if (isCustomWithoutExp) {
+                                chipState = "custom-evaluated";
+                              } else if (r.passed) {
+                                chipState = "passed";
+                              }
+
+                              return (
+                                <button
+                                  key={idx}
+                                  onClick={() => setSelectedResultIdx(idx)}
+                                  className={`lc-case-chip ${selectedResultIdx === idx ? "active" : ""} ${chipState}`}
+                                >
+                                  <span>Case {idx + 1}</span>
+                                  {r.isCustom && <span className="lc-chip-custom-badge">Custom</span>}
+                                </button>
+                              );
+                            })}
                           </div>
 
-                          {executionResult.results[selectedResultIdx] && (
-                            <div>
-                              {/* Always display Input for the test case */}
-                              <div className="lc-param-block">
-                                <div className="lc-param-label">Input</div>
-                                <div className="lc-param-box">
-                                  {executionResult.results[selectedResultIdx].rawInput ||
-                                    (executionResult.results[selectedResultIdx].input !== undefined
-                                      ? (Array.isArray(executionResult.results[selectedResultIdx].input)
-                                          ? executionResult.results[selectedResultIdx].input
+                          {executionResult.results[selectedResultIdx] && (() => {
+                            const curResult = executionResult.results[selectedResultIdx];
+                            const isCustomWithoutExp = (curResult.isCustom || curResult.expectedOutput == null) && !curResult.error;
+
+                            return (
+                              <div>
+                                {/* Always display Input for the test case */}
+                                <div className="lc-param-block">
+                                  <div className="lc-param-label">Input</div>
+                                  <div className="lc-param-box">
+                                    {curResult.rawInput ||
+                                      (curResult.input !== undefined
+                                        ? Array.isArray(curResult.input)
+                                          ? curResult.input
                                               .map((v) => (typeof v === "object" ? JSON.stringify(v) : String(v)))
                                               .join(", ")
-                                          : typeof executionResult.results[selectedResultIdx].input === "object"
-                                          ? JSON.stringify(executionResult.results[selectedResultIdx].input)
-                                          : String(executionResult.results[selectedResultIdx].input))
-                                      : (sampleCases[selectedResultIdx]?.rawInput ||
-                                         (Array.isArray(sampleCases[selectedResultIdx]?.input)
-                                           ? sampleCases[selectedResultIdx].input
-                                               .map((v) => (typeof v === "object" ? JSON.stringify(v) : String(v)))
-                                               .join(", ")
-                                           : typeof sampleCases[selectedResultIdx]?.input === "object"
-                                           ? JSON.stringify(sampleCases[selectedResultIdx].input)
-                                           : String(sampleCases[selectedResultIdx]?.input ?? "N/A"))))}
-                                </div>
-                              </div>
-
-                              <div className="lc-param-block">
-                                <div className="lc-param-label">Output</div>
-                                <div
-                                  className="lc-param-box"
-                                  style={{
-                                    color: executionResult.results[selectedResultIdx].passed
-                                      ? "var(--lc-easy)"
-                                      : "var(--lc-hard)",
-                                  }}
-                                >
-                                  {typeof executionResult.results[selectedResultIdx].actualOutput === "object"
-                                    ? JSON.stringify(executionResult.results[selectedResultIdx].actualOutput)
-                                    : String(executionResult.results[selectedResultIdx].actualOutput ?? "None")}
-                                </div>
-                              </div>
-
-                              {executionResult.results[selectedResultIdx].expectedOutput !== undefined && (
-                                <div className="lc-param-block">
-                                  <div className="lc-param-label">Expected Output</div>
-                                  <div className="lc-param-box">
-                                    {typeof executionResult.results[selectedResultIdx].expectedOutput === "object"
-                                      ? JSON.stringify(executionResult.results[selectedResultIdx].expectedOutput)
-                                      : String(executionResult.results[selectedResultIdx].expectedOutput)}
+                                          : typeof curResult.input === "object"
+                                          ? JSON.stringify(curResult.input)
+                                          : String(curResult.input)
+                                        : "N/A")}
                                   </div>
                                 </div>
-                              )}
 
-                              {/* Stdout Logs */}
-                              {executionResult.results[selectedResultIdx].logs?.length > 0 && (
                                 <div className="lc-param-block">
-                                  <div className="lc-param-label">Stdout (Console Output)</div>
-                                  <div className="lc-param-box" style={{ color: "#cbd5e1" }}>
-                                    {executionResult.results[selectedResultIdx].logs.map((log, lIdx) => (
-                                      <div key={lIdx}>{log}</div>
-                                    ))}
+                                  <div className="lc-param-header">
+                                    <span className="lc-param-label">Output</span>
+                                    {isCustomWithoutExp && (
+                                      <span className="lc-custom-badge-tag">Custom Testcase Output</span>
+                                    )}
+                                  </div>
+                                  <div
+                                    className="lc-param-box"
+                                    style={{
+                                      color: curResult.error
+                                        ? "var(--lc-hard)"
+                                        : isCustomWithoutExp
+                                        ? "#38bdf8"
+                                        : curResult.passed
+                                        ? "var(--lc-easy)"
+                                        : "var(--lc-hard)",
+                                    }}
+                                  >
+                                    {typeof curResult.actualOutput === "object"
+                                      ? JSON.stringify(curResult.actualOutput)
+                                      : String(curResult.actualOutput ?? "None")}
                                   </div>
                                 </div>
-                              )}
-                            </div>
-                          )}
+
+                                {curResult.expectedOutput !== null && curResult.expectedOutput !== undefined && (
+                                  <div className="lc-param-block">
+                                    <div className="lc-param-label">Expected Output</div>
+                                    <div className="lc-param-box">
+                                      {typeof curResult.expectedOutput === "object"
+                                        ? JSON.stringify(curResult.expectedOutput)
+                                        : String(curResult.expectedOutput)}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {isCustomWithoutExp && (
+                                  <div className="lc-custom-output-note">
+                                    ℹ️ Output generated successfully for custom input.
+                                  </div>
+                                )}
+
+                                {/* Stdout Logs */}
+                                {curResult.logs?.length > 0 && (
+                                  <div className="lc-param-block">
+                                    <div className="lc-param-label">Stdout (Console Output)</div>
+                                    <div className="lc-param-box" style={{ color: "#cbd5e1" }}>
+                                      {curResult.logs.map((log, lIdx) => (
+                                        <div key={lIdx}>{log}</div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </div>
                       )}
                     </div>

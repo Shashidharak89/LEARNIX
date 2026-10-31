@@ -247,8 +247,9 @@ public class Main {
       }
 
       totalRuntime += parsed.runtime;
-      const isMatch = areOutputsEqual(parsed.out, tc.expectedOutput);
-      if (!isMatch) {
+      const hasExpected = tc.expectedOutput !== null && tc.expectedOutput !== undefined;
+      const isMatch = hasExpected ? areOutputsEqual(parsed.out, tc.expectedOutput) : true;
+      if (hasExpected && !isMatch) {
         allPassed = false;
       }
 
@@ -258,16 +259,23 @@ public class Main {
         order: tc.order || i + 1,
         input: formattedIn,
         rawInput: formattedIn,
-        expectedOutput: typeof tc.expectedOutput === "string" ? tc.expectedOutput : JSON.stringify(tc.expectedOutput),
+        expectedOutput:
+          tc.expectedOutput === null || tc.expectedOutput === undefined
+            ? null
+            : typeof tc.expectedOutput === "string"
+            ? tc.expectedOutput
+            : JSON.stringify(tc.expectedOutput),
         actualOutput: parsed.out,
         passed: isMatch,
+        isCustom: Boolean(tc.isCustom),
+        hasExpected,
         runtimeMs: parsed.runtime,
         isSample: tc.isSample !== false,
         explanation: tc.explanation || "",
         logs: [],
       });
 
-      if (!isMatch && stopOnFailure) {
+      if (hasExpected && !isMatch && stopOnFailure) {
         break;
       }
     }
