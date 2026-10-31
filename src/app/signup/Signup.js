@@ -6,7 +6,7 @@ import Image from "next/image";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FiUser, FiHash, FiArrowRight, FiCheckCircle, FiAlertCircle, FiMail, FiLock } from "react-icons/fi";
+import { FiHash, FiArrowRight, FiCheckCircle, FiAlertCircle, FiMail } from "react-icons/fi";
 import { verifyTokenAndSyncAuth } from "@/lib/clientAuth";
 import "./styles/Signup.css";
 
@@ -17,7 +17,6 @@ export default function Signup({ googleClientId = "" }) {
   const [googleProfile, setGoogleProfile] = useState(null);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
-  const [googleScriptReady, setGoogleScriptReady] = useState(false);
   const [isGoogleButtonRendered, setIsGoogleButtonRendered] = useState(false);
   const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
@@ -45,7 +44,9 @@ export default function Signup({ googleClientId = "" }) {
           ) {
             setTargetRedirect(refUrl.pathname + refUrl.search);
           }
-        } catch {}
+        } catch (e) {
+          void e;
+        }
       }
     }
   }, [redirectFromQuery]);
@@ -94,6 +95,114 @@ export default function Signup({ googleClientId = "" }) {
     }
   }, []);
 
+  const refreshGoogleLogin = useCallback(() => {
+    if (!googleClientId || step !== "verify") return;
+
+    setIsGoogleLoading(false);
+
+    const renderOfficialButton = () => {
+      if (!googleButtonRef.current || !window.google?.accounts?.id) return;
+      try {
+        window.google.accounts.id.cancel();
+      } catch (e) {
+        void e;
+      }
+
+      try {
+        window.google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: handleGoogleCredential,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
+
+        googleButtonRef.current.innerHTML = "";
+        window.google.accounts.id.renderButton(googleButtonRef.current, {
+          theme: "outline",
+          size: "large",
+          shape: "pill",
+          text: "signup_with",
+          logo_alignment: "center",
+          width: 280,
+        });
+
+        const checkRendered = () => {
+          if (
+            googleButtonRef.current &&
+            (googleButtonRef.current.childElementCount > 0 ||
+              googleButtonRef.current.querySelector("iframe"))
+          ) {
+            setIsGoogleButtonRendered(true);
+            return true;
+          }
+          return false;
+        };
+
+        if (!checkRendered()) {
+          setTimeout(checkRendered, 100);
+          setTimeout(checkRendered, 300);
+          setTimeout(checkRendered, 700);
+        }
+
+        setTimeout(() => {
+          if (!checkRendered() && window.google?.accounts?.id && googleButtonRef.current) {
+            try {
+              window.google.accounts.id.initialize({
+                client_id: googleClientId,
+                callback: handleGoogleCredential,
+                auto_select: false,
+              });
+              window.google.accounts.id.renderButton(googleButtonRef.current, {
+                theme: "outline",
+                size: "large",
+                shape: "pill",
+                text: "signup_with",
+                logo_alignment: "center",
+                width: 280,
+              });
+              checkRendered();
+            } catch (err) {
+              void err;
+            }
+          }
+        }, 1000);
+      } catch (err) {
+        console.error("Error refreshing Google signup:", err);
+      }
+    };
+
+    if (typeof window !== "undefined" && window.google?.accounts?.id) {
+      renderOfficialButton();
+      return;
+    }
+
+    if (typeof window !== "undefined") {
+      let script = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+      if (!script) {
+        script = document.createElement("script");
+        script.src = "https://accounts.google.com/gsi/client";
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      }
+
+      script.addEventListener("load", () => {
+        renderOfficialButton();
+      });
+
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        if (window.google?.accounts?.id) {
+          clearInterval(interval);
+          renderOfficialButton();
+        } else if (attempts > 30) {
+          clearInterval(interval);
+        }
+      }, 50);
+    }
+  }, [googleClientId, step, handleGoogleCredential]);
+
   const handleHardcodedGoogleClick = useCallback(() => {
     if (!googleClientId) {
       setIsSuccess(false);
@@ -102,8 +211,9 @@ export default function Signup({ googleClientId = "" }) {
     }
 
     if (!window.google?.accounts?.id) {
+      refreshGoogleLogin();
       setIsSuccess(false);
-      setMessage("Google is still loading. Please try again.");
+      setMessage("Google is still loading. Please try again in a moment.");
       return;
     }
 
@@ -111,6 +221,7 @@ export default function Signup({ googleClientId = "" }) {
       window.google.accounts.id.initialize({
         client_id: googleClientId,
         callback: handleGoogleCredential,
+        auto_select: false,
       });
 
       window.google.accounts.id.prompt();
@@ -118,33 +229,18 @@ export default function Signup({ googleClientId = "" }) {
       setIsSuccess(false);
       setMessage("Unable to open Google signup right now. Please try again.");
     }
-  }, [googleClientId, handleGoogleCredential]);
+  }, [googleClientId, handleGoogleCredential, refreshGoogleLogin]);
 
   useEffect(() => {
-    if (!googleScriptReady || !googleButtonRef.current || !googleClientId || step !== "verify") return;
-    if (!window.google?.accounts?.id) return;
+    // Entirely refresh Google login every time the user lands on this page / step
+    refreshGoogleLogin();
 
-    window.google.accounts.id.initialize({
-      client_id: googleClientId,
-      callback: handleGoogleCredential,
-    });
-
-    googleButtonRef.current.innerHTML = "";
-    window.google.accounts.id.renderButton(googleButtonRef.current, {
-      theme: "outline",
-      size: "large",
-      shape: "pill",
-      text: "signup_with",
-      logo_alignment: "center",
-      width: 280,
-    });
-
-    setTimeout(() => {
-      if (googleButtonRef.current?.childElementCount > 0) {
-        setIsGoogleButtonRendered(true);
-      }
-    }, 300);
-  }, [googleScriptReady, googleClientId, step, handleGoogleCredential]);
+    const handlePageShow = () => {
+      refreshGoogleLogin();
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, [refreshGoogleLogin]);
 
   const handleFinish = async (e) => {
     e.preventDefault();
@@ -180,7 +276,7 @@ export default function Signup({ googleClientId = "" }) {
       <Script
         src="https://accounts.google.com/gsi/client"
         strategy="afterInteractive"
-        onLoad={() => setGoogleScriptReady(true)}
+        onLoad={refreshGoogleLogin}
       />
       <div className="sgn-card">
         <div className="sgn-header">

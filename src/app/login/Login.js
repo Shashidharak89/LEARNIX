@@ -18,7 +18,6 @@ export default function Login({ googleClientId = "" }) {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const [googleScriptReady, setGoogleScriptReady] = useState(false);
   const [isGoogleButtonRendered, setIsGoogleButtonRendered] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const googleButtonRef = useRef(null);
@@ -45,7 +44,9 @@ export default function Login({ googleClientId = "" }) {
           ) {
             setTargetRedirect(refUrl.pathname + refUrl.search);
           }
-        } catch {}
+        } catch (e) {
+          void e;
+        }
       }
     }
   }, [redirectFromQuery]);
@@ -98,38 +99,156 @@ export default function Login({ googleClientId = "" }) {
     }
   }, [saveAuthAndRedirect]);
 
+  const refreshGoogleLogin = useCallback(() => {
+    if (!googleClientId) return;
+
+    setIsGoogleLoading(false);
+
+    const renderOfficialButton = () => {
+      if (!googleButtonRef.current || !window.google?.accounts?.id) return;
+      try {
+        window.google.accounts.id.cancel();
+      } catch (e) {
+        void e;
+      }
+
+      try {
+        window.google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: handleGoogleCredential,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
+
+        googleButtonRef.current.innerHTML = "";
+        window.google.accounts.id.renderButton(googleButtonRef.current, {
+          theme: "outline",
+          size: "large",
+          shape: "pill",
+          text: "continue_with",
+          logo_alignment: "center",
+          width: 280,
+        });
+
+        const checkRendered = () => {
+          if (
+            googleButtonRef.current &&
+            (googleButtonRef.current.childElementCount > 0 ||
+              googleButtonRef.current.querySelector("iframe"))
+          ) {
+            setIsGoogleButtonRendered(true);
+            return true;
+          }
+          return false;
+        };
+
+        if (!checkRendered()) {
+          setTimeout(checkRendered, 100);
+          setTimeout(checkRendered, 300);
+          setTimeout(checkRendered, 700);
+        }
+
+        setTimeout(() => {
+          if (!checkRendered() && window.google?.accounts?.id && googleButtonRef.current) {
+            try {
+              window.google.accounts.id.initialize({
+                client_id: googleClientId,
+                callback: handleGoogleCredential,
+                auto_select: false,
+              });
+              window.google.accounts.id.renderButton(googleButtonRef.current, {
+                theme: "outline",
+                size: "large",
+                shape: "pill",
+                text: "continue_with",
+                logo_alignment: "center",
+                width: 280,
+              });
+              checkRendered();
+            } catch (err) {
+              void err;
+            }
+          }
+        }, 1000);
+      } catch (err) {
+        console.error("Error refreshing Google login:", err);
+      }
+    };
+
+    if (typeof window !== "undefined" && window.google?.accounts?.id) {
+      renderOfficialButton();
+      return;
+    }
+
+    if (typeof window !== "undefined") {
+      let script = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+      if (!script) {
+        script = document.createElement("script");
+        script.src = "https://accounts.google.com/gsi/client";
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      }
+
+      script.addEventListener("load", () => {
+        renderOfficialButton();
+      });
+
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        if (window.google?.accounts?.id) {
+          clearInterval(interval);
+          renderOfficialButton();
+        } else if (attempts > 30) {
+          clearInterval(interval);
+        }
+      }, 50);
+    }
+  }, [googleClientId, handleGoogleCredential]);
+
   const handleHardcodedGoogleClick = useCallback(() => {
-    if (!googleClientId) { setIsSuccess(false); setMessage("Google login is currently unavailable."); return; }
-    if (!window.google?.accounts?.id) { setIsSuccess(false); setMessage("Google is still loading. Please try again."); return; }
+    if (!googleClientId) {
+      setIsSuccess(false);
+      setMessage("Google login is currently unavailable.");
+      return;
+    }
+    if (!window.google?.accounts?.id) {
+      refreshGoogleLogin();
+      setIsSuccess(false);
+      setMessage("Google is still loading. Please try again in a moment.");
+      return;
+    }
     try {
-      window.google.accounts.id.initialize({ client_id: googleClientId, callback: handleGoogleCredential });
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: handleGoogleCredential,
+        auto_select: false,
+      });
       window.google.accounts.id.prompt();
     } catch {
       setIsSuccess(false);
       setMessage("Failed to trigger Google login.");
     }
-  }, [googleClientId, handleGoogleCredential]);
+  }, [googleClientId, handleGoogleCredential, refreshGoogleLogin]);
 
   useEffect(() => {
-    if (!googleScriptReady || !googleButtonRef.current || !googleClientId) return;
-    if (!window.google?.accounts?.id) return;
-    window.google.accounts.id.initialize({ client_id: googleClientId, callback: handleGoogleCredential });
-    googleButtonRef.current.innerHTML = "";
-    window.google.accounts.id.renderButton(googleButtonRef.current, {
-      theme: "outline", size: "large", shape: "pill",
-      text: "continue_with", logo_alignment: "center", width: 280,
-    });
-    setTimeout(() => {
-      if (googleButtonRef.current?.childElementCount > 0) setIsGoogleButtonRendered(true);
-    }, 300);
-  }, [googleScriptReady, googleClientId, handleGoogleCredential]);
+    // Entirely refresh Google login every time the user lands on this page
+    refreshGoogleLogin();
+
+    const handlePageShow = () => {
+      refreshGoogleLogin();
+    };
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, [refreshGoogleLogin]);
 
   return (
     <div className="lgn-root">
       <Script
         src="https://accounts.google.com/gsi/client"
         strategy="afterInteractive"
-        onLoad={() => setGoogleScriptReady(true)}
+        onLoad={refreshGoogleLogin}
       />
 
       <div className="lgn-card">
