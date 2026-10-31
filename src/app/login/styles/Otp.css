@@ -1,162 +1,234 @@
-/* Otp.css — Matches Login theme (White, Sky Blue, Yellow) */
+/* Otp.css — Apple Widget Theme for Learnix OTP Flow */
 
 .otp-root {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ffffff;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  padding: 2rem;
+  background: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+  padding: 2.5rem 1.5rem;
+  position: relative;
+  overflow: hidden;
 }
 
+/* Ambient Apple Backdrop Blobs */
+.otp-ambient-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.otp-ambient-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.35;
+  animation: otp-floatBlob 12s ease-in-out infinite alternate;
+}
+
+.otp-ambient-blob--blue {
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, #38bdf8 0%, rgba(14, 165, 233, 0) 70%);
+  top: -60px;
+  left: -60px;
+}
+
+.otp-ambient-blob--amber {
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, #fde047 0%, rgba(245, 158, 11, 0) 70%);
+  bottom: -60px;
+  right: -60px;
+  animation-delay: -6s;
+}
+
+/* Apple Card Widget */
 .otp-card {
   display: flex;
   background: #ffffff;
-  border-radius: 20px;
-  box-shadow: 0 12px 40px rgba(135, 206, 235, 0.2);
+  border-radius: 28px;
+  box-shadow: 
+    0 24px 64px -16px rgba(15, 23, 42, 0.08),
+    0 4px 16px -4px rgba(15, 23, 42, 0.03),
+    0 0 0 1px rgba(226, 232, 240, 0.85);
   overflow: hidden;
-  max-width: 450px;
+  max-width: 460px;
   width: 100%;
-  border: 2px solid #e0f2fe;
   flex-direction: column;
-  padding: 3rem;
-  animation: otp-fadeUp 0.6s ease both;
+  padding: 3rem 2.75rem;
+  position: relative;
+  z-index: 1;
+  animation: otp-cardEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .otp-header {
   text-align: center;
   margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.otp-apple-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #0284c7;
+  font-size: 0.73rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.85rem;
 }
 
 .otp-title {
   font-size: 2rem;
-  color: #000;
+  color: #0f172a;
   font-weight: 800;
-  margin-bottom: 0.5rem;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
 }
 
 .otp-subtitle {
-  color: #555;
-  font-size: 1rem;
+  color: #64748b;
+  font-size: 0.94rem;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.otp-subtitle strong {
+  color: #0f172a;
 }
 
 .otp-form {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1.15rem;
+  width: 100%;
 }
 
 .otp-input-wrap {
   position: relative;
+  display: flex;
+  align-items: center;
 }
 
-.otp-input-icon {
+.otp-input-icon-box {
   position: absolute;
-  left: 1.2rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #87ceeb;
-  font-size: 1.2rem;
-  transition: all 0.3s ease;
+  left: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  pointer-events: none;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .otp-input {
   width: 100%;
-  padding: 1rem 1rem 1rem 3.5rem;
-  border: 2px solid #e0f2fe;
-  border-radius: 12px;
-  font-size: 1.05rem;
-  color: #000;
-  background: #ffffff;
-  transition: all 0.3s ease;
+  padding: 0.95rem 1rem 0.95rem 3.35rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  font-size: 1rem;
+  color: #0f172a;
+  background: #f8fafc;
   outline: none;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+}
+
+.otp-input--code {
+  letter-spacing: 0.35em;
+  font-size: 1.3rem;
+  font-weight: 700;
 }
 
 .otp-input::placeholder {
-  color: #a0aec0;
+  color: #94a3b8;
+  letter-spacing: normal;
+}
+
+.otp-input:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
 }
 
 .otp-input:focus {
-  border-color: #87ceeb;
-  box-shadow: 0 0 0 4px rgba(135, 206, 235, 0.2);
+  background: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.12);
 }
 
-.otp-input:focus + .otp-input-icon,
-.otp-input-wrap:focus-within .otp-input-icon {
-  color: #fbbf24;
+.otp-input-wrap:focus-within .otp-input-icon-box {
+  color: #0284c7;
+  transform: scale(1.08);
 }
 
 .otp-btn-primary {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.65rem;
   background: #fbbf24;
-  color: #000;
+  color: #0f172a;
   border: none;
-  border-radius: 12px;
-  padding: 1rem 1.5rem;
-  font-size: 1.1rem;
-  font-weight: 700;
+  border-radius: 16px;
+  padding: 0.95rem 1.5rem;
+  font-size: 1.02rem;
+  font-weight: 750;
   cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 0.5rem;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 0.4rem;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.28);
 }
 
 .otp-btn-primary:hover:not(:disabled) {
   background: #f59e0b;
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 8px 22px rgba(245, 158, 11, 0.42);
+}
+
+.otp-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .otp-btn-primary:disabled {
-  opacity: 0.7;
+  opacity: 0.65;
   cursor: not-allowed;
+  transform: none;
 }
 
 .otp-btn-arrow {
-  transition: transform 0.3s ease;
+  transition: transform 0.2s ease;
 }
 
 .otp-btn-primary:hover:not(:disabled) .otp-btn-arrow {
   transform: translateX(4px);
 }
 
-.otp-spin {
-  animation: otp-rotate 1s linear infinite;
-}
-
-.otp-link {
-  color: #64748b;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.95rem;
-  text-align: center;
-  margin-top: 1rem;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.otp-link:hover {
-  color: #000;
-}
-
 .otp-message {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  border-radius: 10px;
-  font-size: 0.95rem;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  font-size: 0.88rem;
   font-weight: 600;
-  animation: otp-fadeUp 0.3s ease;
   margin-top: 1rem;
+  animation: otp-cardEnter 0.25s ease;
 }
 
 .otp-message--ok {
-  background: #dcfce7;
-  color: #166534;
+  background: #f0fdf4;
+  color: #15803d;
   border: 1px solid #bbf7d0;
 }
 
@@ -166,18 +238,56 @@
   border: 1px solid #fecaca;
 }
 
-@keyframes otp-fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+.otp-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+  display: flex;
+  justify-content: center;
 }
 
-@keyframes otp-rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.otp-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #64748b;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: color 0.2s ease;
 }
 
-@media (max-width: 480px) {
-  .otp-root { padding: 1rem; }
-  .otp-card { padding: 2rem 1.5rem; }
-  .otp-title { font-size: 1.8rem; }
+.otp-back-link:hover {
+  color: #0f172a;
+  text-decoration: underline;
+}
+
+@keyframes otp-cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes otp-floatBlob {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(30px, 40px) scale(1.1); }
+}
+
+@media (max-width: 500px) {
+  .otp-root {
+    padding: 1rem;
+  }
+
+  .otp-card {
+    padding: 2.25rem 1.5rem;
+    border-radius: 22px;
+  }
+
+  .otp-title {
+    font-size: 1.7rem;
+  }
 }

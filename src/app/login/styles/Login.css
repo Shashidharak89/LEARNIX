@@ -1,127 +1,196 @@
-/* Login.css — Light theme (White, Sky Blue, Yellow) */
+/* Login.css — Apple Widget Theme with High Weightage Actions & Micro-Animations */
 
 .lgn-root {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #ffffff;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  padding: 2rem;
+  background: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+  padding: 2.5rem 1.5rem;
+  position: relative;
+  overflow: hidden;
 }
 
+/* Ambient Apple Keynote Backdrop Glow */
+.lgn-ambient-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.lgn-ambient-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.35;
+  animation: lgn-floatBlob 12s ease-in-out infinite alternate;
+}
+
+.lgn-ambient-blob--blue {
+  width: 440px;
+  height: 440px;
+  background: radial-gradient(circle, #38bdf8 0%, rgba(14, 165, 233, 0) 70%);
+  top: -80px;
+  right: -80px;
+}
+
+.lgn-ambient-blob--amber {
+  width: 380px;
+  height: 380px;
+  background: radial-gradient(circle, #fde047 0%, rgba(245, 158, 11, 0) 70%);
+  bottom: -60px;
+  left: -60px;
+  animation-delay: -6s;
+}
+
+/* Main Apple Card Widget */
 .lgn-card {
   display: flex;
   background: #ffffff;
-  border-radius: 20px;
-  box-shadow: 0 12px 40px rgba(135, 206, 235, 0.2);
+  border-radius: 28px;
+  box-shadow: 
+    0 24px 64px -16px rgba(15, 23, 42, 0.08),
+    0 4px 16px -4px rgba(15, 23, 42, 0.03),
+    0 0 0 1px rgba(226, 232, 240, 0.85);
   overflow: hidden;
-  max-width: 900px;
+  max-width: 960px;
   width: 100%;
-  border: 2px solid #e0f2fe;
-  animation: lgn-fadeUp 0.6s ease both;
+  position: relative;
+  z-index: 1;
+  animation: lgn-cardEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* Left Form Column */
 .lgn-left {
-  flex: 1.2;
-  padding: 3.5rem;
-  border-right: 2px dashed #e0f2fe;
+  flex: 1.15;
+  padding: 3.5rem 3.25rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  border-right: 1px solid #f1f5f9;
 }
 
-.lgn-right {
-  flex: 1;
-  padding: 3.5rem;
-  background: #f8fbff;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+.lgn-apple-badge {
+  display: inline-flex;
   align-items: center;
+  gap: 6px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #0284c7;
+  font-size: 0.73rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  margin-bottom: 1rem;
+  width: fit-content;
+}
+
+.lgn-badge-icon {
+  color: #0284c7;
 }
 
 .lgn-title {
-  font-size: 2.2rem;
-  color: #000;
+  font-size: 2.15rem;
+  color: #0f172a;
   font-weight: 800;
-  margin-bottom: 0.5rem;
-  line-height: 1.2;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.18;
+  letter-spacing: -0.025em;
 }
 
 .lgn-subtitle {
-  color: #555;
-  margin-bottom: 2rem;
-  font-size: 1rem;
+  color: #64748b;
+  margin: 0 0 2rem 0;
+  font-size: 0.96rem;
+  line-height: 1.5;
 }
 
 .lgn-form {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1.15rem;
 }
 
+/* Input Fields with Apple Rounded Slot */
 .lgn-input-wrap {
   position: relative;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.lgn-input-icon {
+.lgn-input-icon-box {
   position: absolute;
-  left: 1.2rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #87ceeb;
-  font-size: 1.2rem;
-  transition: all 0.3s ease;
+  left: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  pointer-events: none;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
 .lgn-input {
   width: 100%;
-  padding: 1rem 1rem 1rem 3.5rem;
-  border: 2px solid #e0f2fe;
-  border-radius: 12px;
-  font-size: 1.05rem;
-  color: #000;
-  background: #ffffff;
-  transition: all 0.3s ease;
+  padding: 0.95rem 1rem 0.95rem 3.35rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  font-size: 1rem;
+  color: #0f172a;
+  background: #f8fafc;
   outline: none;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
 }
 
 .lgn-input::placeholder {
-  color: #a0aec0;
+  color: #94a3b8;
+  font-weight: 450;
+}
+
+.lgn-input:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
 }
 
 .lgn-input:focus {
-  border-color: #87ceeb;
-  box-shadow: 0 0 0 4px rgba(135, 206, 235, 0.2);
+  background: #ffffff;
+  border-color: #0284c7;
+  box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.12);
 }
 
-.lgn-input:focus + .lgn-input-icon,
-.lgn-input-wrap:focus-within .lgn-input-icon {
-  color: #fbbf24;
+.lgn-input-wrap:focus-within .lgn-input-icon-box {
+  color: #0284c7;
+  transform: scale(1.08);
 }
 
+/* Primary Login Button */
 .lgn-btn-primary {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.65rem;
   background: #fbbf24;
-  color: #000;
+  color: #0f172a;
   border: none;
-  border-radius: 12px;
-  padding: 1rem 1.5rem;
-  font-size: 1.1rem;
-  font-weight: 700;
+  border-radius: 16px;
+  padding: 0.95rem 1.5rem;
+  font-size: 1.02rem;
+  font-weight: 750;
   cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 0.5rem;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: 0.4rem;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.28);
 }
 
 .lgn-btn-primary:hover:not(:disabled) {
   background: #f59e0b;
   transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 8px 22px rgba(245, 158, 11, 0.42);
 }
 
 .lgn-btn-primary:active:not(:disabled) {
@@ -129,100 +198,275 @@
 }
 
 .lgn-btn-primary:disabled {
-  opacity: 0.7;
+  opacity: 0.65;
   cursor: not-allowed;
+  transform: none;
 }
 
 .lgn-btn-arrow {
-  transition: transform 0.3s ease;
+  transition: transform 0.2s ease;
 }
 
 .lgn-btn-primary:hover:not(:disabled) .lgn-btn-arrow {
   transform: translateX(4px);
 }
 
-.lgn-spin {
-  animation: lgn-rotate 1s linear infinite;
+/* Right Options Column */
+.lgn-right {
+  flex: 1;
+  padding: 3.5rem 3rem;
+  background: linear-gradient(180deg, #f8fbff 0%, #f1f7fe 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+
+.lgn-right-head {
+  margin-bottom: 1.5rem;
 }
 
 .lgn-right-title {
-  font-size: 1.5rem;
-  color: #000;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  text-align: center;
+  font-size: 1.45rem;
+  color: #0f172a;
+  font-weight: 800;
+  margin: 0 0 0.35rem 0;
+  letter-spacing: -0.015em;
 }
 
+.lgn-right-desc {
+  color: #64748b;
+  font-size: 0.88rem;
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* ============================================================
+   1. HIGH-WEIGHTAGE CTA BUTTON: Create an Account
+   ============================================================ */
+.lgn-btn-create-account {
+  display: block;
+  position: relative;
+  text-decoration: none;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+  padding: 1.15rem 1.35rem;
+  color: #ffffff;
+  overflow: hidden;
+  transition: all 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 
+    0 10px 25px -4px rgba(2, 132, 199, 0.4),
+    0 4px 10px rgba(37, 99, 235, 0.2);
+  margin-bottom: 0.85rem;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+}
+
+.lgn-btn-create-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 2;
+}
+
+.lgn-btn-create-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.lgn-btn-create-texts {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.lgn-btn-create-label {
+  font-size: 1.05rem;
+  font-weight: 750;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.lgn-btn-create-sub {
+  font-size: 0.77rem;
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.lgn-create-arrow {
+  color: #ffffff;
+  transition: transform 0.22s ease;
+  flex-shrink: 0;
+}
+
+/* Unique Animated Light Beam Shimmer on High-Weightage Button */
+.lgn-beam-glow {
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 80%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.28) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-22deg);
+  pointer-events: none;
+  transition: left 0.65s ease;
+}
+
+.lgn-btn-create-account:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 
+    0 16px 36px -6px rgba(2, 132, 199, 0.52),
+    0 6px 16px rgba(37, 99, 235, 0.28);
+}
+
+.lgn-btn-create-account:hover .lgn-beam-glow {
+  left: 140%;
+}
+
+.lgn-btn-create-account:hover .lgn-create-arrow {
+  transform: translateX(4px);
+}
+
+.lgn-btn-create-account:hover .lgn-btn-create-icon-wrap {
+  transform: rotate(-6deg) scale(1.06);
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.lgn-btn-create-account:active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* ============================================================
+   2. MAIN ACTION: Continue as Guest Button
+   ============================================================ */
+.lgn-btn-guest {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border: 1.5px solid #bae6fd;
+  border-radius: 18px;
+  padding: 0.95rem 1.25rem;
+  color: #0369a1;
+  cursor: pointer;
+  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+  box-shadow: 0 4px 14px rgba(186, 230, 253, 0.25);
+  font-family: inherit;
+  margin-bottom: 1.25rem;
+}
+
+.lgn-btn-guest-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: #f0f9ff;
+  border: 1px solid #e0f2fe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0284c7;
+  flex-shrink: 0;
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.lgn-btn-guest-texts {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.lgn-btn-guest-label {
+  font-size: 0.97rem;
+  font-weight: 750;
+  color: #0c4a6e;
+  line-height: 1.25;
+}
+
+.lgn-btn-guest-sub {
+  font-size: 0.76rem;
+  color: #0284c7;
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+.lgn-guest-arrow {
+  color: #0284c7;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.lgn-btn-guest:hover:not(:disabled) {
+  background: #f0f9ff;
+  border-color: #38bdf8;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.16);
+}
+
+.lgn-btn-guest:hover:not(:disabled) .lgn-guest-arrow {
+  transform: translateX(4px);
+}
+
+.lgn-btn-guest:hover:not(:disabled) .lgn-btn-guest-icon-wrap {
+  transform: rotate(18deg) scale(1.08);
+  background: #e0f2fe;
+}
+
+.lgn-btn-guest:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Subtle Divider */
+.lgn-divider {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 0.25rem 0 1rem 0;
+}
+
+.lgn-divider::before,
+.lgn-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.lgn-divider span {
+  padding: 0 12px;
+  font-size: 0.69rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+/* Google Sign In Area */
 .lgn-google-area {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 1rem;
-}
-
-.lgn-btn-outline {
-  width: 100%;
-  padding: 1rem;
-  background: #ffffff;
-  border: 2px solid #87ceeb;
-  color: #000;
-  border-radius: 12px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  text-decoration: none;
-  margin-bottom: 1rem;
-}
-
-.lgn-btn-outline:hover {
-  background: #87ceeb;
-  color: #fff;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(135, 206, 235, 0.3);
-}
-
-.lgn-btn-text {
-  color: #64748b;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.95rem;
-  transition: color 0.3s ease;
-  margin-top: 0.5rem;
-  display: inline-block;
-}
-
-.lgn-btn-text:hover {
-  color: #000;
-  text-decoration: underline;
-}
-
-.lgn-message {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  animation: lgn-fadeUp 0.3s ease;
-}
-
-.lgn-message--ok {
-  background: #dcfce7;
-  color: #166534;
-  border: 1px solid #bbf7d0;
-}
-
-.lgn-message--err {
-  background: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+  margin-bottom: 1.15rem;
 }
 
 .lgn-google-slot {
@@ -232,28 +476,128 @@
   width: 100%;
 }
 
-.lgn-google-unavail {
+.lgn-btn-outline {
   width: 100%;
-  padding: 0.6rem 0.8rem;
-  border-radius: 8px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #b91c1c;
-  font-size: 0.84rem;
-  text-align: center;
+  padding: 0.75rem 1rem;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  color: #334155;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.lgn-btn-outline:hover:not(:disabled) {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+  transform: translateY(-1px);
 }
 
 .lgn-google-loading {
-  color: #2563eb;
-  font-size: 0.83rem;
-  margin: 0;
-  font-weight: 500;
+  color: #0284c7;
+  font-size: 0.8rem;
+  margin: 6px 0 0 0;
+  font-weight: 600;
 }
 
-@keyframes lgn-fadeUp {
+.lgn-google-unavail {
+  width: 100%;
+  padding: 0.5rem 0.8rem;
+  border-radius: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 0.82rem;
+  text-align: center;
+}
+
+/* Secondary Auth Links */
+.lgn-sub-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  width: 100%;
+}
+
+.lgn-btn-otp {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1.5px solid #e2e8f0;
+  color: #334155;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 650;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.lgn-btn-otp:hover {
+  background: #ffffff;
+  border-color: #0284c7;
+  color: #0284c7;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.12);
+}
+
+.lgn-btn-reset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #64748b;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 4px;
+  transition: color 0.18s ease;
+}
+
+.lgn-btn-reset:hover {
+  color: #0f172a;
+  text-decoration: underline;
+}
+
+/* Feedback Messages */
+.lgn-message {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  animation: lgn-cardEnter 0.25s ease;
+}
+
+.lgn-message--ok {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.lgn-message--err {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+/* Keyframes */
+@keyframes lgn-cardEnter {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -261,20 +605,24 @@
   }
 }
 
-@keyframes lgn-rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+@keyframes lgn-floatBlob {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(30px, 40px) scale(1.1); }
 }
 
-@media (max-width: 850px) {
+/* Responsive Media Queries */
+@media (max-width: 860px) {
   .lgn-card {
     flex-direction: column;
+    max-width: 520px;
   }
+
   .lgn-left {
     border-right: none;
-    border-bottom: 2px dashed #e0f2fe;
-    padding: 2.5rem 2rem;
+    border-bottom: 1px solid #f1f5f9;
+    padding: 2.75rem 2rem;
   }
+
   .lgn-right {
     padding: 2.5rem 2rem;
   }
@@ -284,10 +632,16 @@
   .lgn-root {
     padding: 1rem;
   }
-  .lgn-left, .lgn-right {
-    padding: 2rem 1.5rem;
+
+  .lgn-card {
+    border-radius: 22px;
   }
+
+  .lgn-left, .lgn-right {
+    padding: 2rem 1.25rem;
+  }
+
   .lgn-title {
-    font-size: 1.8rem;
+    font-size: 1.75rem;
   }
 }
