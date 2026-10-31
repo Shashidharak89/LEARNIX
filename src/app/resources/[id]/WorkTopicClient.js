@@ -96,7 +96,17 @@ const isTopicSaved = (topicId) => {
   return savedTopics.some(t => t.topic._id === topicId);
 };
 
-const WorkTopicPageWrapper = () => {
+const WorkTopicPageWrapper = ({ isAndroid: serverIsAndroid }) => {
+  const [isAndroid, setIsAndroid] = useState(serverIsAndroid ?? false);
+
+  useEffect(() => {
+    if (serverIsAndroid !== undefined) {
+      setIsAndroid(serverIsAndroid);
+    } else if (typeof navigator !== "undefined") {
+      setIsAndroid(/android/i.test(navigator.userAgent));
+    }
+  }, [serverIsAndroid]);
+
   const params = useParams();
   const id = params?.id;
   const [data, setData] = useState(null);
@@ -347,6 +357,7 @@ const WorkTopicPageWrapper = () => {
         onShare={handleShare}
         topicId={id}
         usingCachedData={usingCachedData}
+        isAndroid={isAndroid}
       />
 
       <ShareToUsersModal

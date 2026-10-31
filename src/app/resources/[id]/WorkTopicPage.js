@@ -5,6 +5,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { FaListOl } from "react-icons/fa";
+import { FiPlus, FiMinus, FiMaximize2 } from "react-icons/fi";
 import {
   ArrowLeftIcon,
   DownloadIcon,
@@ -19,6 +20,9 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   XIcon,
+  SparklesIcon,
+  RefreshCwIcon,
+  FileTextIcon,
 } from "@animateicons/react/lucide";
 import TopicReviews from "./TopicReviews";
 import Ads from "../../components/ads/Ads";
@@ -26,6 +30,50 @@ import { toggleLearnLaterClient, checkLearnLaterStatusClient } from "@/lib/clien
 import ImageLoader from "../../components/ImageLoader";
 import OpenInApp from "./OpenInApp";
 import "./styles/WorkTopicPage.css";
+
+function normalizeResourceType(type, sourceFile) {
+  if (type === "resource" || type === "work") return "resource";
+  if (type === "study_material" || type === "sm") return "study_material";
+  if (type === "question_paper" || type === "qp") return "question_paper";
+  if (type === "update") return "update";
+  if (sourceFile) {
+    if (sourceFile.includes("work") || sourceFile.includes("resource")) return "resource";
+    if (sourceFile.includes("sm") || sourceFile.includes("study")) return "study_material";
+    if (sourceFile.includes("qp") || sourceFile.includes("question")) return "question_paper";
+    if (sourceFile.includes("update")) return "update";
+  }
+  return "resource";
+}
+
+function getRecItemHref(item) {
+  const normType = normalizeResourceType(item.resource_type, item.source_file);
+  const cleanId = item.resource_id ? String(item.resource_id).replace(/^["']|["']$/g, "").trim() : "";
+
+  if (normType === "resource") {
+    if (cleanId) {
+      if (cleanId.startsWith("sub-only-")) {
+        return `/resources/subject/${cleanId.replace("sub-only-", "")}`;
+      }
+      return `/resources/${cleanId}`;
+    }
+    return item.resource_url || "/resources";
+  }
+
+  if (normType === "update") {
+    return cleanId ? `/updates/${cleanId}` : item.resource_url || "/updates";
+  }
+
+  if (normType === "study_material") {
+    if (item.resource_url) return item.resource_url;
+    return item.subject_name ? `/materials?q=${encodeURIComponent(item.subject_name)}` : "/materials";
+  }
+
+  if (normType === "question_paper") {
+    return cleanId ? `/qp/${cleanId}` : "/qp";
+  }
+
+  return item.resource_url || (cleanId ? `/resources/${cleanId}` : "/resources");
+}
 
 // Skeleton Components
 const UserProfileSkeleton = () => (
@@ -121,63 +169,387 @@ const FullPageSkeleton = () => (
   </div>
 );
 
-const WtpcLightbox = ({ images, startIndex, onClose }) => {
+/* ── Enhanced Fullscreen Lightbox with Zoom Controls ── */
+const WtpcLightbox = ({ images, startIndex, onClose, topicTitle }) => {
   const [idx, setIdx] = useState(startIndex);
-  const prev = () => setIdx(i => (i - 1 + images.length) % images.length);
-  const next = () => setIdx(i => (i + 1) % images.length);
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
+
   const prevRef = useRef(null);
   const nextRef = useRef(null);
   const closeRef = useRef(null);
+  const refreshRef = useRef(null);
+
+  const resetZoom = useCallback(() => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+    setIsDragging(false);
+  }, []);
+
+  const handleZoomIn = (e) => {
+    e?.stopPropagation?.();
+    setZoom((z) => Math.min(4, +(z + 0.35).toFixed(2)));
+  };
+
+  const handleZoomOut = (e) => {
+    e?.stopPropagation?.();
+    setZoom((z) => {
+      const next = Math.max(0.75, +(z - 0.35).toFixed(2));
+      if (next <= 1) setPan({ x: 0, y: 0 });
+      return next;
+    });
+  };
+
+  const prev = useCallback(() => {
+    setIdx((i) => (i - 1 + images.length) % images.length);
+    resetZoom();
+  }, [images.length, resetZoom]);
+
+  const next = useCallback(() => {
+    setIdx((i) => (i + 1) % images.length);
+    resetZoom();
+  }, [images.length, resetZoom]);
 
   useEffect(() => {
     const handler = (e) => {
       if (e.key === "Escape") onClose();
-      if (e.key === "ArrowLeft") setIdx(i => (i - 1 + images.length) % images.length);
-      if (e.key === "ArrowRight") setIdx(i => (i + 1) % images.length);
+      if (e.key === "ArrowLeft") prev();
+      if (e.key === "ArrowRight") next();
+      if (e.key === "+" || e.key === "=") handleZoomIn();
+      if (e.key === "-" || e.key === "_") handleZoomOut();
+      if (e.key === "0") resetZoom();
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [images.length, onClose]);
+  }, [prev, next, onClose, resetZoom]);
+
+  const handlePointerDown = (e) => {
+    if (zoom <= 1) return;
+    setIsDragging(true);
+    dragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      panX: pan.x,
+      panY: pan.y,
+    };
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+  };
+
+  const handlePointerMove = (e) => {
+    if (!isDragging || zoom <= 1) return;
+    const dx = e.clientX - dragStartRef.current.x;
+    const dy = e.clientY - dragStartRef.current.y;
+    setPan({
+      x: dragStartRef.current.panX + dx,
+      y: dragStartRef.current.panY + dy,
+    });
+  };
+
+  const handlePointerUp = (e) => {
+    setIsDragging(false);
+    try {
+      e.currentTarget.releasePointerCapture?.(e.pointerId);
+    } catch {}
+  };
+
+  const handleDoubleClick = (e) => {
+    e.stopPropagation();
+    if (zoom > 1) {
+      resetZoom();
+    } else {
+      setZoom(2);
+    }
+  };
 
   return (
-    <div className="wtpc-lb-overlay" onClick={onClose}>
-      <button
-        className="wtpc-lb-close"
-        onClick={onClose}
-        aria-label="Close"
-        onMouseEnter={() => closeRef.current?.startAnimation?.()}
-        onMouseLeave={() => closeRef.current?.stopAnimation?.()}
-      >
-        <XIcon ref={closeRef} size={22} />
-      </button>
-      <button
-        className="wtpc-lb-nav wtpc-lb-prev"
-        onClick={e => { e.stopPropagation(); prev(); }}
-        aria-label="Previous"
-        onMouseEnter={() => prevRef.current?.startAnimation?.()}
-        onMouseLeave={() => prevRef.current?.stopAnimation?.()}
-      >
-        <ChevronLeftIcon ref={prevRef} size={26} />
-      </button>
-      <div className="wtpc-lb-img-wrap" onClick={e => e.stopPropagation()}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={images[idx]} alt={`Page ${idx + 1}`} className="wtpc-lb-img" />
-        <div className="wtpc-lb-counter">Page {idx + 1} / {images.length}</div>
+    <div className="wtpc-lb-overlay" onClick={onClose} role="dialog" aria-modal="true">
+      {/* Top Header Bar */}
+      <div className="wtpc-lb-header" onClick={(e) => e.stopPropagation()}>
+        <div className="wtpc-lb-title-wrap">
+          <span className="wtpc-lb-title-text">{topicTitle || "Resource Slideshow"}</span>
+          <span className="wtpc-lb-badge">Page {idx + 1} of {images.length}</span>
+        </div>
+        <button
+          className="wtpc-lb-close"
+          onClick={onClose}
+          aria-label="Close fullscreen view"
+          title="Close (Esc)"
+          onMouseEnter={() => closeRef.current?.startAnimation?.()}
+          onMouseLeave={() => closeRef.current?.stopAnimation?.()}
+        >
+          <XIcon ref={closeRef} size={22} />
+        </button>
       </div>
-      <button
-        className="wtpc-lb-nav wtpc-lb-next"
-        onClick={e => { e.stopPropagation(); next(); }}
-        aria-label="Next"
-        onMouseEnter={() => nextRef.current?.startAnimation?.()}
-        onMouseLeave={() => nextRef.current?.stopAnimation?.()}
+
+      {/* Nav Previous */}
+      {images.length > 1 && (
+        <button
+          className="wtpc-lb-nav wtpc-lb-prev"
+          onClick={(e) => {
+            e.stopPropagation();
+            prev();
+          }}
+          aria-label="Previous image"
+          title="Previous (Left Arrow)"
+          onMouseEnter={() => prevRef.current?.startAnimation?.()}
+          onMouseLeave={() => prevRef.current?.stopAnimation?.()}
+        >
+          <ChevronLeftIcon ref={prevRef} size={30} />
+        </button>
+      )}
+
+      {/* Main Image Viewport with pan & zoom */}
+      <div
+        className={`wtpc-lb-img-wrap ${zoom > 1 ? "is-zoomed" : ""}`}
+        onClick={(e) => e.stopPropagation()}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        onDoubleClick={handleDoubleClick}
+        style={{
+          cursor: zoom > 1 ? (isDragging ? "grabbing" : "grab") : "zoom-in",
+        }}
+        title={zoom > 1 ? "Drag to pan image • Double-click to reset" : "Double-click to zoom in • Click + / - below"}
       >
-        <ChevronRightIcon ref={nextRef} size={26} />
-      </button>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={images[idx]}
+          alt={`Page ${idx + 1}`}
+          className="wtpc-lb-img"
+          draggable={false}
+          style={{
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            transition: isDragging ? "none" : "transform 0.2s cubic-bezier(0.2, 0, 0, 1)",
+          }}
+        />
+      </div>
+
+      {/* Nav Next */}
+      {images.length > 1 && (
+        <button
+          className="wtpc-lb-nav wtpc-lb-next"
+          onClick={(e) => {
+            e.stopPropagation();
+            next();
+          }}
+          aria-label="Next image"
+          title="Next (Right Arrow)"
+          onMouseEnter={() => nextRef.current?.startAnimation?.()}
+          onMouseLeave={() => nextRef.current?.stopAnimation?.()}
+        >
+          <ChevronRightIcon ref={nextRef} size={30} />
+        </button>
+      )}
+
+      {/* Bottom Floating Control Bar with + and - zoom buttons */}
+      <div className="wtpc-lb-toolbar" onClick={(e) => e.stopPropagation()}>
+        <button
+          type="button"
+          className="wtpc-lb-tool-btn"
+          onClick={handleZoomOut}
+          disabled={zoom <= 0.75}
+          title="Zoom out (-)"
+          aria-label="Zoom out"
+        >
+          <FiMinus size={18} />
+        </button>
+
+        <button
+          type="button"
+          className="wtpc-lb-zoom-badge"
+          onClick={resetZoom}
+          title="Click to reset zoom to 100%"
+          aria-label="Reset zoom"
+        >
+          {Math.round(zoom * 100)}%
+        </button>
+
+        <button
+          type="button"
+          className="wtpc-lb-tool-btn"
+          onClick={handleZoomIn}
+          disabled={zoom >= 4}
+          title="Zoom in (+)"
+          aria-label="Zoom in"
+        >
+          <FiPlus size={18} />
+        </button>
+
+        <button
+          type="button"
+          className="wtpc-lb-tool-btn"
+          onClick={resetZoom}
+          title="Reset zoom to 100%"
+          aria-label="Reset zoom"
+          onMouseEnter={() => refreshRef.current?.startAnimation?.()}
+          onMouseLeave={() => refreshRef.current?.stopAnimation?.()}
+        >
+          <RefreshCwIcon ref={refreshRef} size={15} />
+        </button>
+
+        <div className="wtpc-lb-divider" />
+
+        <div className="wtpc-lb-page-info">
+          Page {idx + 1} / {images.length}
+        </div>
+      </div>
     </div>
   );
 };
 
-const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usingCachedData }) => {
+/* ── AI Suggestions Section (Top 3 relevant resources based on subject & topic) ── */
+const AiRecommendationsSection = ({ topic, subject, currentId }) => {
+  const [recommendations, setRecommendations] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const sparkleRef = useRef(null);
+
+  useEffect(() => {
+    if (!topic?.topic || !subject?.subject) return;
+
+    let isMounted = true;
+    const fetchRecs = async () => {
+      setLoading(true);
+      try {
+        const combinedQuery = [topic.topic, subject.subject].filter(Boolean).join(" ").trim();
+        const res = await fetch("/api/ai-recommend", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: combinedQuery.slice(0, 300), limit: 6 }),
+        });
+        if (!res.ok) throw new Error("AI recommendations fetch failed");
+        const json = await res.json();
+        if (isMounted) {
+          const cleanCurId = String(currentId || topic._id || "").replace(/^["']|["']$/g, "").trim();
+          const filtered = (json.results || []).filter((item) => {
+            const itemCleanId = item.resource_id ? String(item.resource_id).replace(/^["']|["']$/g, "").trim() : "";
+            return itemCleanId && itemCleanId !== cleanCurId;
+          });
+          setRecommendations(filtered.slice(0, 3));
+        }
+      } catch (err) {
+        console.error("AI recommendations error:", err);
+        if (isMounted) setRecommendations([]);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchRecs();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [topic?.topic, subject?.subject, currentId]);
+
+  if (!loading && (!recommendations || recommendations.length === 0)) {
+    return null;
+  }
+
+  return (
+    <div className="wtpc-ai-section">
+      <div className="wtpc-ai-header">
+        <div
+          className="wtpc-ai-title-wrap"
+          onMouseEnter={() => sparkleRef.current?.startAnimation?.()}
+          onMouseLeave={() => sparkleRef.current?.stopAnimation?.()}
+        >
+          <div className="wtpc-ai-icon-bubble">
+            <SparklesIcon ref={sparkleRef} size={18} className="wtpc-ai-sparkle-icon" />
+          </div>
+          <div>
+            <h3 className="wtpc-ai-title">AI Suggested Resources</h3>
+            <p className="wtpc-ai-subtitle">
+              Relevant study materials &amp; topics matching <strong>{subject.subject}</strong>: {topic.topic}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="wtpc-ai-grid">
+          {[1, 2, 3].map((k) => (
+            <div key={k} className="wtpc-ai-card wtpc-ai-skeleton-card">
+              <div className="wtpc-ai-skel-pill" />
+              <div className="wtpc-ai-skel-title" />
+              <div className="wtpc-ai-skel-meta" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="wtpc-ai-grid">
+          {recommendations.map((item, idx) => {
+            const normType = normalizeResourceType(item.resource_type, item.source_file);
+            const isStudyMaterial = normType === "study_material";
+            const isQuestionPaper = normType === "question_paper";
+            const href = getRecItemHref(item);
+            const similarityPercent = item.similarity ? Math.round(item.similarity * 100) : null;
+
+            return (
+              <a
+                key={item.resource_id || `rec-${idx}`}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="wtpc-ai-card"
+                title={`Open "${item.title}" in new tab`}
+              >
+                <div className="wtpc-ai-card-top">
+                  <span className={`wtpc-ai-type-pill wtpc-ai-pill-${normType}`}>
+                    {isStudyMaterial ? (
+                      <FileTextIcon size={13} />
+                    ) : isQuestionPaper ? (
+                      <FileTextIcon size={13} />
+                    ) : (
+                      <BookOpenIcon size={13} />
+                    )}
+                    <span>
+                      {isStudyMaterial
+                        ? "Study Material"
+                        : isQuestionPaper
+                        ? "Question Paper"
+                        : "Resource Topic"}
+                    </span>
+                  </span>
+                  {similarityPercent && (
+                    <span className="wtpc-ai-match-badge">
+                      {similarityPercent}% match
+                    </span>
+                  )}
+                </div>
+
+                <h4 className="wtpc-ai-card-title">{item.title}</h4>
+
+                {(item.subject_name || item.course_name || item.semester_number) && (
+                  <div className="wtpc-ai-card-meta">
+                    {item.subject_name && (
+                      <span className="wtpc-ai-meta-tag">{item.subject_name}</span>
+                    )}
+                    {item.semester_number && (
+                      <span className="wtpc-ai-meta-tag">Sem {item.semester_number}</span>
+                    )}
+                    {item.course_name && (
+                      <span className="wtpc-ai-meta-tag">{item.course_name}</span>
+                    )}
+                  </div>
+                )}
+
+                <div className="wtpc-ai-card-action">
+                  <span>Explore Resource</span>
+                  <ChevronRightIcon size={15} />
+                </div>
+              </a>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usingCachedData, isAndroid }) => {
   const [expandedImages, setExpandedImages] = useState({});
   const [showPageNumbers, setShowPageNumbers] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(null); // lightbox
@@ -391,8 +763,8 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
 
   return (
     <div className="wtpc-container">
-      {/* App Banner for Android Links */}
-      <OpenInApp topicId={topicId} />
+      {/* App Banner for Android ONLY */}
+      {isAndroid && <OpenInApp topicId={topicId} isAndroid={isAndroid} />}
 
       {/* Main Content */}
       <div className="wtpc-main-content">
@@ -579,14 +951,29 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
                       {showPageNumbers && (
                         <span className="wtpc-page-badge">{index + 1}</span>
                       )}
-                      <div className="wtpc-image-wrapper">
+                      <div
+                        className="wtpc-image-wrapper wtpc-image-wrapper-clickable"
+                        onClick={() => setLightboxIndex(index)}
+                        role="button"
+                        tabIndex={0}
+                        title={`Click to view Page ${index + 1} in full screen`}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            setLightboxIndex(index);
+                          }
+                        }}
+                      >
                         <ImageLoader
                           src={imageUrl}
                           alt={`${topic.topic} - Image ${index + 1}`}
-                          className={`wtpc-topic-image ${expandedImages[index] ? 'wtpc-expanded' : ''}`}
-                          onClick={() => toggleImageExpansion(index)}
+                          className="wtpc-topic-image"
                           loading="lazy"
                         />
+                        <div className="wtpc-image-zoom-overlay">
+                          <FiMaximize2 size={18} />
+                          <span>View Full Screen</span>
+                        </div>
                       </div>
                     </div>
                     {/* Ad after every 6 pages */}
@@ -614,6 +1001,13 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
             </div>
           )}
 
+          {/* AI Recommended Resources (3 relevant resources based on subject & topic) */}
+          <AiRecommendationsSection
+            topic={topic}
+            subject={subject}
+            currentId={topicId}
+          />
+
           {/* Reviews Section */}
           <TopicReviews 
             topicId={topicId} 
@@ -632,6 +1026,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
           images={validImages}
           startIndex={lightboxIndex}
           onClose={() => setLightboxIndex(null)}
+          topicTitle={topic.topic}
         />
       )}
 

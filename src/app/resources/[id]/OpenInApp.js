@@ -3,11 +3,12 @@
 import React, { useEffect, useState } from "react";
 import { FiX } from "react-icons/fi";
 
-export default function OpenInApp({ topicId }) {
-  const [packageName, setPackageName] = useState("");
+export default function OpenInApp({ topicId, isAndroid = false }) {
+  const [packageName, setPackageName] = useState("com.learnix.app");
   const [showAppBanner, setShowAppBanner] = useState(true);
 
   useEffect(() => {
+    if (!isAndroid) return;
     fetch("/.well-known/assetlinks.json")
       .then((res) => res.json())
       .then((data) => {
@@ -16,9 +17,10 @@ export default function OpenInApp({ topicId }) {
         }
       })
       .catch((err) => console.error("Failed to fetch assetlinks", err));
-  }, []);
+  }, [isAndroid]);
 
-  if (!showAppBanner || !packageName) {
+  // If not Android, do not render this banner at all
+  if (!isAndroid || !showAppBanner) {
     return null;
   }
 

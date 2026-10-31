@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import WorkTopicClient from "./WorkTopicClient";
 
 export async function generateMetadata({ params }, parent) {
@@ -44,7 +45,10 @@ export async function generateMetadata({ params }, parent) {
 }
 
 export default async function Page({ params }) {
-  // In Next.js 15+, wait for params if needed, but since we are just passing it or not even using it
-  // in WorkTopicClient (it uses useParams internally), we can just render the client component.
-  return <WorkTopicClient />;
+  // Read request headers to inspect OS information
+  const headersList = await headers();
+  const userAgent = headersList.get("user-agent") || "";
+  const isAndroid = /android/i.test(userAgent);
+
+  return <WorkTopicClient isAndroid={isAndroid} />;
 }
