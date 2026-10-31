@@ -1370,14 +1370,10 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                   >
                     <div className="lc-drawer-item-left">
                       <span className="lc-drawer-item-status">
-                        {pStatus ? (
-                          <ProblemStatusBadge
-                            status={pStatus}
-                            showText={false}
-                            size={15}
-                          />
-                        ) : isCurrent ? (
-                          <FiCheck size={14} className="lc-status-check active" />
+                        {pStatus === "solved" ? (
+                          <FiCheck size={15} className="lc-status-check solved" title="Solved" />
+                        ) : pStatus === "attempting" ? (
+                          <FiClock size={13} className="lc-status-clock attempting" title="Attempted" />
                         ) : (
                           <span className="lc-status-bullet" />
                         )}

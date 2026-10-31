@@ -2637,8 +2637,12 @@
   flex-shrink: 0;
 }
 
-.lc-status-check.active {
+.lc-status-check.solved {
   color: #10b981;
+}
+
+.lc-status-clock.attempting {
+  color: #f59e0b;
 }
 
 .lc-status-bullet {
