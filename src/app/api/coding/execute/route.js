@@ -32,6 +32,7 @@ function checkRateLimit(callerKey) {
 
 export async function POST(req) {
   try {
+    const body = await req.json();
     const { problemId, code, language = "javascript", mode = "run", customInput, customCases } = body;
 
     if (!problemId) {

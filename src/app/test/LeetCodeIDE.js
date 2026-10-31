@@ -293,6 +293,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
   // Execution states
   const [executing, setExecuting] = useState(false);
+  const [execMode, setExecMode] = useState("run"); // "run" | "submit"
   const [executionResult, setExecutionResult] = useState(null);
   const [editableCases, setEditableCases] = useState([]);
 
