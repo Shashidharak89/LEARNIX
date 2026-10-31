@@ -10,12 +10,14 @@ import {
   FiTerminal,
 } from "react-icons/fi";
 import LearnixCodeNav from "./components/LearnixCodeNav";
+import ProblemStatusBadge from "./components/ProblemStatusBadge";
 import "./LearnixCodeHome.css";
 
 const THEME_KEY = "learnix-code-theme";
 
 export default function LearnixCodeHomePage() {
   const [problems, setProblems] = useState([]);
+  const [statusMap, setStatusMap] = useState({});
   const [loading, setLoading] = useState(true);
   const [theme, setTheme] = useState("dark");
 
@@ -36,7 +38,25 @@ export default function LearnixCodeHomePage() {
         setLoading(false);
       }
     }
+
+    async function loadUserStatus() {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+      if (!token) return;
+      try {
+        const res = await fetch("/api/coding/user-status", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (data.success && data.statusMap) {
+          setStatusMap(data.statusMap);
+        }
+      } catch (err) {
+        console.error("Failed to load user coding status:", err);
+      }
+    }
+
     loadProblems();
+    loadUserStatus();
   }, []);
 
   function toggleTheme() {
@@ -121,6 +141,11 @@ export default function LearnixCodeHomePage() {
             <div className="lch-problems-grid">
               {problems.map((p, index) => {
                 const problemNumber = p.order || index + 1;
+                const pStatus =
+                  statusMap[p.problemId] ||
+                  (p.order !== undefined ? statusMap[String(p.order)] : null) ||
+                  statusMap[String(problemNumber)];
+
                 return (
                   <Link
                     key={p.problemId || index}
@@ -142,6 +167,15 @@ export default function LearnixCodeHomePage() {
                     </div>
 
                     <div className="lch-prob-right">
+                      {pStatus && (
+                        <ProblemStatusBadge
+                          status={pStatus}
+                          showText={true}
+                          compact={true}
+                          size={13}
+                        />
+                      )}
+
                       <span
                         className={`lch-diff-badge ${
                           p.difficulty === "Easy"

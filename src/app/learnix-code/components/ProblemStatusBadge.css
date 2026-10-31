@@ -1,0 +1,111 @@
+/* ProblemStatusBadge.css */
+
+.psb-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  vertical-align: middle;
+  border-radius: 9999px;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  cursor: default;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.psb-icon-only {
+  padding: 4px;
+  border-radius: 50%;
+}
+
+.psb-with-text {
+  padding: 3px 10px 3px 7px;
+}
+
+.psb-compact {
+  padding: 2px 7px 2px 5px;
+  font-size: 0.7rem;
+  gap: 4px;
+}
+
+.psb-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.psb-animated-icon {
+  display: inline-block;
+  vertical-align: middle;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.psb-badge:hover .psb-animated-icon {
+  transform: scale(1.15);
+}
+
+/* Solved Status (Emerald Green) */
+.psb-solved {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 0 1px 4px rgba(16, 185, 129, 0.12);
+}
+
+.psb-solved:hover {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.28);
+}
+
+.psb-icon-solved {
+  color: #10b981;
+}
+
+/* Attempting Status (Amber / Orange) */
+.psb-attempting {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.32);
+  box-shadow: 0 1px 4px rgba(245, 158, 11, 0.12);
+}
+
+.psb-attempting:hover {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.28);
+}
+
+.psb-icon-attempting {
+  color: #f59e0b;
+}
+
+.psb-label {
+  line-height: 1;
+}
+
+/* Dark mode enhancements */
+.lcp-theme-dark .psb-solved,
+.lc-theme-dark .psb-solved,
+[data-theme="dark"] .psb-solved,
+.dark .psb-solved {
+  background: rgba(16, 185, 129, 0.16);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.38);
+}
+
+.lcp-theme-dark .psb-attempting,
+.lc-theme-dark .psb-attempting,
+[data-theme="dark"] .psb-attempting,
+.dark .psb-attempting {
+  background: rgba(245, 158, 11, 0.16);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.4);
+}

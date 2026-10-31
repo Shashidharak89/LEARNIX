@@ -236,6 +236,16 @@ export async function GET(req) {
       }
     }
 
+    const statusMap = {};
+    for (const pid of solvedSet) {
+      statusMap[pid] = "solved";
+    }
+    for (const pid of attemptedSet) {
+      if (!statusMap[pid]) {
+        statusMap[pid] = "attempting";
+      }
+    }
+
     return NextResponse.json({
       success: true,
       stats: {
@@ -244,6 +254,7 @@ export async function GET(req) {
         attemptingCount,
         totalSubmissions,
         acceptanceRate,
+        statusMap,
         easy: {
           solved: easySolved,
           total: easyTotal || 1,

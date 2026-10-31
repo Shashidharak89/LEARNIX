@@ -3,11 +3,8 @@
 import { useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  ArrowRightIcon,
-  PlayIcon,
-  SparklesIcon,
-} from "@animateicons/react/lucide";
+import { ArrowRightIcon, PlayIcon, SparklesIcon } from "@animateicons/react/lucide";
+import ProblemStatusBadge from "../learnix-code/components/ProblemStatusBadge";
 import "./styles/WorkspaceLearnixCode.css";
 
 const FALLBACK_PROBLEMS = [
@@ -34,7 +31,7 @@ const FALLBACK_PROBLEMS = [
   },
 ];
 
-function ProblemCard({ problem, index }) {
+function ProblemCard({ problem, index, statusMap = {} }) {
   const playIconRef = useRef(null);
   const problemNumber = problem.order || index + 1;
   const problemUrl = `/learnix-code/problems/${problemNumber}`;
@@ -45,6 +42,11 @@ function ProblemCard({ problem, index }) {
       : problem.difficulty === "Medium"
       ? "wlc-diff-medium"
       : "wlc-diff-easy";
+
+  const pStatus =
+    statusMap[problem.problemId] ||
+    (problem.order !== undefined ? statusMap[String(problem.order)] : null) ||
+    statusMap[String(problemNumber)];
 
   return (
     <div
@@ -59,6 +61,15 @@ function ProblemCard({ problem, index }) {
             <span className={`wlc-diff-pill ${diffClass}`}>
               {problem.difficulty || "Easy"}
             </span>
+
+            {pStatus && (
+              <ProblemStatusBadge
+                status={pStatus}
+                showText={true}
+                compact={true}
+                size={13}
+              />
+            )}
 
             {Array.isArray(problem.tags) && problem.tags.slice(0, 2).map((tag, idx) => (
               <span key={idx} className="wlc-tag-pill" title={tag}>
@@ -102,15 +113,33 @@ function ProblemCard({ problem, index }) {
 
 export default function WorkspaceLearnixCode() {
   const [problems, setProblems] = useState([]);
+  const [statusMap, setStatusMap] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
 
   const topActionRef = useRef(null);
 
+  const fetchStatus = useCallback(async () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+    if (!token) return;
+    try {
+      const res = await fetch("/api/coding/user-status", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success && data.statusMap) {
+        setStatusMap(data.statusMap);
+      }
+    } catch (err) {
+      console.error("Failed to fetch coding status in workspace:", err);
+    }
+  }, []);
+
   const fetchProblems = useCallback(async () => {
     try {
       setIsLoading(true);
+      fetchStatus();
       const res = await fetch("/api/coding/problems?page=1&size=3");
       if (res.ok) {
         const data = await res.json();
@@ -126,7 +155,7 @@ export default function WorkspaceLearnixCode() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [fetchStatus]);
 
   const toggleExpand = () => {
     setIsExpanded((prev) => {
@@ -203,6 +232,7 @@ export default function WorkspaceLearnixCode() {
                     key={problem.problemId || problem.order || index}
                     problem={problem}
                     index={index}
+                    statusMap={statusMap}
                   />
                 ))}
               </div>

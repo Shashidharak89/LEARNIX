@@ -41,6 +41,7 @@ import { SiJavascript, SiCplusplus } from "react-icons/si";
 import { recordCodingEntry, exitCodingEnvironment } from "@/utils/codingExitTracker";
 import { areOutputsEqual } from "@/lib/outputComparator";
 import MarkdownRenderer from "@/app/components/MarkdownRenderer";
+import ProblemStatusBadge from "../learnix-code/components/ProblemStatusBadge";
 import "./LeetCodeIDE.css";
 
 const THEME_KEY = "learnix-code-theme";
@@ -189,6 +190,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
   const [sidebarPage, setSidebarPage] = useState(1);
   const [sidebarHasMore, setSidebarHasMore] = useState(false);
   const [sidebarTotal, setSidebarTotal] = useState(0);
+  const [userStatusMap, setUserStatusMap] = useState({});
 
   const fetchSidebarProblems = useCallback(async (opts = {}) => {
     const { pageToFetch = 1, search = "", append = false } = opts;
@@ -379,6 +381,46 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     }
   }, [problem, selectedSlug]);
 
+  const fetchUserStatus = useCallback(async () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+    if (!token) {
+      setUserStatusMap({});
+      return;
+    }
+    try {
+      const res = await fetch("/api/coding/user-status", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success && data.statusMap) {
+        setUserStatusMap(data.statusMap);
+      }
+    } catch (err) {
+      console.error("Failed to load user coding statuses in IDE:", err);
+    }
+  }, []);
+
+  const currentProblemStatus = (() => {
+    if (Array.isArray(submissions) && submissions.length > 0) {
+      const hasAccepted = submissions.some(
+        (s) =>
+          s.status === "Accepted" ||
+          (Number(s.totalTestCases) > 0 && Number(s.passedTestCases) === Number(s.totalTestCases))
+      );
+      if (hasAccepted) return "solved";
+      return "attempting";
+    }
+    if (problem) {
+      const pid = problem.problemId;
+      const pOrd = problem.order !== undefined ? String(problem.order) : null;
+      const sSlug = selectedSlug ? String(selectedSlug) : null;
+      if (pid && userStatusMap[pid]) return userStatusMap[pid];
+      if (pOrd && userStatusMap[pOrd]) return userStatusMap[pOrd];
+      if (sSlug && userStatusMap[sSlug]) return userStatusMap[sSlug];
+    }
+    return null;
+  })();
+
   useEffect(() => {
     const role = (typeof window !== "undefined" && localStorage.getItem("role")) || "";
     setIsAdmin(role === "admin" || role === "superadmin");
@@ -394,6 +436,9 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     if (savedTheme === "light" || savedTheme === "dark") {
       setTheme(savedTheme);
     }
+
+    // Load user statuses for coding problems
+    fetchUserStatus();
 
     // Track original entry outside coding section
     recordCodingEntry();
@@ -432,7 +477,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
         document.body.style.paddingTop = "";
       }
     };
-  }, [initialProblemId]);
+  }, [initialProblemId, fetchUserStatus]);
 
   async function fetchProblemsList(initialSlug) {
     try {
@@ -785,6 +830,27 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
         setExecutionResult(data);
         setSelectedResultIdx(0);
         if (mode === "submit") {
+          const isPassed =
+            data.status === "Accepted" ||
+            (Number(data.totalTestCases) > 0 &&
+              Number(data.passedTestCases) === Number(data.totalTestCases));
+          const newStatus = isPassed ? "solved" : "attempting";
+
+          if (problem) {
+            setUserStatusMap((prev) => {
+              const current =
+                prev[problem.problemId] ||
+                (problem.order !== undefined ? prev[String(problem.order)] : null);
+              if (current === "solved" && !isPassed) return prev;
+
+              const updated = { ...prev };
+              if (problem.problemId) updated[problem.problemId] = newStatus;
+              if (problem.order !== undefined) updated[String(problem.order)] = newStatus;
+              if (selectedSlug) updated[String(selectedSlug)] = newStatus;
+              return updated;
+            });
+          }
+
           fetchSubmissions(problem.problemId);
         }
       } else {
@@ -1077,6 +1143,10 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                     : p.difficulty === "Medium"
                     ? "medium"
                     : "hard";
+                const pStatus =
+                  userStatusMap[p.problemId] ||
+                  (p.order !== undefined ? userStatusMap[String(p.order)] : null) ||
+                  userStatusMap[String(pNum)];
 
                 return (
                   <button
@@ -1087,7 +1157,13 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                   >
                     <div className="lc-drawer-item-left">
                       <span className="lc-drawer-item-status">
-                        {isCurrent ? (
+                        {pStatus ? (
+                          <ProblemStatusBadge
+                            status={pStatus}
+                            showText={false}
+                            size={15}
+                          />
+                        ) : isCurrent ? (
                           <FiCheck size={14} className="lc-status-check active" />
                         ) : (
                           <span className="lc-status-bullet" />
@@ -1305,6 +1381,13 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                   <h1 className="lc-problem-title">
                     {problem.order ? `${problem.order}. ` : ""}{problem.title}
                   </h1>
+                  {currentProblemStatus && (
+                    <ProblemStatusBadge
+                      status={currentProblemStatus}
+                      showText={true}
+                      size={16}
+                    />
+                  )}
                 </div>
 
                 <div className="lc-meta-chips">

@@ -14,6 +14,7 @@ import {
   FiList,
 } from "react-icons/fi";
 import LearnixCodeNav from "../components/LearnixCodeNav";
+import ProblemStatusBadge from "../components/ProblemStatusBadge";
 import "./ProblemsList.css";
 
 const THEME_KEY = "learnix-code-theme";
@@ -23,6 +24,7 @@ export default function ProblemsListPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
+  const [statusMap, setStatusMap] = useState({});
 
   // Search state — input vs committed query
   const [searchInput, setSearchInput] = useState("");
@@ -106,10 +108,32 @@ export default function ProblemsListPage() {
     }
   }, []);
 
+  const fetchUserStatus = useCallback(async () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+    if (!token) {
+      setStatusMap({});
+      return;
+    }
+    try {
+      const res = await fetch("/api/coding/user-status", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (data.success && data.statusMap) {
+        setStatusMap(data.statusMap);
+      }
+    } catch (err) {
+      console.error("Failed to fetch user problem status:", err);
+    }
+  }, []);
+
   // Initial load
   useEffect(() => {
     fetchProblems({ pageToFetch: 1, search: "", difficulty: "all" });
-  }, [fetchProblems]);
+    fetchUserStatus();
+  }, [fetchProblems, fetchUserStatus]);
 
   function handleSearchSubmit(e) {
     if (e) e.preventDefault();
@@ -289,6 +313,10 @@ export default function ProblemsListPage() {
                     : p.difficulty === "Medium"
                     ? "lcp-badge-medium"
                     : "lcp-badge-hard";
+                const pStatus =
+                  statusMap[p.problemId] ||
+                  (p.order !== undefined ? statusMap[String(p.order)] : null) ||
+                  statusMap[String(pid)];
 
                 return (
                   <div key={p.problemId || index} className="lcp-row-card">
@@ -306,6 +334,14 @@ export default function ProblemsListPage() {
                           >
                             <h3 className="lcp-row-title">{p.title}</h3>
                           </Link>
+                          {pStatus && (
+                            <ProblemStatusBadge
+                              status={pStatus}
+                              showText={true}
+                              compact={true}
+                              size={14}
+                            />
+                          )}
                           <span className={`lcp-badge ${diffClass}`}>
                             {p.difficulty}
                           </span>
