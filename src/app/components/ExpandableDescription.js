@@ -9,6 +9,7 @@ export default function ExpandableDescription({
   className = "",
   maxHeight = 240,
   fadeHeight,
+  searchQuery = "",
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -41,7 +42,7 @@ export default function ExpandableDescription({
           position: 'relative',
         }}
       >
-        <MarkdownRenderer content={content} />
+        <MarkdownRenderer content={content} highlightQuery={searchQuery} />
       </div>
 
       {isOverflowing && !isExpanded && (

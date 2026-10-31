@@ -4,64 +4,147 @@ import Update from "@/models/Update";
 import User from "@/models/User";
 import mongoose from "mongoose";
 import { recordUpdateViews } from "@/lib/interactions";
-
-function escapeRegex(value = "") {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
+import {
+  buildUpdateKeywordConditions,
+  scoreAndTagUpdate,
+  getQueryWords,
+} from "@/lib/searchHelper";
 
 export async function GET(req) {
   try {
     await connectDB();
 
     const url = new URL(req.url);
-    const indexParam = url.searchParams.get('index') || '1';
-    const currentUserId = (url.searchParams.get('userId') || '').trim();
+    const indexParam = url.searchParams.get("index") || "1";
+    const currentUserId = (url.searchParams.get("userId") || "").trim();
     const pageIndex = Math.max(1, parseInt(indexParam, 10) || 1);
-    const rawQuery = (url.searchParams.get('q') || '').trim();
+    const rawQuery = (url.searchParams.get("q") || "").trim();
     const pageSize = 10;
     const skip = (pageIndex - 1) * pageSize;
 
     const visibilityConditions = [
       { visibility: "public" },
       { visibility: "unlisted" },
-      { visibility: { $exists: false } }
+      { visibility: { $exists: false } },
     ];
     if (currentUserId) {
       visibilityConditions.push({ visibility: "private", userId: currentUserId });
     }
 
-    const updateQuery = {
-      $or: visibilityConditions
-    };
+    const specificId = (
+      url.searchParams.get("id") ||
+      url.searchParams.get("updateId") ||
+      url.searchParams.get("update") ||
+      ""
+    ).trim();
 
+    // ── SEARCH MODE ─────────────────────────────────────────────────────────────
     if (rawQuery) {
-      const regex = new RegExp(escapeRegex(rawQuery), 'i');
-      const matchedUsers = await User.find(
-        { $or: [{ name: regex }, { usn: regex }] },
-        { _id: 1 }
-      ).lean();
-      const matchedUserIds = matchedUsers.map((u) => u._id);
+      const searchConditions = await buildUpdateKeywordConditions(rawQuery);
+      const updateQuery = {
+        $and: [
+          { $or: visibilityConditions },
+          searchConditions.length > 0 ? { $or: searchConditions } : {},
+        ],
+      };
 
-      const searchConditions = [
-        { title: regex },
-        { content: regex },
-        { links: { $elemMatch: { $regex: regex } } },
-        { 'files.name': regex },
-        { 'files.url': regex },
-      ];
+      // Fetch candidate updates (up to 300) to allow accurate relevance ranking
+      let candidateUpdates = await Update.find(updateQuery)
+        .limit(300)
+        .lean();
 
-      if (matchedUserIds.length > 0) {
-        searchConditions.push({ userId: { $in: matchedUserIds } });
+      if (
+        pageIndex === 1 &&
+        specificId &&
+        mongoose.Types.ObjectId.isValid(specificId)
+      ) {
+        const alreadyIncluded = candidateUpdates.some(
+          (u) => u._id.toString() === specificId
+        );
+        if (!alreadyIncluded) {
+          const specificDoc = await Update.findById(specificId).lean();
+          if (specificDoc) {
+            const isAllowed =
+              specificDoc.visibility === "public" ||
+              specificDoc.visibility === "unlisted" ||
+              !specificDoc.visibility ||
+              (currentUserId &&
+                specificDoc.userId?.toString() === currentUserId);
+            if (isAllowed) {
+              candidateUpdates.unshift(specificDoc);
+            }
+          }
+        }
       }
 
-      updateQuery.$and = [
-        { $or: visibilityConditions },
-        { $or: searchConditions }
+      // Batch fetch users
+      const userIds = [
+        ...new Set(
+          candidateUpdates
+            .map((u) => u.userId?.toString())
+            .filter(Boolean)
+        ),
       ];
-      delete updateQuery.$or;
+      const users = await User.find({ _id: { $in: userIds } })
+        .select("name usn profileimg")
+        .lean();
+      const userMap = {};
+      users.forEach((u) => {
+        userMap[u._id.toString()] = u;
+      });
+
+      // Record views
+      const candidateIds = candidateUpdates.map((u) => u._id);
+      const viewsMap = await recordUpdateViews(candidateIds);
+
+      // Enrich and score each update against the query
+      const scoredUpdates = candidateUpdates.map((u) => {
+        const uid = u.userId ? u.userId.toString() : null;
+        const user = uid ? userMap[uid] : null;
+        const base = {
+          _id: u._id,
+          title: u.title,
+          content: u.content,
+          links: u.links || [],
+          files: u.files || [],
+          userId: u.userId,
+          visibility: u.visibility || "public",
+          createdAt: u.createdAt,
+          updatedAt: u.updatedAt,
+          usn: user?.usn || null,
+          name: user?.name || null,
+          profileUrl: user?.profileimg || null,
+          views: viewsMap[u._id.toString()] ?? 0,
+        };
+        return scoreAndTagUpdate(base, rawQuery);
+      });
+
+      // Rank by relevance score descending (most matching on top), secondary by newest
+      scoredUpdates.sort((a, b) => {
+        if (specificId && a._id.toString() === specificId) return -1;
+        if (specificId && b._id.toString() === specificId) return 1;
+        if ((b.matchScore || 0) !== (a.matchScore || 0)) {
+          return (b.matchScore || 0) - (a.matchScore || 0);
+        }
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+
+      const pagedUpdates = scoredUpdates.slice(skip, skip + pageSize);
+
+      return NextResponse.json(
+        {
+          updates: pagedUpdates,
+          total: scoredUpdates.length,
+          searchWords: getQueryWords(rawQuery),
+        },
+        { status: 200 }
+      );
     }
 
-    const specificId = (url.searchParams.get('id') || url.searchParams.get('updateId') || url.searchParams.get('update') || '').trim();
+    // ── BROWSING MODE (No Search Query) ─────────────────────────────────────────
+    const updateQuery = {
+      $or: visibilityConditions,
+    };
 
     let updates = await Update.find(updateQuery)
       .sort({ createdAt: -1 })
@@ -69,14 +152,20 @@ export async function GET(req) {
       .limit(pageSize)
       .lean();
 
-    if (pageIndex === 1 && specificId && mongoose.Types.ObjectId.isValid(specificId)) {
-      const alreadyIncluded = updates.some(u => u._id.toString() === specificId);
+    if (
+      pageIndex === 1 &&
+      specificId &&
+      mongoose.Types.ObjectId.isValid(specificId)
+    ) {
+      const alreadyIncluded = updates.some(
+        (u) => u._id.toString() === specificId
+      );
       if (!alreadyIncluded) {
         const specificDoc = await Update.findById(specificId).lean();
         if (specificDoc) {
           const isAllowed =
-            specificDoc.visibility === 'public' ||
-            specificDoc.visibility === 'unlisted' ||
+            specificDoc.visibility === "public" ||
+            specificDoc.visibility === "unlisted" ||
             !specificDoc.visibility ||
             (currentUserId && specificDoc.userId?.toString() === currentUserId);
           if (isAllowed) {
@@ -86,11 +175,15 @@ export async function GET(req) {
       }
     }
 
-    // Collect userIds and fetch user info
-    const userIds = updates.map(u => u.userId).filter(Boolean);
-    const users = await User.find({ _id: { $in: userIds } }).lean();
+    // Collect userIds and batch fetch user info
+    const userIds = [
+      ...new Set(updates.map((u) => u.userId?.toString()).filter(Boolean)),
+    ];
+    const users = await User.find({ _id: { $in: userIds } })
+      .select("name usn profileimg")
+      .lean();
     const userMap = {};
-    users.forEach(u => {
+    users.forEach((u) => {
       userMap[u._id.toString()] = u;
     });
 
@@ -98,7 +191,7 @@ export async function GET(req) {
     const updateIds = updates.map((u) => u._id);
     const viewsMap = await recordUpdateViews(updateIds);
 
-    const enriched = updates.map(u => {
+    const enriched = updates.map((u) => {
       const uid = u.userId ? u.userId.toString() : null;
       const user = uid ? userMap[uid] : null;
       return {
@@ -120,8 +213,8 @@ export async function GET(req) {
 
     return NextResponse.json({ updates: enriched }, { status: 200 });
   } catch (error) {
-    console.error('GET /api/updates error:', error);
-    return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
+    console.error("GET /api/updates error:", error);
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
   }
 }
 

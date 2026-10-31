@@ -2131,3 +2131,25 @@
   color: #9333ea;
   transform: translateX(3px);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Updates Search Keyword Highlighting
+   ═══════════════════════════════════════════════════════════════════════════ */
+.upd-highlight,
+.res-highlight {
+  background: #fef08a;
+  color: #854d0e;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 4px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+[data-theme="dark"] .upd-highlight,
+.dark .upd-highlight,
+[data-theme="dark"] .res-highlight,
+.dark .res-highlight {
+  background: rgba(234, 179, 8, 0.28);
+  color: #fde047;
+}

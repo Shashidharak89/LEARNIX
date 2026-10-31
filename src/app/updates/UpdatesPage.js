@@ -135,6 +135,28 @@ function getRecItemHref(item) {
   return item.resource_url || (cleanId ? `/resources/${cleanId}` : "/resources");
 }
 
+function highlightText(text, searchQuery) {
+  if (!text || !searchQuery || !searchQuery.trim()) return text;
+  const words = searchQuery
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  if (words.length === 0) return text;
+  const regex = new RegExp(`(${words.join("|")})`, "gi");
+  const parts = String(text).split(regex);
+  return parts.map((part, i) =>
+    regex.test(part) ? (
+      <mark key={i} className="upd-highlight">
+        {part}
+      </mark>
+    ) : (
+      part
+    )
+  );
+}
+
 function UpdateCard({
   u,
   isHighlighted,
@@ -142,6 +164,7 @@ function UpdateCard({
   isLargeScreen,
   handleShareUpdate,
   formatExactTimestamp,
+  searchQuery = "",
 }) {
   const [isFilesExpanded, setIsFilesExpanded] = useState(false);
   const [isLinksExpanded, setIsLinksExpanded] = useState(false);
@@ -375,11 +398,11 @@ function UpdateCard({
                 onMouseLeave={() => userIconRef.current?.stopAnimation?.()}
               >
                 <UserIcon ref={userIconRef} className="upd-user-icon" size={14} />
-                <span className="upd-user-name-text">{u.name}</span>
+                <span className="upd-user-name-text">{highlightText(u.name, searchQuery)}</span>
               </Link>
               {u.usn && (
                 <Link href={`/users/${u.usn}`} className="upd-usn-link">
-                  • {u.usn}
+                  • {highlightText(u.usn, searchQuery)}
                 </Link>
               )}
             </div>
@@ -476,7 +499,7 @@ function UpdateCard({
                   className="upd-title-clickable-link"
                   title={`Open update: ${u.title}`}
                 >
-                  <span>{u.title}</span>
+                  <span>{highlightText(u.title, searchQuery)}</span>
                 </Link>
               </div>
             )}
@@ -492,7 +515,7 @@ function UpdateCard({
         </div>
       </div>
 
-      <ExpandableDescription content={u.content} className="upd-content" />
+      <ExpandableDescription content={u.content} className="upd-content" searchQuery={searchQuery} />
 
       {/* Links section */}
       {u.links && u.links.length > 0 && (
@@ -592,7 +615,7 @@ function UpdateCard({
                   >
                     <div className="upd-file-card-name" title={`View ${name}`}>
                       <FileIcon filename={name || url} />
-                      <span className="upd-file-card-label">{name}</span>
+                      <span className="upd-file-card-label">{highlightText(name, searchQuery)}</span>
                     </div>
                     <div className="upd-file-card-actions" onClick={(e) => e.stopPropagation()}>
                       <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-view" title="View">
@@ -1050,6 +1073,7 @@ export default function UpdatesPage({ initialUpdateId }) {
                 isLargeScreen={isLargeScreen}
                 handleShareUpdate={handleShareUpdate}
                 formatExactTimestamp={formatExactTimestamp}
+                searchQuery={keywordFromUrl}
               />
             ))}
 

@@ -10,7 +10,56 @@ import CodeBlock from "./CodeBlock";
 import "katex/dist/katex.min.css";
 import "./styles/MarkdownRenderer.css";
 
-export default function MarkdownRenderer({ content, className = "" }) {
+function highlightReactNode(node, query, highlightClass = "upd-highlight") {
+  if (!query || !query.trim() || !node) return node;
+
+  if (typeof node === "string") {
+    const words = query
+      .trim()
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    if (words.length === 0) return node;
+    const regex = new RegExp(`(${words.join("|")})`, "gi");
+    const parts = node.split(regex);
+    if (parts.length <= 1) return node;
+    return parts.map((part, i) =>
+      regex.test(part) ? (
+        <mark key={i} className={highlightClass}>
+          {part}
+        </mark>
+      ) : (
+        part
+      )
+    );
+  }
+
+  if (Array.isArray(node)) {
+    return node.map((child, idx) => {
+      const res = highlightReactNode(child, query, highlightClass);
+      return React.isValidElement(res) ? React.cloneElement(res, { key: idx }) : res;
+    });
+  }
+
+  if (React.isValidElement(node) && node.props && node.props.children) {
+    if (node.type === "code" || node.type === "pre") return node;
+    return React.cloneElement(
+      node,
+      {},
+      highlightReactNode(node.props.children, query, highlightClass)
+    );
+  }
+
+  return node;
+}
+
+export default function MarkdownRenderer({
+  content,
+  className = "",
+  highlightQuery = "",
+  highlightClass = "upd-highlight",
+}) {
   if (!content) return null;
 
   // Preprocess HTML image tags and normalize newlines from raw JSON strings
@@ -43,6 +92,60 @@ export default function MarkdownRenderer({ content, className = "" }) {
         remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]}
         rehypePlugins={[rehypeKatex]}
         components={{
+          p({ node, children, ...props }) {
+            return (
+              <p {...props}>
+                {highlightQuery
+                  ? highlightReactNode(children, highlightQuery, highlightClass)
+                  : children}
+              </p>
+            );
+          },
+          li({ node, children, ...props }) {
+            return (
+              <li {...props}>
+                {highlightQuery
+                  ? highlightReactNode(children, highlightQuery, highlightClass)
+                  : children}
+              </li>
+            );
+          },
+          h1({ node, children, ...props }) {
+            return (
+              <h1 {...props}>
+                {highlightQuery
+                  ? highlightReactNode(children, highlightQuery, highlightClass)
+                  : children}
+              </h1>
+            );
+          },
+          h2({ node, children, ...props }) {
+            return (
+              <h2 {...props}>
+                {highlightQuery
+                  ? highlightReactNode(children, highlightQuery, highlightClass)
+                  : children}
+              </h2>
+            );
+          },
+          h3({ node, children, ...props }) {
+            return (
+              <h3 {...props}>
+                {highlightQuery
+                  ? highlightReactNode(children, highlightQuery, highlightClass)
+                  : children}
+              </h3>
+            );
+          },
+          blockquote({ node, children, ...props }) {
+            return (
+              <blockquote {...props}>
+                {highlightQuery
+                  ? highlightReactNode(children, highlightQuery, highlightClass)
+                  : children}
+              </blockquote>
+            );
+          },
           code({ node, inline, className, children, ...props }) {
             const match = /language-(\w+)/.exec(className || "");
             const codeString = String(children || "").replace(/\n$/, "");

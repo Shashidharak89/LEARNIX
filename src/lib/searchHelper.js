@@ -410,3 +410,194 @@ export function scoreAndTagTopic(topic, rawQuery) {
     matchedKeywords: Array.from(matchedWordSet),
   };
 }
+
+/**
+ * Builds the $or array of conditions for Updates search.
+ * When a sentence is provided, it is split into words (like Study Materials)
+ * while also matching the full phrase.
+ * Searches across: title, content, links, files.name, files.url, user name/USN, _id, date.
+ *
+ * @param {string} q - raw query string from user
+ * @returns {Promise<Array>} array of MongoDB query condition objects
+ */
+export async function buildUpdateKeywordConditions(q) {
+  if (!q || !q.trim()) return [];
+
+  const raw = q.trim();
+  const words = getQueryWords(raw);
+  if (words.length === 0) return [];
+
+  const orConditions = [];
+
+  // 1. Full phrase match (highest fidelity)
+  const fullEsc = escapeRegex(raw);
+  orConditions.push({ title: { $regex: fullEsc, $options: "i" } });
+  orConditions.push({ content: { $regex: fullEsc, $options: "i" } });
+  orConditions.push({ links: { $elemMatch: { $regex: fullEsc, $options: "i" } } });
+  orConditions.push({ "files.name": { $regex: fullEsc, $options: "i" } });
+  orConditions.push({ "files.url": { $regex: fullEsc, $options: "i" } });
+
+  // 2. Individual word matches (multi-word sentence splitting)
+  for (const word of words) {
+    if (word.length <= 1 && words.length > 1) continue;
+    const wordEsc = escapeRegex(word);
+    orConditions.push({ title: { $regex: wordEsc, $options: "i" } });
+    orConditions.push({ content: { $regex: wordEsc, $options: "i" } });
+    orConditions.push({ "files.name": { $regex: wordEsc, $options: "i" } });
+    orConditions.push({ links: { $elemMatch: { $regex: wordEsc, $options: "i" } } });
+  }
+
+  // 3. User: name or USN matches full phrase or any word
+  const userPatterns = [fullEsc, ...words.map(escapeRegex)].map((p) => new RegExp(p, "i"));
+  const matchedUsers = await User.find(
+    {
+      $or: [
+        { name: { $in: userPatterns } },
+        { usn: { $in: userPatterns } },
+      ],
+    },
+    { _id: 1 }
+  ).lean();
+
+  if (matchedUsers.length > 0) {
+    const userIds = matchedUsers.map((u) => u._id);
+    orConditions.push({ userId: { $in: userIds } });
+  }
+
+  // 4. MongoDB _id
+  if (isObjectId(raw)) {
+    orConditions.push({ _id: new mongoose.Types.ObjectId(raw) });
+  }
+
+  // 5. Date parsing
+  const dateRange = parseDateRange(raw);
+  if (dateRange) {
+    orConditions.push({
+      createdAt: { $gte: dateRange.start, $lte: dateRange.end },
+    });
+  }
+
+  return orConditions;
+}
+
+/**
+ * Scores an update against the search query so that most matching updates
+ * appear on top (just like Study Materials and Resources).
+ *
+ * @param {Object} update - Update document with populated user details
+ * @param {string} rawQuery - Search query from user
+ * @returns {Object} update with matchScore and matchedKeywords (array)
+ */
+export function scoreAndTagUpdate(update, rawQuery) {
+  const query = (rawQuery || "").trim().toLowerCase();
+  const words = getQueryWords(query);
+  if (!query || words.length === 0) {
+    return {
+      ...update,
+      matchScore: 0,
+      matchedKeywords: [],
+    };
+  }
+
+  let score = 0;
+  const matchedWordSet = new Set();
+
+  const title = String(update.title || "").toLowerCase();
+  const content = String(update.content || "").toLowerCase();
+  const name = String(update.name || "").toLowerCase();
+  const usn = String(update.usn || "").toLowerCase();
+  const fileNames = (update.files || [])
+    .map((f) => String(f?.name || f?.url || "").toLowerCase())
+    .join(" ");
+
+  // ── 1. Full phrase bonuses ──
+  if (title === query) {
+    score += 150;
+  } else if (title.startsWith(query)) {
+    score += 80;
+  } else if (title.includes(query)) {
+    score += 50;
+  }
+
+  if (content.includes(query)) {
+    score += 30;
+  }
+
+  if (name.includes(query) || usn.includes(query)) {
+    score += 35;
+  }
+
+  if (fileNames.includes(query)) {
+    score += 30;
+  }
+
+  // ── 2. Word-by-word matches ──
+  let wordsInTitle = 0;
+  let wordsInContent = 0;
+
+  for (const word of words) {
+    if (word.length <= 1 && words.length > 1) continue;
+
+    if (title.includes(word)) {
+      wordsInTitle++;
+      score += 20;
+      matchedWordSet.add(word);
+    }
+
+    if (content.includes(word)) {
+      wordsInContent++;
+      score += 6;
+      matchedWordSet.add(word);
+    }
+
+    if (fileNames.includes(word)) {
+      score += 10;
+      matchedWordSet.add(word);
+    }
+
+    if (name.includes(word) || usn.includes(word)) {
+      score += 12;
+      matchedWordSet.add(word);
+    }
+  }
+
+  // Fallback for 1-letter words if none matched
+  if (matchedWordSet.size === 0) {
+    for (const word of words) {
+      if (title.includes(word)) {
+        score += 10;
+        matchedWordSet.add(word);
+      }
+      if (content.includes(word)) {
+        score += 4;
+        matchedWordSet.add(word);
+      }
+      if (fileNames.includes(word)) {
+        score += 5;
+        matchedWordSet.add(word);
+      }
+    }
+  }
+
+  // ── 3. Sentence Coverage Bonus (Most matching updates on top) ──
+  const validWords = words.filter((w) => w.length > 1);
+  const targetWordsCount = validWords.length > 0 ? validWords.length : words.length;
+  const coverageRatio = matchedWordSet.size / targetWordsCount;
+  score += Math.round(coverageRatio * 60);
+
+  // If ALL words in the user's sentence matched
+  if (matchedWordSet.size >= targetWordsCount && targetWordsCount > 1) {
+    score += 60;
+  }
+
+  // If multiple words matched in title
+  if (wordsInTitle > 1) {
+    score += wordsInTitle * 12;
+  }
+
+  return {
+    ...update,
+    matchScore: score,
+    matchedKeywords: Array.from(matchedWordSet),
+  };
+}
