@@ -1681,6 +1681,12 @@
   color: #fde047;
 }
 
+.lc-sub-lang-pill.python {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+}
+
 .lc-sub-runtime-val {
   display: inline-flex;
   align-items: center;
@@ -2195,6 +2201,12 @@
   background: rgba(247, 223, 30, 0.15);
   border: 1px solid rgba(247, 223, 30, 0.35);
   color: #fde047;
+}
+
+.lc-sub-lang-pill.python {
+  background: rgba(56, 189, 248, 0.18);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
 }
 
 /* 10s Cooldown timer indicator on buttons */

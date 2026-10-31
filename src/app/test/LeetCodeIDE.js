@@ -74,6 +74,23 @@ function getLangDisplay(lang) {
   };
 }
 
+function getLanguageLabel(langId) {
+  const id = (langId || "").toLowerCase();
+  if (id.includes("java") && !id.includes("script")) return "Java";
+  if (id.includes("python") || id === "py") return "Python";
+  if (id.includes("javascript") || id === "js") return "JavaScript";
+  if (id.includes("cpp") || id === "c++") return "C++";
+  return langId ? langId.charAt(0).toUpperCase() + langId.slice(1) : "JavaScript";
+}
+
+function getLanguagePillClass(langId) {
+  const id = (langId || "").toLowerCase();
+  if (id.includes("java") && !id.includes("script")) return "java";
+  if (id.includes("python") || id === "py") return "python";
+  if (id.includes("javascript") || id === "js") return "javascript";
+  return "default";
+}
+
 function getJavaType(typeStr) {
   if (!typeStr) return "void";
   const t = String(typeStr).trim().toLowerCase();
@@ -199,7 +216,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
   const [copiedCode, setCopiedCode] = useState(false);
 
   // Console State
-  const [activeConsoleTab, setActiveConsoleTab] = useState("testcase"); // "testcase" | "testresult" | "submissions"
+  const [activeConsoleTab, setActiveConsoleTab] = useState("testcase"); // "testcase" | "testresult"
   const [selectedCaseIdx, setSelectedCaseIdx] = useState(0);
   const [selectedResultIdx, setSelectedResultIdx] = useState(0);
   const [activeLeftTab, setActiveLeftTab] = useState("description"); // "description" | "help" | "submissions"
@@ -1030,9 +1047,9 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                 </div>
 
                 <div className="lc-sub-cell lc-sub-cell-lang">
-                  <span className={`lc-sub-lang-pill ${subLang.includes("java") && !subLang.includes("script") ? "java" : "javascript"}`}>
+                  <span className={`lc-sub-lang-pill ${getLanguagePillClass(subLang)}`}>
                     {getLanguageReactIcon(subLang, 12)}
-                    <span>{subLang.includes("java") && !subLang.includes("script") ? "Java" : "JavaScript"}</span>
+                    <span>{getLanguageLabel(subLang)}</span>
                   </span>
                 </div>
 
@@ -1770,18 +1787,6 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                     />
                   )}
                 </button>
-                <button
-                  onClick={() => {
-                    setActiveConsoleTab("submissions");
-                    fetchSubmissions();
-                  }}
-                  className={`lc-tab-btn ${activeConsoleTab === "submissions" ? "active" : ""}`}
-                >
-                  <FiClock size={14} /> Submissions
-                  {submissions.length > 0 && (
-                    <span className="lc-count-badge">{submissions.length}</span>
-                  )}
-                </button>
               </div>
 
               <div className="lc-console-header-actions">
@@ -2015,13 +2020,6 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                   )}
                 </div>
               )}
-
-              {/* ── Submissions Tab in Console ── */}
-              {activeConsoleTab === "submissions" && (
-                <div style={{ padding: "0.25rem 0" }}>
-                  {renderSubmissionsView()}
-                </div>
-              )}
             </div>
           )}
           </div>
@@ -2098,12 +2096,10 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                   <span>{selectedSubmission.status}</span>
                 </span>
                 <span
-                  className={`lc-sub-lang-pill ${
-                    (selectedSubmission.language || "javascript") === "java" ? "java" : "javascript"
-                  }`}
+                  className={`lc-sub-lang-pill ${getLanguagePillClass(selectedSubmission.language)}`}
                 >
                   {getLanguageReactIcon(selectedSubmission.language, 12)}
-                  <span>{(selectedSubmission.language || "javascript") === "java" ? "Java" : "JavaScript"}</span>
+                  <span>{getLanguageLabel(selectedSubmission.language)}</span>
                 </span>
                 <span style={{ color: "var(--lc-text-primary)", fontWeight: 600 }}>
                   Submission Details
