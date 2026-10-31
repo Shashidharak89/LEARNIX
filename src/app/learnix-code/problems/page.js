@@ -12,6 +12,7 @@ import {
   FiSun,
   FiMoon,
   FiList,
+  FiAlertTriangle,
 } from "react-icons/fi";
 import LearnixCodeNav from "../components/LearnixCodeNav";
 import ProblemStatusBadge from "../components/ProblemStatusBadge";
@@ -281,7 +282,10 @@ export default function ProblemsListPage() {
           renderSkeletons()
         ) : error ? (
           <div className="lcp-error-state">
-            <p>⚠️ {error}</p>
+            <p style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+              <FiAlertTriangle color="#ef4444" size={18} />
+              <span>{error}</span>
+            </p>
             <button onClick={() => fetchProblems({ pageToFetch: 1, search: activeSearch, difficulty: difficultyFilter })} className="lcp-retry-btn">
               Retry
             </button>

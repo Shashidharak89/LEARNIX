@@ -35,9 +35,14 @@ import {
   FiSearch,
   FiChevronRight,
   FiLoader,
+  FiLock,
+  FiInbox,
+  FiInfo,
+  FiZap,
 } from "react-icons/fi";
 import { FaJava, FaPython } from "react-icons/fa";
 import { SiJavascript, SiCplusplus } from "react-icons/si";
+import { HourglassIcon } from "@animateicons/react/lucide";
 import { recordCodingEntry, exitCodingEnvironment } from "@/utils/codingExitTracker";
 import { areOutputsEqual } from "@/lib/outputComparator";
 import MarkdownRenderer from "@/app/components/MarkdownRenderer";
@@ -62,15 +67,8 @@ function getLanguageReactIcon(langId, size = 15) {
 
 function getLangDisplay(lang) {
   const id = (lang.languageId || "").toLowerCase();
-  let icon = "💻";
-  if (id.includes("java") && !id.includes("script")) icon = "☕";
-  else if (id.includes("javascript") || id === "js") icon = "⚡";
-  else if (id.includes("python") || id === "py") icon = "🐍";
-  else if (id.includes("cpp") || id === "c++" || id === "c") icon = "⚙️";
-  else if (id.includes("typescript") || id === "ts") icon = "🔷";
   return {
-    icon,
-    label: `${icon} ${lang.name || id} ${lang.version ? `(${lang.version})` : ""}`.trim(),
+    label: `${lang.name || id} ${lang.version ? `(${lang.version})` : ""}`.trim(),
   };
 }
 
@@ -238,6 +236,27 @@ function initCasesFromProblem(prob) {
       isCustom: false,
     },
   ];
+}
+
+function AnimatedSandTimer({ size = 32, text = "", color = "#f59e0b" }) {
+  const iconRef = useRef(null);
+
+  useEffect(() => {
+    iconRef.current?.startAnimation?.();
+    const interval = setInterval(() => {
+      iconRef.current?.startAnimation?.();
+    }, 2400);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="lc-sand-timer-wrap">
+      <div className="lc-sand-timer-flipper" style={{ color }}>
+        <HourglassIcon ref={iconRef} size={size} className="lc-sand-timer-icon" />
+      </div>
+      {text && <p className="lc-sand-timer-text">{text}</p>}
+    </div>
+  );
 }
 
 // Dynamic import of Monaco Editor with SSR disabled
@@ -1099,7 +1118,9 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     if (!isLoggedIn) {
       return (
         <div className="lc-auth-gate-box">
-          <div style={{ fontSize: "2.2rem", marginBottom: "0.5rem" }}>🔒</div>
+          <div style={{ marginBottom: "0.75rem", display: "flex", justifyContent: "center" }}>
+            <FiLock size={36} color="#f59e0b" />
+          </div>
           <h3 style={{ color: "var(--lc-text-primary)", margin: "0 0 0.5rem 0" }}>Log In to Track Submissions</h3>
           <p style={{ color: "var(--lc-text-secondary)", maxWidth: "420px", margin: "0 auto 1.25rem auto", fontSize: "0.9rem", lineHeight: 1.6 }}>
             You can test and run your solution freely using <strong>Run</strong>. To submit your code, evaluate against all hidden testcases, and record your score in DynamoDB, please log in with your Learnix account.
@@ -1123,8 +1144,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     if (loadingSubmissions) {
       return (
         <div style={{ padding: "2.5rem", textAlign: "center", color: "var(--lc-text-secondary)" }}>
-          <div style={{ fontSize: "1.75rem", marginBottom: "0.5rem" }}>⏳</div>
-          <p>Loading your submission history from DynamoDB...</p>
+          <AnimatedSandTimer size={36} text="Loading your submission history from DynamoDB..." />
         </div>
       );
     }
@@ -1132,7 +1152,9 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     if (submissions.length === 0) {
       return (
         <div style={{ padding: "2.5rem 1.5rem", textAlign: "center", color: "var(--lc-text-secondary)" }}>
-          <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>📝</div>
+          <div style={{ marginBottom: "0.75rem", display: "flex", justifyContent: "center", color: "var(--lc-text-muted)" }}>
+            <FiInbox size={38} />
+          </div>
           <h3 style={{ color: "var(--lc-text-primary)", margin: "0 0 0.5rem 0" }}>No Submissions Yet</h3>
           <p style={{ maxWidth: "420px", margin: "0 auto", fontSize: "0.9rem" }}>
             Submit your solution above to evaluate against all 10 testcases and record your submission!
@@ -1267,7 +1289,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
             />
           </div>
           <h2 style={{ color: "var(--lc-text-primary)", margin: "0 0 0.5rem 0" }}>Loading Learnix Coding Playground...</h2>
-          <p>Initializing LeetCode interface and connecting to DynamoDB</p>
+          <AnimatedSandTimer size={38} text="Connecting to coding playground..." />
         </div>
       </div>
     );
@@ -1713,7 +1735,10 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                   This coding sandbox allows you to write and execute code solutions directly in an interactive IDE.
                 </p>
                 <div className="lc-section-box">
-                  <h4>💡 How to Run &amp; Test</h4>
+                  <h4 style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
+                    <FiZap size={16} color="#f59e0b" />
+                    <span>How to Run &amp; Test</span>
+                  </h4>
                   <ul className="lc-constraints-list">
                     <li>Implement the required function: <code>{problem.functionName}(...)</code></li>
                     <li>Use <strong>Run</strong> to test your solution against visible sample testcases.</li>
@@ -2035,14 +2060,16 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
                       {/* Custom case notice */}
                       {editableCases[selectedCaseIdx].isCustom && (
-                        <div className="lc-custom-notice">
-                          💡 Custom test case: Click <strong>Run</strong> to evaluate your code and view the generated output.
+                        <div className="lc-custom-notice" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                          <FiInfo size={15} color="#38bdf8" style={{ flexShrink: 0 }} />
+                          <span>Custom test case: Click <strong>Run</strong> to evaluate your code and view the generated output.</span>
                         </div>
                       )}
 
                       {editableCases[selectedCaseIdx].explanation && (
-                        <div style={{ color: "var(--lc-text-muted)", fontSize: "0.85rem", marginTop: "0.5rem" }}>
-                          💡 <em>{editableCases[selectedCaseIdx].explanation}</em>
+                        <div style={{ color: "var(--lc-text-muted)", fontSize: "0.85rem", marginTop: "0.5rem", display: "flex", alignItems: "center", gap: "0.45rem" }}>
+                          <FiHelpCircle size={14} color="#94a3b8" style={{ flexShrink: 0 }} />
+                          <em>{editableCases[selectedCaseIdx].explanation}</em>
                         </div>
                       )}
                     </div>
@@ -2060,9 +2087,11 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                   )}
 
                   {executing && (
-                    <div style={{ textAlign: "center", padding: "2rem", color: "var(--lc-text-secondary)" }}>
-                      <div style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}>⏳</div>
-                      <p>{execMode === "submit" ? "Running all 10 test cases..." : "Evaluating sample test cases..."}</p>
+                    <div style={{ textAlign: "center", padding: "1.5rem 1rem", color: "var(--lc-text-secondary)" }}>
+                      <AnimatedSandTimer
+                        size={36}
+                        text={execMode === "submit" ? "Running all 10 test cases..." : "Evaluating sample test cases..."}
+                      />
                     </div>
                   )}
 
@@ -2192,8 +2221,9 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                                 )}
 
                                 {isCustomWithoutExp && (
-                                  <div className="lc-custom-output-note">
-                                    ℹ️ Output generated successfully for custom input.
+                                  <div className="lc-custom-output-note" style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
+                                    <FiInfo size={14} color="#38bdf8" style={{ flexShrink: 0 }} />
+                                    <span>Output generated successfully for custom input.</span>
                                   </div>
                                 )}
 
@@ -2236,9 +2266,9 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
               <button
                 onClick={() => setShowLoginPrompt(false)}
                 className="lc-icon-btn"
-                style={{ fontSize: "1rem" }}
+                title="Close"
               >
-                ✕
+                <FiX size={16} />
               </button>
             </div>
 
@@ -2288,10 +2318,9 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
               <button
                 onClick={() => setShowResetModal(false)}
                 className="lc-icon-btn"
-                style={{ fontSize: "1rem" }}
                 title="Close"
               >
-                ✕
+                <FiX size={16} />
               </button>
             </div>
 
@@ -2357,9 +2386,9 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
               <button
                 onClick={() => setSelectedSubmission(null)}
                 className="lc-icon-btn"
-                style={{ fontSize: "1rem" }}
+                title="Close"
               >
-                ✕
+                <FiX size={16} />
               </button>
             </div>
 

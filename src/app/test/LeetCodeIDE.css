@@ -2778,3 +2778,37 @@
   background: #27272a;
 }
 
+/* ── Animated Sand Timer & Loading States ── */
+.lc-sand-timer-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.lc-sand-timer-flipper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  animation: lc-hourglass-flip 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.35));
+}
+
+@keyframes lc-hourglass-flip {
+  0% { transform: rotate(0deg); }
+  42% { transform: rotate(180deg); }
+  58% { transform: rotate(180deg); }
+  92% { transform: rotate(360deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.lc-sand-timer-text {
+  margin-top: 0.9rem;
+  color: var(--lc-text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
