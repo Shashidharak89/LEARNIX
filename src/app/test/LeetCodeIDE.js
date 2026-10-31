@@ -287,6 +287,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
   const [submissions, setSubmissions] = useState([]);
   const [loadingSubmissions, setLoadingSubmissions] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState("");
@@ -814,31 +815,35 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
 
   function handleResetCode() {
     if (!problem) return;
-    if (typeof window !== "undefined" && window.confirm(`Reset ${selectedLanguage.toUpperCase()} code to default boilerplate template?`)) {
-      let defaultCode = problem.templates?.[selectedLanguage];
-      if (!defaultCode) {
-        if (selectedLanguage === "python" || selectedLanguage === "py") {
-          defaultCode =
-            problem.pythonBoilerplate ||
-            problem.templates?.python ||
-            generatePythonBoilerplate(problem.functionName, problem.parameters, problem.returnType);
-        } else if (selectedLanguage === "java") {
-          defaultCode =
-            problem.javaBoilerplate ||
-            problem.templates?.java ||
-            generateJavaBoilerplate(problem.functionName, problem.parameters, problem.returnType);
-        } else {
-          defaultCode =
-            problem.boilerplateCode ||
-            problem.templates?.javascript ||
-            `function ${problem.functionName || "solution"}(${(problem.parameters || []).map((p) => p.name || "arg").join(", ")}) {\n  // Write your code here\n}`;
-        }
-      }
-      setCode(defaultCode);
-      if (typeof window !== "undefined") {
-        localStorage.setItem(`learnix_code_${problem.problemId}_${selectedLanguage}`, defaultCode);
+    setShowResetModal(true);
+  }
+
+  function handleConfirmResetCode() {
+    if (!problem) return;
+    let defaultCode = problem.templates?.[selectedLanguage];
+    if (!defaultCode) {
+      if (selectedLanguage === "python" || selectedLanguage === "py") {
+        defaultCode =
+          problem.pythonBoilerplate ||
+          problem.templates?.python ||
+          generatePythonBoilerplate(problem.functionName, problem.parameters, problem.returnType);
+      } else if (selectedLanguage === "java") {
+        defaultCode =
+          problem.javaBoilerplate ||
+          problem.templates?.java ||
+          generateJavaBoilerplate(problem.functionName, problem.parameters, problem.returnType);
+      } else {
+        defaultCode =
+          problem.boilerplateCode ||
+          problem.templates?.javascript ||
+          `function ${problem.functionName || "solution"}(${(problem.parameters || []).map((p) => p.name || "arg").join(", ")}) {\n  // Write your code here\n}`;
       }
     }
+    setCode(defaultCode);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`learnix_code_${problem.problemId}_${selectedLanguage}`, defaultCode);
+    }
+    setShowResetModal(false);
   }
 
   // Client-side JavaScript evaluation for immediate, zero-latency run mode
@@ -2262,6 +2267,55 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                   className="lc-btn-modal-cancel"
                 >
                   Keep Testing as Guest
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Custom Reset Code Confirmation Modal ── */}
+      {showResetModal && (
+        <div className="lc-modal-backdrop" onClick={() => setShowResetModal(false)}>
+          <div className="lc-modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="lc-modal-header">
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <FiRotateCcw size={18} color="#ea580c" />
+                <h3 style={{ margin: 0, color: "var(--lc-text-primary)", fontSize: "1.1rem" }}>
+                  Reset {getLanguageLabel(selectedLanguage)} Code?
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowResetModal(false)}
+                className="lc-icon-btn"
+                style={{ fontSize: "1rem" }}
+                title="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="lc-modal-body">
+              <p style={{ margin: "0 0 0.75rem 0", color: "var(--lc-text-primary)", fontSize: "0.95rem", lineHeight: 1.5 }}>
+                Are you sure you want to discard your edits and start fresh?
+              </p>
+              <p style={{ margin: "0 0 1.5rem 0", color: "var(--lc-text-muted)", fontSize: "0.85rem", lineHeight: 1.5 }}>
+                This will restore the original starting code for <strong>{getLanguageLabel(selectedLanguage)}</strong>. Any code you have written for this problem will be cleared.
+              </p>
+
+              <div className="lc-modal-actions">
+                <button
+                  onClick={() => setShowResetModal(false)}
+                  className="lc-btn-modal-cancel"
+                >
+                  Keep My Code
+                </button>
+                <button
+                  onClick={handleConfirmResetCode}
+                  className="lc-btn-modal-reset"
+                >
+                  <FiRotateCcw size={14} />
+                  <span>Yes, Reset Code</span>
                 </button>
               </div>
             </div>
