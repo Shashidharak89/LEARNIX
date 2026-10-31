@@ -175,9 +175,25 @@ function isObjectId(str) {
   return /^[a-fA-F0-9]{24}$/.test(str);
 }
 
+// ─── Helpers for Multi-Word Query Tokenization ──────────────────────────────
+export function escapeRegex(str) {
+  return String(str || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+export function getQueryWords(q) {
+  if (!q) return [];
+  return String(q)
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
 // ─── Main builder ─────────────────────────────────────────────────────────────
 /**
  * Builds the $or array of conditions for free-text keyword search.
+ * When a sentence is provided, it is split into words (like Study Materials)
+ * while also matching the full phrase.
  * Searches across: topic name, content, subject name, username, USN, _id, date.
  *
  * @param {string} q - raw query string from user
@@ -186,42 +202,61 @@ function isObjectId(str) {
 export async function buildKeywordConditions(q) {
   if (!q || !q.trim()) return [];
 
+  const raw = q.trim();
+  const words = getQueryWords(raw);
+  if (words.length === 0) return [];
+
   const orConditions = [];
 
-  // 1. Topic name (partial match)
-  orConditions.push({ topic: { $regex: q, $options: "i" } });
+  // 1. Full phrase match (highest fidelity)
+  const fullEsc = escapeRegex(raw);
+  orConditions.push({ topic: { $regex: fullEsc, $options: "i" } });
+  orConditions.push({ content: { $regex: fullEsc, $options: "i" } });
 
-  // 2. Content (partial match)
-  orConditions.push({ content: { $regex: q, $options: "i" } });
-
-  // 3. Subject name → find matching subjectIds
-  const matchedSubjects = await Subject.find({
-    subject: { $regex: q, $options: "i" },
-  }).lean();
-  if (matchedSubjects.length > 0) {
-    orConditions.push({ subjectId: { $in: matchedSubjects.map(s => s._id) } });
+  // 2. Individual word matches (multi-word sentence splitting)
+  for (const word of words) {
+    if (word.length <= 1 && words.length > 1) continue; // skip single letters if multiple words
+    const wordEsc = escapeRegex(word);
+    orConditions.push({ topic: { $regex: wordEsc, $options: "i" } });
+    orConditions.push({ content: { $regex: wordEsc, $options: "i" } });
   }
 
-  // 4. Username or USN → find matching users → their subjectIds → topicIds via userId
+  // 3. Subject name: matches full phrase or any word
+  const subjectPatterns = [fullEsc, ...words.map(escapeRegex)];
+  const subjectRegexes = subjectPatterns.map((p) => new RegExp(p, "i"));
+  const matchedSubjects = await Subject.find({
+    subject: { $in: subjectRegexes },
+  })
+    .select("_id subject")
+    .lean();
+
+  if (matchedSubjects.length > 0) {
+    orConditions.push({ subjectId: { $in: matchedSubjects.map((s) => s._id) } });
+  }
+
+  // 4. User: name or USN matches full phrase or any word
+  const userPatterns = [fullEsc, ...words.map(escapeRegex)].map((p) => new RegExp(p, "i"));
   const matchedUsers = await User.find({
     $or: [
-      { name: { $regex: q, $options: "i" } },
-      { usn: { $regex: q, $options: "i" } },
+      { name: { $in: userPatterns } },
+      { usn: { $in: userPatterns } },
     ],
-  }).lean();
+  })
+    .select("_id")
+    .lean();
+
   if (matchedUsers.length > 0) {
-    const userIds = matchedUsers.map(u => u._id);
-    // Topics have userId stored directly
+    const userIds = matchedUsers.map((u) => u._id);
     orConditions.push({ userId: { $in: userIds } });
   }
 
   // 5. MongoDB _id (exact hex ObjectId)
-  if (isObjectId(q.trim())) {
-    orConditions.push({ _id: new mongoose.Types.ObjectId(q.trim()) });
+  if (isObjectId(raw)) {
+    orConditions.push({ _id: new mongoose.Types.ObjectId(raw) });
   }
 
   // 6. Date parsing
-  const dateRange = parseDateRange(q.trim());
+  const dateRange = parseDateRange(raw);
   if (dateRange) {
     orConditions.push({
       timestamp: { $gte: dateRange.start, $lte: dateRange.end },
@@ -229,4 +264,149 @@ export async function buildKeywordConditions(q) {
   }
 
   return orConditions;
+}
+
+/**
+ * Scores a topic against the search query so that most matching topics
+ * appear on top (just like Study Materials).
+ * Detects match locations for "matched in" indicators.
+ *
+ * @param {Object} topic - Topic document with populated subject and user details
+ * @param {string} rawQuery - Search query from user
+ * @returns {Object} topic with matchScore, matchedIn (array), and matchedKeywords (array)
+ */
+export function scoreAndTagTopic(topic, rawQuery) {
+  const query = (rawQuery || "").trim().toLowerCase();
+  const words = getQueryWords(query);
+  if (!query || words.length === 0) {
+    return {
+      ...topic,
+      matchScore: 0,
+      matchedIn: [],
+      matchedKeywords: [],
+    };
+  }
+
+  let score = 0;
+  const matchedPlaces = new Set();
+  const matchedWordSet = new Set();
+
+  const title = String(topic.topic || "").toLowerCase();
+  const content = String(topic.content || "").toLowerCase();
+  const subject = String(topic.subject || topic.subjectName || "").toLowerCase();
+  const userName = String(topic.userName || "").toLowerCase();
+  const usn = String(topic.usn || "").toLowerCase();
+
+  // ── 1. Full phrase bonuses ──
+  if (title === query) {
+    score += 150;
+    matchedPlaces.add("Topic Title");
+  } else if (title.startsWith(query)) {
+    score += 80;
+    matchedPlaces.add("Topic Title");
+  } else if (title.includes(query)) {
+    score += 50;
+    matchedPlaces.add("Topic Title");
+  }
+
+  if (subject === query) {
+    score += 100;
+    matchedPlaces.add("Subject");
+  } else if (subject.startsWith(query)) {
+    score += 60;
+    matchedPlaces.add("Subject");
+  } else if (subject.includes(query)) {
+    score += 40;
+    matchedPlaces.add("Subject");
+  }
+
+  if (content.includes(query)) {
+    score += 30;
+    matchedPlaces.add("Content");
+  }
+
+  if (userName.includes(query) || usn.includes(query)) {
+    score += 25;
+    matchedPlaces.add("Author");
+  }
+
+  // ── 2. Word-by-word matches ──
+  let wordsInTitle = 0;
+  let wordsInSubject = 0;
+  let wordsInContent = 0;
+
+  for (const word of words) {
+    if (word.length <= 1 && words.length > 1) continue;
+
+    if (title.includes(word)) {
+      wordsInTitle++;
+      score += 20;
+      matchedPlaces.add("Topic Title");
+      matchedWordSet.add(word);
+    }
+
+    if (subject.includes(word)) {
+      wordsInSubject++;
+      score += 15;
+      matchedPlaces.add("Subject");
+      matchedWordSet.add(word);
+    }
+
+    if (content.includes(word)) {
+      wordsInContent++;
+      score += 6;
+      matchedPlaces.add("Content");
+      matchedWordSet.add(word);
+    }
+
+    if (userName.includes(word) || usn.includes(word)) {
+      score += 10;
+      matchedPlaces.add("Author");
+      matchedWordSet.add(word);
+    }
+  }
+
+  // If query consists only of 1-letter words, fallback:
+  if (matchedWordSet.size === 0) {
+    for (const word of words) {
+      if (title.includes(word)) {
+        score += 10;
+        matchedPlaces.add("Topic Title");
+        matchedWordSet.add(word);
+      }
+      if (subject.includes(word)) {
+        score += 8;
+        matchedPlaces.add("Subject");
+        matchedWordSet.add(word);
+      }
+      if (content.includes(word)) {
+        score += 4;
+        matchedPlaces.add("Content");
+        matchedWordSet.add(word);
+      }
+    }
+  }
+
+  // ── 3. Sentence Coverage Bonus (Most matching topics on top) ──
+  const validWords = words.filter((w) => w.length > 1);
+  const targetWordsCount = validWords.length > 0 ? validWords.length : words.length;
+  const coverageRatio = matchedWordSet.size / targetWordsCount;
+  score += Math.round(coverageRatio * 60);
+
+  // If ALL words in the user's sentence matched across title, subject, content
+  if (matchedWordSet.size >= targetWordsCount && targetWordsCount > 1) {
+    score += 60;
+  }
+
+  // If multiple words matched in title
+  if (wordsInTitle > 1) {
+    score += wordsInTitle * 12;
+  }
+
+  return {
+    ...topic,
+    matchScore: score,
+    matchedIn: Array.from(matchedPlaces),
+    matchedKeywords: Array.from(matchedWordSet),
+  };
 }

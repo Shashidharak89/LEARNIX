@@ -737,10 +737,41 @@ function getRecItemHref(item) {
   return item.resource_url || (cleanId ? `/resources/${cleanId}` : "/resources");
 }
 
+const highlightText = (text, keyword) => {
+  if (!keyword || !text) return text;
+  const words = String(keyword)
+    .toLowerCase()
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (words.length === 0) return text;
+
+  const pattern = words
+    .map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("|");
+  const regex = new RegExp(`(${pattern})`, "gi");
+  const testRegex = new RegExp(`^(${pattern})$`, "i");
+  const parts = String(text).split(regex);
+  return (
+    <span>
+      {parts.map((part, i) =>
+        testRegex.test(part) ? (
+          <mark key={i} className="res-highlight">
+            {part}
+          </mark>
+        ) : (
+          part
+        )
+      )}
+    </span>
+  );
+};
+
 function TopicCard({
   topic,
   index,
   isSaved,
+  searchQuery = "",
   onSaveToggle,
   onShare,
   onDownloadAsPDF,
@@ -966,16 +997,56 @@ function TopicCard({
     }
   };
 
+  const matchedLocations = (() => {
+    if (!searchQuery || !searchQuery.trim()) return [];
+    if (Array.isArray(topic.matchedIn) && topic.matchedIn.length > 0) {
+      return topic.matchedIn;
+    }
+    const qWords = String(searchQuery).toLowerCase().trim().split(/\s+/).filter(Boolean);
+    if (qWords.length === 0) return [];
+
+    const locs = [];
+    const tLower = String(topic.topic || "").toLowerCase();
+    const sLower = String(topic.subjectName || "").toLowerCase();
+    const cLower = String(topic.content || "").toLowerCase();
+    const uLower = String(topic.userName || "").toLowerCase() + " " + String(topic.usn || "").toLowerCase();
+
+    if (qWords.some((w) => tLower.includes(w))) locs.push("Topic Title");
+    if (qWords.some((w) => sLower.includes(w))) locs.push("Subject Name");
+    if (qWords.some((w) => cLower.includes(w))) locs.push("Content");
+    if (qWords.some((w) => uLower.includes(w))) locs.push("Author");
+    return locs;
+  })();
+
   return (
     <div className={`ws-topic-card ${isSaved || isSavedInLearnLater ? 'ws-saved-card' : ''}`} data-topic-index={index}>
       <div className="ws-card-header">
         <div className="ws-topic-info">
           <Link href={`/resources/${topic.topicId}`} className="ws-topic-link" target="_blank" rel="noopener noreferrer">
-            <h3 className="ws-topic-title">{topic.topic}</h3>
+            <h3 className="ws-topic-title">{highlightText(topic.topic, searchQuery)}</h3>
           </Link>
-          <Link href={`/users/${topic.usn.toLowerCase()}`} className="ws-user-link">
-            <p className="ws-user-name">{topic.userName} ({topic.usn})</p>
+          <Link href={`/users/${topic.usn?.toLowerCase()}`} className="ws-user-link">
+            <p className="ws-user-name">
+              {highlightText(topic.userName, searchQuery)} ({highlightText(topic.usn, searchQuery)})
+            </p>
           </Link>
+
+          {searchQuery && searchQuery.trim() && matchedLocations.length > 0 && (
+            <div className="res-match-indicator">
+              <span className="res-match-label">
+                <SparklesIcon size={12} className="res-match-icon" />
+                <span>Matched in:</span>
+              </span>
+              <div className="res-match-pills">
+                {matchedLocations.map((loc, i) => (
+                  <span key={i} className="res-match-pill">
+                    {loc}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="ws-topic-meta">
             <span
               className="ws-meta-item"
@@ -983,7 +1054,7 @@ function TopicCard({
               onMouseLeave={() => bookIconRef.current?.stopAnimation?.()}
             >
               <BookOpenIcon ref={bookIconRef} size={14} className="ws-meta-icon" />
-              {topic.subjectName}
+              {highlightText(topic.subjectName, searchQuery)}
             </span>
             <span
               className="ws-meta-item"
@@ -1066,7 +1137,7 @@ function TopicCard({
         </div>
       </div>
 
-      {topic.content && <p className="ws-topic-content">{topic.content}</p>}
+      {topic.content && <p className="ws-topic-content">{highlightText(topic.content, searchQuery)}</p>}
 
       {hasImages && (
         <div className="ws-images-section">
@@ -1248,6 +1319,7 @@ function TopicCard({
         topic={topic}
         index={index}
         isSaved={isSaved}
+        searchQuery={searchQuery}
         onSaveToggle={handleSaveToggle}
         onShare={handleShare}
         onDownloadAsPDF={downloadTopicAsPDF}

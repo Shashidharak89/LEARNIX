@@ -4,7 +4,7 @@ import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
 import RequestMetric from "@/models/RequestMetric";
-import { buildKeywordConditions } from "@/lib/searchHelper";
+import { buildKeywordConditions, scoreAndTagTopic, getQueryWords } from "@/lib/searchHelper";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
 import { recordResourceViews } from "@/lib/interactions";
 
@@ -29,7 +29,7 @@ export async function GET(req) {
 
     const { searchParams } = new URL(req.url);
     let search = (searchParams.get("search") ?? searchParams.get("q") ?? "").trim();
-    if (search === '""' || search === "''" || search === '""') {
+    if (search === '""' || search === "''") {
       search = "";
     }
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
@@ -79,6 +79,7 @@ export async function GET(req) {
           size,
           pageSize: size,
           totalPages: 0,
+          searchWords: getQueryWords(search),
         });
       }
       queryConditions.push({ subjectId: { $in: matchedSubjectIds } });
@@ -97,24 +98,115 @@ export async function GET(req) {
 
     const topicQuery = queryConditions.length > 1 ? { $and: queryConditions } : queryConditions[0];
 
-    const sortOption = sortOrder === "oldest" ? { timestamp: 1, _id: 1 } : { timestamp: -1, _id: -1 };
+    let finalTopics = [];
+    let total = 0;
 
-    const total = await Topic.countDocuments(topicQuery);
-    const topics = await Topic.find(topicQuery)
-      .sort(sortOption)
-      .skip(skip)
-      .limit(size)
-      .lean();
+    if (search) {
+      // ── SEARCH MODE: Relevance Scoring & Sorting (Like Study Materials) ──
+      // Fetch matching candidate topics up to 300 for high performance
+      const candidateTopics = await Topic.find(topicQuery)
+        .sort({ timestamp: -1 })
+        .limit(300)
+        .lean();
 
-    // Record and increment views atomically for the returned page
-    const topicIds = topics.map((t) => t._id);
-    const viewsMap = await recordResourceViews(topicIds);
+      // Batch populate subjects and users in 2 queries instead of 2 * N queries
+      const subjectIds = Array.from(
+        new Set(candidateTopics.map((t) => t.subjectId).filter(Boolean).map(String))
+      );
+      const subjects = await Subject.find({ _id: { $in: subjectIds } }).lean();
+      const subjectMap = new Map(subjects.map((s) => [s._id.toString(), s]));
 
-    // Populate user and subject info
-    const topicsWithDetails = await Promise.all(
-      topics.map(async (topic) => {
-        const subject = await Subject.findById(topic.subjectId).lean();
-        const user = subject ? await User.findById(subject.userId).lean() : null;
+      const userIds = Array.from(
+        new Set(
+          candidateTopics
+            .map((t) => t.userId || subjectMap.get(t.subjectId?.toString())?.userId)
+            .filter(Boolean)
+            .map(String)
+        )
+      );
+      const users = await User.find({ _id: { $in: userIds } }).lean();
+      const userMap = new Map(users.map((u) => [u._id.toString(), u]));
+
+      const topicsWithDetails = candidateTopics.map((topic) => {
+        const subject = subjectMap.get(topic.subjectId?.toString());
+        const userId = topic.userId || subject?.userId;
+        const user = userId ? userMap.get(userId.toString()) : null;
+
+        return {
+          ...topic,
+          images: Array.isArray(topic.images) ? topic.images.slice(0, 2) : [],
+          subject: subject ? subject.subject : null,
+          subjectId: subject ? subject._id : null,
+          userName: user ? user.name : null,
+          usn: user ? user.usn : null,
+          profileimg: user ? user.profileimg : null,
+          userId: user ? user._id : null,
+        };
+      });
+
+      // Score each topic by relevance (most matching on top)
+      const scoredTopics = topicsWithDetails
+        .map((t) => scoreAndTagTopic(t, search))
+        .filter((t) => t.matchScore > 0);
+
+      // Sort by match score descending; if equal, by timestamp
+      scoredTopics.sort((a, b) => {
+        if (b.matchScore !== a.matchScore) {
+          return b.matchScore - a.matchScore;
+        }
+        if (sortOrder === "oldest") {
+          return new Date(a.timestamp || 0) - new Date(b.timestamp || 0);
+        }
+        return new Date(b.timestamp || 0) - new Date(a.timestamp || 0);
+      });
+
+      total = scoredTopics.length;
+      const paginatedTopics = scoredTopics.slice(skip, skip + size);
+
+      // Record views for returned items
+      const topicIds = paginatedTopics.map((t) => t._id);
+      const viewsMap = await recordResourceViews(topicIds);
+
+      finalTopics = paginatedTopics.map((t) => ({
+        ...t,
+        views: viewsMap[t._id.toString()] ?? 0,
+      }));
+    } else {
+      // ── BROWSING MODE: Standard Date Sorting ──
+      const sortOption = sortOrder === "oldest" ? { timestamp: 1, _id: 1 } : { timestamp: -1, _id: -1 };
+
+      total = await Topic.countDocuments(topicQuery);
+      const topics = await Topic.find(topicQuery)
+        .sort(sortOption)
+        .skip(skip)
+        .limit(size)
+        .lean();
+
+      // Batch populate
+      const subjectIds = Array.from(
+        new Set(topics.map((t) => t.subjectId).filter(Boolean).map(String))
+      );
+      const subjects = await Subject.find({ _id: { $in: subjectIds } }).lean();
+      const subjectMap = new Map(subjects.map((s) => [s._id.toString(), s]));
+
+      const userIds = Array.from(
+        new Set(
+          topics
+            .map((t) => t.userId || subjectMap.get(t.subjectId?.toString())?.userId)
+            .filter(Boolean)
+            .map(String)
+        )
+      );
+      const users = await User.find({ _id: { $in: userIds } }).lean();
+      const userMap = new Map(users.map((u) => [u._id.toString(), u]));
+
+      const topicIds = topics.map((t) => t._id);
+      const viewsMap = await recordResourceViews(topicIds);
+
+      finalTopics = topics.map((topic) => {
+        const subject = subjectMap.get(topic.subjectId?.toString());
+        const userId = topic.userId || subject?.userId;
+        const user = userId ? userMap.get(userId.toString()) : null;
 
         return {
           ...topic,
@@ -126,11 +218,13 @@ export async function GET(req) {
           profileimg: user ? user.profileimg : null,
           userId: user ? user._id : null,
           views: viewsMap[topic._id.toString()] ?? 0,
+          matchedIn: [],
+          matchedKeywords: [],
         };
-      })
-    );
+      });
+    }
 
-    // Metric tracking (same as before)
+    // Metric tracking
     try {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -144,13 +238,14 @@ export async function GET(req) {
     }
 
     return NextResponse.json({
-      topics: topicsWithDetails,
+      topics: finalTopics,
       total,
       totalResults: total,
       page,
       size,
       pageSize: size,
       totalPages: Math.ceil(total / size),
+      searchWords: getQueryWords(search),
     });
   } catch (err) {
     console.error("GET /api/resources error:", err);
