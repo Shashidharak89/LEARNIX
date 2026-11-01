@@ -36,7 +36,7 @@ export default function Home() {
       </section>
 
       {/* Workspace Navigation Cards */}
-      <section className="learnix-home-nav-cards-wrapper" style={{ padding: "40px 16px 20px 16px", width: "100%", boxSizing: "border-box" }}>
+      <section className="learnix-home-nav-cards-wrapper" style={{ padding: "40px 16px 20px 16px", width: "100%", boxSizing: "border-box", position: "relative", zIndex: 60, overflow: "visible" }}>
         <WorkspaceNavCards loggedIn={loggedIn} />
       </section>
 

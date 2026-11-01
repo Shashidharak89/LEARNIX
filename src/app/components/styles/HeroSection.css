@@ -879,6 +879,15 @@
   max-width: 1200px;
   margin: 0 auto;
   box-sizing: border-box;
+  position: relative;
+  z-index: 10;
+}
+
+/* Home Navigation Cards Wrapper — higher stacking context to allow popup tooltips to override searchbar */
+.learnix-home-nav-cards-wrapper {
+  position: relative;
+  z-index: 60;
+  overflow: visible;
 }
 
 @media (max-width: 600px) {
