@@ -513,58 +513,52 @@
   white-space: nowrap;
 }
 
-/* ── Pagination ── */
-.sm-pagination {
+/* ── View More Button Container ── */
+.sm-view-more-container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.9rem 1.25rem;
-  border-top: 1px solid #e2e8f0;
+  justify-content: center;
+  padding: 1.25rem;
+  border-top: 1px solid #f1f5f9;
   background: #f8fafc;
-  flex-wrap: wrap;
-  gap: 1rem;
 }
 
-.sm-page-info {
-  font-size: 0.88rem;
-  color: #64748b;
-}
-
-.sm-page-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.sm-page-btn {
+.sm-view-more-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.45rem 0.85rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  border: 1px solid #cbd5e1;
+  gap: 0.5rem;
+  padding: 0.65rem 1.6rem;
+  border-radius: 12px;
   background: #ffffff;
-  color: #334155;
+  color: #b45309;
+  border: 1.5px solid #fde68a;
+  font-size: 0.92rem;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.08);
 }
 
-.sm-page-btn:hover:not(:disabled) {
-  background: #f1f5f9;
-  border-color: #94a3b8;
+.sm-view-more-btn:hover:not(:disabled) {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.16);
 }
 
-.sm-page-btn:disabled {
-  opacity: 0.5;
+.sm-view-more-btn:disabled {
+  opacity: 0.7;
   cursor: not-allowed;
 }
 
-.sm-page-active {
-  background: #f59e0b !important;
-  color: #ffffff !important;
-  border-color: #d97706 !important;
+.sm-view-more-footer {
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  border-top: 1px solid #f1f5f9;
+  background: #f8fafc;
 }
 
 /* ── Loading Skeleton & Empty States ── */

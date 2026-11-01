@@ -11,6 +11,7 @@ import {
   FiX,
   FiChevronLeft,
   FiChevronRight,
+  FiChevronDown,
   FiUser,
   FiDatabase,
   FiFolder,
@@ -127,6 +128,8 @@ export default function SearchesManager() {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState(null);
   const [downloadingCsv, setDownloadingCsv] = useState(false);
 
@@ -136,14 +139,18 @@ export default function SearchesManager() {
   const [modalUserData, setModalUserData] = useState(null);
   const [modalError, setModalError] = useState(null);
 
-  const fetchSearches = useCallback(async (targetPage = page, searchTerm = activeSearch, sourceFilter = activeSource) => {
-    setLoading(true);
+  const fetchSearches = useCallback(async (targetPage = 1, isAppend = false) => {
+    if (isAppend) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
     setError(null);
 
     try {
-      let finalQuery = searchTerm.trim();
-      if (sourceFilter !== "all" && !finalQuery.toLowerCase().includes(sourceFilter)) {
-        finalQuery = finalQuery ? `${finalQuery} ${sourceFilter}` : sourceFilter;
+      let finalQuery = activeSearch.trim();
+      if (activeSource !== "all" && !finalQuery.toLowerCase().includes(activeSource)) {
+        finalQuery = finalQuery ? `${finalQuery} ${activeSource}` : activeSource;
       }
 
       const params = new URLSearchParams({
@@ -159,45 +166,56 @@ export default function SearchesManager() {
         throw new Error(json.error || "Failed to load searches");
       }
 
-      setData(json.data || []);
-      setTotal(json.total || 0);
-      setTotalPages(json.totalPages || 1);
-      setPage(json.page || targetPage);
+      const newItems = json.data || [];
+      if (isAppend) {
+        setData((prev) => {
+          const map = new Map();
+          for (const item of prev) map.set(item.id, item);
+          for (const item of newItems) map.set(item.id, item);
+          return Array.from(map.values());
+        });
+      } else {
+        setData(newItems);
+      }
+
+      const totalItems = json.total || 0;
+      const totalP = json.totalPages || 1;
+      setTotal(totalItems);
+      setTotalPages(totalP);
+      setPage(targetPage);
+      setHasMore(targetPage < totalP);
     } catch (err) {
       console.error("Error fetching searches:", err);
       setError(err.message || "Failed to fetch searches");
-      setData([]);
+      if (!isAppend) setData([]);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
-  }, [page, size, activeSearch, activeSource]);
+  }, [size, activeSearch, activeSource]);
 
   useEffect(() => {
-    fetchSearches(1, activeSearch, activeSource);
+    fetchSearches(1, false);
   }, [activeSearch, activeSource]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     setActiveSearch(searchInput.trim());
-    setPage(1);
   };
 
   const handleClearSearch = () => {
     setSearchInput("");
     setActiveSearch("");
-    setPage(1);
   };
 
   const handleSourceChange = (sourceId) => {
     setActiveSource(sourceId);
-    setPage(1);
   };
 
-  const handlePageChange = (newPage) => {
-    if (newPage < 1 || newPage > totalPages) return;
-    setPage(newPage);
-    fetchSearches(newPage, activeSearch, activeSource);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const handleViewMore = () => {
+    if (loadingMore || !hasMore) return;
+    const nextPage = page + 1;
+    fetchSearches(nextPage, true);
   };
 
   // Direct CSV download
@@ -341,9 +359,7 @@ export default function SearchesManager() {
         </form>
 
         <div className="sm-toolbar-meta">
-          <span>Total Records: <strong className="sm-meta-count">{total}</strong></span>
-          <span>•</span>
-          <span>Showing page <strong>{page}</strong> of <strong>{totalPages}</strong></span>
+          <span>Loaded: <strong className="sm-meta-count">{data.length}</strong> of <strong className="sm-meta-count">{total}</strong> searches</span>
         </div>
       </div>
 
@@ -477,53 +493,32 @@ export default function SearchesManager() {
           </table>
         </div>
 
-        {/* ── Pagination Controls ── */}
-        {!loading && totalPages > 1 && (
-          <div className="sm-pagination">
-            <span className="sm-page-info">
-              Showing page <strong>{page}</strong> of <strong>{totalPages}</strong> (20 items/page)
-            </span>
-
-            <div className="sm-page-controls">
-              <button
-                type="button"
-                onClick={() => handlePageChange(page - 1)}
-                disabled={page <= 1}
-                className="sm-page-btn"
-              >
-                <FiChevronLeft size={16} />
-                <span>Prev</span>
-              </button>
-
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let p = i + 1;
-                if (totalPages > 5 && page > 3) {
-                  p = page - 2 + i;
-                  if (p > totalPages) p = totalPages - (4 - i);
-                }
-                return (
-                  <button
-                    key={`page-${p}`}
-                    type="button"
-                    onClick={() => handlePageChange(p)}
-                    className={`sm-page-btn ${page === p ? "sm-page-active" : ""}`}
-                    style={{ minWidth: "36px", justifyContent: "center" }}
-                  >
-                    {p}
-                  </button>
-                );
-              })}
-
-              <button
-                type="button"
-                onClick={() => handlePageChange(page + 1)}
-                disabled={page >= totalPages}
-                className="sm-page-btn"
-              >
-                <span>Next</span>
-                <FiChevronRight size={16} />
-              </button>
-            </div>
+        {/* ── View More Button / Status ── */}
+        {!loading && hasMore && (
+          <div className="sm-view-more-container">
+            <button
+              type="button"
+              onClick={handleViewMore}
+              disabled={loadingMore}
+              className="sm-view-more-btn"
+            >
+              {loadingMore ? (
+                <>
+                  <FiRefreshCw size={15} className="spin" />
+                  <span>Loading more records...</span>
+                </>
+              ) : (
+                <>
+                  <FiChevronDown size={16} />
+                  <span>View More Searches ({data.length} of {total})</span>
+                </>
+              )}
+            </button>
+          </div>
+        )}
+        {!loading && !hasMore && data.length > 0 && (
+          <div className="sm-view-more-footer">
+            <span>Showing all {data.length} recorded searches</span>
           </div>
         )}
       </div>
