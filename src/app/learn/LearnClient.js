@@ -4,38 +4,95 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  BookOpen,
-  Sparkles,
-  Zap,
-  ChevronRight,
+  LightbulbIcon,
+  CodeIcon,
+  ServerIcon,
+  RouterIcon,
+  CoffeeIcon,
+  LayersIcon,
+  CpuIcon,
+  CloudIcon,
+  BookOpenIcon,
+  SparklesIcon,
+  BellIcon,
+  ZapIcon,
+  PlayIcon,
+  CheckIcon,
+  XIcon,
+  ListIcon,
+  Volume2Icon,
+  VolumeXIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ChevronRightIcon
+} from "@animateicons/react/lucide";
+import {
   ChevronDown,
   ChevronUp,
-  CheckCircle2,
-  XCircle,
-  ArrowLeft,
-  ArrowRight,
-  Database,
-  Network,
-  Cpu,
-  Layers,
-  Lightbulb,
-  Volume2,
-  VolumeX,
-  ListFilter,
-  Play,
-  RotateCcw,
-  Check,
-  X,
-  ExternalLink,
-  Clock,
   User,
-  GraduationCap,
-  Award
+  GraduationCap
 } from "lucide-react";
 import { QUIZ_TOPICS } from "./data/quizTopics";
 import "./styles/LearnPage.css";
 
 const OPTION_LETTERS = ["A", "B", "C", "D"];
+
+// Firestore Question Fetcher (Matching Android App AptitudeQuizViewModel)
+async function fetchFirestoreQuestion(collectionName, qId) {
+  try {
+    const res = await fetch(
+      "https://firestore.googleapis.com/v1/projects/learnix-aptitude-questions/databases/(default)/documents:runQuery",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          structuredQuery: {
+            from: [{ collectionId: collectionName }],
+            where: {
+              fieldFilter: {
+                field: { fieldPath: "questionId" },
+                op: "EQUAL",
+                value: { stringValue: String(qId) }
+              }
+            },
+            limit: 1
+          }
+        })
+      }
+    );
+
+    if (!res.ok) return null;
+    const array = await res.json();
+    if (!Array.isArray(array) || array.length === 0 || !array[0]?.document) return null;
+
+    const fields = array[0].document.fields || {};
+    const questionText = fields.question?.stringValue || "";
+    if (!questionText) return null;
+
+    const optionA = fields.optionA?.stringValue || "";
+    const optionB = fields.optionB?.stringValue || "";
+    const optionC = fields.optionC?.stringValue || "";
+    const optionD = fields.optionD?.stringValue || "";
+    const rawCorrect = (fields.correctAnswer?.stringValue || "A").trim().toUpperCase();
+    const answerIndex = rawCorrect === "B" ? 1 : rawCorrect === "C" ? 2 : rawCorrect === "D" ? 3 : 0;
+    const explanation = fields.explanation?.stringValue || "";
+    const category = fields.category?.stringValue || fields.topic?.stringValue || "";
+    const difficulty = fields.difficulty?.stringValue || "";
+
+    return {
+      id: qId,
+      question: questionText,
+      options: [optionA, optionB, optionC, optionD],
+      answerIndex,
+      explanation,
+      category,
+      difficulty
+    };
+  } catch (err) {
+    console.warn("Firestore fetch error:", err);
+    return null;
+  }
+}
 
 export default function LearnClient() {
   const router = useRouter();
@@ -55,10 +112,13 @@ export default function LearnClient() {
 
   // Active Quiz State
   const [activeQuizTopic, setActiveQuizTopic] = useState(null);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [currentQuestionId, setCurrentQuestionId] = useState(1);
+  const [currentQuestionData, setCurrentQuestionData] = useState(null);
+  const [isLoadingQuestion, setIsLoadingQuestion] = useState(false);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [isSoundEnabled, setIsSoundEnabled] = useState(false);
   const [showJumpDialog, setShowJumpDialog] = useState(false);
+  const [manualJumpInput, setManualJumpInput] = useState("");
 
   // Typewriter effect state for active quiz explanation
   const [typedExplanation, setTypedExplanation] = useState("");
@@ -126,18 +186,79 @@ export default function LearnClient() {
   // Handle clicking a topic card -> opens starting question modal
   const handleOpenStartModal = (topic) => {
     const last = getLastSolved(topic.slug);
-    const validStart = Math.min(Math.max(1, last), topic.totalQuestions);
     setLastSolvedNum(last);
-    setStartingQuestionInput(validStart.toString());
+    setStartingQuestionInput(last.toString());
     setModalTopic(topic);
   };
+
+  // Load question logic (Firestore with fallback)
+  useEffect(() => {
+    if (!activeQuizTopic) return;
+    let isCurrent = true;
+
+    async function loadQuestion() {
+      setIsLoadingQuestion(true);
+      setCurrentQuestionData(null);
+
+      // 1. Try Firestore first
+      const collectionName = activeQuizTopic.collectionName;
+      let fetched = null;
+      if (collectionName) {
+        fetched = await fetchFirestoreQuestion(collectionName, currentQuestionId);
+      }
+
+      // 2. If not found in Firestore, check fallback local questions
+      if (!fetched && activeQuizTopic.fallbackQuestions?.length > 0) {
+        const localIdx = (currentQuestionId - 1) % activeQuizTopic.fallbackQuestions.length;
+        const localQ = activeQuizTopic.fallbackQuestions[localIdx];
+        if (localQ) {
+          fetched = {
+            id: currentQuestionId,
+            question: localQ.question,
+            options: localQ.options,
+            answerIndex: localQ.answerIndex,
+            explanation: localQ.explanation || "",
+            category: activeQuizTopic.category,
+            difficulty: currentQuestionId <= 5 ? "Easy" : currentQuestionId <= 15 ? "Medium" : "Hard"
+          };
+        }
+      }
+
+      if (isCurrent) {
+        if (fetched) {
+          setCurrentQuestionData(fetched);
+        } else {
+          // Default placeholder question if question ID is beyond stored range
+          setCurrentQuestionData({
+            id: currentQuestionId,
+            question: `Practice Question #${currentQuestionId} for ${activeQuizTopic.title}`,
+            options: [
+              `Core concept implementation of ${activeQuizTopic.shortTitle}`,
+              `Standard algorithmic optimization`,
+              `Architectural dependency rule`,
+              `System hardware interface`
+            ],
+            answerIndex: 0,
+            explanation: `This is a fundamental concept in ${activeQuizTopic.title}. Understanding this principle is crucial for CS competitive exams and technical interviews.`,
+            category: activeQuizTopic.category,
+            difficulty: currentQuestionId <= 5 ? "Easy" : currentQuestionId <= 15 ? "Medium" : "Hard"
+          });
+        }
+        setIsLoadingQuestion(false);
+      }
+    }
+
+    loadQuestion();
+    return () => {
+      isCurrent = false;
+    };
+  }, [activeQuizTopic, currentQuestionId]);
 
   // Handle launching the quiz from modal
   const handleStartQuiz = () => {
     if (!modalTopic) return;
     let targetNum = parseInt(startingQuestionInput, 10);
     if (!Number.isFinite(targetNum) || targetNum < 1) targetNum = 1;
-    if (targetNum > modalTopic.totalQuestions) targetNum = modalTopic.totalQuestions;
 
     // Save starting question as current progress
     setLastSolved(modalTopic.slug, targetNum);
@@ -152,41 +273,35 @@ export default function LearnClient() {
     }
 
     setSelectedAnswers(savedAnswers);
-    setCurrentQuestionIndex(targetNum - 1);
+    setCurrentQuestionId(targetNum);
     setActiveQuizTopic(modalTopic);
     setModalTopic(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // Current active question
-  const currentQuestion = useMemo(() => {
-    if (!activeQuizTopic || !activeQuizTopic.questions) return null;
-    return activeQuizTopic.questions[currentQuestionIndex] || null;
-  }, [activeQuizTopic, currentQuestionIndex]);
-
   // Difficulty badge logic matching Android app (Q <= 5 Easy, Q <= 15 Medium, Q > 15 Hard)
   const currentDifficulty = useMemo(() => {
-    const qNum = currentQuestionIndex + 1;
+    const qNum = currentQuestionId;
     if (qNum <= 5) return { label: "Easy", color: "#10B981", bg: "rgba(16, 185, 129, 0.12)" };
     if (qNum <= 15) return { label: "Medium", color: "#F59E0B", bg: "rgba(245, 158, 11, 0.12)" };
     return { label: "Hard", color: "#EF4444", bg: "rgba(239, 68, 68, 0.12)" };
-  }, [currentQuestionIndex]);
+  }, [currentQuestionId]);
 
   // Selected option for current question
-  const currentSelectedOption = selectedAnswers[currentQuestionIndex] ?? null;
+  const currentSelectedOption = selectedAnswers[currentQuestionId] ?? null;
   const isCurrentAnswered = currentSelectedOption !== null;
-  const isCurrentCorrect = isCurrentAnswered && currentQuestion && currentSelectedOption === currentQuestion.answerIndex;
+  const isCurrentCorrect =
+    isCurrentAnswered && currentQuestionData && currentSelectedOption === currentQuestionData.answerIndex;
 
   // Save selected option
   const handleSelectOption = (optionIdx) => {
     if (!activeQuizTopic || isCurrentAnswered) return;
 
-    const newAnswers = { ...selectedAnswers, [currentQuestionIndex]: optionIdx };
+    const newAnswers = { ...selectedAnswers, [currentQuestionId]: optionIdx };
     setSelectedAnswers(newAnswers);
 
     // Save progress to localStorage
-    const currentQNum = currentQuestionIndex + 1;
-    setLastSolved(activeQuizTopic.slug, currentQNum);
+    setLastSolved(activeQuizTopic.slug, currentQuestionId);
     try {
       localStorage.setItem(`learnix_answers_${activeQuizTopic.slug}`, JSON.stringify(newAnswers));
     } catch (e) {
@@ -196,14 +311,16 @@ export default function LearnClient() {
 
   // Generate an explanation if none is in the JSON
   const questionExplanation = useMemo(() => {
-    if (!currentQuestion) return "";
-    if (currentQuestion.explanation) return currentQuestion.explanation;
+    if (!currentQuestionData) return "";
+    if (currentQuestionData.explanation) return currentQuestionData.explanation;
 
-    const correctOptionText = currentQuestion.options[currentQuestion.answerIndex] || "";
-    const correctLetter = OPTION_LETTERS[currentQuestion.answerIndex] || "A";
+    const correctOptionText = currentQuestionData.options[currentQuestionData.answerIndex] || "";
+    const correctLetter = OPTION_LETTERS[currentQuestionData.answerIndex] || "A";
 
-    return `Option ${correctLetter} ("${correctOptionText}") is the correct answer. This fundamental concept in ${activeQuizTopic?.title || "Computer Science"} is essential for system reliability and optimal computational performance.`;
-  }, [currentQuestion, activeQuizTopic]);
+    return `Option ${correctLetter} ("${correctOptionText}") is the correct answer. This fundamental concept in ${
+      activeQuizTopic?.title || "Computer Science"
+    } is essential for system reliability and optimal computational performance.`;
+  }, [currentQuestionData, activeQuizTopic]);
 
   // Typewriter effect for explanation card
   useEffect(() => {
@@ -216,23 +333,23 @@ export default function LearnClient() {
     setTypedExplanation("");
     let charIndex = 0;
     typewriterTimerRef.current = setInterval(() => {
-      charIndex += 2;
+      charIndex += 3;
       if (charIndex >= questionExplanation.length) {
         setTypedExplanation(questionExplanation);
         clearInterval(typewriterTimerRef.current);
       } else {
         setTypedExplanation(questionExplanation.slice(0, charIndex));
       }
-    }, 15);
+    }, 12);
 
     return () => {
       if (typewriterTimerRef.current) clearInterval(typewriterTimerRef.current);
     };
-  }, [isCurrentAnswered, currentQuestionIndex, questionExplanation]);
+  }, [isCurrentAnswered, currentQuestionId, questionExplanation]);
 
   // TTS Read aloud logic
   useEffect(() => {
-    if (!isSoundEnabled || !currentQuestion || typeof window === "undefined" || !window.speechSynthesis) {
+    if (!isSoundEnabled || !currentQuestionData || typeof window === "undefined" || !window.speechSynthesis) {
       if (typeof window !== "undefined" && window.speechSynthesis) {
         window.speechSynthesis.cancel();
       }
@@ -240,10 +357,10 @@ export default function LearnClient() {
     }
 
     window.speechSynthesis.cancel();
-    const optionsText = currentQuestion.options
+    const optionsText = currentQuestionData.options
       .map((opt, i) => `Option ${OPTION_LETTERS[i]}, ${opt}`)
       .join(". ");
-    const speechText = `Question ${currentQuestionIndex + 1}: ${currentQuestion.question}. ${optionsText}`;
+    const speechText = `Question ${currentQuestionId}: ${currentQuestionData.question}. ${optionsText}`;
 
     const utterance = new SpeechSynthesisUtterance(speechText);
     utterance.rate = 0.95;
@@ -252,23 +369,21 @@ export default function LearnClient() {
     return () => {
       window.speechSynthesis.cancel();
     };
-  }, [currentQuestion, currentQuestionIndex, isSoundEnabled]);
+  }, [currentQuestionData, currentQuestionId, isSoundEnabled]);
 
   // Navigate Questions
   const handlePrevQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      const nextIdx = currentQuestionIndex - 1;
-      setCurrentQuestionIndex(nextIdx);
-      if (activeQuizTopic) setLastSolved(activeQuizTopic.slug, nextIdx + 1);
+    if (currentQuestionId > 1) {
+      const nextId = currentQuestionId - 1;
+      setCurrentQuestionId(nextId);
+      if (activeQuizTopic) setLastSolved(activeQuizTopic.slug, nextId);
     }
   };
 
   const handleNextQuestion = () => {
-    if (activeQuizTopic && currentQuestionIndex < activeQuizTopic.totalQuestions - 1) {
-      const nextIdx = currentQuestionIndex + 1;
-      setCurrentQuestionIndex(nextIdx);
-      setLastSolved(activeQuizTopic.slug, nextIdx + 1);
-    }
+    const nextId = currentQuestionId + 1;
+    setCurrentQuestionId(nextId);
+    if (activeQuizTopic) setLastSolved(activeQuizTopic.slug, nextId);
   };
 
   // Keyboard navigation
@@ -283,7 +398,7 @@ export default function LearnClient() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [activeQuizTopic, currentQuestionIndex]);
+  }, [activeQuizTopic, currentQuestionId]);
 
   // Format relative time helper
   const formatTime = (dateStr) => {
@@ -304,30 +419,36 @@ export default function LearnClient() {
     }
   };
 
-  // Render topic icon helper
-  const renderTopicIcon = (iconName, color) => {
-    const props = { size: 24, color: color || "#007AFF" };
+  // Render animated topic icon helper
+  const renderTopicIcon = (iconName, color = "#FFFFFF") => {
+    const size = 24;
     switch (iconName) {
-      case "Database":
-        return <Database {...props} />;
-      case "Network":
-        return <Network {...props} />;
-      case "Cpu":
-        return <Cpu {...props} />;
+      case "Lightbulb":
+        return <LightbulbIcon size={size} color={color} />;
+      case "Code":
+        return <CodeIcon size={size} color={color} />;
+      case "Server":
+        return <ServerIcon size={size} color={color} />;
+      case "Router":
+        return <RouterIcon size={size} color={color} />;
+      case "Coffee":
+        return <CoffeeIcon size={size} color={color} />;
       case "Layers":
-        return <Layers {...props} />;
+        return <LayersIcon size={size} color={color} />;
+      case "Cpu":
+        return <CpuIcon size={size} color={color} />;
+      case "Cloud":
+        return <CloudIcon size={size} color={color} />;
+      case "BookOpen":
       default:
-        return <BookOpen {...props} />;
+        return <BookOpenIcon size={size} color={color} />;
     }
   };
 
   // =========================================================================
   // ACTIVE QUIZ RUNNER VIEW (One Question per Screen, Apple & Android style)
   // =========================================================================
-  if (activeQuizTopic && currentQuestion) {
-    const totalQ = activeQuizTopic.totalQuestions;
-    const progressPercent = Math.round(((currentQuestionIndex + 1) / totalQ) * 100);
-
+  if (activeQuizTopic) {
     return (
       <main className="learn-page-main">
         <div className="learn-quiz-runner-wrap">
@@ -343,24 +464,19 @@ export default function LearnClient() {
               className="learn-apple-btn-secondary learn-back-btn"
               title="Return to Learn page"
             >
-              <ArrowLeft size={17} />
+              <ArrowLeftIcon size={17} />
               <span>Exit Quiz</span>
             </button>
 
             <div className="learn-quiz-topic-indicator">
-              <span className="learn-topic-pill" style={{ color: activeQuizTopic.color, borderColor: activeQuizTopic.color }}>
+              <span
+                className="learn-topic-pill"
+                style={{ color: activeQuizTopic.color, borderColor: activeQuizTopic.color }}
+              >
                 {activeQuizTopic.shortTitle}
               </span>
               <div className="learn-progress-pill">
-                <span>
-                  Question {currentQuestionIndex + 1} of {totalQ}
-                </span>
-                <div className="learn-progress-track">
-                  <div
-                    className="learn-progress-fill"
-                    style={{ width: `${progressPercent}%`, backgroundColor: activeQuizTopic.color }}
-                  />
-                </div>
+                <span>Question #{currentQuestionId}</span>
               </div>
             </div>
 
@@ -371,189 +487,261 @@ export default function LearnClient() {
                 className={`learn-icon-btn ${isSoundEnabled ? "active" : ""}`}
                 title={isSoundEnabled ? "Mute question audio" : "Listen to question audio"}
               >
-                {isSoundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
+                {isSoundEnabled ? <Volume2Icon size={18} /> : <VolumeXIcon size={18} />}
               </button>
 
               {/* Jump to Question Button */}
               <button
-                onClick={() => setShowJumpDialog(true)}
+                onClick={() => {
+                  setManualJumpInput(currentQuestionId.toString());
+                  setShowJumpDialog(true);
+                }}
                 className="learn-icon-btn learn-jump-btn"
                 title="Jump to question"
               >
-                <ListFilter size={18} />
+                <ListIcon size={18} />
               </button>
             </div>
           </div>
 
           {/* Question Card (Apple Style Widget) */}
           <div className="learn-apple-card learn-question-card">
-            {/* Meta Category & Difficulty Header */}
-            <div className="learn-q-card-header">
-              <div className="learn-q-badges">
-                <span className="learn-category-badge">{activeQuizTopic.title}</span>
-                <span
-                  className="learn-difficulty-badge"
-                  style={{ color: currentDifficulty.color, backgroundColor: currentDifficulty.bg }}
-                >
-                  {currentDifficulty.label}
-                </span>
+            {isLoadingQuestion ? (
+              <div className="learn-question-loading">
+                <div className="learn-skel-line w-40" style={{ marginBottom: 16 }} />
+                <div className="learn-skel-line w-80" style={{ marginBottom: 12, height: 24 }} />
+                <div className="learn-skel-line w-60" style={{ marginBottom: 24 }} />
+                <div className="learn-skel-line w-80" style={{ marginBottom: 10, height: 44 }} />
+                <div className="learn-skel-line w-80" style={{ marginBottom: 10, height: 44 }} />
               </div>
-              <span className="learn-q-id-pill">#{currentQuestionIndex + 1}</span>
-            </div>
-
-            {/* Question Statement */}
-            <div className="learn-q-statement">
-              <span className="learn-q-num-prefix" style={{ color: activeQuizTopic.color }}>
-                {currentQuestionIndex + 1}.
-              </span>
-              <h2 className="learn-q-text">{currentQuestion.question}</h2>
-            </div>
-
-            <div className="learn-q-divider" />
-
-            {/* Options List */}
-            <div className="learn-options-list">
-              {currentQuestion.options.map((optionText, optIdx) => {
-                const letter = OPTION_LETTERS[optIdx];
-                const isSelected = currentSelectedOption === optIdx;
-                const isCorrectOption = optIdx === currentQuestion.answerIndex;
-
-                let optionStateClass = "";
-                if (isCurrentAnswered) {
-                  if (isCorrectOption) {
-                    optionStateClass = "option-correct";
-                  } else if (isSelected) {
-                    optionStateClass = "option-wrong";
-                  } else {
-                    optionStateClass = "option-dimmed";
-                  }
-                } else if (isSelected) {
-                  optionStateClass = "option-selected";
-                }
-
-                return (
-                  <button
-                    key={optIdx}
-                    onClick={() => handleSelectOption(optIdx)}
-                    disabled={isCurrentAnswered}
-                    className={`learn-option-btn ${optionStateClass}`}
-                  >
-                    <div className="learn-option-letter-box">
-                      {isCurrentAnswered && isCorrectOption ? (
-                        <Check size={16} className="learn-opt-icon check" />
-                      ) : isCurrentAnswered && isSelected && !isCorrectOption ? (
-                        <X size={16} className="learn-opt-icon xmark" />
-                      ) : (
-                        <span>{letter}</span>
-                      )}
-                    </div>
-                    <span className="learn-option-text">{optionText}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Celebration or Incorrect Feedback Banner (matching Android app) */}
-            {isCurrentAnswered && (
-              <div className={`learn-celebration-banner ${isCurrentCorrect ? "correct" : "incorrect"}`}>
-                <div className="learn-banner-icon-wrap">
-                  {isCurrentCorrect ? <CheckCircle2 size={24} /> : <XCircle size={24} />}
-                </div>
-                <div className="learn-banner-text-wrap">
-                  <h4>{isCurrentCorrect ? "🎉 Outstanding! You got it right!" : "Not quite! Check the correct answer."}</h4>
-                  <p>
-                    {isCurrentCorrect
-                      ? "Great job, your answer is verified correct!"
-                      : `The correct answer is Option ${OPTION_LETTERS[currentQuestion.answerIndex]}: "${
-                          currentQuestion.options[currentQuestion.answerIndex]
-                        }"`}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Explanation Card (matching TypewriterExplanationCard in Android App) */}
-            {isCurrentAnswered && (
-              <div className="learn-apple-card learn-explanation-card">
-                <div className="learn-exp-header">
-                  <div className="learn-exp-icon-box">
-                    <Lightbulb size={18} />
+            ) : currentQuestionData ? (
+              <>
+                {/* Meta Category & Difficulty Header */}
+                <div className="learn-q-card-header">
+                  <div className="learn-q-badges">
+                    <span className="learn-category-badge">{activeQuizTopic.title}</span>
+                    <span
+                      className="learn-difficulty-badge"
+                      style={{ color: currentDifficulty.color, backgroundColor: currentDifficulty.bg }}
+                    >
+                      {currentDifficulty.label}
+                    </span>
                   </div>
-                  <h3>Explanation</h3>
+                  <span className="learn-q-id-pill">Question #{currentQuestionId}</span>
                 </div>
-                <p className="learn-exp-body">
-                  {typedExplanation}
-                  <span className="learn-typewriter-cursor" />
-                </p>
-              </div>
-            )}
+
+                {/* Question Statement */}
+                <div className="learn-q-statement">
+                  <span className="learn-q-num-prefix" style={{ color: activeQuizTopic.color }}>
+                    {currentQuestionId}.
+                  </span>
+                  <h2 className="learn-q-text">{currentQuestionData.question}</h2>
+                </div>
+
+                <div className="learn-q-divider" />
+
+                {/* Options List */}
+                <div className="learn-options-list">
+                  {currentQuestionData.options.map((optionText, optIdx) => {
+                    const letter = OPTION_LETTERS[optIdx];
+                    const isSelected = currentSelectedOption === optIdx;
+                    const isCorrectOption = optIdx === currentQuestionData.answerIndex;
+
+                    let optionStateClass = "";
+                    if (isCurrentAnswered) {
+                      if (isCorrectOption) {
+                        optionStateClass = "option-correct";
+                      } else if (isSelected) {
+                        optionStateClass = "option-wrong";
+                      } else {
+                        optionStateClass = "option-dimmed";
+                      }
+                    } else if (isSelected) {
+                      optionStateClass = "option-selected";
+                    }
+
+                    return (
+                      <button
+                        key={optIdx}
+                        onClick={() => handleSelectOption(optIdx)}
+                        disabled={isCurrentAnswered}
+                        className={`learn-option-btn ${optionStateClass}`}
+                      >
+                        <div className="learn-option-letter-box">
+                          {isCurrentAnswered && isCorrectOption ? (
+                            <CheckIcon size={16} className="learn-opt-icon check" />
+                          ) : isCurrentAnswered && isSelected && !isCorrectOption ? (
+                            <XIcon size={16} className="learn-opt-icon xmark" />
+                          ) : (
+                            <span>{letter}</span>
+                          )}
+                        </div>
+                        <span className="learn-option-text">{optionText}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Celebration or Incorrect Feedback Banner (matching Android app) */}
+                {isCurrentAnswered && (
+                  <div className={`learn-celebration-banner ${isCurrentCorrect ? "correct" : "incorrect"}`}>
+                    <div className="learn-banner-icon-wrap">
+                      {isCurrentCorrect ? <CheckIcon size={24} /> : <XIcon size={24} />}
+                    </div>
+                    <div className="learn-banner-text-wrap">
+                      <h4>
+                        {isCurrentCorrect ? "🎉 Outstanding! You got it right!" : "Not quite! Check the correct answer."}
+                      </h4>
+                      <p>
+                        {isCurrentCorrect
+                          ? "Great job, your answer is verified correct!"
+                          : `The correct answer is Option ${OPTION_LETTERS[currentQuestionData.answerIndex]}: "${
+                              currentQuestionData.options[currentQuestionData.answerIndex]
+                            }"`}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Explanation Card (matching TypewriterExplanationCard in Android App) */}
+                {isCurrentAnswered && (
+                  <div className="learn-apple-card learn-explanation-card">
+                    <div className="learn-exp-header">
+                      <div className="learn-exp-icon-box">
+                        <LightbulbIcon size={18} />
+                      </div>
+                      <h3>Explanation</h3>
+                    </div>
+                    <p className="learn-exp-body">
+                      {typedExplanation}
+                      <span className="learn-typewriter-cursor" />
+                    </p>
+                  </div>
+                )}
+              </>
+            ) : null}
           </div>
 
           {/* Sticky Bottom Navigation Bar (Docked) */}
           <div className="learn-dock-nav">
             <button
               onClick={handlePrevQuestion}
-              disabled={currentQuestionIndex === 0}
+              disabled={currentQuestionId <= 1}
               className="learn-dock-btn learn-dock-btn--prev"
               title="Previous question (←)"
             >
-              <ArrowLeft size={18} />
+              <ArrowLeftIcon size={18} />
               <span>Previous</span>
             </button>
 
             <button
-              onClick={() => setShowJumpDialog(true)}
+              onClick={() => {
+                setManualJumpInput(currentQuestionId.toString());
+                setShowJumpDialog(true);
+              }}
               className="learn-dock-btn learn-dock-btn--jump"
               title="Jump to question"
             >
-              <ListFilter size={18} />
+              <ListIcon size={18} />
               <span>Jump</span>
             </button>
 
             <button
               onClick={handleNextQuestion}
-              disabled={currentQuestionIndex === totalQ - 1}
               className="learn-dock-btn learn-dock-btn--next"
               title="Next question (→)"
             >
               <span>Next</span>
-              <ArrowRight size={18} />
+              <ArrowRightIcon size={18} />
             </button>
           </div>
         </div>
 
-        {/* Jump Dialog Modal */}
+        {/* Jump Dialog Modal (With Manual Input & Quick Shortcuts) */}
         {showJumpDialog && (
           <div className="learn-modal-backdrop" onClick={() => setShowJumpDialog(false)}>
             <div className="learn-apple-modal learn-jump-modal" onClick={(e) => e.stopPropagation()}>
               <div className="learn-modal-header">
                 <h3>Jump to Question</h3>
                 <button onClick={() => setShowJumpDialog(false)} className="learn-modal-close-btn">
-                  <X size={18} />
+                  <XIcon size={18} />
                 </button>
               </div>
-              <p className="learn-modal-sub">
-                Select any question in {activeQuizTopic.title} (1 to {totalQ}):
-              </p>
-              <div className="learn-jump-grid">
-                {Array.from({ length: totalQ }, (_, i) => {
-                  const qNum = i + 1;
-                  const isAnswered = selectedAnswers[i] !== undefined;
-                  const isCurrent = i === currentQuestionIndex;
-                  return (
+
+              <div className="learn-modal-body">
+                <label className="learn-input-label">Enter question number manually:</label>
+
+                <div className="learn-number-input-wrap">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const cur = parseInt(manualJumpInput, 10) || 1;
+                      if (cur > 1) setManualJumpInput((cur - 1).toString());
+                    }}
+                    className="learn-stepper-btn"
+                  >
+                    -
+                  </button>
+
+                  <input
+                    type="number"
+                    min="1"
+                    value={manualJumpInput}
+                    onChange={(e) => setManualJumpInput(e.target.value)}
+                    className="learn-number-input"
+                    placeholder="Enter Q#"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const cur = parseInt(manualJumpInput, 10) || 1;
+                      setManualJumpInput((cur + 1).toString());
+                    }}
+                    className="learn-stepper-btn"
+                  >
+                    +
+                  </button>
+                </div>
+
+                <div className="learn-presets-row" style={{ marginTop: 8 }}>
+                  {[1, 5, 10, 25, 50, 100, 200, 300, 400, 500].map((num) => (
                     <button
-                      key={i}
-                      onClick={() => {
-                        setCurrentQuestionIndex(i);
-                        setLastSolved(activeQuizTopic.slug, qNum);
-                        setShowJumpDialog(false);
-                      }}
-                      className={`learn-jump-item ${isCurrent ? "current" : ""} ${isAnswered ? "answered" : ""}`}
+                      key={num}
+                      type="button"
+                      onClick={() => setManualJumpInput(num.toString())}
+                      className={`learn-preset-chip ${manualJumpInput === num.toString() ? "active" : ""}`}
                     >
-                      {qNum}
+                      Q{num}
                     </button>
-                  );
-                })}
+                  ))}
+                </div>
+              </div>
+
+              <div className="learn-modal-footer">
+                <button
+                  type="button"
+                  onClick={() => setShowJumpDialog(false)}
+                  className="learn-apple-btn-secondary"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    let target = parseInt(manualJumpInput, 10);
+                    if (!Number.isFinite(target) || target < 1) target = 1;
+                    setCurrentQuestionId(target);
+                    setLastSolved(activeQuizTopic.slug, target);
+                    setShowJumpDialog(false);
+                  }}
+                  className="learn-apple-btn-primary"
+                  style={{ background: activeQuizTopic.gradient }}
+                >
+                  <span>Go to Question</span>
+                  <ArrowRightIcon size={14} />
+                </button>
               </div>
             </div>
           </div>
@@ -614,7 +802,7 @@ export default function LearnClient() {
               >
                 <div className="learn-rec-meta">
                   <span className="learn-type-pill learn-type-pill--update">
-                    <Sparkles size={11} />
+                    <SparklesIcon size={11} />
                     <span>Update</span>
                   </span>
                   <span className="learn-rec-date">{formatTime(update.createdAt)}</span>
@@ -639,7 +827,7 @@ export default function LearnClient() {
                     )}
                     <span className="learn-author-name">{update.name || update.usn || "Admin"}</span>
                   </div>
-                  <ChevronRight size={14} className="learn-rec-arrow" />
+                  <ChevronRightIcon size={14} className="learn-rec-arrow" />
                 </div>
               </Link>
             ))}
@@ -654,7 +842,7 @@ export default function LearnClient() {
               >
                 <div className="learn-rec-meta">
                   <span className="learn-type-pill learn-type-pill--resource">
-                    <BookOpen size={11} />
+                    <BookOpenIcon size={11} />
                     <span>Resource</span>
                   </span>
                   {res.subject && <span className="learn-subject-tag">{res.subject}</span>}
@@ -674,7 +862,7 @@ export default function LearnClient() {
                       {res.userName || res.usn || "Contributor"}
                     </span>
                   </div>
-                  <ChevronRight size={14} className="learn-rec-arrow" />
+                  <ChevronRightIcon size={14} className="learn-rec-arrow" />
                 </div>
               </Link>
             ))}
@@ -691,7 +879,7 @@ export default function LearnClient() {
         >
           <div className="learn-qd-left">
             <div className="learn-squircle-icon learn-qd-squircle">
-              <Zap size={24} color="#FFFFFF" />
+              <ZapIcon size={24} color="#FFFFFF" />
             </div>
 
             <div className="learn-qd-info">
@@ -708,7 +896,7 @@ export default function LearnClient() {
           <div className="learn-qd-right">
             <span className="learn-apple-pill-btn">
               <span>Launch QuizDeck</span>
-              <ChevronRight size={16} />
+              <ChevronRightIcon size={16} />
             </span>
           </div>
         </div>
@@ -726,7 +914,7 @@ export default function LearnClient() {
           >
             <div className="learn-accordion-header-left">
               <div className="learn-squircle-icon learn-lx-squircle">
-                <Award size={24} color="#FFFFFF" />
+                <PlayIcon size={24} color="#FFFFFF" />
               </div>
 
               <div className="learn-accordion-titles">
@@ -771,7 +959,7 @@ export default function LearnClient() {
                         </div>
 
                         <div className="learn-topic-meta-right">
-                          <span className="learn-topic-count-pill">{topic.totalQuestions} Questions</span>
+                          <span className="learn-topic-count-pill">{topic.questionsCount} Questions</span>
                           {lastSolved > 1 && (
                             <span className="learn-last-solved-pill" title="Last attempted question">
                               Resume Q#{lastSolved}
@@ -796,7 +984,7 @@ export default function LearnClient() {
                           className="learn-topic-play-btn"
                           style={{ backgroundColor: topic.color }}
                         >
-                          <Play size={13} fill="#FFFFFF" color="#FFFFFF" />
+                          <PlayIcon size={14} color="#FFFFFF" />
                         </div>
                       </div>
                     </div>
@@ -822,12 +1010,14 @@ export default function LearnClient() {
                 </div>
                 <div>
                   <h3>Start {modalTopic.title}</h3>
-                  <span className="learn-modal-track-label">{modalTopic.category} • {modalTopic.totalQuestions} Questions</span>
+                  <span className="learn-modal-track-label">
+                    {modalTopic.category} • {modalTopic.questionsCount} Questions
+                  </span>
                 </div>
               </div>
 
               <button onClick={() => setModalTopic(null)} className="learn-modal-close-btn">
-                <X size={18} />
+                <XIcon size={18} />
               </button>
             </div>
 
@@ -849,7 +1039,6 @@ export default function LearnClient() {
                 <input
                   type="number"
                   min="1"
-                  max={modalTopic.totalQuestions}
                   value={startingQuestionInput}
                   onChange={(e) => setStartingQuestionInput(e.target.value)}
                   className="learn-number-input"
@@ -860,9 +1049,7 @@ export default function LearnClient() {
                   type="button"
                   onClick={() => {
                     const current = parseInt(startingQuestionInput, 10) || 1;
-                    if (current < modalTopic.totalQuestions) {
-                      setStartingQuestionInput((current + 1).toString());
-                    }
+                    setStartingQuestionInput((current + 1).toString());
                   }}
                   className="learn-stepper-btn"
                 >
@@ -889,12 +1076,33 @@ export default function LearnClient() {
                     Question {lastSolvedNum} (Last Attempted)
                   </button>
                 )}
+                <button
+                  type="button"
+                  onClick={() => setStartingQuestionInput("10")}
+                  className={`learn-preset-chip ${startingQuestionInput === "10" ? "active" : ""}`}
+                >
+                  Q10
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStartingQuestionInput("50")}
+                  className={`learn-preset-chip ${startingQuestionInput === "50" ? "active" : ""}`}
+                >
+                  Q50
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStartingQuestionInput("100")}
+                  className={`learn-preset-chip ${startingQuestionInput === "100" ? "active" : ""}`}
+                >
+                  Q100
+                </button>
               </div>
 
               <p className="learn-modal-hint">
                 {lastSolvedNum > 1
-                  ? `Your last progress on this topic was Question #${lastSolvedNum}. It is pre-filled above, or you can pick any number between 1 and ${modalTopic.totalQuestions}.`
-                  : `By default, starts from Question #1. You can edit this field to any question between 1 and ${modalTopic.totalQuestions}.`}
+                  ? `Your last progress on this topic was Question #${lastSolvedNum}. It is pre-filled above, or you can pick any number.`
+                  : `By default, starts from Question #1. You can edit this field to any question number.`}
               </p>
             </div>
 
@@ -913,7 +1121,7 @@ export default function LearnClient() {
                 className="learn-apple-btn-primary"
                 style={{ background: modalTopic.gradient }}
               >
-                <Play size={14} fill="#FFFFFF" />
+                <PlayIcon size={14} color="#FFFFFF" />
                 <span>Start Quiz</span>
               </button>
             </div>
