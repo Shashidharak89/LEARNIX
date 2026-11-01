@@ -812,7 +812,7 @@ export default function LearnClient() {
             updates.map((update) => (
               <Link
                 key={update._id}
-                href={`/updates?id=${update._id}`}
+                href={`/updates/${update._id}`}
                 className="learn-apple-card learn-rec-card learn-update-card"
               >
                 <div className="learn-rec-meta">
@@ -852,7 +852,7 @@ export default function LearnClient() {
             resources.map((res) => (
               <Link
                 key={res._id}
-                href={`/resources?search=${encodeURIComponent(res.topic || "")}`}
+                href={`/resources/${res._id}`}
                 className="learn-apple-card learn-rec-card learn-resource-card"
               >
                 <div className="learn-rec-meta">
