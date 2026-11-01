@@ -1,0 +1,63 @@
+import dbmsData from "../quiz/data/dbms.json";
+import dcnData from "../quiz/data/dcn.json";
+import osData from "../quiz/data/os.json";
+import focData from "../quiz/data/foc.json";
+
+export const QUIZ_TOPICS = [
+  {
+    id: 1,
+    slug: "dbms",
+    title: "Database Management Systems",
+    shortTitle: "DBMS",
+    description: "Keys, normalization, relational algebra, SQL queries, transactions & ACID properties.",
+    category: "Databases",
+    color: "#007AFF",
+    gradient: "linear-gradient(135deg, #007AFF 0%, #0051C7 100%)",
+    bgSoft: "rgba(0, 122, 255, 0.1)",
+    questions: dbmsData.questions,
+    totalQuestions: dbmsData.questions.length,
+    icon: "Database",
+  },
+  {
+    id: 2,
+    slug: "dcn",
+    title: "Computer Networks & DCN",
+    shortTitle: "Networks",
+    description: "OSI & TCP/IP layers, IP addressing, routing protocols, switches, and transport layer.",
+    category: "Networking",
+    color: "#10B981",
+    gradient: "linear-gradient(135deg, #10B981 0%, #047857 100%)",
+    bgSoft: "rgba(16, 185, 129, 0.1)",
+    questions: dcnData.questions,
+    totalQuestions: dcnData.questions.length,
+    icon: "Network",
+  },
+  {
+    id: 3,
+    slug: "os",
+    title: "Operating Systems",
+    shortTitle: "OS",
+    description: "Processes, CPU scheduling, memory management, paging, deadlocks & system calls.",
+    category: "Systems",
+    color: "#F59E0B",
+    gradient: "linear-gradient(135deg, #F59E0B 0%, #D97706 100%)",
+    bgSoft: "rgba(245, 158, 11, 0.12)",
+    questions: osData.questions,
+    totalQuestions: osData.questions.length,
+    icon: "Cpu",
+  },
+  {
+    id: 4,
+    slug: "foc",
+    title: "Fundamentals of Computing",
+    shortTitle: "FOC",
+    description: "Basics of computing, number systems, computer architecture, logic gates & memory.",
+    category: "Fundamentals",
+    color: "#8B5CF6",
+    gradient: "linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)",
+    bgSoft: "rgba(139, 92, 246, 0.12)",
+    questions: focData.questions,
+    totalQuestions: focData.questions.length,
+    icon: "Layers",
+  },
+];
