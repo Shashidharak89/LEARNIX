@@ -3,7 +3,7 @@
 import React, { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { FiX } from "react-icons/fi";
+import { FiX, FiChevronDown } from "react-icons/fi";
 import { LayersIcon } from "./icons/LayersIcon";
 import { WrenchIcon } from "./icons/WrenchIcon";
 import {
@@ -14,9 +14,9 @@ import {
   BookOpenIcon,
   ClipboardIcon,
   BookmarkIcon,
-  UploadIcon,
   UserIcon,
   LogOutIcon,
+  SparklesIcon,
 } from "@animateicons/react/lucide";
 
 function SidebarLink({
@@ -65,6 +65,67 @@ function SidebarLink({
   );
 }
 
+function WorkspaceSidebarItem({ isOpen, onClose }) {
+  const iconRef = useRef(null);
+
+  const handleMouseEnter = () => {
+    iconRef.current?.startAnimation?.();
+  };
+
+  const handleMouseLeave = () => {
+    iconRef.current?.stopAnimation?.();
+  };
+
+  return (
+    <div
+      className="learnix-workspace-menu-group"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <Link
+        href="/workspace"
+        className="learnix-nav-item learnix-workspace-parent-link"
+        onClick={onClose}
+        tabIndex={isOpen ? 0 : -1}
+      >
+        <span className="learnix-nav-icon">
+          <LayersIcon ref={iconRef} size={18} />
+        </span>
+        <span className="learnix-nav-text">Workspace</span>
+        <span className="learnix-workspace-arrow">
+          <FiChevronDown size={15} />
+        </span>
+      </Link>
+
+      {/* Popdown Subitems: Manage Updates & Manage Resources */}
+      <div className="learnix-workspace-subitems">
+        <Link
+          href="/upload/updates"
+          className="learnix-workspace-subitem"
+          onClick={onClose}
+          tabIndex={isOpen ? 0 : -1}
+        >
+          <span className="learnix-subitem-icon">
+            <BellIcon size={14} />
+          </span>
+          <span className="learnix-subitem-text">Manage Updates</span>
+        </Link>
+        <Link
+          href="/resources/upload"
+          className="learnix-workspace-subitem"
+          onClick={onClose}
+          tabIndex={isOpen ? 0 : -1}
+        >
+          <span className="learnix-subitem-icon">
+            <FolderIcon size={14} />
+          </span>
+          <span className="learnix-subitem-text">Manage Resources</span>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 function SidebarButton({
   onClick,
   icon: Icon,
@@ -106,6 +167,8 @@ export default function AppSidebar({
   userRole,
   getLoginHref,
   handleSignout,
+  onMouseEnter,
+  onMouseLeave,
 }) {
   return (
     <>
@@ -122,6 +185,8 @@ export default function AppSidebar({
       <aside
         className={`learnix-navigation-sidebar ${isOpen ? "learnix-sidebar-active" : ""}`}
         aria-hidden={!isOpen}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
       >
         {/* Sidebar Header */}
         <div className="learnix-sidebar-top">
@@ -146,11 +211,17 @@ export default function AppSidebar({
 
         {/* Sidebar Navigation Items */}
         <nav className="learnix-sidebar-menu">
+          {/* Workspace - shown ONLY when user is logged in */}
+          {hasUSN && (
+            <WorkspaceSidebarItem isOpen={isOpen} onClose={onClose} />
+          )}
+
+          {/* Learn - ALWAYS visible */}
           <SidebarLink
-            href="/workspace"
+            href="/learn"
             onClick={onClose}
-            icon={LayersIcon}
-            text="Workspace"
+            icon={SparklesIcon}
+            text="Learn"
             tabIndex={isOpen ? 0 : -1}
           />
 
@@ -208,14 +279,6 @@ export default function AppSidebar({
           />
 
           <SidebarLink
-            href="/learn-later"
-            onClick={onClose}
-            icon={BookmarkIcon}
-            text="Learn Later"
-            tabIndex={isOpen ? 0 : -1}
-          />
-
-          <SidebarLink
             href="/learnix-code"
             onClick={onClose}
             logoSrc="/learnix-code-logo.png"
@@ -231,13 +294,16 @@ export default function AppSidebar({
             tabIndex={isOpen ? 0 : -1}
           />
 
+          {/* Learn Later - placed right below Tools */}
           <SidebarLink
-            href="/resources/upload"
+            href="/learn-later"
             onClick={onClose}
-            icon={UploadIcon}
-            text="Upload"
+            icon={BookmarkIcon}
+            text="Learn Later"
             tabIndex={isOpen ? 0 : -1}
           />
+
+          {/* Upload removed from sidebar */}
 
           <SidebarLink
             href="/profile"

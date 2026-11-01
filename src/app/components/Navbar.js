@@ -149,13 +149,46 @@ const NavbarContent = ({ searchParams }) => {
     return () => window.removeEventListener("scroll", onScroll);
   }, [isOpen]);
 
+  const hoverTimeoutRef = useRef(null);
+
   const toggleSidebar = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
     setIsOpen(!isOpen);
   };
 
   const closeSidebar = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
     setIsOpen(false);
   };
+
+  const handleMenuMouseEnter = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setIsOpen(true);
+  };
+
+  const handleMenuMouseLeave = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsOpen(false);
+    }, 220);
+  };
+
+  const handleSidebarMouseEnter = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+  };
+
+  const handleSidebarMouseLeave = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsOpen(false);
+    }, 220);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    };
+  }, []);
 
   const handleSignout = () => {
     signOutFromBrowser("You have been signed out.");
@@ -212,6 +245,8 @@ const NavbarContent = ({ searchParams }) => {
           <button
             className="learnix-menu-toggle-btn"
             onClick={toggleSidebar}
+            onMouseEnter={handleMenuMouseEnter}
+            onMouseLeave={handleMenuMouseLeave}
             aria-label="Toggle navigation menu"
             aria-expanded={isOpen}
           >
@@ -230,6 +265,8 @@ const NavbarContent = ({ searchParams }) => {
         userRole={userRole}
         getLoginHref={getLoginHref}
         handleSignout={handleSignout}
+        onMouseEnter={handleSidebarMouseEnter}
+        onMouseLeave={handleSidebarMouseLeave}
       />
     </>
   );

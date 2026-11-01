@@ -24,7 +24,7 @@ body.no-learnix-navbar-pad {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 1003;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -534,7 +534,7 @@ body.no-learnix-navbar-pad {
   width: 320px;
   background-color: #ffffff;
   box-shadow: -1px 0 8px rgba(15, 23, 42, 0.08);
-  z-index: 1002;
+  z-index: 1004;
   transform: translate3d(100%, 0, 0);
   transition: transform 0.2s ease-out;
   will-change: transform;
@@ -655,6 +655,103 @@ body.no-learnix-navbar-pad {
 
 .learnix-nav-admin .learnix-nav-icon {
   color: #7c3aed;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Workspace Menu Item with Hover Popdown (Manage Updates & Manage Resources)
+   ───────────────────────────────────────────────────────────────────────── */
+.learnix-workspace-menu-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.375rem;
+  border-radius: 8px;
+  transition: background-color 0.18s ease;
+}
+
+.learnix-workspace-parent-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 0 !important;
+}
+
+.learnix-workspace-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), color 0.18s ease;
+  margin-left: auto;
+}
+
+.learnix-workspace-menu-group:hover .learnix-workspace-arrow {
+  transform: rotate(-180deg);
+  color: #2563eb;
+}
+
+.learnix-workspace-parent-link:hover .learnix-workspace-arrow {
+  color: #ffffff;
+}
+
+/* Popdown sub-items container */
+.learnix-workspace-subitems {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease, padding 0.22s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-left: 28px;
+  padding-right: 6px;
+}
+
+.learnix-workspace-menu-group:hover .learnix-workspace-subitems {
+  max-height: 120px;
+  opacity: 1;
+  padding-top: 4px;
+  padding-bottom: 6px;
+}
+
+/* Individual sub-item link */
+.learnix-workspace-subitem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: #475569;
+  text-decoration: none;
+  border-radius: 6px;
+  background-color: #f8fafc;
+  border: 1px solid #f1f5f9;
+  transition: all 0.18s ease;
+}
+
+.learnix-workspace-subitem:hover {
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+  color: #2563eb;
+  transform: translateX(3px);
+}
+
+.learnix-subitem-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  flex-shrink: 0;
+  transition: color 0.16s ease;
+}
+
+.learnix-workspace-subitem:hover .learnix-subitem-icon {
+  color: #2563eb;
+}
+
+.learnix-subitem-text {
+  flex: 1;
 }
 
 /* Responsive Design */
