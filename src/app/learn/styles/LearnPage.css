@@ -6,7 +6,7 @@
 
 :root {
   --lp-font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --lp-bg: #f8fafc;
+  --lp-bg: #ffffff;
   --lp-card-bg: #ffffff;
   --lp-card-bg-elevated: #ffffff;
   --lp-border: #e2e8f0;
@@ -73,7 +73,7 @@
 .learnix-page-shell {
   min-height: 100vh;
   width: 100%;
-  background: var(--lp-bg);
+  background: #ffffff;
   box-sizing: border-box;
   overflow-x: clip;
 }
@@ -85,6 +85,7 @@
   padding: 24px 0 0;
   font-family: var(--lp-font);
   color: var(--lp-text);
+  background: #ffffff;
   box-sizing: border-box;
 }
 
@@ -125,7 +126,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  background: linear-gradient(135deg, var(--lp-card-bg) 0%, rgba(0, 122, 255, 0.03) 100%);
+  background: #ffffff;
 }
 
 .learn-hero-content {
@@ -474,7 +475,7 @@
   justify-content: space-between;
   gap: 20px;
   cursor: pointer;
-  background: linear-gradient(135deg, var(--lp-card-bg) 0%, rgba(0, 122, 255, 0.04) 100%);
+  background: #ffffff;
   border: 1px solid var(--lp-border);
 }
 
@@ -722,12 +723,12 @@
 .learn-accordion-body {
   padding: 0 24px 24px;
   border-top: 1px solid var(--lp-border);
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.5) 0%, var(--lp-card-bg) 100%);
+  background: #ffffff;
 }
 
 [data-theme="dark"] .learn-accordion-body,
 .dark .learn-accordion-body {
-  background: linear-gradient(180deg, rgba(12, 16, 23, 0.9) 0%, var(--lp-card-bg) 100%);
+  background: #0c1017;
 }
 
 .learn-topics-grid {
@@ -1271,6 +1272,34 @@
   height: 1px;
   background: var(--lp-border);
   margin-bottom: 20px;
+}
+
+/* Question Diagram / Image Box */
+.learn-q-image-box {
+  width: 100%;
+  max-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0 20px;
+  padding: 12px;
+  border-radius: var(--lp-radius-md);
+  border: 1px solid var(--lp-border);
+  background: #ffffff;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .learn-q-image-box,
+.dark .learn-q-image-box {
+  background: #0f141c;
+}
+
+.learn-q-image {
+  max-width: 100%;
+  max-height: 296px;
+  object-fit: contain;
+  border-radius: 8px;
+  display: block;
 }
 
 /* Options */

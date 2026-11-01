@@ -78,10 +78,12 @@ async function fetchFirestoreQuestion(collectionName, qId) {
     const explanation = fields.explanation?.stringValue || "";
     const category = fields.category?.stringValue || fields.topic?.stringValue || "";
     const difficulty = fields.difficulty?.stringValue || "";
+    const imageUrl = fields.imageUrl?.stringValue || fields.image?.stringValue || null;
 
     return {
       id: qId,
       question: questionText,
+      imageUrl,
       options: [optionA, optionB, optionC, optionD],
       answerIndex,
       explanation,
@@ -215,6 +217,7 @@ export default function LearnClient() {
           fetched = {
             id: currentQuestionId,
             question: localQ.question,
+            imageUrl: localQ.imageUrl || localQ.image || null,
             options: localQ.options,
             answerIndex: localQ.answerIndex,
             explanation: localQ.explanation || "",
@@ -537,6 +540,18 @@ export default function LearnClient() {
                   </span>
                   <h2 className="learn-q-text">{currentQuestionData.question}</h2>
                 </div>
+
+                {/* Question Image (if available) */}
+                {currentQuestionData.imageUrl && (
+                  <div className="learn-q-image-box">
+                    <img
+                      src={currentQuestionData.imageUrl}
+                      alt={`Question #${currentQuestionId} illustration`}
+                      className="learn-q-image"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
 
                 <div className="learn-q-divider" />
 
