@@ -12,7 +12,7 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url);
     const collection = searchParams.get("collection") || "resources";
 
-    const allowed = ["resources", "study-materials", "updates", "users"];
+    const allowed = ["resources", "study-materials", "updates", "users", "searches"];
     if (!allowed.includes(collection)) {
       return NextResponse.json(
         { error: `Invalid collection: ${collection}. Must be one of: ${allowed.join(", ")}` },

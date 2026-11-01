@@ -9,6 +9,7 @@ import {
   scoreAndTagUpdate,
   getQueryWords,
 } from "@/lib/searchHelper";
+import { recordSearchEvent } from "@/lib/searchTracker";
 
 export async function GET(req) {
   try {
@@ -40,6 +41,7 @@ export async function GET(req) {
 
     // ── SEARCH MODE ─────────────────────────────────────────────────────────────
     if (rawQuery) {
+      recordSearchEvent(rawQuery, "updates", req);
       const searchConditions = await buildUpdateKeywordConditions(rawQuery);
       const updateQuery = {
         $and: [

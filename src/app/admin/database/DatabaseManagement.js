@@ -19,7 +19,8 @@ import {
   FiCode,
   FiCopy,
   FiCheck,
-  FiLayers
+  FiLayers,
+  FiSearch
 } from "react-icons/fi";
 import { exportDatabaseViaWebSocket } from "@/lib/databaseWsExporter";
 import { DATABASE_SCHEMAS, getCopyableSchemaJSON, getCopyableHeadersCSV } from "@/lib/databaseSchemas";
@@ -77,6 +78,19 @@ const COLLECTIONS_CONFIG = [
     borderColor: "#a7f3d0",
     columnsCount: DATABASE_SCHEMAS.users.headers.length,
     previewColumns: ["name", "usn", "email", "total_subjects", "total_updates"]
+  },
+  {
+    id: "searches",
+    title: "Searches",
+    shortName: "Searches",
+    badge: "Searches",
+    badgeClass: "badge-amber",
+    icon: <FiSearch size={24} />,
+    color: "#f59e0b",
+    bgColor: "#fffbeb",
+    borderColor: "#fde68a",
+    columnsCount: DATABASE_SCHEMAS.searches.headers.length,
+    previewColumns: ["search_keyword", "search_source", "user_id", "user_usn", "search_datetime_iso"]
   }
 ];
 
@@ -354,7 +368,7 @@ export default function DatabaseManagement() {
             className="dbm-export-all-btn"
           >
             <FiDownload size={18} />
-            <span>Download All 4 Collections</span>
+            <span>Download All 5 Collections</span>
           </button>
         </div>
       </header>
@@ -414,6 +428,19 @@ export default function DatabaseManagement() {
               {loadingStats ? "..." : stats?.usersCount ?? 0}
             </div>
             <span className="dbm-stat-sub">Accounts tracked with upload metrics</span>
+          </div>
+        </div>
+
+        <div className="dbm-stat-card">
+          <div className="dbm-stat-icon-wrap" style={{ background: "#fffbeb", color: "#f59e0b" }}>
+            <FiSearch size={22} />
+          </div>
+          <div className="dbm-stat-info">
+            <span className="dbm-stat-label">Searches</span>
+            <div className="dbm-stat-number">
+              {loadingStats ? "..." : stats?.searchesCount ?? 0}
+            </div>
+            <span className="dbm-stat-sub">Tracked queries in DynamoDB across all sources</span>
           </div>
         </div>
       </section>

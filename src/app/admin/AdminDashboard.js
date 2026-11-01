@@ -12,6 +12,7 @@ import {
   FiTool,
   FiCode,
   FiDatabase,
+  FiSearch,
 } from "react-icons/fi";
 import { MdAdminPanelSettings, MdOutlineSupervisorAccount } from "react-icons/md";
 import "./styles/AdminDashboard.css";
@@ -185,7 +186,16 @@ export default function AdminDashboard() {
           <span className="adm-quick-btn-icon" style={{ background: '#dbeafe', color: '#2563eb' }}><FiDatabase size={20} /></span>
           <div className="adm-quick-btn-text">
             <span className="adm-quick-btn-label">Database Management</span>
-            <span className="adm-quick-btn-sub">Download CSVs with WebSocket progress (Resources, Study Materials, Updates &amp; Users)</span>
+            <span className="adm-quick-btn-sub">Download CSVs with WebSocket progress (Resources, Study Materials, Updates, Users &amp; Searches)</span>
+          </div>
+          <FiArrowRight size={18} className="adm-quick-btn-arrow" />
+        </Link>
+
+        <Link href="/admin/searches" className="adm-quick-btn" style={{ background: 'rgba(234, 179, 8, 0.1)', borderColor: 'rgba(234, 179, 8, 0.25)' }}>
+          <span className="adm-quick-btn-icon" style={{ background: '#fef9c3', color: '#ca8a04' }}><FiSearch size={20} /></span>
+          <div className="adm-quick-btn-text">
+            <span className="adm-quick-btn-label">Searches</span>
+            <span className="adm-quick-btn-sub">Tracked keywords, sources &amp; users from DynamoDB</span>
           </div>
           <FiArrowRight size={18} className="adm-quick-btn-arrow" />
         </Link>

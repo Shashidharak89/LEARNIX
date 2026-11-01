@@ -18,6 +18,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
+import { authFetch } from "@/lib/clientAuth";
 import "./styles/Footer.css";
 import "./styles/HeroSearch.css";
 
@@ -190,7 +191,7 @@ export default function HeroSearch() {
     }
 
     try {
-      const res = await fetch(`/api/hero-search?q=${encodeURIComponent(finalQ)}`);
+      const res = await authFetch(`/api/hero-search?q=${encodeURIComponent(finalQ)}&from=home`);
       if (!res.ok) throw new Error("Search failed");
       const data = await res.json();
       setResults(data);

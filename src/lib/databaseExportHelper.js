@@ -12,6 +12,7 @@ import SMBatch from "@/models/SMBatch";
 import Update from "@/models/Update";
 import Work from "@/models/Work";
 import { DATABASE_SCHEMAS } from "@/lib/databaseSchemas";
+import { getAllSearchesForExport } from "@/lib/searchTracker";
 
 /**
  * Filter that matches all documents with public visibility:
@@ -66,14 +67,16 @@ export async function getDatabaseStats() {
     studyMaterialsCount,
     smSubjectsCount,
     publicUpdatesCount,
-    usersCount
+    usersCount,
+    searchesCount
   ] = await Promise.all([
     Topic.countDocuments(PUBLIC_VISIBILITY_FILTER).catch(() => 0),
     Subject.countDocuments(PUBLIC_VISIBILITY_FILTER).catch(() => 0),
     SMFiles.countDocuments({}).catch(() => 0),
     SMSubject.countDocuments({}).catch(() => 0),
     Update.countDocuments(PUBLIC_VISIBILITY_FILTER).catch(() => 0),
-    User.countDocuments({}).catch(() => 0)
+    User.countDocuments({}).catch(() => 0),
+    getAllSearchesForExport().then((items) => items.length).catch(() => 0)
   ]);
 
   return {
@@ -84,6 +87,7 @@ export async function getDatabaseStats() {
     smSubjectsCount,
     publicUpdatesCount,
     usersCount,
+    searchesCount,
     timestamp: new Date().toISOString()
   };
 }
@@ -770,7 +774,60 @@ export async function buildUsersCSV(onProgress = () => {}) {
 }
 
 /**
- * 5. Master export function dispatching by collection name
+ * 5. Export Searches Data from DynamoDB
+ * Exports all search query logs with keyword, source, user identity, timestamps, and IP.
+ */
+export async function buildSearchesCSV(onProgress = () => {}) {
+  onProgress({ percent: 10, processed: 0, total: 100, status: "Retrieving search logs from DynamoDB..." });
+
+  const searches = await getAllSearchesForExport();
+  const total = searches.length;
+  onProgress({ percent: 35, processed: 0, total, status: `Fetched ${total} search records. Building CSV...` });
+
+  const headers = DATABASE_SCHEMAS.searches.headers;
+  const rows = [headers.join(",")];
+
+  let processedCount = 0;
+  for (let i = 0; i < searches.length; i++) {
+    const s = searches[i];
+    const row = [
+      escapeCSV(s.id),
+      escapeCSV(s.keyword),
+      escapeCSV(s.source),
+      escapeCSV(s.userId || ""),
+      escapeCSV(s.usn || ""),
+      escapeCSV(s.userEmail || ""),
+      escapeCSV(s.timestamp || ""),
+      escapeCSV(s.createdAt || ""),
+      escapeCSV(s.ip || ""),
+      escapeCSV(s.userAgent || "")
+    ];
+    rows.push(row.join(","));
+    processedCount++;
+
+    if (processedCount % 50 === 0 || processedCount === total) {
+      const pct = Math.min(94, 35 + Math.round((processedCount / (total || 1)) * 58));
+      onProgress({ percent: pct, processed: processedCount, total, status: `Formatting search records (${processedCount}/${total})...` });
+    }
+  }
+
+  onProgress({ percent: 98, processed: rows.length - 1, total: rows.length - 1, status: "Finalizing searches CSV..." });
+
+  const csvContent = rows.join("\r\n");
+  const filename = "Searches.csv";
+
+  onProgress({ percent: 100, processed: rows.length - 1, total: rows.length - 1, status: "Complete" });
+
+  return {
+    filename,
+    csvContent,
+    rowCount: rows.length - 1,
+    sizeBytes: Buffer.byteLength(csvContent, "utf8")
+  };
+}
+
+/**
+ * 6. Master export function dispatching by collection name
  */
 export async function generateCollectionCSV(collectionType, onProgress = () => {}) {
   switch (collectionType) {
@@ -782,6 +839,8 @@ export async function generateCollectionCSV(collectionType, onProgress = () => {
       return buildUpdatesCSV(onProgress);
     case "users":
       return buildUsersCSV(onProgress);
+    case "searches":
+      return buildSearchesCSV(onProgress);
     default:
       throw new Error(`Unknown export collection type: "${collectionType}"`);
   }

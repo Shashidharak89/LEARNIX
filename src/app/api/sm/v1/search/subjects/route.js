@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import SMSubject from "@/models/SMSubject";
 import SMCourse from "@/models/SMCourse";
 import SMCollege from "@/models/SMCollege";
+import { recordSearchEvent } from "@/lib/searchTracker";
 
 export async function GET(req) {
     try {
@@ -14,6 +15,9 @@ export async function GET(req) {
         const skip = (page - 1) * limit;
 
         const rawQuery = q.trim();
+        if (rawQuery) {
+            recordSearchEvent(rawQuery, "study-materials", req);
+        }
         const cleanQuery = rawQuery.toLowerCase();
         const words = cleanQuery.split(/\s+/).filter(Boolean);
 

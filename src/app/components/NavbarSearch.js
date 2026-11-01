@@ -13,6 +13,7 @@ import {
   FiDownload,
   FiZap,
 } from "react-icons/fi";
+import { authFetch } from "@/lib/clientAuth";
 import "./styles/NavbarSearch.css";
 
 const CATEGORIES = [
@@ -159,7 +160,7 @@ export default function NavbarSearch() {
     setActiveTab("all");
 
     // 1. Asynchronous Direct Search
-    fetch(`/api/hero-search?q=${encodeURIComponent(cleanQ)}`)
+    authFetch(`/api/hero-search?q=${encodeURIComponent(cleanQ)}&from=navbar`)
       .then(async (res) => {
         if (!res.ok) throw new Error("Direct search failed");
         const data = await res.json();

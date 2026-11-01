@@ -7,6 +7,7 @@ import RequestMetric from "@/models/RequestMetric";
 import { buildKeywordConditions, scoreAndTagTopic, getQueryWords } from "@/lib/searchHelper";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
 import { recordResourceViews } from "@/lib/interactions";
+import { recordSearchEvent } from "@/lib/searchTracker";
 
 export const dynamic = "force-dynamic";
 
@@ -54,6 +55,7 @@ export async function GET(req) {
 
     // If search term provided
     if (search) {
+      recordSearchEvent(search, "resources", req);
       const orConditions = await buildKeywordConditions(search);
       if (orConditions.length > 0) {
         queryConditions.push({ $or: orConditions });

@@ -6,6 +6,7 @@ import Topic from "@/models/Topic";
 import { buildKeywordConditions } from "@/lib/searchHelper";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
 import { recordResourceViews } from "@/lib/interactions";
+import { recordSearchEvent } from "@/lib/searchTracker";
 
 // GET /api/work/search?q=keyword&page=1&pageSize=8&subjects=sub1,sub2&topics=topic1,topic2
 export const GET = async (req) => {
@@ -41,6 +42,7 @@ export const GET = async (req) => {
 
     // Keyword search — topic name, content, subject, username, USN, _id, date
     if (q) {
+      recordSearchEvent(q, "resources", req);
       const orConditions = await buildKeywordConditions(q);
       if (orConditions.length > 0) {
         queryConditions.push({ $or: orConditions });

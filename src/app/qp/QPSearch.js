@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FiSearch, FiFileText, FiArrowUpRight, FiInbox, FiX } from "react-icons/fi";
+import { authFetch } from "@/lib/clientAuth";
 import "./styles/QPSearch.css";
 
 const highlightText = (text, keyword) => {
@@ -73,7 +74,7 @@ function QPSearchContent() {
                 ? `/api/qp/v1/search/subjects?q=${encodeURIComponent(searchQuery.trim())}&page=${pageNum}&limit=10`
                 : `/api/qp/v1/subjects?page=${pageNum}&limit=10`;
 
-            const res = await fetch(endpoint);
+            const res = await authFetch(endpoint);
             const json = await res.json();
 
             if (json.success) {

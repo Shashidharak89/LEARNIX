@@ -4,6 +4,7 @@ import SMUniversity from "@/models/SMUniversity";
 import SMCollege from "@/models/SMCollege";
 import SMCourse from "@/models/SMCourse";
 import SMSubject from "@/models/SMSubject";
+import { recordSearchEvent } from "@/lib/searchTracker";
 
 const searchConfigs = [
     { model: SMUniversity, name: "university", fields: ["name", "city", "district"] },
@@ -23,6 +24,9 @@ export async function GET(req) {
         const skip = (page - 1) * limit;
 
         const rawQuery = q.trim();
+        if (rawQuery) {
+            recordSearchEvent(rawQuery, "study-materials", req);
+        }
         const cleanQuery = rawQuery.toLowerCase();
         const words = cleanQuery.split(/\s+/).filter(Boolean);
         if (words.length === 0) {

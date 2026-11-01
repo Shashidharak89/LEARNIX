@@ -543,6 +543,12 @@
   border: 1px solid #a7f3d0;
 }
 
+.badge-amber {
+  background: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fde68a;
+}
+
 .dbm-card-title {
   font-size: 1.15rem;
   font-weight: 700;

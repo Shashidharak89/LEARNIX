@@ -28,6 +28,7 @@ import YouTubeEmbed from '../components/YouTubeEmbed';
 import FileIcon from '../components/FileIcon';
 import ExpandableDescription from '../components/ExpandableDescription';
 import { toggleLearnLaterClient } from '@/lib/clientLearnLater';
+import { authFetch } from '@/lib/clientAuth';
 import './styles/Updates.css';
 
 function useIsLargeScreen() {
@@ -824,7 +825,7 @@ export default function UpdatesPage({ initialUpdateId }) {
         urlParams.set('id', sharedUpdateId);
       }
 
-      const res = await fetch(`/api/updates?${urlParams.toString()}`);
+      const res = await authFetch(`/api/updates?${urlParams.toString()}`);
       if (!res.ok) throw new Error('Failed to fetch updates');
       const data = await res.json();
       if (Array.isArray(data.updates)) {

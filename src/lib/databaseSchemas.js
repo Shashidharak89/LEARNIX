@@ -345,6 +345,37 @@ export const DATABASE_SCHEMAS = {
       { name: "combined_total_uploads", type: "Number", sourceModel: "Calculated", description: "Sum of subjects + topics + updates authored" },
       { name: "uploads_summary_json", type: "JSON", sourceModel: "Calculated", description: "Structured JSON breakdown of user's upload footprint" }
     ]
+  },
+  searches: {
+    id: "searches",
+    title: "Searches",
+    filename: "Searches.csv",
+    entity: "Search Event Records in DynamoDB",
+    description: "Export of all keyword search queries logged across Navbar, Home Screen, Study Materials, Question Papers, Updates, and Resources, with user identity and network metadata.",
+    headers: [
+      "search_id",
+      "search_keyword",
+      "search_source",
+      "user_id",
+      "user_usn",
+      "user_email",
+      "search_timestamp",
+      "search_datetime_iso",
+      "client_ip",
+      "client_user_agent"
+    ],
+    attributes: [
+      { name: "search_id", type: "String", sourceModel: "LearnixSearches.id", description: "Unique identifier of the search query record" },
+      { name: "search_keyword", type: "String", sourceModel: "LearnixSearches.keyword", description: "Search query text submitted by the user" },
+      { name: "search_source", type: "String", sourceModel: "LearnixSearches.source", description: "Origin component (navbar, home, study-materials, question-papers, updates, resources)" },
+      { name: "user_id", type: "String", sourceModel: "LearnixSearches.userId", description: "Authenticated User MongoDB ID (or null/empty if guest)" },
+      { name: "user_usn", type: "String", sourceModel: "LearnixSearches.usn", description: "Student USN if logged in" },
+      { name: "user_email", type: "String", sourceModel: "LearnixSearches.userEmail", description: "User email address if present in session" },
+      { name: "search_timestamp", type: "Number", sourceModel: "LearnixSearches.timestamp", description: "Unix epoch timestamp in milliseconds" },
+      { name: "search_datetime_iso", type: "String", sourceModel: "LearnixSearches.createdAt", description: "ISO 8601 formatted UTC timestamp" },
+      { name: "client_ip", type: "String", sourceModel: "LearnixSearches.ip", description: "Client IP address from proxy/real IP headers" },
+      { name: "client_user_agent", type: "String", sourceModel: "LearnixSearches.userAgent", description: "Truncated client browser User-Agent header" }
+    ]
   }
 };
 

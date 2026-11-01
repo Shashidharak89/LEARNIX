@@ -18,6 +18,7 @@ import {
     LayersIcon
 } from "@animateicons/react/lucide";
 import { toggleLearnLaterClient } from "@/lib/clientLearnLater";
+import { authFetch } from "@/lib/clientAuth";
 
 const highlightText = (text, keyword) => {
     if (!keyword || !text) return <span>{text}</span>;
@@ -405,7 +406,7 @@ export default function SMSearchResults({ searchQuery, onClearSearch, onShareFil
 
         try {
             const cat = categories.find(c => c.id === catId);
-            const res = await fetch(`${cat.endpoint}?q=${encodeURIComponent(searchQuery)}&page=${pageNum}&limit=20`);
+            const res = await authFetch(`${cat.endpoint}?q=${encodeURIComponent(searchQuery)}&page=${pageNum}&limit=20`);
             const json = await res.json();
 
             if (json.success) {

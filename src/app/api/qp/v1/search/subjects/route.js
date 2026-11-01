@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import QPSubjects from "@/models/QPSubjects";
+import { recordSearchEvent } from "@/lib/searchTracker";
 
 export async function GET(req) {
     try {
@@ -10,6 +11,11 @@ export async function GET(req) {
         const page = parseInt(url.searchParams.get("page")) || 1;
         const limit = parseInt(url.searchParams.get("limit")) || 10;
         const skip = (page - 1) * limit;
+
+        const rawQuery = q.trim();
+        if (rawQuery) {
+            recordSearchEvent(rawQuery, "question-papers", req);
+        }
 
         const words = q.toLowerCase().trim().split(/\s+/).filter(Boolean);
         let query = {};

@@ -5,6 +5,7 @@ import Update from "@/models/Update";
 import QPSubjects from "@/models/QPSubjects";
 import materialsData from "@/app/materials/materialsData";
 import { listQuestionPapers } from "@/app/api/question-papers/store";
+import { recordSearchEvent } from "@/lib/searchTracker";
 
 const PAGES = [
   { name: "Resources & Notes", href: "/resources", icon: "FiFolder", keywords: ["resource", "resources", "work", "works", "note", "notes", "topic", "subject"] },
@@ -27,6 +28,28 @@ export async function GET(req) {
         questionPapers: { count: 0, items: [] },
         pages: [],
       });
+    }
+
+    // Record search event asynchronously without blocking
+    try {
+      const fromParam = searchParams.get("from");
+      let searchSource = "home";
+      if (fromParam === "navbar") {
+        searchSource = "navbar";
+      } else if (fromParam === "home") {
+        searchSource = "home";
+      } else {
+        const referer = req.headers?.get?.("referer") || "";
+        try {
+          const refUrl = new URL(referer);
+          searchSource = refUrl.pathname === "/" || refUrl.pathname === "" ? "home" : "navbar";
+        } catch {
+          searchSource = "home";
+        }
+      }
+      recordSearchEvent(q, searchSource, req);
+    } catch (err) {
+      // non-blocking
     }
 
     // Split search query into keywords by spaces

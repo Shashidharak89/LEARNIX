@@ -4,6 +4,7 @@ import QPUniversities from "@/models/QPUniversities";
 import QPColleges from "@/models/QPColleges";
 import QPCourse from "@/models/QPCourse";
 import QPSubjects from "@/models/QPSubjects";
+import { recordSearchEvent } from "@/lib/searchTracker";
 
 const searchConfigs = [
     { model: QPUniversities, name: "university", fields: ["name", "city", "state", "district"] },
@@ -21,6 +22,11 @@ export async function GET(req) {
         const page = parseInt(url.searchParams.get("page")) || 1;
         const limit = parseInt(url.searchParams.get("limit")) || 20;
         const skip = (page - 1) * limit;
+
+        const rawQuery = q.trim();
+        if (rawQuery) {
+            recordSearchEvent(rawQuery, "question-papers", req);
+        }
 
         const words = q.toLowerCase().trim().split(/\s+/).filter(Boolean);
         if (words.length === 0) {
