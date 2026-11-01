@@ -13,8 +13,20 @@ import {
   FiDownload,
   FiZap,
 } from "react-icons/fi";
+import { SparklesIcon } from "@animateicons/react/lucide";
 import { authFetch } from "@/lib/clientAuth";
 import "./styles/NavbarSearch.css";
+
+const SEARCH_PROMPTS = [
+  "Search notes, papers & syllabus...",
+  "Find DBMS, OS, Computer Networks topics...",
+  "Search question papers by semester...",
+  "Explore curated campus updates & resources...",
+  "Search algorithms, coding & tech quizzes...",
+  "Search any subject, module or author...",
+  "Looking for previous semester exam papers?",
+  "Find study materials by branch & year..."
+];
 
 const CATEGORIES = [
   { key: "works", label: "Resources", icon: FiFolder, href: "/resources" },
@@ -141,6 +153,45 @@ export default function NavbarSearch() {
 
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isMobileInputOpen, setIsMobileInputOpen] = useState(false);
+
+  // Dynamic typing & deleting placeholder animation
+  const [placeholderText, setPlaceholderText] = useState("");
+  useEffect(() => {
+    let promptIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let timeoutId;
+
+    const tick = () => {
+      const fullText = SEARCH_PROMPTS[promptIndex % SEARCH_PROMPTS.length];
+
+      if (!isDeleting) {
+        charIndex++;
+        setPlaceholderText(fullText.slice(0, charIndex));
+
+        if (charIndex >= fullText.length) {
+          isDeleting = true;
+          timeoutId = setTimeout(tick, 2400); // pause at full text
+          return;
+        }
+        timeoutId = setTimeout(tick, 50); // typing speed
+      } else {
+        charIndex--;
+        setPlaceholderText(fullText.slice(0, charIndex));
+
+        if (charIndex <= 0) {
+          isDeleting = false;
+          promptIndex++;
+          timeoutId = setTimeout(tick, 400); // pause before starting next
+          return;
+        }
+        timeoutId = setTimeout(tick, 25); // backspacing speed
+      }
+    };
+
+    timeoutId = setTimeout(tick, 400);
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   const inputRef = useRef(null);
   const mobileInputRef = useRef(null);
@@ -376,12 +427,14 @@ export default function NavbarSearch() {
     <div className="lnx-nav-search-root" ref={containerRef}>
       {/* Desktop Search Form (Navbar header) */}
       <form className="lnx-nav-search-form-desktop" onSubmit={handleSubmit}>
-        <FiSearch className="lnx-nav-search-icon" />
+        <div className="lnx-nav-search-ai-icon-wrap" title="Smart Search">
+          <SparklesIcon size={17} color="#9333ea" />
+        </div>
         <input
           ref={inputRef}
           type="text"
           className="lnx-nav-search-input"
-          placeholder="Smart Search..."
+          placeholder={placeholderText || "Search notes, question papers, syllabus..."}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           aria-label="Smart Search"
@@ -427,12 +480,14 @@ export default function NavbarSearch() {
       {isMobileInputOpen && (
         <div className="lnx-nav-search-mobile-bar-wrap">
           <form className="lnx-nav-search-form-mobile" onSubmit={handleSubmit}>
-            <FiSearch className="lnx-nav-search-icon" />
+            <div className="lnx-nav-search-ai-icon-wrap" title="Smart Search">
+              <SparklesIcon size={17} color="#9333ea" />
+            </div>
             <input
               ref={mobileInputRef}
               type="text"
               className="lnx-nav-search-input"
-              placeholder="Smart Search..."
+              placeholder={placeholderText || "Search notes, question papers, syllabus..."}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               aria-label="Smart Search"

@@ -118,6 +118,14 @@ body.no-learnix-navbar-pad {
   gap: 12px;
 }
 
+@media (min-width: 861px) {
+  .learnix-navbar-right {
+    flex: 1;
+    justify-content: flex-end;
+    gap: 16px;
+  }
+}
+
 .learnix-chat-btn {
   display: flex;
   align-items: center;
