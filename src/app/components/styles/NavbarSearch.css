@@ -3,133 +3,67 @@
    Theme: Royal Blue + Amber Yellow, no gradients, clean & standard
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── Keyframe Animations for Always-On Purple AI Aura ────────────────────── */
-@keyframes lnxAiBorderFlow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes lnxAiPulseGlow {
-  0%, 100% {
-    box-shadow:
-      0 0 16px -2px rgba(168, 85, 247, 0.45),
-      0 2px 8px rgba(147, 51, 234, 0.2),
-      inset 0 0 10px rgba(192, 132, 252, 0.12);
-  }
-  50% {
-    box-shadow:
-      0 0 28px 4px rgba(192, 132, 252, 0.72),
-      0 4px 16px rgba(168, 85, 247, 0.35),
-      inset 0 0 14px rgba(216, 180, 254, 0.22);
-  }
-}
-
-@keyframes lnxAiIconFloat {
-  0%, 100% {
-    transform: scale(1) rotate(0deg);
-  }
-  50% {
-    transform: scale(1.1) rotate(8deg);
-  }
-}
-
 /* ── Root container ─────────────────────────────────────────────────────── */
 .lnx-nav-search-root {
   position: relative;
   display: flex;
   align-items: center;
-  transition: width 0.3s ease;
-}
-
-/* On large screens: Search bar expands to half of the navbar width */
-@media (min-width: 861px) {
-  .lnx-nav-search-root {
-    width: clamp(380px, 50vw, 780px);
-    max-width: 100%;
-  }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   Desktop: Pill search bar always visible, glowing with always-on purple AI theme
+   Desktop: Pill search bar with generous fixed width (440px / 480px)
+   and bold purple border
    ───────────────────────────────────────────────────────────────────────── */
 .lnx-nav-search-form-desktop {
   position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 42px;
+  height: 40px;
   border-radius: 999px;
-  padding: 0 6px 0 12px;
-  width: 100% !important;
+  padding: 0 6px 0 14px;
+  width: 420px;
+  max-width: 100%;
   background: #ffffff;
-  animation: lnxAiPulseGlow 3.5s ease-in-out infinite;
-  transition: box-shadow 0.25s ease, transform 0.22s ease;
-  z-index: 1;
+  border: 2px solid #7c3aed;
+  box-shadow: none;
+  transition: width 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease, background 0.2s ease;
 }
 
-/* Continuous animated moving purple-violet gradient border */
-.lnx-nav-search-form-desktop::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    #9333ea,
-    #c084fc,
-    #e879f9,
-    #818cf8,
-    #a855f7,
-    #c084fc,
-    #9333ea
-  );
-  background-size: 300% 100%;
-  animation: lnxAiBorderFlow 4s linear infinite;
-  z-index: -2;
+.lnx-nav-search-form-desktop:hover {
+  border-color: #6d28d9;
 }
 
-/* Inner crisp white mask with subtle radiant purple sheen */
-.lnx-nav-search-form-desktop::after {
-  content: "";
-  position: absolute;
-  inset: 1px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%);
-  z-index: -1;
-  transition: background 0.2s ease;
-}
-
+/* Extends a little wider when clicked / focused */
 .lnx-nav-search-form-desktop:focus-within {
-  transform: translateY(-1px);
-  box-shadow:
-    0 0 34px 5px rgba(168, 85, 247, 0.72),
-    0 4px 20px rgba(147, 51, 234, 0.4);
-}
-
-.lnx-nav-search-form-desktop:focus-within::after {
+  width: 510px;
+  border-color: #6d28d9;
   background: #ffffff;
+  box-shadow: none;
 }
 
-/* AI Sparkles icon container inside search bar */
+@media (min-width: 1200px) {
+  .lnx-nav-search-form-desktop {
+    width: 460px;
+  }
+  .lnx-nav-search-form-desktop:focus-within {
+    width: 550px;
+  }
+}
+
+/* AI Sparkles icon container: clean, transparent, no circle border or circle background */
 .lnx-nav-search-ai-icon-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(243, 232, 255, 0.95), rgba(233, 213, 255, 0.65));
-  border: 1px solid rgba(168, 85, 247, 0.35);
-  box-shadow: 0 0 10px rgba(168, 85, 247, 0.28);
+  width: auto;
+  height: auto;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   flex-shrink: 0;
-  animation: lnxAiIconFloat 3s ease-in-out infinite;
+  padding: 0;
 }
 
 /* Search icon fallback if rendered */
@@ -151,7 +85,7 @@
   border: none;
   outline: none;
   background: transparent;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 500;
   color: #1e1b4b;
   font-family: inherit;
@@ -204,14 +138,14 @@
   color: #ffffff;
   cursor: pointer;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.35);
+  box-shadow: none;
   transition: all 0.18s ease;
 }
 
 .lnx-nav-search-submit-btn:hover {
   background: linear-gradient(135deg, #9333ea, #6b21a8);
-  transform: scale(1.1);
-  box-shadow: 0 0 14px rgba(168, 85, 247, 0.6);
+  transform: scale(1.08);
+  box-shadow: none;
 }
 
 .lnx-nav-search-submit-btn:disabled {
@@ -230,7 +164,7 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   Mobile: Icon-only toggle button (shown on small screens) with purple glow
+   Mobile: Icon-only toggle button (shown on small screens) with clean purple border
    ───────────────────────────────────────────────────────────────────────── */
 .lnx-nav-search-toggle-mobile {
   display: none;
@@ -239,23 +173,21 @@
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  border: 1.5px solid rgba(168, 85, 247, 0.4);
-  background: linear-gradient(135deg, #ffffff, #faf5ff);
-  color: #9333ea;
+  border: 2px solid #7c3aed;
+  background: #ffffff;
+  color: #7c3aed;
   cursor: pointer;
-  box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  box-shadow: none;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   padding: 0;
-  animation: lnxAiPulseGlow 3.5s ease-in-out infinite;
 }
 
 .lnx-nav-search-toggle-mobile:hover,
 .lnx-nav-search-toggle-mobile--active {
-  background: #f3e8ff;
-  border-color: #9333ea;
-  color: #7c3aed;
-  box-shadow: 0 0 16px rgba(168, 85, 247, 0.5);
-  transform: scale(1.05);
+  background: #faf5ff;
+  border-color: #6d28d9;
+  color: #6d28d9;
+  box-shadow: none;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -273,8 +205,8 @@
   align-items: center;
   gap: 10px;
   padding: 0 14px;
-  border-bottom: 2px solid #9333ea;
-  box-shadow: 0 4px 20px rgba(147, 51, 234, 0.2);
+  border-bottom: 2px solid #7c3aed;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
   animation: lnxNavSlideDown 0.22s ease both;
 }
 
@@ -283,12 +215,12 @@
   align-items: center;
   gap: 8px;
   flex: 1;
-  height: 42px;
-  background: #faf5ff;
-  border: 1.5px solid #a855f7;
+  height: 40px;
+  background: #ffffff;
+  border: 2px solid #7c3aed;
   border-radius: 999px;
   padding: 0 6px 0 12px;
-  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.16);
+  box-shadow: none;
 }
 
 .lnx-nav-search-close-mobile-btn {
