@@ -24,7 +24,7 @@ body.no-learnix-navbar-pad {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1003;
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -534,7 +534,7 @@ body.no-learnix-navbar-pad {
   width: 320px;
   background-color: #ffffff;
   box-shadow: -1px 0 8px rgba(15, 23, 42, 0.08);
-  z-index: 1004;
+  z-index: 1002;
   transform: translate3d(100%, 0, 0);
   transition: transform 0.2s ease-out;
   will-change: transform;
