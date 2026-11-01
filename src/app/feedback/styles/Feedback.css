@@ -2,7 +2,7 @@
     min-height: 100vh;
     background: #f8fafc;
     padding: 1rem;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .feedback-content {

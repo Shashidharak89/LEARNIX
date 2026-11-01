@@ -24,7 +24,7 @@
   min-height: auto;
   display: flex;
   flex-direction: column;
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -1132,7 +1132,7 @@
 
 .tst-modal-input::placeholder {
   color: var(--tst-muted);
-  font-family: Inter, system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .tst-modal-input-hint {
@@ -1392,7 +1392,7 @@
   background: #ffffff;
   display: flex;
   flex-direction: column;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Inter, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .tst-fullscreen-header {

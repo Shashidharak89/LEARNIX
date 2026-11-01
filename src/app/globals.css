@@ -1,3 +1,12 @@
+:root {
+  --font-global: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-geist-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  --font-inter: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  --lp-font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --lx-font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -9,6 +18,19 @@ html, body {
   max-width: 100vw;
   overflow-x: hidden;
   position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  --font-geist-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  --font-inter: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input,
+button,
+select,
+textarea,
+optgroup {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
 }
 
 /* Lenis Smooth Scroll Recommended Styles */

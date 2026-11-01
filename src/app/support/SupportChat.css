@@ -17,7 +17,7 @@
   --lx-white:       #ffffff;
   --lx-radius:      14px;
   --lx-radius-sm:   8px;
-  --lx-font:        'DM Sans', 'Segoe UI', sans-serif;
+  --lx-font:        -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 /* ---------- Page ---------- */

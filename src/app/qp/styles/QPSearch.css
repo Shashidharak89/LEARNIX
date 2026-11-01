@@ -24,7 +24,7 @@
     margin: 28px auto 0;
     padding: 0 0 10px;
     box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     color: var(--qp-ink);
     -webkit-font-smoothing: antialiased;
 }

@@ -212,7 +212,7 @@
   font-weight: 650;
   letter-spacing: 0.01em;
   color: #4b5563;
-  font-family: "DM Sans", "Manrope", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   text-align: center;
   line-height: 1.25;
   transition: color 0.2s ease;

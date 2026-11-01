@@ -5,7 +5,7 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  --lp-font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --lp-font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --lp-bg: #ffffff;
   --lp-card-bg: #ffffff;
   --lp-card-bg-elevated: #ffffff;

@@ -106,7 +106,7 @@
   min-height: 100vh;
   background-color: var(--lcp-bg);
   color: var(--lcp-text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   display: flex;
   flex-direction: column;
   transition: background-color 0.25s ease, color 0.25s ease;

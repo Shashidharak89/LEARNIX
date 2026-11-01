@@ -47,13 +47,13 @@
   border: 1px solid var(--lrx-border);
   border-radius: 999px;
   color: var(--lrx-blue-dark);
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 12.5px;
   font-weight: 600;
 }
 
 .lrx-dlb-title {
-  font-family: "Sora", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 28px;
   font-weight: 650;
   line-height: 1.25;
@@ -63,7 +63,7 @@
 }
 
 .lrx-dlb-subtitle {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 15px;
   line-height: 1.6;
   color: var(--lrx-gray);
@@ -88,7 +88,7 @@
   border: 1px solid var(--lrx-border);
   border-radius: 10px;
   color: var(--lrx-ink);
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 13px;
   font-weight: 500;
 }
@@ -107,7 +107,7 @@
   background: var(--lrx-blue);
   color: var(--lrx-white);
   border-radius: 12px;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 14.5px;
   font-weight: 600;
   text-decoration: none;
@@ -199,7 +199,7 @@
   border: 1px solid var(--lrx-border);
   border-radius: 999px;
   color: var(--lrx-ink);
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 11px;
   font-weight: 600;
 }

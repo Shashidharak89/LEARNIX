@@ -53,7 +53,7 @@
   flex-direction: column;
   justify-content: space-between;
   gap: 1.4rem;
-  font-family: var(--font-geist-sans, 'Geist', 'DM Sans', -apple-system, sans-serif);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   overflow: hidden;
   box-sizing: border-box;
   will-change: transform, opacity, filter;
@@ -114,7 +114,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  font-family: var(--font-geist-sans, 'Geist', sans-serif);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 0.82rem;
   font-weight: 650;
   padding: 0.42rem 1rem;
@@ -213,7 +213,7 @@
 }
 
 .rq-author {
-  font-family: var(--font-geist-sans, 'Geist', sans-serif);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 0.94rem;
   font-weight: 750;
   color: #1e293b;

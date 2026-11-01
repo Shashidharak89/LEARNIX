@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
-
 .ws-container {
   width: 90%;
   max-width: 1200px;
@@ -8,7 +6,7 @@
   background-color: #ffffff;
   min-height: 100vh;
   box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Outfit", "Inter", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 /* APPLE-VIBE INTRO CARD WITH BLUE THEME (CENTERED & RESPONSIVE CLAMP) */
@@ -816,7 +814,7 @@
 }
 
 .ws-topic-title {
-  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 1.25rem;
   font-weight: 700;
   color: #0b74ff;
