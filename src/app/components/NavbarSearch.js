@@ -338,9 +338,7 @@ export default function NavbarSearch() {
   };
 
   // When user clicks on an AI suggestion:
-  // 1. Replaces the keyword in the search bar
-  // 2. Automatically searches that keyword
-  // 3. Opens the resource in a new tab (Google view for study materials, /resources/[id], /updates/[id], etc.)
+  // Opens the resource in a new tab without altering the search keyword
   const handleItemClick = (e, item) => {
     if (
       e.target.closest("button.lnx-ai-btn--download") ||
@@ -348,14 +346,6 @@ export default function NavbarSearch() {
     ) {
       return;
     }
-
-    const keyword = (item.title || item.subject_name || submittedTerm).trim();
-
-    // Replace keyword in search bar
-    setSearchTerm(keyword);
-
-    // Search automatically with this keyword
-    handleSearch(keyword);
 
     const normType = normalizeResourceType(item.resource_type, item.source_file);
     if (normType === "study_material" && item.resource_url) {
@@ -370,13 +360,10 @@ export default function NavbarSearch() {
   };
 
   // Direct View handler for Study Materials:
-  // Replaces keyword, triggers search, and opens in Google Docs viewer as usual
+  // Opens in Google Docs viewer while keeping original search keyword
   const handleViewMaterial = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
-    const keyword = (item.title || item.subject_name || submittedTerm).trim();
-    setSearchTerm(keyword);
-    handleSearch(keyword);
 
     const rawUrl = item.resource_url;
     if (rawUrl) {
@@ -583,7 +570,18 @@ export default function NavbarSearch() {
             </form>
 
             {/* ── Top Row: Direct Catalog Matches (First row across all screen sizes) ── */}
-            {hasDirectResults ? (
+            {loadingDirect ? (
+              <div className="lnx-nav-direct-row-wrap">
+                <div className="lnx-nav-direct-pills-row">
+                  {CATEGORIES.map((cat) => (
+                    <div key={cat.key} className="lnx-nav-cat-pill lnx-nav-cat-pill--skeleton">
+                      <span className="lnx-nav-cat-pill-skel-icon" />
+                      <span className="lnx-nav-cat-pill-skel-text" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : hasDirectResults ? (
               <div className="lnx-nav-direct-row-wrap">
                 <div className="lnx-nav-direct-pills-row">
                   {CATEGORIES.map((cat) => {

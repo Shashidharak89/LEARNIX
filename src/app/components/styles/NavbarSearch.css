@@ -245,14 +245,16 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   Results Popup: NO dark backdrop — just a transparent overlay for clicks
+   Results Popup: Blurred backdrop overlay to isolate and focus on popup
    ───────────────────────────────────────────────────────────────────────── */
 .lnx-nav-search-backdrop {
   position: fixed;
   inset: 0;
-  background: transparent;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 999997;
-  animation: lnxNavFadeIn 0.15s ease both;
+  animation: lnxNavFadeIn 0.2s ease both;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -673,6 +675,32 @@
 
 .lnx-nav-cat-pill--empty {
   opacity: 0.65;
+}
+
+/* Skeleton loader for direct category pills */
+.lnx-nav-cat-pill--skeleton {
+  pointer-events: none;
+  cursor: default;
+  background: #f8fafc;
+  border-color: #f1f5f9;
+}
+
+.lnx-nav-cat-pill-skel-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: lnxAiShimmer 1.5s infinite linear;
+}
+
+.lnx-nav-cat-pill-skel-text {
+  width: 70px;
+  height: 12px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: lnxAiShimmer 1.5s infinite linear;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
