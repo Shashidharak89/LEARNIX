@@ -245,16 +245,14 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   Results Popup: Blurred backdrop overlay to isolate and focus on popup
+   Results Popup: NO dark backdrop — just a transparent overlay for clicks
    ───────────────────────────────────────────────────────────────────────── */
 .lnx-nav-search-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.42);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: transparent;
   z-index: 999997;
-  animation: lnxNavFadeIn 0.2s ease both;
+  animation: lnxNavFadeIn 0.15s ease both;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
