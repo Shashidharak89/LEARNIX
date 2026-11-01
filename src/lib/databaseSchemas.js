@@ -361,6 +361,7 @@ export const DATABASE_SCHEMAS = {
       "user_email",
       "search_timestamp",
       "search_datetime_iso",
+      "client_os",
       "client_ip",
       "client_user_agent"
     ],
@@ -373,6 +374,7 @@ export const DATABASE_SCHEMAS = {
       { name: "user_email", type: "String", sourceModel: "LearnixSearches.userEmail", description: "User email address if present in session" },
       { name: "search_timestamp", type: "Number", sourceModel: "LearnixSearches.timestamp", description: "Unix epoch timestamp in milliseconds" },
       { name: "search_datetime_iso", type: "String", sourceModel: "LearnixSearches.createdAt", description: "ISO 8601 formatted UTC timestamp" },
+      { name: "client_os", type: "String", sourceModel: "LearnixSearches.os", description: "Operating system (Android, iOS, Windows, macOS, Linux, etc.)" },
       { name: "client_ip", type: "String", sourceModel: "LearnixSearches.ip", description: "Client IP address from proxy/real IP headers" },
       { name: "client_user_agent", type: "String", sourceModel: "LearnixSearches.userAgent", description: "Truncated client browser User-Agent header" }
     ]

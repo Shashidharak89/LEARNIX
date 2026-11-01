@@ -76,6 +76,39 @@ export function extractClientIp(req) {
 }
 
 /**
+ * Extract operating system information from request
+ */
+export function extractOS(req) {
+  if (!req?.headers) return "Unknown";
+
+  const platform = req.headers.get?.("sec-ch-ua-platform") || req.headers["sec-ch-ua-platform"];
+  if (platform) {
+    const p = String(platform).replace(/"/g, "").trim().toLowerCase();
+    if (p.includes("android")) return "Android";
+    if (p.includes("ios")) return "iOS";
+    if (p.includes("mac")) return "macOS";
+    if (p.includes("windows")) return "Windows";
+    if (p.includes("linux")) return "Linux";
+    if (p.includes("chrome")) return "Chrome OS";
+  }
+
+  const xOs = req.headers.get?.("x-os") || req.headers["x-os"];
+  if (xOs) return String(xOs).trim();
+
+  const ua = (req.headers.get?.("user-agent") || req.headers["user-agent"] || "").toLowerCase();
+  if (!ua) return "Unknown";
+
+  if (ua.includes("android")) return "Android";
+  if (ua.includes("iphone") || ua.includes("ipad") || ua.includes("ipod")) return "iOS";
+  if (ua.includes("macintosh") || ua.includes("mac os x")) return "macOS";
+  if (ua.includes("windows nt") || ua.includes("win64") || ua.includes("windows")) return "Windows";
+  if (ua.includes("cros")) return "Chrome OS";
+  if (ua.includes("linux")) return "Linux";
+
+  return "Other";
+}
+
+/**
  * Normalize source names into consistent canonical strings
  */
 export function normalizeSearchSource(source) {
@@ -105,6 +138,7 @@ export function recordSearchEvent(keyword, source = "unknown", req = null, extra
     const normalizedSource = normalizeSearchSource(source);
     const { userId, userEmail, usn } = extractAuthFromReq(req);
     const ip = extractClientIp(req);
+    const os = extractOS(req);
     const userAgent = req?.headers?.get?.("user-agent") || req?.headers?.["user-agent"] || null;
 
     // Deduplication key: ignore repeat identical searches within window (e.g. parallel category calls)
@@ -130,6 +164,7 @@ export function recordSearchEvent(keyword, source = "unknown", req = null, extra
       userId: userId || null,
       userEmail: userEmail || null,
       usn: usn || null,
+      os,
       timestamp: now,
       createdAt,
       ip: ip || null,
@@ -202,6 +237,7 @@ export async function getSearches({ page = 1, size = 20, search = "" } = {}) {
       const usn = String(item.usn || "").toLowerCase();
       const email = String(item.userEmail || "").toLowerCase();
       const ip = String(item.ip || "").toLowerCase();
+      const os = String(item.os || "").toLowerCase();
 
       return (
         kw.includes(searchTerm) ||
@@ -209,7 +245,8 @@ export async function getSearches({ page = 1, size = 20, search = "" } = {}) {
         uid.includes(searchTerm) ||
         usn.includes(searchTerm) ||
         email.includes(searchTerm) ||
-        ip.includes(searchTerm)
+        ip.includes(searchTerm) ||
+        os.includes(searchTerm)
       );
     });
   }

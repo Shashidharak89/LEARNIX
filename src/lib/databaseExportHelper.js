@@ -799,6 +799,7 @@ export async function buildSearchesCSV(onProgress = () => {}) {
       escapeCSV(s.userEmail || ""),
       escapeCSV(s.timestamp || ""),
       escapeCSV(s.createdAt || ""),
+      escapeCSV(s.os || ""),
       escapeCSV(s.ip || ""),
       escapeCSV(s.userAgent || "")
     ];
