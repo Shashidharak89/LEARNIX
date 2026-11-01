@@ -70,6 +70,14 @@
    Main Layout Container (Matches Updates Page Width & Responsiveness)
    ═══════════════════════════════════════════════════════════════════════════ */
 
+.learnix-page-shell {
+  min-height: 100vh;
+  width: 100%;
+  background: var(--lp-bg);
+  box-sizing: border-box;
+  overflow-x: clip;
+}
+
 .learn-page-main {
   width: 90%;
   max-width: 1200px;
@@ -97,10 +105,14 @@
   transition: var(--lp-transition);
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .learn-section {
   margin-top: 24px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -221,60 +233,48 @@
   margin-bottom: 14px;
 }
 
-.learn-section-eyebrow {
-  display: block;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--lp-blue);
-  text-transform: uppercase;
-  margin-bottom: 2px;
-}
-
 .learn-section-title {
-  font-size: 1.28rem;
+  font-size: 1.24rem;
   font-weight: 750;
   letter-spacing: -0.02em;
   margin: 0;
   color: var(--lp-text);
 }
 
-.learn-recs-count-pill {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--lp-text-muted);
-  background: rgba(148, 163, 184, 0.12);
-  padding: 3px 9px;
-  border-radius: var(--lp-radius-full);
-}
-
 /* Grid of small cards */
 .learn-recs-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1100px) {
   .learn-recs-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 720px) {
   .learn-recs-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 480px) {
   .learn-recs-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
 /* Individual Small Compact Recommendation Card */
 .learn-rec-card {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
   padding: 14px 14px 12px;
   border-radius: var(--lp-radius-md);
   display: flex;
@@ -362,6 +362,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .learn-rec-snippet {
@@ -374,7 +376,9 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  word-break: break-word;
   flex: 1;
+  min-width: 0;
 }
 
 .learn-rec-footer {

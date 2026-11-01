@@ -571,12 +571,7 @@ export default function LearnClient() {
       <section className="learn-apple-card learn-hero-widget">
         <div className="learn-hero-content">
           <div className="learn-hero-badge-row">
-            <span className="learn-pill-badge">
-              <Sparkles size={13} />
-              <span>LEARNIX HUB</span>
-            </span>
-            <span className="learn-stats-chip">4 Practice Tracks</span>
-            <span className="learn-stats-chip">110+ Questions</span>
+            <span className="learn-stats-chip">3000+ Questions</span>
           </div>
 
           <h1 className="learn-hero-title">Learn</h1>
@@ -595,11 +590,7 @@ export default function LearnClient() {
       {/* 2. Recommended For You Section (Latest 3 Updates + Latest 2 Resources) */}
       <section className="learn-section">
         <div className="learn-section-header">
-          <div className="learn-section-title-wrap">
-            <span className="learn-section-eyebrow">CURATED FOR YOU</span>
-            <h2 className="learn-section-title">Recommended for you</h2>
-          </div>
-          <span className="learn-recs-count-pill">5 Highlights</span>
+          <h2 className="learn-section-title">Recommended for you</h2>
         </div>
 
         <div className="learn-recs-grid">
@@ -741,7 +732,7 @@ export default function LearnClient() {
               <div className="learn-accordion-titles">
                 <div className="learn-accordion-badge-row">
                   <h3 className="learn-accordion-title">Solve Learnix Quiz</h3>
-                  <span className="learn-badge-count">{QUIZ_TOPICS.length} Tracks Available</span>
+                  <span className="learn-badge-count">{QUIZ_TOPICS.length} Quizzes Available</span>
                 </div>
                 <p className="learn-accordion-sub">
                   Practice questions one by one with real-time feedback, typewriter explanations, and auto-saved progress.
@@ -750,7 +741,7 @@ export default function LearnClient() {
             </div>
 
             <div className="learn-accordion-toggle-btn">
-              <span className="learn-toggle-label">{isAccordionOpen ? "Collapse" : "Explore Tracks"}</span>
+              <span className="learn-toggle-label">{isAccordionOpen ? "Collapse" : "Explore Quizzes"}</span>
               <div className="learn-toggle-icon-wrap">
                 {isAccordionOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
               </div>
