@@ -808,13 +808,16 @@ export default function UpdatesPage({ initialUpdateId }) {
   const manageIconRef = useRef(null);
   const searchBtnRef = useRef(null);
 
+  const lastFetchedQueryRef = useRef(null);
+
   const showToast = (message, type = 'info') => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     setToast({ message, type });
     toastTimeoutRef.current = setTimeout(() => setToast(null), 3500);
   };
 
-  const fetchUpdates = async (index = 1, query = keywordFromUrl) => {
+  const fetchUpdates = async (index = 1, query = "") => {
+    lastFetchedQueryRef.current = query;
     setLoading(true);
     try {
       const urlParams = new globalThis.URLSearchParams({ index: String(index) });
@@ -841,8 +844,10 @@ export default function UpdatesPage({ initialUpdateId }) {
 
   useEffect(() => {
     setSearchQuery(keywordFromUrl);
-    setPageIndex(1);
-    fetchUpdates(1, keywordFromUrl);
+    if (lastFetchedQueryRef.current !== keywordFromUrl) {
+      setPageIndex(1);
+      fetchUpdates(1, keywordFromUrl);
+    }
   }, [keywordFromUrl]);
 
   useEffect(() => {
@@ -885,7 +890,30 @@ export default function UpdatesPage({ initialUpdateId }) {
   const loadMore = () => {
     const next = pageIndex + 1;
     setPageIndex(next);
-    fetchUpdates(next, keywordFromUrl);
+    fetchUpdates(next, lastFetchedQueryRef.current || '');
+  };
+
+  const clearQueryFromUrl = () => {
+    if (searchParams.has('q')) {
+      const nextParams = new globalThis.URLSearchParams(searchParams.toString());
+      nextParams.delete('q');
+      const qs = nextParams.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname);
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setSearchQuery(val);
+
+    // If user cleared the searchbar or backspaced to an empty input, reset to default immediately
+    if (!val.trim()) {
+      clearQueryFromUrl();
+      if (lastFetchedQueryRef.current !== '') {
+        setPageIndex(1);
+        fetchUpdates(1, '');
+      }
+    }
   };
 
   const handleSearchSubmit = (e) => {
@@ -893,6 +921,11 @@ export default function UpdatesPage({ initialUpdateId }) {
     const trimmed = searchQuery.trim();
 
     if (!trimmed) {
+      clearQueryFromUrl();
+      if (lastFetchedQueryRef.current !== '') {
+        setPageIndex(1);
+        fetchUpdates(1, '');
+      }
       return;
     }
 
@@ -903,7 +936,11 @@ export default function UpdatesPage({ initialUpdateId }) {
 
   const handleClearSearch = () => {
     setSearchQuery('');
-    router.push(pathname);
+    clearQueryFromUrl();
+    if (lastFetchedQueryRef.current !== '') {
+      setPageIndex(1);
+      fetchUpdates(1, '');
+    }
   };
 
   const buildQueryString = (updates) => {
@@ -1020,7 +1057,7 @@ export default function UpdatesPage({ initialUpdateId }) {
                 <input
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={handleSearchChange}
                   className="upd-search-input"
                   placeholder="Search updates by title, content, or user..."
                   aria-label="Search updates"
@@ -1053,7 +1090,11 @@ export default function UpdatesPage({ initialUpdateId }) {
             {updates.length === 0 && !loading && (
               <div className="upd-empty-state">
                 <ClockIcon className="upd-empty-icon" size={40} />
-                <p className="upd-empty-text">{keywordFromUrl ? 'No updates found for this keyword.' : 'No updates yet.'}</p>
+                <p className="upd-empty-text">
+                  {(searchQuery.trim() && (lastFetchedQueryRef.current || keywordFromUrl))
+                    ? 'No updates found for this keyword.'
+                    : 'No updates yet.'}
+                </p>
               </div>
             )}
 
@@ -1069,12 +1110,12 @@ export default function UpdatesPage({ initialUpdateId }) {
               <UpdateCard
                 key={u._id}
                 u={u}
-                isHighlighted={sharedUpdateId === u._id}
+                isHighlighted={Boolean(sharedUpdateId && String(u._id) === String(sharedUpdateId))}
                 highlightedCardRef={highlightedCardRef}
                 isLargeScreen={isLargeScreen}
                 handleShareUpdate={handleShareUpdate}
                 formatExactTimestamp={formatExactTimestamp}
-                searchQuery={keywordFromUrl}
+                searchQuery={searchQuery.trim() ? (lastFetchedQueryRef.current || keywordFromUrl || searchQuery.trim()) : ''}
               />
             ))}
 
@@ -1096,18 +1137,18 @@ export default function UpdatesPage({ initialUpdateId }) {
       {showAddModal && (
         <div className="upd-modal-overlay" onClick={() => {
           setShowAddModal(false);
-          fetchUpdates(1, keywordFromUrl); // Refresh when closed
+          fetchUpdates(1, lastFetchedQueryRef.current || ''); // Refresh when closed
         }}>
           <div className="upd-modal-content" onClick={e => e.stopPropagation()}>
             <button className="upd-modal-close" onClick={() => {
               setShowAddModal(false);
-              fetchUpdates(1, keywordFromUrl);
+              fetchUpdates(1, lastFetchedQueryRef.current || '');
             }}>✕</button>
             <div className="upd-modal-scroll-area">
               <AddUpdateForm
                 onUpdateAdded={() => {
                   setShowAddModal(false);
-                  fetchUpdates(1, keywordFromUrl);
+                  fetchUpdates(1, lastFetchedQueryRef.current || '');
                   showToast("Update added successfully", "success");
                 }}
                 onCancel={() => {
