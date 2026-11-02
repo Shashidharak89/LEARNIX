@@ -59,8 +59,8 @@ function getLanguageReactIcon(langId, size = 15) {
   if (id.includes("javascript") || id === "js") {
     return <SiJavascript size={size} color="#f7df1e" className="lc-react-icon-js" title="JavaScript" />;
   }
-  if (id.includes("python") || id === "py") {
-    return <FaPython size={size} color="#38bdf8" className="lc-react-icon-python" title="Python" />;
+  if (id.includes("python") || id === "py" || id === "py3") {
+    return <FaPython size={size} color="#38bdf8" className="lc-react-icon-python" title="Python 3" />;
   }
   return <SiCplusplus size={size} color="#60a5fa" className="lc-react-icon-cpp" title="C++" />;
 }
@@ -75,7 +75,7 @@ function getLangDisplay(lang) {
 function getLanguageLabel(langId) {
   const id = (langId || "").toLowerCase();
   if (id.includes("java") && !id.includes("script")) return "Java";
-  if (id.includes("python") || id === "py") return "Python";
+  if (id.includes("python") || id === "py" || id === "py3") return "Python 3";
   if (id.includes("javascript") || id === "js") return "JavaScript";
   if (id.includes("cpp") || id === "c++") return "C++";
   return langId ? langId.charAt(0).toUpperCase() + langId.slice(1) : "JavaScript";
@@ -84,7 +84,7 @@ function getLanguageLabel(langId) {
 function getLanguagePillClass(langId) {
   const id = (langId || "").toLowerCase();
   if (id.includes("java") && !id.includes("script")) return "java";
-  if (id.includes("python") || id === "py") return "python";
+  if (id.includes("python") || id === "py" || id === "py3") return "python";
   if (id.includes("javascript") || id === "js") return "javascript";
   return "default";
 }
@@ -288,7 +288,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
   const [languages, setLanguages] = useState([
     { languageId: "java", name: "Java", monacoLang: "java", version: "OpenJDK 25" },
     { languageId: "javascript", name: "JavaScript", monacoLang: "javascript", version: "ES6+" },
-    { languageId: "python", name: "Python", monacoLang: "python", version: "3.14" },
+    { languageId: "python", name: "Python 3", monacoLang: "python", version: "3.x" },
   ]);
   const [selectedLanguage, setSelectedLanguage] = useState("java");
   const [cooldown, setCooldown] = useState(0); // 10s cooldown timer
@@ -721,13 +721,14 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
         if (oldSaved) return oldSaved;
       }
     }
-    if (prob.templates && prob.templates[lang]) {
-      return prob.templates[lang];
+    if (prob.templates && (prob.templates[lang] || (lang.includes("python") && (prob.templates.python || prob.templates.python3)))) {
+      return prob.templates[lang] || prob.templates.python || prob.templates.python3;
     }
-    if (lang === "python" || lang === "py") {
+    if (lang === "python" || lang === "python3" || lang === "py" || lang === "py3" || lang.includes("python")) {
       return (
         prob.pythonBoilerplate ||
         prob.templates?.python ||
+        prob.templates?.python3 ||
         generatePythonBoilerplate(prob.functionName, prob.parameters, prob.returnType)
       );
     }
@@ -841,10 +842,17 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
     if (!problem) return;
     let defaultCode = problem.templates?.[selectedLanguage];
     if (!defaultCode) {
-      if (selectedLanguage === "python" || selectedLanguage === "py") {
+      if (
+        selectedLanguage === "python" ||
+        selectedLanguage === "python3" ||
+        selectedLanguage === "py" ||
+        selectedLanguage === "py3" ||
+        selectedLanguage.includes("python")
+      ) {
         defaultCode =
           problem.pythonBoilerplate ||
           problem.templates?.python ||
+          problem.templates?.python3 ||
           generatePythonBoilerplate(problem.functionName, problem.parameters, problem.returnType);
       } else if (selectedLanguage === "java") {
         defaultCode =
@@ -1832,7 +1840,7 @@ export default function LeetCodeIDE({ initialProblemId = "add-two-numbers", base
                 language={
                   selectedLanguage === "java"
                     ? "java"
-                    : selectedLanguage === "python" || selectedLanguage === "py"
+                    : selectedLanguage.includes("python") || selectedLanguage === "py" || selectedLanguage === "py3"
                     ? "python"
                     : "javascript"
                 }

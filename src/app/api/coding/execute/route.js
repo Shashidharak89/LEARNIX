@@ -183,7 +183,13 @@ export async function POST(req) {
     const selectedLang = (language || "javascript").toLowerCase();
     let executionResult;
 
-    if (selectedLang === "python" || selectedLang === "py") {
+    if (
+      selectedLang === "python" ||
+      selectedLang === "python3" ||
+      selectedLang === "py" ||
+      selectedLang === "py3" ||
+      selectedLang.includes("python")
+    ) {
       executionResult = await executePythonCode({
         userCode: code,
         functionName: problem.functionName || "addTwoNumbers",

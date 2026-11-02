@@ -1,5 +1,30 @@
 import { python } from "compile-run";
+import { execSync } from "child_process";
 import { areOutputsEqual } from "./outputComparator.js";
+
+let cachedPythonBinary = null;
+
+/**
+ * Resolve the available Python 3 executable on the system.
+ * Prioritizes 'python3' (standard on Ubuntu/Debian/cloud VMs) and falls back to 'python'.
+ */
+export function resolvePythonBinary() {
+  if (cachedPythonBinary) return cachedPythonBinary;
+
+  for (const cmd of ["python3", "python"]) {
+    try {
+      execSync(`${cmd} --version`, { stdio: "ignore" });
+      cachedPythonBinary = cmd;
+      return cmd;
+    } catch {
+      // Continue checking
+    }
+  }
+
+  // Default to 'python3' for modern Linux/Ubuntu environments
+  cachedPythonBinary = "python3";
+  return cachedPythonBinary;
+}
 
 /**
  * Clean Python errors to remove temporary system paths and present clear line numbers.
@@ -13,7 +38,7 @@ function sanitizePythonError(stderr) {
 }
 
 /**
- * Execute user submitted Python code against test cases using compile-run.
+ * Execute user submitted Python code against test cases using compile-run with python3.
  *
  * @param {Object} options
  * @param {string} options.userCode - The user's Python code
@@ -21,6 +46,7 @@ function sanitizePythonError(stderr) {
  * @param {Array} options.testCases - Array of test case objects
  * @param {number} [options.timeoutMs=8000] - Total execution timeout in ms
  * @param {boolean} [options.stopOnFailure=false] - Whether to stop on first failure
+ * @param {string} [options.executionPath] - Custom python executable path (defaults to auto-detected 'python3')
  */
 export async function executePythonCode({
   userCode,
@@ -28,6 +54,7 @@ export async function executePythonCode({
   testCases = [],
   timeoutMs = 8000,
   stopOnFailure = false,
+  executionPath,
 }) {
   if (!userCode || typeof userCode !== "string") {
     return {
@@ -103,10 +130,30 @@ for idx, tc in enumerate(__testcases):
         print(f"__TC_ERR__|{idx}|0|{err_msg}|__END__")
 `;
 
+  const pythonExec = executionPath || resolvePythonBinary();
+
   try {
-    const runResult = await python.runSource(fullProgram, {
-      timeout: timeoutMs,
-    });
+    let runResult;
+    try {
+      runResult = await python.runSource(fullProgram, {
+        timeout: timeoutMs,
+        executionPath: pythonExec,
+      });
+    } catch (execErr) {
+      // If python3 failed or was missing, attempt fallback to 'python'
+      if (pythonExec !== "python") {
+        try {
+          runResult = await python.runSource(fullProgram, {
+            timeout: timeoutMs,
+            executionPath: "python",
+          });
+        } catch {
+          throw execErr;
+        }
+      } else {
+        throw execErr;
+      }
+    }
 
     // Check for syntax or indentation errors (Python reports this in stderr with non-zero exitCode and no stdout)
     if (runResult.exitCode !== 0 && runResult.stderr && !runResult.stdout) {
