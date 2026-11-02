@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, memo } from "react";
 import "./styles/ImageLoader.css";
 
 /**
@@ -11,7 +11,7 @@ import "./styles/ImageLoader.css";
  * The `className` is forwarded to the <img> element itself.
  * `wrapperClassName` lets you style the outer wrapper div.
  */
-export default function ImageLoader({
+function ImageLoader({
   src,
   alt = "",
   className = "",
@@ -25,9 +25,15 @@ export default function ImageLoader({
   const [loaded, setLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
   const timerRef = useRef(null);
+  const imgRef = useRef(null);
 
-  // Hard cap: force-hide the shimmer after 3 seconds no matter what
+  // If already loaded / cached in browser, avoid flashing shimmer
   useEffect(() => {
+    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
+      timerRef.current = setTimeout(() => setLoaded(true), 0);
+      return () => clearTimeout(timerRef.current);
+    }
+    // Hard cap: force-hide the shimmer after 3 seconds no matter what
     timerRef.current = setTimeout(() => setLoaded(true), 3000);
     return () => clearTimeout(timerRef.current);
   }, [src]);
@@ -52,6 +58,7 @@ export default function ImageLoader({
       {/* Actual image */}
       {!errored && (
         <img
+          ref={imgRef}
           src={src}
           alt={alt}
           loading={loading}
@@ -66,3 +73,5 @@ export default function ImageLoader({
     </div>
   );
 }
+
+export default memo(ImageLoader);

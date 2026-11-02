@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, memo } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { FiCheck } from 'react-icons/fi';
@@ -103,529 +103,16 @@ const removeSavedTopic = (topicId) => {
   }
 };
 
-const WorkSearchInterface = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-
-  // Restore state from URL params so refresh keeps the search/filter state
-  const initialQuery = searchParams.get('q') || '';
-  const initialSubjects = searchParams.get('subjects')
-    ? searchParams.get('subjects').split(',').filter(Boolean)
-    : [];
-  const initialTopics = searchParams.get('topics')
-    ? searchParams.get('topics').split(',').filter(Boolean)
-    : [];
-
-  const [searchInput, setSearchInput] = useState(initialQuery);
-  const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [searchResults, setSearchResults] = useState([]);
-  const [displayedTopics, setDisplayedTopics] = useState([]);
-  const [allTopics, setAllTopics] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [expandedImages, setExpandedImages] = useState({});
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [selectedSubjects, setSelectedSubjects] = useState(initialSubjects);
-  const [selectedTopics, setSelectedTopics] = useState(initialTopics);
-  const [savedTopicIds, setSavedTopicIds] = useState([]);
-  const [cachedSavedTopics, setCachedSavedTopics] = useState([]);
-  const [openMenuId, setOpenMenuId] = useState(null);
-  const [showFilterPopup, setShowFilterPopup] = useState(false);
-  const [sortOrder, setSortOrder] = useState('latest'); // 'latest' or 'oldest'
-  const [showSavedOnly, setShowSavedOnly] = useState(false);
-  const menuRef = useRef(null);
-  const filterRef = useRef(null);
-  const initialLoadedRef = useRef(false);
-  const isFirstRender = useRef(true);
-  const titleFolderRef = useRef(null);
-  const uploadPlusRef = useRef(null);
-  const searchInputRef = useRef(null);
-  const searchSubmitRef = useRef(null);
-  const filterIconRef = useRef(null);
-
-  const ITEMS_PER_LOAD = 10;
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [searchPage, setSearchPage] = useState(1);
-  const [searchTotalPages, setSearchTotalPages] = useState(1);
-  const [searchTotal, setSearchTotal] = useState(0); // real total count from API
-
-  // Relevant (AI) results state
-  const [relevantResults, setRelevantResults] = useState([]);
-  const [relevantPage, setRelevantPage] = useState(1);
-  const [relevantTotalPages, setRelevantTotalPages] = useState(1);
-  const [relevantTotal, setRelevantTotal] = useState(0);
-  const [relevantKeywords, setRelevantKeywords] = useState([]);
-  const [isLoadingRelevant, setIsLoadingRelevant] = useState(false);
-  const [isLoadingMoreRelevant, setIsLoadingMoreRelevant] = useState(false);
-  const [showRelevant, setShowRelevant] = useState(false);
-  const [expandingTopic, setExpandingTopic] = useState({});
-
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setIsLoggedIn(!!(localStorage.getItem('token') || localStorage.getItem('usn')));
-    }
-  }, []);
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setOpenMenuId(null);
-      }
-      if (filterRef.current && !filterRef.current.contains(event.target)) {
-        setShowFilterPopup(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // Load saved topics from localStorage immediately on mount (before server data)
-  useEffect(() => {
-    const saved = getSavedTopics();
-    setSavedTopicIds(saved.map(t => t.topic._id));
-
-    // Convert saved topics to display format for immediate rendering
-    const savedForDisplay = saved.map(s => ({
-      ...s.topic,
-      topic: s.topic.topic,
-      content: s.topic.content || '',
-      images: s.topic.images || [],
-      timestamp: s.topic.timestamp,
-      topicId: s.topic._id,
-      userName: s.user?.name || 'Unknown',
-      usn: s.user?.usn || '',
-      profileimg: s.user?.profileimg || '',
-      subjectName: s.subject?.subject || 'Unknown Subject',
-      userId: s.user?._id || '',
-      isCached: true, // Mark as cached for visual indicator
-    })).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-    setCachedSavedTopics(savedForDisplay);
-  }, []);
-
-  useEffect(() => {
-    if (initialLoadedRef.current) return;
-    initialLoadedRef.current = true;
-
-    if (initialQuery || initialSubjects.length > 0 || initialTopics.length > 0) {
-      // Restore search from URL params
-      handleSearch(initialQuery, 1, initialSubjects, initialTopics);
-    } else {
-      fetchResources(1, true, "");
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const fetchResources = async (pageToFetch = 1, reset = false, searchParam = "") => {
-    // Only show the full-page skeleton when doing an initial/reset load.
-    if (reset) setIsLoading(true);
-    else setIsLoadingMore(true);
-    try {
-      const searchVal = searchParam && searchParam.trim() ? encodeURIComponent(searchParam.trim()) : '""';
-      let queryStr = `page=${pageToFetch}&size=${ITEMS_PER_LOAD}&search=${searchVal}`;
-      if (sortOrder === 'oldest') queryStr += '&sort=oldest';
-
-      const response = await authFetch(`/api/resources?${queryStr}`);
-      const data = await response.json();
-      if (data && Array.isArray(data.topics)) {
-        const newTopics = data.topics.map(topic => ({
-          ...topic,
-          topicId: topic._id,
-          subjectName: topic.subject,
-          userName: topic.userName,
-          usn: topic.usn,
-          profileimg: topic.profileimg,
-          userId: topic.userId,
-        }));
-        if (reset) {
-          setAllTopics(newTopics);
-          setDisplayedTopics(newTopics);
-          setCurrentIndex(newTopics.length);
-        } else {
-          setAllTopics(prev => [...prev, ...newTopics]);
-          setDisplayedTopics(prev => [...prev, ...newTopics]);
-          setCurrentIndex(prev => prev + newTopics.length);
-        }
-        setPage(data.page);
-        setTotalPages(data.totalPages);
-        setHasMore(data.page < data.totalPages);
-      }
-    } catch (error) {
-      console.error('Error fetching resources:', error);
-    } finally {
-      if (reset) setIsLoading(false);
-      else setIsLoadingMore(false);
-    }
-  };
-
-  const handleClearSearch = () => {
-    setSearchInput('');
-    setSearchQuery('');
-    setSearchResults([]);
-    setSearchPage(1);
-    setSearchTotalPages(1);
-    setSearchTotal(0);
-    setShowRelevant(false);
-    setRelevantResults([]);
-    fetchResources(1, true, "");
-    window.history.replaceState({}, '', pathname);
-  };
-
-  const handleSearch = async (query, pageNum = 1, subjectsOverride, topicsOverride) => {
-    // Use overrides (from URL restore on mount) or current state
-    const activeSubjects = subjectsOverride !== undefined ? subjectsOverride : selectedSubjects;
-    const activeTopics   = topicsOverride   !== undefined ? topicsOverride   : selectedTopics;
-
-    const targetQuery = query !== undefined ? query : searchInput;
-    setSearchQuery(targetQuery);
-    setSearchInput(targetQuery);
-
-    if (!targetQuery.trim() && activeSubjects.length === 0 && activeTopics.length === 0) {
-      setSearchResults([]);
-      setSearchPage(1);
-      setSearchTotalPages(1);
-      setSearchTotal(0);
-      const filteredTopics = getFilteredTopics(allTopics);
-      const firstBatch = filteredTopics.slice(0, ITEMS_PER_LOAD);
-      setDisplayedTopics(firstBatch);
-      setCurrentIndex(ITEMS_PER_LOAD);
-      setHasMore(filteredTopics.length > ITEMS_PER_LOAD);
-      window.history.replaceState({}, '', pathname);
-      return;
-    }
-    // Page 1 = full skeleton; page > 1 = only button loading state (no skeleton)
-    if (pageNum === 1) {
-      setIsLoading(true);
-      // Reset relevant section whenever the user triggers a fresh search
-      setShowRelevant(false);
-      setRelevantResults([]);
-      setRelevantPage(1);
-      setRelevantTotalPages(1);
-      setRelevantTotal(0);
-      setRelevantKeywords([]);
-    } else setIsLoadingMore(true);
-    try {
-      // Build URL with query, subjects, and topics params
-      const searchVal = targetQuery && targetQuery.trim() ? encodeURIComponent(targetQuery.trim()) : '""';
-      let queryStr = `page=${pageNum}&size=${ITEMS_PER_LOAD}&search=${searchVal}`;
-      if (activeSubjects.length > 0) queryStr += `&subjects=${encodeURIComponent(activeSubjects.join(','))}`;
-      if (activeTopics.length > 0) queryStr += `&topics=${encodeURIComponent(activeTopics.join(','))}`;
-      if (sortOrder === 'oldest') queryStr += '&sort=oldest';
-
-      const browserUrlParams = new globalThis.URLSearchParams();
-      if (targetQuery.trim()) browserUrlParams.set('q', targetQuery);
-      if (activeSubjects.length > 0) browserUrlParams.set('subjects', activeSubjects.join(','));
-      if (activeTopics.length > 0) browserUrlParams.set('topics', activeTopics.join(','));
-      const browserUrl = browserUrlParams.toString() ? `${pathname}?${browserUrlParams.toString()}` : pathname;
-      window.history.replaceState({}, '', browserUrl);
-
-      const response = await authFetch(`/api/resources?${queryStr}`);
-      const data = await response.json();
-      if (data && Array.isArray(data.topics)) {
-        const newTopics = data.topics.map(topic => ({
-          ...topic,
-          topicId: topic._id,
-          subjectName: topic.subject,
-          userName: topic.userName,
-          usn: topic.usn,
-          profileimg: topic.profileimg,
-          userId: topic.userId,
-        }));
-        if (pageNum === 1) {
-          setSearchResults(newTopics);
-          setDisplayedTopics(newTopics);
-          setSearchTotal(data.totalResults ?? data.total ?? newTopics.length);
-          // Auto-load relevant if normal search returned nothing
-          if (newTopics.length === 0 && targetQuery.trim()) {
-            fetchRelevant(1, targetQuery);
-          }
-        } else {
-          // Append for subsequent pages (View More)
-          setSearchResults(prev => [...prev, ...newTopics]);
-          setDisplayedTopics(prev => [...prev, ...newTopics]);
-        }
-        setSearchPage(data.page);
-        setSearchTotalPages(data.totalPages);
-        setHasMore(data.page < data.totalPages);
-      }
-    } catch (error) {
-      console.error('Error searching:', error);
-    } finally {
-      if (pageNum === 1) setIsLoading(false);
-      else setIsLoadingMore(false);
-    }
-  };
-
-  const loadMoreTopics = useCallback(() => {
-    if (isLoadingMore || !hasMore) return;
-    if (searchQuery.trim() || selectedSubjects.length > 0 || selectedTopics.length > 0) {
-      handleSearch(searchQuery, searchPage + 1);
-    } else {
-      fetchResources(page + 1, false, "");
-    }
-  }, [hasMore, isLoadingMore, page, searchPage, searchQuery, selectedSubjects, selectedTopics]);
-
-  const fetchRelevant = async (pageNum = 1, queryOverride) => {
-    const query = queryOverride || searchParams.get('q') || searchQuery;
-    if (!query.trim()) return;
-    if (pageNum === 1) setIsLoadingRelevant(true);
-    else setIsLoadingMoreRelevant(true);
-    try {
-      const res = await authFetch(`/api/work/relevant?q=${encodeURIComponent(query)}&page=${pageNum}`);
-      const data = await res.json();
-      if (data && Array.isArray(data.topics)) {
-        const mapped = data.topics.map(topic => ({
-          ...topic,
-          topicId: topic._id,
-          subjectName: topic.subject,
-          userName: topic.userName,
-          usn: topic.usn,
-          profileimg: topic.profileimg,
-          userId: topic.userId,
-        }));
-        if (pageNum === 1) {
-          setRelevantResults(mapped);
-          setRelevantTotal(data.totalResults ?? data.total ?? mapped.length);
-          setRelevantKeywords(data.keywords || []);
-        } else {
-          setRelevantResults(prev => [...prev, ...mapped]);
-        }
-        setRelevantPage(data.page);
-        setRelevantTotalPages(data.totalPages);
-        setShowRelevant(true);
-      }
-    } catch (err) {
-      console.error('Relevant fetch error:', err);
-    } finally {
-      if (pageNum === 1) setIsLoadingRelevant(false);
-      else setIsLoadingMoreRelevant(false);
-    }
-  };
-
-
-  const getFilteredTopics = (topics) => {
-    let filtered = topics.filter(topic => {
-      // Filter by saved if showSavedOnly is enabled
-      if (showSavedOnly) {
-        const topicId = topic.topicId || topic._id;
-        if (!savedTopicIds.includes(topicId)) {
-          return false;
-        }
-      }
-
-      // If no subjects selected, show all
-      if (selectedSubjects.length === 0) {
-        return true;
-      }
-
-      // OR logic for subjects - if topic matches any selected subject
-      const subjectMatch = selectedSubjects.includes(topic.subjectName);
-      if (!subjectMatch) {
-        return false;
-      }
-
-      // OR logic for topics - if no topics selected, show all from matched subjects
-      if (selectedTopics.length === 0) {
-        return true;
-      }
-
-      // If topics are selected, topic must match any selected topic
-      return selectedTopics.includes(topic.topic);
-    });
-
-    // Apply sorting based on sortOrder
-    filtered = filtered.sort((a, b) => {
-      if (sortOrder === 'oldest') {
-        return new Date(a.timestamp) - new Date(b.timestamp);
-      }
-      return new Date(b.timestamp) - new Date(a.timestamp); // latest by default
-    });
-
-    return filtered;
-  };
-
-  const handleFilterChange = (filters) => {
-    const newSubjects = filters.subjects || [];
-    const newTopics = filters.topics || [];
-    setSelectedSubjects(newSubjects);
-    setSelectedTopics(newTopics);
-
-    // Immediately sync the URL so deselecting a chip removes it from the address bar
-    const urlParams = new globalThis.URLSearchParams();
-    if (searchQuery.trim()) urlParams.set('q', searchQuery);
-    if (newSubjects.length > 0) urlParams.set('subjects', newSubjects.join(','));
-    if (newTopics.length > 0) urlParams.set('topics', newTopics.join(','));
-    const newUrl = urlParams.toString() ? `${pathname}?${urlParams.toString()}` : pathname;
-    window.history.replaceState({}, '', newUrl);
-  };
-
-  // Apply filters when they change (subject/topic filters trigger search immediately)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    // Skip initial mount so only ONE request fires
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-
-    // If subject or topic filters are applied, trigger search with current query
-    if (selectedSubjects.length > 0 || selectedTopics.length > 0) {
-      handleSearch(searchQuery, 1);
-    } else if (showSavedOnly) {
-      // Show saved only - client-side filter
-      const filteredTopics = getFilteredTopics(allTopics);
-      const initialTopics = filteredTopics.slice(0, ITEMS_PER_LOAD);
-      setDisplayedTopics(initialTopics);
-      setCurrentIndex(ITEMS_PER_LOAD);
-      setHasMore(filteredTopics.length > ITEMS_PER_LOAD);
-    } else if (!searchQuery) {
-      // No filters and no search query - fetch fresh from backend based on sortOrder
-      setPage(1);
-      fetchResources(1, true, "");
-    }
-  }, [selectedSubjects, selectedTopics, sortOrder, showSavedOnly]);
-
-  const toggleImageExpansion = (topicKey) => {
-    if (!expandedImages[topicKey]) {
-      setExpandingTopic(prev => ({ ...prev, [topicKey]: true }));
-      setTimeout(() => {
-        setExpandedImages(prev => ({ ...prev, [topicKey]: true }));
-        setExpandingTopic(prev => ({ ...prev, [topicKey]: false }));
-      }, 250);
-    } else {
-      setExpandedImages(prev => ({ ...prev, [topicKey]: false }));
-    }
-  };
-
-  const downloadTopicAsPDF = async (topic, index) => {
-    if (!topic.images || topic.images.length === 0) {
-      alert('No images available for this topic');
-      return;
-    }
-
-    try {
-      // Show loading state
-      const downloadBtn = document.querySelector(`[data-topic-index="${index}"] .ws-download-btn`);
-      if (downloadBtn) {
-        downloadBtn.disabled = true;
-        downloadBtn.innerHTML = '<span>Generating...</span>';
-      }
-
-      // Call the API to generate PDF with template
-      const response = await authFetch('/api/work/download-pdf', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          topicId: topic._id,
-          user: {
-            name: topic.userName,
-            usn: topic.usn,
-            profileimg: topic.userProfileImg || '',
-          },
-          subject: {
-            subject: topic.subjectName,
-          },
-          topic: {
-            topic: topic.topic,
-            timestamp: topic.timestamp,
-            images: topic.images,
-            content: topic.content || '',
-          },
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate PDF');
-      }
-
-      // Get the PDF blob
-      const blob = await response.blob();
-
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${topic.topic}_${topic.subjectName}_${topic.userName}`.replace(/[^a-zA-Z0-9]/g, '_') + '.pdf';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-
-      // Restore button state
-      if (downloadBtn) {
-        downloadBtn.disabled = false;
-        downloadBtn.innerHTML = '<span>Download</span>';
-      }
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Error generating PDF. Please try again.');
-
-      // Restore button state
-      const downloadBtn = document.querySelector(`[data-topic-index="${index}"] .ws-download-btn`);
-      if (downloadBtn) {
-        downloadBtn.disabled = false;
-        downloadBtn.innerHTML = '<span>Download</span>';
-      }
-    }
-  };
-
-  const handleShare = (topic) => {
-    const url = `${window.location.origin}/resources/${topic.topicId}`;
-    const title = `${topic.topic} - ${topic.subjectName}`;
-    const text = `Check out "${topic.topic}" uploaded by ${topic.userName} on Learnix`;
-
-    if (navigator.share) {
-      navigator.share({ title, text, url }).catch(err => console.log(err));
-    } else {
-      navigator.clipboard.writeText(`${text}\n${url}`)
-        .then(() => alert('Link copied to clipboard!'))
-        .catch(() => alert('Failed to copy link'));
-    }
-  };
-
-  const handleSaveToggle = (topic) => {
-    const topicId = topic.topicId || topic._id;
-    const isSaved = savedTopicIds.includes(topicId);
-
-    if (isSaved) {
-      removeSavedTopic(topicId);
-      setSavedTopicIds(prev => prev.filter(id => id !== topicId));
-    } else {
-      saveTopic(topic);
-      setSavedTopicIds(prev => [...prev, topicId]);
-    }
-  };
-
-  // Ad component wrapper
-  const AdSlot = ({ index }) => (
-    <div className="ws-ad-slot" key={`ad-${index}`}>
+const AdSlot = memo(function AdSlot() {
+  return (
+    <div className="ws-ad-slot">
       <Ads />
     </div>
   );
+});
 
-  // Render topics with ads after every 2 topics
-  const renderTopicsWithAds = (topics) => {
-    const elements = [];
-    topics.forEach((topic, index) => {
-      elements.push(renderTopicCard(topic, index));
-      // After every 2 topics, insert an ad (after index 1, 3, 5, etc.)
-      if ((index + 1) % 2 === 0) {
-        elements.push(<AdSlot key={`ad-${index}`} index={index} />);
-      }
-    });
-    return elements;
-  };
-
-  const SkeletonLoader = () => (
+const SkeletonLoader = memo(function SkeletonLoader() {
+  return (
     <div className="ws-skeleton-grid">
       {Array.from({ length: 4 }).map((_, index) => (
         <div key={index} className="ws-skeleton-card">
@@ -652,6 +139,7 @@ const WorkSearchInterface = () => {
       ))}
     </div>
   );
+});
 
 function normalizeResourceType(type, sourceFile) {
   const t = (type || "").toLowerCase().trim();
@@ -767,7 +255,7 @@ const highlightText = (text, keyword) => {
   );
 };
 
-function TopicCard({
+const TopicCard = memo(function TopicCard({
   topic,
   index,
   isSaved,
@@ -775,15 +263,14 @@ function TopicCard({
   onSaveToggle,
   onShare,
   onDownloadAsPDF,
-  expandedImages,
-  expandingTopic,
-  onToggleImageExpansion,
 }) {
   const [showAiSuggestions, setShowAiSuggestions] = useState(false);
   const [recommendations, setRecommendations] = useState(null);
   const [loadingRecs, setLoadingRecs] = useState(false);
   const [downloadingRecId, setDownloadingRecId] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanding, setIsExpanding] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -798,17 +285,26 @@ function TopicCard({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isMenuOpen]);
 
-  const topicKey = `${topic.userId}-${topic.subjectName}-${topic.topic}`;
-  const isExpanded = expandedImages[topicKey];
   const hasImages = topic.images && topic.images.filter(img => img && img.trim() !== '').length > 0;
   const validImages = hasImages ? topic.images.filter(img => img && img.trim() !== '') : [];
   const displayImages = isExpanded ? validImages : validImages.slice(0, 2);
+
+  const toggleImageExpansion = () => {
+    if (!isExpanded) {
+      setIsExpanding(true);
+      setTimeout(() => {
+        setIsExpanded(true);
+        setIsExpanding(false);
+      }, 250);
+    } else {
+      setIsExpanded(false);
+    }
+  };
 
   const fetchRecommendations = async () => {
     if (recommendations !== null || loadingRecs) return;
     setLoadingRecs(true);
     try {
-      // Pass topic name and subject name inside query as requested
       const combinedQuery = [topic.topic, topic.subjectName].filter(Boolean).join(" ").trim();
       if (!combinedQuery) {
         setRecommendations([]);
@@ -969,7 +465,7 @@ function TopicCard({
 
   const handleOpenClick = () => {
     setIsMenuOpen(false);
-    window.open(`/resources/${topic.topicId}`, "_blank", "noopener,noreferrer");
+    window.open(`/resources/${topic.topicId || topic._id}`, "_blank", "noopener,noreferrer");
   };
 
   const handleShareClick = () => {
@@ -1022,7 +518,7 @@ function TopicCard({
     <div className={`ws-topic-card ${isSaved || isSavedInLearnLater ? 'ws-saved-card' : ''}`} data-topic-index={index}>
       <div className="ws-card-header">
         <div className="ws-topic-info">
-          <Link href={`/resources/${topic.topicId}`} className="ws-topic-link" target="_blank" rel="noopener noreferrer">
+          <Link href={`/resources/${topic.topicId || topic._id}`} className="ws-topic-link" target="_blank" rel="noopener noreferrer">
             <h3 className="ws-topic-title">{highlightText(topic.topic, searchQuery)}</h3>
           </Link>
           <Link href={`/users/${topic.usn?.toLowerCase()}`} className="ws-user-link">
@@ -1143,7 +639,7 @@ function TopicCard({
         <div className="ws-images-section">
           <div className="ws-images-grid">
             {displayImages.map((imageUrl, imgIndex) => (
-              <Link key={imgIndex} href={`/resources/${topic.topicId}`} className="ws-image-link" target="_blank" rel="noopener noreferrer">
+              <Link key={imgIndex} href={`/resources/${topic.topicId || topic._id}`} className="ws-image-link" target="_blank" rel="noopener noreferrer">
                 <div className="ws-image-container">
                   <div className="ws-image-wrapper">
                     <ImageLoader
@@ -1159,13 +655,13 @@ function TopicCard({
           </div>
           {validImages.length > 2 && (
             <button
-              onClick={() => onToggleImageExpansion(topicKey)}
-              className={`ws-view-more-btn ${expandingTopic[topicKey] ? 'is-expanding' : ''}`}
-              disabled={expandingTopic[topicKey]}
+              onClick={toggleImageExpansion}
+              className={`ws-view-more-btn ${isExpanding ? 'is-expanding' : ''}`}
+              disabled={isExpanding}
               onMouseEnter={() => viewMoreRef.current?.startAnimation?.()}
               onMouseLeave={() => viewMoreRef.current?.stopAnimation?.()}
             >
-              {expandingTopic[topicKey] ? (
+              {isExpanding ? (
                 <span className="ws-mini-spinner" />
               ) : isExpanded ? (
                 <>
@@ -1307,15 +803,526 @@ function TopicCard({
       )}
     </div>
   );
-}
+});
 
-  const renderTopicCard = (topic, index) => {
+const WorkSearchInterface = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  // Restore state from URL params so refresh keeps the search/filter state
+  const initialQuery = searchParams.get('q') || '';
+  const initialSubjects = useMemo(() => {
+    return searchParams.get('subjects')
+      ? searchParams.get('subjects').split(',').filter(Boolean)
+      : [];
+  }, [searchParams]);
+  const initialTopics = useMemo(() => {
+    return searchParams.get('topics')
+      ? searchParams.get('topics').split(',').filter(Boolean)
+      : [];
+  }, [searchParams]);
+
+  const [searchInput, setSearchInput] = useState(initialQuery);
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
+  const [searchResults, setSearchResults] = useState([]);
+  const [displayedTopics, setDisplayedTopics] = useState([]);
+  const [allTopics, setAllTopics] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [selectedSubjects, setSelectedSubjects] = useState(initialSubjects);
+  const [selectedTopics, setSelectedTopics] = useState(initialTopics);
+  const [savedTopicIds, setSavedTopicIds] = useState([]);
+  const [cachedSavedTopics, setCachedSavedTopics] = useState([]);
+  const [showFilterPopup, setShowFilterPopup] = useState(false);
+  const [sortOrder, setSortOrder] = useState('latest'); // 'latest' or 'oldest'
+  const [showSavedOnly, setShowSavedOnly] = useState(false);
+  const filterRef = useRef(null);
+  const initialLoadedRef = useRef(false);
+  const isFirstRender = useRef(true);
+  const titleFolderRef = useRef(null);
+  const uploadPlusRef = useRef(null);
+  const searchInputRef = useRef(null);
+  const searchSubmitRef = useRef(null);
+  const filterIconRef = useRef(null);
+  const searchQueryRef = useRef(searchQuery);
+  searchQueryRef.current = searchQuery;
+
+  const ITEMS_PER_LOAD = 10;
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchPage, setSearchPage] = useState(1);
+  const [searchTotalPages, setSearchTotalPages] = useState(1);
+  const [searchTotal, setSearchTotal] = useState(0); // real total count from API
+
+  // Relevant (AI) results state
+  const [relevantResults, setRelevantResults] = useState([]);
+  const [relevantPage, setRelevantPage] = useState(1);
+  const [relevantTotalPages, setRelevantTotalPages] = useState(1);
+  const [relevantTotal, setRelevantTotal] = useState(0);
+  const [relevantKeywords, setRelevantKeywords] = useState([]);
+  const [isLoadingRelevant, setIsLoadingRelevant] = useState(false);
+  const [isLoadingMoreRelevant, setIsLoadingMoreRelevant] = useState(false);
+  const [showRelevant, setShowRelevant] = useState(false);
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsLoggedIn(!!(localStorage.getItem('token') || localStorage.getItem('usn')));
+    }
+  }, []);
+
+  // Close filter popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setShowFilterPopup(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Load saved topics from localStorage immediately on mount (before server data)
+  useEffect(() => {
+    const saved = getSavedTopics();
+    setSavedTopicIds(saved.map(t => t.topic._id));
+
+    // Convert saved topics to display format for immediate rendering
+    const savedForDisplay = saved.map(s => ({
+      ...s.topic,
+      topic: s.topic.topic,
+      content: s.topic.content || '',
+      images: s.topic.images || [],
+      timestamp: s.topic.timestamp,
+      topicId: s.topic._id,
+      userName: s.user?.name || 'Unknown',
+      usn: s.user?.usn || '',
+      profileimg: s.user?.profileimg || '',
+      subjectName: s.subject?.subject || 'Unknown Subject',
+      userId: s.user?._id || '',
+      isCached: true, // Mark as cached for visual indicator
+    })).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    setCachedSavedTopics(savedForDisplay);
+  }, []);
+
+  useEffect(() => {
+    if (initialLoadedRef.current) return;
+    initialLoadedRef.current = true;
+
+    if (initialQuery || initialSubjects.length > 0 || initialTopics.length > 0) {
+      // Restore search from URL params
+      handleSearch(initialQuery, 1, initialSubjects, initialTopics);
+    } else {
+      fetchResources(1, true, "");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetchResources = async (pageToFetch = 1, reset = false, searchParam = "") => {
+    // Only show the full-page skeleton when doing an initial/reset load.
+    if (reset) setIsLoading(true);
+    else setIsLoadingMore(true);
+    try {
+      const searchVal = searchParam && searchParam.trim() ? encodeURIComponent(searchParam.trim()) : '""';
+      let queryStr = `page=${pageToFetch}&size=${ITEMS_PER_LOAD}&search=${searchVal}`;
+      if (sortOrder === 'oldest') queryStr += '&sort=oldest';
+
+      const response = await authFetch(`/api/resources?${queryStr}`);
+      const data = await response.json();
+      if (data && Array.isArray(data.topics)) {
+        const newTopics = data.topics.map(topic => ({
+          ...topic,
+          topicId: topic._id,
+          subjectName: topic.subject,
+          userName: topic.userName,
+          usn: topic.usn,
+          profileimg: topic.profileimg,
+          userId: topic.userId,
+        }));
+        if (reset) {
+          setAllTopics(newTopics);
+          setDisplayedTopics(newTopics);
+          setCurrentIndex(newTopics.length);
+        } else {
+          setAllTopics(prev => {
+            const existingIds = new Set(prev.map(t => t.topicId || t._id));
+            const unique = newTopics.filter(t => !existingIds.has(t.topicId || t._id));
+            return [...prev, ...unique];
+          });
+          setDisplayedTopics(prev => {
+            const existingIds = new Set(prev.map(t => t.topicId || t._id));
+            const unique = newTopics.filter(t => !existingIds.has(t.topicId || t._id));
+            return [...prev, ...unique];
+          });
+          setCurrentIndex(prev => prev + newTopics.length);
+        }
+        setPage(data.page);
+        setTotalPages(data.totalPages);
+        setHasMore(data.page < data.totalPages);
+      }
+    } catch (error) {
+      console.error('Error fetching resources:', error);
+    } finally {
+      if (reset) setIsLoading(false);
+      else setIsLoadingMore(false);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchInput('');
+    setSearchQuery('');
+    setSearchResults([]);
+    setSearchPage(1);
+    setSearchTotalPages(1);
+    setSearchTotal(0);
+    setShowRelevant(false);
+    setRelevantResults([]);
+    fetchResources(1, true, "");
+    window.history.replaceState({}, '', pathname);
+  };
+
+  const handleSearch = async (query, pageNum = 1, subjectsOverride, topicsOverride) => {
+    // Use overrides (from URL restore on mount) or current state
+    const activeSubjects = subjectsOverride !== undefined ? subjectsOverride : selectedSubjects;
+    const activeTopics   = topicsOverride   !== undefined ? topicsOverride   : selectedTopics;
+
+    const targetQuery = query !== undefined ? query : searchInput;
+    setSearchQuery(targetQuery);
+    setSearchInput(targetQuery);
+
+    if (!targetQuery.trim() && activeSubjects.length === 0 && activeTopics.length === 0) {
+      setSearchResults([]);
+      setSearchPage(1);
+      setSearchTotalPages(1);
+      setSearchTotal(0);
+      const filteredTopics = getFilteredTopics(allTopics);
+      const firstBatch = filteredTopics.slice(0, ITEMS_PER_LOAD);
+      setDisplayedTopics(firstBatch);
+      setCurrentIndex(ITEMS_PER_LOAD);
+      setHasMore(filteredTopics.length > ITEMS_PER_LOAD);
+      window.history.replaceState({}, '', pathname);
+      return;
+    }
+    // Page 1 = full skeleton; page > 1 = only button loading state (no skeleton)
+    if (pageNum === 1) {
+      setIsLoading(true);
+      // Reset relevant section whenever the user triggers a fresh search
+      setShowRelevant(false);
+      setRelevantResults([]);
+      setRelevantPage(1);
+      setRelevantTotalPages(1);
+      setRelevantTotal(0);
+      setRelevantKeywords([]);
+    } else setIsLoadingMore(true);
+    try {
+      // Build URL with query, subjects, and topics params
+      const searchVal = targetQuery && targetQuery.trim() ? encodeURIComponent(targetQuery.trim()) : '""';
+      let queryStr = `page=${pageNum}&size=${ITEMS_PER_LOAD}&search=${searchVal}`;
+      if (activeSubjects.length > 0) queryStr += `&subjects=${encodeURIComponent(activeSubjects.join(','))}`;
+      if (activeTopics.length > 0) queryStr += `&topics=${encodeURIComponent(activeTopics.join(','))}`;
+      if (sortOrder === 'oldest') queryStr += '&sort=oldest';
+
+      const browserUrlParams = new globalThis.URLSearchParams();
+      if (targetQuery.trim()) browserUrlParams.set('q', targetQuery);
+      if (activeSubjects.length > 0) browserUrlParams.set('subjects', activeSubjects.join(','));
+      if (activeTopics.length > 0) browserUrlParams.set('topics', activeTopics.join(','));
+      const browserUrl = browserUrlParams.toString() ? `${pathname}?${browserUrlParams.toString()}` : pathname;
+      window.history.replaceState({}, '', browserUrl);
+
+      const response = await authFetch(`/api/resources?${queryStr}`);
+      const data = await response.json();
+      if (data && Array.isArray(data.topics)) {
+        const newTopics = data.topics.map(topic => ({
+          ...topic,
+          topicId: topic._id,
+          subjectName: topic.subject,
+          userName: topic.userName,
+          usn: topic.usn,
+          profileimg: topic.profileimg,
+          userId: topic.userId,
+        }));
+        if (pageNum === 1) {
+          setSearchResults(newTopics);
+          setDisplayedTopics(newTopics);
+          setSearchTotal(data.totalResults ?? data.total ?? newTopics.length);
+          // Auto-load relevant if normal search returned nothing
+          if (newTopics.length === 0 && targetQuery.trim()) {
+            fetchRelevant(1, targetQuery);
+          }
+        } else {
+          // Append for subsequent pages (View More)
+          setSearchResults(prev => {
+            const existingIds = new Set(prev.map(t => t.topicId || t._id));
+            const unique = newTopics.filter(t => !existingIds.has(t.topicId || t._id));
+            return [...prev, ...unique];
+          });
+          setDisplayedTopics(prev => {
+            const existingIds = new Set(prev.map(t => t.topicId || t._id));
+            const unique = newTopics.filter(t => !existingIds.has(t.topicId || t._id));
+            return [...prev, ...unique];
+          });
+        }
+        setSearchPage(data.page);
+        setSearchTotalPages(data.totalPages);
+        setHasMore(data.page < data.totalPages);
+      }
+    } catch (error) {
+      console.error('Error searching:', error);
+    } finally {
+      if (pageNum === 1) setIsLoading(false);
+      else setIsLoadingMore(false);
+    }
+  };
+
+  const loadMoreTopics = useCallback(() => {
+    if (isLoadingMore || !hasMore) return;
+    if (searchQuery.trim() || selectedSubjects.length > 0 || selectedTopics.length > 0) {
+      handleSearch(searchQuery, searchPage + 1);
+    } else {
+      fetchResources(page + 1, false, "");
+    }
+  }, [hasMore, isLoadingMore, page, searchPage, searchQuery, selectedSubjects, selectedTopics]);
+
+  const fetchRelevant = async (pageNum = 1, queryOverride) => {
+    const query = queryOverride || searchParams.get('q') || searchQuery;
+    if (!query.trim()) return;
+    if (pageNum === 1) setIsLoadingRelevant(true);
+    else setIsLoadingMoreRelevant(true);
+    try {
+      const res = await authFetch(`/api/work/relevant?q=${encodeURIComponent(query)}&page=${pageNum}`);
+      const data = await res.json();
+      if (data && Array.isArray(data.topics)) {
+        const mapped = data.topics.map(topic => ({
+          ...topic,
+          topicId: topic._id,
+          subjectName: topic.subject,
+          userName: topic.userName,
+          usn: topic.usn,
+          profileimg: topic.profileimg,
+          userId: topic.userId,
+        }));
+        if (pageNum === 1) {
+          setRelevantResults(mapped);
+          setRelevantTotal(data.totalResults ?? data.total ?? mapped.length);
+          setRelevantKeywords(data.keywords || []);
+        } else {
+          setRelevantResults(prev => {
+            const existingIds = new Set(prev.map(t => t.topicId || t._id));
+            const unique = mapped.filter(t => !existingIds.has(t.topicId || t._id));
+            return [...prev, ...unique];
+          });
+        }
+        setRelevantPage(data.page);
+        setRelevantTotalPages(data.totalPages);
+        setShowRelevant(true);
+      }
+    } catch (err) {
+      console.error('Relevant fetch error:', err);
+    } finally {
+      if (pageNum === 1) setIsLoadingRelevant(false);
+      else setIsLoadingMoreRelevant(false);
+    }
+  };
+
+
+  const getFilteredTopics = (topics) => {
+    let filtered = topics.filter(topic => {
+      // Filter by saved if showSavedOnly is enabled
+      if (showSavedOnly) {
+        const topicId = topic.topicId || topic._id;
+        if (!savedTopicIds.includes(topicId)) {
+          return false;
+        }
+      }
+
+      // If no subjects selected, show all
+      if (selectedSubjects.length === 0) {
+        return true;
+      }
+
+      // OR logic for subjects - if topic matches any selected subject
+      const subjectMatch = selectedSubjects.includes(topic.subjectName);
+      if (!subjectMatch) {
+        return false;
+      }
+
+      // OR logic for topics - if no topics selected, show all from matched subjects
+      if (selectedTopics.length === 0) {
+        return true;
+      }
+
+      // If topics are selected, topic must match any selected topic
+      return selectedTopics.includes(topic.topic);
+    });
+
+    // Apply sorting based on sortOrder
+    filtered = filtered.sort((a, b) => {
+      if (sortOrder === 'oldest') {
+        return new Date(a.timestamp) - new Date(b.timestamp);
+      }
+      return new Date(b.timestamp) - new Date(a.timestamp); // latest by default
+    });
+
+    return filtered;
+  };
+
+  const handleFilterChange = useCallback((filters) => {
+    const newSubjects = filters.subjects || [];
+    const newTopics = filters.topics || [];
+    setSelectedSubjects(newSubjects);
+    setSelectedTopics(newTopics);
+
+    // Immediately sync the URL so deselecting a chip removes it from the address bar
+    const urlParams = new globalThis.URLSearchParams();
+    const currentQ = searchQueryRef.current;
+    if (currentQ && currentQ.trim()) urlParams.set('q', currentQ);
+    if (newSubjects.length > 0) urlParams.set('subjects', newSubjects.join(','));
+    if (newTopics.length > 0) urlParams.set('topics', newTopics.join(','));
+    const newUrl = urlParams.toString() ? `${pathname}?${urlParams.toString()}` : pathname;
+    window.history.replaceState({}, '', newUrl);
+  }, [pathname]);
+
+  // Apply filters when they change (subject/topic filters trigger search immediately)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    // Skip initial mount so only ONE request fires
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    // If subject or topic filters are applied, trigger search with current query
+    if (selectedSubjects.length > 0 || selectedTopics.length > 0) {
+      handleSearch(searchQuery, 1);
+    } else if (showSavedOnly) {
+      // Show saved only - client-side filter
+      const filteredTopics = getFilteredTopics(allTopics);
+      const initialTopics = filteredTopics.slice(0, ITEMS_PER_LOAD);
+      setDisplayedTopics(initialTopics);
+      setCurrentIndex(ITEMS_PER_LOAD);
+      setHasMore(filteredTopics.length > ITEMS_PER_LOAD);
+    } else if (!searchQuery) {
+      // No filters and no search query - fetch fresh from backend based on sortOrder
+      setPage(1);
+      fetchResources(1, true, "");
+    }
+  }, [selectedSubjects, selectedTopics, sortOrder, showSavedOnly]);
+
+  const downloadTopicAsPDF = useCallback(async (topic, index) => {
+    if (!topic.images || topic.images.length === 0) {
+      alert('No images available for this topic');
+      return;
+    }
+
+    try {
+      // Show loading state
+      const downloadBtn = document.querySelector(`[data-topic-index="${index}"] .ws-download-btn`);
+      if (downloadBtn) {
+        downloadBtn.disabled = true;
+        downloadBtn.innerHTML = '<span>Generating...</span>';
+      }
+
+      // Call the API to generate PDF with template
+      const response = await authFetch('/api/work/download-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          topicId: topic._id || topic.topicId,
+          user: {
+            name: topic.userName,
+            usn: topic.usn,
+            profileimg: topic.userProfileImg || topic.profileimg || '',
+          },
+          subject: {
+            subject: topic.subjectName,
+          },
+          topic: {
+            topic: topic.topic,
+            timestamp: topic.timestamp,
+            images: topic.images,
+            content: topic.content || '',
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF');
+      }
+
+      // Get the PDF blob
+      const blob = await response.blob();
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${topic.topic}_${topic.subjectName}_${topic.userName}`.replace(/[^a-zA-Z0-9]/g, '_') + '.pdf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      // Restore button state
+      if (downloadBtn) {
+        downloadBtn.disabled = false;
+        downloadBtn.innerHTML = '<span>Download</span>';
+      }
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF. Please try again.');
+
+      // Restore button state
+      const downloadBtn = document.querySelector(`[data-topic-index="${index}"] .ws-download-btn`);
+      if (downloadBtn) {
+        downloadBtn.disabled = false;
+        downloadBtn.innerHTML = '<span>Download</span>';
+      }
+    }
+  }, []);
+
+  const handleShare = useCallback((topic) => {
+    const url = `${window.location.origin}/resources/${topic.topicId || topic._id}`;
+    const title = `${topic.topic} - ${topic.subjectName}`;
+    const text = `Check out "${topic.topic}" uploaded by ${topic.userName} on Learnix`;
+
+    if (navigator.share) {
+      navigator.share({ title, text, url }).catch(err => console.log(err));
+    } else {
+      navigator.clipboard.writeText(`${text}\n${url}`)
+        .then(() => alert('Link copied to clipboard!'))
+        .catch(() => alert('Failed to copy link'));
+    }
+  }, []);
+
+  const handleSaveToggle = useCallback((topic) => {
+    const topicId = topic.topicId || topic._id;
+    setSavedTopicIds(prev => {
+      const isSaved = prev.includes(topicId);
+      if (isSaved) {
+        removeSavedTopic(topicId);
+        return prev.filter(id => id !== topicId);
+      } else {
+        saveTopic(topic);
+        return [...prev, topicId];
+      }
+    });
+  }, []);
+
+  const renderTopicCard = useCallback((topic, index) => {
     const topicId = topic.topicId || topic._id;
     const isSaved = savedTopicIds.includes(topicId);
 
     return (
       <TopicCard
-        key={`${topic.userId}-${topic.subjectName}-${topic.topic}-${index}`}
+        key={topicId || `${topic.userId || ''}-${topic.subjectName || ''}-${topic.topic || ''}-${index}`}
         topic={topic}
         index={index}
         isSaved={isSaved}
@@ -1323,12 +1330,22 @@ function TopicCard({
         onSaveToggle={handleSaveToggle}
         onShare={handleShare}
         onDownloadAsPDF={downloadTopicAsPDF}
-        expandedImages={expandedImages}
-        expandingTopic={expandingTopic}
-        onToggleImageExpansion={toggleImageExpansion}
       />
     );
-  };
+  }, [savedTopicIds, searchQuery, handleSaveToggle, handleShare, downloadTopicAsPDF]);
+
+  const renderTopicsWithAds = useCallback((topics) => {
+    const elements = [];
+    topics.forEach((topic, index) => {
+      elements.push(renderTopicCard(topic, index));
+      // After every 2 topics, insert an ad (after index 1, 3, 5, etc.)
+      if ((index + 1) % 2 === 0) {
+        const adKey = `ad-after-${topic.topicId || topic._id || index}`;
+        elements.push(<AdSlot key={adKey} />);
+      }
+    });
+    return elements;
+  }, [renderTopicCard]);
 
   return (
     <div className="ws-container">

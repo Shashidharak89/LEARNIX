@@ -330,5 +330,5 @@ const SubjectTopicFilter = ({ onFilterChange, initialSubjects = [], initialTopic
   );
 };
 
-export default SubjectTopicFilter;
+export default React.memo(SubjectTopicFilter);
 
