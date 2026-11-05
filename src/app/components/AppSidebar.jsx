@@ -3,7 +3,7 @@
 import React, { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { FiX, FiChevronDown } from "react-icons/fi";
+import { FiChevronDown } from "react-icons/fi";
 import { LayersIcon } from "./icons/LayersIcon";
 import { WrenchIcon } from "./icons/WrenchIcon";
 import {
@@ -17,6 +17,7 @@ import {
   UserIcon,
   LogOutIcon,
   SparklesIcon,
+  XIcon,
 } from "@animateicons/react/lucide";
 
 function SidebarLink({
@@ -170,6 +171,8 @@ export default function AppSidebar({
   onMouseEnter,
   onMouseLeave,
 }) {
+  const closeIconRef = useRef(null);
+
   return (
     <>
       {/* Sidebar Backdrop Overlay */}
@@ -194,9 +197,11 @@ export default function AppSidebar({
             type="button"
             className="learnix-sidebar-close-button"
             onClick={onClose}
+            onMouseEnter={() => closeIconRef.current?.startAnimation?.()}
+            onMouseLeave={() => closeIconRef.current?.stopAnimation?.()}
             aria-label="Close navigation menu"
           >
-            <FiX size={18} />
+            <XIcon ref={closeIconRef} size={18} />
           </button>
           <div className="learnix-sidebar-logo">
             <Image
@@ -207,6 +212,7 @@ export default function AppSidebar({
               className="learnix-sidebar-logo-img"
             />
           </div>
+          <div className="learnix-sidebar-top-spacer" aria-hidden="true" />
         </div>
 
         {/* Sidebar Navigation Items */}

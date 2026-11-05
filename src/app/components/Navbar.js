@@ -4,8 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
 import axios from "axios";
-import { FiX } from "react-icons/fi";
-import { MenuIcon } from "@animateicons/react/lucide";
+import { MenuIcon, XIcon } from "@animateicons/react/lucide";
 import "./styles/Navbar.css";
 import { verifyTokenAndSyncAuth, signOutFromBrowser } from "@/lib/clientAuth";
 
@@ -152,6 +151,7 @@ const NavbarContent = ({ searchParams }) => {
 
   const hoverTimeoutRef = useRef(null);
   const menuIconRef = useRef(null);
+  const xIconRef = useRef(null);
 
   const toggleSidebar = () => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
@@ -165,11 +165,21 @@ const NavbarContent = ({ searchParams }) => {
 
   const handleMenuMouseEnter = () => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    if (isOpen) {
+      xIconRef.current?.startAnimation?.();
+    } else {
+      menuIconRef.current?.startAnimation?.();
+    }
     setIsOpen(true);
   };
 
   const handleMenuMouseLeave = () => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    if (isOpen) {
+      xIconRef.current?.stopAnimation?.();
+    } else {
+      menuIconRef.current?.stopAnimation?.();
+    }
     hoverTimeoutRef.current = setTimeout(() => {
       setIsOpen(false);
     }, 220);
@@ -247,19 +257,17 @@ const NavbarContent = ({ searchParams }) => {
           <button
             className={`learnix-menu-toggle-btn ${isOpen ? "learnix-menu-open" : ""}`}
             onClick={toggleSidebar}
-            onMouseEnter={(e) => {
-              menuIconRef.current?.startAnimation?.();
-              handleMenuMouseEnter(e);
-            }}
-            onMouseLeave={(e) => {
-              menuIconRef.current?.stopAnimation?.();
-              handleMenuMouseLeave(e);
-            }}
+            onMouseEnter={handleMenuMouseEnter}
+            onMouseLeave={handleMenuMouseLeave}
             aria-label="Toggle navigation menu"
             aria-expanded={isOpen}
           >
             <span className="learnix-menu-icon">
-              {isOpen ? <FiX size={22} /> : <MenuIcon ref={menuIconRef} size={22} />}
+              {isOpen ? (
+                <XIcon ref={xIconRef} size={22} />
+              ) : (
+                <MenuIcon ref={menuIconRef} size={22} />
+              )}
             </span>
           </button>
         </div>
