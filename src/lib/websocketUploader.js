@@ -164,7 +164,7 @@ export async function uploadFileViaWebSocket(file, options = {}) {
             xhr.setRequestHeader("Content-Range", `bytes ${start}-${end - 1}/${file.size}`);
 
             const fd = new FormData();
-            fd.append("file", chunkBlob);
+            fd.append("file", chunkBlob, file.name);
             fd.append("api_key", credentials.apiKey);
             fd.append("timestamp", String(credentials.timestamp));
             fd.append("signature", credentials.signature);
@@ -344,7 +344,7 @@ export async function uploadFileViaWebSocket(file, options = {}) {
             xhr.setRequestHeader("Content-Range", `bytes ${start}-${end - 1}/${file.size}`);
 
             const fd = new FormData();
-            fd.append("file", chunkBlob);
+            fd.append("file", chunkBlob, file.name);
             fd.append("api_key", credentials.apiKey);
             fd.append("timestamp", String(credentials.timestamp));
             fd.append("signature", credentials.signature);

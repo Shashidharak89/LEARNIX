@@ -24,6 +24,7 @@ import LinkPreview from "../../components/LinkPreview";
 import YouTubeEmbed from "../../components/YouTubeEmbed";
 import FileIcon from "../../components/FileIcon";
 import ExpandableDescription from "../../components/ExpandableDescription";
+import { isPdfFile, getPdfDownloadName, getPdfDownloadUrl, downloadPdfFile } from "@/lib/pdfDownload";
 import "../styles/Updates.css";
 import "./styles/SingleUpdateView.css";
 
@@ -200,18 +201,9 @@ export default function SingleUpdateView({ updateId }) {
     const downloadKey = item.resource_id || url;
     setDownloadingRecId(downloadKey);
     try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error("Download request failed");
-      const blob = await res.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = blobUrl;
       const cleanTitle = (item.title || "study-material").trim();
-      a.download = cleanTitle.toLowerCase().endsWith(".pdf") ? cleanTitle : `${cleanTitle}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
+      const actualName = cleanTitle.toLowerCase().endsWith(".pdf") ? cleanTitle : `${cleanTitle}.pdf`;
+      await downloadPdfFile(url, actualName, cleanTitle);
     } catch (err) {
       console.warn("Direct blob download failed, opening in new tab:", err);
       window.open(url, "_blank", "noopener,noreferrer");
@@ -621,11 +613,11 @@ export default function SingleUpdateView({ updateId }) {
                   url
                 )}`;
 
-                // If Cloudinary PDF, transform link for direct download
                 let downloadUrl = url;
-                const isPdf = typeof url === "string" && url.toLowerCase().endsWith(".pdf");
-                if (isPdf && url.includes("res.cloudinary.com")) {
-                  downloadUrl = url.replace("/upload/", "/upload/fl_attachment/");
+                const isPdf = isPdfFile(fileItem, name);
+                const actualPdfName = isPdf ? getPdfDownloadName(fileItem, name, update?.title) : name;
+                if (isPdf) {
+                  downloadUrl = getPdfDownloadUrl(url, actualPdfName, update?.title);
                 }
 
                 return (
@@ -653,11 +645,16 @@ export default function SingleUpdateView({ updateId }) {
                       </a>
                       <a
                         href={downloadUrl}
-                        download={isPdf ? undefined : name}
+                        download={isPdf ? actualPdfName : name}
                         target={isPdf ? undefined : "_blank"}
                         rel="noreferrer noopener"
                         className="upd-file-action-btn upd-file-action-download"
-                        title="Download"
+                        title={`Download ${isPdf ? actualPdfName : name}`}
+                        onClick={isPdf ? (e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          downloadPdfFile(url, actualPdfName, update?.title);
+                        } : undefined}
                       >
                         <FiDownload />
                       </a>

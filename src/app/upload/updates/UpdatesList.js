@@ -8,6 +8,7 @@ import YouTubeEmbed from '../../components/YouTubeEmbed';
 import FileIcon from '../../components/FileIcon';
 import { authFetch } from '@/lib/clientAuth';
 import { uploadFileViaWebSocket } from '@/lib/websocketUploader';
+import { isPdfFile, getPdfDownloadName, getPdfDownloadUrl, downloadPdfFile } from '@/lib/pdfDownload';
 import ExpandableDescription from '../../components/ExpandableDescription';
 import './styles/UpdatesList.css';
 
@@ -916,6 +917,9 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                   {u.files.map((f, idx) => {
                     const url = f.url || f;
                     const name = f.name || url.split('/').pop();
+                    const isPdf = isPdfFile(f, name);
+                    const actualPdfName = isPdf ? getPdfDownloadName(f, name, u?.title) : name;
+                    const downloadUrl = isPdf ? getPdfDownloadUrl(url, actualPdfName, u?.title) : url;
                     const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
 
                     return (
@@ -932,7 +936,19 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                           <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upl-file-action-btn upl-file-action-view" title="View">
                             <FiEye />
                           </a>
-                          <a href={url} download={name} target="_blank" rel="noreferrer noopener" className="upl-file-action-btn upl-file-action-download" title="Download">
+                          <a
+                            href={downloadUrl}
+                            download={isPdf ? actualPdfName : name}
+                            target={isPdf ? undefined : "_blank"}
+                            rel="noreferrer noopener"
+                            className="upl-file-action-btn upl-file-action-download"
+                            title={`Download ${isPdf ? actualPdfName : name}`}
+                            onClick={isPdf ? (e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              downloadPdfFile(url, actualPdfName, u?.title);
+                            } : undefined}
+                          >
                             <FiDownload />
                           </a>
                         </div>
