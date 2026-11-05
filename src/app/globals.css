@@ -2,6 +2,7 @@
   --font-global: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-geist-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  --font-geist-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
   --font-inter: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   --lp-font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --lx-font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -20,6 +21,7 @@ html, body {
   position: relative;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   --font-geist-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  --font-geist-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace !important;
   --font-inter: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
