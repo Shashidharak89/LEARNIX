@@ -4,7 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
 import axios from "axios";
-import { FiMenu, FiX } from "react-icons/fi";
+import { FiX } from "react-icons/fi";
+import { MenuIcon } from "@animateicons/react/lucide";
 import "./styles/Navbar.css";
 import { verifyTokenAndSyncAuth, signOutFromBrowser } from "@/lib/clientAuth";
 
@@ -150,6 +151,7 @@ const NavbarContent = ({ searchParams }) => {
   }, [isOpen]);
 
   const hoverTimeoutRef = useRef(null);
+  const menuIconRef = useRef(null);
 
   const toggleSidebar = () => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
@@ -243,15 +245,21 @@ const NavbarContent = ({ searchParams }) => {
 
           {/* Menu Toggle Button */}
           <button
-            className="learnix-menu-toggle-btn"
+            className={`learnix-menu-toggle-btn ${isOpen ? "learnix-menu-open" : ""}`}
             onClick={toggleSidebar}
-            onMouseEnter={handleMenuMouseEnter}
-            onMouseLeave={handleMenuMouseLeave}
+            onMouseEnter={(e) => {
+              menuIconRef.current?.startAnimation?.();
+              handleMenuMouseEnter(e);
+            }}
+            onMouseLeave={(e) => {
+              menuIconRef.current?.stopAnimation?.();
+              handleMenuMouseLeave(e);
+            }}
             aria-label="Toggle navigation menu"
             aria-expanded={isOpen}
           >
             <span className="learnix-menu-icon">
-              {isOpen ? <FiX size={22} /> : <FiMenu size={22} />}
+              {isOpen ? <FiX size={22} /> : <MenuIcon ref={menuIconRef} size={22} />}
             </span>
           </button>
         </div>

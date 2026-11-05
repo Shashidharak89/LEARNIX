@@ -190,6 +190,14 @@ export default function AppSidebar({
       >
         {/* Sidebar Header */}
         <div className="learnix-sidebar-top">
+          <button
+            type="button"
+            className="learnix-sidebar-close-button"
+            onClick={onClose}
+            aria-label="Close navigation menu"
+          >
+            <FiX size={18} />
+          </button>
           <div className="learnix-sidebar-logo">
             <Image
               src="https://res.cloudinary.com/ddycnd409/image/upload/v1758341529/Picsart_25-09-18_21-28-57-720-removebg-preview_hjouiw.png"
@@ -199,14 +207,6 @@ export default function AppSidebar({
               className="learnix-sidebar-logo-img"
             />
           </div>
-          <button
-            type="button"
-            className="learnix-sidebar-close-button"
-            onClick={onClose}
-            aria-label="Close navigation menu"
-          >
-            <FiX size={18} />
-          </button>
         </div>
 
         {/* Sidebar Navigation Items */}
