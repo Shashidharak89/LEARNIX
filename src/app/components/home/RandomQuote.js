@@ -1,7 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { FiRefreshCw, FiAlertCircle } from "react-icons/fi";
+import { useState, useEffect, useRef } from "react";
+import {
+  QuoteIcon,
+  RefreshCwIcon,
+  TriangleAlertIcon,
+  SparklesIcon,
+} from "@animateicons/react/lucide";
 import "./styles/RandomQuote.css";
 import { authFetch } from "@/lib/clientAuth";
 
@@ -10,9 +15,14 @@ export default function RandomQuote() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const refreshIconRef = useRef(null);
+  const quoteBadgeRef = useRef(null);
+  const sparklesRef = useRef(null);
+
   const fetchQuote = async () => {
     setLoading(true);
     setError("");
+    refreshIconRef.current?.startAnimation?.();
 
     try {
       const res = await authFetch("/api/quote");
@@ -23,6 +33,7 @@ export default function RandomQuote() {
       setError("Failed to fetch quote. Please try again.");
     } finally {
       setLoading(false);
+      refreshIconRef.current?.stopAnimation?.();
     }
   };
 
@@ -31,27 +42,40 @@ export default function RandomQuote() {
   }, []);
 
   return (
-    <section className="rq-section">
+    <section className="rq-section" aria-label="Quote of the Moment">
       <div className="rq-container">
         {/* Soft Ambient Radial Background Aura */}
         <div className="rq-ambient-aura" />
 
-        {/* Center Quote Card */}
+        {/* Apple-style Widget Card with Yellow & Blue Learnix Theme */}
         <div className="rq-card">
-          {/* Header */}
+          {/* Header Row */}
           <div className="rq-header">
-            <div className="rq-label-badge">
-              <span className="rq-dot-brand" />
+            <div
+              className="rq-label-badge"
+              onMouseEnter={() => quoteBadgeRef.current?.startAnimation?.()}
+              onMouseLeave={() => quoteBadgeRef.current?.stopAnimation?.()}
+            >
+              <div className="rq-icon-squircle">
+                <QuoteIcon ref={quoteBadgeRef} size={15} />
+              </div>
               <span className="rq-label">Quote of the Moment</span>
             </div>
+
             <button
               type="button"
               className="rq-refresh-btn"
               onClick={fetchQuote}
               disabled={loading}
               title="Get new quote"
+              onMouseEnter={() => refreshIconRef.current?.startAnimation?.()}
+              onMouseLeave={() => !loading && refreshIconRef.current?.stopAnimation?.()}
             >
-              <FiRefreshCw className={`rq-refresh-icon ${loading ? "rq-spin" : ""}`} />
+              <RefreshCwIcon
+                ref={refreshIconRef}
+                size={14}
+                className={`rq-refresh-icon ${loading ? "rq-spin" : ""}`}
+              />
               <span>{loading ? "Updating…" : "New Quote"}</span>
             </button>
           </div>
@@ -60,10 +84,12 @@ export default function RandomQuote() {
           {error && (
             <div className="rq-error-box">
               <div className="rq-error-info">
-                <FiAlertCircle className="rq-error-icon" />
+                <TriangleAlertIcon size={16} className="rq-error-icon" />
                 <span>{error}</span>
               </div>
-              <button type="button" className="rq-retry-btn" onClick={fetchQuote}>Retry</button>
+              <button type="button" className="rq-retry-btn" onClick={fetchQuote}>
+                Retry
+              </button>
             </div>
           )}
 
@@ -86,14 +112,21 @@ export default function RandomQuote() {
               </blockquote>
 
               <div className="rq-footer">
-                <div className="rq-author-wrap">
-                  <span className="rq-author-star">✦</span>
+                <div
+                  className="rq-author-wrap"
+                  onMouseEnter={() => sparklesRef.current?.startAnimation?.()}
+                  onMouseLeave={() => sparklesRef.current?.stopAnimation?.()}
+                >
+                  <SparklesIcon ref={sparklesRef} size={15} className="rq-author-star" />
                   <span className="rq-author">{quote.author}</span>
                 </div>
+
                 {quote.tags && quote.tags.length > 0 && (
                   <div className="rq-tags">
                     {quote.tags.map((tag) => (
-                      <span key={tag} className="rq-tag">{tag}</span>
+                      <span key={tag} className="rq-tag">
+                        {tag}
+                      </span>
                     ))}
                   </div>
                 )}

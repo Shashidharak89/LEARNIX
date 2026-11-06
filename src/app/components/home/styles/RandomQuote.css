@@ -1,10 +1,10 @@
-/* RandomQuote.css - Learnix Brand Theme Quote Card */
+/* RandomQuote.css - Learnix Theme (Blue & Yellow) Apple Widget Quote Card */
 
 .rq-section {
   position: relative;
-  width: 100%;
-  max-width: 100%;
-  margin: 32px 0;
+  width: 90%;
+  max-width: 1200px;
+  margin: 1.5rem auto 2.5rem auto;
   padding: 0;
   box-sizing: border-box;
 }
@@ -21,51 +21,49 @@
   box-sizing: border-box;
 }
 
+/* Ambient glow with subtle Learnix blue and yellow warm hints */
 .rq-ambient-aura {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 100%;
-  max-width: 1000px;
+  max-width: 900px;
   height: 100%;
-  max-height: 400px;
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.06) 0%, rgba(255, 255, 255, 0) 70%);
+  max-height: 350px;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.07) 0%, rgba(37, 99, 235, 0.05) 50%, transparent 75%);
   border-radius: 50%;
   pointer-events: none;
   z-index: 1;
-  overflow: hidden;
 }
 
-/* ── Card Styling ── */
+/* ── Apple-style Rounded Widget Card ── */
 .rq-card {
   position: relative;
   z-index: 5;
   background: #ffffff;
-  border: 1px solid #e1e5ee;
+  border: 1px solid #e2e8f0;
   border-radius: 20px;
-  padding: 36px 40px;
+  padding: 32px 36px;
   width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
-  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.05);
+  box-sizing: border-box;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 1.4rem;
+  gap: 1.3rem;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   overflow: hidden;
-  box-sizing: border-box;
-  will-change: transform, opacity, filter;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .rq-card:hover {
-  border-color: #bfdbfe;
-  box-shadow: 0 8px 30px rgba(37, 99, 235, 0.1);
+  border-color: #fde68a;
+  box-shadow: 0 12px 32px -4px rgba(245, 158, 11, 0.12), 0 4px 12px -2px rgba(37, 99, 235, 0.06);
+  transform: translateY(-2px);
 }
 
-/* ── Header ── */
+/* ── Header Row ── */
 .rq-header {
   display: flex;
   align-items: center;
@@ -77,60 +75,61 @@
 .rq-label-badge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  cursor: default;
 }
 
-.rq-dot-brand {
-  width: 8px;
-  height: 8px;
-  background: #2563eb;
-  border-radius: 50%;
-  box-shadow: 0 0 8px rgba(37, 99, 235, 0.6);
-  animation: rqDotPulse 2s ease-in-out infinite;
+/* Apple squircle icon wrapper with warm yellow/gold accent */
+.rq-icon-squircle {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  color: #d97706;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
 }
 
-@keyframes rqDotPulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.4);
-    opacity: 0.6;
-  }
+.rq-label-badge:hover .rq-icon-squircle {
+  background: #fde68a;
+  color: #b45309;
+  transform: rotate(-6deg);
 }
 
 .rq-label {
-  font-family: var(--font-geist-mono, 'Geist Mono', monospace);
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #2563eb;
+  letter-spacing: 0.02em;
+  color: #1e293b;
 }
 
-/* Brand Theme Refresh Button */
+/* Apple Pill Refresh Button */
 .rq-refresh-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 0.82rem;
-  font-weight: 650;
-  padding: 0.42rem 1rem;
-  border-radius: 20px;
-  border: 1.5px solid #bfdbfe;
+  font-weight: 600;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid #dbeafe;
   background: #eff6ff;
-  color: #2563eb;
+  color: #1d4ed8;
   cursor: pointer;
   outline: none;
-  transition: background 0.22s ease, border-color 0.22s ease, color 0.22s ease, transform 0.18s ease;
+  transition: all 0.2s ease;
 }
 
 .rq-refresh-btn:hover:not(:disabled) {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: #1e4fd8;
+  border-color: #1e4fd8;
   color: #ffffff;
+  box-shadow: 0 4px 12px rgba(30, 79, 216, 0.25);
   transform: translateY(-1px);
 }
 
@@ -141,7 +140,6 @@
 
 .rq-refresh-icon {
   flex-shrink: 0;
-  font-size: 0.9rem;
 }
 
 .rq-spin {
@@ -157,7 +155,6 @@
   display: flex;
   flex-direction: column;
   gap: 1.1rem;
-  will-change: transform, opacity;
 }
 
 .rq-content {
@@ -172,18 +169,18 @@
 
 .rq-quote-text {
   display: inline;
-  will-change: transform, opacity, clip-path;
 }
 
+/* Rich Quote Marks with Learnix Yellow Accent */
 .rq-quote-mark {
-  font-size: 2.4rem;
+  font-size: 2.3rem;
   line-height: 0;
-  vertical-align: -0.5rem;
-  color: #2563eb;
+  vertical-align: -0.45rem;
+  color: #f59e0b;
   font-family: Georgia, serif;
   font-weight: 900;
   display: inline-block;
-  will-change: transform, opacity;
+  user-select: none;
 }
 
 .rq-open-quote { margin-right: 0.25rem; }
@@ -195,27 +192,27 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  padding-top: 0.95rem;
+  gap: 0.75rem;
+  padding-top: 1rem;
   border-top: 1px solid #f1f5f9;
-  will-change: transform, opacity;
 }
 
 .rq-author-wrap {
   display: flex;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.5rem;
+  cursor: default;
 }
 
 .rq-author-star {
-  color: #2563eb;
-  font-size: 0.85rem;
+  color: #f59e0b;
+  flex-shrink: 0;
 }
 
 .rq-author {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 0.94rem;
-  font-weight: 750;
+  font-weight: 700;
   color: #1e293b;
   letter-spacing: 0.01em;
 }
@@ -223,21 +220,26 @@
 .rq-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: 0.4rem;
 }
 
 .rq-tag {
-  font-family: var(--font-geist-mono, 'Geist Mono', monospace);
-  font-size: 0.72rem;
-  font-weight: 650;
-  padding: 0.2rem 0.65rem;
-  border-radius: 12px;
-  background: #eff6ff;
-  color: #1e40af;
-  border: 1px solid #bfdbfe;
+  font-size: 0.73rem;
+  font-weight: 600;
+  padding: 0.22rem 0.65rem;
+  border-radius: 9999px;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  transition: all 0.2s ease;
 }
 
-/* ── Red Error Alert Box ── */
+.rq-tag:hover {
+  background: #fde68a;
+  color: #78350f;
+}
+
+/* ── Error Box ── */
 .rq-error-box {
   display: flex;
   align-items: center;
@@ -245,7 +247,7 @@
   gap: 0.75rem;
   background: #fff1f2;
   border: 1.5px solid #fca5a5;
-  border-radius: 14px;
+  border-radius: 12px;
   padding: 0.85rem 1.1rem;
   font-size: 0.88rem;
   color: #991b1b;
@@ -259,7 +261,6 @@
 }
 
 .rq-error-icon {
-  font-size: 1.05rem;
   color: #e11d48;
   flex-shrink: 0;
 }
@@ -306,30 +307,66 @@
 .rq-sk-line--md { width: 78%; }
 .rq-sk-author { height: 14px; width: 35%; margin-top: 0.4rem; }
 
-/* Responsive */
+/* ── Responsive ── */
 @media (max-width: 768px) {
+  .rq-section {
+    width: 92%;
+    margin: 1.25rem auto 2rem auto;
+  }
+
   .rq-card {
-    padding: 28px 24px;
+    padding: 24px 22px;
+    border-radius: 18px;
+  }
+
+  .rq-content {
+    font-size: 1.15rem;
+    line-height: 1.55;
   }
 }
 
 @media (max-width: 480px) {
   .rq-section {
-    margin: 20px 0;
+    width: 94%;
+    margin: 1rem auto 1.75rem auto;
   }
 
   .rq-card {
-    padding: 28px 20px;
+    padding: 20px 16px;
     border-radius: 16px;
-    min-height: 180px;
+    gap: 1rem;
+  }
+
+  .rq-icon-squircle {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+  }
+
+  .rq-label {
+    font-size: 0.78rem;
+  }
+
+  .rq-refresh-btn {
+    padding: 0.35rem 0.8rem;
+    font-size: 0.76rem;
   }
 
   .rq-content {
-    font-size: 1.05rem;
-    line-height: 1.55;
+    font-size: 1rem;
+    line-height: 1.5;
   }
 
   .rq-quote-mark {
-    font-size: 2rem;
+    font-size: 1.8rem;
+  }
+
+  .rq-author {
+    font-size: 0.85rem;
+  }
+
+  .rq-tag {
+    font-size: 0.68rem;
+    padding: 0.18rem 0.5rem;
   }
 }
