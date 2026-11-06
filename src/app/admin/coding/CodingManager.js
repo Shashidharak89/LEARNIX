@@ -369,6 +369,8 @@ export default function CodingManager() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [totalProblems, setTotalProblems] = useState(0);
+  const [totalAllProblems, setTotalAllProblems] = useState(0);
+  const [globalMaxOrder, setGlobalMaxOrder] = useState(0);
   const [loadingMore, setLoadingMore] = useState(false);
 
   // Collapsible Form Accordions State
@@ -552,6 +554,12 @@ export default function CodingManager() {
         setPage(data.page || pageToFetch);
         setHasMore(Boolean(data.hasMore));
         setTotalProblems(typeof data.total === "number" ? data.total : incoming.length);
+        if (typeof data.totalAllProblems === "number") {
+          setTotalAllProblems(data.totalAllProblems);
+        }
+        if (typeof data.globalMaxOrder === "number") {
+          setGlobalMaxOrder(data.globalMaxOrder);
+        }
       } else {
         setError(data.error || "Failed to load problems");
       }
@@ -729,7 +737,15 @@ function ${funcName || "solution"}(${paramNames}) {
       const o = Number(p.order);
       return !isNaN(o) && o > max ? o : max;
     }, 0);
-    const nextOrder = Math.max(totalProblems || problems.length, maxExistingOrder) + 1;
+    // Auto-number using the total number of problems across the system + 1
+    const highestKnownOrder = Math.max(
+      totalAllProblems,
+      globalMaxOrder,
+      totalProblems,
+      problems.length,
+      maxExistingOrder
+    );
+    const nextOrder = highestKnownOrder + 1;
 
     setFormData({
       title: "",
@@ -1123,13 +1139,19 @@ function ${funcName || "solution"}(${paramNames}) {
       return;
     }
 
-    // Determine current maximum problem order
+    // Determine current maximum problem order & total problems across all pages
     const maxExistingOrder = problems.reduce((max, p) => {
       const o = Number(p.order);
       return !isNaN(o) && o > max ? o : max;
     }, 0);
-    // If total problem available is 11 then next will be 12 for sure
-    const startOrder = Math.max(problems.length, maxExistingOrder) + 1;
+    const highestKnownOrder = Math.max(
+      totalAllProblems,
+      globalMaxOrder,
+      totalProblems,
+      problems.length,
+      maxExistingOrder
+    );
+    const startOrder = highestKnownOrder + 1;
 
     let payloads;
     try {

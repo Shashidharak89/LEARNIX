@@ -51,6 +51,14 @@ export async function GET(req) {
     allProblems.sort((a, b) => (a.order || 999) - (b.order || 999));
 
     const total = allProblems.length;
+    const totalAllProblems = (scanRes.Items || []).length;
+    let globalMaxOrder = 0;
+    for (const item of scanRes.Items || []) {
+      const ord = Number(item.order);
+      if (!isNaN(ord) && ord > globalMaxOrder) {
+        globalMaxOrder = ord;
+      }
+    }
     const totalPages = Math.ceil(total / size);
     const startIndex = (page - 1) * size;
     const endIndex = startIndex + size;
@@ -85,6 +93,8 @@ export async function GET(req) {
       page,
       size,
       total,
+      totalAllProblems,
+      globalMaxOrder,
       totalPages,
       hasMore,
     });
