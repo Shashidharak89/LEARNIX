@@ -5,13 +5,12 @@ import Link from "next/link";
 import {
   FiArrowRight,
   FiSearch,
-  FiUpload,
   FiShield,
-  FiSmartphone,
   FiFolder,
   FiBell,
   FiFileText,
   FiBookOpen,
+  FiUsers,
 } from "react-icons/fi";
 import { HiAcademicCap } from "react-icons/hi";
 import "./styles/HeroSection.css";
@@ -25,27 +24,46 @@ const EXPLORE_ITEMS = [
   { label: "Study Materials",   href: "/materials", Icon: FiBookOpen },
 ];
 
-const CYCLE_MS = 5000; // 5 seconds per item
+const CYCLE_MS = 5000;
+
+const FEATURE_POINTS = [
+  {
+    Icon: FiSearch,
+    title: "Find Study Material",
+    desc: "Notes, subject-wise content & past papers.",
+  },
+  {
+    Icon: HiAcademicCap,
+    title: "Exam & Placement Prep",
+    desc: "Updated resources to crack exams & placements.",
+  },
+  {
+    Icon: FiUsers,
+    title: "Community Sharing",
+    desc: "Upload your notes & help peers succeed.",
+  },
+  {
+    Icon: FiBookOpen,
+    title: "Practice on the App",
+    desc: "Quizzes, feedback & study on the go.",
+  },
+];
 
 export default function HeroSection() {
   const [idx, setIdx]           = useState(0);
-  const [progress, setProgress] = useState(0);     // 0–100
+  const [progress, setProgress] = useState(0);
   const [loggedIn, setLoggedIn] = useState(false);
 
-  // Detect login on client only
   useEffect(() => {
     setLoggedIn(Boolean(localStorage.getItem("usn")));
   }, []);
 
-  // Progress bar + cycle timer
   useEffect(() => {
     const startTime = performance.now();
-
     const raf = (now) => {
       const elapsed = now - startTime;
       const pct = Math.min((elapsed / CYCLE_MS) * 100, 100);
       setProgress(pct);
-
       if (elapsed < CYCLE_MS) {
         rafId = requestAnimationFrame(raf);
       } else {
@@ -53,7 +71,6 @@ export default function HeroSection() {
         setProgress(0);
       }
     };
-
     let rafId = requestAnimationFrame(raf);
     return () => cancelAnimationFrame(rafId);
   }, [idx]);
@@ -61,105 +78,93 @@ export default function HeroSection() {
   const current = EXPLORE_ITEMS[idx];
 
   return (
-    <section className="learnix-hero-main">
-      <div className="learnix-hero-container">
-        <div className="learnix-hero-content">
-          <div className="learnix-hero-layout">
-            {/* ── Left side ─────────────────────────────────────────────── */}
-            <div className="learnix-hero-left">
-              <div className="learnix-title-wrapper">
-                <h1 className="learnix-main-title">
-                  Welcome to{" "}
-                  <span className="learnix-brand-text">
-                    LEARNIX
-                    <div className="learnix-brand-underline"></div>
+    <section className="lnx-hero">
+      <div className="lnx-hero-inner">
+        <div className="lnx-hero-grid">
+
+          {/* ── LEFT ──────────────────────────────────────────────────── */}
+          <div className="lnx-left">
+
+            {/* Title */}
+            <h1 className="lnx-title">
+              Welcome to{" "}
+              <span className="lnx-brand">
+                LEARNIX
+                <span className="lnx-brand-line" />
+              </span>
+            </h1>
+
+            {/* Slogan */}
+            <div className="lnx-slogan">✨ Learn Together, Succeed Together</div>
+
+            {/* Subtitle */}
+            <p className="lnx-subtitle">
+              A platform where students share study materials and help each
+              other do better in college.
+            </p>
+
+            {/* Feature mini-cards */}
+            <div className="lnx-features">
+              {FEATURE_POINTS.map(({ Icon, title, desc }) => (
+                <div className="lnx-feat-card" key={title}>
+                  <span className="lnx-feat-icon-wrap">
+                    <Icon size={16} />
                   </span>
-                </h1>
-                <div className="learnix-slogan-tag">✨ Learn Together, Succeed Together</div>
-              </div>
-
-              <p className="learnix-hero-subtitle">
-                Learnix is a platform where students share study materials and help each other do better in college.
-              </p>
-
-              <h4 style={{ fontSize: "1.05rem", fontWeight: "700", color: "#1f2937", marginBottom: "14px" }}>
-                What you can do on Learnix:
-              </h4>
-
-              <ul className="learnix-hero-points">
-                <li>
-                  <FiSearch className="learnix-point-icon" />
-                  <span>
-                    <strong>Find Study Material —</strong> Get notes, subject-wise content, and previous year question papers for your courses.
-                  </span>
-                </li>
-                <li>
-                  <HiAcademicCap className="learnix-point-icon" />
-                  <span>
-                    <strong>Prepare for Exams &amp; Placements —</strong> Access updated study resources to help you crack exams and ace placements.
-                  </span>
-                </li>
-                <li>
-                  <FiUpload className="learnix-point-icon" />
-                  <span>
-                    <strong>Upload &amp; Organize —</strong> Upload your own notes and materials, and keep everything sorted by subject and topic.
-                  </span>
-                </li>
-                <li>
-                  <FiSmartphone className="learnix-point-icon" />
-                  <span>
-                    <strong>Practice on Our App —</strong> Download the Learnix app to take quizzes, get feedback, and study on the go.
-                  </span>
-                </li>
-              </ul>
-
-              {/* ── CTA Row ────────────────────────────────────────────── */}
-              <div className="learnix-hero-ctas">
-
-                {/* Animated rotating Explore button */}
-                <Link href={current.href} className="learnix-cta-button learnix-cta-rotating">
-                  {/* Full-height darker-blue progress fill */}
-                  <span
-                    className="learnix-cta-progress-bar"
-                    style={{ width: `${progress}%` }}
-                    aria-hidden="true"
-                  />
-                  {/* Label */}
-                  <span className="learnix-cta-rotating-inner">
-                    <current.Icon size={17} className="learnix-cta-rotating-icon" />
-                    <span className="learnix-cta-rotating-label">{current.label}</span>
-                    <FiArrowRight className="learnix-button-icon" />
-                  </span>
-                </Link>
-
-                {/* Secondary button: Login/Register if not logged in, Start Learning if logged in */}
-                {loggedIn ? (
-                  <Link href="/learn" className="learnix-cta-secondary">
-                    ✔ Start Learning
-                  </Link>
-                ) : (
-                  <Link href="/login" className="learnix-cta-secondary">
-                    Login / Register
-                  </Link>
-                )}
-              </div>
-
-              <div className="learnix-adsense-note">
-                <FiShield className="learnix-adsense-icon" />
-                <span>
-                  We support original &amp; permitted content. See{" "}
-                  <Link href="/terms">Terms</Link>,{" "}
-                  <Link href="/privacy-policy">Privacy</Link>, or{" "}
-                  <Link href="/report-content">report content</Link>.
-                </span>
-              </div>
+                  <div className="lnx-feat-text">
+                    <strong>{title}</strong>
+                    <span>{desc}</span>
+                  </div>
+                </div>
+              ))}
             </div>
 
-            {/* ── Right side ────────────────────────────────────────────── */}
-            <div className="learnix-hero-right">
+            {/* CTAs */}
+            <div className="lnx-ctas">
+              {/* Cycling Explore button */}
+              <Link href={current.href} className="lnx-btn-primary">
+                <span
+                  className="lnx-btn-progress"
+                  style={{ width: `${progress}%` }}
+                  aria-hidden="true"
+                />
+                <span className="lnx-btn-inner">
+                  <current.Icon size={16} className="lnx-btn-icon" />
+                  <span className="lnx-btn-label">{current.label}</span>
+                  <FiArrowRight className="lnx-btn-arrow" />
+                </span>
+              </Link>
+
+              {/* Secondary */}
+              {loggedIn ? (
+                <Link href="/learn" className="lnx-btn-secondary">
+                  ✔ Start Learning
+                </Link>
+              ) : (
+                <Link href="/login" className="lnx-btn-secondary">
+                  Login / Register
+                </Link>
+              )}
+            </div>
+
+            {/* Disclaimer */}
+            <div className="lnx-disclaimer">
+              <FiShield className="lnx-disclaimer-icon" />
+              <span>
+                We support original &amp; permitted content. See{" "}
+                <Link href="/terms">Terms</Link>,{" "}
+                <Link href="/privacy-policy">Privacy</Link>, or{" "}
+                <Link href="/report-content">report content</Link>.
+              </span>
+            </div>
+          </div>
+
+          {/* ── RIGHT ─────────────────────────────────────────────────── */}
+          <div className="lnx-right">
+            <div className="lnx-video-frame">
               <TutVideo />
             </div>
           </div>
+
         </div>
       </div>
     </section>
