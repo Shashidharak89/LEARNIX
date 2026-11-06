@@ -59,6 +59,10 @@ export default function Home() {
             <br />
             <br />
             <RandomQuote />
+            <br/>
+            <br/>
+            <br/>
+            <br/>
             {/* <HomeGroqAskBox /> */}
             <WhatIsLearnix />
             <WhoIsLearnixFor />
