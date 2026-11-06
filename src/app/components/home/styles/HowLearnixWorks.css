@@ -1,96 +1,281 @@
+/* HowLearnixWorks.css — Apple-style Widget Card with Learnix Theme (Blue & Yellow) */
+
 .lx-work-section {
-  background: #ffffff;
-  padding: 90px 20px;
+  width: 90%;
+  max-width: 1200px;
+  margin: 1.5rem auto 2.5rem auto;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Container */
-.lx-work-container {
-  max-width: 1050px;
-  margin: 0 auto;
+/* ── Apple-style Rounded Widget Card ── */
+.lx-work-card-container {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
   text-align: left;
 }
 
-/* Header */
-.lx-work-title {
-  font-size: 2.4rem;
+.lx-work-card-container:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.09), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+}
+
+/* Top Banner Image */
+.lx-work-img-wrapper {
+  margin-bottom: 28px;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* ── Pill Badge ── */
+.lx-work-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.8rem;
   font-weight: 700;
-  color: #000;
-  margin-bottom: 12px;
+  letter-spacing: 0.03em;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  margin-bottom: 14px;
+  cursor: default;
+}
+
+.lx-work-badge-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: #dbeafe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1e4fd8;
+  flex-shrink: 0;
+}
+
+/* ── Header ── */
+.lx-work-header-block {
+  margin-bottom: 30px;
+}
+
+.lx-work-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.025em;
+  text-align: left;
+}
+
+.lx-work-brand {
+  color: #2563eb;
+  position: relative;
+  display: inline-block;
+}
+
+.lx-work-underline {
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: #fbbf24;
+  border-radius: 2px;
 }
 
 .lx-work-subtitle {
   font-size: 1.05rem;
-  line-height: 1.7;
-  color: #000;
-  max-width: 800px;
-  margin-bottom: 45px;
+  color: #475569;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 780px;
+  text-align: left;
 }
 
-/* Steps wrapper */
-.lx-work-steps {
+/* ── Steps Grid (Apple-style Widgets) ── */
+.lx-work-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+  gap: 16px;
+}
+
+/* Step Card Widget */
+.lx-work-step-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 22px 20px;
   display: flex;
   flex-direction: column;
-  gap: 35px;
-  position: relative;
+  justify-content: flex-start;
+  gap: 14px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: default;
+  box-sizing: border-box;
 }
 
-/* Vertical line */
-.lx-work-steps::before {
-  content: "";
-  position: absolute;
-  left: 22px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: #e5e7eb;
+.lx-work-step-card:hover {
+  transform: translateY(-3px);
 }
 
-/* Step */
-.lx-work-step {
+.lx-work-step-card--blue:hover {
+  border-color: #bfdbfe;
+  background: #ffffff;
+  box-shadow: 0 8px 24px -2px rgba(37, 99, 235, 0.1);
+}
+
+.lx-work-step-card--yellow:hover {
+  border-color: #fde68a;
+  background: #ffffff;
+  box-shadow: 0 8px 24px -2px rgba(245, 158, 11, 0.12);
+}
+
+/* Top bar of step card */
+.lx-work-step-top {
   display: flex;
-  gap: 25px;
-  position: relative;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
-/* Step number */
-.lx-work-number {
-  width: 46px;
-  height: 46px;
-  background: #38bdf8;
-  color: #000;
-  font-weight: 700;
-  font-size: 1.1rem;
-  border-radius: 50%;
+.lx-work-step-num-badge {
+  font-size: 0.76rem;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.lx-work-step-card--blue:hover .lx-work-step-num-badge {
+  background: #eff6ff;
+  color: #1e4fd8;
+  border-color: #bfdbfe;
+}
+
+.lx-work-step-card--yellow:hover .lx-work-step-num-badge {
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
+}
+
+/* Squircle Icon */
+.lx-work-icon-squircle {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
 }
 
-/* Content */
-.lx-work-content h4 {
-  font-size: 1.15rem;
-  margin-bottom: 6px;
-  color: #000;
+.lx-work-step-card--blue .lx-work-icon-squircle {
+  background: #dbeafe;
+  color: #1e4fd8;
+  border: 1px solid #bfdbfe;
 }
 
-.lx-work-content p {
-  font-size: 0.95rem;
-  line-height: 1.7;
-  color: #000;
-  max-width: 800px;
+.lx-work-step-card--yellow .lx-work-icon-squircle {
+  background: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fde68a;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .lx-work-steps::before {
-    left: 20px;
+.lx-work-step-card:hover .lx-work-icon-squircle {
+  transform: scale(1.08);
+}
+
+/* Step Content */
+.lx-work-step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lx-work-step-body h4 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+}
+
+.lx-work-step-body p {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #475569;
+  margin: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .lx-work-section {
+    width: 92%;
   }
 
-  .lx-work-number {
-    width: 40px;
-    height: 40px;
-    font-size: 1rem;
+  .lx-work-card-container {
+    padding: 30px 24px;
+  }
+
+  .lx-work-title {
+    font-size: 1.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .lx-work-section {
+    width: 94%;
+    margin: 1rem auto 2rem auto;
+  }
+
+  .lx-work-card-container {
+    padding: 22px 16px;
+    border-radius: 16px;
+  }
+
+  .lx-work-title {
+    font-size: 1.5rem;
+    line-height: 1.25;
+  }
+
+  .lx-work-subtitle {
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  .lx-work-steps-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .lx-work-step-card {
+    padding: 18px 16px;
+    border-radius: 14px;
+  }
+
+  .lx-work-step-body h4 {
+    font-size: 0.98rem;
+  }
+
+  .lx-work-step-body p {
+    font-size: 0.84rem;
   }
 }
