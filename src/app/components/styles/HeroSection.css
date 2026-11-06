@@ -93,6 +93,7 @@
   max-width: 540px;
 }
 
+/* feat-card — shared for <button>, <a>, <Link> */
 .lnx-feat-card {
   display: flex;
   align-items: flex-start;
@@ -101,14 +102,27 @@
   border-radius: 14px;
   border: 1px solid #e2e8f0;
   background: #f8fafc;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-  cursor: default;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
+  cursor: pointer;
+  text-decoration: none;
+  /* button reset */
+  font-family: inherit;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  text-align: left;
 }
 
 .lnx-feat-card:hover {
   border-color: #bfdbfe;
   background: #eff6ff;
   box-shadow: 0 4px 16px rgba(37, 99, 235, 0.08);
+}
+
+/* On hover, animate the icon */
+.lnx-feat-card:hover .lnx-feat-icon-wrap {
+  background: #bfdbfe;
 }
 
 .lnx-feat-icon-wrap {
@@ -123,7 +137,9 @@
   flex-shrink: 0;
   font-size: 1rem;
   margin-top: 1px;
+  transition: background 0.22s ease;
 }
+
 
 .lnx-feat-text {
   display: flex;

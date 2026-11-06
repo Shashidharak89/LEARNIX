@@ -1,58 +1,125 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
-  FiArrowRight,
-  FiSearch,
-  FiShield,
-  FiFolder,
-  FiBell,
-  FiFileText,
-  FiBookOpen,
-  FiUsers,
-} from "react-icons/fi";
-import { HiAcademicCap } from "react-icons/hi";
+  SearchIcon,
+  BookOpenIcon,
+  UsersIcon,
+  SmartphoneIcon,
+  ArrowRightIcon,
+  ShieldCheckIcon,
+  FolderIcon,
+  BellIcon,
+  FileTextIcon,
+  BookOpenTextIcon,
+} from "@animateicons/react/lucide";
 import "./styles/HeroSection.css";
 import TutVideo from "./TutVideo";
 
-/* ── Destinations the Explore button cycles through ────────────────────── */
+const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=com.shashidharak.learnix";
+
+/* ── Destinations the Explore button cycles through ───────── */
 const EXPLORE_ITEMS = [
-  { label: "Explore Resources", href: "/resources", Icon: FiFolder },
-  { label: "Explore Updates",   href: "/updates",   Icon: FiBell     },
-  { label: "Question Papers",   href: "/qp",        Icon: FiFileText },
-  { label: "Study Materials",   href: "/materials", Icon: FiBookOpen },
+  { label: "Explore Resources", href: "/resources", Icon: FolderIcon      },
+  { label: "Explore Updates",   href: "/updates",   Icon: BellIcon        },
+  { label: "Question Papers",   href: "/qp",        Icon: FileTextIcon    },
+  { label: "Study Materials",   href: "/materials", Icon: BookOpenTextIcon },
 ];
 
 const CYCLE_MS = 5000;
 
-const FEATURE_POINTS = [
-  {
-    Icon: FiSearch,
-    title: "Find Study Material",
-    desc: "Notes, subject-wise content & past papers.",
-  },
-  {
-    Icon: HiAcademicCap,
-    title: "Exam & Placement Prep",
-    desc: "Updated resources to crack exams & placements.",
-  },
-  {
-    Icon: FiUsers,
-    title: "Community Sharing",
-    desc: "Upload your notes & help peers succeed.",
-  },
-  {
-    Icon: FiBookOpen,
-    title: "Practice on the App",
-    desc: "Quizzes, feedback & study on the go.",
-  },
-];
+/* ── Individual feature card with animated Lucide icon ─────── */
+function FeatCard({ Icon, title, desc, onClick, href, isExternal }) {
+  const iconRef = useRef(null);
+
+  const handleEnter = () => iconRef.current?.startAnimation?.();
+  const handleLeave = () => iconRef.current?.stopAnimation?.();
+
+  const inner = (
+    <>
+      <span className="lnx-feat-icon-wrap">
+        <Icon ref={iconRef} size={17} />
+      </span>
+      <div className="lnx-feat-text">
+        <strong>{title}</strong>
+        <span>{desc}</span>
+      </div>
+    </>
+  );
+
+  const shared = {
+    className: "lnx-feat-card",
+    onMouseEnter: handleEnter,
+    onMouseLeave: handleLeave,
+  };
+
+  if (onClick) {
+    return (
+      <button type="button" {...shared} onClick={onClick}>
+        {inner}
+      </button>
+    );
+  }
+  if (isExternal) {
+    return (
+      <a href={href} target="_blank" rel="noopener noreferrer" {...shared}>
+        {inner}
+      </a>
+    );
+  }
+  return (
+    <Link href={href} {...shared}>
+      {inner}
+    </Link>
+  );
+}
+
+/* ── Cycling Explore button ────────────────────────────────── */
+function ExploreBtn({ item, progress }) {
+  const iconRef  = useRef(null);
+  const arrowRef = useRef(null);
+
+  return (
+    <Link
+      href={item.href}
+      className="lnx-btn-primary"
+      onMouseEnter={() => { iconRef.current?.startAnimation?.(); arrowRef.current?.startAnimation?.(); }}
+      onMouseLeave={() => { iconRef.current?.stopAnimation?.(); arrowRef.current?.stopAnimation?.(); }}
+    >
+      <span className="lnx-btn-progress" style={{ width: `${progress}%` }} aria-hidden="true" />
+      <span className="lnx-btn-inner">
+        <item.Icon ref={iconRef} size={16} className="lnx-btn-icon" />
+        <span className="lnx-btn-label">{item.label}</span>
+        <ArrowRightIcon ref={arrowRef} size={16} className="lnx-btn-arrow" />
+      </span>
+    </Link>
+  );
+}
+
+/* ── Secondary CTA button ─────────────────────────────────── */
+function SecondaryBtn({ href, children }) {
+  const arrowRef = useRef(null);
+  return (
+    <Link
+      href={href}
+      className="lnx-btn-secondary"
+      onMouseEnter={() => arrowRef.current?.startAnimation?.()}
+      onMouseLeave={() => arrowRef.current?.stopAnimation?.()}
+    >
+      {children}
+    </Link>
+  );
+}
 
 export default function HeroSection() {
   const [idx, setIdx]           = useState(0);
   const [progress, setProgress] = useState(0);
   const [loggedIn, setLoggedIn] = useState(false);
+
+  /* Disclaimer shield ref */
+  const shieldRef = useRef(null);
 
   useEffect(() => {
     setLoggedIn(Boolean(localStorage.getItem("usn")));
@@ -75,6 +142,15 @@ export default function HeroSection() {
     return () => cancelAnimationFrame(rafId);
   }, [idx]);
 
+  /* Focus the navbar search input */
+  const focusSearch = () => {
+    const input = document.querySelector(".lnx-nav-search-input");
+    if (input) {
+      input.focus();
+      input.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
+
   const current = EXPLORE_ITEMS[idx];
 
   return (
@@ -82,10 +158,9 @@ export default function HeroSection() {
       <div className="lnx-hero-inner">
         <div className="lnx-hero-grid">
 
-          {/* ── LEFT ──────────────────────────────────────────────────── */}
+          {/* ── LEFT ──────────────────────────────────────────── */}
           <div className="lnx-left">
 
-            {/* Title */}
             <h1 className="lnx-title">
               Welcome to{" "}
               <span className="lnx-brand">
@@ -94,10 +169,8 @@ export default function HeroSection() {
               </span>
             </h1>
 
-            {/* Slogan */}
-            <div className="lnx-slogan">✨ Learn Together, Succeed Together</div>
+            <div className="lnx-slogan">Learn Together, Succeed Together</div>
 
-            {/* Subtitle */}
             <p className="lnx-subtitle">
               A platform where students share study materials and help each
               other do better in college.
@@ -105,50 +178,50 @@ export default function HeroSection() {
 
             {/* Feature mini-cards */}
             <div className="lnx-features">
-              {FEATURE_POINTS.map(({ Icon, title, desc }) => (
-                <div className="lnx-feat-card" key={title}>
-                  <span className="lnx-feat-icon-wrap">
-                    <Icon size={16} />
-                  </span>
-                  <div className="lnx-feat-text">
-                    <strong>{title}</strong>
-                    <span>{desc}</span>
-                  </div>
-                </div>
-              ))}
+              <FeatCard
+                Icon={SearchIcon}
+                title="Find Study Material"
+                desc="Notes, subject-wise content & past papers."
+                onClick={focusSearch}
+              />
+              <FeatCard
+                Icon={BookOpenIcon}
+                title="Exam & Placement Prep"
+                desc="Updated resources to crack exams & placements."
+                href="/qp"
+              />
+              <FeatCard
+                Icon={UsersIcon}
+                title="Community Sharing"
+                desc="Share notes & help peers succeed."
+                href="/updates"
+              />
+              <FeatCard
+                Icon={SmartphoneIcon}
+                title="Practice on the App"
+                desc="Quizzes, feedback & study on the go."
+                href={PLAY_STORE_URL}
+                isExternal
+              />
             </div>
 
             {/* CTAs */}
             <div className="lnx-ctas">
-              {/* Cycling Explore button */}
-              <Link href={current.href} className="lnx-btn-primary">
-                <span
-                  className="lnx-btn-progress"
-                  style={{ width: `${progress}%` }}
-                  aria-hidden="true"
-                />
-                <span className="lnx-btn-inner">
-                  <current.Icon size={16} className="lnx-btn-icon" />
-                  <span className="lnx-btn-label">{current.label}</span>
-                  <FiArrowRight className="lnx-btn-arrow" />
-                </span>
-              </Link>
-
-              {/* Secondary */}
+              <ExploreBtn item={current} progress={progress} />
               {loggedIn ? (
-                <Link href="/learn" className="lnx-btn-secondary">
-                  ✔ Start Learning
-                </Link>
+                <SecondaryBtn href="/learn">Start Learning</SecondaryBtn>
               ) : (
-                <Link href="/login" className="lnx-btn-secondary">
-                  Login / Register
-                </Link>
+                <SecondaryBtn href="/login">Login / Register</SecondaryBtn>
               )}
             </div>
 
             {/* Disclaimer */}
-            <div className="lnx-disclaimer">
-              <FiShield className="lnx-disclaimer-icon" />
+            <div
+              className="lnx-disclaimer"
+              onMouseEnter={() => shieldRef.current?.startAnimation?.()}
+              onMouseLeave={() => shieldRef.current?.stopAnimation?.()}
+            >
+              <ShieldCheckIcon ref={shieldRef} size={15} className="lnx-disclaimer-icon" />
               <span>
                 We support original &amp; permitted content. See{" "}
                 <Link href="/terms">Terms</Link>,{" "}
@@ -158,7 +231,7 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* ── RIGHT ─────────────────────────────────────────────────── */}
+          {/* ── RIGHT ─────────────────────────────────────────── */}
           <div className="lnx-right">
             <div className="lnx-video-frame">
               <TutVideo />
