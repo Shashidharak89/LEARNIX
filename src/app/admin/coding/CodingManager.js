@@ -2012,7 +2012,16 @@ Example structure:
                         <div style={{ marginTop: "0.75rem", display: "flex", flexDirection: "column", gap: "0.5rem", maxHeight: "240px", overflowY: "auto" }}>
                           {jsonParsed.map((p, idx) => {
                             const maxExisting = problems.reduce((max, item) => Math.max(max, Number(item.order) || 0), 0);
-                            const autoOrder = Math.max(problems.length, maxExisting) + 1 + idx;
+                            const highestKnown = Math.max(
+                              totalAllProblems,
+                              globalMaxOrder,
+                              totalProblems,
+                              problems.length,
+                              maxExisting
+                            );
+                            const autoOrder = (jsonParsed.length === 1 && Number(p.order) > 0)
+                              ? Number(p.order)
+                              : highestKnown + 1 + idx;
                             const tcCount = Array.isArray(p.testCases || p.test_cases || p.tests)
                               ? (p.testCases || p.test_cases || p.tests).length
                               : 0;
