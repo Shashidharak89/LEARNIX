@@ -61,11 +61,8 @@ export default function Home() {
             <RandomQuote />
             {/* <HomeGroqAskBox /> */}
             <WhatIsLearnix />
-            <AutoPlayVideo videoUrl="https://res.cloudinary.com/dsojdpkgh/video/upload/v1766751517/zglomku8o9iuxxv99qwx.mp4" />
             <WhoIsLearnixFor />
             <WhatYouCanLearn />
-            <AutoPlayVideo videoUrl="https://res.cloudinary.com/dsojdpkgh/video/upload/v1766752160/x0wvwwcpxgnrkwkbye1k.mp4" />
-
             <HowLearnixWorks />
             <SamplePublicContent />
             <QuestionPapersBanner />

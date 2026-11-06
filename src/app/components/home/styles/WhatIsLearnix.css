@@ -1,154 +1,337 @@
+/* WhatIsLearnix.css — Apple-style Widget Card with Learnix Theme (Blue & Yellow) */
+
 .lx-what-section {
+  width: 90%;
+  max-width: 1200px;
+  margin: 1.5rem auto 2.5rem auto;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ── Apple-style Rounded Widget Card ── */
+.lx-what-card {
+  position: relative;
   background: #ffffff;
-  padding: 80px 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
 }
 
-/* Card container */
-.lx-what-container {
-  max-width: 1050px;
-  margin: auto;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 50px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+.lx-what-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.09), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
 }
 
-/* Title */
-.lx-what-title {
-  font-size: 2.4rem;
+/* Image preview container */
+.lx-what-img-wrapper {
+  margin-bottom: 28px;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* ── Platform Overview Pill Badge ── */
+.lx-what-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.8rem;
   font-weight: 700;
-  color: #000;
-  margin-bottom: 18px;
+  letter-spacing: 0.03em;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  margin-bottom: 14px;
+  cursor: default;
+}
+
+.lx-what-badge-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: #dbeafe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1e4fd8;
+  flex-shrink: 0;
+}
+
+/* ── Title ── */
+.lx-what-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+  margin: 0 0 14px 0;
+  letter-spacing: -0.025em;
   text-align: left;
 }
 
-.lx-what-title span {
-  color: #38bdf8; /* sky blue */
+.lx-what-brand {
+  color: #2563eb;
+  position: relative;
+  display: inline-block;
 }
 
-/* Intro text */
+.lx-brand-underline {
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: #fbbf24;
+  border-radius: 2px;
+}
+
+/* ── Intro text ── */
 .lx-what-intro {
   font-size: 1.05rem;
-  line-height: 1.8;
-  color: #000;
-  max-width: 850px;
-  margin-bottom: 24px;
+  line-height: 1.65;
+  color: #475569;
+  max-width: 820px;
+  margin: 0 0 24px 0;
   text-align: left;
 }
 
-/* Bullet points */
+/* ── Key Points Mini-Widgets ── */
 .lx-what-points {
   list-style: none;
   padding: 0;
-  margin-bottom: 30px;
-  text-align: left;
+  margin: 0 0 24px 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
-.lx-what-points li {
-  font-size: 1rem;
-  color: #000;
-  padding-left: 30px;
-  margin-bottom: 12px;
-  position: relative;
+.lx-what-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: #1e293b;
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1.5;
+  cursor: default;
+  transition: all 0.2s ease;
 }
 
-.lx-what-points li::before {
-  content: "✔";
-  position: absolute;
-  left: 0;
-  color: #facc15; /* yellow */
-  font-weight: bold;
+.lx-what-point:hover {
+  border-color: #fde68a;
+  background: #fffbeb;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.08);
 }
 
-/* Expandable content */
+.lx-point-icon-box {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fde68a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: all 0.2s ease;
+}
+
+.lx-what-point:hover .lx-point-icon-box {
+  background: #fde68a;
+  color: #b45309;
+}
+
+.lx-point-icon {
+  flex-shrink: 0;
+}
+
+/* ── Expandable Content ── */
 .lx-what-extra {
   overflow: hidden;
-  transition: max-height 0.6s ease, opacity 0.4s ease;
+  transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
 }
 
 .lx-expand-close {
   max-height: 0;
   opacity: 0;
+  pointer-events: none;
 }
 
 .lx-expand-open {
-  max-height: 800px;
+  max-height: 900px;
   opacity: 1;
 }
 
-/* Extra paragraphs */
+.lx-extra-inner {
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
+  margin-top: 8px;
+}
+
 .lx-what-extra p {
-  font-size: 1rem;
-  line-height: 1.8;
-  color: #000;
-  margin-bottom: 18px;
+  font-size: 0.96rem;
+  line-height: 1.7;
+  color: #475569;
+  margin: 0 0 16px 0;
   text-align: left;
 }
 
-/* Note box */
+/* ── Note Box with Yellow Learnix Accent ── */
 .lx-what-note {
-  margin-top: 20px;
-  padding: 16px;
-  background: #fff7cc;
-  border-left: 5px solid #facc15;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  text-align: left;
+  margin-top: 18px;
+  padding: 14px 18px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-left: 4px solid #f59e0b;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  color: #92400e;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: default;
+  transition: all 0.2s ease;
 }
 
-/* Button */
-.lx-view-btn {
-  margin-top: 28px;
-  background: #38bdf8;
-  color: #000;
-  border: none;
-  padding: 12px 30px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.2s ease;
+.lx-what-note:hover {
+  background: #fef3c7;
 }
 
-.lx-view-btn:hover {
-  background: #facc15;
-  transform: translateY(-2px);
+.lx-note-icon {
+  color: #d97706;
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .lx-what-container {
-    padding: 30px 22px;
-  }
-
-  .lx-what-title {
-    font-size: 2rem;
-  }
-
-  .lx-what-intro {
-    font-size: 1rem;
-  }
+.lx-what-note strong {
+  color: #78350f;
+  font-weight: 700;
 }
+
+/* ── Read More Link ── */
 .lx-read-more-wrap {
-  margin-top: 25px;
+  margin-top: 20px;
   text-align: left;
 }
 
 .lx-read-more-btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 600;
-  color: #000;
-  padding: 10px 22px;
-  border: 1px solid #38bdf8;
-  border-radius: 6px;
-  transition: all 0.3s ease;
+  color: #1e4fd8;
+  padding: 10px 20px;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  transition: all 0.2s ease;
 }
 
 .lx-read-more-btn:hover {
-  background: #38bdf8;
-  color: #000;
-  transform: translateX(4px);
+  background: #1e4fd8;
+  border-color: #1e4fd8;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(30, 79, 216, 0.25);
 }
 
+/* ── View More / Less Toggle Button ── */
+.lx-view-actions {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.lx-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #1e4fd8;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 0.92rem;
+  font-weight: 650;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(30, 79, 216, 0.25);
+  transition: all 0.2s ease;
+}
+
+.lx-view-btn:hover {
+  background: #15379e;
+  box-shadow: 0 6px 18px rgba(30, 79, 216, 0.35);
+  transform: translateY(-1px);
+}
+
+/* ── Responsive ── */
+@media (max-width: 860px) {
+  .lx-what-section {
+    width: 92%;
+  }
+
+  .lx-what-card {
+    padding: 30px 24px;
+  }
+
+  .lx-what-points {
+    grid-template-columns: 1fr;
+  }
+
+  .lx-what-title {
+    font-size: 1.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .lx-what-section {
+    width: 94%;
+    margin: 1rem auto 2rem auto;
+  }
+
+  .lx-what-card {
+    padding: 22px 16px;
+    border-radius: 16px;
+  }
+
+  .lx-what-title {
+    font-size: 1.5rem;
+    line-height: 1.25;
+  }
+
+  .lx-what-intro {
+    font-size: 0.92rem;
+    line-height: 1.55;
+    margin-bottom: 18px;
+  }
+
+  .lx-what-point {
+    padding: 12px 12px;
+    font-size: 0.85rem;
+  }
+
+  .lx-view-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 11px 18px;
+  }
+
+  .lx-read-more-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
