@@ -89,7 +89,7 @@
 .lrx-dlb-feature {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 6px 12px;
   border: 1px solid var(--lrx-border);
   border-radius: 10px;
@@ -97,9 +97,17 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 13px;
   font-weight: 500;
+  cursor: default;
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
 
-.lrx-dlb-feature svg {
+.lrx-dlb-feature:hover {
+  border-color: #bfdbfe;
+  background: var(--lrx-surface);
+}
+
+.lrx-dlb-feature svg,
+.lrx-dlb-feat-icon {
   color: var(--lrx-blue);
   flex-shrink: 0;
 }

@@ -1,24 +1,37 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
-  FiFileText,
-  FiUploadCloud,
-} from "react-icons/fi";
+  FileTextIcon,
+  CloudUploadIcon,
+  SmartphoneIcon,
+} from "@animateicons/react/lucide";
 import { FaGooglePlay } from "react-icons/fa";
 
 import googlePlaySvg from "../../animated-icons/Google Play.svg";
 
 import "./styles/DownloadAppBanner.css";
 
-const FEATURES = [
-  { icon: FiFileText, label: "Notes & papers" },
-  { icon: FiUploadCloud, label: "Instant uploads" },
-];
+function AnimatedFeature({ Icon, label }) {
+  const iconRef = useRef(null);
+
+  return (
+    <li
+      className="lrx-dlb-feature"
+      onMouseEnter={() => iconRef.current?.startAnimation?.()}
+      onMouseLeave={() => iconRef.current?.stopAnimation?.()}
+    >
+      <Icon ref={iconRef} size={15} className="lrx-dlb-feat-icon" aria-hidden="true" />
+      <span>{label}</span>
+    </li>
+  );
+}
 
 export default function DownloadAppBanner() {
   const [appInfo, setAppInfo] = useState({ version: "", link: "" });
   const [isLoading, setIsLoading] = useState(true);
+
+  const phoneRef = useRef(null);
 
   useEffect(() => {
     async function fetchAppInfo() {
@@ -40,9 +53,13 @@ export default function DownloadAppBanner() {
       <div className="lrx-dlb-inner">
 
         <div className="lrx-dlb-content">
-          <span className="lrx-dlb-badge">
-            <FaGooglePlay size={13} aria-hidden="true" />
-            Available on Google Play
+          <span
+            className="lrx-dlb-badge"
+            onMouseEnter={() => phoneRef.current?.startAnimation?.()}
+            onMouseLeave={() => phoneRef.current?.stopAnimation?.()}
+          >
+            <SmartphoneIcon ref={phoneRef} size={14} aria-hidden="true" />
+            <span>Available on Google Play</span>
           </span>
 
           <h3 className="lrx-dlb-title">
@@ -55,12 +72,8 @@ export default function DownloadAppBanner() {
           </p>
 
           <ul className="lrx-dlb-features">
-            {FEATURES.map(({ icon: Icon, label }) => (
-              <li className="lrx-dlb-feature" key={label}>
-                <Icon size={14} aria-hidden="true" />
-                {label}
-              </li>
-            ))}
+            <AnimatedFeature Icon={FileTextIcon} label="Notes & papers" />
+            <AnimatedFeature Icon={CloudUploadIcon} label="Instant uploads" />
           </ul>
 
           <a
@@ -70,7 +83,7 @@ export default function DownloadAppBanner() {
             className="lrx-dlb-cta"
             aria-disabled={isLoading}
           >
-            <FaGooglePlay size={17} className="lrx-dlb-cta-icon" aria-hidden="true" />
+            <FaGooglePlay size={18} className="lrx-dlb-cta-icon" aria-hidden="true" />
             <span className="lrx-dlb-cta-text">
               <span className="lrx-dlb-cta-text-small">Get it on</span>
               <span className="lrx-dlb-cta-text-main">
