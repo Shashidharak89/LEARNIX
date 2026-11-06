@@ -1,225 +1,302 @@
-/* QuestionPapersBanner.css - Matching Privacy Policy style pattern */
+/* QuestionPapersBanner.css — Apple-style Widget Card with Learnix Theme (Blue & Yellow) */
 
 .qpb-section {
+  width: 90%;
+  max-width: 1200px;
+  margin: 1.5rem auto 2.5rem auto;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ── Apple-style Rounded Widget Card ── */
+.qpb-card-container {
+  position: relative;
   background: #ffffff;
-  padding: 80px 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  text-align: left;
 }
 
-.qpb-container {
-  max-width: 1050px;
-  margin: auto;
-  background: #fff;
-  border: 1px solid rgba(4, 81, 138, 0.08);
-  border-left: 4px solid #0b74ff;
+.qpb-card-container:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.09), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+}
+
+/* Image preview container */
+.qpb-img-wrapper {
+  margin-bottom: 28px;
   border-radius: 14px;
-  padding: 40px 50px;
-  box-shadow: 0 6px 24px rgba(4, 81, 138, 0.06);
-  transition: box-shadow 0.2s ease;
+  overflow: hidden;
 }
 
-.qpb-container:hover {
-  box-shadow: 0 10px 32px rgba(4, 81, 138, 0.1);
+/* ── Exam Archive Pill Badge ── */
+.qpb-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  margin-bottom: 14px;
+  cursor: default;
 }
 
-/* Header */
-.qpb-header {
+.qpb-badge-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: #dbeafe;
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 16px;
-  margin-top: 20px;
+  justify-content: center;
+  color: #1e4fd8;
+  flex-shrink: 0;
 }
 
-.qpb-header-icon {
-  color: #0b74ff;
-  font-size: 32px;
-  flex-shrink: 0;
+/* ── Header ── */
+.qpb-header-block {
+  margin-bottom: 26px;
 }
 
 .qpb-title {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #0b74ff;
-  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #0f172a;
   line-height: 1.2;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.025em;
+  text-align: left;
 }
 
-/* Description */
+.qpb-brand {
+  color: #2563eb;
+  position: relative;
+  display: inline-block;
+}
+
+.qpb-underline {
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: #fbbf24;
+  border-radius: 2px;
+}
+
 .qpb-description {
   font-size: 1.05rem;
-  line-height: 1.75;
-  color: #374151;
-  margin-bottom: 28px;
-  max-width: 850px;
+  line-height: 1.65;
+  color: #475569;
+  max-width: 780px;
+  margin: 0;
+  text-align: left;
 }
 
-/* Features grid */
-.qpb-features {
+/* ── Features 3-Column Grid ── */
+.qpb-features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
-.qpb-feature {
+/* Feature Widget Card */
+.qpb-feature-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px 18px;
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
-  background: #f8fafc;
-  border: 1px solid rgba(4, 81, 138, 0.06);
+  gap: 14px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: default;
+}
+
+.qpb-feature-card:hover {
+  transform: translateY(-3px);
+}
+
+.qpb-feature-card--blue:hover {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  box-shadow: 0 8px 22px rgba(37, 99, 235, 0.08);
+}
+
+.qpb-feature-card--yellow:hover {
+  border-color: #fde68a;
+  background: #fffbeb;
+  box-shadow: 0 8px 22px rgba(245, 158, 11, 0.09);
+}
+
+/* Squircle Icon */
+.qpb-feature-squircle {
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-
-.qpb-feature:hover {
-  background: rgba(11, 116, 255, 0.04);
-  border-color: #0b74ff;
-}
-
-.qpb-feature-icon {
-  color: #0b74ff;
-  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  margin-top: 2px;
+  transition: all 0.2s ease;
+}
+
+.qpb-feature-card--blue .qpb-feature-squircle {
+  background: #dbeafe;
+  color: #1e4fd8;
+  border: 1px solid #bfdbfe;
+}
+
+.qpb-feature-card--yellow .qpb-feature-squircle {
+  background: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fde68a;
+}
+
+.qpb-feature-card:hover .qpb-feature-squircle {
+  transform: scale(1.08);
 }
 
 .qpb-feature-content {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .qpb-feature-content strong {
-  color: #04518a;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .qpb-feature-content span {
-  color: #6b7280;
-  font-size: 13px;
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.45;
 }
 
-/* Badges */
-.qpb-badges {
+/* ── Badges Row ── */
+.qpb-badges-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 28px;
 }
 
-.qpb-badge {
-  display: inline-flex;
+.qpb-chip {
+  font-size: 0.78rem;
+  font-weight: 650;
+  padding: 0.35rem 0.8rem;
+  border-radius: 8px;
+  letter-spacing: 0.01em;
+}
+
+.qpb-chip--blue {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+}
+
+.qpb-chip--yellow {
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  color: #92400e;
+}
+
+.qpb-chip--neutral {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+}
+
+/* ── CTA Button ── */
+.qpb-cta-wrap {
+  display: flex;
   align-items: center;
-  padding: 8px 16px;
-  border-radius: 24px;
-  font-size: 13px;
-  font-weight: 600;
 }
 
-.qpb-badge-blue {
-  background: rgba(11, 116, 255, 0.1);
-  color: #04518a;
-}
-
-.qpb-badge-yellow {
-  background: #f2c200;
-  color: #fff;
-}
-
-.qpb-badge-gray {
-  background: #f0f0f0;
-  color: #374151;
-}
-
-/* CTA Button */
 .qpb-cta-btn {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 28px;
-  background: #0b74ff;
-  color: #fff;
-  border-radius: 10px;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: 0.92rem;
+  font-weight: 650;
   text-decoration: none;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: background 0.15s ease;
+  color: #ffffff;
+  background: #1e4fd8;
+  border: 1px solid #1e4fd8;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(30, 79, 216, 0.25);
+  transition: all 0.2s ease;
 }
 
 .qpb-cta-btn:hover {
-  background: #04518a;
+  background: #15379e;
+  box-shadow: 0 6px 18px rgba(30, 79, 216, 0.35);
+  transform: translateY(-1px);
 }
 
-.qpb-cta-icon {
-  font-size: 18px;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
+/* ── Responsive ── */
+@media (max-width: 900px) {
   .qpb-section {
-    padding: 60px 16px;
+    width: 92%;
   }
 
-  .qpb-container {
-    padding: 28px 24px;
+  .qpb-card-container {
+    padding: 30px 24px;
+  }
+
+  .qpb-features-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .qpb-title {
-    font-size: 1.5rem;
-  }
-
-  .qpb-header-icon {
-    font-size: 26px;
-  }
-
-  .qpb-description {
-    font-size: 1rem;
-  }
-
-  .qpb-features {
-    grid-template-columns: 1fr;
-  }
-
-  .qpb-feature {
-    padding: 14px;
-  }
-
-  .qpb-cta-btn {
-    padding: 12px 22px;
-    font-size: 0.95rem;
-    width: 100%;
-    justify-content: center;
+    font-size: 1.85rem;
   }
 }
 
 @media (max-width: 480px) {
   .qpb-section {
-    padding: 40px 12px;
+    width: 94%;
+    margin: 1rem auto 2rem auto;
   }
 
-  .qpb-container {
-    padding: 20px 18px;
-    border-radius: 10px;
-  }
-
-  .qpb-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+  .qpb-card-container {
+    padding: 22px 16px;
+    border-radius: 16px;
   }
 
   .qpb-title {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
+    line-height: 1.25;
   }
 
-  .qpb-badges {
-    gap: 8px;
+  .qpb-description {
+    font-size: 0.92rem;
+    line-height: 1.55;
   }
 
-  .qpb-badge {
-    padding: 6px 12px;
-    font-size: 12px;
+  .qpb-feature-card {
+    padding: 16px 14px;
+    border-radius: 14px;
+  }
+
+  .qpb-cta-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
