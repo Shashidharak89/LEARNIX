@@ -666,12 +666,47 @@ body.no-learnix-navbar-pad {
 
 .learnix-signout-btn {
   margin-top: 1rem;
-  border-top: 1px solid #e5f3ff;
+  border-top: 1px solid #fee2e2;
   padding-top: 1.25rem;
+  color: #ef4444 !important;
+  font-weight: 600;
+}
+
+.learnix-signout-btn .learnix-nav-icon {
+  color: #ef4444;
 }
 
 .learnix-signout-btn:hover {
-  background-color: #ef4444;
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+
+.learnix-signout-btn:hover .learnix-nav-icon {
+  color: #dc2626;
+}
+
+/* Login button placed at bottom when logged out */
+.learnix-login-bottom-btn {
+  margin-top: 1rem;
+  border-top: 1px solid #e5f3ff;
+  padding-top: 1.25rem;
+  color: #2563eb !important;
+  font-weight: 600;
+  background-color: #eff6ff !important;
+  border: 1px solid #dbeafe;
+}
+
+.learnix-login-bottom-btn .learnix-nav-icon {
+  color: #2563eb;
+}
+
+.learnix-login-bottom-btn:hover {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.learnix-login-bottom-btn:hover .learnix-nav-icon {
+  color: #ffffff !important;
 }
 
 /* Admin Dashboard sidebar link */

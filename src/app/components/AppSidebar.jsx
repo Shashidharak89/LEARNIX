@@ -243,16 +243,6 @@ export default function AppSidebar({
             />
           )}
 
-          {!hasUSN && (
-            <SidebarLink
-              href={typeof getLoginHref === "function" ? getLoginHref() : "/login"}
-              onClick={onClose}
-              icon={LogInIcon}
-              text="Login / Register"
-              tabIndex={isOpen ? 0 : -1}
-            />
-          )}
-
           <SidebarLink
             href="/resources"
             onClick={onClose}
@@ -301,31 +291,44 @@ export default function AppSidebar({
             tabIndex={isOpen ? 0 : -1}
           />
 
-          {/* Learn Later - placed right below Tools */}
-          <SidebarLink
-            href="/learn-later"
-            onClick={onClose}
-            icon={BookmarkIcon}
-            text="Learn Later"
-            tabIndex={isOpen ? 0 : -1}
-          />
-
-          {/* Upload removed from sidebar */}
-
-          <SidebarLink
-            href="/profile"
-            onClick={onClose}
-            icon={UserIcon}
-            text="Profile"
-            tabIndex={isOpen ? 0 : -1}
-          />
-
+          {/* Learn Later - only shown when logged in */}
           {hasUSN && (
+            <SidebarLink
+              href="/learn-later"
+              onClick={onClose}
+              icon={BookmarkIcon}
+              text="Learn Later"
+              tabIndex={isOpen ? 0 : -1}
+            />
+          )}
+
+          {/* Profile - only shown when logged in */}
+          {hasUSN && (
+            <SidebarLink
+              href="/profile"
+              onClick={onClose}
+              icon={UserIcon}
+              text="Profile"
+              tabIndex={isOpen ? 0 : -1}
+            />
+          )}
+
+          {/* Bottom Action: Signout when logged in, Login / Register when not logged in */}
+          {hasUSN ? (
             <SidebarButton
               onClick={handleSignout}
               icon={LogOutIcon}
               text="Signout"
               className="learnix-signout-btn"
+              tabIndex={isOpen ? 0 : -1}
+            />
+          ) : (
+            <SidebarLink
+              href={typeof getLoginHref === "function" ? getLoginHref() : "/login"}
+              onClick={onClose}
+              icon={LogInIcon}
+              text="Login / Register"
+              className="learnix-login-bottom-btn"
               tabIndex={isOpen ? 0 : -1}
             />
           )}
