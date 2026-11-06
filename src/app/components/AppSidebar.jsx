@@ -6,6 +6,7 @@ import Image from "next/image";
 import { FiChevronDown } from "react-icons/fi";
 import { LayersIcon } from "./icons/LayersIcon";
 import { WrenchIcon } from "./icons/WrenchIcon";
+import { GraduationCapIcon } from "./icons/GraduationCapIcon";
 import {
   ShieldCheckIcon,
   LogInIcon,
@@ -226,7 +227,7 @@ export default function AppSidebar({
           <SidebarLink
             href="/learn"
             onClick={onClose}
-            icon={SparklesIcon}
+            icon={GraduationCapIcon}
             text="Learn"
             tabIndex={isOpen ? 0 : -1}
           />

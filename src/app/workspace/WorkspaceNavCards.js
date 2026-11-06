@@ -3,7 +3,6 @@
 import { useRef } from "react";
 import Link from "next/link";
 import {
-  SparklesIcon,
   BookOpenIcon,
   FolderIcon,
   FileTextIcon,
@@ -13,10 +12,11 @@ import {
   BellIcon,
 } from "@animateicons/react/lucide";
 import { WrenchIcon } from "../components/icons/WrenchIcon";
+import { GraduationCapIcon } from "../components/icons/GraduationCapIcon";
 import "./styles/WorkspaceNavCards.css";
 
 const navItems = [
-  { href: "/learn",            Icon: SparklesIcon,   label: "Learn",           theme: "learn",     title: "Interactive Hub",    description: "Explore study modules, concept cards & daily quizzes." },
+  { href: "/learn",            Icon: GraduationCapIcon, label: "Learn",           theme: "learn",     title: "Interactive Hub",    description: "Explore study modules, concept cards & daily quizzes." },
   { href: "/materials",        Icon: BookOpenIcon,   label: "Materials",       theme: "materials", title: "Study Notes",        description: "Access peer-reviewed notes, summaries & guides." },
   { href: "/resources",        Icon: FolderIcon,     label: "Resources",       theme: "works",     title: "Academic Resources", description: "Browse homework solutions, notes & academic projects." },
   { href: "/qp",               Icon: FileTextIcon,   label: "Question Papers", theme: "qp",        title: "Past Papers",        description: "Practice authentic past exam papers for top marks." },

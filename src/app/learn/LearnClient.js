@@ -29,9 +29,9 @@ import {
 import {
   ChevronDown,
   ChevronUp,
-  User,
-  GraduationCap
+  User
 } from "lucide-react";
+import { GraduationCapIcon } from "../components/icons/GraduationCapIcon";
 import { QUIZ_TOPICS } from "./data/quizTopics";
 import "./styles/LearnPage.css";
 
@@ -98,6 +98,7 @@ async function fetchFirestoreQuestion(collectionName, qId) {
 
 export default function LearnClient() {
   const router = useRouter();
+  const learnCapRef = useRef(null);
 
   // Recommendations state
   const [updates, setUpdates] = useState([]);
@@ -771,7 +772,11 @@ export default function LearnClient() {
   return (
     <main className="learn-page-main">
       {/* 1. Top Card: Apple Widget Hero */}
-      <section className="learn-apple-card learn-hero-widget">
+      <section
+        className="learn-apple-card learn-hero-widget"
+        onMouseEnter={() => learnCapRef.current?.startAnimation?.()}
+        onMouseLeave={() => learnCapRef.current?.stopAnimation?.()}
+      >
         <div className="learn-hero-content">
           <div className="learn-hero-badge-row">
             <span className="learn-stats-chip">3000+ Questions</span>
@@ -785,7 +790,7 @@ export default function LearnClient() {
 
         <div className="learn-hero-visual">
           <div className="learn-squircle-hero">
-            <GraduationCap size={36} color="#007AFF" />
+            <GraduationCapIcon ref={learnCapRef} size={36} color="#007AFF" />
           </div>
         </div>
       </section>
