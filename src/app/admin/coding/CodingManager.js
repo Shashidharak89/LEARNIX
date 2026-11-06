@@ -70,7 +70,7 @@ const SAMPLE_PROBLEM_JSON_STRING = `/*
       "math",     // this id belongs to topic: Math
       "basics"    // this id belongs to topic: Basics
     ],
-    "description": "### Problem Statement\\n\\nGiven two integers \`a\` and \`b\`, return their sum.\\n\\n### Example 1:\\n**Input:** \`a = 2, b = 3\`\\n**Output:** \`5\`\\n**Explanation:** \`2 + 3 = 5\`\\n\\n### Example 2:\\n**Input:** \`a = -5, b = 10\`\\n**Output:** \`5\`\\n\\n### Example 3:\\n**Input:** \`a = 0, b = 0\`\\n**Output:** \`0\`",
+    "description": "Given two integers \`a\` and \`b\`, return their sum.\\n\\n### Example 1:\\n> **Input:** \`a = 2, b = 3\`\\n> **Output:** \`5\`\\n> **Explanation:** \`2 + 3 = 5\`\\n\\n### Example 2:\\n> **Input:** \`a = -5, b = 10\`\\n> **Output:** \`5\`\\n\\n### Example 3:\\n> **Input:** \`a = 0, b = 0\`\\n> **Output:** \`0\`",
     "inputFormat": "Two integers \`a\` and \`b\` passed as function arguments.",
     "outputFormat": "Return an integer representing the sum of \`a\` and \`b\`.",
     "constraints": [
@@ -134,7 +134,7 @@ const SAMPLE_PROBLEM_JSON_STRING = `/*
       "math",     // this id belongs to topic: Math
       "basics"    // this id belongs to topic: Basics
     ],
-    "description": "### Problem Statement\\n\\nGiven two integers \`a\` and \`b\`, return their product.\\n\\n### Example 1:\\n**Input:** \`a = 4, b = 5\`\\n**Output:** \`20\`\\n**Explanation:** \`4 * 5 = 20\`\\n\\n### Example 2:\\n**Input:** \`a = -3, b = 7\`\\n**Output:** \`-21\`\\n**Explanation:** \`-3 * 7 = -21\`",
+    "description": "Given two integers \`a\` and \`b\`, return their product.\\n\\n### Example 1:\\n> **Input:** \`a = 4, b = 5\`\\n> **Output:** \`20\`\\n> **Explanation:** \`4 * 5 = 20\`\\n\\n### Example 2:\\n> **Input:** \`a = -3, b = 7\`\\n> **Output:** \`-21\`\\n> **Explanation:** \`-3 * 7 = -21\`",
     "inputFormat": "Two integers \`a\` and \`b\` passed as function arguments.",
     "outputFormat": "Return an integer representing the product of \`a\` and \`b\`.",
     "constraints": [
@@ -191,7 +191,7 @@ const SAMPLE_PROBLEM_JSON = [
     difficulty: "Easy",
     topicIds: ["math", "basics"],
     tags: ["Math", "Basics"],
-    description: "### Problem Statement\n\nGiven two integers `a` and `b`, return their sum.\n\n### Example 1:\n**Input:** `a = 2, b = 3`\n**Output:** `5`\n**Explanation:** `2 + 3 = 5`\n\n### Example 2:\n**Input:** `a = -5, b = 10`\n**Output:** `5`\n\n### Example 3:\n**Input:** `a = 0, b = 0`\n**Output:** `0`",
+    description: "Given two integers `a` and `b`, return their sum.\n\n### Example 1:\n> **Input:** `a = 2, b = 3`\n> **Output:** `5`\n> **Explanation:** `2 + 3 = 5`\n\n### Example 2:\n> **Input:** `a = -5, b = 10`\n> **Output:** `5`\n\n### Example 3:\n> **Input:** `a = 0, b = 0`\n> **Output:** `0`",
     inputFormat: "Two integers `a` and `b` passed as function arguments.",
     outputFormat: "Return an integer representing the sum of `a` and `b`.",
     constraints: [
@@ -268,7 +268,7 @@ function addTwoNumbers(a, b) {
     difficulty: "Easy",
     topicIds: ["math", "basics"],
     tags: ["Math", "Basics"],
-    description: "### Problem Statement\n\nGiven two integers `a` and `b`, return their product.\n\n### Example 1:\n**Input:** `a = 4, b = 5`\n**Output:** `20`\n**Explanation:** `4 * 5 = 20`\n\n### Example 2:\n**Input:** `a = -3, b = 7`\n**Output:** `-21`\n**Explanation:** `-3 * 7 = -21`",
+    description: "Given two integers `a` and `b`, return their product.\n\n### Example 1:\n> **Input:** `a = 4, b = 5`\n> **Output:** `20`\n> **Explanation:** `4 * 5 = 20`\n\n### Example 2:\n> **Input:** `a = -3, b = 7`\n> **Output:** `-21`\n> **Explanation:** `-3 * 7 = -21`",
     inputFormat: "Two integers `a` and `b` passed as function arguments.",
     outputFormat: "Return an integer representing the product of `a` and `b`.",
     constraints: [
@@ -2301,7 +2301,7 @@ Example structure:
                     rows={8}
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    placeholder="### Problem Statement&#10;&#10;Given an array...&#10;&#10;### Example 1:&#10;**Input:** `...`&#10;**Output:** `...`&#10;&#10;![Illustration](https://...)"
+                    placeholder="Given an array...&#10;&#10;### Example 1:&#10;> **Input:** `...`&#10;> **Output:** `...`&#10;> **Explanation:** `...`&#10;&#10;![Illustration](https://...)"
                     className="ac-textarea"
                   />
                 ) : (

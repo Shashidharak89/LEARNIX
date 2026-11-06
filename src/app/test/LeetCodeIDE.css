@@ -917,6 +917,33 @@
   margin-bottom: 1rem;
 }
 
+.lc-description-wrapper .markdown-content blockquote {
+  background: #171b26;
+  border: 1px solid #283046;
+  border-left: 3px solid #3b82f6;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  margin: 0.85rem 0;
+  color: #e5e7eb;
+}
+
+.lc-description-wrapper .markdown-content blockquote p {
+  margin: 0 0 0.35rem 0;
+  line-height: 1.55;
+}
+
+.lc-description-wrapper .markdown-content blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.lc-workspace.lc-theme-light .lc-description-wrapper .markdown-content blockquote {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #ea580c;
+  color: #0f172a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
 .lc-description-wrapper .markdown-img-wrapper {
   margin: 1.25rem 0;
   text-align: center;
