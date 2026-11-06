@@ -85,6 +85,7 @@ const SAMPLE_PROBLEM_JSON_STRING = `/*
     "returnType": "number",
     "boilerplateCode": "/**\\n * @param {number} a\\n * @param {number} b\\n * @return {number}\\n */\\nfunction addTwoNumbers(a, b) {\\n    // Write your code here\\n}",
     "javaBoilerplate": "class Solution {\\n    public int addTwoNumbers(int a, int b) {\\n        // Write your code here\\n        return 0;\\n    }\\n}",
+    "pythonBoilerplate": "class Solution:\\n    def addTwoNumbers(self, a: int, b: int) -> int:\\n        # Write your code here\\n        return 0",
     "isActive": true,
     "testCases": [
       {
@@ -148,6 +149,7 @@ const SAMPLE_PROBLEM_JSON_STRING = `/*
     "returnType": "number",
     "boilerplateCode": "/**\\n * @param {number} a\\n * @param {number} b\\n * @return {number}\\n */\\nfunction multiplyTwoNumbers(a, b) {\\n    // Write your code here\\n}",
     "javaBoilerplate": "class Solution {\\n    public int multiplyTwoNumbers(int a, int b) {\\n        // Write your code here\\n        return 0;\\n    }\\n}",
+    "pythonBoilerplate": "class Solution:\\n    def multiplyTwoNumbers(self, a: int, b: int) -> int:\\n        # Write your code here\\n        return 0",
     "isActive": true,
     "testCases": [
       {
@@ -216,6 +218,10 @@ function addTwoNumbers(a, b) {
         return 0;
     }
 }`,
+    pythonBoilerplate: `class Solution:
+    def addTwoNumbers(self, a: int, b: int) -> int:
+        # Write your code here
+        return 0`,
     isActive: true,
     testCases: [
       {
@@ -289,6 +295,10 @@ function multiplyTwoNumbers(a, b) {
         return 0;
     }
 }`,
+    pythonBoilerplate: `class Solution:
+    def multiplyTwoNumbers(self, a: int, b: int) -> int:
+        # Write your code here
+        return 0`,
     isActive: true,
     testCases: [
       {
@@ -387,6 +397,7 @@ export default function CodingManager() {
     parameters: [{ name: "a", type: "number" }, { name: "b", type: "number" }],
     jsTemplate: "",
     javaTemplate: "",
+    pythonTemplate: "",
     order: 1,
     isActive: true,
     testCases: [
@@ -621,6 +632,49 @@ export default function CodingManager() {
     return "Object";
   }
 
+  function getPythonType(typeStr) {
+    if (!typeStr) return "Any";
+    const t = String(typeStr).trim().toLowerCase();
+    if (t === "number" || t === "int" || t === "integer" || t === "long") return "int";
+    if (t === "double" || t === "float") return "float";
+    if (t === "string" || t === "char" || t === "character") return "str";
+    if (t === "boolean" || t === "bool") return "bool";
+    if (t === "void") return "None";
+    if (t === "number[]" || t === "int[]" || t === "integer[]" || t === "array<number>") return "List[int]";
+    if (t === "string[]" || t === "array<string>") return "List[str]";
+    if (t === "boolean[]" || t === "array<boolean>") return "List[bool]";
+    if (t === "array") return "List[Any]";
+    return "Any";
+  }
+
+  function generatePythonBoilerplate(funcName, params = [], retType = "number") {
+    const pyRet = getPythonType(retType);
+    const pyRetVal =
+      pyRet === "int"
+        ? "return 0"
+        : pyRet === "float"
+        ? "return 0.0"
+        : pyRet === "bool"
+        ? "return False"
+        : pyRet === "str"
+        ? 'return ""'
+        : pyRet === "None"
+        ? "pass"
+        : pyRet.startsWith("List")
+        ? "return []"
+        : "return None";
+
+    const pyParams = [
+      "self",
+      ...(params || []).map((p) => {
+        const pType = getPythonType(p.type || "number");
+        return `${p.name || "arg"}: ${pType}`;
+      }),
+    ].join(", ");
+
+    return `class Solution:\n    def ${funcName || "solution"}(${pyParams}) -> ${pyRet}:\n        # Write your code here\n        ${pyRetVal}`;
+  }
+
   function generateJavaBoilerplate(funcName, params = [], retType = "number") {
     const jRet = getJavaType(retType);
     const jRetVal =
@@ -669,6 +723,7 @@ function ${funcName || "solution"}(${paramNames}) {
     const initialParams = [{ name: "a", type: "number" }, { name: "b", type: "number" }];
     const defaultTemplate = generateJsBoilerplate("solution", initialParams, "number");
     const defaultJavaTemplate = generateJavaBoilerplate("solution", initialParams, "number");
+    const defaultPythonTemplate = generatePythonBoilerplate("solution", initialParams, "number");
 
     const maxExistingOrder = problems.reduce((max, p) => {
       const o = Number(p.order);
@@ -691,6 +746,7 @@ function ${funcName || "solution"}(${paramNames}) {
       parameters: initialParams,
       jsTemplate: defaultTemplate,
       javaTemplate: defaultJavaTemplate,
+      pythonTemplate: defaultPythonTemplate,
       order: nextOrder,
       isActive: true,
       testCases: [
@@ -828,6 +884,7 @@ function ${funcName || "solution"}(${paramNames}) {
       parameters: formData.parameters,
       boilerplateCode: formData.jsTemplate,
       javaBoilerplate: formData.javaTemplate,
+      pythonBoilerplate: formData.pythonTemplate,
       testCases: formData.testCases.map((tc, idx) => ({
         testCaseId: tc.testCaseId || `tc_${String(idx + 1).padStart(2, "0")}`,
         order: idx + 1,
@@ -881,6 +938,7 @@ function ${funcName || "solution"}(${paramNames}) {
         parameters: normalized.parameters,
         jsTemplate: normalized.boilerplateCode,
         javaTemplate: normalized.javaBoilerplate,
+        pythonTemplate: normalized.pythonBoilerplate,
         order: normalized.order,
         isActive: normalized.isActive,
         testCases: normalized.testCases,
@@ -947,6 +1005,16 @@ function ${funcName || "solution"}(${paramNames}) {
       javaTemplate = generateJavaBoilerplate(functionName, parameters, returnType);
     }
 
+    let pythonTemplate =
+      item.pythonBoilerplate ||
+      item.templates?.python ||
+      item.templates?.python3 ||
+      item.pyBoilerplate;
+
+    if (!pythonTemplate) {
+      pythonTemplate = generatePythonBoilerplate(functionName, parameters, returnType);
+    }
+
     const cleanSlug = (item.slug || title)
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
@@ -996,9 +1064,11 @@ function ${funcName || "solution"}(${paramNames}) {
       templates: {
         javascript: jsTemplate,
         java: javaTemplate,
+        python: pythonTemplate,
       },
       boilerplateCode: jsTemplate,
       javaBoilerplate: javaTemplate,
+      pythonBoilerplate: pythonTemplate,
       order: assignedOrder,
       isActive: item.isActive !== false,
       testCases: rawCases.map((tc, tcIdx) => {
@@ -1204,6 +1274,7 @@ function ${funcName || "solution"}(${paramNames}) {
           parameters: p.parameters || [],
           jsTemplate: p.templates?.javascript || p.boilerplateCode || generateJsBoilerplate(p.functionName, p.parameters, p.returnType),
           javaTemplate: p.templates?.java || p.javaBoilerplate || generateJavaBoilerplate(p.functionName, p.parameters, p.returnType),
+          pythonTemplate: p.templates?.python || p.pythonBoilerplate || generatePythonBoilerplate(p.functionName, p.parameters, p.returnType),
           order: p.order || 1,
           isActive: p.isActive !== false,
           testCases: tcs.length > 0 ? tcs : [{ testCaseId: "tc_01", input: "[]", rawInput: "", expectedOutput: "0", isSample: true, explanation: "" }],
@@ -1229,6 +1300,7 @@ function ${funcName || "solution"}(${paramNames}) {
           parameters: newFormData.parameters,
           boilerplateCode: newFormData.jsTemplate,
           javaBoilerplate: newFormData.javaTemplate,
+          pythonBoilerplate: newFormData.pythonTemplate,
           testCases: newFormData.testCases,
         };
         const formattedJsonStr = JSON.stringify(fullProblemJson, null, 2);
@@ -1291,9 +1363,11 @@ function ${funcName || "solution"}(${paramNames}) {
         templates: {
           javascript: formData.jsTemplate,
           java: formData.javaTemplate,
+          python: formData.pythonTemplate,
         },
         boilerplateCode: formData.jsTemplate,
         javaBoilerplate: formData.javaTemplate,
+        pythonBoilerplate: formData.pythonTemplate,
         order: Number(formData.order) || 1,
         isActive: formData.isActive,
         testCases: formData.testCases.map((tc, idx) => ({
@@ -1341,7 +1415,8 @@ function ${funcName || "solution"}(${paramNames}) {
       const newParams = [...prev.parameters, { name: `arg${prev.parameters.length + 1}`, type: "number" }];
       const jsTmpl = generateJsBoilerplate(prev.functionName, newParams, prev.returnType, prev.title);
       const javaTmpl = generateJavaBoilerplate(prev.functionName, newParams, prev.returnType);
-      return { ...prev, parameters: newParams, jsTemplate: jsTmpl, javaTemplate: javaTmpl };
+      const pyTmpl = generatePythonBoilerplate(prev.functionName, newParams, prev.returnType);
+      return { ...prev, parameters: newParams, jsTemplate: jsTmpl, javaTemplate: javaTmpl, pythonTemplate: pyTmpl };
     });
   }
 
@@ -1350,7 +1425,8 @@ function ${funcName || "solution"}(${paramNames}) {
       const newParams = prev.parameters.filter((_, i) => i !== index);
       const jsTmpl = generateJsBoilerplate(prev.functionName, newParams, prev.returnType, prev.title);
       const javaTmpl = generateJavaBoilerplate(prev.functionName, newParams, prev.returnType);
-      return { ...prev, parameters: newParams, jsTemplate: jsTmpl, javaTemplate: javaTmpl };
+      const pyTmpl = generatePythonBoilerplate(prev.functionName, newParams, prev.returnType);
+      return { ...prev, parameters: newParams, jsTemplate: jsTmpl, javaTemplate: javaTmpl, pythonTemplate: pyTmpl };
     });
   }
 
@@ -1360,7 +1436,8 @@ function ${funcName || "solution"}(${paramNames}) {
       newParams[index] = { ...newParams[index], [field]: value };
       const jsTmpl = generateJsBoilerplate(prev.functionName, newParams, prev.returnType, prev.title);
       const javaTmpl = generateJavaBoilerplate(prev.functionName, newParams, prev.returnType);
-      return { ...prev, parameters: newParams, jsTemplate: jsTmpl, javaTemplate: javaTmpl };
+      const pyTmpl = generatePythonBoilerplate(prev.functionName, newParams, prev.returnType);
+      return { ...prev, parameters: newParams, jsTemplate: jsTmpl, javaTemplate: javaTmpl, pythonTemplate: pyTmpl };
     });
   }
 
@@ -2354,7 +2431,8 @@ Example structure:
                             const fn = e.target.value;
                             const jsTmpl = generateJsBoilerplate(fn, formData.parameters, formData.returnType, formData.title);
                             const javaTmpl = generateJavaBoilerplate(fn, formData.parameters, formData.returnType);
-                            setFormData({ ...formData, functionName: fn, jsTemplate: jsTmpl, javaTemplate: javaTmpl });
+                            const pyTmpl = generatePythonBoilerplate(fn, formData.parameters, formData.returnType);
+                            setFormData({ ...formData, functionName: fn, jsTemplate: jsTmpl, javaTemplate: javaTmpl, pythonTemplate: pyTmpl });
                           }}
                           placeholder="e.g. addTwoNumbers"
                           className="ac-input"
@@ -2368,7 +2446,8 @@ Example structure:
                             const rt = e.target.value;
                             const jsTmpl = generateJsBoilerplate(formData.functionName, formData.parameters, rt, formData.title);
                             const javaTmpl = generateJavaBoilerplate(formData.functionName, formData.parameters, rt);
-                            setFormData({ ...formData, returnType: rt, jsTemplate: jsTmpl, javaTemplate: javaTmpl });
+                            const pyTmpl = generatePythonBoilerplate(formData.functionName, formData.parameters, rt);
+                            setFormData({ ...formData, returnType: rt, jsTemplate: jsTmpl, javaTemplate: javaTmpl, pythonTemplate: pyTmpl });
                           }}
                           className="ac-select"
                         >
@@ -2461,13 +2540,39 @@ Example structure:
                       </button>
                     </div>
 
-                    <div className="ac-form-group" style={{ marginBottom: 0 }}>
+                    <div className="ac-form-group">
                       <textarea
                         rows={7}
                         value={formData.jsTemplate}
                         onChange={(e) => setFormData({ ...formData, jsTemplate: e.target.value })}
                         className="ac-textarea ac-code-input"
                         placeholder="Enter JavaScript boilerplate template code..."
+                      />
+                    </div>
+
+                    {/* Python Boilerplate Code */}
+                    <div className="ac-section-title">
+                      <span>Python Boilerplate Code Template</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const tmpl = generatePythonBoilerplate(formData.functionName, formData.parameters, formData.returnType);
+                          setFormData({ ...formData, pythonTemplate: tmpl });
+                        }}
+                        className="ac-btn ac-btn-secondary"
+                        style={{ fontSize: "0.75rem", padding: "0.3rem 0.6rem" }}
+                      >
+                        <FiRefreshCw /> Regenerate Python Default
+                      </button>
+                    </div>
+
+                    <div className="ac-form-group" style={{ marginBottom: 0 }}>
+                      <textarea
+                        rows={7}
+                        value={formData.pythonTemplate}
+                        onChange={(e) => setFormData({ ...formData, pythonTemplate: e.target.value })}
+                        className="ac-textarea ac-code-input"
+                        placeholder="Enter Python boilerplate template code (class Solution: ...)..."
                       />
                     </div>
                   </div>
