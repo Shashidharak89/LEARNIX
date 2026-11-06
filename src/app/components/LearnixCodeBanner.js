@@ -1,14 +1,58 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { FiCode, FiArrowRight, FiCheckCircle } from "react-icons/fi";
+import {
+  CodeIcon,
+  ArrowRightIcon,
+  CircleCheckIcon,
+  ZapIcon,
+  LaptopIcon,
+  CheckCheckIcon,
+} from "@animateicons/react/lucide";
 import "./styles/LearnixCodeBanner.css";
 
+function AnimatedFeatureChip({ icon: Icon, text }) {
+  const iconRef = useRef(null);
+
+  return (
+    <span
+      className="lcb-feat-chip"
+      onMouseEnter={() => iconRef.current?.startAnimation?.()}
+      onMouseLeave={() => iconRef.current?.stopAnimation?.()}
+    >
+      <Icon ref={iconRef} size={14} className="lcb-chip-icon" aria-hidden="true" />
+      <span>{text}</span>
+    </span>
+  );
+}
+
 export default function LearnixCodeBanner() {
+  const arrowRef = useRef(null);
+  const codeTopRef = useRef(null);
+  const acceptedRef = useRef(null);
+
+  const handleCardEnter = () => {
+    arrowRef.current?.startAnimation?.();
+    codeTopRef.current?.startAnimation?.();
+    acceptedRef.current?.startAnimation?.();
+  };
+
+  const handleCardLeave = () => {
+    arrowRef.current?.stopAnimation?.();
+    codeTopRef.current?.stopAnimation?.();
+    acceptedRef.current?.stopAnimation?.();
+  };
+
   return (
     <section className="lcb-section" aria-label="Learnix Code Coding Platform">
-      <Link href="/learnix-code" className="lcb-card">
+      <Link
+        href="/learnix-code"
+        className="lcb-card"
+        onMouseEnter={handleCardEnter}
+        onMouseLeave={handleCardLeave}
+      >
         <div className="lcb-ambient-glow" />
 
         <div className="lcb-content">
@@ -33,15 +77,15 @@ export default function LearnixCodeBanner() {
           </p>
 
           <div className="lcb-features">
-            <span className="lcb-feat-chip">⚡ 10+ Curated Problems</span>
-            <span className="lcb-feat-chip">💻 Interactive IDE</span>
-            <span className="lcb-feat-chip">🧪 Automated Test Cases</span>
-            <span className="lcb-feat-chip">🚀 No Login Required</span>
+            <AnimatedFeatureChip icon={ZapIcon} text="10+ Curated Problems" />
+            <AnimatedFeatureChip icon={LaptopIcon} text="Interactive IDE" />
+            <AnimatedFeatureChip icon={CheckCheckIcon} text="Automated Test Cases" />
           </div>
 
           <div>
             <span className="lcb-btn-cta">
-              Start Coding Now <FiArrowRight size={18} />
+              <span>Start Coding Now</span>
+              <ArrowRightIcon ref={arrowRef} size={17} className="lcb-btn-arrow" />
             </span>
           </div>
         </div>
@@ -56,7 +100,7 @@ export default function LearnixCodeBanner() {
                 <span className="lcb-dot lcb-dot-green" />
               </div>
               <span className="lcb-code-file">Solution.java</span>
-              <FiCode size={14} color="#8b949e" />
+              <CodeIcon ref={codeTopRef} size={15} color="#8b949e" />
             </div>
 
             <div className="lcb-code-body">
@@ -68,7 +112,7 @@ export default function LearnixCodeBanner() {
               &#125;<br />
               <div className="lcb-status-pill">
                 <span style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                  <FiCheckCircle size={14} /> Accepted
+                  <CircleCheckIcon ref={acceptedRef} size={14} /> Accepted
                 </span>
                 <span>Runtime: 1.2ms</span>
               </div>

@@ -1,10 +1,10 @@
 /* LearnixCodeBanner.css — Light Theme Edition for Home Screen */
 
 .lcb-section {
-  width: 100%;
+  width: 90%;
   max-width: 1200px;
   margin: 1.5rem auto 2.5rem auto;
-  padding: 0 1rem;
+  padding: 0;
   box-sizing: border-box;
 }
 
@@ -23,6 +23,7 @@
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .lcb-card:hover {
@@ -46,6 +47,7 @@
 .lcb-content {
   flex: 1.2;
   z-index: 2;
+  min-width: 0;
 }
 
 .lcb-badge {
@@ -70,20 +72,7 @@
   object-fit: contain;
   filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.45));
   border-radius: 4px;
-}
-
-.lcb-badge-dot {
-  width: 7px;
-  height: 7px;
-  background-color: #2563eb;
-  border-radius: 50%;
-  box-shadow: 0 0 6px rgba(37, 99, 235, 0.6);
-  animation: lcb-pulse 2s infinite;
-}
-
-@keyframes lcb-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.85); }
+  flex-shrink: 0;
 }
 
 .lcb-title {
@@ -117,13 +106,28 @@
 }
 
 .lcb-feat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   color: #334155;
   font-size: 0.82rem;
-  padding: 0.35rem 0.8rem;
+  padding: 0.4rem 0.8rem;
   border-radius: 8px;
   font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.lcb-feat-chip:hover {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1e4fd8;
+}
+
+.lcb-chip-icon {
+  color: #1e4fd8;
+  flex-shrink: 0;
 }
 
 .lcb-btn-cta {
@@ -140,10 +144,18 @@
   transition: all 0.2s ease;
 }
 
+.lcb-btn-arrow {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
 .lcb-card:hover .lcb-btn-cta {
   background: #15379e;
-  transform: translateX(4px);
   box-shadow: 0 6px 18px rgba(30, 79, 216, 0.4);
+}
+
+.lcb-card:hover .lcb-btn-arrow {
+  transform: translateX(4px);
 }
 
 /* Light Theme Code Snippet Card Mockup */
@@ -152,6 +164,7 @@
   z-index: 2;
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 
 .lcb-code-box {
@@ -223,19 +236,86 @@
   justify-content: space-between;
 }
 
+/* Responsive Breakpoints */
 @media (max-width: 900px) {
+  .lcb-section {
+    width: 92%;
+  }
+
   .lcb-card {
     flex-direction: column;
-    padding: 2rem 1.5rem;
+    padding: 2.2rem 1.8rem;
     gap: 2rem;
   }
+
   .lcb-visual {
     width: 100%;
   }
+
   .lcb-code-box {
     max-width: 100%;
   }
+
   .lcb-title {
     font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .lcb-section {
+    width: 94%;
+    margin: 1rem auto 2rem auto;
+  }
+
+  .lcb-card {
+    padding: 1.6rem 1.25rem;
+    border-radius: 16px;
+    gap: 1.5rem;
+  }
+
+  .lcb-badge {
+    font-size: 0.72rem;
+    padding: 0.3rem 0.7rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .lcb-badge-logo {
+    width: 16px;
+    height: 16px;
+  }
+
+  .lcb-title {
+    font-size: 1.45rem;
+    line-height: 1.25;
+    margin-bottom: 0.75rem;
+  }
+
+  .lcb-tagline {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1.1rem;
+  }
+
+  .lcb-features {
+    gap: 0.45rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .lcb-feat-chip {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+    gap: 5px;
+  }
+
+  .lcb-btn-cta {
+    width: 100%;
+    justify-content: center;
+    font-size: 0.88rem;
+    padding: 0.7rem 1.2rem;
+  }
+
+  .lcb-code-body {
+    padding: 0.85rem;
+    font-size: 0.74rem;
   }
 }
