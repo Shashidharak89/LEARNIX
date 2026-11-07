@@ -10,8 +10,15 @@ export async function GET(req) {
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const size = Math.max(1, parseInt(searchParams.get("size") || "20", 10));
     const search = (searchParams.get("search") || "").trim().toLowerCase();
-    const topic = (searchParams.get("topic") || "").trim().toLowerCase();
+    const topicsParam = (searchParams.get("topics") || searchParams.get("topic") || "").trim().toLowerCase();
     const difficulty = (searchParams.get("difficulty") || "all").trim();
+
+    const topicList = topicsParam
+      ? topicsParam
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean)
+      : [];
 
     const res = await docClient.send(
       new ScanCommand({
@@ -25,22 +32,26 @@ export async function GET(req) {
 
     let items = (res.Items || []).filter((item) => item.isActive !== false);
 
-    // Filter by topic if specified
-    if (topic && topic !== "all") {
+    // Filter by multiple topics if specified (matches if problem has ANY of the selected topics)
+    if (topicList.length > 0 && !topicList.includes("all")) {
       items = items.filter((p) => {
-        const matchesTopicId =
-          Array.isArray(p.topicIds) &&
-          p.topicIds.some(
-            (tid) => String(tid).toLowerCase() === topic || String(tid).toLowerCase().replace(/[^a-z0-9]/g, "-") === topic
+        const pTopicIds = (Array.isArray(p.topicIds) ? p.topicIds : []).map((tid) =>
+          String(tid).toLowerCase()
+        );
+        const pTags = (Array.isArray(p.tags) ? p.tags : []).map((t) =>
+          String(t).toLowerCase()
+        );
+
+        return topicList.some((topic) => {
+          const topicSlug = topic.replace(/[^a-z0-9]/g, "-");
+          const matchesTopicId = pTopicIds.some(
+            (tid) => tid === topic || tid.replace(/[^a-z0-9]/g, "-") === topicSlug
           );
-        const matchesTag =
-          Array.isArray(p.tags) &&
-          p.tags.some(
-            (t) =>
-              String(t).toLowerCase() === topic ||
-              String(t).toLowerCase().replace(/[^a-z0-9]/g, "-") === topic
+          const matchesTag = pTags.some(
+            (t) => t === topic || t.replace(/[^a-z0-9]/g, "-") === topicSlug
           );
-        return matchesTopicId || matchesTag;
+          return matchesTopicId || matchesTag;
+        });
       });
     }
 

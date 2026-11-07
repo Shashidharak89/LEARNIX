@@ -14,6 +14,8 @@ import {
   FiMoon,
   FiList,
   FiAlertTriangle,
+  FiFilter,
+  FiCheck,
 } from "react-icons/fi";
 import LearnixCodeNav from "../components/LearnixCodeNav";
 import ProblemStatusBadge from "../components/ProblemStatusBadge";
@@ -30,9 +32,15 @@ function ProblemsListContent() {
   const [error, setError] = useState(null);
   const [statusMap, setStatusMap] = useState({});
 
-  // Topics list for filter pills
+  // Topics list from backend
   const [topics, setTopics] = useState([]);
-  const [selectedTopic, setSelectedTopic] = useState("");
+  // Multi-select topics array
+  const [selectedTopics, setSelectedTopics] = useState([]);
+
+  // Topic filter modal state
+  const [showTopicModal, setShowTopicModal] = useState(false);
+  const [tempSelectedTopics, setTempSelectedTopics] = useState([]);
+  const [modalTopicSearch, setModalTopicSearch] = useState("");
 
   // Search state — input vs committed query
   const [searchInput, setSearchInput] = useState("");
@@ -55,7 +63,7 @@ function ProblemsListContent() {
     }
   }, []);
 
-  // Fetch available topics for filter pills
+  // Fetch available topics
   useEffect(() => {
     async function loadTopics() {
       try {
@@ -74,7 +82,7 @@ function ProblemsListContent() {
   // Sync with URL query parameters on mount or change
   useEffect(() => {
     const qParam = searchParams.get("search") || searchParams.get("q") || "";
-    const topicParam = searchParams.get("topic") || "";
+    const topicParam = searchParams.get("topics") || searchParams.get("topic") || "";
     const diffParam = searchParams.get("difficulty") || "all";
 
     if (qParam) {
@@ -82,14 +90,35 @@ function ProblemsListContent() {
       setActiveSearch(qParam);
     }
     if (topicParam) {
-      setSelectedTopic(topicParam);
+      const parsed = topicParam
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+      setSelectedTopics(parsed);
     }
     if (diffParam && diffParam !== "all") {
       setDifficultyFilter(diffParam);
     }
   }, [searchParams]);
 
-  // Apply theme class to wrapper
+  // Lock body scroll and handle Escape key when modal is open
+  useEffect(() => {
+    if (showTopicModal) {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      const onKeyDown = (e) => {
+        if (e.key === "Escape") {
+          setShowTopicModal(false);
+        }
+      };
+      window.addEventListener("keydown", onKeyDown);
+      return () => {
+        document.body.style.overflow = prevOverflow;
+        window.removeEventListener("keydown", onKeyDown);
+      };
+    }
+  }, [showTopicModal]);
+
   const wrapperClass = `lcp-wrapper lcp-theme-${theme}`;
 
   function toggleTheme() {
@@ -100,57 +129,60 @@ function ProblemsListContent() {
     });
   }
 
-  const fetchProblems = useCallback(async (opts = {}) => {
-    const {
-      pageToFetch = 1,
-      search = activeSearch,
-      topic = selectedTopic,
-      difficulty = difficultyFilter,
-      append = false,
-    } = opts;
+  const fetchProblems = useCallback(
+    async (opts = {}) => {
+      const {
+        pageToFetch = 1,
+        search = activeSearch,
+        topicsToQuery = selectedTopics,
+        difficulty = difficultyFilter,
+        append = false,
+      } = opts;
 
-    if (append) {
-      setLoadingMore(true);
-    } else {
-      setLoading(true);
-    }
-    setError(null);
-
-    try {
-      const params = new URLSearchParams({
-        page: String(pageToFetch),
-        size: "20",
-        search: (search || "").trim(),
-        topic: (topic || "").trim(),
-        difficulty,
-      });
-      const res = await fetch(`/api/coding/problems?${params.toString()}`);
-      const data = await res.json();
-
-      if (data.success) {
-        const incoming = data.problems || [];
-        if (append) {
-          setProblems((prev) => {
-            const existing = new Set(prev.map((p) => p.problemId));
-            return [...prev, ...incoming.filter((p) => !existing.has(p.problemId))];
-          });
-        } else {
-          setProblems(incoming);
-        }
-        setPage(data.page || pageToFetch);
-        setHasMore(Boolean(data.hasMore));
-        setTotal(data.total || 0);
+      if (append) {
+        setLoadingMore(true);
       } else {
-        setError(data.error || "Failed to load problems");
+        setLoading(true);
       }
-    } catch (err) {
-      console.error("Failed to load problems:", err);
-      setError("Network error. Please try again.");
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [activeSearch, selectedTopic, difficultyFilter]);
+      setError(null);
+
+      try {
+        const params = new URLSearchParams({
+          page: String(pageToFetch),
+          size: "20",
+          search: (search || "").trim(),
+          topics: (topicsToQuery || []).join(","),
+          difficulty,
+        });
+        const res = await fetch(`/api/coding/problems?${params.toString()}`);
+        const data = await res.json();
+
+        if (data.success) {
+          const incoming = data.problems || [];
+          if (append) {
+            setProblems((prev) => {
+              const existing = new Set(prev.map((p) => p.problemId));
+              return [...prev, ...incoming.filter((p) => !existing.has(p.problemId))];
+            });
+          } else {
+            setProblems(incoming);
+          }
+          setPage(data.page || pageToFetch);
+          setHasMore(Boolean(data.hasMore));
+          setTotal(data.total || 0);
+        } else {
+          setError(data.error || "Failed to load problems");
+        }
+      } catch (err) {
+        console.error("Failed to load problems:", err);
+        setError("Network error. Please try again.");
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [activeSearch, selectedTopics, difficultyFilter]
+  );
 
   const fetchUserStatus = useCallback(async () => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
@@ -176,13 +208,19 @@ function ProblemsListContent() {
   // Initial load
   useEffect(() => {
     const qParam = searchParams.get("search") || searchParams.get("q") || "";
-    const topicParam = searchParams.get("topic") || "";
+    const topicParam = searchParams.get("topics") || searchParams.get("topic") || "";
     const diffParam = searchParams.get("difficulty") || "all";
+    const initialTopics = topicParam
+      ? topicParam
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean)
+      : [];
 
     fetchProblems({
       pageToFetch: 1,
       search: qParam,
-      topic: topicParam,
+      topicsToQuery: initialTopics,
       difficulty: diffParam,
       append: false,
     });
@@ -197,7 +235,7 @@ function ProblemsListContent() {
     fetchProblems({
       pageToFetch: 1,
       search: q,
-      topic: selectedTopic,
+      topicsToQuery: selectedTopics,
       difficulty: difficultyFilter,
       append: false,
     });
@@ -211,7 +249,7 @@ function ProblemsListContent() {
       fetchProblems({
         pageToFetch: 1,
         search: "",
-        topic: selectedTopic,
+        topicsToQuery: selectedTopics,
         difficulty: difficultyFilter,
         append: false,
       });
@@ -224,20 +262,114 @@ function ProblemsListContent() {
     fetchProblems({
       pageToFetch: 1,
       search: activeSearch,
-      topic: selectedTopic,
+      topicsToQuery: selectedTopics,
       difficulty: diff,
       append: false,
     });
   }
 
-  function handleTopicClick(topicId) {
-    const nextTopic = selectedTopic === topicId ? "" : topicId;
-    setSelectedTopic(nextTopic);
+  // Tag click on problem row -> toggles that topic in selectedTopics
+  function handleTagClick(tag) {
+    const norm = tag.toLowerCase().replace(/[^a-z0-9]/g, "-");
+    const exists = selectedTopics.some(
+      (t) => t.toLowerCase() === norm || t.toLowerCase() === tag.toLowerCase()
+    );
+    const nextTopics = exists
+      ? selectedTopics.filter(
+          (t) => t.toLowerCase() !== norm && t.toLowerCase() !== tag.toLowerCase()
+        )
+      : [...selectedTopics, tag];
+
+    setSelectedTopics(nextTopics);
     setPage(1);
     fetchProblems({
       pageToFetch: 1,
       search: activeSearch,
-      topic: nextTopic,
+      topicsToQuery: nextTopics,
+      difficulty: difficultyFilter,
+      append: false,
+    });
+  }
+
+  // Remove single topic badge
+  function handleRemoveSingleTopic(topicSlug) {
+    const next = selectedTopics.filter(
+      (t) =>
+        t.toLowerCase() !== topicSlug.toLowerCase() &&
+        t.toLowerCase().replace(/[^a-z0-9]/g, "-") !== topicSlug.toLowerCase()
+    );
+    setSelectedTopics(next);
+    setPage(1);
+    fetchProblems({
+      pageToFetch: 1,
+      search: activeSearch,
+      topicsToQuery: next,
+      difficulty: difficultyFilter,
+      append: false,
+    });
+  }
+
+  // Clear all topics
+  function handleClearAllTopics() {
+    setSelectedTopics([]);
+    setPage(1);
+    fetchProblems({
+      pageToFetch: 1,
+      search: activeSearch,
+      topicsToQuery: [],
+      difficulty: difficultyFilter,
+      append: false,
+    });
+  }
+
+  // Modal controls
+  function openTopicModal() {
+    setTempSelectedTopics([...selectedTopics]);
+    setModalTopicSearch("");
+    setShowTopicModal(true);
+  }
+
+  function closeTopicModal() {
+    setShowTopicModal(false);
+  }
+
+  function handleToggleModalTopic(topicIdentifier) {
+    const norm = topicIdentifier.toLowerCase();
+    setTempSelectedTopics((prev) => {
+      const exists = prev.some(
+        (t) =>
+          t.toLowerCase() === norm ||
+          t.toLowerCase().replace(/[^a-z0-9]/g, "-") === norm
+      );
+      if (exists) {
+        return prev.filter(
+          (t) =>
+            t.toLowerCase() !== norm &&
+            t.toLowerCase().replace(/[^a-z0-9]/g, "-") !== norm
+        );
+      } else {
+        return [...prev, topicIdentifier];
+      }
+    });
+  }
+
+  function handleSelectAllModalTopics() {
+    const all = topics.map((t) => t.topicId || t.name);
+    setTempSelectedTopics(all);
+  }
+
+  function handleDeselectAllModalTopics() {
+    setTempSelectedTopics([]);
+  }
+
+  function handleApplyModalFilters() {
+    setSelectedTopics(tempSelectedTopics);
+    setShowTopicModal(false);
+    setPage(1);
+    fetchProblems({
+      pageToFetch: 1,
+      search: activeSearch,
+      topicsToQuery: tempSelectedTopics,
       difficulty: difficultyFilter,
       append: false,
     });
@@ -248,7 +380,7 @@ function ProblemsListContent() {
     fetchProblems({
       pageToFetch: page + 1,
       search: activeSearch,
-      topic: selectedTopic,
+      topicsToQuery: selectedTopics,
       difficulty: difficultyFilter,
       append: true,
     });
@@ -257,17 +389,28 @@ function ProblemsListContent() {
   function handleClearFilters() {
     setSearchInput("");
     setActiveSearch("");
-    setSelectedTopic("");
+    setSelectedTopics([]);
     setDifficultyFilter("all");
     setPage(1);
     fetchProblems({
       pageToFetch: 1,
       search: "",
-      topic: "",
+      topicsToQuery: [],
       difficulty: "all",
       append: false,
     });
   }
+
+  // Topics filtered in the modal by the modal's search query
+  const filteredModalTopics = topics.filter((t) => {
+    if (!modalTopicSearch.trim()) return true;
+    const q = modalTopicSearch.toLowerCase().trim();
+    return (
+      (t.name && t.name.toLowerCase().includes(q)) ||
+      (t.topicId && t.topicId.toLowerCase().includes(q)) ||
+      (t.description && t.description.toLowerCase().includes(q))
+    );
+  });
 
   // Skeleton rows
   function renderSkeletons() {
@@ -304,26 +447,6 @@ function ProblemsListContent() {
                 {total} {total === 1 ? "problem" : "problems"}
               </span>
             )}
-            {selectedTopic && (
-              <span className="lcp-active-topic-badge">
-                <FiTag size={12} />
-                <span>
-                  Topic:{" "}
-                  {topics.find(
-                    (t) =>
-                      t.topicId?.toLowerCase() === selectedTopic.toLowerCase()
-                  )?.name || selectedTopic}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleTopicClick(selectedTopic)}
-                  className="lcp-active-topic-clear"
-                  title="Remove topic filter"
-                >
-                  <FiX size={12} />
-                </button>
-              </span>
-            )}
           </div>
           <button
             className="lcp-theme-toggle"
@@ -352,7 +475,7 @@ function ProblemsListContent() {
                   type="button"
                   onClick={handleClearSearch}
                   className="lcp-search-clear"
-                  title="Clear"
+                  title="Clear search"
                 >
                   <FiX size={14} />
                 </button>
@@ -364,49 +487,87 @@ function ProblemsListContent() {
             </button>
           </form>
 
-          <div className="lcp-diff-tabs">
-            {["all", "Easy", "Medium", "Hard"].map((d) => (
-              <button
-                key={d}
-                type="button"
-                onClick={() => handleDifficultyChange(d)}
-                className={`lcp-diff-tab ${difficultyFilter === d ? "active" : ""}`}
-              >
-                {d === "all" ? "All" : d}
-              </button>
-            ))}
+          <div className="lcp-toolbar-actions">
+            {/* Filter Icon Button to open Topics Popup */}
+            <button
+              type="button"
+              onClick={openTopicModal}
+              className={`lcp-filter-trigger-btn ${selectedTopics.length > 0 ? "active" : ""}`}
+              title="Filter by topics"
+            >
+              <FiFilter size={16} />
+              <span>Filter Topics</span>
+              {selectedTopics.length > 0 && (
+                <span className="lcp-filter-badge-count">{selectedTopics.length}</span>
+              )}
+            </button>
+
+            {/* Difficulty Tabs */}
+            <div className="lcp-diff-tabs">
+              {["all", "Easy", "Medium", "Hard"].map((d) => (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => handleDifficultyChange(d)}
+                  className={`lcp-diff-tab ${difficultyFilter === d ? "active" : ""}`}
+                >
+                  {d === "all" ? "All" : d}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Topic Pills Filter Bar */}
-        {topics.length > 0 && (
-          <div className="lcp-topics-filter-bar">
-            <span className="lcp-topics-filter-label">Filter by Topic:</span>
-            <div className="lcp-topics-filter-scroll">
+        {/* Active Topics Bar (replaces horizontal scrollbar) */}
+        {selectedTopics.length > 0 && (
+          <div className="lcp-active-filters-bar">
+            <div className="lcp-active-filters-left">
+              <span className="lcp-active-filters-label">
+                <FiTag size={13} />
+                <span>Selected Topics ({selectedTopics.length}):</span>
+              </span>
+              <div className="lcp-active-tags-list">
+                {selectedTopics.map((topSlug) => {
+                  const matched = topics.find(
+                    (t) =>
+                      (t.topicId || "").toLowerCase() === topSlug.toLowerCase() ||
+                      (t.name || "").toLowerCase() === topSlug.toLowerCase() ||
+                      (t.name || "").toLowerCase().replace(/[^a-z0-9]/g, "-") ===
+                        topSlug.toLowerCase()
+                  );
+                  const displayName = matched?.name || topSlug;
+                  return (
+                    <span key={topSlug} className="lcp-active-filter-tag">
+                      <span>{displayName}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSingleTopic(topSlug)}
+                        className="lcp-remove-filter-btn"
+                        title={`Remove ${displayName}`}
+                      >
+                        <FiX size={12} />
+                      </button>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="lcp-active-filters-actions">
               <button
                 type="button"
-                onClick={() => handleTopicClick(selectedTopic)}
-                className={`lcp-topic-filter-pill ${!selectedTopic ? "active" : ""}`}
+                onClick={openTopicModal}
+                className="lcp-modify-topics-btn"
               >
-                All Topics
+                + Edit Topics
               </button>
-              {topics.map((t) => {
-                const isSelected =
-                  selectedTopic.toLowerCase() === (t.topicId || "").toLowerCase();
-                return (
-                  <button
-                    key={t.topicId}
-                    type="button"
-                    onClick={() => handleTopicClick(t.topicId)}
-                    className={`lcp-topic-filter-pill ${isSelected ? "active" : ""}`}
-                  >
-                    <span>{t.name}</span>
-                    {t.problemsCount !== undefined && t.problemsCount > 0 && (
-                      <span className="lcp-topic-pill-count">{t.problemsCount}</span>
-                    )}
-                  </button>
-                );
-              })}
+              <button
+                type="button"
+                onClick={handleClearAllTopics}
+                className="lcp-clear-all-topics-btn"
+              >
+                Clear All
+              </button>
             </div>
           </div>
         )}
@@ -421,7 +582,7 @@ function ProblemsListContent() {
                 fetchProblems({
                   pageToFetch: page,
                   search: activeSearch,
-                  topic: selectedTopic,
+                  topicsToQuery: selectedTopics,
                   difficulty: difficultyFilter,
                 })
               }
@@ -442,11 +603,11 @@ function ProblemsListContent() {
             </div>
             <h3 className="lcp-empty-title">No Problems Found</h3>
             <p className="lcp-empty-desc">
-              {activeSearch || selectedTopic || difficultyFilter !== "all"
-                ? "No challenges match your selected filters. Try searching for something else or resetting the filters."
+              {activeSearch || selectedTopics.length > 0 || difficultyFilter !== "all"
+                ? "No challenges match your selected filters. Try searching for something else or resetting your topic/difficulty selections."
                 : "Problems will appear here once added."}
             </p>
-            {(activeSearch || selectedTopic || difficultyFilter !== "all") && (
+            {(activeSearch || selectedTopics.length > 0 || difficultyFilter !== "all") && (
               <button className="lcp-retry-btn" onClick={handleClearFilters}>
                 Clear All Filters
               </button>
@@ -454,7 +615,7 @@ function ProblemsListContent() {
           </div>
         ) : (
           <>
-            {/* Admin-style Card List */}
+            {/* Card List */}
             <div className="lcp-list-rows">
               {problems.map((p, index) => {
                 const pid = p.order || index + 1;
@@ -499,18 +660,28 @@ function ProblemsListContent() {
                         </div>
 
                         <div className="lcp-row-topics-row">
-                          {(p.tags || p.topicIds || []).map((t, idx) => (
-                            <button
-                              key={idx}
-                              type="button"
-                              onClick={() => handleTopicClick(t)}
-                              className="lcp-tag lcp-tag-clickable"
-                              title={`Filter by ${t}`}
-                            >
-                              <FiTag style={{ fontSize: "0.7rem", marginRight: "3px" }} />
-                              {t}
-                            </button>
-                          ))}
+                          {(p.tags || p.topicIds || []).map((t, idx) => {
+                            const isTopicSelected = selectedTopics.some(
+                              (st) =>
+                                st.toLowerCase() === t.toLowerCase() ||
+                                st.toLowerCase().replace(/[^a-z0-9]/g, "-") ===
+                                  t.toLowerCase().replace(/[^a-z0-9]/g, "-")
+                            );
+                            return (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() => handleTagClick(t)}
+                                className={`lcp-tag lcp-tag-clickable ${
+                                  isTopicSelected ? "active" : ""
+                                }`}
+                                title={`Toggle topic filter: ${t}`}
+                              >
+                                <FiTag style={{ fontSize: "0.7rem", marginRight: "3px" }} />
+                                {t}
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
                     </div>
@@ -563,6 +734,160 @@ function ProblemsListContent() {
           </>
         )}
       </main>
+
+      {/* Multi-Select Topics Popup Modal */}
+      {showTopicModal && (
+        <div className="lcp-modal-overlay" onClick={closeTopicModal}>
+          <div
+            className="lcp-modal-window"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="topic-modal-title"
+          >
+            {/* Modal Header */}
+            <div className="lcp-modal-header">
+              <div className="lcp-modal-title-group">
+                <div className="lcp-modal-icon-wrap">
+                  <FiFilter size={18} />
+                </div>
+                <div>
+                  <h2 id="topic-modal-title" className="lcp-modal-title">
+                    Filter by Topics
+                  </h2>
+                  <p className="lcp-modal-subtitle">
+                    Select topics to show matching coding problems
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={closeTopicModal}
+                className="lcp-modal-close-btn"
+                title="Close"
+              >
+                <FiX size={18} />
+              </button>
+            </div>
+
+            {/* Modal Search Bar */}
+            <div className="lcp-modal-search-box">
+              <FiSearch size={15} className="lcp-modal-search-icon" />
+              <input
+                type="text"
+                placeholder="Search topics (e.g. Array, Math, Dynamic Programming)..."
+                value={modalTopicSearch}
+                onChange={(e) => setModalTopicSearch(e.target.value)}
+                className="lcp-modal-search-input"
+                autoFocus
+              />
+              {modalTopicSearch && (
+                <button
+                  type="button"
+                  onClick={() => setModalTopicSearch("")}
+                  className="lcp-modal-search-clear"
+                  title="Clear search"
+                >
+                  <FiX size={13} />
+                </button>
+              )}
+            </div>
+
+            {/* Quick action bar */}
+            <div className="lcp-modal-actions-bar">
+              <span className="lcp-modal-count-indicator">
+                <strong>{tempSelectedTopics.length}</strong> of {topics.length} selected
+              </span>
+              <div className="lcp-modal-quick-btns">
+                <button
+                  type="button"
+                  onClick={handleSelectAllModalTopics}
+                  className="lcp-modal-quick-btn"
+                >
+                  Select All
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeselectAllModalTopics}
+                  className="lcp-modal-quick-btn"
+                >
+                  Clear All
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Topics List - Row-wise */}
+            <div className="lcp-modal-topics-list">
+              {filteredModalTopics.length === 0 ? (
+                <div className="lcp-modal-empty">
+                  No topics found matching &quot;{modalTopicSearch}&quot;
+                </div>
+              ) : (
+                filteredModalTopics.map((top) => {
+                  const topIdentifier =
+                    top.topicId || top.name.toLowerCase().replace(/[^a-z0-9]/g, "-");
+                  const isChecked = tempSelectedTopics.some(
+                    (t) =>
+                      t.toLowerCase() === topIdentifier.toLowerCase() ||
+                      t.toLowerCase() === (top.topicId || "").toLowerCase() ||
+                      t.toLowerCase() === (top.name || "").toLowerCase() ||
+                      t.toLowerCase().replace(/[^a-z0-9]/g, "-") === topIdentifier.toLowerCase()
+                  );
+
+                  return (
+                    <div
+                      key={top.topicId || top.name}
+                      onClick={() => handleToggleModalTopic(topIdentifier)}
+                      className={`lcp-modal-topic-row ${isChecked ? "selected" : ""}`}
+                    >
+                      <div className="lcp-modal-row-left">
+                        <div className={`lcp-modal-checkbox ${isChecked ? "checked" : ""}`}>
+                          {isChecked && <FiCheck size={13} />}
+                        </div>
+                        <div className="lcp-modal-row-text">
+                          <span className="lcp-modal-row-name">{top.name}</span>
+                          {top.description && (
+                            <span className="lcp-modal-row-desc">{top.description}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="lcp-modal-row-right">
+                        {top.problemsCount !== undefined && (
+                          <span className="lcp-modal-count-badge">
+                            {top.problemsCount} {top.problemsCount === 1 ? "problem" : "problems"}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="lcp-modal-footer">
+              <button
+                type="button"
+                onClick={closeTopicModal}
+                className="lcp-modal-cancel-btn"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleApplyModalFilters}
+                className="lcp-modal-apply-btn"
+              >
+                <span>Apply Filters</span>
+                {tempSelectedTopics.length > 0 && (
+                  <span className="lcp-modal-apply-count">({tempSelectedTopics.length})</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
