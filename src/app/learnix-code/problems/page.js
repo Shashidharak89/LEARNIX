@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   FiSearch,
   FiX,
@@ -20,12 +21,18 @@ import "./ProblemsList.css";
 
 const THEME_KEY = "learnix-code-theme";
 
-export default function ProblemsListPage() {
+function ProblemsListContent() {
+  const searchParams = useSearchParams();
+
   const [problems, setProblems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
   const [statusMap, setStatusMap] = useState({});
+
+  // Topics list for filter pills
+  const [topics, setTopics] = useState([]);
+  const [selectedTopic, setSelectedTopic] = useState("");
 
   // Search state — input vs committed query
   const [searchInput, setSearchInput] = useState("");
@@ -48,6 +55,40 @@ export default function ProblemsListPage() {
     }
   }, []);
 
+  // Fetch available topics for filter pills
+  useEffect(() => {
+    async function loadTopics() {
+      try {
+        const res = await fetch("/api/coding/topics");
+        const data = await res.json();
+        if (data.success && Array.isArray(data.topics)) {
+          setTopics(data.topics);
+        }
+      } catch (err) {
+        console.error("Failed to load topics:", err);
+      }
+    }
+    loadTopics();
+  }, []);
+
+  // Sync with URL query parameters on mount or change
+  useEffect(() => {
+    const qParam = searchParams.get("search") || searchParams.get("q") || "";
+    const topicParam = searchParams.get("topic") || "";
+    const diffParam = searchParams.get("difficulty") || "all";
+
+    if (qParam) {
+      setSearchInput(qParam);
+      setActiveSearch(qParam);
+    }
+    if (topicParam) {
+      setSelectedTopic(topicParam);
+    }
+    if (diffParam && diffParam !== "all") {
+      setDifficultyFilter(diffParam);
+    }
+  }, [searchParams]);
+
   // Apply theme class to wrapper
   const wrapperClass = `lcp-wrapper lcp-theme-${theme}`;
 
@@ -62,8 +103,9 @@ export default function ProblemsListPage() {
   const fetchProblems = useCallback(async (opts = {}) => {
     const {
       pageToFetch = 1,
-      search = "",
-      difficulty = "all",
+      search = activeSearch,
+      topic = selectedTopic,
+      difficulty = difficultyFilter,
       append = false,
     } = opts;
 
@@ -78,7 +120,8 @@ export default function ProblemsListPage() {
       const params = new URLSearchParams({
         page: String(pageToFetch),
         size: "20",
-        search: search.trim(),
+        search: (search || "").trim(),
+        topic: (topic || "").trim(),
         difficulty,
       });
       const res = await fetch(`/api/coding/problems?${params.toString()}`);
@@ -107,7 +150,7 @@ export default function ProblemsListPage() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, []);
+  }, [activeSearch, selectedTopic, difficultyFilter]);
 
   const fetchUserStatus = useCallback(async () => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
@@ -132,16 +175,32 @@ export default function ProblemsListPage() {
 
   // Initial load
   useEffect(() => {
-    fetchProblems({ pageToFetch: 1, search: "", difficulty: "all" });
+    const qParam = searchParams.get("search") || searchParams.get("q") || "";
+    const topicParam = searchParams.get("topic") || "";
+    const diffParam = searchParams.get("difficulty") || "all";
+
+    fetchProblems({
+      pageToFetch: 1,
+      search: qParam,
+      topic: topicParam,
+      difficulty: diffParam,
+      append: false,
+    });
     fetchUserStatus();
-  }, [fetchProblems, fetchUserStatus]);
+  }, [searchParams, fetchUserStatus]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleSearchSubmit(e) {
     if (e) e.preventDefault();
     const q = searchInput.trim();
     setActiveSearch(q);
     setPage(1);
-    fetchProblems({ pageToFetch: 1, search: q, difficulty: difficultyFilter, append: false });
+    fetchProblems({
+      pageToFetch: 1,
+      search: q,
+      topic: selectedTopic,
+      difficulty: difficultyFilter,
+      append: false,
+    });
   }
 
   function handleClearSearch() {
@@ -149,14 +208,39 @@ export default function ProblemsListPage() {
     if (activeSearch) {
       setActiveSearch("");
       setPage(1);
-      fetchProblems({ pageToFetch: 1, search: "", difficulty: difficultyFilter, append: false });
+      fetchProblems({
+        pageToFetch: 1,
+        search: "",
+        topic: selectedTopic,
+        difficulty: difficultyFilter,
+        append: false,
+      });
     }
   }
 
   function handleDifficultyChange(diff) {
     setDifficultyFilter(diff);
     setPage(1);
-    fetchProblems({ pageToFetch: 1, search: activeSearch, difficulty: diff, append: false });
+    fetchProblems({
+      pageToFetch: 1,
+      search: activeSearch,
+      topic: selectedTopic,
+      difficulty: diff,
+      append: false,
+    });
+  }
+
+  function handleTopicClick(topicId) {
+    const nextTopic = selectedTopic === topicId ? "" : topicId;
+    setSelectedTopic(nextTopic);
+    setPage(1);
+    fetchProblems({
+      pageToFetch: 1,
+      search: activeSearch,
+      topic: nextTopic,
+      difficulty: difficultyFilter,
+      append: false,
+    });
   }
 
   function handleViewMore() {
@@ -164,6 +248,7 @@ export default function ProblemsListPage() {
     fetchProblems({
       pageToFetch: page + 1,
       search: activeSearch,
+      topic: selectedTopic,
       difficulty: difficultyFilter,
       append: true,
     });
@@ -172,9 +257,16 @@ export default function ProblemsListPage() {
   function handleClearFilters() {
     setSearchInput("");
     setActiveSearch("");
+    setSelectedTopic("");
     setDifficultyFilter("all");
     setPage(1);
-    fetchProblems({ pageToFetch: 1, search: "", difficulty: "all", append: false });
+    fetchProblems({
+      pageToFetch: 1,
+      search: "",
+      topic: "",
+      difficulty: "all",
+      append: false,
+    });
   }
 
   // Skeleton rows
@@ -208,7 +300,29 @@ export default function ProblemsListPage() {
           <div className="lcp-page-header-left">
             <h1 className="lcp-page-title">Problems</h1>
             {total > 0 && (
-              <span className="lcp-total-pill">{total} {total === 1 ? "problem" : "problems"}</span>
+              <span className="lcp-total-pill">
+                {total} {total === 1 ? "problem" : "problems"}
+              </span>
+            )}
+            {selectedTopic && (
+              <span className="lcp-active-topic-badge">
+                <FiTag size={12} />
+                <span>
+                  Topic:{" "}
+                  {topics.find(
+                    (t) =>
+                      t.topicId?.toLowerCase() === selectedTopic.toLowerCase()
+                  )?.name || selectedTopic}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleTopicClick(selectedTopic)}
+                  className="lcp-active-topic-clear"
+                  title="Remove topic filter"
+                >
+                  <FiX size={12} />
+                </button>
+              </span>
             )}
           </div>
           <button
@@ -264,44 +378,77 @@ export default function ProblemsListPage() {
           </div>
         </div>
 
-        {/* Active search indicator */}
-        {activeSearch && !loading && (
-          <div className="lcp-search-indicator">
-            <span>
-              Showing results for: <strong>&ldquo;{activeSearch}&rdquo;</strong>
-              {" — "}{total} {total === 1 ? "match" : "matches"} found
-            </span>
-            <button className="lcp-clear-filters-btn" onClick={handleClearFilters}>
-              <FiX size={13} /> Clear
+        {/* Topic Pills Filter Bar */}
+        {topics.length > 0 && (
+          <div className="lcp-topics-filter-bar">
+            <span className="lcp-topics-filter-label">Filter by Topic:</span>
+            <div className="lcp-topics-filter-scroll">
+              <button
+                type="button"
+                onClick={() => handleTopicClick(selectedTopic)}
+                className={`lcp-topic-filter-pill ${!selectedTopic ? "active" : ""}`}
+              >
+                All Topics
+              </button>
+              {topics.map((t) => {
+                const isSelected =
+                  selectedTopic.toLowerCase() === (t.topicId || "").toLowerCase();
+                return (
+                  <button
+                    key={t.topicId}
+                    type="button"
+                    onClick={() => handleTopicClick(t.topicId)}
+                    className={`lcp-topic-filter-pill ${isSelected ? "active" : ""}`}
+                  >
+                    <span>{t.name}</span>
+                    {t.problemsCount !== undefined && t.problemsCount > 0 && (
+                      <span className="lcp-topic-pill-count">{t.problemsCount}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Error Alert */}
+        {error && (
+          <div className="lcp-error-card">
+            <FiAlertTriangle size={20} color="#f97316" />
+            <span>{error}</span>
+            <button
+              onClick={() =>
+                fetchProblems({
+                  pageToFetch: page,
+                  search: activeSearch,
+                  topic: selectedTopic,
+                  difficulty: difficultyFilter,
+                })
+              }
+              className="lcp-retry-btn"
+            >
+              Try Again
             </button>
           </div>
         )}
 
-        {/* Content */}
+        {/* List Content */}
         {loading ? (
           renderSkeletons()
-        ) : error ? (
-          <div className="lcp-error-state">
-            <p style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
-              <FiAlertTriangle color="#ef4444" size={18} />
-              <span>{error}</span>
-            </p>
-            <button onClick={() => fetchProblems({ pageToFetch: 1, search: activeSearch, difficulty: difficultyFilter })} className="lcp-retry-btn">
-              Retry
-            </button>
-          </div>
         ) : problems.length === 0 ? (
-          <div className="lcp-empty-state">
-            <FiList size={40} />
-            <h3>{activeSearch || difficultyFilter !== "all" ? "No Matching Problems" : "No Problems Yet"}</h3>
-            <p>
-              {activeSearch || difficultyFilter !== "all"
-                ? "Try a different search or clear your filters."
+          <div className="lcp-empty-card">
+            <div className="lcp-empty-icon-wrap">
+              <FiList size={36} />
+            </div>
+            <h3 className="lcp-empty-title">No Problems Found</h3>
+            <p className="lcp-empty-desc">
+              {activeSearch || selectedTopic || difficultyFilter !== "all"
+                ? "No challenges match your selected filters. Try searching for something else or resetting the filters."
                 : "Problems will appear here once added."}
             </p>
-            {(activeSearch || difficultyFilter !== "all") && (
+            {(activeSearch || selectedTopic || difficultyFilter !== "all") && (
               <button className="lcp-retry-btn" onClick={handleClearFilters}>
-                Clear Filters
+                Clear All Filters
               </button>
             )}
           </div>
@@ -353,10 +500,16 @@ export default function ProblemsListPage() {
 
                         <div className="lcp-row-topics-row">
                           {(p.tags || p.topicIds || []).map((t, idx) => (
-                            <span key={idx} className="lcp-tag">
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => handleTopicClick(t)}
+                              className="lcp-tag lcp-tag-clickable"
+                              title={`Filter by ${t}`}
+                            >
                               <FiTag style={{ fontSize: "0.7rem", marginRight: "3px" }} />
                               {t}
-                            </span>
+                            </button>
                           ))}
                         </div>
                       </div>
@@ -411,5 +564,19 @@ export default function ProblemsListPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function ProblemsListPage() {
+  return (
+    <Suspense
+      fallback={
+        <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <FiLoader className="lcp-spinner" size={28} color="#f97316" />
+        </div>
+      }
+    >
+      <ProblemsListContent />
+    </Suspense>
   );
 }

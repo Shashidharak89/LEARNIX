@@ -538,10 +538,130 @@
   border-color: rgba(249, 115, 22, 0.22);
 }
 
-.lcp-theme-light .lcp-tag {
-  background: #fff7ed;
-  color: #ea580c;
-  border-color: #fed7aa;
+.lcp-active-topic-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--lcp-orange);
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.28rem 0.75rem;
+  border-radius: 9999px;
+  letter-spacing: 0.2px;
+}
+
+.lcp-active-topic-clear {
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  border-radius: 50%;
+  color: #ffffff;
+  width: 17px;
+  height: 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease;
+}
+
+.lcp-active-topic-clear:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+/* ─── Topic Filter Bar ─── */
+.lcp-topics-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--lcp-bg-card);
+  border: 1px solid var(--lcp-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.lcp-topics-filter-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--lcp-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.lcp-topics-filter-scroll {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding-bottom: 2px;
+  width: 100%;
+}
+
+.lcp-topics-filter-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.lcp-topics-filter-scroll::-webkit-scrollbar-thumb {
+  background: var(--lcp-border);
+  border-radius: 4px;
+}
+
+.lcp-topic-filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--lcp-bg-stat-card);
+  border: 1px solid var(--lcp-border);
+  color: var(--lcp-text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.lcp-topic-filter-pill:hover {
+  border-color: var(--lcp-orange);
+  color: var(--lcp-orange);
+}
+
+.lcp-topic-filter-pill.active {
+  background: var(--lcp-orange);
+  color: #ffffff !important;
+  border-color: var(--lcp-orange);
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+}
+
+.lcp-topic-pill-count {
+  font-size: 0.72rem;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.25);
+  color: inherit;
+}
+
+.lcp-topic-filter-pill:not(.active) .lcp-topic-pill-count {
+  background: var(--lcp-border);
+  color: var(--lcp-text-muted);
+}
+
+.lcp-tag.lcp-tag-clickable {
+  cursor: pointer;
+  border-style: solid;
+}
+
+.lcp-tag.lcp-tag-clickable:hover {
+  transform: translateY(-1px);
+  border-color: var(--lcp-orange);
+  color: var(--lcp-orange);
 }
 
 /* ─── Actions & Solve Button ─── */
