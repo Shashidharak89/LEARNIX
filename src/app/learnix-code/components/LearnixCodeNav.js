@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
-import { FiLogOut, FiShield, FiCode, FiLayers, FiSun, FiMoon } from "react-icons/fi";
+import { FiLogOut, FiShield, FiCode, FiLayers, FiSun, FiMoon, FiTerminal } from "react-icons/fi";
 import { recordCodingEntry, exitCodingEnvironment } from "@/utils/codingExitTracker";
 import "./LearnixCodeNav.css";
 
@@ -91,6 +91,12 @@ export default function LearnixCodeNav({ theme, onToggleTheme }) {
             className={`lcn-link ${pathname === "/learnix-code/problems" || pathname?.startsWith("/learnix-code/problems/") ? "active" : ""}`}
           >
             <FiLayers style={{ marginRight: 4 }} /> Problems
+          </Link>
+          <Link
+            href="/learnix-code/compiler"
+            className={`lcn-link ${pathname === "/learnix-code/compiler" || pathname === "/compiler" ? "active" : ""}`}
+          >
+            <FiTerminal style={{ marginRight: 4 }} /> Compiler
           </Link>
         </div>
       </div>

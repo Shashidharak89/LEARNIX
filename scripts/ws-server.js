@@ -131,6 +131,17 @@ wss.on("connection", (ws, req) => {
 
     const { type, uploadId } = msg;
 
+    if (type && type.startsWith("compiler_")) {
+      try {
+        const { handleCompilerMessage } = await import("../src/lib/compilerWsRunner.js");
+        handleCompilerMessage(ws, req, msg);
+      } catch (err) {
+        console.error("[WS Server] Compiler runner error:", err);
+        ws.send(JSON.stringify({ type: "compiler_error", error: "Internal compiler error: " + err.message }));
+      }
+      return;
+    }
+
     switch (type) {
       case "init": {
         const { filename, fileSize, userId, folder: requestedFolder } = msg;
@@ -350,6 +361,9 @@ wss.on("connection", (ws, req) => {
   });
 
   ws.on("close", () => {
+    import("../src/lib/compilerWsRunner.js")
+      .then((m) => m.handleCompilerSocketClose(ws))
+      .catch(() => {});
     for (const [id, session] of activeUploads.entries()) {
       if (session.ws === ws) {
         activeUploads.delete(id);

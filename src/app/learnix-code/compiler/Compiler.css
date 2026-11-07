@@ -1,0 +1,706 @@
+/* Compiler.css — Learnix Online Compiler */
+
+/* ─── Dark Theme ─── */
+.lco-theme-dark {
+  --lco-bg: #0c0e14;
+  --lco-bg-card: #141721;
+  --lco-bg-subtle: #1a1e2b;
+  --lco-bg-editor: #1e1e1e;
+  --lco-bg-terminal: #0a0c10;
+  --lco-border: #232838;
+  --lco-border-subtle: #1e2433;
+  --lco-text-primary: #f1f5f9;
+  --lco-text-secondary: #94a3b8;
+  --lco-text-muted: #64748b;
+  --lco-text-accent: #f97316;
+  --lco-accent: #f97316;
+  --lco-accent-hover: #ea580c;
+  --lco-accent-light: rgba(249, 115, 22, 0.12);
+  --lco-accent-border: rgba(249, 115, 22, 0.3);
+  --lco-stdout: #e2e8f0;
+  --lco-stderr: #f87171;
+  --lco-system: #60a5fa;
+  --lco-input: #38bdf8;
+  --lco-banner-bg: #141926;
+  --lco-banner-border: #232b40;
+}
+
+/* ─── Light Theme ─── */
+.lco-theme-light {
+  --lco-bg: #f8f9fb;
+  --lco-bg-card: #ffffff;
+  --lco-bg-subtle: #f1f5f9;
+  --lco-bg-editor: #ffffff;
+  --lco-bg-terminal: #0f172a;
+  --lco-border: #e2e8f0;
+  --lco-border-subtle: #e8edf5;
+  --lco-text-primary: #0f172a;
+  --lco-text-secondary: #475569;
+  --lco-text-muted: #64748b;
+  --lco-text-accent: #ea580c;
+  --lco-accent: #f97316;
+  --lco-accent-hover: #ea580c;
+  --lco-accent-light: #fff7ed;
+  --lco-accent-border: #fed7aa;
+  --lco-stdout: #f8fafc;
+  --lco-stderr: #fca5a5;
+  --lco-system: #93c5fd;
+  --lco-input: #7dd3fc;
+  --lco-banner-bg: #f8fafc;
+  --lco-banner-border: #e2e8f0;
+}
+
+/* ─── Wrapper & Layout ─── */
+.lco-wrapper {
+  min-height: 100vh;
+  background-color: var(--lco-bg);
+  color: var(--lco-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.lco-main {
+  flex: 1;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem 2.5rem 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ─── Top Action Bar ─── */
+.lco-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--lco-bg-card);
+  border: 1px solid var(--lco-border);
+  border-radius: 16px;
+  box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.05);
+  flex-wrap: wrap;
+}
+
+.lco-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.lco-page-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--lco-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.lco-accent-text {
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Language Tabs ─── */
+.lco-lang-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: var(--lco-bg-subtle);
+  padding: 3px;
+  border-radius: 12px;
+  border: 1px solid var(--lco-border-subtle);
+}
+
+.lco-lang-tab {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  color: var(--lco-text-secondary);
+  font-size: 0.84rem;
+  font-weight: 600;
+  transition: all 0.18s ease;
+}
+
+.lco-lang-tab:hover:not(:disabled) {
+  color: var(--lco-text-primary);
+}
+
+.lco-lang-tab.active {
+  background: var(--lco-bg-card);
+  color: var(--lco-text-accent);
+  border-color: var(--lco-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.lco-lang-ver {
+  font-size: 0.7rem;
+  color: var(--lco-text-muted);
+  font-weight: 500;
+}
+
+/* ─── Action Bar Right ─── */
+.lco-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.lco-exec-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.38rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.lco-badge-server {
+  background: rgba(249, 115, 22, 0.1);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  color: #f97316;
+}
+
+.lco-badge-client {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #10b981;
+}
+
+.lco-cooldown-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.38rem 0.75rem;
+  border-radius: 9999px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+/* ─── Run & Stop Buttons ─── */
+.lco-run-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: #ffffff;
+  border: none;
+  padding: 0.55rem 1.4rem;
+  border-radius: 11px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px -2px rgba(249, 115, 22, 0.4);
+}
+
+.lco-run-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px -2px rgba(249, 115, 22, 0.55);
+}
+
+.lco-run-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.lco-run-btn.disabled-cooldown {
+  background: #334155;
+  color: #94a3b8;
+  box-shadow: none;
+  border: 1px solid #475569;
+}
+
+.lco-stop-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  padding: 0.55rem 1.1rem;
+  border-radius: 11px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+}
+
+.lco-stop-btn:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* ─── Workspace (Editor + Console Split) ─── */
+.lco-workspace {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 1.25rem;
+  min-height: 560px;
+  height: calc(100vh - 240px);
+}
+
+/* ─── Panels ─── */
+.lco-editor-panel,
+.lco-console-panel {
+  background: var(--lco-bg-card);
+  border: 1px solid var(--lco-border);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 6px 20px -4px rgba(0, 0, 0, 0.06);
+}
+
+.lco-panel-header {
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--lco-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--lco-bg-subtle);
+  gap: 0.5rem;
+}
+
+.lco-panel-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.lco-file-tab {
+  font-family: "SF Mono", monospace;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--lco-text-primary);
+  background: var(--lco-bg-card);
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--lco-border);
+}
+
+.lco-class-hint {
+  font-size: 0.78rem;
+  color: var(--lco-text-muted);
+}
+
+.lco-class-hint strong {
+  color: var(--lco-text-accent);
+}
+
+.lco-panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.lco-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--lco-border);
+  color: var(--lco-text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.lco-icon-btn:hover {
+  background: var(--lco-bg-card);
+  color: var(--lco-text-primary);
+  border-color: var(--lco-text-muted);
+}
+
+/* ─── Editor Container ─── */
+.lco-editor-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: var(--lco-bg-editor);
+}
+
+.lco-editor-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  color: var(--lco-text-muted);
+  font-size: 0.9rem;
+}
+
+/* ─── Console Tabs ─── */
+.lco-console-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.lco-console-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.38rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  color: var(--lco-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all 0.15s;
+  position: relative;
+}
+
+.lco-console-tab.active {
+  background: var(--lco-bg-card);
+  color: var(--lco-text-primary);
+  border-color: var(--lco-border);
+}
+
+.lco-output-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--lco-accent);
+}
+
+.lco-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.74rem;
+  color: var(--lco-text-muted);
+  font-family: monospace;
+}
+
+.lco-status-tag {
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.lco-status-tag.success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.lco-status-tag.error {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* ─── Live Server Banner ─── */
+.lco-server-banner {
+  padding: 0.45rem 1rem;
+  background: var(--lco-banner-bg);
+  border-bottom: 1px solid var(--lco-banner-border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  font-family: monospace;
+}
+
+.lco-banner-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #64748b;
+}
+
+.lco-server-banner.pulse .lco-banner-dot {
+  background: var(--lco-accent);
+  animation: lco-pulse 1.2s infinite;
+}
+
+.lco-server-banner.done .lco-banner-dot {
+  background: #10b981;
+}
+
+.lco-server-banner.warn .lco-banner-dot {
+  background: #ef4444;
+}
+
+@keyframes lco-pulse {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.6; }
+}
+
+.lco-banner-text {
+  color: var(--lco-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Console Body & Terminal Window ─── */
+.lco-console-body {
+  flex: 1;
+  background: var(--lco-bg-terminal);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.lco-terminal-window {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  font-family: "Fira Code", "SF Mono", Consolas, monospace;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  scrollbar-width: thin;
+}
+
+.lco-terminal-window::-webkit-scrollbar {
+  width: 6px;
+}
+
+.lco-terminal-window::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+}
+
+.lco-line-stdout {
+  color: var(--lco-stdout);
+}
+
+.lco-line-stderr {
+  color: var(--lco-stderr);
+}
+
+.lco-line-system {
+  color: var(--lco-system);
+}
+
+.lco-line-input {
+  color: var(--lco-input);
+  font-weight: 700;
+}
+
+/* ─── Stdin Tab ─── */
+.lco-stdin-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  gap: 0.5rem;
+}
+
+.lco-stdin-header {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.lco-stdin-textarea {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--lco-border);
+  border-radius: 8px;
+  padding: 0.75rem;
+  color: var(--lco-text-primary);
+  font-family: monospace;
+  font-size: 0.85rem;
+  outline: none;
+  resize: none;
+}
+
+.lco-stdin-textarea:focus {
+  border-color: var(--lco-accent);
+}
+
+/* ─── Interactive Stdin Bar ─── */
+.lco-interactive-bar {
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 0.85rem;
+  background: var(--lco-bg-subtle);
+  border-top: 1px solid var(--lco-border);
+  gap: 0.6rem;
+}
+
+.lco-interactive-input-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--lco-bg-card);
+  border: 1px solid var(--lco-border);
+  border-radius: 9px;
+  padding: 0.4rem 0.75rem;
+}
+
+.lco-prompt-arrow {
+  color: var(--lco-accent);
+  font-family: monospace;
+  font-weight: 800;
+  font-size: 0.95rem;
+}
+
+.lco-interactive-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--lco-text-primary);
+  font-size: 0.85rem;
+  font-family: "Fira Code", monospace;
+  outline: none;
+}
+
+.lco-send-input-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.95rem;
+  border-radius: 9px;
+  background: var(--lco-accent-light);
+  border: 1px solid var(--lco-accent-border);
+  color: var(--lco-accent);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.lco-send-input-btn:hover:not(:disabled) {
+  background: var(--lco-accent);
+  color: #ffffff;
+}
+
+.lco-send-input-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ─── Footer Info ─── */
+.lco-footer-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  padding: 1.1rem 1.4rem;
+  background: var(--lco-bg-card);
+  border: 1px solid var(--lco-border);
+  border-radius: 14px;
+}
+
+.lco-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--lco-text-secondary);
+}
+
+.lco-info-icon {
+  color: var(--lco-accent);
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.lco-info-item code {
+  background: var(--lco-bg-subtle);
+  border: 1px solid var(--lco-border);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-family: monospace;
+  color: var(--lco-text-primary);
+}
+
+/* ─── Spinners ─── */
+.lco-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(249, 115, 22, 0.2);
+  border-top-color: var(--lco-accent);
+  border-radius: 50%;
+  animation: lco-spin 0.8s linear infinite;
+}
+
+.lco-spinner-small {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: lco-spin 0.8s linear infinite;
+}
+
+@keyframes lco-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 992px) {
+  .lco-workspace {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .lco-editor-panel {
+    height: 480px;
+  }
+
+  .lco-console-panel {
+    height: 380px;
+  }
+}
+
+@media (max-width: 768px) {
+  .lco-main {
+    padding: 1rem 0.75rem 2rem 0.75rem;
+  }
+
+  .lco-action-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .lco-bar-left,
+  .lco-bar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .lco-lang-tabs {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .lco-lang-tab {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+}
+

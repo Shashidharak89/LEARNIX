@@ -133,9 +133,13 @@ export default function LearnixCodeHomePage() {
               <span>Start Practicing Now</span>
               <FiArrowRight size={16} />
             </Link>
+            <Link href="/learnix-code/compiler" className="lch-hero-secondary-btn">
+              <FiTerminal size={15} />
+              <span>Online Compiler</span>
+            </Link>
             <a href="#problem-topics" className="lch-hero-secondary-btn">
               <FiTag size={15} />
-              <span>Browse by Topic</span>
+              <span>Browse Topics</span>
             </a>
           </div>
 

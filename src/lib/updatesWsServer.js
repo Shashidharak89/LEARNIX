@@ -5,6 +5,7 @@ import { connectDB } from "@/lib/db";
 import File from "@/models/File";
 import User from "@/models/User";
 import { cleanupExpiredFiles } from "@/lib/fileCleanup";
+import { handleCompilerMessage, handleCompilerSocketClose } from "@/lib/compilerWsRunner";
 
 const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey@learnix";
 const WS_DEFAULT_PORT = Number(process.env.WS_PORT) || 5001;
@@ -100,6 +101,12 @@ export function getOrStartWsServer(desiredPort = WS_DEFAULT_PORT) {
       }
 
       const { type, uploadId } = msg;
+
+      // Handle Compiler Execution Messages (compiler_run, compiler_stdin, compiler_stop)
+      if (type && type.startsWith("compiler_")) {
+        handleCompilerMessage(ws, req, msg);
+        return;
+      }
 
       switch (type) {
         case "init": {
@@ -335,6 +342,7 @@ export function getOrStartWsServer(desiredPort = WS_DEFAULT_PORT) {
     });
 
     ws.on("close", () => {
+      handleCompilerSocketClose(ws);
       for (const [id, session] of activeUploads.entries()) {
         if (session.ws === ws) {
           activeUploads.delete(id);
