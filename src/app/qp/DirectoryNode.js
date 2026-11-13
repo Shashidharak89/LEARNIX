@@ -1,8 +1,134 @@
 "use client";
 
 import React, { useState } from "react";
-import { FiChevronRight, FiChevronDown, FiFolder, FiFileText, FiBookmark } from "react-icons/fi";
+import { FiChevronRight, FiChevronDown, FiFolder, FiFileText, FiBookmark, FiArrowUpRight } from "react-icons/fi";
 import { toggleLearnLaterClient } from "@/lib/clientLearnLater";
+
+function ExamPaperItem({ exam, batch, semesterData, parentParams, level = 0 }) {
+    const [isBookmarked, setIsBookmarked] = useState(false);
+    const [bookmarking, setBookmarking] = useState(false);
+
+    const url = `/qp/compiled?collegeId=${parentParams.collegeId}&courseId=${parentParams.courseId}&semesterId=${semesterData._id}&batchId=${exam.batchId || ''}&examTypeId=${exam.examTypeId}`;
+
+    const handleBookmark = async (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (bookmarking) return;
+        setBookmarking(true);
+        try {
+            const res = await toggleLearnLaterClient({
+                type: "question-paper",
+                targetId: `${exam.batchId || 'batch'}-${exam.examTypeId}`,
+                title: `${exam.name} - Batch ${batch.name}`,
+                subtitle: `Semester ${semesterData.semesterNumber || ''}`,
+                description: `Compiled Question Papers for ${exam.name}`,
+                url,
+                metadata: {
+                    batchId: exam.batchId,
+                    examTypeId: exam.examTypeId,
+                    recordCount: exam.recordCount,
+                }
+            });
+            if (res && res.success) {
+                setIsBookmarked(res.isSaved);
+            }
+        } catch (err) {
+            console.error("Failed to toggle Learn Later", err);
+        } finally {
+            setBookmarking(false);
+        }
+    };
+
+    return (
+        <div 
+            className="qp-dir-exam-row" 
+            style={{ marginLeft: level > 0 ? "8px" : "0" }}
+        >
+            <a 
+                href={url} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="qp-dir-exam-link"
+                title={`Open compiled papers for ${exam.name}`}
+            >
+                <div className="qp-dir-exam-icon" aria-hidden="true">
+                    <FiFileText size={17} />
+                </div>
+                <div className="qp-dir-exam-info">
+                    <span className="qp-dir-exam-title">View {exam.name}</span>
+                    <span className="qp-dir-exam-tag">Compiled Question Papers</span>
+                </div>
+                <div className="qp-dir-exam-action-icon" aria-hidden="true">
+                    <FiArrowUpRight size={17} />
+                </div>
+            </a>
+            <div className="qp-dir-exam-actions">
+                <button
+                    type="button"
+                    title={isBookmarked ? "Saved in Learn Later" : "Save to Learn Later"}
+                    aria-label={`Save ${exam.name} to Learn Later`}
+                    onClick={handleBookmark}
+                    className={`qp-dir-bookmark-btn ${isBookmarked ? "is-bookmarked" : ""}`}
+                    disabled={bookmarking}
+                >
+                    <FiBookmark size={15} style={isBookmarked ? { fill: "currentColor" } : {}} />
+                </button>
+            </div>
+        </div>
+    );
+}
+
+function BatchDirectoryNode({ batch, semesterData, parentParams, level = 0 }) {
+    const [expanded, setExpanded] = useState(false);
+
+    return (
+        <div 
+            className="qp-dir-node qp-dir-node--nested" 
+            style={{ marginLeft: level > 0 ? "8px" : "0" }}
+        >
+            <button 
+                type="button"
+                onClick={() => setExpanded(!expanded)}
+                className={`qp-dir-node-btn qp-dir-node-btn--nested ${expanded ? "is-expanded" : ""}`}
+                aria-expanded={expanded}
+            >
+                <div className={`qp-dir-icon-badge ${expanded ? "is-expanded" : ""}`} aria-hidden="true">
+                    <FiFolder />
+                </div>
+                <span className="qp-dir-node-name">Batch {batch.name}</span>
+                {batch.exams?.length > 0 && (
+                    <span className="qp-dir-count-badge">
+                        {batch.exams.length} {batch.exams.length === 1 ? "exam" : "exams"}
+                    </span>
+                )}
+                <span className={`qp-dir-chevron ${expanded ? "is-expanded" : ""}`} aria-hidden="true">
+                    {expanded ? <FiChevronDown /> : <FiChevronRight />}
+                </span>
+            </button>
+
+            {expanded && (
+                <div className="qp-dir-children">
+                    {batch.exams.length === 0 ? (
+                        <div className="qp-dir-empty">No question papers found for this batch.</div>
+                    ) : (
+                        <div className="qp-dir-exams-list">
+                            {batch.exams.map((exam, idx) => (
+                                <ExamPaperItem
+                                    key={exam.examTypeId || idx}
+                                    exam={exam}
+                                    batch={batch}
+                                    semesterData={semesterData}
+                                    parentParams={parentParams}
+                                    level={level + 1}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
 
 export default function DirectoryNode({ 
     level = 0, 
@@ -26,7 +152,7 @@ export default function DirectoryNode({
             if (type === "university") endpoint = `/api/qp/v1/colleges/by-university?universityId=${data._id}&page=${pageNum}&limit=20`;
             if (type === "college") endpoint = `/api/qp/v1/courses/by-college?collegeId=${data._id}&page=${pageNum}&limit=20`;
             if (type === "course") endpoint = `/api/qp/v1/semesters/by-course?collegeId=${parentParams.collegeId}&courseId=${data._id}&page=${pageNum}&limit=20`;
-            if (type === "semester") endpoint = `/api/qp/v1/compiled/groups?collegeId=${parentParams.collegeId}&courseId=${parentParams.courseId}&semesterId=${data._id}&page=${pageNum}&limit=20`;
+            if (type === "semester") endpoint = `/api/qp/v1/compiled/groups?collegeId=${parentParams.collegeId}&courseId=${parentParams.courseId}&semesterId=${data._id}&page=${pageNum}&limit=50`;
             
             const res = await fetch(endpoint);
             const json = await res.json();
@@ -37,14 +163,19 @@ export default function DirectoryNode({
                     json.data.forEach(item => {
                         if (item.type === "group") {
                             const batchId = item.batch ? item.batch._id : "unknown";
-                            const batchName = item.batch ? `${item.batch.startYear}-${item.batch.endYear}` : "Unknown Batch";
+                            const batchName = item.batch ? `${item.batch.startYear}-${item.batch.endYear}` : "General";
                             if (!newGroups[batchId]) newGroups[batchId] = { name: batchName, exams: [] };
                             
-                            newGroups[batchId].exams.push({
-                                examTypeId: item.examtype ? item.examtype._id : "unknown",
-                                name: item.examtype ? item.examtype.name : "Unknown Exam",
-                                batchId: item.batch ? item.batch._id : null
-                            });
+                            const examTypeId = item.examtype ? item.examtype._id : "unknown";
+                            const exists = newGroups[batchId].exams.some(e => e.examTypeId === examTypeId);
+                            if (!exists) {
+                                newGroups[batchId].exams.push({
+                                    examTypeId,
+                                    name: item.examtype ? item.examtype.name : "Exam Papers",
+                                    batchId: item.batch ? item.batch._id : null,
+                                    recordCount: item.recordCount || 0
+                                });
+                            }
                         }
                     });
                     setGroupedBatches(newGroups);
@@ -95,6 +226,11 @@ export default function DirectoryNode({
 
     const isTopLevel = level === 0;
 
+    const batchList = Object.keys(groupedBatches).map(batchId => ({
+        id: batchId,
+        ...groupedBatches[batchId]
+    })).sort((a, b) => b.name.localeCompare(a.name, undefined, { numeric: true }));
+
     return (
         <div 
             className={`qp-dir-node ${isTopLevel ? "qp-dir-node--toplevel" : "qp-dir-node--nested"}`} 
@@ -120,74 +256,43 @@ export default function DirectoryNode({
                     {loading && page === 1 && (
                         <div className="qp-dir-loading">
                             <span className="qp-spinner-sm" aria-hidden="true" />
-                            <span>Loading items...</span>
+                            <span>{type === "semester" ? "Loading batches..." : "Loading items..."}</span>
                         </div>
                     )}
                     
-                    {!loading && type !== "semester" && children.length === 0 && (
-                        <div className="qp-dir-empty">No items found.</div>
-                    )}
+                    {type === "semester" ? (
+                        <div className="qp-dir-batches-list">
+                            {!loading && batchList.length === 0 && (
+                                <div className="qp-dir-empty">No batches found for this semester.</div>
+                            )}
 
-                    {type !== "semester" && children.map(child => (
-                        <DirectoryNode 
-                            key={child._id} 
-                            level={level + 1} 
-                            type={nextType} 
-                            data={child} 
-                            parentParams={nextParams}
-                        />
-                    ))}
-
-                    {type === "semester" && Object.keys(groupedBatches).map(batchId => (
-                        <div key={batchId} className="qp-dir-batch-group">
-                            <div className="qp-dir-batch-header">
-                                <span className="qp-dir-batch-badge">
-                                    Batch {groupedBatches[batchId].name}
-                                </span>
-                            </div>
-                            <div className="qp-dir-exams-list">
-                                {groupedBatches[batchId].exams.map((exam, idx) => {
-                                    const url = `/qp/compiled?collegeId=${parentParams.collegeId}&courseId=${parentParams.courseId}&semesterId=${data._id}&batchId=${exam.batchId || ''}&examTypeId=${exam.examTypeId}`;
-                                    return (
-                                        <div key={idx} className="qp-dir-exam-item">
-                                            <a 
-                                                href={url} 
-                                                target="_blank" 
-                                                rel="noopener noreferrer" 
-                                                className="qp-dir-exam-link"
-                                            >
-                                                <FiFileText size={15} />
-                                                <span>View {exam.name}</span>
-                                            </a>
-                                            <button
-                                                type="button"
-                                                title="Add to Learn Later"
-                                                aria-label={`Save ${exam.name} to Learn Later`}
-                                                onClick={async (e) => {
-                                                    e.stopPropagation();
-                                                    await toggleLearnLaterClient({
-                                                        type: "question-paper",
-                                                        targetId: `${exam.batchId || 'batch'}-${exam.examTypeId}`,
-                                                        title: `${exam.name} - Batch ${groupedBatches[batchId]?.name || ''}`,
-                                                        subtitle: `Semester ${data.semesterNumber || ''}`,
-                                                        description: `Compiled Question Papers for ${exam.name}`,
-                                                        url,
-                                                        metadata: {
-                                                            batchId: exam.batchId,
-                                                            examTypeId: exam.examTypeId,
-                                                        }
-                                                    });
-                                                }}
-                                                className="qp-dir-bookmark-btn"
-                                            >
-                                                <FiBookmark size={14} />
-                                            </button>
-                                        </div>
-                                    );
-                                })}
-                            </div>
+                            {batchList.map(batch => (
+                                <BatchDirectoryNode
+                                    key={batch.id}
+                                    batch={batch}
+                                    semesterData={data}
+                                    parentParams={nextParams}
+                                    level={level + 1}
+                                />
+                            ))}
                         </div>
-                    ))}
+                    ) : (
+                        <>
+                            {!loading && children.length === 0 && (
+                                <div className="qp-dir-empty">No items found.</div>
+                            )}
+
+                            {children.map(child => (
+                                <DirectoryNode 
+                                    key={child._id} 
+                                    level={level + 1} 
+                                    type={nextType} 
+                                    data={child} 
+                                    parentParams={nextParams}
+                                />
+                            ))}
+                        </>
+                    )}
 
                     {page < totalPages && (
                         <button 

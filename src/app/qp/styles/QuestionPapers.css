@@ -854,7 +854,35 @@
   margin-right: 6px;
 }
 
-/* Batch Group & Exams */
+/* Count Badge for Nested Nodes */
+.qp-dir-count-badge {
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  margin-left: 8px;
+  margin-right: 4px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.qp-dir-node-btn--nested.is-expanded .qp-dir-count-badge {
+  background: #dbeafe;
+  color: #1e40af;
+  border-color: #bfdbfe;
+}
+
+/* Batch Group & Exams List */
+.qp-dir-batches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
 .qp-dir-batch-group {
   margin-top: 10px;
   margin-bottom: 10px;
@@ -877,60 +905,163 @@
   font-weight: 700;
 }
 
+/* Exams vertical list (one in a row) */
 .qp-dir-exams-list {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 8px;
-  align-items: center;
-  margin-left: 4px;
+  width: 100%;
+  margin-top: 8px;
+  margin-bottom: 8px;
 }
 
+/* Exam Paper Row / Card (Full width one in a row) */
+.qp-dir-exam-row,
 .qp-dir-exam-item {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
-}
-
-.qp-dir-exam-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 16px;
-  background: #007aff;
-  color: #ffffff;
-  border-radius: 9999px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  text-decoration: none;
-  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.22);
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 10px 16px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.qp-dir-exam-row:hover,
+.qp-dir-exam-item:hover {
+  border-color: #007aff;
+  background: #fbfdff;
+  transform: translateX(2px);
+  box-shadow: 0 4px 14px rgba(0, 122, 255, 0.08);
+}
+
+/* Exam Card Link */
+.qp-dir-exam-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+  color: #0f172a;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  border-radius: 0;
+  font-size: inherit;
+  font-weight: normal;
+}
+
 .qp-dir-exam-link:hover {
-  background: #0062cc;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.35);
+  background: transparent;
+  transform: none;
+  box-shadow: none;
+}
+
+.qp-dir-exam-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #007aff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.qp-dir-exam-row:hover .qp-dir-exam-icon,
+.qp-dir-exam-item:hover .qp-dir-exam-icon {
+  background: #007aff;
+  color: #ffffff;
+}
+
+.qp-dir-exam-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+}
+
+.qp-dir-exam-title {
+  font-size: 0.94rem;
+  font-weight: 650;
+  color: #0f172a;
+  word-break: break-word;
+  transition: color 0.2s ease;
+}
+
+.qp-dir-exam-row:hover .qp-dir-exam-title,
+.qp-dir-exam-item:hover .qp-dir-exam-title {
+  color: #007aff;
+}
+
+.qp-dir-exam-tag {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.qp-dir-exam-action-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: #94a3b8;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.qp-dir-exam-row:hover .qp-dir-exam-action-icon,
+.qp-dir-exam-item:hover .qp-dir-exam-action-icon {
+  color: #007aff;
+  transform: translate(2px, -2px);
+}
+
+.qp-dir-exam-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .qp-dir-bookmark-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 1.5px solid #e2e8f0;
   background: #ffffff;
   color: #64748b;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .qp-dir-bookmark-btn:hover {
   border-color: #f59e0b;
   color: #d97706;
   background: #fffbeb;
-  transform: translateY(-1px);
+  transform: scale(1.05);
+}
+
+.qp-dir-bookmark-btn.is-bookmarked {
+  border-color: #f59e0b;
+  background: #fef3c7;
+  color: #d97706;
 }
 
 .qp-dir-sub-loadmore {
@@ -1197,6 +1328,25 @@
   
   .qp-step { padding: 10px 12px; gap: 10px; }
   .qp-step-number { width: 24px; height: 24px; font-size: 12px; }
+
+  .qp-dir-exam-row,
+  .qp-dir-exam-item {
+    padding: 8px 12px;
+    min-height: 48px;
+    gap: 8px;
+    border-radius: 14px;
+  }
+  .qp-dir-exam-icon {
+    width: 30px;
+    height: 30px;
+  }
+  .qp-dir-exam-title {
+    font-size: 0.88rem;
+  }
+  .qp-dir-bookmark-btn {
+    width: 32px;
+    height: 32px;
+  }
   
   .qp-features-grid { grid-template-columns: 1fr; }
   .qp-feature { padding: 12px; }
