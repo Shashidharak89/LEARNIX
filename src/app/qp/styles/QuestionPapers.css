@@ -1059,9 +1059,16 @@
 }
 
 .qp-dir-bookmark-btn.is-bookmarked {
-  border-color: #f59e0b;
-  background: #fef3c7;
-  color: #d97706;
+  border-color: #8b5cf6;
+  background: #f5f3ff;
+  color: #8b5cf6;
+}
+
+.qp-dir-bookmark-btn.is-bookmarked svg,
+.qp-dir-bookmark-btn.is-bookmarked svg path {
+  fill: #8b5cf6 !important;
+  stroke: #8b5cf6 !important;
+  color: #8b5cf6 !important;
 }
 
 .qp-dir-sub-loadmore {

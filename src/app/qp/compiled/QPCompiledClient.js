@@ -258,7 +258,7 @@ export default function QPCompiledClient() {
                                 }
                             }}
                         >
-                            <FaBookmark style={isSavedInLearnLater ? { fill: "currentColor" } : {}} />
+                            <FaBookmark style={isSavedInLearnLater ? { fill: "#8b5cf6", color: "#8b5cf6" } : {}} />
                             <span className="wtpc-btn-text">{isSavedInLearnLater ? 'Saved' : 'Learn Later'}</span>
                         </button>
                     </div>

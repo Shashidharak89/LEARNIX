@@ -749,9 +749,21 @@
   color: #0f172a;
 }
 
-.upd-dropdown-item svg.upd-item-saved {
-  color: #007aff;
-  fill: #007aff;
+.upd-dropdown-item.upd-item-saved-active {
+  color: #8b5cf6;
+  font-weight: 600;
+  background: #f5f3ff;
+}
+
+.upd-dropdown-item svg.upd-item-saved,
+.upd-dropdown-item .upd-item-saved svg {
+  color: #8b5cf6 !important;
+}
+
+.upd-dropdown-item svg.upd-item-saved path,
+.upd-dropdown-item .upd-item-saved svg path {
+  fill: #8b5cf6 !important;
+  stroke: #8b5cf6 !important;
 }
 
 /* Card Content */

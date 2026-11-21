@@ -623,12 +623,12 @@ const TopicCard = memo(function TopicCard({
                   <span>Open</span>
                 </button>
                 <button
-                  className="ws-menu-item"
+                  className={`ws-menu-item ${isSavedInLearnLater ? 'ws-item-saved' : ''}`}
                   onClick={handleLearnLaterClick}
                   onMouseEnter={() => bookmarkRef.current?.startAnimation?.()}
                   onMouseLeave={() => bookmarkRef.current?.stopAnimation?.()}
                 >
-                  <BookmarkIcon ref={bookmarkRef} size={15} className={`ws-menu-icon ${isSavedInLearnLater ? 'ws-item-saved' : ''}`} />
+                  <BookmarkIcon ref={bookmarkRef} size={15} color={isSavedInLearnLater ? "#8b5cf6" : "currentColor"} className={`ws-menu-icon ${isSavedInLearnLater ? 'ws-item-saved' : ''}`} />
                   <span>{isSavedInLearnLater ? 'Saved in Learn Later' : 'Learn Later'}</span>
                 </button>
                 <button

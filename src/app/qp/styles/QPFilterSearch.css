@@ -529,8 +529,11 @@
     color: #8b5cf6;
 }
 
-.qp-filter-bookmark-btn.is-bookmarked svg {
-    fill: currentColor;
+.qp-filter-bookmark-btn.is-bookmarked svg,
+.qp-filter-bookmark-btn.is-bookmarked svg path {
+    fill: #8b5cf6 !important;
+    stroke: #8b5cf6 !important;
+    color: #8b5cf6 !important;
 }
 
 /* Load more button */

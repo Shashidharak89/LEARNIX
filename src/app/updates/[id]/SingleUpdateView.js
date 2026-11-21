@@ -617,9 +617,17 @@ export default function SingleUpdateView({ updateId }) {
                   aria-label={isSavedInLearnLater ? "Saved in Learn Later" : "Save to Learn Later"}
                   onClick={handleLearnLaterToggle}
                   disabled={isLearnLaterLoading}
-                  style={isSavedInLearnLater ? { color: "#007aff", borderColor: "#007aff", background: "#eff6ff" } : {}}
+                  style={
+                    isSavedInLearnLater
+                      ? { color: "#8b5cf6", borderColor: "#8b5cf6", background: "#f5f3ff" }
+                      : {}
+                  }
                 >
-                  <Bookmark size={15} style={isSavedInLearnLater ? { fill: "currentColor" } : {}} />
+                  <Bookmark
+                    size={15}
+                    color={isSavedInLearnLater ? "#8b5cf6" : "currentColor"}
+                    fill={isSavedInLearnLater ? "#8b5cf6" : "none"}
+                  />
                 </button>
               </div>
 

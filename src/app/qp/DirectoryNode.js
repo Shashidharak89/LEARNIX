@@ -117,7 +117,7 @@ function ExamPaperItem({ exam, batch, semesterData, parentParams, level = 0 }) {
                     className={`qp-dir-bookmark-btn ${isBookmarked ? "is-bookmarked" : ""}`}
                     disabled={bookmarking}
                 >
-                    <FiBookmark size={15} style={isBookmarked ? { fill: "currentColor" } : {}} />
+                    <FiBookmark size={15} style={isBookmarked ? { fill: "#8b5cf6", color: "#8b5cf6" } : {}} />
                 </button>
             </div>
         </div>

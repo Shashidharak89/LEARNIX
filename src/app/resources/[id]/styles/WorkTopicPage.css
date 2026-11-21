@@ -502,21 +502,26 @@
 
 .wtpc-save-btn.wtpc-saved,
 .wtpc-learn-later-btn.wtpc-saved {
-  background-color: #8b5cf6;
-  color: #ffffff;
+  background-color: #f5f3ff;
+  color: #7c3aed;
   border-color: #8b5cf6;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.25);
 }
 
 .wtpc-save-btn.wtpc-saved svg,
-.wtpc-learn-later-btn.wtpc-saved svg {
-  fill: currentColor;
+.wtpc-learn-later-btn.wtpc-saved svg,
+.wtpc-save-btn.wtpc-saved svg path,
+.wtpc-learn-later-btn.wtpc-saved svg path {
+  fill: #8b5cf6 !important;
+  stroke: #8b5cf6 !important;
+  color: #8b5cf6 !important;
 }
 
 .wtpc-save-btn.wtpc-saved:hover,
 .wtpc-learn-later-btn.wtpc-saved:hover {
-  background-color: #7c3aed;
+  background-color: #ede9fe;
   border-color: #7c3aed;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
 }
 
 /* Cached Data Indicator */

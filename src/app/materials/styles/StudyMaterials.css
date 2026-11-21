@@ -537,14 +537,18 @@
 }
 
 .sm-bookmark-btn.is-bookmarked {
-  background: #8b5cf6;
-  color: #ffffff;
+  background: #f5f3ff;
+  color: #8b5cf6;
   border-color: #8b5cf6;
 }
 
 .sm-bookmark-btn.is-bookmarked svg,
-.sm-bookmark-btn svg.sm-icon-saved {
-  fill: currentColor;
+.sm-bookmark-btn svg.sm-icon-saved,
+.sm-bookmark-btn.is-bookmarked svg path,
+.sm-bookmark-btn svg.sm-icon-saved path {
+  fill: #8b5cf6 !important;
+  stroke: #8b5cf6 !important;
+  color: #8b5cf6 !important;
 }
 
 /* Animations */

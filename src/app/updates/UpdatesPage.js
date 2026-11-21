@@ -483,12 +483,12 @@ function UpdateCard({
                   <div className="upd-dropdown-menu">
                     <button
                       type="button"
-                      className="upd-dropdown-item"
+                      className={`upd-dropdown-item ${isSavedInLearnLater ? "upd-item-saved-active" : ""}`}
                       onClick={handleLearnLaterToggle}
                       onMouseEnter={() => bookmarkRef.current?.startAnimation?.()}
                       onMouseLeave={() => bookmarkRef.current?.stopAnimation?.()}
                     >
-                      <BookmarkIcon ref={bookmarkRef} size={14} className={isSavedInLearnLater ? "upd-item-saved" : ""} />
+                      <BookmarkIcon ref={bookmarkRef} size={14} color={isSavedInLearnLater ? "#8b5cf6" : "currentColor"} className={isSavedInLearnLater ? "upd-item-saved" : ""} />
                       <span>{isSavedInLearnLater ? "Saved in Learn Later" : "Add to Learn Later"}</span>
                     </button>
                     <button

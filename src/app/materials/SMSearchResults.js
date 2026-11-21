@@ -120,7 +120,7 @@ function SMBookmarkButton({ payload, fileName }) {
             onMouseEnter={() => bookmarkRef.current?.startAnimation?.()}
             onMouseLeave={() => bookmarkRef.current?.stopAnimation?.()}
         >
-            <BookmarkIcon ref={bookmarkRef} size={14} className={isSaved ? "sm-icon-saved" : ""} />
+            <BookmarkIcon ref={bookmarkRef} size={14} color={isSaved ? "#8b5cf6" : "currentColor"} className={isSaved ? "sm-icon-saved" : ""} />
         </button>
     );
 }

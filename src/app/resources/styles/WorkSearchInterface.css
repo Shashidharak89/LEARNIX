@@ -1064,9 +1064,22 @@
   flex-shrink: 0;
 }
 
-.ws-menu-item .ws-item-saved {
+.ws-menu-item.ws-item-saved {
   color: #8b5cf6;
-  fill: #8b5cf6;
+  font-weight: 600;
+  background: #f5f3ff;
+}
+
+.ws-menu-item .ws-item-saved,
+.ws-menu-item .ws-item-saved svg,
+.ws-menu-item svg.ws-item-saved {
+  color: #8b5cf6 !important;
+}
+
+.ws-menu-item .ws-item-saved svg path,
+.ws-menu-item svg.ws-item-saved path {
+  fill: #8b5cf6 !important;
+  stroke: #8b5cf6 !important;
 }
 
 /* Saved Card Styling */

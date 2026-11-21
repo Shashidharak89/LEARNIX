@@ -78,7 +78,7 @@ function QPFilterBookmarkButton({ payload }) {
             className={`qp-filter-bookmark-btn ${isSaved ? "is-bookmarked" : ""}`}
             disabled={loading}
         >
-            <FiBookmark size={18} style={isSaved ? { fill: "currentColor" } : {}} />
+            <FiBookmark size={18} style={isSaved ? { fill: "#8b5cf6", color: "#8b5cf6" } : {}} />
         </button>
     );
 }

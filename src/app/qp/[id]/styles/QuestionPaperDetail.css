@@ -359,19 +359,23 @@
 }
 
 .qpd-learn-later-btn.qpd-saved {
-  background-color: #8b5cf6;
-  color: #ffffff;
+  background-color: #f5f3ff;
+  color: #7c3aed;
   border-color: #8b5cf6;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.25);
 }
 
-.qpd-learn-later-btn.qpd-saved svg {
-  fill: currentColor;
+.qpd-learn-later-btn.qpd-saved svg,
+.qpd-learn-later-btn.qpd-saved svg path {
+  fill: #8b5cf6 !important;
+  stroke: #8b5cf6 !important;
+  color: #8b5cf6 !important;
 }
 
 .qpd-learn-later-btn.qpd-saved:hover {
-  background-color: #7c3aed;
+  background-color: #ede9fe;
   border-color: #7c3aed;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
 }
 
 /* Content Section */

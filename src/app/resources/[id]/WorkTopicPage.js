@@ -885,7 +885,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
             onMouseEnter={() => learnLaterBtnRef.current?.startAnimation?.()}
             onMouseLeave={() => learnLaterBtnRef.current?.stopAnimation?.()}
           >
-            <BookmarkIcon ref={learnLaterBtnRef} size={16} />
+            <BookmarkIcon ref={learnLaterBtnRef} size={16} color={isSavedInLearnLater ? "#8b5cf6" : "currentColor"} />
             <span className="wtpc-btn-text">{isSavedInLearnLater ? 'Saved' : 'Learn Later'}</span>
           </button>
         </div>

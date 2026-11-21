@@ -452,7 +452,7 @@ const QuestionPaperDetail = ({ id, paperInfo }) => {
             className={`qpd-action-btn qpd-learn-later-btn ${isSavedInLearnLater ? "qpd-saved" : ""}`}
             title={isSavedInLearnLater ? "Remove from Learn Later" : "Save to Learn Later"}
           >
-            <FaBookmark style={isSavedInLearnLater ? { fill: "currentColor" } : {}} />
+            <FaBookmark style={isSavedInLearnLater ? { fill: "#8b5cf6", color: "#8b5cf6" } : {}} />
             <span className="qpd-btn-text">{isSavedInLearnLater ? "Saved" : "Learn Later"}</span>
           </button>
         </div>
