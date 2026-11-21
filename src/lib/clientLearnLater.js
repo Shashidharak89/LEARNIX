@@ -216,10 +216,15 @@ export function showLearnLaterToast(message = "Saved to Learn Later", type = "su
 
   container.appendChild(toast);
 
-  requestAnimationFrame(() => {
+  if (typeof window !== "undefined" && typeof window.requestAnimationFrame === "function") {
+    window.requestAnimationFrame(() => {
+      toast.style.opacity = "1";
+      toast.style.transform = "translateY(0) scale(1)";
+    });
+  } else {
     toast.style.opacity = "1";
     toast.style.transform = "translateY(0) scale(1)";
-  });
+  }
 
   setTimeout(() => {
     toast.style.opacity = "0";
