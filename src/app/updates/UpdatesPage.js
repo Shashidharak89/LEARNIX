@@ -27,7 +27,7 @@ import LinkPreview from '../components/LinkPreview';
 import YouTubeEmbed from '../components/YouTubeEmbed';
 import FileIcon from '../components/FileIcon';
 import ExpandableDescription from '../components/ExpandableDescription';
-import { toggleLearnLaterClient } from '@/lib/clientLearnLater';
+import { toggleLearnLaterClient, checkLearnLaterStatusClient, isItemInLearnLaterStorage } from '@/lib/clientLearnLater';
 import { authFetch } from '@/lib/clientAuth';
 import { isPdfFile, getPdfDownloadName, getPdfDownloadUrl, downloadPdfFile } from '@/lib/pdfDownload';
 import './styles/Updates.css';
@@ -175,7 +175,7 @@ function UpdateCard({
   const [loadingRecs, setLoadingRecs] = useState(false);
   const [downloadingRecId, setDownloadingRecId] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(false);
+  const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(() => isItemInLearnLaterStorage('update', u._id));
   const menuRef = useRef(null);
   const userIconRef = useRef(null);
   const viewsIconRef = useRef(null);
@@ -185,6 +185,47 @@ function UpdateCard({
   const shareRef = useRef(null);
   const externalLinkRef = useRef(null);
   const timeIconRef = useRef(null);
+
+  useEffect(() => {
+    let mounted = true;
+    if (u._id) {
+      if (isItemInLearnLaterStorage('update', u._id)) {
+        setIsSavedInLearnLater(true);
+      }
+      checkLearnLaterStatusClient([{ type: "update", targetId: u._id }])
+        .then((res) => {
+          if (mounted && res) {
+            if (res[`update#${u._id}`] || res[`update:${u._id}`] || res[u._id]) {
+              setIsSavedInLearnLater(true);
+            } else if (res[`update#${u._id}`] === false || res[`update:${u._id}`] === false) {
+              setIsSavedInLearnLater(false);
+            }
+          }
+        })
+        .catch(() => {});
+    }
+    return () => {
+      mounted = false;
+    };
+  }, [u._id]);
+
+  useEffect(() => {
+    const handleUpdate = (e) => {
+      const eTargetId = e.detail?.item?.targetId || e.detail?.targetId;
+      const eItemId = e.detail?.itemId;
+      if (
+        eTargetId === u._id ||
+        eItemId === `update#${u._id}` ||
+        eItemId === `update:${u._id}`
+      ) {
+        if (e.detail?.isSaved !== undefined) {
+          setIsSavedInLearnLater(e.detail.isSaved);
+        }
+      }
+    };
+    window.addEventListener("learnix:learn-later-updated", handleUpdate);
+    return () => window.removeEventListener("learnix:learn-later-updated", handleUpdate);
+  }, [u._id]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -213,7 +254,7 @@ function UpdateCard({
         userName: u.name,
       },
     });
-    if (res && res.success !== false) {
+    if (res && res.success) {
       setIsSavedInLearnLater(res.isSaved);
     }
   };

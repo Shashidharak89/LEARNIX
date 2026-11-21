@@ -26,7 +26,7 @@ import {
 } from "@animateicons/react/lucide";
 import TopicReviews from "./TopicReviews";
 import Ads from "../../components/ads/Ads";
-import { toggleLearnLaterClient, checkLearnLaterStatusClient } from "@/lib/clientLearnLater";
+import { toggleLearnLaterClient, checkLearnLaterStatusClient, isItemInLearnLaterStorage } from "@/lib/clientLearnLater";
 import ImageLoader from "../../components/ImageLoader";
 import OpenInApp from "./OpenInApp";
 import "./styles/WorkTopicPage.css";
@@ -563,7 +563,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
   const [visiblePageCount, setVisiblePageCount] = useState(10);
   const [startPage, setStartPage] = useState(1);
   const [endPage, setEndPage] = useState(1);
-  const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(false);
+  const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(() => isItemInLearnLaterStorage('resource', topicId));
   const [isLearnLaterLoading, setIsLearnLaterLoading] = useState(false);
   const [showProfilePreview, setShowProfilePreview] = useState(false);
 
@@ -582,10 +582,17 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
   useEffect(() => {
     let mounted = true;
     if (topicId) {
+      if (isItemInLearnLaterStorage('resource', topicId)) {
+        setIsSavedInLearnLater(true);
+      }
       checkLearnLaterStatusClient([{ type: "resource", targetId: topicId }])
         .then((res) => {
-          if (mounted && res && res[`resource:${topicId}`]) {
-            setIsSavedInLearnLater(true);
+          if (mounted && res) {
+            if (res[`resource#${topicId}`] || res[`resource:${topicId}`] || res[topicId]) {
+              setIsSavedInLearnLater(true);
+            } else if (res[`resource#${topicId}`] === false || res[`resource:${topicId}`] === false) {
+              setIsSavedInLearnLater(false);
+            }
           }
         })
         .catch(() => {});
@@ -597,7 +604,13 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
 
   useEffect(() => {
     const handleUpdate = (e) => {
-      if (e.detail?.item?.targetId === topicId || e.detail?.itemId === `resource:${topicId}`) {
+      const eTargetId = e.detail?.item?.targetId || e.detail?.targetId;
+      const eItemId = e.detail?.itemId;
+      if (
+        eTargetId === topicId ||
+        eItemId === `resource#${topicId}` ||
+        eItemId === `resource:${topicId}`
+      ) {
         if (e.detail?.isSaved !== undefined) {
           setIsSavedInLearnLater(e.detail.isSaved);
         }
@@ -628,7 +641,7 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
           subjectName: data.subject?.subject,
         }
       });
-      if (res && res.success !== false) {
+      if (res && res.success) {
         setIsSavedInLearnLater(res.isSaved);
       }
     } finally {

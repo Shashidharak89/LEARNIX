@@ -344,6 +344,36 @@
   box-shadow: 0 4px 12px rgba(11, 116, 255, 0.3);
 }
 
+.qpd-learn-later-btn {
+  background-color: #ffffff;
+  color: #6b7280;
+  border: 2px solid #e2e8f0;
+}
+
+.qpd-learn-later-btn:hover {
+  border-color: #8b5cf6;
+  color: #8b5cf6;
+  background-color: #f5f3ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+.qpd-learn-later-btn.qpd-saved {
+  background-color: #8b5cf6;
+  color: #ffffff;
+  border-color: #8b5cf6;
+}
+
+.qpd-learn-later-btn.qpd-saved svg {
+  fill: currentColor;
+}
+
+.qpd-learn-later-btn.qpd-saved:hover {
+  background-color: #7c3aed;
+  border-color: #7c3aed;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
 /* Content Section */
 .qpd-content-section {
   background-color: #ffffff;

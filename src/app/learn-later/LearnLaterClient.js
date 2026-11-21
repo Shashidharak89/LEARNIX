@@ -17,6 +17,12 @@ import {
 } from "react-icons/fi";
 import { Bookmark } from "lucide-react";
 import { authFetch } from "@/lib/clientAuth";
+import {
+  getSavedLearnLaterFromStorage,
+  syncLearnLaterToStorage,
+  removeItemFromLearnLaterStorage,
+  showLearnLaterToast,
+} from "@/lib/clientLearnLater";
 import "./styles/LearnLater.css";
 
 const TYPE_CONFIG = {
@@ -68,7 +74,7 @@ function normalizeItemType(type) {
 }
 
 export default function LearnLaterClient() {
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState(() => getSavedLearnLaterFromStorage());
   const [isLoading, setIsLoading] = useState(true);
   const [isDeletingId, setIsDeletingId] = useState(null);
   const [searchInput, setSearchInput] = useState("");
@@ -96,7 +102,6 @@ export default function LearnLaterClient() {
       setIsLoggedIn(true);
 
       const params = new window.URLSearchParams();
-      params.set("limit", "10");
       params.set("sort", "newest");
       if (query.trim()) {
         params.set("q", query.trim());
@@ -111,9 +116,16 @@ export default function LearnLaterClient() {
 
       const data = await res.json();
       if (data.success) {
-        // Enforce maximum 10 latest records
-        const records = (data.items || []).slice(0, 10);
+        const records = Array.isArray(data.items) ? data.items : [];
         setItems(records);
+
+        // Update localStorage when viewing all items (not a specific search query):
+        // "when user visits his learn later also, the localstorage gets updated, if all are cleared or something, so when there is less than 20 cards then you can directly update the localstorage, otherwise dont"
+        if (!query.trim()) {
+          if (records.length < 20) {
+            syncLearnLaterToStorage(records);
+          }
+        }
       }
     } catch (err) {
       console.error("Error fetching learn later items:", err);
@@ -160,8 +172,16 @@ export default function LearnLaterClient() {
       });
       const data = await res.json();
       if (data.success) {
-        setItems((prev) => prev.filter((it) => (it.itemId || it.id) !== idToDelete));
+        setItems((prev) => {
+          const nextItems = prev.filter((it) => (it.itemId || it.id) !== idToDelete);
+          removeItemFromLearnLaterStorage(item.type, item.targetId || item.id, idToDelete);
+          if (nextItems.length < 20) {
+            syncLearnLaterToStorage(nextItems);
+          }
+          return nextItems;
+        });
         showToast("Removed from Learn Later");
+        showLearnLaterToast("Removed from Learn Later", "removed");
         window.dispatchEvent(
           new window.CustomEvent("learnix:learn-later-updated", {
             detail: { itemId: idToDelete, isSaved: false },

@@ -17,8 +17,13 @@ import {
   FiBookOpen,
   FiFileText,
 } from "react-icons/fi";
-import { Share2 } from "lucide-react";
+import { Share2, Bookmark } from "lucide-react";
 import { authFetch } from "@/lib/clientAuth";
+import {
+  toggleLearnLaterClient,
+  checkLearnLaterStatusClient,
+  isItemInLearnLaterStorage,
+} from "@/lib/clientLearnLater";
 import { groupConsecutiveLinks } from "../../utils/youtube";
 import LinkPreview from "../../components/LinkPreview";
 import YouTubeEmbed from "../../components/YouTubeEmbed";
@@ -121,11 +126,79 @@ export default function SingleUpdateView({ updateId }) {
   const [errorStatus, setErrorStatus] = useState(null); // 403, 404, 500
   const [errorMessage, setErrorMessage] = useState("");
   const [toastMessage, setToastMessage] = useState("");
+  const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(() => isItemInLearnLaterStorage("update", updateId));
+  const [isLearnLaterLoading, setIsLearnLaterLoading] = useState(false);
 
   // AI recommendations state
   const [recommendations, setRecommendations] = useState(null);
   const [loadingRecs, setLoadingRecs] = useState(false);
   const [downloadingRecId, setDownloadingRecId] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    if (updateId) {
+      if (isItemInLearnLaterStorage("update", updateId)) {
+        setIsSavedInLearnLater(true);
+      }
+      checkLearnLaterStatusClient([{ type: "update", targetId: updateId }])
+        .then((res) => {
+          if (mounted && res) {
+            if (res[`update#${updateId}`] || res[`update:${updateId}`] || res[updateId]) {
+              setIsSavedInLearnLater(true);
+            } else if (res[`update#${updateId}`] === false || res[`update:${updateId}`] === false) {
+              setIsSavedInLearnLater(false);
+            }
+          }
+        })
+        .catch(() => {});
+    }
+    return () => {
+      mounted = false;
+    };
+  }, [updateId]);
+
+  useEffect(() => {
+    const handleUpdate = (e) => {
+      const eTargetId = e.detail?.item?.targetId || e.detail?.targetId;
+      const eItemId = e.detail?.itemId;
+      if (
+        eTargetId === updateId ||
+        eItemId === `update#${updateId}` ||
+        eItemId === `update:${updateId}`
+      ) {
+        if (e.detail?.isSaved !== undefined) {
+          setIsSavedInLearnLater(e.detail.isSaved);
+        }
+      }
+    };
+    window.addEventListener("learnix:learn-later-updated", handleUpdate);
+    return () => window.removeEventListener("learnix:learn-later-updated", handleUpdate);
+  }, [updateId]);
+
+  const handleLearnLaterToggle = async (e) => {
+    if (e) e.stopPropagation();
+    if (!update || isLearnLaterLoading) return;
+    setIsLearnLaterLoading(true);
+    try {
+      const res = await toggleLearnLaterClient({
+        type: "update",
+        targetId: updateId,
+        title: update.title || "Update",
+        subtitle: update.name || (update.usn ? `By ${update.usn}` : "Learnix Update"),
+        description: update.content || "",
+        url: `/updates/${updateId}`,
+        metadata: {
+          usn: update.usn,
+          userName: update.name,
+        },
+      });
+      if (res && res.success) {
+        setIsSavedInLearnLater(res.isSaved);
+      }
+    } finally {
+      setIsLearnLaterLoading(false);
+    }
+  };
 
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -536,6 +609,17 @@ export default function SingleUpdateView({ updateId }) {
                   onClick={handleShare}
                 >
                   <Share2 size={15} />
+                </button>
+                <button
+                  type="button"
+                  className="upd-share-btn"
+                  title={isSavedInLearnLater ? "Saved in Learn Later" : "Save to Learn Later"}
+                  aria-label={isSavedInLearnLater ? "Saved in Learn Later" : "Save to Learn Later"}
+                  onClick={handleLearnLaterToggle}
+                  disabled={isLearnLaterLoading}
+                  style={isSavedInLearnLater ? { color: "#007aff", borderColor: "#007aff", background: "#eff6ff" } : {}}
+                >
+                  <Bookmark size={15} style={isSavedInLearnLater ? { fill: "currentColor" } : {}} />
                 </button>
               </div>
 

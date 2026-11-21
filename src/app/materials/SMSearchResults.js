@@ -17,7 +17,11 @@ import {
     CompassIcon,
     LayersIcon
 } from "@animateicons/react/lucide";
-import { toggleLearnLaterClient } from "@/lib/clientLearnLater";
+import {
+    toggleLearnLaterClient,
+    checkLearnLaterStatusClient,
+    isItemInLearnLaterStorage,
+} from "@/lib/clientLearnLater";
 import { authFetch } from "@/lib/clientAuth";
 
 const highlightText = (text, keyword) => {
@@ -43,6 +47,83 @@ const highlightText = (text, keyword) => {
         </span>
     );
 };
+
+function SMBookmarkButton({ payload, fileName }) {
+    const targetId = payload.targetId;
+    const [isSaved, setIsSaved] = useState(() => isItemInLearnLaterStorage("study-material", targetId));
+    const [loading, setLoading] = useState(false);
+    const bookmarkRef = useRef(null);
+
+    useEffect(() => {
+        let mounted = true;
+        if (targetId) {
+            if (isItemInLearnLaterStorage("study-material", targetId)) {
+                setIsSaved(true);
+            }
+            checkLearnLaterStatusClient([{ type: "study-material", targetId }])
+                .then((res) => {
+                    if (mounted && res) {
+                        if (res[`study-material#${targetId}`] || res[`study-material:${targetId}`] || res[targetId]) {
+                            setIsSaved(true);
+                        } else if (res[`study-material#${targetId}`] === false || res[`study-material:${targetId}`] === false) {
+                            setIsSaved(false);
+                        }
+                    }
+                })
+                .catch(() => {});
+        }
+        return () => {
+            mounted = false;
+        };
+    }, [targetId]);
+
+    useEffect(() => {
+        const handleUpdate = (e) => {
+            const eTargetId = e.detail?.item?.targetId || e.detail?.targetId;
+            const eItemId = e.detail?.itemId;
+            if (
+                eTargetId === targetId ||
+                eItemId === `study-material#${targetId}` ||
+                eItemId === `study-material:${targetId}`
+            ) {
+                if (e.detail?.isSaved !== undefined) {
+                    setIsSaved(e.detail.isSaved);
+                }
+            }
+        };
+        window.addEventListener("learnix:learn-later-updated", handleUpdate);
+        return () => window.removeEventListener("learnix:learn-later-updated", handleUpdate);
+    }, [targetId]);
+
+    const handleClick = async (e) => {
+        e.stopPropagation();
+        if (loading) return;
+        setLoading(true);
+        try {
+            const res = await toggleLearnLaterClient(payload);
+            if (res && res.success) {
+                setIsSaved(res.isSaved);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <button
+            type="button"
+            className={`sm-action-btn sm-bookmark-btn ${isSaved ? "is-bookmarked" : ""}`}
+            title={isSaved ? "Saved in Learn Later" : "Add to Learn Later"}
+            aria-label={`Save ${fileName} to Learn Later`}
+            onClick={handleClick}
+            disabled={loading}
+            onMouseEnter={() => bookmarkRef.current?.startAnimation?.()}
+            onMouseLeave={() => bookmarkRef.current?.stopAnimation?.()}
+        >
+            <BookmarkIcon ref={bookmarkRef} size={14} className={isSaved ? "sm-icon-saved" : ""} />
+        </button>
+    );
+}
 
 function SMSearchDirectoryNode({
     level = 0,
@@ -197,29 +278,21 @@ function SMSearchDirectoryNode({
                     </div>
                 </a>
                 <div className="sm-file-actions">
-                    <button
-                        type="button"
-                        className="sm-action-btn sm-bookmark-btn"
-                        title="Add to Learn Later"
-                        aria-label={`Save ${fileName} to Learn Later`}
-                        onClick={async (e) => {
-                            e.stopPropagation();
-                            await toggleLearnLaterClient({
-                                type: "study-material",
-                                targetId: data._id,
-                                title: fileName,
-                                subtitle: parentParams?.subjectName || "Study Material",
-                                description: `Format: ${data.format || "PDF"} | Type: ${data.type || "material"}`,
-                                url: viewUrl || data.fileurl,
-                                metadata: {
-                                    fileurl: data.fileurl,
-                                    format: data.format,
-                                }
-                            });
+                    <SMBookmarkButton
+                        fileName={fileName}
+                        payload={{
+                            type: "study-material",
+                            targetId: data._id,
+                            title: fileName,
+                            subtitle: parentParams?.subjectName || "Study Material",
+                            description: `Format: ${data.format || "PDF"} | Type: ${data.type || "material"}`,
+                            url: viewUrl || data.fileurl,
+                            metadata: {
+                                fileurl: data.fileurl,
+                                format: data.format,
+                            }
                         }}
-                    >
-                        <BookmarkIcon size={14} />
-                    </button>
+                    />
                     <button
                         type="button"
                         className="sm-action-btn sm-share-btn"

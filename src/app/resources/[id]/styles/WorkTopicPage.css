@@ -507,6 +507,11 @@
   border-color: #8b5cf6;
 }
 
+.wtpc-save-btn.wtpc-saved svg,
+.wtpc-learn-later-btn.wtpc-saved svg {
+  fill: currentColor;
+}
+
 .wtpc-save-btn.wtpc-saved:hover,
 .wtpc-learn-later-btn.wtpc-saved:hover {
   background-color: #7c3aed;

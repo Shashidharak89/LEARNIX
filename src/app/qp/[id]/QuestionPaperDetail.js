@@ -14,7 +14,11 @@ import {
   FaBookmark,
 } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
-import { toggleLearnLaterClient } from "@/lib/clientLearnLater";
+import {
+  toggleLearnLaterClient,
+  checkLearnLaterStatusClient,
+  isItemInLearnLaterStorage,
+} from "@/lib/clientLearnLater";
 import "./styles/QuestionPaperDetail.css";
 
 // Skeleton Components
@@ -84,6 +88,9 @@ const FullPageSkeleton = () => (
 );
 
 const QuestionPaperDetail = ({ id, paperInfo }) => {
+  const paperTargetId = String(id || paperInfo?._id || "");
+  const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(() => isItemInLearnLaterStorage("question-paper", paperTargetId));
+  const [isLearnLaterLoading, setIsLearnLaterLoading] = useState(false);
   const [expandedImages, setExpandedImages] = useState({});
   const [showPageNumbers, setShowPageNumbers] = useState(false);
   const [rangeModalOpen, setRangeModalOpen] = useState(false);
@@ -93,6 +100,47 @@ const QuestionPaperDetail = ({ id, paperInfo }) => {
   const [visiblePageCount, setVisiblePageCount] = useState(10);
   const [startPage, setStartPage] = useState(1);
   const [endPage, setEndPage] = useState(1);
+
+  useEffect(() => {
+    let mounted = true;
+    if (paperTargetId) {
+      if (isItemInLearnLaterStorage("question-paper", paperTargetId)) {
+        setIsSavedInLearnLater(true);
+      }
+      checkLearnLaterStatusClient([{ type: "question-paper", targetId: paperTargetId }])
+        .then((res) => {
+          if (mounted && res) {
+            if (res[`question-paper#${paperTargetId}`] || res[`question-paper:${paperTargetId}`] || res[paperTargetId]) {
+              setIsSavedInLearnLater(true);
+            } else if (res[`question-paper#${paperTargetId}`] === false || res[`question-paper:${paperTargetId}`] === false) {
+              setIsSavedInLearnLater(false);
+            }
+          }
+        })
+        .catch(() => {});
+    }
+    return () => {
+      mounted = false;
+    };
+  }, [paperTargetId]);
+
+  useEffect(() => {
+    const handleUpdate = (e) => {
+      const eTargetId = e.detail?.item?.targetId || e.detail?.targetId;
+      const eItemId = e.detail?.itemId;
+      if (
+        eTargetId === paperTargetId ||
+        eItemId === `question-paper#${paperTargetId}` ||
+        eItemId === `question-paper:${paperTargetId}`
+      ) {
+        if (e.detail?.isSaved !== undefined) {
+          setIsSavedInLearnLater(e.detail.isSaved);
+        }
+      }
+    };
+    window.addEventListener("learnix:learn-later-updated", handleUpdate);
+    return () => window.removeEventListener("learnix:learn-later-updated", handleUpdate);
+  }, [paperTargetId]);
 
   if (!paperInfo) {
     return (
@@ -377,25 +425,35 @@ const QuestionPaperDetail = ({ id, paperInfo }) => {
           </button>
           <button 
             onClick={async () => {
-              await toggleLearnLaterClient({
-                type: "question-paper",
-                targetId: id || String(paperInfo?._id || ""),
-                title: `${examType || "Question Paper"} - Semester ${semester || ""}`.trim(),
-                subtitle: batch ? `Batch ${batch}` : 'Question Paper',
-                description: `${examType || ""} ${semester ? `Sem ${semester}` : ""} ${batch ? `(${batch})` : ""}`.trim(),
-                url: `/qp/${id || paperInfo?._id}`,
-                metadata: {
-                  examType,
-                  semester,
-                  batch,
+              if (!paperTargetId || isLearnLaterLoading) return;
+              setIsLearnLaterLoading(true);
+              try {
+                const res = await toggleLearnLaterClient({
+                  type: "question-paper",
+                  targetId: paperTargetId,
+                  title: `${examType || "Question Paper"} - Semester ${semester || ""}`.trim(),
+                  subtitle: batch ? `Batch ${batch}` : 'Question Paper',
+                  description: `${examType || ""} ${semester ? `Sem ${semester}` : ""} ${batch ? `(${batch})` : ""}`.trim(),
+                  url: `/qp/${paperTargetId}`,
+                  metadata: {
+                    examType,
+                    semester,
+                    batch,
+                  }
+                });
+                if (res && res.success) {
+                  setIsSavedInLearnLater(res.isSaved);
                 }
-              });
+              } finally {
+                setIsLearnLaterLoading(false);
+              }
             }}
-            className="qpd-action-btn qpd-learn-later-btn"
-            title="Save to Learn Later"
+            disabled={isLearnLaterLoading}
+            className={`qpd-action-btn qpd-learn-later-btn ${isSavedInLearnLater ? "qpd-saved" : ""}`}
+            title={isSavedInLearnLater ? "Remove from Learn Later" : "Save to Learn Later"}
           >
-            <FaBookmark />
-            <span className="qpd-btn-text">Learn Later</span>
+            <FaBookmark style={isSavedInLearnLater ? { fill: "currentColor" } : {}} />
+            <span className="qpd-btn-text">{isSavedInLearnLater ? "Saved" : "Learn Later"}</span>
           </button>
         </div>
 

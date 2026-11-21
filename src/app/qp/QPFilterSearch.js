@@ -2,8 +2,86 @@
 
 import { useState, useEffect, useRef } from "react";
 import { FiChevronDown, FiFileText, FiX, FiBookmark, FiSliders, FiInbox } from "react-icons/fi";
-import { toggleLearnLaterClient } from "@/lib/clientLearnLater";
+import {
+    toggleLearnLaterClient,
+    checkLearnLaterStatusClient,
+    isItemInLearnLaterStorage,
+} from "@/lib/clientLearnLater";
 import "./styles/QPFilterSearch.css";
+
+function QPFilterBookmarkButton({ payload }) {
+    const targetId = payload.targetId;
+    const [isSaved, setIsSaved] = useState(() => isItemInLearnLaterStorage(payload.type, targetId));
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        let mounted = true;
+        if (targetId) {
+            if (isItemInLearnLaterStorage(payload.type, targetId)) {
+                setIsSaved(true);
+            }
+            checkLearnLaterStatusClient([{ type: payload.type, targetId }])
+                .then((res) => {
+                    if (mounted && res) {
+                        if (res[`${payload.type}#${targetId}`] || res[`${payload.type}:${targetId}`] || res[targetId]) {
+                            setIsSaved(true);
+                        } else if (res[`${payload.type}#${targetId}`] === false || res[`${payload.type}:${targetId}`] === false) {
+                            setIsSaved(false);
+                        }
+                    }
+                })
+                .catch(() => {});
+        }
+        return () => {
+            mounted = false;
+        };
+    }, [payload.type, targetId]);
+
+    useEffect(() => {
+        const handleUpdate = (e) => {
+            const eTargetId = e.detail?.item?.targetId || e.detail?.targetId;
+            const eItemId = e.detail?.itemId;
+            if (
+                eTargetId === targetId ||
+                eItemId === `${payload.type}#${targetId}` ||
+                eItemId === `${payload.type}:${targetId}`
+            ) {
+                if (e.detail?.isSaved !== undefined) {
+                    setIsSaved(e.detail.isSaved);
+                }
+            }
+        };
+        window.addEventListener("learnix:learn-later-updated", handleUpdate);
+        return () => window.removeEventListener("learnix:learn-later-updated", handleUpdate);
+    }, [payload.type, targetId]);
+
+    const handleClick = async (e) => {
+        e.stopPropagation();
+        if (loading) return;
+        setLoading(true);
+        try {
+            const res = await toggleLearnLaterClient(payload);
+            if (res && res.success) {
+                setIsSaved(res.isSaved);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <button
+            type="button"
+            title={isSaved ? "Saved in Learn Later" : "Add to Learn Later"}
+            aria-label={isSaved ? "Saved in Learn Later" : "Add to Learn Later"}
+            onClick={handleClick}
+            className={`qp-filter-bookmark-btn ${isSaved ? "is-bookmarked" : ""}`}
+            disabled={loading}
+        >
+            <FiBookmark size={18} style={isSaved ? { fill: "currentColor" } : {}} />
+        </button>
+    );
+}
 
 // Custom Dropdown Component
 const CustomDropdown = ({ label, options, value, onChange, onLoadMore, hasMore, loading, placeholder }) => {
@@ -411,28 +489,19 @@ export default function QPFilterSearch() {
                                                     >
                                                         <FiFileText size={17} /> View Compiled Papers
                                                     </a>
-                                                    <button
-                                                        type="button"
-                                                        title="Add to Learn Later"
-                                                        aria-label="Add to Learn Later"
-                                                        onClick={async (e) => {
-                                                            e.stopPropagation();
-                                                            await toggleLearnLaterClient({
-                                                                type: "question-paper",
-                                                                targetId: group.subject?._id || `subj-${i}`,
-                                                                title: `${group.subject?.name || 'Subject'} - Question Papers`,
-                                                                subtitle: "Question Papers",
-                                                                description: `Compiled question papers for ${group.subject?.name || 'Subject'}`,
-                                                                url: `/qp/${group.subject?._id || ''}`,
-                                                                metadata: {
-                                                                    subjectName: group.subject?.name,
-                                                                }
-                                                            });
+                                                    <QPFilterBookmarkButton
+                                                        payload={{
+                                                            type: "question-paper",
+                                                            targetId: group.subject?._id || `subj-${i}`,
+                                                            title: `${group.subject?.name || 'Subject'} - Question Papers`,
+                                                            subtitle: "Question Papers",
+                                                            description: `Compiled question papers for ${group.subject?.name || 'Subject'}`,
+                                                            url: `/qp/${group.subject?._id || ''}`,
+                                                            metadata: {
+                                                                subjectName: group.subject?.name,
+                                                            }
                                                         }}
-                                                        className="qp-filter-bookmark-btn"
-                                                    >
-                                                        <FiBookmark size={18} />
-                                                    </button>
+                                                    />
                                                 </div>
                                             </div>
                                         );
@@ -470,30 +539,21 @@ export default function QPFilterSearch() {
                                                     >
                                                         <FiFileText size={17} /> View Compiled Papers
                                                     </a>
-                                                    <button
-                                                        type="button"
-                                                        title="Add to Learn Later"
-                                                        aria-label="Add to Learn Later"
-                                                        onClick={async (e) => {
-                                                            e.stopPropagation();
-                                                            await toggleLearnLaterClient({
-                                                                type: "question-paper",
-                                                                targetId: group.batch?._id ? `${group.batch._id}-${group.examtype?._id || 'exam'}` : `qp-${i}`,
-                                                                title: `${examName} - Batch ${batchName}`,
-                                                                subtitle: "Question Papers",
-                                                                description: `Contains compiled papers (${group.recordCount} records)`,
-                                                                url: `/qp/compiled?${queryParams.toString()}`,
-                                                                metadata: {
-                                                                    batchName,
-                                                                    examName,
-                                                                    recordCount: group.recordCount,
-                                                                }
-                                                            });
+                                                    <QPFilterBookmarkButton
+                                                        payload={{
+                                                            type: "question-paper",
+                                                            targetId: group.batch?._id ? `${group.batch._id}-${group.examtype?._id || 'exam'}` : `qp-${i}`,
+                                                            title: `${examName} - Batch ${batchName}`,
+                                                            subtitle: "Question Papers",
+                                                            description: `Contains compiled papers (${group.recordCount} records)`,
+                                                            url: `/qp/compiled?${queryParams.toString()}`,
+                                                            metadata: {
+                                                                batchName,
+                                                                examName,
+                                                                recordCount: group.recordCount,
+                                                            }
                                                         }}
-                                                        className="qp-filter-bookmark-btn"
-                                                    >
-                                                        <FiBookmark size={18} />
-                                                    </button>
+                                                    />
                                                 </div>
                                             </div>
                                         );

@@ -30,7 +30,7 @@ import Ads from '../components/ads/Ads';
 import ImageLoader from '../components/ImageLoader';
 import './styles/WorkSearchInterface.css';
 import { authFetch } from '@/lib/clientAuth';
-import { toggleLearnLaterClient, checkLearnLaterStatusClient } from '@/lib/clientLearnLater';
+import { toggleLearnLaterClient, checkLearnLaterStatusClient, isItemInLearnLaterStorage } from '@/lib/clientLearnLater';
 
 // LocalStorage key for saved topics (same as in /resources/[id])
 const SAVED_TOPICS_KEY = 'learnix_saved_topics';
@@ -422,7 +422,7 @@ const TopicCard = memo(function TopicCard({
     setIsMenuOpen((prev) => !prev);
   };
 
-  const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(false);
+  const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(() => isItemInLearnLaterStorage('resource', topic.topicId || topic._id));
   const bookIconRef = useRef(null);
   const calIconRef = useRef(null);
   const viewsIconRef = useRef(null);
@@ -437,10 +437,17 @@ const TopicCard = memo(function TopicCard({
     let mounted = true;
     const tid = topic.topicId || topic._id;
     if (tid) {
+      if (isItemInLearnLaterStorage('resource', tid)) {
+        setIsSavedInLearnLater(true);
+      }
       checkLearnLaterStatusClient([{ type: "resource", targetId: tid }])
         .then((res) => {
-          if (mounted && res && res[`resource:${tid}`]) {
-            setIsSavedInLearnLater(true);
+          if (mounted && res) {
+            if (res[`resource#${tid}`] || res[`resource:${tid}`] || res[tid]) {
+              setIsSavedInLearnLater(true);
+            } else if (res[`resource#${tid}`] === false || res[`resource:${tid}`] === false) {
+              setIsSavedInLearnLater(false);
+            }
           }
         })
         .catch(() => {});
@@ -453,7 +460,13 @@ const TopicCard = memo(function TopicCard({
   useEffect(() => {
     const handleUpdate = (e) => {
       const tid = topic.topicId || topic._id;
-      if (e.detail?.item?.targetId === tid || e.detail?.itemId === `resource:${tid}`) {
+      const eTargetId = e.detail?.item?.targetId || e.detail?.targetId;
+      const eItemId = e.detail?.itemId;
+      if (
+        eTargetId === tid ||
+        eItemId === `resource#${tid}` ||
+        eItemId === `resource:${tid}`
+      ) {
         if (e.detail?.isSaved !== undefined) {
           setIsSavedInLearnLater(e.detail.isSaved);
         }
@@ -488,7 +501,7 @@ const TopicCard = memo(function TopicCard({
         subjectName: topic.subjectName,
       },
     });
-    if (res && res.success !== false) {
+    if (res && res.success) {
       setIsSavedInLearnLater(res.isSaved);
     }
   };

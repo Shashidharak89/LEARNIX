@@ -523,6 +523,30 @@
   transform: scale(1.05);
 }
 
+.sm-bookmark-btn {
+  background: #f8fafc;
+  color: #64748b;
+  border-color: #e2e8f0;
+}
+
+.sm-bookmark-btn:hover {
+  background: #f5f3ff;
+  color: #8b5cf6;
+  border-color: #8b5cf6;
+  transform: scale(1.05);
+}
+
+.sm-bookmark-btn.is-bookmarked {
+  background: #8b5cf6;
+  color: #ffffff;
+  border-color: #8b5cf6;
+}
+
+.sm-bookmark-btn.is-bookmarked svg,
+.sm-bookmark-btn svg.sm-icon-saved {
+  fill: currentColor;
+}
+
 /* Animations */
 @keyframes sm-fade-in {
   from {

@@ -6,11 +6,18 @@ import Link from "next/link";
 import { FaArrowLeft, FaImage, FaDownload, FaShare, FaBookmark } from "react-icons/fa";
 import { Navbar } from "../../components/Navbar";
 import ImageLoader from "../../components/ImageLoader";
-import { toggleLearnLaterClient } from "@/lib/clientLearnLater";
+import {
+    toggleLearnLaterClient,
+    checkLearnLaterStatusClient,
+    isItemInLearnLaterStorage,
+} from "@/lib/clientLearnLater";
 import "../../resources/[id]/styles/WorkTopicPage.css"; 
 
 export default function QPCompiledClient() {
     const searchParams = useSearchParams();
+    const qpTargetId = searchParams.toString() || "compiled-qp";
+    const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(() => isItemInLearnLaterStorage("question-paper", qpTargetId));
+    const [isLearnLaterLoading, setIsLearnLaterLoading] = useState(false);
     
     const [images, setImages] = useState([]);
     const [title, setTitle] = useState("Compiled Question Papers");
@@ -18,6 +25,47 @@ export default function QPCompiledClient() {
     const [error, setError] = useState(null);
     const [expandedImages, setExpandedImages] = useState({});
     const [downloading, setDownloading] = useState(false);
+
+    useEffect(() => {
+        let mounted = true;
+        if (qpTargetId) {
+            if (isItemInLearnLaterStorage("question-paper", qpTargetId)) {
+                setIsSavedInLearnLater(true);
+            }
+            checkLearnLaterStatusClient([{ type: "question-paper", targetId: qpTargetId }])
+                .then((res) => {
+                    if (mounted && res) {
+                        if (res[`question-paper#${qpTargetId}`] || res[`question-paper:${qpTargetId}`] || res[qpTargetId]) {
+                            setIsSavedInLearnLater(true);
+                        } else if (res[`question-paper#${qpTargetId}`] === false || res[`question-paper:${qpTargetId}`] === false) {
+                            setIsSavedInLearnLater(false);
+                        }
+                    }
+                })
+                .catch(() => {});
+        }
+        return () => {
+            mounted = false;
+        };
+    }, [qpTargetId]);
+
+    useEffect(() => {
+        const handleUpdate = (e) => {
+            const eTargetId = e.detail?.item?.targetId || e.detail?.targetId;
+            const eItemId = e.detail?.itemId;
+            if (
+                eTargetId === qpTargetId ||
+                eItemId === `question-paper#${qpTargetId}` ||
+                eItemId === `question-paper:${qpTargetId}`
+            ) {
+                if (e.detail?.isSaved !== undefined) {
+                    setIsSavedInLearnLater(e.detail.isSaved);
+                }
+            }
+        };
+        window.addEventListener("learnix:learn-later-updated", handleUpdate);
+        return () => window.removeEventListener("learnix:learn-later-updated", handleUpdate);
+    }, [qpTargetId]);
 
     useEffect(() => {
         const fetchCompiledData = async () => {
@@ -184,24 +232,34 @@ export default function QPCompiledClient() {
                         </button>
                         
                         <button 
-                            className="wtpc-action-btn wtpc-bookmark-btn" 
-                            title="Add to Learn Later"
+                            className={`wtpc-action-btn wtpc-learn-later-btn ${isSavedInLearnLater ? 'wtpc-saved' : ''}`} 
+                            title={isSavedInLearnLater ? "Remove from Learn Later" : "Save to Learn Later"}
+                            disabled={isLearnLaterLoading}
                             onClick={async () => {
-                                await toggleLearnLaterClient({
-                                    type: "question-paper",
-                                    targetId: searchParams.toString() || "compiled-qp",
-                                    title,
-                                    subtitle: "Compiled Question Papers",
-                                    description: `Compiled question paper containing ${images.length} pages`,
-                                    url: `/qp/compiled?${searchParams.toString()}`,
-                                    metadata: {
-                                        pageCount: images.length,
+                                if (isLearnLaterLoading) return;
+                                setIsLearnLaterLoading(true);
+                                try {
+                                    const res = await toggleLearnLaterClient({
+                                        type: "question-paper",
+                                        targetId: qpTargetId,
+                                        title,
+                                        subtitle: "Compiled Question Papers",
+                                        description: `Compiled question paper containing ${images.length} pages`,
+                                        url: `/qp/compiled?${searchParams.toString()}`,
+                                        metadata: {
+                                            pageCount: images.length,
+                                        }
+                                    });
+                                    if (res && res.success) {
+                                        setIsSavedInLearnLater(res.isSaved);
                                     }
-                                });
+                                } finally {
+                                    setIsLearnLaterLoading(false);
+                                }
                             }}
                         >
-                            <FaBookmark />
-                            <span className="wtpc-btn-text">Learn Later</span>
+                            <FaBookmark style={isSavedInLearnLater ? { fill: "currentColor" } : {}} />
+                            <span className="wtpc-btn-text">{isSavedInLearnLater ? 'Saved' : 'Learn Later'}</span>
                         </button>
                     </div>
 

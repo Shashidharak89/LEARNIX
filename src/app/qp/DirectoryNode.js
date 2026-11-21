@@ -1,12 +1,58 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FiChevronRight, FiChevronDown, FiFolder, FiFileText, FiBookmark, FiArrowUpRight } from "react-icons/fi";
-import { toggleLearnLaterClient } from "@/lib/clientLearnLater";
+import {
+    toggleLearnLaterClient,
+    checkLearnLaterStatusClient,
+    isItemInLearnLaterStorage,
+} from "@/lib/clientLearnLater";
 
 function ExamPaperItem({ exam, batch, semesterData, parentParams, level = 0 }) {
-    const [isBookmarked, setIsBookmarked] = useState(false);
+    const targetId = `${exam.batchId || 'batch'}-${exam.examTypeId}`;
+    const [isBookmarked, setIsBookmarked] = useState(() => isItemInLearnLaterStorage("question-paper", targetId));
     const [bookmarking, setBookmarking] = useState(false);
+
+    useEffect(() => {
+        let mounted = true;
+        if (targetId) {
+            if (isItemInLearnLaterStorage("question-paper", targetId)) {
+                setIsBookmarked(true);
+            }
+            checkLearnLaterStatusClient([{ type: "question-paper", targetId }])
+                .then((res) => {
+                    if (mounted && res) {
+                        if (res[`question-paper#${targetId}`] || res[`question-paper:${targetId}`] || res[targetId]) {
+                            setIsBookmarked(true);
+                        } else if (res[`question-paper#${targetId}`] === false || res[`question-paper:${targetId}`] === false) {
+                            setIsBookmarked(false);
+                        }
+                    }
+                })
+                .catch(() => {});
+        }
+        return () => {
+            mounted = false;
+        };
+    }, [targetId]);
+
+    useEffect(() => {
+        const handleUpdate = (e) => {
+            const eTargetId = e.detail?.item?.targetId || e.detail?.targetId;
+            const eItemId = e.detail?.itemId;
+            if (
+                eTargetId === targetId ||
+                eItemId === `question-paper#${targetId}` ||
+                eItemId === `question-paper:${targetId}`
+            ) {
+                if (e.detail?.isSaved !== undefined) {
+                    setIsBookmarked(e.detail.isSaved);
+                }
+            }
+        };
+        window.addEventListener("learnix:learn-later-updated", handleUpdate);
+        return () => window.removeEventListener("learnix:learn-later-updated", handleUpdate);
+    }, [targetId]);
 
     const url = `/qp/compiled?collegeId=${parentParams.collegeId}&courseId=${parentParams.courseId}&semesterId=${semesterData._id}&batchId=${exam.batchId || ''}&examTypeId=${exam.examTypeId}`;
 
@@ -18,7 +64,7 @@ function ExamPaperItem({ exam, batch, semesterData, parentParams, level = 0 }) {
         try {
             const res = await toggleLearnLaterClient({
                 type: "question-paper",
-                targetId: `${exam.batchId || 'batch'}-${exam.examTypeId}`,
+                targetId,
                 title: `${exam.name} - Batch ${batch.name}`,
                 subtitle: `Semester ${semesterData.semesterNumber || ''}`,
                 description: `Compiled Question Papers for ${exam.name}`,
