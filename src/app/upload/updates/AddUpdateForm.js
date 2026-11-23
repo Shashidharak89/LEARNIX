@@ -488,13 +488,16 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
               )}
             </div>
 
-            {/* Broader Drag & Drop Dropzone */}
-            <div
+            {/* Broader Drag & Drop Dropzone - Entire surface is clickable to browse */}
+            <label
+              htmlFor="auf-file-input"
               className={`auf-dropzone ${isDragging ? "dragging" : ""}`}
               onDragOver={handleDragOver}
               onDragEnter={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
+              onMouseEnter={() => uploadIconRef.current?.startAnimation?.()}
+              onMouseLeave={() => uploadIconRef.current?.stopAnimation?.()}
             >
               <input
                 type="file"
@@ -503,12 +506,7 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
                 onChange={handleFilesSelected}
                 className="upl-hidden-input"
               />
-              <label
-                htmlFor="auf-file-input"
-                className="auf-dropzone-content"
-                onMouseEnter={() => uploadIconRef.current?.startAnimation?.()}
-                onMouseLeave={() => uploadIconRef.current?.stopAnimation?.()}
-              >
+              <div className="auf-dropzone-content">
                 <div className="auf-dropzone-icon-circle">
                   <UploadIcon ref={uploadIconRef} size={22} className="auf-dropzone-icon" />
                 </div>
@@ -520,8 +518,8 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
                     PDFs, documents, images, code files, and archives supported
                   </span>
                 </div>
-              </label>
-            </div>
+              </div>
+            </label>
 
             {isUploadingFiles && !uploadStatus && (
               <span className="upl-file-uploading">Uploading…</span>

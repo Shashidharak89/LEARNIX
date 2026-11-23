@@ -652,8 +652,9 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                   )}
                 </label>
 
-                {/* Broader Drag & Drop Dropzone in Edit Form */}
-                <div
+                {/* Broader Drag & Drop Dropzone in Edit Form - Entire surface is clickable to browse */}
+                <label
+                  htmlFor="edit-file-input"
                   className={`auf-dropzone ${editIsDragging ? "dragging" : ""}`}
                   onDragOver={handleEditDragOver}
                   onDragEnter={handleEditDragOver}
@@ -667,7 +668,7 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                     onChange={handleEditFilesSelected}
                     className="upl-hidden-input"
                   />
-                  <label htmlFor="edit-file-input" className="auf-dropzone-content">
+                  <div className="auf-dropzone-content">
                     <div className="auf-dropzone-icon-circle">
                       <UploadIcon size={22} className="auf-dropzone-icon" />
                     </div>
@@ -679,8 +680,8 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                         PDFs, documents, images, code files, and archives supported
                       </span>
                     </div>
-                  </label>
-                </div>
+                  </div>
+                </label>
                 {editIsUploading && !editUploadStatus && <span className="upl-file-uploading">Uploading…</span>}
 
                 {/* Upload Progressbar */}

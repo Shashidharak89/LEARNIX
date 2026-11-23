@@ -550,6 +550,16 @@
   cursor: pointer;
   transition: all 240ms cubic-bezier(0.22, 1, 0.36, 1);
   outline: none;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.auf-dropzone * {
+  pointer-events: none;
+}
+
+.auf-dropzone input[type="file"] {
+  pointer-events: none;
 }
 
 .auf-dropzone:hover {
