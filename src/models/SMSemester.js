@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
 
 const SMSemesterSchema = new mongoose.Schema({
-    sem: { type: Number, required: true, unique: true }
+    sem: { type: Number, required: true, unique: true },
+    keywords: { type: [String], default: [] }
 }, { timestamps: true });
 
-export default mongoose.models.SMSemester || mongoose.model("SMSemester", SMSemesterSchema);
+delete mongoose.models.SMSemester;
+export default mongoose.model("SMSemester", SMSemesterSchema);

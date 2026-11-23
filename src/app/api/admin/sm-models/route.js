@@ -22,6 +22,28 @@ const models = {
     SMBatch
 };
 
+function normalizeKeywords(keywords) {
+    if (!keywords) return [];
+    if (typeof keywords === "string") {
+        return Array.from(new Set(
+            keywords.split(",")
+                .map(k => k.trim())
+                .filter(k => k.length > 0)
+        ));
+    }
+    if (Array.isArray(keywords)) {
+        return Array.from(new Set(
+            keywords.flatMap(k => {
+                if (typeof k === "string") {
+                    return k.split(",").map(s => s.trim());
+                }
+                return String(k || "").trim();
+            }).filter(k => k.length > 0)
+        ));
+    }
+    return [];
+}
+
 export async function GET(req) {
     try {
         await connectDB();
@@ -103,32 +125,24 @@ export async function POST(req) {
             return formatGithubRawUrl(url);
         };
 
-        if (modelName === "SMFiles") {
-            const cleanRecord = (record) => {
-                const copy = { ...record };
-                if (copy.fileurl) {
-                    copy.fileurl = cleanUrl(copy.fileurl);
-                }
-                return copy;
-            };
-
-            if (Array.isArray(data)) {
-                const cleanedData = data.map(cleanRecord);
-                const newRecords = await Model.insertMany(cleanedData);
-                return NextResponse.json({ success: true, data: newRecords }, { status: 201 });
-            } else {
-                const cleanedRecord = cleanRecord(data);
-                const newRecord = new Model(cleanedRecord);
-                await newRecord.save();
-                return NextResponse.json({ success: true, data: newRecord }, { status: 201 });
+        const cleanRecord = (record) => {
+            const copy = { ...record };
+            if (copy.fileurl && modelName === "SMFiles") {
+                copy.fileurl = cleanUrl(copy.fileurl);
             }
-        }
+            if (copy.keywords !== undefined) {
+                copy.keywords = normalizeKeywords(copy.keywords);
+            }
+            return copy;
+        };
 
         if (Array.isArray(data)) {
-            const newRecords = await Model.insertMany(data);
+            const cleanedData = data.map(cleanRecord);
+            const newRecords = await Model.insertMany(cleanedData);
             return NextResponse.json({ success: true, data: newRecords }, { status: 201 });
         } else {
-            const newRecord = new Model(data);
+            const cleanedRecord = cleanRecord(data);
+            const newRecord = new Model(cleanedRecord);
             await newRecord.save();
             return NextResponse.json({ success: true, data: newRecord }, { status: 201 });
         }
@@ -173,6 +187,10 @@ export async function PUT(req) {
         // Clean fileurl for SMFiles
         if (modelName === "SMFiles" && safeData.fileurl) {
             safeData.fileurl = formatGithubRawUrl(safeData.fileurl);
+        }
+
+        if (safeData.keywords !== undefined) {
+            safeData.keywords = normalizeKeywords(safeData.keywords);
         }
 
         const Model = models[modelName];

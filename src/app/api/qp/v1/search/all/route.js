@@ -7,10 +7,10 @@ import QPSubjects from "@/models/QPSubjects";
 import { recordSearchEvent } from "@/lib/searchTracker";
 
 const searchConfigs = [
-    { model: QPUniversities, name: "university", fields: ["name", "city", "state", "district"] },
-    { model: QPColleges, name: "college", fields: ["name", "location"] },
-    { model: QPCourse, name: "course", fields: ["name"] },
-    { model: QPSubjects, name: "subject", fields: ["name"] }
+    { model: QPUniversities, name: "university", fields: ["name", "city", "state", "district", "keywords"] },
+    { model: QPColleges, name: "college", fields: ["name", "location", "keywords"] },
+    { model: QPCourse, name: "course", fields: ["name", "keywords"] },
+    { model: QPSubjects, name: "subject", fields: ["name", "keywords"] }
 ];
 
 export async function GET(req) {
@@ -47,13 +47,26 @@ export async function GET(req) {
             const results = await model.find(query).lean();
             return results.map(r => {
                 let score = 0;
-                const text = fields.map(f => r[f] || "").join(" ").toLowerCase();
+                const kwText = Array.isArray(r.keywords) ? r.keywords.join(" ").toLowerCase() : "";
+                const textFields = fields.filter(f => f !== "keywords").map(f => r[f] || "").join(" ").toLowerCase();
+                const text = `${textFields} ${kwText}`;
+                const primaryName = (r.name || "").toLowerCase();
+
+                if (text.includes(rawQuery.toLowerCase())) score += 20;
+                if (primaryName.startsWith(rawQuery.toLowerCase())) score += 10;
+                if (kwText.includes(rawQuery.toLowerCase())) score += 15;
+
                 for (const word of words) {
-                    if (text.includes(word)) {
-                        score += 1;
+                    if (primaryName.includes(word)) {
+                        score += 5;
+                    } else if (kwText.includes(word)) {
+                        score += 8;
+                    } else if (text.includes(word)) {
+                        score += 3;
                     }
                 }
-                return { ...r, __type: name, __score: score };
+                const { keywords, ...sanitizedRecord } = r;
+                return { ...sanitizedRecord, __type: name, __score: score };
             }).filter(r => r.__score > 0);
         });
 

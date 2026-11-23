@@ -7,7 +7,9 @@ const QPCollegesSchema = new mongoose.Schema({
         ref: "QPUniversities",
         required: true
     },
-    location: { type: String, default: null }
+    location: { type: String, default: null },
+    keywords: { type: [String], default: [] }
 }, { timestamps: true });
 
-export default mongoose.models.QPColleges || mongoose.model("QPColleges", QPCollegesSchema);
+delete mongoose.models.QPColleges;
+export default mongoose.model("QPColleges", QPCollegesSchema);

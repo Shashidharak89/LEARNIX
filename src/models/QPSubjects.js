@@ -16,7 +16,8 @@ const QPSubjectsSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "QPCourse",
         required: true
-    }
+    },
+    keywords: { type: [String], default: [] }
 }, { timestamps: true });
 
 delete mongoose.models.QPSubjects;

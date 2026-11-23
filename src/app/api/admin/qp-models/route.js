@@ -21,6 +21,28 @@ const models = {
     QPCourse
 };
 
+function normalizeKeywords(keywords) {
+    if (!keywords) return [];
+    if (typeof keywords === "string") {
+        return Array.from(new Set(
+            keywords.split(",")
+                .map(k => k.trim())
+                .filter(k => k.length > 0)
+        ));
+    }
+    if (Array.isArray(keywords)) {
+        return Array.from(new Set(
+            keywords.flatMap(k => {
+                if (typeof k === "string") {
+                    return k.split(",").map(s => s.trim());
+                }
+                return String(k || "").trim();
+            }).filter(k => k.length > 0)
+        ));
+    }
+    return [];
+}
+
 // Helper to verify that the request includes a valid Bearer token for an admin or superadmin
 async function checkAdminAuth(req) {
     const auth = await resolveAuthenticatedUser(req, { withMeta: true });
@@ -82,8 +104,40 @@ export async function GET(req) {
             return NextResponse.json({ success: true, data: record }, { status: 200 });
         }
 
-        const data = await Model.find({}).sort({ createdAt: -1 });
-        return NextResponse.json({ success: true, data }, { status: 200 });
+        const page = parseInt(url.searchParams.get("page"), 10) || 1;
+        const limit = parseInt(url.searchParams.get("limit"), 10) || 0;
+
+        let query = Model.find({});
+        if (modelName === "QPColleges") {
+            query = query.populate("university");
+        } else if (modelName === "QPSubjects") {
+            query = query.populate("college").populate("course").populate("semester");
+        } else if (modelName === "QPImages") {
+            query = query.populate("college").populate("batch").populate("examtype").populate({
+                path: "subject",
+                populate: [{ path: "course" }, { path: "semester" }]
+            });
+        }
+
+        let data;
+        let pagination = null;
+        const sortQuery = { createdAt: -1 };
+
+        if (limit > 0) {
+            const skip = (page - 1) * limit;
+            const total = await Model.countDocuments({});
+            data = await query.sort(sortQuery).skip(skip).limit(limit);
+            pagination = {
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+                totalRecords: total
+            };
+        } else {
+            data = await query.sort(sortQuery);
+        }
+
+        return NextResponse.json({ success: true, data, pagination }, { status: 200 });
     } catch (error) {
         console.error("GET QP Model Error:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -105,14 +159,33 @@ export async function POST(req) {
         }
 
         const Model = models[modelName];
-        const newRecord = new Model(data);
-        await newRecord.save();
+        const prepareRecord = (rec) => {
+            const copy = { ...rec };
+            if (copy.keywords !== undefined) {
+                copy.keywords = normalizeKeywords(copy.keywords);
+            }
+            return copy;
+        };
 
-        return NextResponse.json({
-            success: true,
-            message: `${modelName.replace("QP", "")} created successfully`,
-            data: newRecord
-        }, { status: 201 });
+        if (Array.isArray(data)) {
+            const cleanedData = data.map(prepareRecord);
+            const newRecords = await Model.insertMany(cleanedData);
+            return NextResponse.json({
+                success: true,
+                message: `${modelName.replace("QP", "")} created successfully`,
+                data: newRecords
+            }, { status: 201 });
+        } else {
+            const cleanedRecord = prepareRecord(data);
+            const newRecord = new Model(cleanedRecord);
+            await newRecord.save();
+
+            return NextResponse.json({
+                success: true,
+                message: `${modelName.replace("QP", "")} created successfully`,
+                data: newRecord
+            }, { status: 201 });
+        }
     } catch (error) {
         console.error("POST QP Model Error:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -146,6 +219,10 @@ export async function PUT(req) {
         delete updateData._id;
         delete updateData.id;
         delete updateData.modelName;
+
+        if (updateData.keywords !== undefined) {
+            updateData.keywords = normalizeKeywords(updateData.keywords);
+        }
 
         const Model = models[modelName];
         const updatedRecord = await Model.findByIdAndUpdate(id, updateData, {

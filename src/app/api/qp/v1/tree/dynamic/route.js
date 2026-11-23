@@ -1,3 +1,4 @@
+import { stripKeywords } from "@/lib/sanitizeKeywords";
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import mongoose from "mongoose";
@@ -19,13 +20,13 @@ export async function GET(req) {
         
         if (level === "universities") {
             const data = await QPUniversities.find({}).sort({ name: 1 }).lean();
-            return NextResponse.json({ success: true, data }, { status: 200 });
+            return NextResponse.json({ success: true, data: stripKeywords(data) }, { status: 200 });
         }
         
         if (level === "colleges") {
             const universityId = url.searchParams.get("universityId");
             const data = await QPColleges.find({ university: universityId }).sort({ name: 1 }).lean();
-            return NextResponse.json({ success: true, data }, { status: 200 });
+            return NextResponse.json({ success: true, data: stripKeywords(data) }, { status: 200 });
         }
         
         if (level === "courses") {
@@ -33,7 +34,7 @@ export async function GET(req) {
             const subjects = await QPSubjects.find({ college: collegeId }).select("course").lean();
             const courseIds = [...new Set(subjects.map(s => s.course.toString()))];
             const data = await QPCourse.find({ _id: { $in: courseIds } }).sort({ name: 1 }).lean();
-            return NextResponse.json({ success: true, data }, { status: 200 });
+            return NextResponse.json({ success: true, data: stripKeywords(data) }, { status: 200 });
         }
         
         if (level === "semesters") {
@@ -42,7 +43,7 @@ export async function GET(req) {
             const subjects = await QPSubjects.find({ college: collegeId, course: courseId }).select("semester").lean();
             const semIds = [...new Set(subjects.map(s => s.semester.toString()))];
             const data = await QPSemesters.find({ _id: { $in: semIds } }).sort({ semesterNumber: 1 }).lean();
-            return NextResponse.json({ success: true, data }, { status: 200 });
+            return NextResponse.json({ success: true, data: stripKeywords(data) }, { status: 200 });
         }
         
         if (level === "batches") {
@@ -57,7 +58,7 @@ export async function GET(req) {
             const batchIds = [...new Set(images.map(img => img.batch?.toString()).filter(Boolean))];
             
             const data = await QPBatches.find({ _id: { $in: batchIds } }).sort({ startYear: -1 }).lean();
-            return NextResponse.json({ success: true, data }, { status: 200 });
+            return NextResponse.json({ success: true, data: stripKeywords(data) }, { status: 200 });
         }
         
         if (level === "exams") {
@@ -73,7 +74,7 @@ export async function GET(req) {
             const examIds = [...new Set(images.map(img => img.examtype?.toString()).filter(Boolean))];
             
             const data = await QPExamType.find({ _id: { $in: examIds } }).sort({ name: 1 }).lean();
-            return NextResponse.json({ success: true, data }, { status: 200 });
+            return NextResponse.json({ success: true, data: stripKeywords(data) }, { status: 200 });
         }
 
         if (level === "images") {
@@ -93,7 +94,7 @@ export async function GET(req) {
                 examtype: examId
             }).populate("subject").lean();
             
-            return NextResponse.json({ success: true, data: images }, { status: 200 });
+            return NextResponse.json({ success: true, data: stripKeywords(images) }, { status: 200 });
         }
 
         return NextResponse.json({ success: false, error: "Invalid level" }, { status: 400 });

@@ -2,7 +2,9 @@ import mongoose from "mongoose";
 
 const SMBatchSchema = new mongoose.Schema({
     startyear: { type: Number, required: true },
-    endyear: { type: Number, required: true }
+    endyear: { type: Number, required: true },
+    keywords: { type: [String], default: [] }
 }, { timestamps: true });
 
-export default mongoose.models.SMBatch || mongoose.model("SMBatch", SMBatchSchema);
+delete mongoose.models.SMBatch;
+export default mongoose.model("SMBatch", SMBatchSchema);

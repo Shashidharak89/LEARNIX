@@ -28,13 +28,20 @@ export async function GET(req) {
             }, { status: 200 });
         }
 
-        const uniOrConditions = words.map(w => ({ name: { $regex: w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), $options: "i" } }));
-        const collegeOrConditions = words.map(w => ({ name: { $regex: w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), $options: "i" } }));
-        const courseOrConditions = words.map(w => ({ name: { $regex: w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), $options: "i" } }));
+        const uniOrConditions = [];
+        const collegeOrConditions = [];
+        const courseOrConditions = [];
         const fileOrConditions = [];
         words.forEach(w => {
             const esc = w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-            fileOrConditions.push({ name: { $regex: esc, $options: "i" } }, { fileurl: { $regex: esc, $options: "i" } });
+            uniOrConditions.push({ name: { $regex: esc, $options: "i" } }, { keywords: { $regex: esc, $options: "i" } });
+            collegeOrConditions.push({ name: { $regex: esc, $options: "i" } }, { keywords: { $regex: esc, $options: "i" } });
+            courseOrConditions.push({ name: { $regex: esc, $options: "i" } }, { keywords: { $regex: esc, $options: "i" } });
+            fileOrConditions.push(
+                { name: { $regex: esc, $options: "i" } },
+                { fileurl: { $regex: esc, $options: "i" } },
+                { keywords: { $regex: esc, $options: "i" } }
+            );
         });
 
         // 1. Resolve matching IDs from all levels
@@ -55,13 +62,15 @@ export async function GET(req) {
 
         // Resolve semester IDs matching keyword
         const semIds = semesters.filter(s => {
-            const text = `Semester ${s.sem} ${s.sem} sem ${s.sem}`.toLowerCase();
+            const kwText = Array.isArray(s.keywords) ? s.keywords.join(" ").toLowerCase() : "";
+            const text = `Semester ${s.sem} ${s.sem} sem ${s.sem} ${kwText}`.toLowerCase();
             return words.some(w => text.includes(w));
         }).map(s => s._id);
 
         // Resolve batch IDs matching keyword
         const batchIds = batches.filter(b => {
-            const text = `Batch ${b.startyear}-${b.endyear} ${b.startyear} ${b.endyear}`.toLowerCase();
+            const kwText = Array.isArray(b.keywords) ? b.keywords.join(" ").toLowerCase() : "";
+            const text = `Batch ${b.startyear}-${b.endyear} ${b.startyear} ${b.endyear} ${kwText}`.toLowerCase();
             return words.some(w => text.includes(w));
         }).map(b => b._id);
 
@@ -75,7 +84,11 @@ export async function GET(req) {
         const collegeIdsResolved = collegeMatchesResolved.map(c => c._id);
 
         // 2. Fetch all subjects that are matched or have matched children/parents
-        const subjectOrConditions = words.map(w => ({ name: { $regex: w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), $options: "i" } }));
+        const subjectOrConditions = [];
+        words.forEach(w => {
+            const esc = w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            subjectOrConditions.push({ name: { $regex: esc, $options: "i" } }, { keywords: { $regex: esc, $options: "i" } });
+        });
         if (collegeIdsResolved.length > 0) subjectOrConditions.push({ college: { $in: collegeIdsResolved } });
         if (courseIds.length > 0) subjectOrConditions.push({ course: { $in: courseIds } });
         if (semIds.length > 0) subjectOrConditions.push({ sem: { $in: semIds } });
@@ -221,9 +234,18 @@ export async function GET(req) {
 
         universitiesList.sort((a, b) => (b.__score - a.__score) || a.name.localeCompare(b.name));
 
-        // 6. Paginate top-level Universities
+        // 6. Paginate top-level Universities and strip internal keywords
+        const stripKeywordsAndMaps = (node) => {
+            if (!node || typeof node !== "object") return node;
+            const { keywords, collegesMap, coursesMap, semestersMap, batchesMap, subjectsMap, ...rest } = node;
+            if (Array.isArray(rest.children)) {
+                rest.children = rest.children.map(stripKeywordsAndMaps);
+            }
+            return rest;
+        };
+
         const total = universitiesList.length;
-        const paginatedUniversities = universitiesList.slice(skip, skip + limit);
+        const paginatedUniversities = universitiesList.slice(skip, skip + limit).map(stripKeywordsAndMaps);
 
         return NextResponse.json({
             success: true,

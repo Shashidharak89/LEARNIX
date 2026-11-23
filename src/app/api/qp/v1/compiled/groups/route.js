@@ -1,3 +1,4 @@
+import { stripKeywords } from "@/lib/sanitizeKeywords";
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import QPImages from "@/models/QPImages";
@@ -97,7 +98,7 @@ export async function GET(req) {
         return NextResponse.json({
             success: true,
             pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
-            data: results
+            data: stripKeywords(results)
         }, { status: 200 });
 
     } catch (error) {

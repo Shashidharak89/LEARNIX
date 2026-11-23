@@ -7,10 +7,10 @@ import SMSubject from "@/models/SMSubject";
 import { recordSearchEvent } from "@/lib/searchTracker";
 
 const searchConfigs = [
-    { model: SMUniversity, name: "university", fields: ["name", "city", "district"] },
-    { model: SMCollege, name: "college", fields: ["name", "location"] },
-    { model: SMCourse, name: "course", fields: ["name"] },
-    { model: SMSubject, name: "subject", fields: ["name"] }
+    { model: SMUniversity, name: "university", fields: ["name", "city", "district", "keywords"] },
+    { model: SMCollege, name: "college", fields: ["name", "location", "keywords"] },
+    { model: SMCourse, name: "course", fields: ["name", "keywords"] },
+    { model: SMSubject, name: "subject", fields: ["name", "keywords"] }
 ];
 
 export async function GET(req) {
@@ -47,18 +47,26 @@ export async function GET(req) {
             const results = await model.find(query).lean();
             return results.map(r => {
                 let score = 0;
-                const text = fields.map(f => r[f] || "").join(" ").toLowerCase();
+                const kwText = Array.isArray(r.keywords) ? r.keywords.join(" ").toLowerCase() : "";
+                const textFields = fields.filter(f => f !== "keywords").map(f => r[f] || "").join(" ").toLowerCase();
+                const text = `${textFields} ${kwText}`;
                 const primaryName = (r.name || "").toLowerCase();
 
                 if (text.includes(cleanQuery)) score += 20;
                 if (primaryName.startsWith(cleanQuery)) score += 10;
+                if (kwText.includes(cleanQuery)) score += 15;
 
                 for (const word of words) {
-                    if (text.includes(word)) {
+                    if (primaryName.includes(word)) {
                         score += 5;
+                    } else if (kwText.includes(word)) {
+                        score += 8;
+                    } else if (text.includes(word)) {
+                        score += 3;
                     }
                 }
-                return { ...r, __type: name, __score: score };
+                const { keywords, ...sanitizedRecord } = r;
+                return { ...sanitizedRecord, __type: name, __score: score };
             }).filter(r => r.__score > 0);
         });
 

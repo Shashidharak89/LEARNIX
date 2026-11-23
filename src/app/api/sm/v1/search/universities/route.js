@@ -23,7 +23,8 @@ export async function GET(req) {
                 orConditions.push(
                     { name: { $regex: escaped, $options: "i" } },
                     { city: { $regex: escaped, $options: "i" } },
-                    { district: { $regex: escaped, $options: "i" } }
+                    { district: { $regex: escaped, $options: "i" } },
+                    { keywords: { $regex: escaped, $options: "i" } }
                 );
             });
             query = { $or: orConditions };
@@ -39,24 +40,30 @@ export async function GET(req) {
                     const uniName = (r.name || "").toLowerCase();
                     const city = (r.city || "").toLowerCase();
                     const district = (r.district || "").toLowerCase();
-                    const text = `${uniName} ${city} ${district}`;
+                    const kwText = Array.isArray(r.keywords) ? r.keywords.join(" ").toLowerCase() : "";
+                    const text = `${uniName} ${city} ${district} ${kwText}`;
 
                     if (text.includes(cleanQuery)) score += 20;
                     if (uniName.startsWith(cleanQuery)) score += 10;
+                    if (kwText.includes(cleanQuery)) score += 15;
 
                     for (const word of words) {
                         if (uniName.includes(word)) {
                             score += 5;
+                        } else if (kwText.includes(word)) {
+                            score += 8;
                         } else if (city.includes(word) || district.includes(word)) {
                             score += 2;
                         }
                     }
-                    return { r, score };
+                    const { keywords, ...sanitized } = r;
+                    return { r: sanitized, score };
                 })
                 .filter(item => item.score > 0)
                 .sort((a, b) => b.score - a.score || (a.r.name || "").localeCompare(b.r.name || ""))
                 .map(item => item.r);
         } else {
+            scoredRecords = allRecords.map(({ keywords, ...rest }) => rest);
             scoredRecords.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
         }
 

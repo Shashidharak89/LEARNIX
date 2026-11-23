@@ -12,10 +12,9 @@ const SMFilesSchema = new mongoose.Schema({
         type: String,
         enum: ["default", "external"],
         default: "default"
-    }
+    },
+    keywords: { type: [String], default: [] }
 }, { timestamps: true, strictPopulate: false });
 
-if (mongoose.models.SMFiles) {
-    delete mongoose.models.SMFiles;
-}
+delete mongoose.models.SMFiles;
 export default mongoose.model("SMFiles", SMFilesSchema);

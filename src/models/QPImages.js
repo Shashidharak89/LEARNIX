@@ -28,7 +28,9 @@ const QPImagesSchema = new mongoose.Schema({
     visitLink: {
         type: String,
         default: null
-    }
+    },
+    keywords: { type: [String], default: [] }
 }, { timestamps: true });
 
-export default mongoose.models.QPImages || mongoose.model("QPImages", QPImagesSchema);
+delete mongoose.models.QPImages;
+export default mongoose.model("QPImages", QPImagesSchema);

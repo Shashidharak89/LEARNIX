@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
 
 const QPExamTypeSchema = new mongoose.Schema({
-    name: { type: String, required: true }
+    name: { type: String, required: true },
+    keywords: { type: [String], default: [] }
 }, { timestamps: true });
 
-export default mongoose.models.QPExamType || mongoose.model("QPExamType", QPExamTypeSchema);
+delete mongoose.models.QPExamType;
+export default mongoose.model("QPExamType", QPExamTypeSchema);

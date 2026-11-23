@@ -31,7 +31,8 @@ const modelsConfig = {
         fields: [
             { name: "name", type: "text", required: true, placeholder: "e.g. Visvesvaraya Technological University" },
             { name: "city", type: "text", placeholder: "e.g. Belagavi" },
-            { name: "district", type: "text", placeholder: "e.g. Belagavi" }
+            { name: "district", type: "text", placeholder: "e.g. Belagavi" },
+            { name: "keywords", type: "text", label: "Keywords", placeholder: "e.g. vtu, engineering, technical" }
         ]
     },
     SMCollege: {
@@ -40,21 +41,24 @@ const modelsConfig = {
         fields: [
             { name: "name", type: "text", required: true, placeholder: "e.g. NMAM Institute of Technology" },
             { name: "university", type: "select", ref: "SMUniversity", required: true },
-            { name: "location", type: "text", placeholder: "e.g. Nitte, Karkala" }
+            { name: "location", type: "text", placeholder: "e.g. Nitte, Karkala" },
+            { name: "keywords", type: "text", label: "Keywords", placeholder: "e.g. nmam, nitte, engineering" }
         ]
     },
     SMCourse: {
         label: "Courses",
         icon: <FiLayers />,
         fields: [
-            { name: "name", type: "text", required: true, placeholder: "e.g. Master of Computer Applications" }
+            { name: "name", type: "text", required: true, placeholder: "e.g. Master of Computer Applications" },
+            { name: "keywords", type: "text", label: "Keywords", placeholder: "e.g. mca, masters, computer applications" }
         ]
     },
     SMSemester: {
         label: "Semesters",
         icon: <FiClock />,
         fields: [
-            { name: "sem", type: "number", required: true, placeholder: "e.g. 1, 2, 3..." }
+            { name: "sem", type: "number", required: true, placeholder: "e.g. 1, 2, 3..." },
+            { name: "keywords", type: "text", label: "Keywords", placeholder: "e.g. sem1, first semester, 1st sem" }
         ]
     },
     SMBatch: {
@@ -62,7 +66,8 @@ const modelsConfig = {
         icon: <FiCalendar />,
         fields: [
             { name: "startyear", type: "number", required: true, placeholder: "e.g. 2023" },
-            { name: "endyear", type: "number", required: true, placeholder: "e.g. 2025" }
+            { name: "endyear", type: "number", required: true, placeholder: "e.g. 2025" },
+            { name: "keywords", type: "text", label: "Keywords", placeholder: "e.g. batch 2023, 2025" }
         ]
     },
     SMSubject: {
@@ -73,7 +78,8 @@ const modelsConfig = {
             { name: "college", type: "select", ref: "SMCollege", required: true },
             { name: "course", type: "select", ref: "SMCourse", required: true },
             { name: "sem", type: "select", ref: "SMSemester", required: true },
-            { name: "batch", type: "select", ref: "SMBatch", required: true }
+            { name: "batch", type: "select", ref: "SMBatch", required: true },
+            { name: "keywords", type: "text", label: "Keywords", placeholder: "e.g. dsa, algorithms, coding" }
         ]
     },
     SMFiles: {
@@ -86,7 +92,8 @@ const modelsConfig = {
             { name: "type", type: "select", label: "File Type", required: true, options: [
                 { value: "default", label: "Default" },
                 { value: "external", label: "External" }
-            ], defaultValue: "default" }
+            ], defaultValue: "default" },
+            { name: "keywords", type: "text", label: "Keywords", placeholder: "e.g. unit 1, notes, imp questions" }
         ]
     }
 };
@@ -226,7 +233,8 @@ export default function SMAdmin() {
                     name: formData.name || "",
                     fileurl: cleanUrl(url),
                     sub: formData.sub,
-                    type: formData.type || "default"
+                    type: formData.type || "default",
+                    keywords: formData.keywords || ""
                 }));
             }
 
@@ -319,7 +327,10 @@ export default function SMAdmin() {
             const fieldLabel = field.label || field.name;
 
             let currentValue = "";
-            if (field.ref) {
+            if (field.name === "keywords") {
+                const kwVal = record[field.name];
+                currentValue = Array.isArray(kwVal) ? kwVal.join(", ") : (kwVal || "");
+            } else if (field.ref) {
                 const refVal = record[field.name];
                 currentValue = refVal?._id ? String(refVal._id) : (refVal ? String(refVal) : "");
             } else {
@@ -797,6 +808,17 @@ export default function SMAdmin() {
                                                         {record.sub?.batch && (
                                                             <p className="sm-record-sub">Batch: {record.sub.batch.startyear}-{record.sub.batch.endyear}</p>
                                                         )}
+                                                    </div>
+                                                )}
+
+                                                {record.keywords && Array.isArray(record.keywords) && record.keywords.length > 0 && (
+                                                    <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "8px", alignItems: "center" }}>
+                                                        <span style={{ fontSize: "11px", fontWeight: "600", color: "#64748b" }}>Keywords:</span>
+                                                        {record.keywords.map((kw, idx) => (
+                                                            <span key={idx} style={{ fontSize: "11px", background: "#f1f5f9", color: "#4338ca", padding: "1px 6px", borderRadius: "4px", border: "1px solid #e0e7ff" }}>
+                                                                #{kw}
+                                                            </span>
+                                                        ))}
                                                     </div>
                                                 )}
                                             </div>

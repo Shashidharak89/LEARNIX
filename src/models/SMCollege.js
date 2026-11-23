@@ -7,7 +7,9 @@ const SMCollegeSchema = new mongoose.Schema({
         ref: "SMUniversity",
         required: true
     },
-    location: { type: String, default: null }
+    location: { type: String, default: null },
+    keywords: { type: [String], default: [] }
 }, { timestamps: true });
 
-export default mongoose.models.SMCollege || mongoose.model("SMCollege", SMCollegeSchema);
+delete mongoose.models.SMCollege;
+export default mongoose.model("SMCollege", SMCollegeSchema);

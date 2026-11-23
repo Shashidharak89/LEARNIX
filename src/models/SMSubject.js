@@ -21,10 +21,9 @@ const SMSubjectSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "SMBatch",
         required: true
-    }
+    },
+    keywords: { type: [String], default: [] }
 }, { timestamps: true, strictPopulate: false });
 
-if (mongoose.models.SMSubject) {
-    delete mongoose.models.SMSubject;
-}
+delete mongoose.models.SMSubject;
 export default mongoose.model("SMSubject", SMSubjectSchema);

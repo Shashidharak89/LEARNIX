@@ -18,19 +18,25 @@ export async function GET(req) {
         if (words.length > 0) {
             scoredSemesters = semesters
                 .map(s => {
-                    const text = `Semester ${s.sem} ${s.sem} sem ${s.sem}`.toLowerCase();
+                    const kwText = Array.isArray(s.keywords) ? s.keywords.join(" ").toLowerCase() : "";
+                    const text = `Semester ${s.sem} ${s.sem} sem ${s.sem} ${kwText}`.toLowerCase();
                     let score = 0;
                     for (const word of words) {
                         if (text.includes(word)) {
                             score += 1;
                         }
+                        if (kwText.includes(word)) {
+                            score += 5;
+                        }
                     }
-                    return { s, score };
+                    const { keywords, ...sanitized } = s;
+                    return { s: sanitized, score };
                 })
                 .filter(item => item.score > 0)
                 .sort((a, b) => b.score - a.score || a.s.sem - b.s.sem)
                 .map(item => item.s);
         } else {
+            scoredSemesters = semesters.map(({ keywords, ...rest }) => rest);
             scoredSemesters.sort((a, b) => a.sem - b.sem);
         }
 

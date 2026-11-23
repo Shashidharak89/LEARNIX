@@ -18,19 +18,25 @@ export async function GET(req) {
         if (words.length > 0) {
             scoredBatches = batches
                 .map(b => {
-                    const text = `Batch ${b.startyear}-${b.endyear} ${b.startyear} ${b.endyear}`.toLowerCase();
+                    const kwText = Array.isArray(b.keywords) ? b.keywords.join(" ").toLowerCase() : "";
+                    const text = `Batch ${b.startyear}-${b.endyear} ${b.startyear} ${b.endyear} ${kwText}`.toLowerCase();
                     let score = 0;
                     for (const word of words) {
                         if (text.includes(word)) {
                             score += 1;
                         }
+                        if (kwText.includes(word)) {
+                            score += 5;
+                        }
                     }
-                    return { b, score };
+                    const { keywords, ...sanitized } = b;
+                    return { b: sanitized, score };
                 })
                 .filter(item => item.score > 0)
                 .sort((a, b) => b.score - a.score || b.b.startyear - a.b.startyear)
                 .map(item => item.b);
         } else {
+            scoredBatches = batches.map(({ keywords, ...rest }) => rest);
             scoredBatches.sort((a, b) => b.startyear - a.startyear);
         }
 

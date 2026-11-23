@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 const SMUniversitySchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
     city: { type: String, default: null },
-    district: { type: String, default: null }
+    district: { type: String, default: null },
+    keywords: { type: [String], default: [] }
 }, { timestamps: true });
 
-export default mongoose.models.SMUniversity || mongoose.model("SMUniversity", SMUniversitySchema);
+delete mongoose.models.SMUniversity;
+export default mongoose.model("SMUniversity", SMUniversitySchema);

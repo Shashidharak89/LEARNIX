@@ -21,6 +21,28 @@ const models = {
     QPCourse
 };
 
+function normalizeKeywords(keywords) {
+    if (!keywords) return [];
+    if (typeof keywords === "string") {
+        return Array.from(new Set(
+            keywords.split(",")
+                .map(k => k.trim())
+                .filter(k => k.length > 0)
+        ));
+    }
+    if (Array.isArray(keywords)) {
+        return Array.from(new Set(
+            keywords.flatMap(k => {
+                if (typeof k === "string") {
+                    return k.split(",").map(s => s.trim());
+                }
+                return String(k || "").trim();
+            }).filter(k => k.length > 0)
+        ));
+    }
+    return [];
+}
+
 async function checkAdminAuth(req) {
     const auth = await resolveAuthenticatedUser(req, { withMeta: true });
     
@@ -105,6 +127,10 @@ export async function PUT(req, { params }) {
         delete updateData._id;
         delete updateData.id;
         delete updateData.modelName;
+
+        if (updateData.keywords !== undefined) {
+            updateData.keywords = normalizeKeywords(updateData.keywords);
+        }
 
         const Model = models[modelName];
         const updatedRecord = await Model.findByIdAndUpdate(id, updateData, {

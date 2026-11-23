@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
 
 const SMCourseSchema = new mongoose.Schema({
-    name: { type: String, required: true }
+    name: { type: String, required: true },
+    keywords: { type: [String], default: [] }
 }, { timestamps: true });
 
-export default mongoose.models.SMCourse || mongoose.model("SMCourse", SMCourseSchema);
+delete mongoose.models.SMCourse;
+export default mongoose.model("SMCourse", SMCourseSchema);

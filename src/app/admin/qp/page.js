@@ -12,30 +12,35 @@ const modelsConfig = {
             { name: "name", type: "text", required: true },
             { name: "city", type: "text" },
             { name: "state", type: "text" },
-            { name: "district", type: "text" }
+            { name: "district", type: "text" },
+            { name: "keywords", type: "text", label: "Keywords (comma separated)" }
         ]
     },
     QPColleges: {
         fields: [
             { name: "name", type: "text", required: true },
             { name: "university", type: "select", ref: "QPUniversities", required: true },
-            { name: "location", type: "text" }
+            { name: "location", type: "text" },
+            { name: "keywords", type: "text", label: "Keywords (comma separated)" }
         ]
     },
     QPSemesters: {
         fields: [
-            { name: "semesterNumber", type: "number", required: true }
+            { name: "semesterNumber", type: "number", required: true },
+            { name: "keywords", type: "text", label: "Keywords (comma separated)" }
         ]
     },
     QPExamType: {
         fields: [
-            { name: "name", type: "text", required: true }
+            { name: "name", type: "text", required: true },
+            { name: "keywords", type: "text", label: "Keywords (comma separated)" }
         ]
     },
     QPBatches: {
         fields: [
             { name: "startYear", type: "number", required: true },
-            { name: "endYear", type: "number", required: true }
+            { name: "endYear", type: "number", required: true },
+            { name: "keywords", type: "text", label: "Keywords (comma separated)" }
         ]
     },
     QPSubjects: {
@@ -43,12 +48,14 @@ const modelsConfig = {
             { name: "name", type: "text", required: true },
             { name: "course", type: "select", ref: "QPCourse", required: true },
             { name: "semester", type: "select", ref: "QPSemesters", required: true },
-            { name: "college", type: "select", ref: "QPColleges", required: true }
+            { name: "college", type: "select", ref: "QPColleges", required: true },
+            { name: "keywords", type: "text", label: "Keywords (comma separated)" }
         ]
     },
     QPCourse: {
         fields: [
-            { name: "name", type: "text", required: true }
+            { name: "name", type: "text", required: true },
+            { name: "keywords", type: "text", label: "Keywords (comma separated)" }
         ]
     },
     QPImages: {
@@ -58,22 +65,14 @@ const modelsConfig = {
             { name: "batch", type: "select", ref: "QPBatches", required: true },
             { name: "examtype", type: "select", ref: "QPExamType", required: true },
             { name: "imageUrls", type: "text", label: "Image URLs (comma separated)" },
-            { name: "visitLink", type: "text", label: "Visit Link" }
+            { name: "visitLink", type: "text", label: "Visit Link" },
+            { name: "keywords", type: "text", label: "Keywords (comma separated)" }
         ],
         customSubmit: true
     }
 };
 
-const apiMap = {
-    QPUniversities: "/api/qp/v1/universities",
-    QPColleges: "/api/qp/v1/colleges",
-    QPSemesters: "/api/qp/v1/semesters",
-    QPCourse: "/api/qp/v1/courses",
-    QPSubjects: "/api/qp/v1/subjects",
-    QPBatches: "/api/qp/v1/batches",
-    QPExamType: "/api/qp/v1/examtypes",
-    QPImages: "/api/qp/v1/images"
-};
+
 
 export default function QPAdminPage() {
     const [activeTab, setActiveTab] = useState("QPUniversities");
@@ -153,8 +152,9 @@ export default function QPAdminPage() {
         if (modelName === "Viewer") return;
         setLoading(true);
         try {
-            const endpoint = apiMap[modelName];
-            const res = await fetch(`${endpoint}?page=${pageNum}&limit=20`);
+            const currentToken = getAuthToken();
+            const headers = currentToken ? { "Authorization": `Bearer ${currentToken}` } : {};
+            const res = await fetch(`/api/admin/qp-models?model=${modelName}&page=${pageNum}&limit=20`, { headers });
             const json = await res.json();
             if (json.success) {
                 if (pageNum === 1) {
@@ -168,7 +168,7 @@ export default function QPAdminPage() {
             console.error("Error fetching records:", error);
         }
         setLoading(false);
-    }, []);
+    }, [getAuthToken]);
 
     // Handle tab change
     useEffect(() => {
@@ -197,6 +197,8 @@ export default function QPAdminPage() {
         config.fields.forEach(f => {
             const val = record[f.name];
             if (f.name === "imageUrls") {
+                populated[f.name] = Array.isArray(val) ? val.join(", ") : (val || "");
+            } else if (f.name === "keywords") {
                 populated[f.name] = Array.isArray(val) ? val.join(", ") : (val || "");
             } else if (f.type === "select") {
                 if (val && typeof val === "object") {
@@ -621,9 +623,13 @@ export default function QPAdminPage() {
                                                                     getReferenceLabel(f.ref, record[f.name]) :
                                                                     f.name === 'imageUrls' ?
                                                                         (Array.isArray(record[f.name]) ? record[f.name].length : 0) + " images" :
-                                                                        typeof record[f.name] === 'object' && record[f.name] !== null ?
-                                                                            (record[f.name].name || record[f.name].title || String(record[f.name]._id || 'N/A')) :
-                                                                            String(record[f.name] ?? 'N/A')
+                                                                        f.name === 'keywords' ?
+                                                                            (Array.isArray(record[f.name]) && record[f.name].length > 0 ?
+                                                                                record[f.name].join(", ") :
+                                                                                (record[f.name] || "None")) :
+                                                                            typeof record[f.name] === 'object' && record[f.name] !== null ?
+                                                                                (record[f.name].name || record[f.name].title || String(record[f.name]._id || 'N/A')) :
+                                                                                String(record[f.name] ?? 'N/A')
                                                                 }
                                                             </span>
                                                         </div>

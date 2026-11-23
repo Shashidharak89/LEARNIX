@@ -17,9 +17,12 @@ export async function GET(req) {
 
         let query = {};
         if (words.length > 0) {
-            query = {
-                $or: words.map(w => ({ name: { $regex: w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), $options: "i" } }))
-            };
+            const orConditions = [];
+            words.forEach(w => {
+                const esc = w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                orConditions.push({ name: { $regex: esc, $options: "i" } }, { keywords: { $regex: esc, $options: "i" } });
+            });
+            query = { $or: orConditions };
         }
 
         const allRecords = await SMCourse.find(query).lean();
@@ -30,19 +33,25 @@ export async function GET(req) {
                 .map(r => {
                     let score = 0;
                     const text = (r.name || "").toLowerCase();
+                    const kwText = Array.isArray(r.keywords) ? r.keywords.join(" ").toLowerCase() : "";
                     if (text.includes(cleanQuery)) score += 20;
                     if (text.startsWith(cleanQuery)) score += 10;
+                    if (kwText.includes(cleanQuery)) score += 15;
                     for (const word of words) {
                         if (text.includes(word)) {
                             score += 5;
+                        } else if (kwText.includes(word)) {
+                            score += 8;
                         }
                     }
-                    return { r, score };
+                    const { keywords, ...sanitized } = r;
+                    return { r: sanitized, score };
                 })
                 .filter(item => item.score > 0)
                 .sort((a, b) => b.score - a.score || (a.r.name || "").localeCompare(b.r.name || ""))
                 .map(item => item.r);
         } else {
+            scoredRecords = allRecords.map(({ keywords, ...rest }) => rest);
             scoredRecords.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
         }
 

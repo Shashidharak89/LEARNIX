@@ -18,7 +18,11 @@ export async function GET(req) {
 
         let query = {};
         if (words.length > 0) {
-            const uniConditions = words.map(w => ({ name: { $regex: w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), $options: "i" } }));
+            const uniConditions = [];
+            words.forEach(w => {
+                const esc = w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+                uniConditions.push({ name: { $regex: esc, $options: "i" } }, { keywords: { $regex: esc, $options: "i" } });
+            });
             const matchingUnis = await SMUniversity.find({ $or: uniConditions }).select("_id").lean();
             const uniIds = matchingUnis.map(u => u._id);
 
@@ -27,7 +31,8 @@ export async function GET(req) {
                 const escaped = w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
                 orConditions.push(
                     { name: { $regex: escaped, $options: "i" } },
-                    { location: { $regex: escaped, $options: "i" } }
+                    { location: { $regex: escaped, $options: "i" } },
+                    { keywords: { $regex: escaped, $options: "i" } }
                 );
             });
             if (uniIds.length > 0) {
@@ -46,24 +51,41 @@ export async function GET(req) {
                     const collegeName = (r.name || "").toLowerCase();
                     const location = (r.location || "").toLowerCase();
                     const uniName = (r.university?.name || "").toLowerCase();
-                    const text = `${collegeName} ${location} ${uniName}`;
+                    const kwText = Array.isArray(r.keywords) ? r.keywords.join(" ").toLowerCase() : "";
+                    const text = `${collegeName} ${location} ${uniName} ${kwText}`;
 
                     if (text.includes(cleanQuery)) score += 20;
                     if (collegeName.startsWith(cleanQuery)) score += 10;
+                    if (kwText.includes(cleanQuery)) score += 15;
 
                     for (const word of words) {
                         if (collegeName.includes(word)) {
                             score += 5;
+                        } else if (kwText.includes(word)) {
+                            score += 8;
                         } else if (location.includes(word) || uniName.includes(word)) {
                             score += 2;
                         }
                     }
-                    return { r, score };
+                    const { keywords, ...sanitized } = r;
+                    if (sanitized.university && sanitized.university.keywords) {
+                        const { keywords: uKw, ...uRest } = sanitized.university;
+                        sanitized.university = uRest;
+                    }
+                    return { r: sanitized, score };
                 })
                 .filter(item => item.score > 0)
                 .sort((a, b) => b.score - a.score || (a.r.name || "").localeCompare(b.r.name || ""))
                 .map(item => item.r);
         } else {
+            scoredRecords = allRecords.map(r => {
+                const { keywords, ...sanitized } = r;
+                if (sanitized.university && sanitized.university.keywords) {
+                    const { keywords: uKw, ...uRest } = sanitized.university;
+                    sanitized.university = uRest;
+                }
+                return sanitized;
+            });
             scoredRecords.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
         }
 
