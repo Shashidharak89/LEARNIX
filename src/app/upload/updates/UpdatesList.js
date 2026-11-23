@@ -1222,10 +1222,12 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
       {/* Apple-styled Edit Update Modal */}
       {editingUpdate && (
         <EditUpdateModal
+          isOpen={Boolean(editingUpdate)}
           update={editingUpdate}
           currentUserId={currentUserId}
           onClose={() => setEditingUpdate(null)}
-          onUpdateSaved={handleUpdateSaved}
+          onSaveSuccess={handleUpdateSaved}
+          showToast={showToast}
         />
       )}
 
