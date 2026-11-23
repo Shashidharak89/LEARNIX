@@ -6,13 +6,13 @@ import {
   FiShield,
   FiUsers,
   FiFileText,
-  FiArrowRight,
   FiMessageCircle,
   FiBook,
   FiTool,
   FiCode,
   FiDatabase,
   FiSearch,
+  FiArrowUpRight,
 } from "react-icons/fi";
 import { MdAdminPanelSettings, MdOutlineSupervisorAccount } from "react-icons/md";
 import "./styles/AdminDashboard.css";
@@ -23,23 +23,87 @@ import AdminLeaderboard from "./AdminLeaderboard";
 const ROLE_CONFIG = {
   superadmin: {
     label: "Super Admin",
-    color: "#dc2626",       // red-600
+    color: "#dc2626",
     bgColor: "#fef2f2",
-    borderColor: "#fecaca",
+    borderColor: "rgba(220, 38, 38, 0.2)",
     badgeBg: "#dc2626",
-    icon: <MdAdminPanelSettings size={22} />,
-    tagline: "Full unrestricted access to all Learnix systems",
+    icon: <MdAdminPanelSettings size={18} />,
+    tagline: "Full unrestricted access to all Learnix administrative operations",
   },
   admin: {
     label: "Admin",
-    color: "#7c3aed",       // violet-600
-    bgColor: "#f5f3ff",
-    borderColor: "#ddd6fe",
-    badgeBg: "#7c3aed",
-    icon: <MdOutlineSupervisorAccount size={22} />,
-    tagline: "Elevated access to manage platform content & users",
+    color: "#0b74ff",
+    bgColor: "#eff6ff",
+    borderColor: "rgba(11, 116, 255, 0.2)",
+    badgeBg: "#0b74ff",
+    icon: <MdOutlineSupervisorAccount size={18} />,
+    tagline: "Elevated access to manage platform content, materials & users",
   },
 };
+
+// ─── Navigation links ──────────────────────────────────────────────────────────
+const ADMIN_NAV_ITEMS = [
+  {
+    href: "/admin/users",
+    title: "User Management",
+    icon: <FiUsers size={20} />,
+    colorTheme: "blue",
+  },
+  {
+    href: "/admin/feedbacks",
+    title: "Feedbacks",
+    icon: <FiMessageCircle size={20} />,
+    colorTheme: "pink",
+  },
+  {
+    href: "/admin/updates",
+    title: "Updates",
+    icon: <FiBook size={20} />,
+    colorTheme: "amber",
+  },
+  {
+    href: "/admin/qp",
+    title: "QP Management",
+    icon: <FiFileText size={20} />,
+    colorTheme: "emerald",
+  },
+  {
+    href: "/admin/study-materials",
+    title: "Study Materials",
+    icon: <FiBook size={20} />,
+    colorTheme: "purple",
+  },
+  {
+    href: "/admin/resources",
+    title: "Resource Management",
+    icon: <FiFileText size={20} />,
+    colorTheme: "indigo",
+  },
+  {
+    href: "/admin/tools",
+    title: "Tools Management",
+    icon: <FiTool size={20} />,
+    colorTheme: "amber",
+  },
+  {
+    href: "/admin/coding",
+    title: "Coding Problems",
+    icon: <FiCode size={20} />,
+    colorTheme: "sky",
+  },
+  {
+    href: "/admin/database",
+    title: "Database Management",
+    icon: <FiDatabase size={20} />,
+    colorTheme: "blue",
+  },
+  {
+    href: "/admin/searches",
+    title: "Searches",
+    icon: <FiSearch size={20} />,
+    colorTheme: "amber",
+  },
+];
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function AdminDashboard() {
@@ -58,154 +122,98 @@ export default function AdminDashboard() {
     setName(storedName);
     setUsn(storedUsn);
     setToken(storedToken);
-    setTimeout(() => setIsLoaded(true), 100);
+    setTimeout(() => setIsLoaded(true), 60);
   }, []);
 
   // Guard: still loading localStorage
   if (role === null) return null;
 
-  const isAdmin = role === "admin";
   const isSuperAdmin = role === "superadmin";
   const cfg = ROLE_CONFIG[role] || ROLE_CONFIG.admin;
 
   return (
     <div className={`adm-wrapper ${isLoaded ? "adm-loaded" : ""}`}>
+      <main className="adm-main">
 
-      {/* ── Header ── */}
-      <header className="adm-header">
-        <div className="adm-header-content">
-          <div className="adm-header-left">
-            <div className="adm-role-badge" style={{ backgroundColor: cfg.badgeBg }}>
-              {cfg.icon}
-              <span>{cfg.label}</span>
+        {/* ── Apple-style Hero Intro Widget ── */}
+        <div className="adm-intro-card">
+          <div className="adm-intro-header">
+            <div className="adm-intro-left">
+              <div className="adm-role-badge" style={{ backgroundColor: cfg.badgeBg }}>
+                {cfg.icon}
+                <span>{cfg.label}</span>
+              </div>
+              <h1 className="adm-title">
+                Admin <span className="adm-title-highlight">Control Panel</span>
+              </h1>
+              <p className="adm-subtitle">{cfg.tagline}</p>
+              {name && (
+                <div className="adm-identity">
+                  <span>Signed in as <strong>{name}</strong></span>
+                  {usn && <span className="adm-usn-chip">{usn}</span>}
+                </div>
+              )}
             </div>
-            <h1 className="adm-title">
-              Admin <span className="adm-title-highlight">Dashboard</span>
-            </h1>
-            <p className="adm-subtitle">{cfg.tagline}</p>
-            {name && (
-              <p className="adm-identity">
-                Signed in as <strong>{name}</strong>
-                {usn && <span className="adm-usn-chip">{usn}</span>}
-              </p>
-            )}
-          </div>
-          <div className="adm-header-deco">
-            <div className="adm-deco-circle" style={{ background: cfg.bgColor, border: `2px solid ${cfg.borderColor}` }}>
-              <FiShield size={48} color={cfg.color} />
+
+            <div className="adm-intro-right">
+              <div
+                className="adm-shield-orb"
+                style={{
+                  background: cfg.bgColor,
+                  border: `1.5px solid ${cfg.borderColor}`,
+                  color: cfg.color,
+                }}
+              >
+                <FiShield size={36} />
+              </div>
             </div>
           </div>
         </div>
-      </header>
 
-      {/* ── Role privilege note ── */}
-      <div className="adm-role-note" style={{ background: cfg.bgColor, borderColor: cfg.borderColor }}>
-        <span style={{ color: cfg.color }}>{cfg.icon}</span>
-        <p style={{ color: cfg.color }}>
-          {isSuperAdmin
-            ? "As Super Admin you have unrestricted access to all Learnix systems, management tools, and administrative operations."
-            : "As Admin you have elevated access to manage platform content, updates, and users. System-level operations require Super Admin."}
-        </p>
-      </div>
+        {/* ── Role Privilege Notice Widget ── */}
+        <div
+          className="adm-role-note"
+          style={{ background: cfg.bgColor, borderColor: cfg.borderColor }}
+        >
+          <span className="adm-role-note-icon" style={{ color: cfg.color }}>
+            {cfg.icon}
+          </span>
+          <p style={{ color: cfg.color }}>
+            {isSuperAdmin
+              ? "Super Admin access active: You have full permissions over all platform data, backups, moderation, and infrastructure controls."
+              : "Admin access active: You can manage curriculum materials, updates, tools, and user contributions."}
+          </p>
+        </div>
 
-      {/* ── Quick action buttons ── */}
-      <div className="adm-quick-actions">
-        <Link href="/admin/users" className="adm-quick-btn adm-quick-btn-blue">
-          <span className="adm-quick-btn-icon"><FiUsers size={20} /></span>
-          <div className="adm-quick-btn-text">
-            <span className="adm-quick-btn-label">User Management</span>
-            <span className="adm-quick-btn-sub">View &amp; manage all registered users</span>
+        {/* ── Navigation Grid (Clean, titles only, Apple rounded widgets) ── */}
+        <div className="adm-nav-section">
+          <div className="adm-nav-section-head">
+            <h2 className="adm-nav-section-title">Navigation</h2>
           </div>
-          <FiArrowRight size={18} className="adm-quick-btn-arrow" />
-        </Link>
-
-        <Link href="/admin/feedbacks" className="adm-quick-btn adm-quick-btn-pink">
-          <span className="adm-quick-btn-icon adm-quick-btn-icon-pink"><FiMessageCircle size={20} /></span>
-          <div className="adm-quick-btn-text">
-            <span className="adm-quick-btn-label">Feedbacks</span>
-            <span className="adm-quick-btn-sub">Read all user feedback submissions</span>
+          <div className="adm-nav-grid">
+            {ADMIN_NAV_ITEMS.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`adm-nav-card adm-nav-card--${item.colorTheme}`}
+              >
+                <div className="adm-nav-card-icon">{item.icon}</div>
+                <span className="adm-nav-card-title">{item.title}</span>
+                <span className="adm-nav-card-arrow">
+                  <FiArrowUpRight size={18} />
+                </span>
+              </Link>
+            ))}
           </div>
-          <FiArrowRight size={18} className="adm-quick-btn-arrow" />
-        </Link>
+        </div>
 
-        <Link href="/admin/updates" className="adm-quick-btn adm-quick-btn-purple">
-          <span className="adm-quick-btn-icon adm-quick-btn-icon-purple"><FiBook size={20} /></span>
-          <div className="adm-quick-btn-text">
-            <span className="adm-quick-btn-label">Updates</span>
-            <span className="adm-quick-btn-sub">View and manage platform updates</span>
-          </div>
-          <FiArrowRight size={18} className="adm-quick-btn-arrow" />
-        </Link>
+        {/* ── Streaks Leaderboard (Highest & Active) ── */}
+        <AdminLeaderboard token={token} />
 
-        <Link href="/admin/qp" className="adm-quick-btn adm-quick-btn-green" style={{ background: 'rgba(16, 185, 129, 0.1)', borderColor: 'rgba(16, 185, 129, 0.2)' }}>
-          <span className="adm-quick-btn-icon" style={{ background: '#d1fae5', color: '#10b981' }}><FiFileText size={20} /></span>
-          <div className="adm-quick-btn-text">
-            <span className="adm-quick-btn-label">QP Management</span>
-            <span className="adm-quick-btn-sub">Manage QP Universities, Subjects, and Exams</span>
-          </div>
-          <FiArrowRight size={18} className="adm-quick-btn-arrow" />
-        </Link>
+        {/* ── Platform Request Metrics ── */}
+        <AdminRequestMetrics role={role} />
 
-        <Link href="/admin/study-materials" className="adm-quick-btn" style={{ background: 'rgba(124, 58, 237, 0.1)', borderColor: 'rgba(124, 58, 237, 0.2)' }}>
-          <span className="adm-quick-btn-icon" style={{ background: '#ede9fe', color: '#7c3aed' }}><FiBook size={20} /></span>
-          <div className="adm-quick-btn-text">
-            <span className="adm-quick-btn-label">Study Materials</span>
-            <span className="adm-quick-btn-sub">Manage Universities, Colleges, Subjects, and Files</span>
-          </div>
-          <FiArrowRight size={18} className="adm-quick-btn-arrow" />
-        </Link>
-
-        <Link href="/admin/resources" className="adm-quick-btn" style={{ background: 'rgba(99, 102, 241, 0.1)', borderColor: 'rgba(99, 102, 241, 0.2)' }}>
-          <span className="adm-quick-btn-icon" style={{ background: '#e0e7ff', color: '#4f46e5' }}><FiFileText size={20} /></span>
-          <div className="adm-quick-btn-text">
-            <span className="adm-quick-btn-label">Resource Management</span>
-            <span className="adm-quick-btn-sub">Subjects, Topics, Moderation &amp; Transfers</span>
-          </div>
-          <FiArrowRight size={18} className="adm-quick-btn-arrow" />
-        </Link>
-
-        <Link href="/admin/tools" className="adm-quick-btn" style={{ background: 'rgba(245, 158, 11, 0.1)', borderColor: 'rgba(245, 158, 11, 0.2)' }}>
-          <span className="adm-quick-btn-icon" style={{ background: '#fef3c7', color: '#d97706' }}><FiTool size={20} /></span>
-          <div className="adm-quick-btn-text">
-            <span className="adm-quick-btn-label">Tools Management</span>
-            <span className="adm-quick-btn-sub">Shared Files, Texts &amp; Codes</span>
-          </div>
-          <FiArrowRight size={18} className="adm-quick-btn-arrow" />
-        </Link>
-
-        <Link href="/admin/coding" className="adm-quick-btn" style={{ background: 'rgba(14, 165, 233, 0.1)', borderColor: 'rgba(14, 165, 233, 0.2)' }}>
-          <span className="adm-quick-btn-icon" style={{ background: '#e0f2fe', color: '#0284c7' }}><FiCode size={20} /></span>
-          <div className="adm-quick-btn-text">
-            <span className="adm-quick-btn-label">Coding Problems</span>
-            <span className="adm-quick-btn-sub">Create &amp; manage LeetCode questions, test cases</span>
-          </div>
-          <FiArrowRight size={18} className="adm-quick-btn-arrow" />
-        </Link>
-
-        <Link href="/admin/database" className="adm-quick-btn" style={{ background: 'rgba(59, 130, 246, 0.08)', borderColor: 'rgba(59, 130, 246, 0.22)' }}>
-          <span className="adm-quick-btn-icon" style={{ background: '#dbeafe', color: '#2563eb' }}><FiDatabase size={20} /></span>
-          <div className="adm-quick-btn-text">
-            <span className="adm-quick-btn-label">Database Management</span>
-            <span className="adm-quick-btn-sub">Download CSVs with WebSocket progress (Resources, Study Materials, Updates, Users &amp; Searches)</span>
-          </div>
-          <FiArrowRight size={18} className="adm-quick-btn-arrow" />
-        </Link>
-
-        <Link href="/admin/searches" className="adm-quick-btn" style={{ background: 'rgba(234, 179, 8, 0.1)', borderColor: 'rgba(234, 179, 8, 0.25)' }}>
-          <span className="adm-quick-btn-icon" style={{ background: '#fef9c3', color: '#ca8a04' }}><FiSearch size={20} /></span>
-          <div className="adm-quick-btn-text">
-            <span className="adm-quick-btn-label">Searches</span>
-            <span className="adm-quick-btn-sub">Tracked keywords, sources &amp; users from DynamoDB</span>
-          </div>
-          <FiArrowRight size={18} className="adm-quick-btn-arrow" />
-        </Link>
-      </div>
-
-      {/* ── Streaks Leaderboard (Highest & Active) ── */}
-      <AdminLeaderboard token={token} />
-
-      <AdminRequestMetrics role={role} />
-
+      </main>
     </div>
   );
 }
