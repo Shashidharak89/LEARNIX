@@ -4,7 +4,31 @@
    Width: 90%, max-width 1200px (matching Updates page layout)
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ── Back Link ── */
+/* ── Intro Header Card Overrides for Perfect Placement & Responsiveness ── */
+.au-intro-card {
+  padding: 30px 32px;
+}
+
+.au-intro-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.au-intro-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.au-header-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
 .au-back-link {
   display: inline-flex;
   align-items: center;
@@ -13,7 +37,7 @@
   font-size: 0.85rem;
   font-weight: 600;
   text-decoration: none;
-  margin-bottom: 12px;
+  margin-bottom: 0;
   transition: gap 0.2s cubic-bezier(0.22, 1, 0.36, 1), color 0.2s ease;
 }
 .au-back-link:hover {
@@ -23,6 +47,24 @@
 
 .au-header-badge {
   background-color: #0b74ff !important;
+  margin-bottom: 0 !important;
+}
+
+.au-title-group {
+  margin-top: 14px;
+  margin-bottom: 16px;
+}
+
+.au-title {
+  margin: 0 0 6px 0;
+  line-height: 1.2;
+}
+
+.au-subtitle {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.92rem;
+  line-height: 1.5;
 }
 
 .au-users-orb {
@@ -731,7 +773,41 @@
 }
 
 /* ── Responsive ── */
+@media (max-width: 900px) {
+  .au-summary-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
+  .au-intro-card {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .au-intro-header {
+    flex-direction: column-reverse;
+    gap: 16px;
+  }
+
+  .au-header-top-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .adm-intro-right {
+    display: none;
+  }
+
+  .au-summary-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .au-summary-widget {
+    padding: 14px 16px;
+  }
+
   .au-user-row {
     flex-direction: column;
     align-items: flex-start;
@@ -749,9 +825,28 @@
   .au-controls-row {
     flex-direction: column;
     align-items: stretch;
+    gap: 10px;
   }
 
   .au-search-bar {
     max-width: none;
+    min-width: 0;
+  }
+
+  .au-filter-row {
+    justify-content: space-between;
+  }
+
+  .au-select-wrapper {
+    flex: 1;
+  }
+
+  .au-filter-select {
+    width: 100%;
+  }
+
+  .au-deleted-users-link {
+    justify-content: center;
+    width: 100%;
   }
 }

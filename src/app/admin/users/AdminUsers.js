@@ -6,7 +6,6 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   UsersIcon,
-  UserIcon,
   UserCheckIcon,
   UserXIcon,
   ShieldCheckIcon,
@@ -110,6 +109,7 @@ export default function AdminUsers() {
 
   const [users, setUsers]             = useState([]);
   const [total, setTotal]             = useState(0);
+  const [activeUsers24h, setActiveUsers24h] = useState(0);
   const [page, setPage]               = useState(1);
   const [totalPages, setTotalPages]   = useState(1);
   const [loading, setLoading]         = useState(false);
@@ -195,6 +195,9 @@ export default function AdminUsers() {
 
       setUsers(data.users || []);
       setTotal(data.total || 0);
+      if (typeof data.activeUsers24h === "number") {
+        setActiveUsers24h(data.activeUsers24h);
+      }
       setPage(1);
       setTotalPages(data.totalPages || 1);
       syncUrlState(1, sortVal, searchVal);
@@ -238,6 +241,9 @@ export default function AdminUsers() {
 
       setUsers(prev => [...prev, ...(data.users || [])]);
       setTotal(data.total || 0);
+      if (typeof data.activeUsers24h === "number") {
+        setActiveUsers24h(data.activeUsers24h);
+      }
       setPage(data.page || nextPage);
       setTotalPages(data.totalPages || maxPages);
       syncUrlState(data.page || nextPage, sortMode, searchQuery);
@@ -346,21 +352,26 @@ export default function AdminUsers() {
 
         {/* ── Apple-style Hero Intro Card ── */}
         <div className="adm-intro-card au-intro-card">
-          <div className="adm-intro-header">
-            <div className="adm-intro-left">
-              <Link href="/admin" className="au-back-link">
-                <ArrowLeftIcon size={16} /> <span>Admin Dashboard</span>
-              </Link>
-              <div className="adm-role-badge au-header-badge">
-                <UsersIcon size={15} />
-                <span>User Management</span>
+          <div className="adm-intro-header au-intro-header">
+            <div className="adm-intro-left au-intro-left">
+              <div className="au-header-top-row">
+                <Link href="/admin" className="au-back-link">
+                  <ArrowLeftIcon size={16} /> <span>Admin Dashboard</span>
+                </Link>
+                <div className="adm-role-badge au-header-badge">
+                  <UsersIcon size={15} />
+                  <span>User Management</span>
+                </div>
               </div>
-              <h1 className="adm-title">
-                All <span className="adm-title-highlight">Users</span>
-              </h1>
-              <p className="adm-subtitle">
-                {sortMode === "activity" ? "Active-first users" : "Latest registered users"} — {total > 0 ? `${total} total` : "loading…"}
-              </p>
+
+              <div className="au-title-group">
+                <h1 className="adm-title au-title">
+                  All <span className="adm-title-highlight">Users</span>
+                </h1>
+                <p className="adm-subtitle au-subtitle">
+                  {sortMode === "activity" ? "Active-first users" : "Latest registered users"} — {total > 0 ? `${total} total accounts` : "loading accounts…"}
+                </p>
+              </div>
 
               {/* Controls bar (Search, Filter, Quick Link) */}
               <div className="au-controls-row">
@@ -430,37 +441,23 @@ export default function AdminUsers() {
             </div>
           </div>
 
-          <div className="au-summary-widget au-widget-green">
-            <div className="au-widget-icon">
-              <UserCheckIcon size={20} />
-            </div>
-            <div className="au-widget-content">
-              <div className="au-widget-value">
-                {users.filter(u => (u.role || "user") === "admin").length}
-              </div>
-              <div className="au-widget-label">Admins (loaded)</div>
-            </div>
-          </div>
-
-          <div className="au-summary-widget au-widget-purple">
-            <div className="au-widget-icon">
-              <UserIcon size={20} />
-            </div>
-            <div className="au-widget-content">
-              <div className="au-widget-value">
-                {users.filter(u => !u.role || u.role === "user").length}
-              </div>
-              <div className="au-widget-label">Regular Users</div>
-            </div>
-          </div>
-
           <div className="au-summary-widget au-widget-amber">
             <div className="au-widget-icon">
               <ActivityIcon size={20} />
             </div>
             <div className="au-widget-content">
               <div className="au-widget-value">{users.length}</div>
-              <div className="au-widget-label">Loaded on Page</div>
+              <div className="au-widget-label">Loaded Users</div>
+            </div>
+          </div>
+
+          <div className="au-summary-widget au-widget-green">
+            <div className="au-widget-icon">
+              <UserCheckIcon size={20} />
+            </div>
+            <div className="au-widget-content">
+              <div className="au-widget-value">{activeUsers24h}</div>
+              <div className="au-widget-label">Active Users (24h)</div>
             </div>
           </div>
         </section>

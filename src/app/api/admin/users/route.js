@@ -59,6 +59,12 @@ export const GET = async (req) => {
 
     const total = await User.countDocuments(finalFilter);
 
+    // Active users in the past 24 hours
+    const past24Hours = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const activeUsers24h = await User.countDocuments({
+      lastLoginAt: { $gte: past24Hours },
+    });
+
     const sortObj = isActivitySort
       ? { lastLoginAt: -1, createdAt: -1 }
       : { createdAt: -1 };
@@ -79,6 +85,7 @@ export const GET = async (req) => {
     return NextResponse.json({
       users: normalized,
       total,
+      activeUsers24h,
       page,
       limit,
       sort,
