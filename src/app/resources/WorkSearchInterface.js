@@ -24,8 +24,10 @@ import {
   BellIcon,
   FileTextIcon,
   DownloadIcon,
+  ChartColumnIcon,
 } from '@animateicons/react/lucide';
 import SubjectTopicFilter from './SubjectTopicFilter';
+import ResourceLeaderboard from './ResourceLeaderboard';
 import Ads from '../components/ads/Ads';
 import ImageLoader from '../components/ImageLoader';
 import './styles/WorkSearchInterface.css';
@@ -853,11 +855,13 @@ const WorkSearchInterface = () => {
   const [showFilterPopup, setShowFilterPopup] = useState(false);
   const [sortOrder, setSortOrder] = useState('latest'); // 'latest' or 'oldest'
   const [showSavedOnly, setShowSavedOnly] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const filterRef = useRef(null);
   const initialLoadedRef = useRef(false);
   const isFirstRender = useRef(true);
   const titleFolderRef = useRef(null);
   const uploadPlusRef = useRef(null);
+  const leaderboardIconRef = useRef(null);
   const searchInputRef = useRef(null);
   const searchSubmitRef = useRef(null);
   const filterIconRef = useRef(null);
@@ -1375,8 +1379,21 @@ const WorkSearchInterface = () => {
             Resources
           </h1>
 
-          {isLoggedIn && (
-            <div className="res-intro-actions">
+          <div className="res-intro-actions">
+            <button
+              type="button"
+              className={`res-leaderboard-btn ${showLeaderboard ? 'active' : ''}`}
+              onClick={() => setShowLeaderboard((prev) => !prev)}
+              title={showLeaderboard ? 'Hide Contributors Leaderboard' : 'View Top Contributors Leaderboard'}
+              aria-expanded={showLeaderboard}
+              onMouseEnter={() => leaderboardIconRef.current?.startAnimation?.()}
+              onMouseLeave={() => leaderboardIconRef.current?.stopAnimation?.()}
+            >
+              <ChartColumnIcon ref={leaderboardIconRef} size={16} className="res-lb-btn-icon" />
+              <span className="res-leaderboard-btn-text">Leaderboard</span>
+            </button>
+
+            {isLoggedIn && (
               <Link
                 href="/resources/upload"
                 className="res-upload-btn"
@@ -1387,8 +1404,8 @@ const WorkSearchInterface = () => {
                 <PlusIcon ref={uploadPlusRef} size={16} className="res-upload-btn-icon" />
                 <span className="res-upload-btn-text">Upload Resource</span>
               </Link>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Searchbar inside the same card */}
@@ -1441,6 +1458,12 @@ const WorkSearchInterface = () => {
             <span className="res-search-btn-text">Search</span>
           </button>
         </form>
+
+        {/* Expandable Leaderboard Below Searchbar */}
+        <ResourceLeaderboard 
+          isOpen={showLeaderboard} 
+          onClose={() => setShowLeaderboard(false)} 
+        />
       </div>
 
       <div className="ws-header">
