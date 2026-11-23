@@ -1,26 +1,480 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import Link from 'next/link';
-import { FiTrash2, FiEdit2, FiSave, FiX, FiUser, FiClock, FiExternalLink, FiChevronRight, FiAlertCircle, FiAlertTriangle, FiUpload, FiDownload, FiEye, FiGlobe, FiLock, FiLink2, FiChevronDown, FiCheck, FiCheckCircle, FiInfo } from "react-icons/fi";
 import {
-  GlobeIcon,
-  LockIcon,
-  LinkIcon,
-  CheckIcon,
-  UploadIcon,
+  FiClock,
+  FiExternalLink,
+  FiChevronRight,
+  FiChevronDown,
+  FiChevronUp,
+  FiAlertCircle,
+  FiAlertTriangle,
+  FiTrash2,
+  FiCheckCircle,
+  FiInfo,
+  FiX
+} from "react-icons/fi";
+import {
+  UserIcon,
+  ClockIcon,
+  EllipsisVerticalIcon,
+  ShareIcon,
+  ExternalLinkIcon,
+  EyeIcon,
+  DownloadIcon,
+  PencilIcon,
   Trash2Icon,
-  SaveIcon,
-  XIcon,
 } from "@animateicons/react/lucide";
-import { getYouTubeVideoId, groupConsecutiveLinks } from '../../utils/youtube';
+import { groupConsecutiveLinks } from '../../utils/youtube';
 import LinkPreview from '../../components/LinkPreview';
 import YouTubeEmbed from '../../components/YouTubeEmbed';
 import FileIcon from '../../components/FileIcon';
 import { authFetch } from '@/lib/clientAuth';
-import { uploadFileViaWebSocket } from '@/lib/websocketUploader';
 import { isPdfFile, getPdfDownloadName, getPdfDownloadUrl, downloadPdfFile } from '@/lib/pdfDownload';
 import ExpandableDescription from '../../components/ExpandableDescription';
+import EditUpdateModal from './EditUpdateModal';
+import '@/app/updates/styles/Updates.css';
 import './styles/UpdatesList.css';
+
+const FILES_LIMIT = 4;
+
+function formatViews(n) {
+  const num = Number(n) || 0;
+  if (num >= 1000000) {
+    const formatted = (num / 1000000).toFixed(1);
+    return `${formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted}M`;
+  }
+  if (num >= 1000) {
+    const formatted = (num / 1000).toFixed(1);
+    return `${formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted}k`;
+  }
+  return String(num);
+}
+
+function formatExactViews(n) {
+  const num = Number(n) || 0;
+  return `${num.toLocaleString()} view${num !== 1 ? 's' : ''}`;
+}
+
+function formatExactTimestamp(iso) {
+  if (!iso) return "";
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return String(iso);
+    return d.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  } catch (e) {
+    return String(iso);
+  }
+}
+
+// Single Update Card matching /updates exactly
+function MyUpdateCard({
+  update: u,
+  idx,
+  currentUserId,
+  currentUserUsn,
+  onOpenEdit,
+  onDeleteRequest,
+  onShareUpdate,
+}) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLinksExpanded, setIsLinksExpanded] = useState(false);
+  const [isFilesExpanded, setIsFilesExpanded] = useState(false);
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+
+  const menuRef = useRef(null);
+  const moreRef = useRef(null);
+  const userIconRef = useRef(null);
+  const timeIconRef = useRef(null);
+  const viewsIconRef = useRef(null);
+  const shareRef = useRef(null);
+  const externalLinkRef = useRef(null);
+
+  useEffect(() => {
+    const checkScreen = () => {
+      setIsLargeScreen(typeof window !== "undefined" && window.innerWidth >= 640);
+    };
+    checkScreen();
+    window.addEventListener("resize", checkScreen);
+    return () => window.removeEventListener("resize", checkScreen);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+    if (isMenuOpen) {
+      document.addEventListener("click", handleClickOutside);
+    }
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [isMenuOpen]);
+
+  const totalFiles = u.files?.length || 0;
+  const hasMoreFiles = totalFiles > FILES_LIMIT;
+  const visibleFiles = isFilesExpanded || !hasMoreFiles
+    ? (u.files || [])
+    : (u.files || []).slice(0, FILES_LIMIT);
+
+  const totalLinks = u.links?.length || 0;
+  const groups = groupConsecutiveLinks(u.links || []);
+  const hasFirstRowYT = groups[0]?.type === 'youtube-group';
+
+  let hasMoreLinks = false;
+  let visibleGroups = groups;
+
+  if (!isLinksExpanded && totalLinks > 0) {
+    if (isLargeScreen) {
+      if (groups[0]?.type === 'youtube-group' && groups[0]?.items?.length === 2) {
+        if (groups.length > 1) {
+          hasMoreLinks = true;
+          visibleGroups = [groups[0]];
+        }
+      } else if (groups.length > 1 || (groups[0]?.items?.length || 1) > 1) {
+        hasMoreLinks = true;
+        visibleGroups = [groups[0]];
+      }
+    } else {
+      if (groups[0]?.type === 'youtube-group') {
+        if (groups[0]?.items?.length > 1 || groups.length > 1) {
+          hasMoreLinks = true;
+          visibleGroups = [{
+            type: 'youtube-group',
+            items: [groups[0].items[0]],
+          }];
+        }
+      } else if (groups.length > 1) {
+        hasMoreLinks = true;
+        visibleGroups = [groups[0]];
+      }
+    }
+  }
+
+  const isOwner = Boolean(
+    (currentUserId && u.userId && String(currentUserId) === String(u.userId)) ||
+    (currentUserUsn && u.usn && currentUserUsn.toLowerCase() === u.usn.toLowerCase())
+  );
+
+  return (
+    <article
+      className="upd-card"
+      style={{
+        animationDelay: `${(idx % 10) * 25}ms`,
+        position: 'relative',
+        zIndex: isMenuOpen ? 100 : 1,
+      }}
+    >
+      <div className="upd-card-header">
+        <Link href={`/users/${u.usn || ''}`}>
+          <img
+            src={u.profileUrl || '/default-profile.png'}
+            alt={u.name || 'user'}
+            className="upd-avatar"
+          />
+        </Link>
+        <div className="upd-user-info">
+          <div className="upd-user-top-row">
+            <div className="upd-user-name-usn" title={`${u.name || ''}${u.usn ? ` • ${u.usn}` : ''}`}>
+              <Link
+                href={`/users/${u.usn || ''}`}
+                className="upd-user-name-link"
+                onMouseEnter={() => userIconRef.current?.startAnimation?.()}
+                onMouseLeave={() => userIconRef.current?.stopAnimation?.()}
+              >
+                <UserIcon ref={userIconRef} className="upd-user-icon" size={14} />
+                <span className="upd-user-name-text">{u.name || 'User'}</span>
+              </Link>
+              {u.usn && (
+                <Link href={`/users/${u.usn}`} className="upd-usn-link">
+                  • {u.usn}
+                </Link>
+              )}
+            </div>
+
+            <div className="upd-card-header-actions">
+              {/* Views badge */}
+              <div
+                className="upd-header-views-badge"
+                title={formatExactViews(u.views ?? 0)}
+                onMouseEnter={() => viewsIconRef.current?.startAnimation?.()}
+                onMouseLeave={() => viewsIconRef.current?.stopAnimation?.()}
+              >
+                <EyeIcon ref={viewsIconRef} className="upd-views-icon" size={14} />
+                <span className="upd-views-count">{formatViews(u.views ?? 0)}</span>
+              </div>
+
+              {/* 3-dots more menu */}
+              <div className="upd-more-menu-container" ref={menuRef}>
+                <button
+                  type="button"
+                  className={`upd-more-btn ${isMenuOpen ? 'is-active' : ''}`}
+                  title="More options"
+                  aria-label="More options"
+                  onMouseEnter={() => moreRef.current?.startAnimation?.()}
+                  onMouseLeave={() => moreRef.current?.stopAnimation?.()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsMenuOpen(!isMenuOpen);
+                  }}
+                >
+                  <EllipsisVerticalIcon ref={moreRef} size={16} />
+                </button>
+                {isMenuOpen && (
+                  <div className="upd-dropdown-menu">
+                    {isOwner && (
+                      <button
+                        type="button"
+                        className="upd-dropdown-item"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsMenuOpen(false);
+                          onOpenEdit(u);
+                        }}
+                      >
+                        <PencilIcon size={14} />
+                        <span>Edit update</span>
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="upd-dropdown-item"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsMenuOpen(false);
+                        onShareUpdate(u._id, u.title || 'Update');
+                      }}
+                      onMouseEnter={() => shareRef.current?.startAnimation?.()}
+                      onMouseLeave={() => shareRef.current?.stopAnimation?.()}
+                    >
+                      <ShareIcon ref={shareRef} size={14} />
+                      <span>Share update</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="upd-dropdown-item"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsMenuOpen(false);
+                        window.open(`/updates/${u._id}`, "_blank", "noopener,noreferrer");
+                      }}
+                      onMouseEnter={() => externalLinkRef.current?.startAnimation?.()}
+                      onMouseLeave={() => externalLinkRef.current?.stopAnimation?.()}
+                    >
+                      <ExternalLinkIcon ref={externalLinkRef} size={14} />
+                      <span>Open in new tab</span>
+                    </button>
+                    {isOwner && (
+                      <button
+                        type="button"
+                        className="upd-dropdown-item"
+                        style={{ color: '#ef4444' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsMenuOpen(false);
+                          onDeleteRequest(String(u._id), u.title);
+                        }}
+                      >
+                        <Trash2Icon size={14} />
+                        <span>Delete update</span>
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="upd-user-sub-row">
+            {u.title && (
+              <div className="upd-user-title">
+                <Link
+                  href={`/updates/${u._id}`}
+                  className="upd-title-clickable-link"
+                  title={`Open update: ${u.title}`}
+                >
+                  <span>{u.title}</span>
+                </Link>
+              </div>
+            )}
+            <div
+              className="upd-timestamp"
+              onMouseEnter={() => timeIconRef.current?.startAnimation?.()}
+              onMouseLeave={() => timeIconRef.current?.stopAnimation?.()}
+            >
+              <ClockIcon ref={timeIconRef} className="upd-time-icon" size={13} />
+              <span>{formatExactTimestamp(u.createdAt)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ExpandableDescription content={u.content} className="upd-content" />
+
+      {/* Links section */}
+      {u.links && u.links.length > 0 && (
+        <div className="upd-links-section">
+          <div className={`upd-links-wrapper ${hasMoreLinks && !isLinksExpanded ? 'is-collapsed' : ''} ${hasFirstRowYT ? 'has-yt-video' : ''}`}>
+            <div className="upd-links">
+              {visibleGroups.map((group, groupIdx) => {
+                if (group.type === 'youtube-group') {
+                  if (group.items.length === 2) {
+                    return (
+                      <div key={groupIdx} className="upd-youtube-grid-2">
+                        {group.items.map((item, itemIdx) => (
+                          <YouTubeEmbed
+                            key={itemIdx}
+                            ytId={item.ytId}
+                            wrapperClass="upd-youtube-embed-wrapper upd-youtube-grid-item"
+                            iframeClass="upd-youtube-iframe"
+                          />
+                        ))}
+                      </div>
+                    );
+                  }
+                  const item = group.items[0];
+                  return (
+                    <YouTubeEmbed
+                      key={groupIdx}
+                      ytId={item.ytId}
+                      wrapperClass="upd-youtube-embed-wrapper"
+                      iframeClass="upd-youtube-iframe"
+                    />
+                  );
+                }
+
+                if (group.type === 'internal') {
+                  return (
+                    <Link key={groupIdx} href={group.raw} className="upd-link upd-link-internal">
+                      <span>Visit</span>
+                      <FiChevronRight className="upd-link-icon" />
+                    </Link>
+                  );
+                }
+                return <LinkPreview key={groupIdx} url={group.raw} />;
+              })}
+            </div>
+
+            {hasMoreLinks && !isLinksExpanded && (
+              <div className="upd-items-fade">
+                <button
+                  type="button"
+                  className="upd-toggle-items-btn"
+                  onClick={() => setIsLinksExpanded(true)}
+                >
+                  <span>View all links</span>
+                  <FiChevronDown className="upd-toggle-items-btn-icon" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {hasMoreLinks && isLinksExpanded && (
+            <div className="upd-items-collapse-wrapper">
+              <button
+                type="button"
+                className="upd-toggle-items-btn upd-toggle-items-btn-collapse"
+                onClick={() => setIsLinksExpanded(false)}
+              >
+                <span>Show less links</span>
+                <FiChevronUp className="upd-toggle-items-btn-icon" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Files section */}
+      {u.files && u.files.length > 0 && (
+        <div className="upd-files">
+          <div className="upd-files-label">Attachments</div>
+          <div className={`upd-files-wrapper ${hasMoreFiles && !isFilesExpanded ? 'is-collapsed' : ''}`}>
+            <div className="upd-files-list">
+              {visibleFiles.map((f, i) => {
+                const url = f.url || f;
+                const name = f.name || url.split('/').pop();
+                const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
+
+                let downloadUrl = url;
+                const isPdf = isPdfFile(f, name);
+                const actualPdfName = isPdf ? getPdfDownloadName(f, name, u?.title) : name;
+                if (isPdf) {
+                  downloadUrl = getPdfDownloadUrl(url, actualPdfName, u?.title);
+                }
+
+                return (
+                  <div
+                    key={i}
+                    className="upd-file-card"
+                    onClick={() => window.open(viewUrl, '_blank', 'noopener,noreferrer')}
+                  >
+                    <div className="upd-file-card-name" title={`View ${name}`}>
+                      <FileIcon filename={name || url} />
+                      <span className="upd-file-card-label">{name}</span>
+                    </div>
+                    <div className="upd-file-card-actions" onClick={(e) => e.stopPropagation()}>
+                      <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-view" title="View">
+                        <EyeIcon size={14} />
+                      </a>
+                      <a
+                        href={downloadUrl}
+                        download={isPdf ? actualPdfName : name}
+                        target={isPdf ? undefined : "_blank"}
+                        rel="noreferrer noopener"
+                        className="upd-file-action-btn upd-file-action-download"
+                        title={`Download ${isPdf ? actualPdfName : name}`}
+                        onClick={isPdf ? (e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          downloadPdfFile(url, actualPdfName, u?.title);
+                        } : undefined}
+                      >
+                        <DownloadIcon size={14} />
+                      </a>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {hasMoreFiles && !isFilesExpanded && (
+              <div className="upd-items-fade">
+                <button
+                  type="button"
+                  className="upd-toggle-items-btn"
+                  onClick={() => setIsFilesExpanded(true)}
+                >
+                  <span>View all attachments</span>
+                  <FiChevronDown className="upd-toggle-items-btn-icon" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {hasMoreFiles && isFilesExpanded && (
+            <div className="upd-items-collapse-wrapper">
+              <button
+                type="button"
+                className="upd-toggle-items-btn upd-toggle-items-btn-collapse"
+                onClick={() => setIsFilesExpanded(false)}
+              >
+                <span>Show less attachments</span>
+                <FiChevronUp className="upd-toggle-items-btn-icon" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </article>
+  );
+}
 
 export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearch }) {
   const [updates, setUpdates] = useState([]);
@@ -28,59 +482,13 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [currentUserUsn, setCurrentUserUsn] = useState(null);
   const [toast, setToast] = useState(null);
   const pendingRef = useRef({});
-  const [editingId, setEditingId] = useState(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [editContent, setEditContent] = useState("");
-  const [editLinksText, setEditLinksText] = useState("");
-  const [editFiles, setEditFiles] = useState([]);
-  const [editIsUploading, setEditIsUploading] = useState(false);
-  const [editUploadStatus, setEditUploadStatus] = useState(null);
-  const [isSaving, setIsSaving] = useState(false);
-  
+
   // Modal states
   const [deleteModal, setDeleteModal] = useState(null);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editVisibility, setEditVisibility] = useState("public");
-  const [openVisibilityMenuId, setOpenVisibilityMenuId] = useState(null);
-  const [editIsDragging, setEditIsDragging] = useState(false);
-
-  useEffect(() => {
-    const handleOutsideClick = (e) => {
-      if (!e.target.closest('.upl-vis-container')) {
-        setOpenVisibilityMenuId(null);
-      }
-    };
-    document.addEventListener('click', handleOutsideClick);
-    return () => document.removeEventListener('click', handleOutsideClick);
-  }, []);
-
-  const handleUpdateVisibility = async (updateId, newVisibility) => {
-    setOpenVisibilityMenuId(null);
-
-    // Optimistic UI update
-    setUpdates((prev) =>
-      prev.map((u) => (String(u._id) === String(updateId) ? { ...u, visibility: newVisibility } : u))
-    );
-
-    try {
-      const res = await authFetch('/api/updates/visibility', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ updateId, visibility: newVisibility })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'Failed to update visibility');
-      showToast(`Visibility updated to ${newVisibility}`, 'success');
-    } catch (err) {
-      console.error('Visibility update error:', err);
-      showToast('Failed to change visibility', 'error');
-      if (currentUserId) {
-        fetchPage(page, false, currentUserId, searchQuery);
-      }
-    }
-  };
+  const [editingUpdate, setEditingUpdate] = useState(null);
 
   const fetchPage = async (p = 1, append = false, userId = currentUserId, query = searchQuery) => {
     if (!userId) {
@@ -121,6 +529,7 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
       setHasMore(false);
       return;
     }
+    setCurrentUserUsn(usn);
 
     (async () => {
       try {
@@ -160,250 +569,11 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
     fetchPage(next, true, currentUserId, searchQuery);
   };
 
-  const getRelativeTime = (iso) => {
-    try {
-      const date = new Date(iso);
-      const now = new Date();
-      const diffMs = now - date;
-      const diffSeconds = Math.floor(diffMs / 1000);
-      const diffMinutes = Math.floor(diffSeconds / 60);
-      const diffHours = Math.floor(diffMinutes / 60);
-      const diffDays = Math.floor(diffHours / 24);
-
-      if (diffDays < 1) {
-        if (diffSeconds < 60) return `${diffSeconds} second${diffSeconds !== 1 ? 's' : ''} ago`;
-        if (diffMinutes < 60) return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
-        return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
-      }
-
-      const dateStr = date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
-      const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-      return { date: dateStr, time: timeStr };
-    } catch (e) {
-      return iso;
-    }
-  };
-
-  const parseLinks = (text) => {
-    if (!text) return [];
-    return text.split(/[,\n]+/).map(s => s.trim()).filter(Boolean);
-  };
-
   const toastTimeoutRef = useRef(null);
   const showToast = (message, type = 'info') => {
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     setToast({ message, type });
     toastTimeoutRef.current = setTimeout(() => setToast(null), 3500);
-  };
-
-  const openEditWindow = (u) => {
-    setEditingId(String(u._id));
-    setEditTitle(u.title || "");
-    setEditContent(u.content || "");
-    setEditLinksText((u.links || []).join('\n'));
-    setEditFiles(Array.isArray(u.files) ? [...u.files] : []);
-    setEditVisibility(u.visibility || "public");
-    setEditModalOpen(true);
-  };
-
-  const closeEditWindow = () => {
-    setEditModalOpen(false);
-    setEditingId(null);
-    setEditTitle('');
-    setEditContent('');
-    setEditLinksText('');
-  };
-
-  const saveEdit = async (updateId) => {
-    if (!currentUserId) {
-      showToast('You must be signed in to edit', 'error');
-      return;
-    }
-
-    if (!editTitle.trim()) {
-      showToast('Please provide a title', 'error');
-      return;
-    }
-
-    setIsSaving(true);
-    const payload = {
-      updateId,
-      userId: currentUserId,
-      title: editTitle.trim(),
-      content: editContent,
-      links: parseLinks(editLinksText),
-      files: editFiles,
-      visibility: editVisibility
-    };
-
-    try {
-      const res = await fetch('/api/updates/edit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'Edit failed');
-
-      setUpdates(prev => prev.map(it => it._id === updateId ? { 
-        ...it, 
-        title: data.update.title, 
-        content: data.update.content, 
-        links: data.update.links || [],
-        files: data.update.files || [],
-        visibility: data.update.visibility || "public"
-      } : it));
-      showToast('Update saved successfully', 'success');
-      closeEditWindow();
-    } catch (err) {
-      console.error('Edit error', err);
-      showToast('Failed to save update', 'error');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const processEditFiles = async (files) => {
-    if (!files || !files.length) return;
-    setEditIsUploading(true);
-    setEditUploadStatus({
-      current: 1,
-      total: files.length,
-      filename: files[0]?.name,
-      percent: 0,
-      chunkIndex: 1,
-      totalChunks: 1,
-      statusText: "Connecting to WebSocket..."
-    });
-
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
-
-    try {
-      for (let i = 0; i < files.length; i++) {
-        const f = files[i];
-        setEditUploadStatus({
-          current: i + 1,
-          total: files.length,
-          filename: f.name,
-          percent: 0,
-          chunkIndex: 1,
-          totalChunks: 1,
-          statusText: "Connecting to WebSocket..."
-        });
-
-        const uploadResult = await uploadFileViaWebSocket(f, {
-          userId: currentUserId,
-          token,
-          onProgress: ({ percent, currentChunk, totalChunks, statusText }) => {
-            const formattedStatus = statusText || `${percent}% uploaded`;
-            setEditUploadStatus({
-              current: i + 1,
-              total: files.length,
-              filename: f.name,
-              percent,
-              chunkIndex: currentChunk,
-              totalChunks,
-              statusText: formattedStatus
-            });
-          },
-          onStatus: (statusText) => {
-            setEditUploadStatus(prev => prev ? ({ ...prev, statusText }) : null);
-          }
-        });
-
-        const uploadedFile = uploadResult?.file;
-        if (uploadedFile) {
-          if (editingId && currentUserId) {
-            try {
-              const addRes = await fetch('/api/updates/files/add', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  ...(token ? { Authorization: `Bearer ${token}` } : {})
-                },
-                body: JSON.stringify({ updateId: editingId, userId: currentUserId, file: uploadedFile }),
-              });
-              const addData = await addRes.json();
-              if (addRes.ok && addData?.update) {
-                setEditFiles(Array.isArray(addData.update.files) ? addData.update.files : (prev) => [...prev, uploadedFile]);
-                setUpdates((prev) => prev.map(u => u._id === addData.update._id ? ({ ...u, files: addData.update.files || [] }) : u));
-              } else {
-                setEditFiles((p) => [...p, uploadedFile]);
-                showToast(addData?.error || `Failed to attach ${f.name} to update`, 'error');
-              }
-            } catch (err) {
-              console.error('Failed to add file to update', err);
-              setEditFiles((p) => [...p, uploadedFile]);
-              showToast('Failed to persist file to update', 'error');
-            }
-          } else {
-            setEditFiles((p) => [...p, uploadedFile]);
-          }
-        } else {
-          showToast(`Failed to upload ${f.name}`, 'error');
-        }
-      }
-      showToast(`Uploaded ${files.length} file${files.length > 1 ? 's' : ''} successfully via WebSocket`, 'success');
-    } catch (err) {
-      console.error('Edit file upload error', err);
-      showToast(err.message || 'File upload failed', 'error');
-    } finally {
-      setEditIsUploading(false);
-      setEditUploadStatus(null);
-    }
-  };
-
-  const handleEditFilesSelected = async (e) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-    await processEditFiles(files);
-    if (e?.target) e.target.value = null;
-  };
-
-  const handleEditDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!editIsDragging) setEditIsDragging(true);
-  };
-
-  const handleEditDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setEditIsDragging(false);
-  };
-
-  const handleEditDrop = async (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setEditIsDragging(false);
-    const files = Array.from(e.dataTransfer?.files || []);
-    if (files.length > 0) {
-      await processEditFiles(files);
-    }
-  };
-
-  const removeEditFile = async (idx) => {
-    const fileToRemove = editFiles[idx];
-    setEditFiles((p) => p.filter((_, i) => i !== idx));
-
-    if (fileToRemove?.publicId) {
-      const origUpdate = updates.find((u) => String(u._id) === editingId);
-      const isOriginal = origUpdate?.files?.some((f) => f.publicId === fileToRemove.publicId);
-      if (!isOriginal) {
-        try {
-          await fetch('/api/updates/upload', {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              publicId: fileToRemove.publicId,
-              resourceType: fileToRemove.resourceType || 'auto',
-            }),
-          });
-        } catch (err) {
-          console.error('Failed to delete uncommitted edit file from Cloudinary:', err);
-        }
-      }
-    }
   };
 
   const openDeleteModal = (updateId, title) => {
@@ -447,9 +617,35 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
     }
   };
 
+  const handleShareUpdate = (updateId, updateTitle) => {
+    const shareUrl = `${window.location.origin}/updates/${updateId}`;
+    if (navigator.share) {
+      navigator.share({
+        title: updateTitle || 'Campus Update',
+        text: `Check out this update: ${updateTitle}`,
+        url: shareUrl,
+      }).catch((err) => {
+        if (err.name !== 'AbortError') {
+          navigator.clipboard.writeText(shareUrl);
+          showToast('Link copied to clipboard!', 'success');
+        }
+      });
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      showToast('Link copied to clipboard!', 'success');
+    }
+  };
+
+  const handleUpdateSaved = (updatedItem) => {
+    setUpdates((prev) =>
+      prev.map((it) => (it._id === updatedItem._id ? { ...it, ...updatedItem } : it))
+    );
+    showToast('Update saved successfully', 'success');
+  };
+
   const UpdateSkeleton = () => (
-    <div className="upl-card upl-skeleton">
-      <div className="upl-card-header">
+    <div className="upd-card upl-skeleton">
+      <div className="upd-card-header">
         <div className="upl-skeleton-avatar"></div>
         <div className="upl-skeleton-text-group">
           <div className="upl-skeleton-line upl-skeleton-title"></div>
@@ -544,243 +740,14 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
         </div>
       )}
 
-      {/* Edit Modal */}
-      {editModalOpen && (
-        <div className="upl-modal-overlay" onClick={closeEditWindow}>
-          <div className="upl-modal upl-modal-large" onClick={(e) => e.stopPropagation()}>
-            <div className="upl-modal-header">
-              <div className="upl-modal-header-left">
-                <FiEdit2 className="upl-modal-icon upl-modal-icon-primary" />
-                <h3 className="upl-modal-title">Edit Update</h3>
-              </div>
-              <button
-                type="button"
-                onClick={closeEditWindow}
-                className="upl-modal-close-btn"
-                title="Close"
-                aria-label="Close edit modal"
-              >
-                <XIcon size={18} />
-              </button>
-            </div>
-            <div className="upl-modal-body">
-              <div className="upl-edit-field">
-                <label className="upl-edit-label">Title</label>
-                <input
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                  className="upl-edit-title-input"
-                  placeholder="Update title..."
-                />
-              </div>
-              <div className="upl-edit-field">
-                <label className="upl-edit-label">Visibility</label>
-                <div className="auf-vis-segmented">
-                  <button
-                    type="button"
-                    className={`auf-vis-option ${editVisibility === "public" ? "active auf-vis-public" : ""}`}
-                    onClick={() => setEditVisibility("public")}
-                  >
-                    <div className="auf-vis-icon-circle">
-                      <GlobeIcon size={16} />
-                    </div>
-                    <div className="auf-vis-text-box">
-                      <span className="auf-vis-title">Public</span>
-                      <span className="auf-vis-desc">Campus feed</span>
-                    </div>
-                    {editVisibility === "public" && <CheckIcon size={16} className="auf-vis-check" />}
-                  </button>
-
-                  <button
-                    type="button"
-                    className={`auf-vis-option ${editVisibility === "unlisted" ? "active auf-vis-unlisted" : ""}`}
-                    onClick={() => setEditVisibility("unlisted")}
-                  >
-                    <div className="auf-vis-icon-circle">
-                      <LinkIcon size={16} />
-                    </div>
-                    <div className="auf-vis-text-box">
-                      <span className="auf-vis-title">Unlisted</span>
-                      <span className="auf-vis-desc">Anyone with link</span>
-                    </div>
-                    {editVisibility === "unlisted" && <CheckIcon size={16} className="auf-vis-check" />}
-                  </button>
-
-                  <button
-                    type="button"
-                    className={`auf-vis-option ${editVisibility === "private" ? "active auf-vis-private" : ""}`}
-                    onClick={() => setEditVisibility("private")}
-                  >
-                    <div className="auf-vis-icon-circle">
-                      <LockIcon size={16} />
-                    </div>
-                    <div className="auf-vis-text-box">
-                      <span className="auf-vis-title">Private</span>
-                      <span className="auf-vis-desc">Only you</span>
-                    </div>
-                    {editVisibility === "private" && <CheckIcon size={16} className="auf-vis-check" />}
-                  </button>
-                </div>
-              </div>
-              <div className="upl-edit-field">
-                <label className="upl-edit-label">Content (optional)</label>
-                <textarea
-                  value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
-                  rows={4}
-                  className="upl-edit-textarea"
-                  placeholder="Update content... (optional)"
-                />
-              </div>
-              <div className="upl-edit-field">
-                <label className="upl-edit-label">Links (one per line, optional)</label>
-                <textarea
-                  value={editLinksText}
-                  onChange={(e) => setEditLinksText(e.target.value)}
-                  rows={2}
-                  className="upl-edit-textarea"
-                  placeholder="/internal-link or https://external-link.com"
-                />
-              </div>
-              <div className="upl-edit-field">
-                <label className="upl-edit-label">
-                  <span>Files & Attachments (optional)</span>
-                  {editFiles && editFiles.length > 0 && (
-                    <span className="upl-edit-file-count">
-                      {editFiles.length} {editFiles.length === 1 ? 'file' : 'files'} attached
-                    </span>
-                  )}
-                </label>
-
-                {/* Broader Drag & Drop Dropzone in Edit Form - Entire surface is clickable to browse */}
-                <label
-                  htmlFor="edit-file-input"
-                  className={`auf-dropzone ${editIsDragging ? "dragging" : ""}`}
-                  onDragOver={handleEditDragOver}
-                  onDragEnter={handleEditDragOver}
-                  onDragLeave={handleEditDragLeave}
-                  onDrop={handleEditDrop}
-                >
-                  <input
-                    type="file"
-                    multiple
-                    id="edit-file-input"
-                    onChange={handleEditFilesSelected}
-                    className="upl-hidden-input"
-                  />
-                  <div className="auf-dropzone-content">
-                    <div className="auf-dropzone-icon-circle">
-                      <UploadIcon size={22} className="auf-dropzone-icon" />
-                    </div>
-                    <div className="auf-dropzone-text">
-                      <span className="auf-dropzone-primary">
-                        <strong>Click to upload</strong> or drag and drop files here
-                      </span>
-                      <span className="auf-dropzone-sub">
-                        PDFs, documents, images, code files, and archives supported
-                      </span>
-                    </div>
-                  </div>
-                </label>
-                {editIsUploading && !editUploadStatus && <span className="upl-file-uploading">Uploading…</span>}
-
-                {/* Upload Progressbar */}
-                {editIsUploading && editUploadStatus && (
-                  <div className="upl-ws-progress-box">
-                    <div className="upl-ws-progress-header">
-                      <span className="upl-ws-progress-filename" title={editUploadStatus.filename}>
-                        <strong>{editUploadStatus.filename}</strong>
-                        {editUploadStatus.total > 1 && ` (File ${editUploadStatus.current}/${editUploadStatus.total})`}
-                      </span>
-                      <span className="upl-ws-progress-tag">
-                        {editUploadStatus.percent || 0}% uploaded
-                      </span>
-                    </div>
-                    <div className="upl-ws-progress-track">
-                      <div
-                        className="upl-ws-progress-fill"
-                        style={{ width: `${Math.max(2, editUploadStatus.percent || 0)}%` }}
-                      ></div>
-                    </div>
-                    {editUploadStatus.statusText && !editUploadStatus.statusText.includes(`${editUploadStatus.percent || 0}% uploaded`) && (
-                      <div className="upl-ws-progress-footer">
-                        <span className="upl-ws-progress-status-text">
-                          {editUploadStatus.statusText}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                )}
-                {editFiles && editFiles.length > 0 && (
-                  <div className="upl-edit-files-list">
-                    {editFiles.map((f, i) => {
-                      const url = f.url || f;
-                      const name = f.name || (typeof url === 'string' ? url.split('/').pop() : 'Attachment');
-                      const viewUrl = typeof url === 'string' && url.startsWith('http')
-                        ? `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`
-                        : url;
-
-                      return (
-                        <div key={i} className="upl-edit-file-item">
-                          <div className="upl-edit-file-info">
-                            <FileIcon filename={name} />
-                            <a
-                              href={viewUrl}
-                              className="upl-edit-file-link"
-                              target="_blank"
-                              rel="noreferrer noopener"
-                              title={name}
-                            >
-                              {name}
-                            </a>
-                          </div>
-                          <button
-                            type="button"
-                            className="upl-edit-file-remove"
-                            onClick={() => removeEditFile(i)}
-                            title={`Remove ${name}`}
-                            aria-label={`Remove ${name}`}
-                          >
-                            <Trash2Icon size={14} />
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="upl-modal-actions">
-              <button
-                type="button"
-                onClick={closeEditWindow}
-                className="upl-modal-btn upl-modal-btn-cancel"
-                disabled={isSaving}
-              >
-                <XIcon size={15} />
-                <span>Cancel</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => saveEdit(editingId)}
-                className="upl-modal-btn upl-modal-btn-primary"
-                disabled={isSaving || editIsUploading}
-              >
-                {isSaving ? (
-                  <>
-                    <span className="upl-spinner"></span>
-                    <span>Saving...</span>
-                  </>
-                ) : (
-                  <>
-                    <SaveIcon size={15} />
-                    <span>Save Changes</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* Apple-styled Edit Update Modal */}
+      {editingUpdate && (
+        <EditUpdateModal
+          update={editingUpdate}
+          currentUserId={currentUserId}
+          onClose={() => setEditingUpdate(null)}
+          onUpdateSaved={handleUpdateSaved}
+        />
       )}
 
       {/* Empty State */}
@@ -813,252 +780,18 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
 
       {/* Updates List */}
       <div className="upl-list">
-        {updates.map((u, idx) => {
-          const timeData = getRelativeTime(u.createdAt);
-          const isRelative = typeof timeData === 'string';
-          const isMenuOpen = openVisibilityMenuId !== null && String(openVisibilityMenuId) === String(u._id);
-
-          return (
-            <article
-              key={u._id}
-              className={`upl-card ${isMenuOpen ? 'upl-card-active-menu' : ''}`}
-              style={{
-                animationDelay: `${(idx % 10) * 25}ms`,
-                zIndex: isMenuOpen ? 1000 : 1
-              }}
-            >
-              {/* Card Header */}
-              <div className="upl-card-header">
-                <div className="upl-avatar-wrapper">
-                  {u.profileUrl ? (
-                    <img src={u.profileUrl} alt={u.name || 'profile'} className="upl-avatar" />
-                  ) : (
-                    <div className="upl-avatar upl-avatar-placeholder"><FiUser /></div>
-                  )}
-                </div>
-                <div className="upl-user-info">
-                  <div className="upl-user-top-row">
-                    <div className="upl-user-name-usn" title={`${u.name || ''}${u.usn ? ` • ${u.usn}` : ''}`}>
-                      <Link href={`/users/${u.usn || ''}`} className="upl-user-name-link">
-                        <FiUser className="upl-user-icon" />
-                        <span className="upl-user-name-text">{u.name || 'User'}</span>
-                      </Link>
-                      {u.usn && (
-                        <Link href={`/users/${u.usn}`} className="upl-usn-link">
-                          • {u.usn}
-                        </Link>
-                      )}
-                    </div>
-                    {currentUserId && u.userId && String(currentUserId) === String(u.userId) && (
-                      <div className="upl-actions">
-                        <button onClick={() => openEditWindow(u)} className="upl-action-btn upl-action-edit" title="Edit update" aria-label="Edit update"><FiEdit2 /></button>
-                        <button onClick={() => openDeleteModal(String(u._id), u.title)} className="upl-action-btn upl-action-delete" title="Delete update" aria-label="Delete update"><FiTrash2 /></button>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="upl-user-sub-row">
-                    {u.title && (
-                      <strong className="upl-user-title">{u.title}</strong>
-                    )}
-
-                    {/* Interactive Visibility Switcher with Apple-style dropdown */}
-                    <div className="upl-vis-container">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOpenVisibilityMenuId(isMenuOpen ? null : String(u._id));
-                        }}
-                        className={`upl-vis-badge upl-vis-badge-${u.visibility || 'public'}`}
-                        title="Click to change visibility"
-                        aria-haspopup="true"
-                        aria-expanded={isMenuOpen}
-                      >
-                        {u.visibility === 'private' ? (
-                          <FiLock className="upl-vis-badge-icon" />
-                        ) : u.visibility === 'unlisted' ? (
-                          <FiLink2 className="upl-vis-badge-icon" />
-                        ) : (
-                          <FiGlobe className="upl-vis-badge-icon" />
-                        )}
-                        <span className="upl-vis-badge-text">
-                          {u.visibility === 'private' ? 'Private' : u.visibility === 'unlisted' ? 'Unlisted' : 'Public'}
-                        </span>
-                        <FiChevronDown className={`upl-vis-badge-arrow ${isMenuOpen ? 'upl-vis-badge-arrow-open' : ''}`} />
-                      </button>
-
-                      {/* Dropdown Menu */}
-                      {isMenuOpen && (
-                        <div className="upl-vis-dropdown" onClick={(e) => e.stopPropagation()}>
-                          <div className="upl-vis-dropdown-header">
-                            <span>Change Visibility</span>
-                          </div>
-                          <div className="upl-vis-dropdown-list">
-                            <button
-                              type="button"
-                              className={`upl-vis-dropdown-item ${(!u.visibility || u.visibility === 'public') ? 'active' : ''}`}
-                              onClick={() => handleUpdateVisibility(u._id, 'public')}
-                            >
-                              <div className="upl-vis-item-icon-box upl-vis-icon-public">
-                                <FiGlobe />
-                              </div>
-                              <div className="upl-vis-item-info">
-                                <span className="upl-vis-item-title">Public</span>
-                                <span className="upl-vis-item-desc">Visible to everyone on campus</span>
-                              </div>
-                              {(!u.visibility || u.visibility === 'public') && (
-                                <FiCheck className="upl-vis-item-check" />
-                              )}
-                            </button>
-
-                            <button
-                              type="button"
-                              className={`upl-vis-dropdown-item ${u.visibility === 'unlisted' ? 'active' : ''}`}
-                              onClick={() => handleUpdateVisibility(u._id, 'unlisted')}
-                            >
-                              <div className="upl-vis-item-icon-box upl-vis-icon-unlisted">
-                                <FiLink2 />
-                              </div>
-                              <div className="upl-vis-item-info">
-                                <span className="upl-vis-item-title">Unlisted</span>
-                                <span className="upl-vis-item-desc">Anyone with link can view</span>
-                              </div>
-                              {u.visibility === 'unlisted' && (
-                                <FiCheck className="upl-vis-item-check" />
-                              )}
-                            </button>
-
-                            <button
-                              type="button"
-                              className={`upl-vis-dropdown-item ${u.visibility === 'private' ? 'active' : ''}`}
-                              onClick={() => handleUpdateVisibility(u._id, 'private')}
-                            >
-                              <div className="upl-vis-item-icon-box upl-vis-icon-private">
-                                <FiLock />
-                              </div>
-                              <div className="upl-vis-item-info">
-                                <span className="upl-vis-item-title">Private</span>
-                                <span className="upl-vis-item-desc">Only visible to you</span>
-                              </div>
-                              {u.visibility === 'private' && (
-                                <FiCheck className="upl-vis-item-check" />
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="upl-timestamp">
-                      <FiClock className="upl-time-icon" />
-                      {isRelative ? (
-                        <span className="upl-time-relative">{timeData}</span>
-                      ) : (
-                        <div className="upl-time-absolute">
-                          <span className="upl-time-date">{timeData.date}</span>
-                          <span className="upl-time-clock">{timeData.time}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Content */}
-              <ExpandableDescription content={u.content} className="upl-content" />
-
-              {/* Links */}
-              {u.links && u.links.length > 0 && (
-                <div className="upl-links">
-                  {groupConsecutiveLinks(u.links).map((group, groupIdx) => {
-                    if (group.type === 'youtube-group') {
-                      if (group.items.length === 2) {
-                        return (
-                          <div key={groupIdx} className="upl-youtube-grid-2">
-                            {group.items.map((item, itemIdx) => (
-                              <YouTubeEmbed
-                                key={itemIdx}
-                                ytId={item.ytId}
-                                wrapperClass="upl-youtube-embed-wrapper upl-youtube-grid-item"
-                                iframeClass="upl-youtube-iframe"
-                              />
-                            ))}
-                          </div>
-                        );
-                      }
-                      const item = group.items[0];
-                      return (
-                        <YouTubeEmbed
-                          key={groupIdx}
-                          ytId={item.ytId}
-                          wrapperClass="upl-youtube-embed-wrapper"
-                          iframeClass="upl-youtube-iframe"
-                        />
-                      );
-                    }
-
-                    if (group.type === 'internal') {
-                      return (
-                        <Link key={groupIdx} href={group.raw} className="upl-link upl-link-internal">
-                          <span>Visit</span><FiChevronRight className="upl-link-icon" />
-                        </Link>
-                      );
-                    }
-                    return <LinkPreview key={groupIdx} url={group.raw} />;
-                  })}
-                </div>
-              )}
-
-              {/* Files — clicking anywhere opens Drive viewer */}
-              {u.files && u.files.length > 0 && (
-                <div className="upl-files">
-                  {u.files.map((f, idx) => {
-                    const url = f.url || f;
-                    const name = f.name || url.split('/').pop();
-                    const isPdf = isPdfFile(f, name);
-                    const actualPdfName = isPdf ? getPdfDownloadName(f, name, u?.title) : name;
-                    const downloadUrl = isPdf ? getPdfDownloadUrl(url, actualPdfName, u?.title) : url;
-                    const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
-
-                    return (
-                      <div
-                        key={idx}
-                        className="upl-file-card"
-                        onClick={() => window.open(viewUrl, '_blank', 'noopener,noreferrer')}
-                      >
-                        <div className="upl-file-card-name" title={`View ${name}`}>
-                          <FileIcon filename={name || url} />
-                          <span className="upl-file-card-label">{name}</span>
-                        </div>
-                        <div className="upl-file-card-actions" onClick={(e) => e.stopPropagation()}>
-                          <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upl-file-action-btn upl-file-action-view" title="View">
-                            <FiEye />
-                          </a>
-                          <a
-                            href={downloadUrl}
-                            download={isPdf ? actualPdfName : name}
-                            target={isPdf ? undefined : "_blank"}
-                            rel="noreferrer noopener"
-                            className="upl-file-action-btn upl-file-action-download"
-                            title={`Download ${isPdf ? actualPdfName : name}`}
-                            onClick={isPdf ? (e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              downloadPdfFile(url, actualPdfName, u?.title);
-                            } : undefined}
-                          >
-                            <FiDownload />
-                          </a>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </article>
-          );
-        })}
+        {updates.map((u, idx) => (
+          <MyUpdateCard
+            key={u._id}
+            update={u}
+            idx={idx}
+            currentUserId={currentUserId}
+            currentUserUsn={currentUserUsn}
+            onOpenEdit={(update) => setEditingUpdate(update)}
+            onDeleteRequest={(id, title) => openDeleteModal(id, title)}
+            onShareUpdate={handleShareUpdate}
+          />
+        ))}
       </div>
 
       {/* Load More */}

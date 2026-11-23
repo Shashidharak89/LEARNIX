@@ -21,9 +21,11 @@ import {
   BookOpenIcon,
   FileTextIcon,
   ChartColumnIcon,
+  PencilIcon,
 } from "@animateicons/react/lucide";
 import UpdatesLeaderboard from './UpdatesLeaderboard';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
+import EditUpdateModal from '../upload/updates/EditUpdateModal';
 import { getYouTubeVideoId, groupConsecutiveLinks } from '../utils/youtube';
 import LinkPreview from '../components/LinkPreview';
 import YouTubeEmbed from '../components/YouTubeEmbed';
@@ -170,6 +172,9 @@ function UpdateCard({
   handleShareUpdate,
   formatExactTimestamp,
   searchQuery = "",
+  currentUserId = null,
+  currentUserUsn = null,
+  onOpenEdit = null,
 }) {
   const [isFilesExpanded, setIsFilesExpanded] = useState(false);
   const [isLinksExpanded, setIsLinksExpanded] = useState(false);
@@ -522,6 +527,23 @@ function UpdateCard({
                       <ExternalLinkIcon ref={externalLinkRef} size={14} />
                       <span>Open in new tab</span>
                     </button>
+                    {onOpenEdit && (
+                      (currentUserId && u.userId && String(currentUserId) === String(u.userId)) ||
+                      (currentUserUsn && u.usn && currentUserUsn.toLowerCase() === u.usn.toLowerCase())
+                    ) && (
+                      <button
+                        type="button"
+                        className="upd-dropdown-item"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsMenuOpen(false);
+                          onOpenEdit(u);
+                        }}
+                      >
+                        <PencilIcon size={14} />
+                        <span>Edit update</span>
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -850,6 +872,9 @@ export default function UpdatesPage({ initialUpdateId }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [editingUpdate, setEditingUpdate] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [currentUserUsn, setCurrentUserUsn] = useState(null);
   const [toast, setToast] = useState(null);
   const toastTimeoutRef = useRef(null);
   const highlightedCardRef = useRef(null);
@@ -903,7 +928,45 @@ export default function UpdatesPage({ initialUpdateId }) {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setIsLoggedIn(!!(localStorage.getItem('token') || localStorage.getItem('usn')));
+      const token = localStorage.getItem('token');
+      const usn = localStorage.getItem('usn');
+      const userId = localStorage.getItem('userId');
+      setIsLoggedIn(!!(token || usn));
+      if (usn) setCurrentUserUsn(usn);
+      if (userId) setCurrentUserId(userId);
+
+      // Verify token to get exact userId if not already in localStorage
+      (async () => {
+        if (token) {
+          try {
+            const authRes = await fetch("/api/auth/verify-token", {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            if (authRes.ok) {
+              const authData = await authRes.json();
+              if (authData?.user?._id) {
+                setCurrentUserId(authData.user._id);
+                if (authData.user.usn) setCurrentUserUsn(authData.user.usn);
+                return;
+              }
+            }
+          } catch (e) {
+            console.error("Token verification error:", e);
+          }
+        }
+
+        if (usn) {
+          try {
+            const res = await fetch(`/api/user/id?usn=${encodeURIComponent(usn)}`);
+            if (res.ok) {
+              const data = await res.json();
+              if (data?.userId) setCurrentUserId(data.userId);
+            }
+          } catch (err) {
+            console.error("Failed to resolve user id:", err);
+          }
+        }
+      })();
     }
   }, []);
 
@@ -1189,6 +1252,9 @@ export default function UpdatesPage({ initialUpdateId }) {
                 handleShareUpdate={handleShareUpdate}
                 formatExactTimestamp={formatExactTimestamp}
                 searchQuery={searchQuery.trim() ? (lastFetchedQueryRef.current || keywordFromUrl || searchQuery.trim()) : ''}
+                currentUserId={currentUserId}
+                currentUserUsn={currentUserUsn}
+                onOpenEdit={(updateToEdit) => setEditingUpdate(updateToEdit)}
               />
             ))}
 
@@ -1227,6 +1293,34 @@ export default function UpdatesPage({ initialUpdateId }) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Edit Update Modal inside updates page */}
+      {editingUpdate && (
+        <EditUpdateModal
+          isOpen={Boolean(editingUpdate)}
+          update={editingUpdate}
+          currentUserId={currentUserId}
+          onClose={() => setEditingUpdate(null)}
+          onSaveSuccess={(updatedDoc) => {
+            setUpdates((prev) =>
+              prev.map((item) =>
+                item._id === updatedDoc._id
+                  ? {
+                      ...item,
+                      title: updatedDoc.title,
+                      content: updatedDoc.content,
+                      links: updatedDoc.links || [],
+                      files: updatedDoc.files || [],
+                      visibility: updatedDoc.visibility || "public",
+                    }
+                  : item
+              )
+            );
+            setEditingUpdate(null);
+          }}
+          showToast={showToast}
+        />
       )}
 
       {/* Floating Screen-Bottom Toast Notification */}

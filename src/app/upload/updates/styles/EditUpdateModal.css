@@ -1,0 +1,522 @@
+/* EditUpdateModal.css - Apple Widget Dialog for Editing Updates */
+
+.eum-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 99999;
+  animation: eumFadeIn 0.22s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+@keyframes eumFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.eum-modal-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 48px -8px rgba(15, 23, 42, 0.22), 0 0 1px 1px rgba(15, 23, 42, 0.04);
+  animation: eumScaleUp 0.26s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+@keyframes eumScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Card Header */
+.eum-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+.eum-header-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.eum-header-icon {
+  color: #0b74ff;
+}
+
+.eum-card-title {
+  margin: 0;
+  font-size: 1.22rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.015em;
+}
+
+.eum-card-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+
+.eum-card-close-btn:hover {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #ef4444;
+  transform: scale(1.06);
+}
+
+/* Form & Fields */
+.eum-form {
+  padding: 20px 24px 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.eum-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.eum-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.eum-label {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.eum-char-count {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.eum-input,
+.eum-textarea {
+  width: 100%;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.88rem;
+  font-family: inherit;
+  color: #0f172a;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+  box-sizing: border-box;
+}
+
+.eum-input:focus,
+.eum-textarea:focus {
+  border-color: #0b74ff;
+  box-shadow: 0 0 0 3px rgba(11, 116, 255, 0.12);
+}
+
+.eum-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.eum-textarea-links {
+  min-height: 60px;
+  font-family: monospace;
+  font-size: 0.82rem;
+}
+
+/* Visibility Segmented Pills */
+.eum-vis-segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.eum-vis-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 180ms ease;
+  text-align: left;
+}
+
+.eum-vis-option:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.eum-vis-icon-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.eum-vis-text-box {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.eum-vis-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.eum-vis-desc {
+  font-size: 0.68rem;
+  color: #64748b;
+  line-height: 1.2;
+  margin-top: 1px;
+}
+
+.eum-vis-check {
+  margin-left: auto;
+  color: #0b74ff;
+}
+
+.eum-vis-option.active.eum-vis-public {
+  border-color: #0b74ff;
+  background: rgba(11, 116, 255, 0.05);
+}
+
+.eum-vis-option.active.eum-vis-public .eum-vis-icon-circle {
+  color: #0b74ff;
+  background: rgba(11, 116, 255, 0.1);
+}
+
+.eum-vis-option.active.eum-vis-unlisted {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.eum-vis-option.active.eum-vis-unlisted .eum-vis-icon-circle {
+  color: #d97706;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.eum-vis-option.active.eum-vis-unlisted .eum-vis-check {
+  color: #d97706;
+}
+
+.eum-vis-option.active.eum-vis-private {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.eum-vis-option.active.eum-vis-private .eum-vis-icon-circle {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.eum-vis-option.active.eum-vis-private .eum-vis-check {
+  color: #ef4444;
+}
+
+/* Dropzone */
+.eum-dropzone {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: #f8fafc;
+  border: 2px dashed #cbd5e1;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 200ms ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.eum-dropzone * {
+  pointer-events: none;
+}
+
+.eum-dropzone input {
+  pointer-events: none;
+}
+
+.eum-dropzone:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+.eum-dropzone.dragging {
+  background: rgba(11, 116, 255, 0.06);
+  border-color: #0b74ff;
+}
+
+.eum-dropzone-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+.eum-dropzone-icon-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0b74ff;
+  flex-shrink: 0;
+}
+
+.eum-dropzone-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.eum-dropzone-primary {
+  font-size: 0.88rem;
+  color: #1e293b;
+}
+
+.eum-dropzone-primary strong {
+  color: #0b74ff;
+  text-decoration: underline;
+}
+
+.eum-dropzone-sub {
+  font-size: 0.74rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.eum-hidden-input {
+  display: none;
+}
+
+.eum-file-count {
+  font-size: 0.76rem;
+  color: #0b74ff;
+  font-weight: 600;
+}
+
+/* Files list */
+.eum-files-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.eum-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.eum-file-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.eum-file-link {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #0b74ff;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eum-file-link:hover {
+  text-decoration: underline;
+}
+
+.eum-file-remove {
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+.eum-file-remove:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* Progress */
+.eum-progress-box {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.eum-progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  margin-bottom: 6px;
+  color: #334155;
+}
+
+.eum-progress-track {
+  height: 6px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  overflow: hidden;
+}
+
+.eum-progress-fill {
+  height: 100%;
+  background: #0b74ff;
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+/* Modal Actions */
+.eum-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.eum-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 180ms ease;
+}
+
+.eum-btn-cancel {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.eum-btn-cancel:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.eum-btn-primary {
+  background: #0b74ff;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(11, 116, 255, 0.25);
+}
+
+.eum-btn-primary:hover {
+  background: #0256c9;
+  transform: translateY(-1px);
+}
+
+.eum-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: eumSpin 0.7s linear infinite;
+}
+
+@keyframes eumSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .eum-modal-card {
+    max-height: 94vh;
+    border-radius: 20px;
+  }
+
+  .eum-card-header {
+    padding: 14px 16px;
+  }
+
+  .eum-form {
+    padding: 16px;
+  }
+
+  .eum-vis-segmented {
+    grid-template-columns: 1fr;
+  }
+}
+
