@@ -2,6 +2,16 @@
 import { useEffect, useState, useRef } from "react";
 import Link from 'next/link';
 import { FiTrash2, FiEdit2, FiSave, FiX, FiUser, FiClock, FiExternalLink, FiChevronRight, FiAlertCircle, FiAlertTriangle, FiUpload, FiDownload, FiEye, FiGlobe, FiLock, FiLink2, FiChevronDown, FiCheck, FiCheckCircle, FiInfo } from "react-icons/fi";
+import {
+  GlobeIcon,
+  LockIcon,
+  LinkIcon,
+  CheckIcon,
+  UploadIcon,
+  Trash2Icon,
+  SaveIcon,
+  XIcon,
+} from "@animateicons/react/lucide";
 import { getYouTubeVideoId, groupConsecutiveLinks } from '../../utils/youtube';
 import LinkPreview from '../../components/LinkPreview';
 import YouTubeEmbed from '../../components/YouTubeEmbed';
@@ -34,6 +44,7 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editVisibility, setEditVisibility] = useState("public");
   const [openVisibilityMenuId, setOpenVisibilityMenuId] = useState(null);
+  const [editIsDragging, setEditIsDragging] = useState(false);
 
   useEffect(() => {
     const handleOutsideClick = (e) => {
@@ -252,9 +263,8 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
     }
   };
 
-  const handleEditFilesSelected = async (e) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
+  const processEditFiles = async (files) => {
+    if (!files || !files.length) return;
     setEditIsUploading(true);
     setEditUploadStatus({
       current: 1,
@@ -340,7 +350,35 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
     } finally {
       setEditIsUploading(false);
       setEditUploadStatus(null);
-      if (e?.target) e.target.value = null;
+    }
+  };
+
+  const handleEditFilesSelected = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    await processEditFiles(files);
+    if (e?.target) e.target.value = null;
+  };
+
+  const handleEditDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!editIsDragging) setEditIsDragging(true);
+  };
+
+  const handleEditDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setEditIsDragging(false);
+  };
+
+  const handleEditDrop = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setEditIsDragging(false);
+    const files = Array.from(e.dataTransfer?.files || []);
+    if (files.length > 0) {
+      await processEditFiles(files);
     }
   };
 
@@ -522,7 +560,7 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                 title="Close"
                 aria-label="Close edit modal"
               >
-                <FiX />
+                <XIcon size={18} />
               </button>
             </div>
             <div className="upl-modal-body">
@@ -537,53 +575,113 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
               </div>
               <div className="upl-edit-field">
                 <label className="upl-edit-label">Visibility</label>
-                <select
-                  value={editVisibility}
-                  onChange={(e) => setEditVisibility(e.target.value)}
-                  className="upl-edit-select"
-                >
-                  <option value="public">Public (Visible to everyone)</option>
-                  <option value="private">Private (Only visible to you)</option>
-                  <option value="unlisted">Unlisted (Anyone with link)</option>
-                </select>
+                <div className="auf-vis-segmented">
+                  <button
+                    type="button"
+                    className={`auf-vis-option ${editVisibility === "public" ? "active auf-vis-public" : ""}`}
+                    onClick={() => setEditVisibility("public")}
+                  >
+                    <div className="auf-vis-icon-circle">
+                      <GlobeIcon size={16} />
+                    </div>
+                    <div className="auf-vis-text-box">
+                      <span className="auf-vis-title">Public</span>
+                      <span className="auf-vis-desc">Campus feed</span>
+                    </div>
+                    {editVisibility === "public" && <CheckIcon size={16} className="auf-vis-check" />}
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`auf-vis-option ${editVisibility === "unlisted" ? "active auf-vis-unlisted" : ""}`}
+                    onClick={() => setEditVisibility("unlisted")}
+                  >
+                    <div className="auf-vis-icon-circle">
+                      <LinkIcon size={16} />
+                    </div>
+                    <div className="auf-vis-text-box">
+                      <span className="auf-vis-title">Unlisted</span>
+                      <span className="auf-vis-desc">Anyone with link</span>
+                    </div>
+                    {editVisibility === "unlisted" && <CheckIcon size={16} className="auf-vis-check" />}
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`auf-vis-option ${editVisibility === "private" ? "active auf-vis-private" : ""}`}
+                    onClick={() => setEditVisibility("private")}
+                  >
+                    <div className="auf-vis-icon-circle">
+                      <LockIcon size={16} />
+                    </div>
+                    <div className="auf-vis-text-box">
+                      <span className="auf-vis-title">Private</span>
+                      <span className="auf-vis-desc">Only you</span>
+                    </div>
+                    {editVisibility === "private" && <CheckIcon size={16} className="auf-vis-check" />}
+                  </button>
+                </div>
               </div>
               <div className="upl-edit-field">
-                <label className="upl-edit-label">Content</label>
+                <label className="upl-edit-label">Content (optional)</label>
                 <textarea
                   value={editContent}
                   onChange={(e) => setEditContent(e.target.value)}
-                  rows={5}
+                  rows={4}
                   className="upl-edit-textarea"
-                  placeholder="Update content..."
+                  placeholder="Update content... (optional)"
                 />
               </div>
               <div className="upl-edit-field">
-                <label className="upl-edit-label">Links (one per line)</label>
+                <label className="upl-edit-label">Links (one per line, optional)</label>
                 <textarea
                   value={editLinksText}
                   onChange={(e) => setEditLinksText(e.target.value)}
-                  rows={3}
+                  rows={2}
                   className="upl-edit-textarea"
                   placeholder="/internal-link or https://external-link.com"
                 />
               </div>
               <div className="upl-edit-field">
                 <label className="upl-edit-label">
-                  <span>Files (optional)</span>
+                  <span>Files & Attachments (optional)</span>
                   {editFiles && editFiles.length > 0 && (
                     <span className="upl-edit-file-count">
                       {editFiles.length} {editFiles.length === 1 ? 'file' : 'files'} attached
                     </span>
                   )}
                 </label>
-                <div className="upl-edit-files-row">
-                  <label className="upl-file-btn">
-                    <FiUpload />
-                    <span>Add files</span>
-                    <input type="file" multiple onChange={handleEditFilesSelected} className="upl-hidden-input" />
+
+                {/* Broader Drag & Drop Dropzone in Edit Form */}
+                <div
+                  className={`auf-dropzone ${editIsDragging ? "dragging" : ""}`}
+                  onDragOver={handleEditDragOver}
+                  onDragEnter={handleEditDragOver}
+                  onDragLeave={handleEditDragLeave}
+                  onDrop={handleEditDrop}
+                >
+                  <input
+                    type="file"
+                    multiple
+                    id="edit-file-input"
+                    onChange={handleEditFilesSelected}
+                    className="upl-hidden-input"
+                  />
+                  <label htmlFor="edit-file-input" className="auf-dropzone-content">
+                    <div className="auf-dropzone-icon-circle">
+                      <UploadIcon size={22} className="auf-dropzone-icon" />
+                    </div>
+                    <div className="auf-dropzone-text">
+                      <span className="auf-dropzone-primary">
+                        <strong>Click to upload</strong> or drag and drop files here
+                      </span>
+                      <span className="auf-dropzone-sub">
+                        PDFs, documents, images, code files, and archives supported
+                      </span>
+                    </div>
                   </label>
-                  {editIsUploading && !editUploadStatus && <span className="upl-file-uploading">Uploading…</span>}
                 </div>
+                {editIsUploading && !editUploadStatus && <span className="upl-file-uploading">Uploading…</span>}
 
                 {/* Upload Progressbar */}
                 {editIsUploading && editUploadStatus && (
@@ -642,7 +740,7 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                             title={`Remove ${name}`}
                             aria-label={`Remove ${name}`}
                           >
-                            <FiTrash2 />
+                            <Trash2Icon size={14} />
                           </button>
                         </div>
                       );
@@ -658,7 +756,7 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                 className="upl-modal-btn upl-modal-btn-cancel"
                 disabled={isSaving}
               >
-                <FiX />
+                <XIcon size={15} />
                 <span>Cancel</span>
               </button>
               <button
@@ -674,7 +772,7 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
                   </>
                 ) : (
                   <>
-                    <FiSave />
+                    <SaveIcon size={15} />
                     <span>Save Changes</span>
                   </>
                 )}

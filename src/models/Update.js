@@ -9,7 +9,7 @@ const FileSchema = new mongoose.Schema({
 
 const UpdateSchema = new mongoose.Schema({
   title: { type: String, required: true },
-  content: { type: String, required: true },
+  content: { type: String, default: "" },
   links: [{ type: String }],
   files: [FileSchema],
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

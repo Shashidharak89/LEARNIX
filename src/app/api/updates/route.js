@@ -227,8 +227,8 @@ export async function POST(req) {
     const body = await req.json();
     let { title, content, links, userId, files, visibility } = body || {};
 
-    if (!title || !content) {
-      return NextResponse.json({ error: 'Title and content are required' }, { status: 400 });
+    if (!title || !title.trim()) {
+      return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     }
 
     let user = null;
@@ -268,7 +268,7 @@ export async function POST(req) {
 
     const updateDoc = new Update({
       title: title.trim(),
-      content: content.trim(),
+      content: (content || "").trim(),
       links: Array.isArray(links) ? links : (links ? [links] : []),
       files: sanitizedFiles,
       userId: user._id,

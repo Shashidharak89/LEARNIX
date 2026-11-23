@@ -2,22 +2,23 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
-  FiEdit3,
-  FiSend,
-  FiX,
-  FiUser,
-  FiLink,
   FiAlertCircle,
   FiCheckCircle,
-  FiUploadCloud,
-  FiUpload,
-  FiEye,
-  FiGlobe,
-  FiLock,
-  FiLink2,
-  FiCheck,
-  FiInfo
+  FiInfo,
 } from "react-icons/fi";
+import {
+  PencilIcon,
+  SendIcon,
+  XIcon,
+  LinkIcon,
+  EyeIcon,
+  GlobeIcon,
+  LockIcon,
+  CheckIcon,
+  Trash2Icon,
+  UploadIcon,
+  FileTextIcon,
+} from "@animateicons/react/lucide";
 import FileIcon from "../../components/FileIcon";
 import { uploadFileViaWebSocket } from "@/lib/websocketUploader";
 import "./styles/UpdatesList.css";
@@ -35,6 +36,12 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
   const [uploadStatus, setUploadStatus] = useState(null);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Animated icon refs
+  const closeIconRef = useRef(null);
+  const sendIconRef = useRef(null);
+  const uploadIconRef = useRef(null);
 
   const router = useRouter();
 
@@ -91,182 +98,207 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
       .filter(Boolean);
   };
 
-  const handleFilesSelected = async (e) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
+  const processFileList = async (files) => {
+    if (!files || !files.length) return;
     setIsUploadingFiles(true);
     setUploadStatus({
       current: 1,
       total: files.length,
-      filename: files[0]?.name,
+      filename: files[0].name,
       percent: 0,
-      chunkIndex: 1,
-      totalChunks: 1,
-      statusText: "Connecting to WebSocket..."
+      statusText: "Preparing upload..."
     });
 
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
+    const newFiles = [];
 
-    try {
-      for (let i = 0; i < files.length; i++) {
-        const f = files[i];
-        setUploadStatus({
-          current: i + 1,
-          total: files.length,
-          filename: f.name,
-          percent: 0,
-          chunkIndex: 1,
-          totalChunks: 1,
-          statusText: "Connecting to WebSocket..."
-        });
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      setUploadStatus({
+        current: i + 1,
+        total: files.length,
+        filename: file.name,
+        percent: 0,
+        statusText: `Uploading ${file.name}...`
+      });
 
-        const uploadResult = await uploadFileViaWebSocket(f, {
+      try {
+        const uploadedFile = await uploadFileViaWebSocket(
+          file,
           userId,
-          token,
-          onProgress: ({ percent, currentChunk, totalChunks, statusText }) => {
-            const formattedStatus = statusText || `${percent}% uploaded`;
+          (progress) => {
             setUploadStatus({
               current: i + 1,
               total: files.length,
-              filename: f.name,
-              percent,
-              chunkIndex: currentChunk,
-              totalChunks,
-              statusText: formattedStatus
+              filename: file.name,
+              percent: progress.percent,
+              statusText: progress.statusText
             });
-          },
-          onStatus: (statusText) => {
-            setUploadStatus(prev => prev ? ({ ...prev, statusText }) : null);
           }
+        );
+
+        newFiles.push(uploadedFile);
+      } catch (err) {
+        console.warn(`WebSocket upload failed for ${file.name}, trying HTTP POST:`, err);
+        setUploadStatus({
+          current: i + 1,
+          total: files.length,
+          filename: file.name,
+          percent: 50,
+          statusText: `Retrying upload via standard connection...`
         });
 
-        const uploadedFile = uploadResult?.file;
-        if (uploadedFile) {
-          setUploadedFiles((p) => [...p, uploadedFile]);
-        } else {
-          showToast(`Failed to upload ${f.name}`, "error");
+        try {
+          const formData = new FormData();
+          formData.append("file", file);
+          if (userId) formData.append("userId", userId);
+
+          const res = await fetch("/api/updates/upload", {
+            method: "POST",
+            body: formData
+          });
+
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || `HTTP ${res.status}`);
+          }
+
+          const data = await res.json();
+          if (data?.file) {
+            newFiles.push(data.file);
+          } else {
+            throw new Error("No file object returned from server");
+          }
+        } catch (httpErr) {
+          console.error(`HTTP upload also failed for ${file.name}:`, httpErr);
+          showToast(`Failed to upload ${file.name}`, "error");
         }
       }
-      showToast(`Uploaded ${files.length} file${files.length > 1 ? "s" : ""} successfully via WebSocket`, "success");
-    } catch (err) {
-      console.error("File upload error", err);
-      showToast(err.message || "File upload failed. Please try again.", "error");
-    } finally {
-      setIsUploadingFiles(false);
-      setUploadStatus(null);
-      if (e?.target) e.target.value = null;
+    }
+
+    if (newFiles.length > 0) {
+      setUploadedFiles(prev => [...prev, ...newFiles]);
+      showToast(
+        newFiles.length === 1
+          ? `Uploaded "${newFiles[0].name}" successfully`
+          : `Uploaded ${newFiles.length} files successfully`,
+        "success"
+      );
+    }
+
+    setIsUploadingFiles(false);
+    setUploadStatus(null);
+  };
+
+  const handleFilesSelected = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    await processFileList(files);
+    e.target.value = "";
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isDragging) setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer?.files || []);
+    if (files.length > 0) {
+      await processFileList(files);
     }
   };
 
-  const removeUploadedFile = async (idx) => {
-    const fileToRemove = uploadedFiles[idx];
-    setUploadedFiles((p) => p.filter((_, i) => i !== idx));
+  const removeUploadedFile = async (index) => {
+    const fileToRemove = uploadedFiles[index];
+    if (!fileToRemove) return;
 
-    if (fileToRemove?.publicId) {
-      try {
-        await fetch("/api/updates/upload", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            publicId: fileToRemove.publicId,
-            resourceType: fileToRemove.resourceType || "auto",
-          }),
-        });
-      } catch (err) {
-        console.error("Failed to delete uncommitted file from Cloudinary:", err);
-      }
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+
+    try {
+      await fetch("/api/updates/upload/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          publicId: fileToRemove.publicId,
+          resourceType: fileToRemove.resourceType || "raw"
+        })
+      });
+    } catch (e) {
+      console.error("Failed to delete removed file from server:", e);
     }
   };
 
   const handleClear = () => {
-    if (uploadedFiles.length > 0) {
-      uploadedFiles.forEach((f) => {
-        if (f.publicId) {
-          fetch("/api/updates/upload", {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              publicId: f.publicId,
-              resourceType: f.resourceType || "auto",
-            }),
-          }).catch(console.error);
-        }
-      });
-      showToast("Cleared form and removed uploaded files", "info");
-    }
     setTitle("");
     setContent("");
     setLinksText("");
-    setUploadedFiles([]);
     setVisibility("public");
+    setUploadedFiles([]);
   };
 
   const handleCancelClick = () => {
-    if (uploadedFiles.length > 0) {
-      uploadedFiles.forEach((f) => {
-        if (f.publicId) {
-          fetch("/api/updates/upload", {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              publicId: f.publicId,
-              resourceType: f.resourceType || "auto",
-            }),
-          }).catch(console.error);
-        }
-      });
-    }
+    handleClear();
     if (onCancel) onCancel();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title.trim() || !content.trim()) {
-      showToast("Please enter title and content", "error");
+
+    if (!title.trim()) {
+      showToast("Please enter an update title", "error");
       return;
     }
 
-    if (isUploadingFiles) {
-      showToast("Please wait until files finish uploading", "info");
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const finalUserId = userId || (typeof window !== "undefined" ? localStorage.getItem("userId") : null);
+
+    if (!finalUserId && !token) {
+      showToast("You must be logged in to post an update", "error");
       return;
     }
 
     setLoading(true);
-    const links = parseLinks(linksText);
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") || "" : "";
 
     try {
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
       const res = await fetch("/api/updates", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
+        headers,
         body: JSON.stringify({
           title: title.trim(),
           content: content.trim(),
-          links,
-          userId,
-          files: uploadedFiles,
-          visibility
+          links: parseLinks(linksText),
+          visibility,
+          userId: finalUserId,
+          files: uploadedFiles
         })
       });
 
       const data = await res.json();
-      if (res.ok) {
-        showToast("Update created successfully", "success");
-        setTitle("");
-        setContent("");
-        setLinksText("");
-        setUploadedFiles([]);
-        setVisibility("public");
-        if (onUpdateAdded) onUpdateAdded();
-      } else {
-        showToast(data?.error || "Failed to create update", "error");
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to create update");
+      }
+
+      handleClear();
+      if (onUpdateAdded) {
+        onUpdateAdded(data.update);
       }
     } catch (err) {
-      console.error(err);
-      showToast("Network error occurred", "error");
+      console.error("Add update error:", err);
+      showToast(err.message || "Failed to add update", "error");
     } finally {
       setLoading(false);
     }
@@ -276,26 +308,24 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
 
   return (
     <div className="auf-container">
-      {/* Header */}
-      <div className="auf-header">
+      {/* Apple-styled Top Header Bar with SINGLE clean X button */}
+      <div className="auf-header-bar">
         <div className="auf-header-left">
-          <div className="auf-header-icon-box">
-            <FiEdit3 />
-          </div>
-          <div>
-            <h3 className="auf-header-title">Create Campus Update</h3>
-            <p className="auf-header-subtitle">Publish announcements, notes, or resources for your campus</p>
-          </div>
+          <div className="auf-header-badge">NEW UPDATE</div>
+          <h2 className="auf-title">Post Campus Update</h2>
         </div>
+
         {onCancel && (
           <button
             type="button"
             onClick={handleCancelClick}
             className="auf-close-header-btn"
-            title="Collapse Form"
+            title="Close"
             aria-label="Close add update form"
+            onMouseEnter={() => closeIconRef.current?.startAnimation?.()}
+            onMouseLeave={() => closeIconRef.current?.stopAnimation?.()}
           >
-            <FiX />
+            <XIcon ref={closeIconRef} size={18} />
           </button>
         )}
       </div>
@@ -319,7 +349,7 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
             onClick={() => setToast(null)}
             aria-label="Dismiss message"
           >
-            <FiX />
+            <XIcon size={14} />
           </button>
         </div>
       )}
@@ -331,7 +361,7 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
           <div className="auf-field">
             <div className="auf-label-row">
               <label className="auf-label">
-                <FiEdit3 className="auf-label-icon" />
+                <PencilIcon size={15} className="auf-label-icon" />
                 <span>Title</span>
                 <span className="auf-required">*</span>
               </label>
@@ -351,7 +381,7 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
           <div className="auf-field">
             <div className="auf-label-row">
               <label className="auf-label">
-                <FiEye className="auf-label-icon" />
+                <EyeIcon size={15} className="auf-label-icon" />
                 <span>Visibility Level</span>
               </label>
             </div>
@@ -362,13 +392,13 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
                 onClick={() => setVisibility("public")}
               >
                 <div className="auf-vis-icon-circle">
-                  <FiGlobe />
+                  <GlobeIcon size={16} />
                 </div>
                 <div className="auf-vis-text-box">
                   <span className="auf-vis-title">Public</span>
                   <span className="auf-vis-desc">Campus feed</span>
                 </div>
-                {visibility === "public" && <FiCheck className="auf-vis-check" />}
+                {visibility === "public" && <CheckIcon size={16} className="auf-vis-check" />}
               </button>
 
               <button
@@ -377,13 +407,13 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
                 onClick={() => setVisibility("unlisted")}
               >
                 <div className="auf-vis-icon-circle">
-                  <FiLink2 />
+                  <LinkIcon size={16} />
                 </div>
                 <div className="auf-vis-text-box">
                   <span className="auf-vis-title">Unlisted</span>
                   <span className="auf-vis-desc">Anyone with link</span>
                 </div>
-                {visibility === "unlisted" && <FiCheck className="auf-vis-check" />}
+                {visibility === "unlisted" && <CheckIcon size={16} className="auf-vis-check" />}
               </button>
 
               <button
@@ -392,34 +422,32 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
                 onClick={() => setVisibility("private")}
               >
                 <div className="auf-vis-icon-circle">
-                  <FiLock />
+                  <LockIcon size={16} />
                 </div>
                 <div className="auf-vis-text-box">
                   <span className="auf-vis-title">Private</span>
                   <span className="auf-vis-desc">Only you</span>
                 </div>
-                {visibility === "private" && <FiCheck className="auf-vis-check" />}
+                {visibility === "private" && <CheckIcon size={16} className="auf-vis-check" />}
               </button>
             </div>
           </div>
 
-          {/* Section 3: Content Field */}
+          {/* Section 3: Content Field (Optional) */}
           <div className="auf-field">
             <div className="auf-label-row">
               <label className="auf-label">
-                <FiEdit3 className="auf-label-icon" />
-                <span>Content</span>
-                <span className="auf-required">*</span>
+                <FileTextIcon size={15} className="auf-label-icon" />
+                <span>Content (optional)</span>
               </label>
               <span className="auf-char-count">{content.length} characters</span>
             </div>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Write update details, notes, links, or instructions..."
-              rows={5}
+              placeholder="Write update details, notes, links, or instructions... (optional)"
+              rows={4}
               className="auf-textarea"
-              required
             />
             <div className="auf-hint">
               Markdown formatting and multi-line breaks are supported
@@ -430,7 +458,7 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
           <div className="auf-field">
             <div className="auf-label-row">
               <label className="auf-label">
-                <FiLink className="auf-label-icon" />
+                <LinkIcon size={15} className="auf-label-icon" />
                 <span>Links & References (optional)</span>
               </label>
               {linksCount > 0 && (
@@ -449,12 +477,12 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
             </div>
           </div>
 
-          {/* Section 5: Files (optional) - Exact same UI & logic as Edit Update */}
+          {/* Section 5: Files with Broader Drag and Drop Dropzone */}
           <div className="auf-field">
             <div className="auf-label-row">
               <label className="auf-label">
-                <FiUploadCloud className="auf-label-icon" />
-                <span>Files (optional)</span>
+                <UploadIcon size={15} className="auf-label-icon" />
+                <span>Files & Attachments (optional)</span>
               </label>
               {uploadedFiles && uploadedFiles.length > 0 && (
                 <span className="upl-edit-file-count">
@@ -463,21 +491,44 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
               )}
             </div>
 
-            <div className="upl-edit-files-row">
-              <label className="upl-file-btn">
-                <FiUpload />
-                <span>Add files</span>
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleFilesSelected}
-                  className="upl-hidden-input"
-                />
+            {/* Broader Drag & Drop Dropzone */}
+            <div
+              className={`auf-dropzone ${isDragging ? "dragging" : ""}`}
+              onDragOver={handleDragOver}
+              onDragEnter={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              <input
+                type="file"
+                multiple
+                id="auf-file-input"
+                onChange={handleFilesSelected}
+                className="upl-hidden-input"
+              />
+              <label
+                htmlFor="auf-file-input"
+                className="auf-dropzone-content"
+                onMouseEnter={() => uploadIconRef.current?.startAnimation?.()}
+                onMouseLeave={() => uploadIconRef.current?.stopAnimation?.()}
+              >
+                <div className="auf-dropzone-icon-circle">
+                  <UploadIcon ref={uploadIconRef} size={22} className="auf-dropzone-icon" />
+                </div>
+                <div className="auf-dropzone-text">
+                  <span className="auf-dropzone-primary">
+                    <strong>Click to upload</strong> or drag and drop files here
+                  </span>
+                  <span className="auf-dropzone-sub">
+                    PDFs, documents, images, code files, and archives supported
+                  </span>
+                </div>
               </label>
-              {isUploadingFiles && !uploadStatus && (
-                <span className="upl-file-uploading">Uploading…</span>
-              )}
             </div>
+
+            {isUploadingFiles && !uploadStatus && (
+              <span className="upl-file-uploading">Uploading…</span>
+            )}
 
             {/* Upload Progressbar */}
             {isUploadingFiles && uploadStatus && (
@@ -535,8 +586,9 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
                         className="upl-edit-file-remove"
                         onClick={() => removeUploadedFile(i)}
                         title="Remove file"
+                        aria-label={`Remove ${name}`}
                       >
-                        <FiX />
+                        <Trash2Icon size={14} />
                       </button>
                     </div>
                   );
@@ -549,12 +601,12 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
           <div className="auf-actions">
             <div className="auf-user-status">
               <div className="auf-status-avatar">
-                <FiUser />
+                <GlobeIcon size={15} />
               </div>
               <div className="auf-status-text">
                 <span className="auf-status-label">Posting as</span>
                 <span className={userId ? "auf-status-active" : "auf-status-inactive"}>
-                  {userUsn ? userUsn : userId ? "Authenticated User" : "Anonymous"}
+                  {userUsn ? `@${userUsn}` : userId ? "Authenticated User" : "Anonymous"}
                 </span>
               </div>
             </div>
@@ -567,7 +619,7 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
                   className="auf-btn auf-btn-clear"
                   disabled={loading || isUploadingFiles}
                 >
-                  <FiX />
+                  <XIcon size={15} />
                   <span>Cancel</span>
                 </button>
               ) : (
@@ -577,7 +629,7 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
                   className="auf-btn auf-btn-clear"
                   disabled={loading || isUploadingFiles}
                 >
-                  <FiX />
+                  <XIcon size={15} />
                   <span>Clear</span>
                 </button>
               )}
@@ -585,6 +637,8 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
                 type="submit"
                 className="auf-btn auf-btn-submit"
                 disabled={loading || isUploadingFiles}
+                onMouseEnter={() => sendIconRef.current?.startAnimation?.()}
+                onMouseLeave={() => sendIconRef.current?.stopAnimation?.()}
               >
                 {loading ? (
                   <>
@@ -593,7 +647,7 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
                   </>
                 ) : (
                   <>
-                    <FiSend />
+                    <SendIcon ref={sendIconRef} size={15} />
                     <span>Publish Update</span>
                   </>
                 )}

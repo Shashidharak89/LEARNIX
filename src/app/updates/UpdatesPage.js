@@ -1213,10 +1213,6 @@ export default function UpdatesPage({ initialUpdateId }) {
           fetchUpdates(1, lastFetchedQueryRef.current || ''); // Refresh when closed
         }}>
           <div className="upd-modal-content" onClick={e => e.stopPropagation()}>
-            <button className="upd-modal-close" onClick={() => {
-              setShowAddModal(false);
-              fetchUpdates(1, lastFetchedQueryRef.current || '');
-            }}>✕</button>
             <div className="upd-modal-scroll-area">
               <AddUpdateForm
                 onUpdateAdded={() => {

@@ -515,12 +515,59 @@
 }
 
 /* Dragging Active State */
+.auf-dropzone.dragging,
 .auf-dropzone-dragging {
-  background: rgba(11, 116, 255, 0.05) !important;
+  background: rgba(11, 116, 255, 0.08) !important;
   border-color: var(--auf-apple-blue) !important;
   border-style: solid !important;
-  transform: scale(1.008);
+  transform: scale(1.01);
   box-shadow: 0 10px 24px -4px var(--auf-apple-blue-glow);
+}
+
+.auf-dropzone-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.auf-dropzone-icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--auf-apple-blue);
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  transition: transform 200ms ease;
+}
+
+.auf-dropzone:hover .auf-dropzone-icon-circle {
+  transform: scale(1.08);
+}
+
+.auf-dropzone-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.auf-dropzone-primary {
+  font-size: 0.94rem;
+  color: var(--auf-text);
+  line-height: 1.3;
+}
+
+.auf-dropzone-primary strong {
+  color: var(--auf-apple-blue);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .auf-dropzone-icon-box {
