@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
-import { recordResourceViews } from "@/lib/interactions";
+import { getResourceViews } from "@/lib/interactions";
 
 export const GET = async () => {
   try {
@@ -23,7 +23,7 @@ export const GET = async () => {
           subjects.map(async (subject) => {
             const topics = await Topic.find({ subjectId: subject._id }).lean();
             const topicIds = topics.map(t => t._id);
-            const viewsMap = await recordResourceViews(topicIds);
+            const viewsMap = await getResourceViews(topicIds);
 
             return {
               _id: subject._id,

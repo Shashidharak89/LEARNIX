@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Update from "@/models/Update";
 import User from "@/models/User";
-import { recordUpdateViews } from "@/lib/interactions";
+import { getUpdateViews } from "@/lib/interactions";
 
 export async function GET(req) {
   try {
@@ -46,7 +46,7 @@ export async function GET(req) {
     users.forEach(u => { userMap[u._id.toString()] = u; });
 
     const updateIds = updates.map(u => u._id);
-    const viewsMap = await recordUpdateViews(updateIds);
+    const viewsMap = await getUpdateViews(updateIds);
 
     const enriched = updates.map(u => {
       const uid = u.userId ? u.userId.toString() : null;

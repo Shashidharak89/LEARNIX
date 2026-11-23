@@ -6,6 +6,7 @@ import { FiChevronRight, FiClock, FiDownload, FiEye, FiExternalLink } from "reac
 import { getYouTubeVideoId } from "../utils/youtube";
 import LinkPreview from "../components/LinkPreview";
 import FileIcon from "../components/FileIcon";
+import { formatViews, formatExactViews } from "../utils/formatViews";
 import "./styles/WorksUpdatesPreview.css";
 
 const formatTime = (isoTime) => {
@@ -68,9 +69,9 @@ export default function WorksUpdatesPreview() {
                     </span>
                   </div>
                   <div className="wup-item-meta-right">
-                    <span className="wup-views" title={`${update.views ?? 0} views`}>
+                    <span className="wup-views" title={formatExactViews(update.views ?? 0)}>
                       <FiEye size={12} />
-                      {update.views ?? 0}
+                      {formatViews(update.views ?? 0)}
                     </span>
                     <span className="wup-time">
                       <FiClock />

@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/db";
 import Update from "@/models/Update";
 import User from "@/models/User";
 import mongoose from "mongoose";
-import { recordUpdateViews } from "@/lib/interactions";
+import { getUpdateViews } from "@/lib/interactions";
 import {
   buildUpdateKeywordConditions,
   scoreAndTagUpdate,
@@ -95,9 +95,9 @@ export async function GET(req) {
         userMap[u._id.toString()] = u;
       });
 
-      // Record views
+      // Retrieve view counts without incrementing
       const candidateIds = candidateUpdates.map((u) => u._id);
-      const viewsMap = await recordUpdateViews(candidateIds);
+      const viewsMap = await getUpdateViews(candidateIds);
 
       // Enrich and score each update against the query
       const scoredUpdates = candidateUpdates.map((u) => {
@@ -189,9 +189,9 @@ export async function GET(req) {
       userMap[u._id.toString()] = u;
     });
 
-    // Increment & retrieve atomic view counts for the fetched updates
+    // Retrieve view counts for the fetched updates without incrementing
     const updateIds = updates.map((u) => u._id);
-    const viewsMap = await recordUpdateViews(updateIds);
+    const viewsMap = await getUpdateViews(updateIds);
 
     const enriched = updates.map((u) => {
       const uid = u.userId ? u.userId.toString() : null;

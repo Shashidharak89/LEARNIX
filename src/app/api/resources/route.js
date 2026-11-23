@@ -6,7 +6,7 @@ import Topic from "@/models/Topic";
 import RequestMetric from "@/models/RequestMetric";
 import { buildKeywordConditions, scoreAndTagTopic, getQueryWords } from "@/lib/searchHelper";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
-import { recordResourceViews } from "@/lib/interactions";
+import { getResourceViews } from "@/lib/interactions";
 import { recordSearchEvent } from "@/lib/searchTracker";
 
 export const dynamic = "force-dynamic";
@@ -165,9 +165,9 @@ export async function GET(req) {
       total = scoredTopics.length;
       const paginatedTopics = scoredTopics.slice(skip, skip + size);
 
-      // Record views for returned items
+      // Retrieve views without incrementing
       const topicIds = paginatedTopics.map((t) => t._id);
-      const viewsMap = await recordResourceViews(topicIds);
+      const viewsMap = await getResourceViews(topicIds);
 
       finalTopics = paginatedTopics.map((t) => ({
         ...t,
@@ -203,7 +203,7 @@ export async function GET(req) {
       const userMap = new Map(users.map((u) => [u._id.toString(), u]));
 
       const topicIds = topics.map((t) => t._id);
-      const viewsMap = await recordResourceViews(topicIds);
+      const viewsMap = await getResourceViews(topicIds);
 
       finalTopics = topics.map((topic) => {
         const subject = subjectMap.get(topic.subjectId?.toString());

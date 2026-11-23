@@ -5,7 +5,7 @@ import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
 import { buildKeywordConditions } from "@/lib/searchHelper";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
-import { recordResourceViews } from "@/lib/interactions";
+import { getResourceViews } from "@/lib/interactions";
 import { recordSearchEvent } from "@/lib/searchTracker";
 
 // GET /api/work/search?q=keyword&page=1&pageSize=8&subjects=sub1,sub2&topics=topic1,topic2
@@ -77,7 +77,7 @@ export const GET = async (req) => {
       .lean();
 
     const topicIds = topics.map((t) => t._id);
-    const viewsMap = await recordResourceViews(topicIds);
+    const viewsMap = await getResourceViews(topicIds);
 
     // For each topic, get subject and user
     const topicsWithDetails = await Promise.all(

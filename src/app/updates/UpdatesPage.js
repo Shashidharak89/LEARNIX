@@ -30,6 +30,7 @@ import ExpandableDescription from '../components/ExpandableDescription';
 import { toggleLearnLaterClient, checkLearnLaterStatusClient, isItemInLearnLaterStorage } from '@/lib/clientLearnLater';
 import { authFetch } from '@/lib/clientAuth';
 import { isPdfFile, getPdfDownloadName, getPdfDownloadUrl, downloadPdfFile } from '@/lib/pdfDownload';
+import { formatViews, formatExactViews } from '../utils/formatViews';
 import './styles/Updates.css';
 
 function useIsLargeScreen() {
@@ -443,12 +444,12 @@ function UpdateCard({
             <div className="upd-card-header-actions">
               <div
                 className="upd-header-views-badge"
-                title={`${u.views ?? 0} views`}
+                title={formatExactViews(u.views ?? 0)}
                 onMouseEnter={() => viewsIconRef.current?.startAnimation?.()}
                 onMouseLeave={() => viewsIconRef.current?.stopAnimation?.()}
               >
                 <EyeIcon ref={viewsIconRef} className="upd-views-icon" size={14} />
-                <span className="upd-views-count">{u.views ?? 0}</span>
+                <span className="upd-views-count">{formatViews(u.views ?? 0)}</span>
               </div>
               <button
                 type="button"

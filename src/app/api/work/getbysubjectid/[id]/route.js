@@ -5,7 +5,7 @@ import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
 import { getVisibility } from "@/lib/visibility";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
-import { recordResourceViews } from "@/lib/interactions";
+import { getResourceViews } from "@/lib/interactions";
 
 // GET /api/work/getbysubjectid/:id
 // Fetches subject with all its topics based on visibility + ownership
@@ -69,7 +69,7 @@ export const GET = async (req, { params }) => {
       .lean();
 
     const topicIds = topics.map((t) => t._id);
-    const viewsMap = await recordResourceViews(topicIds);
+    const viewsMap = await getResourceViews(topicIds);
 
     return NextResponse.json({
       user: {

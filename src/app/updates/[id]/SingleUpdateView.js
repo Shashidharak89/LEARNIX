@@ -30,6 +30,7 @@ import YouTubeEmbed from "../../components/YouTubeEmbed";
 import FileIcon from "../../components/FileIcon";
 import ExpandableDescription from "../../components/ExpandableDescription";
 import { isPdfFile, getPdfDownloadName, getPdfDownloadUrl, downloadPdfFile } from "@/lib/pdfDownload";
+import { formatViews, formatExactViews } from "../../utils/formatViews";
 import "../styles/Updates.css";
 import "./styles/SingleUpdateView.css";
 
@@ -597,9 +598,9 @@ export default function SingleUpdateView({ updateId }) {
                     </span>
                   )}
                 </div>
-                <div className="upd-header-views-badge" title={`${update.views ?? 0} views`}>
+                <div className="upd-header-views-badge" title={formatExactViews(update.views ?? 0)}>
                   <FiEye className="upd-views-icon" />
-                  <span className="upd-views-count">{update.views ?? 0}</span>
+                  <span className="upd-views-count">{formatViews(update.views ?? 0)}</span>
                 </div>
                 <button
                   type="button"

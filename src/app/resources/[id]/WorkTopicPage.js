@@ -29,6 +29,7 @@ import Ads from "../../components/ads/Ads";
 import { toggleLearnLaterClient, checkLearnLaterStatusClient, isItemInLearnLaterStorage } from "@/lib/clientLearnLater";
 import ImageLoader from "../../components/ImageLoader";
 import OpenInApp from "./OpenInApp";
+import { formatViews, formatExactViews } from "../../utils/formatViews";
 import "./styles/WorkTopicPage.css";
 
 function normalizeResourceType(type, sourceFile) {
@@ -918,12 +919,12 @@ const WorkTopicPage = ({ data, loading, error, onDownload, onShare, topicId, usi
               </div>
               <div
                 className="wtpc-meta-item wtpc-meta-views"
-                title={`${topic.views ?? 0} views`}
+                title={formatExactViews(topic.views ?? 0)}
                 onMouseEnter={() => viewsRef.current?.startAnimation?.()}
                 onMouseLeave={() => viewsRef.current?.stopAnimation?.()}
               >
                 <EyeIcon ref={viewsRef} size={15} className="wtpc-meta-icon" />
-                <span>{topic.views ?? 0} views</span>
+                <span>{formatViews(topic.views ?? 0)} views</span>
               </div>
             </div>
           </div>

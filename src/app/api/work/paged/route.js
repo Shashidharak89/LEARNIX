@@ -5,7 +5,7 @@ import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
 import RequestMetric from "@/models/RequestMetric";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
-import { recordResourceViews } from "@/lib/interactions";
+import { getResourceViews } from "@/lib/interactions";
 
 // GET /api/work/paged?page=1&pageSize=8
 export const GET = async (req) => {
@@ -44,7 +44,7 @@ export const GET = async (req) => {
     });
 
     const topicIds = topics.map((t) => t._id);
-    const viewsMap = await recordResourceViews(topicIds);
+    const viewsMap = await getResourceViews(topicIds);
 
     const topicsWithDetails = await Promise.all(
       topics.map(async (topic) => {

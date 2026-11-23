@@ -31,6 +31,7 @@ import ImageLoader from '../components/ImageLoader';
 import './styles/WorkSearchInterface.css';
 import { authFetch } from '@/lib/clientAuth';
 import { toggleLearnLaterClient, checkLearnLaterStatusClient, isItemInLearnLaterStorage } from '@/lib/clientLearnLater';
+import { formatViews, formatExactViews } from '../utils/formatViews';
 
 // LocalStorage key for saved topics (same as in /resources/[id])
 const SAVED_TOPICS_KEY = 'learnix_saved_topics';
@@ -575,12 +576,12 @@ const TopicCard = memo(function TopicCard({
             </span>
             <span
               className="ws-meta-item ws-meta-views"
-              title={`${topic.views ?? 0} views`}
+              title={formatExactViews(topic.views ?? 0)}
               onMouseEnter={() => viewsIconRef.current?.startAnimation?.()}
               onMouseLeave={() => viewsIconRef.current?.stopAnimation?.()}
             >
               <EyeIcon ref={viewsIconRef} size={14} className="ws-meta-icon" />
-              <span>{topic.views ?? 0}</span>
+              <span>{formatViews(topic.views ?? 0)}</span>
             </span>
           </div>
         </div>

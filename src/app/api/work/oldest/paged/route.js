@@ -4,7 +4,7 @@ import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
-import { recordResourceViews } from "@/lib/interactions";
+import { getResourceViews } from "@/lib/interactions";
 
 // GET /api/work/oldest/paged?page=1&pageSize=8
 // Returns topics sorted by oldest first (ascending timestamp) with pagination
@@ -36,7 +36,7 @@ export const GET = async (req) => {
     const total = await Topic.countDocuments({ $or: [{ visibility: "public" }, { visibility: { $exists: false } }] });
 
     const topicIds = topics.map((t) => t._id);
-    const viewsMap = await recordResourceViews(topicIds);
+    const viewsMap = await getResourceViews(topicIds);
 
     // For each topic, get subject and user
     const topicsWithDetails = await Promise.all(
