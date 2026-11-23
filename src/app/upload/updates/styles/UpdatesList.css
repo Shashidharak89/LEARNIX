@@ -1,3 +1,32 @@
+/* Direct Edit Button between views and 3-dots on update cards */
+.upd-direct-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(11, 116, 255, 0.08);
+  border: 1px solid rgba(11, 116, 255, 0.22);
+  color: #0b74ff;
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(11, 116, 255, 0.06);
+}
+
+.upd-direct-edit-btn:hover {
+  background: #0b74ff;
+  border-color: #0b74ff;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(11, 116, 255, 0.28);
+}
+
+.upd-direct-edit-btn:active {
+  transform: scale(0.94);
+}
+
 /* styles/UpdatesList.css
    Colors: Sky Blue (#38bdf8) and Yellowish Orange (#fb923c) only
    Custom modals, proper alignment, relative time display

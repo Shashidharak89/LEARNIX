@@ -3,7 +3,6 @@ import { useEffect, useState, useRef } from "react";
 import Link from 'next/link';
 import {
   FiClock,
-  FiExternalLink,
   FiChevronRight,
   FiChevronDown,
   FiChevronUp,
@@ -12,7 +11,11 @@ import {
   FiTrash2,
   FiCheckCircle,
   FiInfo,
-  FiX
+  FiX,
+  FiGlobe,
+  FiLock,
+  FiLink2,
+  FiCheck
 } from "react-icons/fi";
 import {
   UserIcon,
@@ -24,6 +27,11 @@ import {
   DownloadIcon,
   PencilIcon,
   Trash2Icon,
+  SparklesIcon,
+  FolderIcon,
+  BellIcon,
+  BookOpenIcon,
+  FileTextIcon,
 } from "@animateicons/react/lucide";
 import { groupConsecutiveLinks } from '../../utils/youtube';
 import LinkPreview from '../../components/LinkPreview';
@@ -74,12 +82,99 @@ function formatExactTimestamp(iso) {
   }
 }
 
-// Single Update Card matching /updates exactly
+function normalizeResourceType(type, sourceFile) {
+  const t = (type || "").toLowerCase().trim();
+  const s = (sourceFile || "").toLowerCase().trim();
+
+  if (
+    t === "topic" ||
+    t === "topics" ||
+    t === "work" ||
+    t === "works" ||
+    t === "resource" ||
+    t === "resources" ||
+    s === "resources"
+  ) {
+    return "resource";
+  }
+
+  if (t === "update" || t === "updates" || s === "updates") {
+    return "update";
+  }
+
+  if (t === "study_material" || t === "materials" || t === "material" || s === "study_materials") {
+    return "study_material";
+  }
+
+  if (t === "question_paper" || t === "qp" || t === "questionpapers") {
+    return "question_paper";
+  }
+
+  return t || "resource";
+}
+
+const TYPE_CONFIG = {
+  resource: {
+    label: "Resource",
+    icon: FolderIcon,
+    badgeClass: "suv-ai-pill--resource",
+  },
+  update: {
+    label: "Update",
+    icon: BellIcon,
+    badgeClass: "suv-ai-pill--update",
+  },
+  study_material: {
+    label: "Study Material",
+    icon: BookOpenIcon,
+    badgeClass: "suv-ai-pill--study",
+  },
+  question_paper: {
+    label: "Question Paper",
+    icon: FileTextIcon,
+    badgeClass: "suv-ai-pill--qp",
+  },
+};
+
+function getRecItemHref(item) {
+  const normType = normalizeResourceType(item.resource_type, item.source_file);
+  const cleanId = item.resource_id ? String(item.resource_id).replace(/^["']|["']$/g, "").trim() : "";
+
+  if (normType === "resource") {
+    if (cleanId) {
+      if (cleanId.startsWith("sub-only-")) {
+        return `/resources/subject/${cleanId.replace("sub-only-", "")}`;
+      }
+      return `/resources/${cleanId}`;
+    }
+    return item.resource_url || "/resources";
+  }
+
+  if (normType === "update") {
+    return cleanId ? `/updates/${cleanId}` : item.resource_url || "/updates";
+  }
+
+  if (normType === "study_material") {
+    if (item.resource_url) return item.resource_url;
+    return item.subject_name ? `/materials?q=${encodeURIComponent(item.subject_name)}` : "/materials";
+  }
+
+  if (normType === "question_paper") {
+    return cleanId ? `/qp/${cleanId}` : "/qp";
+  }
+
+  return item.resource_url || (cleanId ? `/resources/${cleanId}` : "/resources");
+}
+
+// Single Update Card matching /updates exactly with direct edit button & quick visibility switcher
 function MyUpdateCard({
   update: u,
   idx,
   currentUserId,
   currentUserUsn,
+  openVisibilityMenuId,
+  setOpenVisibilityMenuId,
+  handleUpdateVisibility,
   onOpenEdit,
   onDeleteRequest,
   onShareUpdate,
@@ -89,11 +184,19 @@ function MyUpdateCard({
   const [isFilesExpanded, setIsFilesExpanded] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(false);
 
+  // AI suggestions states
+  const [showAiSuggestions, setShowAiSuggestions] = useState(false);
+  const [loadingRecs, setLoadingRecs] = useState(false);
+  const [recommendations, setRecommendations] = useState(null);
+  const [downloadingRecId, setDownloadingRecId] = useState(null);
+
   const menuRef = useRef(null);
   const moreRef = useRef(null);
   const userIconRef = useRef(null);
   const timeIconRef = useRef(null);
   const viewsIconRef = useRef(null);
+  const editBtnIconRef = useRef(null);
+  const aiBtnIconRef = useRef(null);
   const shareRef = useRef(null);
   const externalLinkRef = useRef(null);
 
@@ -117,6 +220,113 @@ function MyUpdateCard({
     }
     return () => document.removeEventListener("click", handleClickOutside);
   }, [isMenuOpen]);
+
+  const fetchRecommendations = async () => {
+    if (recommendations !== null || loadingRecs) return;
+    setLoadingRecs(true);
+    try {
+      const combinedQuery = [u.title, u.content].filter(Boolean).join(" ").trim();
+      if (!combinedQuery) {
+        setRecommendations([]);
+        return;
+      }
+      const res = await fetch("/api/ai-recommend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: combinedQuery.slice(0, 300), limit: 5 }),
+      });
+      if (!res.ok) throw new Error("Recommendation fetch failed");
+      const data = await res.json();
+      const currentId = String(u._id).replace(/^["']|["']$/g, "").trim();
+      const filtered = (data.results || []).filter((item) => {
+        const itemCleanId = item.resource_id
+          ? String(item.resource_id).replace(/^["']|["']$/g, "").trim()
+          : "";
+        return itemCleanId !== currentId;
+      });
+      setRecommendations(filtered.slice(0, 3));
+    } catch (err) {
+      console.error("AI recommendations error:", err);
+      setRecommendations([]);
+    } finally {
+      setLoadingRecs(false);
+    }
+  };
+
+  const handleToggleAiSuggestions = () => {
+    const nextState = !showAiSuggestions;
+    setShowAiSuggestions(nextState);
+    if (nextState && recommendations === null) {
+      fetchRecommendations();
+    }
+  };
+
+  const handleRecViewMaterial = (e, item) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const rawUrl = item.resource_url;
+    if (rawUrl) {
+      const googleViewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(rawUrl)}`;
+      window.open(googleViewUrl, "_blank", "noopener,noreferrer");
+    } else {
+      const href = getRecItemHref(item);
+      if (href) {
+        const targetUrl =
+          href.startsWith("http://") || href.startsWith("https://")
+            ? href
+            : `${typeof window !== "undefined" ? window.location.origin : ""}${href}`;
+        window.open(targetUrl, "_blank", "noopener,noreferrer");
+      }
+    }
+  };
+
+  const handleRecDownloadMaterial = async (e, item) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = item.resource_url;
+    if (!url) {
+      handleRecViewMaterial(e, item);
+      return;
+    }
+
+    const downloadKey = item.resource_id || url;
+    setDownloadingRecId(downloadKey);
+    try {
+      const cleanTitle = (item.title || "study-material").trim();
+      const actualName = cleanTitle.toLowerCase().endsWith(".pdf") ? cleanTitle : `${cleanTitle}.pdf`;
+      await downloadPdfFile(url, actualName, cleanTitle);
+    } catch (err) {
+      console.warn("Direct blob download failed, opening in new tab:", err);
+      window.open(url, "_blank", "noopener,noreferrer");
+    } finally {
+      setDownloadingRecId(null);
+    }
+  };
+
+  const handleRecCardClick = (e, item) => {
+    if (
+      e.target.closest("button.suv-ai-btn--download") ||
+      e.target.closest("button.suv-ai-btn--view")
+    ) {
+      return;
+    }
+
+    const normType = normalizeResourceType(item.resource_type, item.source_file);
+    if (normType === "study_material" && item.resource_url) {
+      const googleViewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(item.resource_url)}`;
+      window.open(googleViewUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    const href = getRecItemHref(item);
+    if (href) {
+      const targetUrl =
+        href.startsWith("http://") || href.startsWith("https://")
+          ? href
+          : `${typeof window !== "undefined" ? window.location.origin : ""}${href}`;
+      window.open(targetUrl, "_blank", "noopener,noreferrer");
+    }
+  };
 
   const totalFiles = u.files?.length || 0;
   const hasMoreFiles = totalFiles > FILES_LIMIT;
@@ -163,13 +373,15 @@ function MyUpdateCard({
     (currentUserUsn && u.usn && currentUserUsn.toLowerCase() === u.usn.toLowerCase())
   );
 
+  const isVisOpen = openVisibilityMenuId !== null && String(openVisibilityMenuId) === String(u._id);
+
   return (
     <article
-      className="upd-card"
+      className={`upd-card ${isVisOpen ? 'upl-card-active-menu' : ''}`}
       style={{
         animationDelay: `${(idx % 10) * 25}ms`,
         position: 'relative',
-        zIndex: isMenuOpen ? 100 : 1,
+        zIndex: isVisOpen ? 1000 : isMenuOpen ? 100 : 1,
       }}
     >
       <div className="upd-card-header">
@@ -210,6 +422,40 @@ function MyUpdateCard({
                 <EyeIcon ref={viewsIconRef} className="upd-views-icon" size={14} />
                 <span className="upd-views-count">{formatViews(u.views ?? 0)}</span>
               </div>
+
+              {/* Direct Edit Button between views and 3 dots */}
+              {isOwner && (
+                <button
+                  type="button"
+                  className="upd-direct-edit-btn"
+                  title="Edit update"
+                  aria-label="Edit update"
+                  onMouseEnter={() => editBtnIconRef.current?.startAnimation?.()}
+                  onMouseLeave={() => editBtnIconRef.current?.stopAnimation?.()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenEdit(u);
+                  }}
+                >
+                  <PencilIcon ref={editBtnIconRef} size={15} />
+                </button>
+              )}
+
+              {/* AI Suggestions Button */}
+              <button
+                type="button"
+                className={`upd-ai-btn ${showAiSuggestions ? 'is-active' : ''}`}
+                title="AI suggestions"
+                aria-label="AI suggestions"
+                onMouseEnter={() => aiBtnIconRef.current?.startAnimation?.()}
+                onMouseLeave={() => aiBtnIconRef.current?.stopAnimation?.()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggleAiSuggestions();
+                }}
+              >
+                <SparklesIcon ref={aiBtnIconRef} size={16} className="upd-ai-btn-icon" />
+              </button>
 
               {/* 3-dots more menu */}
               <div className="upd-more-menu-container" ref={menuRef}>
@@ -304,6 +550,95 @@ function MyUpdateCard({
                 </Link>
               </div>
             )}
+
+            {/* Interactive Visibility Switcher with Apple-style dropdown */}
+            <div className="upl-vis-container">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenVisibilityMenuId(isVisOpen ? null : String(u._id));
+                }}
+                className={`upl-vis-badge upl-vis-badge-${u.visibility || 'public'}`}
+                title="Click to change visibility"
+                aria-haspopup="true"
+                aria-expanded={isVisOpen}
+              >
+                {u.visibility === 'private' ? (
+                  <FiLock className="upl-vis-badge-icon" />
+                ) : u.visibility === 'unlisted' ? (
+                  <FiLink2 className="upl-vis-badge-icon" />
+                ) : (
+                  <FiGlobe className="upl-vis-badge-icon" />
+                )}
+                <span className="upl-vis-badge-text">
+                  {u.visibility === 'private' ? 'Private' : u.visibility === 'unlisted' ? 'Unlisted' : 'Public'}
+                </span>
+                <FiChevronDown className={`upl-vis-badge-arrow ${isVisOpen ? 'upl-vis-badge-arrow-open' : ''}`} />
+              </button>
+
+              {/* Dropdown Menu */}
+              {isVisOpen && (
+                <div className="upl-vis-dropdown" onClick={(e) => e.stopPropagation()}>
+                  <div className="upl-vis-dropdown-header">
+                    <span>Change Visibility</span>
+                  </div>
+                  <div className="upl-vis-dropdown-list">
+                    <button
+                      type="button"
+                      className={`upl-vis-dropdown-item ${(!u.visibility || u.visibility === 'public') ? 'active' : ''}`}
+                      onClick={() => handleUpdateVisibility(u._id, 'public')}
+                    >
+                      <div className="upl-vis-item-icon-box upl-vis-icon-public">
+                        <FiGlobe />
+                      </div>
+                      <div className="upl-vis-item-info">
+                        <span className="upl-vis-item-title">Public</span>
+                        <span className="upl-vis-item-desc">Visible to everyone on campus</span>
+                      </div>
+                      {(!u.visibility || u.visibility === 'public') && (
+                        <FiCheck className="upl-vis-item-check" />
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`upl-vis-dropdown-item ${u.visibility === 'unlisted' ? 'active' : ''}`}
+                      onClick={() => handleUpdateVisibility(u._id, 'unlisted')}
+                    >
+                      <div className="upl-vis-item-icon-box upl-vis-icon-unlisted">
+                        <FiLink2 />
+                      </div>
+                      <div className="upl-vis-item-info">
+                        <span className="upl-vis-item-title">Unlisted</span>
+                        <span className="upl-vis-item-desc">Anyone with link can view</span>
+                      </div>
+                      {u.visibility === 'unlisted' && (
+                        <FiCheck className="upl-vis-item-check" />
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      className={`upl-vis-dropdown-item ${u.visibility === 'private' ? 'active' : ''}`}
+                      onClick={() => handleUpdateVisibility(u._id, 'private')}
+                    >
+                      <div className="upl-vis-item-icon-box upl-vis-icon-private">
+                        <FiLock />
+                      </div>
+                      <div className="upl-vis-item-info">
+                        <span className="upl-vis-item-title">Private</span>
+                        <span className="upl-vis-item-desc">Only visible to you</span>
+                      </div>
+                      {u.visibility === 'private' && (
+                        <FiCheck className="upl-vis-item-check" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div
               className="upd-timestamp"
               onMouseEnter={() => timeIconRef.current?.startAnimation?.()}
@@ -472,6 +807,127 @@ function MyUpdateCard({
           )}
         </div>
       )}
+
+      {/* Inline AI suggestions section */}
+      {showAiSuggestions && (
+        <div className="upd-ai-inline-section">
+          <div className="upd-ai-inline-header">
+            <div className="upd-ai-inline-title-wrap">
+              <SparklesIcon size={14} className="upd-ai-inline-sparkle" />
+              <span className="upd-ai-inline-title">AI suggestions on this update</span>
+            </div>
+            <span className="upd-ai-inline-count">
+              {loadingRecs
+                ? "Finding suggestions..."
+                : recommendations && recommendations.length > 0
+                ? `${recommendations.length} recommended`
+                : "No suggestions"}
+            </span>
+          </div>
+
+          {loadingRecs ? (
+            <div className="suv-ai-skeleton-list">
+              {[1, 2, 3].map((k) => (
+                <div key={k} className="suv-ai-skeleton-card">
+                  <div className="suv-ai-skel-line suv-ai-skel-pill" />
+                  <div className="suv-ai-skel-line suv-ai-skel-title" />
+                  <div className="suv-ai-skel-line suv-ai-skel-meta" />
+                </div>
+              ))}
+            </div>
+          ) : recommendations && recommendations.length > 0 ? (
+            <div className="suv-ai-cards-list">
+              {recommendations.map((item, idx) => {
+                const normType = normalizeResourceType(item.resource_type, item.source_file);
+                const config = TYPE_CONFIG[normType] || TYPE_CONFIG.resource;
+                const Icon = config.icon;
+                const isStudyMaterial = normType === "study_material";
+                const hasUrl = !!item.resource_url;
+
+                return (
+                  <div
+                    key={item.resource_id || `rec-${idx}`}
+                    className="suv-ai-card"
+                    onClick={(e) => handleRecCardClick(e, item)}
+                    role="button"
+                    tabIndex={0}
+                    title="Click to open in new tab"
+                    onKeyDown={(e) => e.key === "Enter" && handleRecCardClick(e, item)}
+                  >
+                    <div className="suv-ai-card-main">
+                      <div className="suv-ai-card-meta-top">
+                        <span className={`suv-ai-type-pill ${config.badgeClass}`}>
+                          <Icon size={12} />
+                          <span>{config.label}</span>
+                        </span>
+                        {item.similarity && (
+                          <span className="suv-ai-similarity-badge">
+                            {Math.round(item.similarity * 100)}% match
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="suv-ai-card-title">{item.title}</div>
+
+                      {(item.subject_name || item.course_name || item.semester_number) && (
+                        <div className="suv-ai-card-details">
+                          {item.subject_name && (
+                            <span className="suv-ai-card-subject">{item.subject_name}</span>
+                          )}
+                          {item.semester_number && (
+                            <span className="suv-ai-card-sem">Sem {item.semester_number}</span>
+                          )}
+                          {item.course_name && (
+                            <span className="suv-ai-card-course">{item.course_name}</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="suv-ai-card-actions">
+                      {isStudyMaterial && hasUrl ? (
+                        <div className="suv-ai-actions-group">
+                          <button
+                            type="button"
+                            className="suv-ai-btn suv-ai-btn--view"
+                            onClick={(e) => handleRecViewMaterial(e, item)}
+                            title="View in Google Docs viewer"
+                          >
+                            <EyeIcon size={12} />
+                            <span>View</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="suv-ai-btn suv-ai-btn--download"
+                            onClick={(e) => handleRecDownloadMaterial(e, item)}
+                            disabled={downloadingRecId === (item.resource_id || item.resource_url)}
+                            title="Download file directly"
+                          >
+                            <DownloadIcon size={12} />
+                            <span>
+                              {downloadingRecId === (item.resource_id || item.resource_url)
+                                ? "..."
+                                : "Download"}
+                            </span>
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="suv-ai-card-arrow" title="Open in new tab">
+                          <FiChevronRight size={18} />
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="suv-ai-empty">
+              No relevant resources found for this update.
+            </div>
+          )}
+        </div>
+      )}
     </article>
   );
 }
@@ -486,9 +942,48 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
   const [toast, setToast] = useState(null);
   const pendingRef = useRef({});
 
+  // Visibility dropdown state
+  const [openVisibilityMenuId, setOpenVisibilityMenuId] = useState(null);
+
   // Modal states
   const [deleteModal, setDeleteModal] = useState(null);
   const [editingUpdate, setEditingUpdate] = useState(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (!e.target.closest('.upl-vis-container')) {
+        setOpenVisibilityMenuId(null);
+      }
+    };
+    document.addEventListener('click', handleOutsideClick);
+    return () => document.removeEventListener('click', handleOutsideClick);
+  }, []);
+
+  const handleUpdateVisibility = async (updateId, newVisibility) => {
+    setOpenVisibilityMenuId(null);
+
+    // Optimistic UI update
+    setUpdates((prev) =>
+      prev.map((u) => (String(u._id) === String(updateId) ? { ...u, visibility: newVisibility } : u))
+    );
+
+    try {
+      const res = await authFetch('/api/updates/visibility', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ updateId, visibility: newVisibility })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Failed to update visibility');
+      showToast(`Visibility updated to ${newVisibility}`, 'success');
+    } catch (err) {
+      console.error('Visibility update error:', err);
+      showToast('Failed to change visibility', 'error');
+      if (currentUserId) {
+        fetchPage(page, false, currentUserId, searchQuery);
+      }
+    }
+  };
 
   const fetchPage = async (p = 1, append = false, userId = currentUserId, query = searchQuery) => {
     if (!userId) {
@@ -787,6 +1282,9 @@ export default function UpdatesList({ refreshKey, searchQuery = "", onClearSearc
             idx={idx}
             currentUserId={currentUserId}
             currentUserUsn={currentUserUsn}
+            openVisibilityMenuId={openVisibilityMenuId}
+            setOpenVisibilityMenuId={setOpenVisibilityMenuId}
+            handleUpdateVisibility={handleUpdateVisibility}
             onOpenEdit={(update) => setEditingUpdate(update)}
             onDeleteRequest={(id, title) => openDeleteModal(id, title)}
             onShareUpdate={handleShareUpdate}
