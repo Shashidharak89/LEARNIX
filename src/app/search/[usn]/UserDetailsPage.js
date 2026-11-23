@@ -396,7 +396,7 @@ export default function UserDetailsPage({ usn }) {
                 <div className="up-stat-icon-wrapper">
                   <FiZap />
                 </div>
-                <div className="up-stat-value">{user.streaks || 1}</div>
+                <div className="up-stat-value">{user.streaks ?? 0}</div>
                 <div className="up-stat-label">Streak</div>
               </div>
 
@@ -405,7 +405,7 @@ export default function UserDetailsPage({ usn }) {
                 <div className="up-stat-icon-wrapper">
                   <FiTrendingUp />
                 </div>
-                <div className="up-stat-value">{user.highestStreak || 1}</div>
+                <div className="up-stat-value">{user.highestStreak ?? 0}</div>
                 <div className="up-stat-label">Highest streak</div>
               </div>
             </div>

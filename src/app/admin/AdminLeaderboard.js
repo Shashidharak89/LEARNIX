@@ -340,7 +340,7 @@ export default function AdminLeaderboard({ token: propToken }) {
                     >
                       <FiStar size={13} className="alb-streak-icon alb-icon-star" />
                       <div className="alb-streak-info">
-                        <span className="alb-streak-val">{user.highestStreak ?? 1}</span>
+                        <span className="alb-streak-val">{user.highestStreak ?? 0}</span>
                         <span className="alb-streak-label">Highest</span>
                       </div>
                     </div>
@@ -354,7 +354,7 @@ export default function AdminLeaderboard({ token: propToken }) {
                     >
                       <FiZap size={13} className="alb-streak-icon alb-icon-zap" />
                       <div className="alb-streak-info">
-                        <span className="alb-streak-val">{user.streaks ?? 1}</span>
+                        <span className="alb-streak-val">{user.streaks ?? 0}</span>
                         <span className="alb-streak-label">Active</span>
                       </div>
                     </div>

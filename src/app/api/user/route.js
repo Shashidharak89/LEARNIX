@@ -4,7 +4,7 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
-import { resolveAuthenticatedUser } from "@/lib/authUser";
+import { resolveAuthenticatedUser, calculateCurrentStreak } from "@/lib/authUser";
 
 export const GET = async (req) => {
   try {
@@ -109,8 +109,8 @@ export const GET = async (req) => {
         hasUploadsLoaded: includeUploads,
         createdAt: user.createdAt,
         profileimg: user.profileimg,
-        streaks: Number.isFinite(Number(user.streaks)) ? Number(user.streaks) : 1,
-        highestStreak: Number.isFinite(Number(user.highestStreak)) ? Number(user.highestStreak) : 1,
+        streaks: calculateCurrentStreak(user),
+        highestStreak: Number.isFinite(Number(user.highestStreak)) ? Number(user.highestStreak) : 0,
       },
     });
   } catch (err) {
