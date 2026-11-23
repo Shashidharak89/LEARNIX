@@ -1,3 +1,4 @@
+import { Navbar } from "@/app/components/Navbar";
 import AdminGuard from "../AdminGuard";
 import AdminUpdates from "./AdminUpdates";
 
@@ -8,7 +9,10 @@ export const metadata = {
 export default function AdminUpdatesPage() {
     return (
         <AdminGuard>
-            <AdminUpdates />
+            <div>
+                <Navbar />
+                <AdminUpdates />
+            </div>
         </AdminGuard>
     );
 }
