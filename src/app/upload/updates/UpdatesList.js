@@ -32,6 +32,10 @@ import {
   BellIcon,
   BookOpenIcon,
   FileTextIcon,
+  GlobeIcon,
+  LockIcon,
+  LinkIcon,
+  CheckIcon,
 } from "@animateicons/react/lucide";
 import { groupConsecutiveLinks } from '../../utils/youtube';
 import LinkPreview from '../../components/LinkPreview';
@@ -549,11 +553,11 @@ function MyUpdateCard({
                 aria-expanded={isVisOpen}
               >
                 {u.visibility === 'private' ? (
-                  <FiLock className="upl-vis-badge-icon" />
+                  <LockIcon size={13} className="upl-vis-badge-icon" />
                 ) : u.visibility === 'unlisted' ? (
-                  <FiLink2 className="upl-vis-badge-icon" />
+                  <LinkIcon size={13} className="upl-vis-badge-icon" />
                 ) : (
-                  <FiGlobe className="upl-vis-badge-icon" />
+                  <GlobeIcon size={13} className="upl-vis-badge-icon" />
                 )}
                 <span className="upl-vis-badge-text">
                   {u.visibility === 'private' ? 'Private' : u.visibility === 'unlisted' ? 'Unlisted' : 'Public'}
@@ -574,14 +578,14 @@ function MyUpdateCard({
                       onClick={() => handleUpdateVisibility(u._id, 'public')}
                     >
                       <div className="upl-vis-item-icon-box upl-vis-icon-public">
-                        <FiGlobe />
+                        <GlobeIcon size={15} />
                       </div>
                       <div className="upl-vis-item-info">
                         <span className="upl-vis-item-title">Public</span>
                         <span className="upl-vis-item-desc">Visible to everyone on campus</span>
                       </div>
                       {(!u.visibility || u.visibility === 'public') && (
-                        <FiCheck className="upl-vis-item-check" />
+                        <CheckIcon size={15} className="upl-vis-item-check" />
                       )}
                     </button>
 
@@ -591,14 +595,14 @@ function MyUpdateCard({
                       onClick={() => handleUpdateVisibility(u._id, 'unlisted')}
                     >
                       <div className="upl-vis-item-icon-box upl-vis-icon-unlisted">
-                        <FiLink2 />
+                        <LinkIcon size={15} />
                       </div>
                       <div className="upl-vis-item-info">
                         <span className="upl-vis-item-title">Unlisted</span>
                         <span className="upl-vis-item-desc">Anyone with link can view</span>
                       </div>
                       {u.visibility === 'unlisted' && (
-                        <FiCheck className="upl-vis-item-check" />
+                        <CheckIcon size={15} className="upl-vis-item-check" />
                       )}
                     </button>
 
@@ -608,14 +612,14 @@ function MyUpdateCard({
                       onClick={() => handleUpdateVisibility(u._id, 'private')}
                     >
                       <div className="upl-vis-item-icon-box upl-vis-icon-private">
-                        <FiLock />
+                        <LockIcon size={15} />
                       </div>
                       <div className="upl-vis-item-info">
                         <span className="upl-vis-item-title">Private</span>
                         <span className="upl-vis-item-desc">Only visible to you</span>
                       </div>
                       {u.visibility === 'private' && (
-                        <FiCheck className="upl-vis-item-check" />
+                        <CheckIcon size={15} className="upl-vis-item-check" />
                       )}
                     </button>
                   </div>
