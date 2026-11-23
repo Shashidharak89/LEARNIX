@@ -308,28 +308,6 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
 
   return (
     <div className="auf-container">
-      {/* Apple-styled Top Header Bar with SINGLE clean X button */}
-      <div className="auf-header-bar">
-        <div className="auf-header-left">
-          <div className="auf-header-badge">NEW UPDATE</div>
-          <h2 className="auf-title">Post Campus Update</h2>
-        </div>
-
-        {onCancel && (
-          <button
-            type="button"
-            onClick={handleCancelClick}
-            className="auf-close-header-btn"
-            title="Close"
-            aria-label="Close add update form"
-            onMouseEnter={() => closeIconRef.current?.startAnimation?.()}
-            onMouseLeave={() => closeIconRef.current?.stopAnimation?.()}
-          >
-            <XIcon ref={closeIconRef} size={18} />
-          </button>
-        )}
-      </div>
-
       {/* Floating Screen-Bottom Toast Notification */}
       {toast && (
         <div className={`auf-toast auf-toast-${toast.type || "info"}`} role="status" aria-live="polite">
@@ -354,8 +332,27 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
         </div>
       )}
 
-      {/* Form Card */}
+      {/* Form Card (Apple Container with integrated Header & right-aligned X) */}
       <div className="auf-card">
+        {/* Card Header: Add Update Title + Right Corner X Close Button */}
+        <div className="auf-card-header">
+          <h2 className="auf-card-title">Add Update</h2>
+
+          {onCancel && (
+            <button
+              type="button"
+              onClick={handleCancelClick}
+              className="auf-card-close-btn"
+              title="Close"
+              aria-label="Close add update form"
+              onMouseEnter={() => closeIconRef.current?.startAnimation?.()}
+              onMouseLeave={() => closeIconRef.current?.stopAnimation?.()}
+            >
+              <XIcon ref={closeIconRef} size={18} />
+            </button>
+          )}
+        </div>
+
         <form onSubmit={handleSubmit} className="auf-form">
           {/* Section 1: Title Field */}
           <div className="auf-field">

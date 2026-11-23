@@ -228,10 +228,59 @@
   box-shadow: var(--auf-shadow-card);
   animation: auf-card-appear 360ms var(--auf-ease) both;
   transition: border-color 200ms ease;
+  position: relative;
 }
 
 .auf-card:hover {
   border-color: #cbd5e1;
+}
+
+/* Card Header: Add Update Title + Right Corner X Close Button */
+.auf-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 16px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.auf-card-title {
+  margin: 0;
+  font-size: 1.28rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--auf-text);
+  line-height: 1.25;
+}
+
+.auf-card-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 180ms var(--auf-ease);
+  flex-shrink: 0;
+}
+
+.auf-card-close-btn:hover {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.25);
+  color: #ef4444;
+  transform: scale(1.06);
+}
+
+.auf-card-close-btn:active {
+  transform: scale(0.94);
 }
 
 .auf-form {
@@ -1084,8 +1133,22 @@
 
 @media (max-width: 640px) {
   .auf-card {
-    padding: 18px 16px;
+    padding: 16px 14px;
     border-radius: 18px;
+  }
+
+  .auf-card-header {
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+  }
+
+  .auf-card-title {
+    font-size: 1.15rem;
+  }
+
+  .auf-card-close-btn {
+    width: 30px;
+    height: 30px;
   }
 
   .auf-vis-segmented {
