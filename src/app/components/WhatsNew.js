@@ -10,6 +10,18 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Top Contributors Leaderboard on Resources & Updates",
+      date: "Nov 23, 2026",
+      description:
+        "Celebrate active community contributors! We added an expandable Leaderboard right on both the Resources (/resources) and Updates (/updates) pages next to the upload button. View top contributors ranked by upload activity with an Apple-style 3D podium bar graph for the top 3 and a clean single-row avatar reel for ranks 4–10. Easily filter rankings by 7 days, 30 days, 90 days, or a custom date range, and tap any contributor's profile to visit their work.",
+    },
+    {
+      title: "Smarter Search with Short Forms & Synonyms in Study Materials and Question Papers",
+      date: "Nov 23, 2026",
+      description:
+        "Searching for your exam resources and study materials is now much faster and more intuitive! The search engines across Study Materials and Question Papers now understand popular subject short forms, abbreviations, and synonyms (such as 'CNS' for Cryptography and Network Security, 'OS' for Operating Systems, 'DBMS', 'ML', 'AI', 'DAA', and more). Even if you type common short forms, the system surfaces the exact matching subjects, question papers, and study files seamlessly.",
+    },
+    {
       title: "Introducing Learn Later — Save & Revisit Any Resource",
       date: "Oct 28, 2026",
       description:
