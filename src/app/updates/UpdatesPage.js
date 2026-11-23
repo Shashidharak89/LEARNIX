@@ -20,7 +20,9 @@ import {
   FolderIcon,
   BookOpenIcon,
   FileTextIcon,
+  ChartColumnIcon,
 } from "@animateicons/react/lucide";
+import UpdatesLeaderboard from './UpdatesLeaderboard';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
 import { getYouTubeVideoId, groupConsecutiveLinks } from '../utils/youtube';
 import LinkPreview from '../components/LinkPreview';
@@ -847,6 +849,7 @@ export default function UpdatesPage({ initialUpdateId }) {
   const [searchQuery, setSearchQuery] = useState(keywordFromUrl);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [toast, setToast] = useState(null);
   const toastTimeoutRef = useRef(null);
   const highlightedCardRef = useRef(null);
@@ -854,6 +857,7 @@ export default function UpdatesPage({ initialUpdateId }) {
   const addIconRef = useRef(null);
   const manageIconRef = useRef(null);
   const searchBtnRef = useRef(null);
+  const leaderboardIconRef = useRef(null);
 
   const lastFetchedQueryRef = useRef(null);
 
@@ -1069,33 +1073,49 @@ export default function UpdatesPage({ initialUpdateId }) {
                 <BellIcon ref={titleBellRef} className="upd-title-icon" size={24} />
                 Updates
               </h1>
-              {isLoggedIn && (
-                <div className="upd-action-buttons">
-                  <button
-                    type="button"
-                    className="upd-action-btn upd-action-btn-primary"
-                    onClick={() => setShowAddModal(true)}
-                    onMouseEnter={() => addIconRef.current?.startAnimation?.()}
-                    onMouseLeave={() => addIconRef.current?.stopAnimation?.()}
-                    title="Add Update"
-                    aria-label="Add Update"
-                  >
-                    <PlusIcon ref={addIconRef} className="upd-action-icon" size={16} />
-                    <span className="upd-action-text">Add Update</span>
-                  </button>
-                  <Link
-                    href="/upload/updates"
-                    className="upd-action-btn upd-action-btn-secondary"
-                    onMouseEnter={() => manageIconRef.current?.startAnimation?.()}
-                    onMouseLeave={() => manageIconRef.current?.stopAnimation?.()}
-                    title="Manage Updates"
-                    aria-label="Manage Updates"
-                  >
-                    <ListIcon ref={manageIconRef} className="upd-action-icon" size={16} />
-                    <span className="upd-action-text">Manage</span>
-                  </Link>
-                </div>
-              )}
+              <div className="upd-action-buttons">
+                <button
+                  type="button"
+                  className={`upd-action-btn upd-action-btn-leaderboard ${showLeaderboard ? 'active' : ''}`}
+                  onClick={() => setShowLeaderboard((prev) => !prev)}
+                  onMouseEnter={() => leaderboardIconRef.current?.startAnimation?.()}
+                  onMouseLeave={() => leaderboardIconRef.current?.stopAnimation?.()}
+                  title={showLeaderboard ? 'Hide Contributors Leaderboard' : 'View Top Contributors Leaderboard'}
+                  aria-label="Contributors Leaderboard"
+                  aria-expanded={showLeaderboard}
+                >
+                  <ChartColumnIcon ref={leaderboardIconRef} className="upd-action-icon upd-lb-icon" size={16} />
+                  <span className="upd-action-text">Leaderboard</span>
+                </button>
+
+                {isLoggedIn && (
+                  <>
+                    <button
+                      type="button"
+                      className="upd-action-btn upd-action-btn-primary"
+                      onClick={() => setShowAddModal(true)}
+                      onMouseEnter={() => addIconRef.current?.startAnimation?.()}
+                      onMouseLeave={() => addIconRef.current?.stopAnimation?.()}
+                      title="Add Update"
+                      aria-label="Add Update"
+                    >
+                      <PlusIcon ref={addIconRef} className="upd-action-icon" size={16} />
+                      <span className="upd-action-text">Add Update</span>
+                    </button>
+                    <Link
+                      href="/upload/updates"
+                      className="upd-action-btn upd-action-btn-secondary"
+                      onMouseEnter={() => manageIconRef.current?.startAnimation?.()}
+                      onMouseLeave={() => manageIconRef.current?.stopAnimation?.()}
+                      title="Manage Updates"
+                      aria-label="Manage Updates"
+                    >
+                      <ListIcon ref={manageIconRef} className="upd-action-icon" size={16} />
+                      <span className="upd-action-text">Manage</span>
+                    </Link>
+                  </>
+                )}
+              </div>
             </div>
 
             <form className="upd-search-form" onSubmit={handleSearchSubmit}>
@@ -1131,6 +1151,12 @@ export default function UpdatesPage({ initialUpdateId }) {
                 <span className="upd-search-btn-text">Search</span>
               </button>
             </form>
+
+            {/* Expandable Leaderboard below Searchbar */}
+            <UpdatesLeaderboard
+              isOpen={showLeaderboard}
+              onClose={() => setShowLeaderboard(false)}
+            />
           </div>
 
           <div className="upd-list">
