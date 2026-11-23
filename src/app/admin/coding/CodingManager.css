@@ -21,10 +21,11 @@
 
 /* ── Container ── */
 .ac-container {
-  max-width: 1360px;
+  width: 90%;
+  max-width: 1200px;
   margin: 0 auto;
   min-height: 100vh;
-  padding: 0 1.5rem 5rem 1.5rem;
+  padding: 0 0 5rem 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--ac-text-primary);
   background-color: var(--ac-bg-page);

@@ -1,9 +1,10 @@
 /* AdminResources.css - Learnix Resource Management */
 
 .ar-container {
-  max-width: 1360px;
+  width: 90%;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 24px 20px 60px 20px;
+  padding: 24px 0 60px;
   min-height: 88vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #1e293b;

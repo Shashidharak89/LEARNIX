@@ -1,59 +1,199 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   AdminFeedbacks.css — Apple Aesthetic for /admin/feedbacks
+   Width: 90%, max-width 1200px (matching Updates and Admin users)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.af-main {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto 60px;
+  padding-top: 24px;
+}
+
+.af-intro-card {
+  padding: 30px 32px;
+  margin-bottom: 24px;
+}
+
+.af-intro-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.af-intro-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.af-header-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.af-header-badge {
+  background-color: #ec4899 !important;
+  margin-bottom: 0 !important;
+}
+
+.af-orb {
+  background: #fdf2f8 !important;
+  border: 1.5px solid rgba(236, 72, 153, 0.25) !important;
+  color: #ec4899 !important;
+}
+
+.af-title-group {
+  margin-top: 14px;
+  margin-bottom: 0px;
+}
+
+.af-title {
+  margin: 0 0 6px 0;
+  line-height: 1.2;
+}
+
+.af-title-highlight {
+  color: #ec4899;
+  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.af-subtitle {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+/* ── Summary Widget Colors ── */
+.af-summary-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-bottom: 24px;
+}
+
+.af-widget-pink {
+  background: #ffffff;
+}
+
+.af-widget-icon-pink {
+  background: #fdf2f8;
+  color: #ec4899;
+}
+
+/* ── Feedback List Items (Apple Rounded Cards) ── */
 .af-list {
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
-  margin-bottom: 1.25rem;
+  gap: 14px;
+  margin-bottom: 24px;
 }
 
 .af-card {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1rem 1.1rem;
-  animation: af-fade-in 0.25s ease both;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  border-radius: 20px;
+  padding: 20px 24px;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.04);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, border-color 0.2s ease;
+  animation: af-fade-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .af-card:hover {
-  border-color: #ec4899;
-  box-shadow: 0 5px 18px rgba(236, 72, 153, 0.12);
+  transform: translateY(-2px);
+  border-color: rgba(236, 72, 153, 0.35);
+  box-shadow: 0 10px 24px -4px rgba(236, 72, 153, 0.12);
 }
 
 .af-row-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.55rem;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .af-id {
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   font-weight: 700;
-  color: #be185d;
-  background: #fce7f3;
-  border: 1px solid #f9a8d4;
-  border-radius: 999px;
-  padding: 0.18rem 0.5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: #db2777;
+  background: #fdf2f8;
+  border: 1px solid rgba(236, 72, 153, 0.25);
+  border-radius: 9999px;
+  padding: 3px 10px;
+  letter-spacing: 0.03em;
 }
 
 .af-time {
   display: inline-flex;
   align-items: center;
-  gap: 0.28rem;
-  font-size: 0.76rem;
-  color: #6b7280;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #64748b;
 }
 
 .af-text {
   margin: 0;
-  color: #111827;
-  font-size: 0.92rem;
-  line-height: 1.6;
+  color: #1e293b;
+  font-size: 0.95rem;
+  line-height: 1.65;
   white-space: pre-wrap;
   word-break: break-word;
 }
 
+.af-empty {
+  background: #ffffff;
+  border: 1px dashed rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  padding: 48px 24px;
+}
+
 @keyframes af-fade-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .af-main {
+    width: 94%;
+    padding-top: 16px;
+  }
+
+  .af-intro-card {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .af-intro-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .af-header-top-row {
+    flex-wrap: wrap;
+  }
+
+  .adm-intro-right {
+    display: none;
+  }
+
+  .af-card {
+    padding: 16px 18px;
+    border-radius: 16px;
+  }
 }

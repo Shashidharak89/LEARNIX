@@ -3,13 +3,13 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import {
-  FiArrowLeft,
-  FiMessageCircle,
-  FiChevronDown,
-  FiLoader,
-  FiCalendar,
-  FiHash,
-} from "react-icons/fi";
+  ArrowLeftIcon,
+  MessageCircleIcon,
+  ChevronDownIcon,
+  CalendarIcon,
+  ListOrderedIcon,
+} from "@animateicons/react/lucide";
+import { FiLoader } from "react-icons/fi";
 import "../styles/AdminDashboard.css";
 import "../users/AdminUsers.css";
 import "./AdminFeedbacks.css";
@@ -68,7 +68,9 @@ export default function AdminFeedbacks() {
           return;
         }
 
-        append ? setFeedbacks((prev) => [...prev, ...(data.feedbacks || [])]) : setFeedbacks(data.feedbacks || []);
+        append
+          ? setFeedbacks((prev) => [...prev, ...(data.feedbacks || [])])
+          : setFeedbacks(data.feedbacks || []);
         setTotal(data.total || 0);
         setPage(data.page || 1);
         setTotalPages(data.totalPages || 1);
@@ -92,103 +94,132 @@ export default function AdminFeedbacks() {
 
   return (
     <div className={`adm-wrapper ${isLoaded ? "adm-loaded" : ""}`}>
-      <header className="adm-header">
-        <div className="adm-header-content">
-          <div className="adm-header-left">
-            <Link href="/admin" className="au-back-link">
-              <FiArrowLeft size={15} /> Admin Dashboard
-            </Link>
-            <div className="adm-role-badge" style={{ backgroundColor: "#ec4899", marginTop: "0.75rem" }}>
-              <FiMessageCircle size={15} />
-              <span>Feedbacks</span>
-            </div>
-            <h1 className="adm-title">
-              User <span className="adm-title-highlight">Feedbacks</span>
-            </h1>
-            <p className="adm-subtitle">
-              {total > 0 ? `${total} total feedbacks` : "No feedback entries yet"}
-            </p>
-          </div>
-          <div className="adm-header-deco">
-            <div className="adm-deco-circle" style={{ background: "#fce7f3", border: "2px solid #fbcfe8" }}>
-              <FiMessageCircle size={44} color="#ec4899" />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <section className="adm-summary">
-        <div className="adm-summary-card adm-summary-blue">
-          <div className="adm-summary-icon"><FiMessageCircle size={20} /></div>
-          <div>
-            <div className="adm-summary-value">{total}</div>
-            <div className="adm-summary-label">Total Feedbacks</div>
-          </div>
-        </div>
-        <div className="adm-summary-card adm-summary-yellow">
-          <div className="adm-summary-icon"><FiHash size={20} /></div>
-          <div>
-            <div className="adm-summary-value">{feedbacks.length}</div>
-            <div className="adm-summary-label">Loaded</div>
-          </div>
-        </div>
-      </section>
-
-      {error && <div className="au-error-banner">{error}</div>}
-
-      {loading ? (
-        <div className="au-loading-state">
-          <div className="au-spinner"><FiLoader size={28} /></div>
-          <p>Loading feedbacks…</p>
-        </div>
-      ) : (
-        <>
-          <section className="af-list">
-            {feedbacks.map((item, idx) => (
-              <article
-                key={item._id || idx}
-                className="af-card"
-                style={{ animationDelay: `${idx * 0.03}s` }}
-              >
-                <div className="af-row-top">
-                  <span className="af-id">#{item._id?.slice(-6) || idx + 1}</span>
-                  <span className="af-time">
-                    <FiCalendar size={12} /> {formatDateTime(item.createdAt)}
-                  </span>
+      <main className="adm-main af-main">
+        {/* ── Apple-style Hero Intro Card ── */}
+        <div className="adm-intro-card af-intro-card">
+          <div className="adm-intro-header af-intro-header">
+            <div className="adm-intro-left af-intro-left">
+              <div className="af-header-top-row">
+                <Link href="/admin" className="au-back-link">
+                  <ArrowLeftIcon size={16} /> <span>Admin Dashboard</span>
+                </Link>
+                <div className="adm-role-badge af-header-badge">
+                  <MessageCircleIcon size={15} />
+                  <span>Feedback Management</span>
                 </div>
-                <p className="af-text">{item.feedback}</p>
-              </article>
-            ))}
-          </section>
+              </div>
 
-          {feedbacks.length === 0 && !loading && (
-            <div className="au-empty">
-              <FiMessageCircle size={36} />
-              <p>No feedbacks found</p>
+              <div className="af-title-group">
+                <h1 className="adm-title af-title">
+                  User <span className="adm-title-highlight af-title-highlight">Feedbacks</span>
+                </h1>
+                <p className="adm-subtitle af-subtitle">
+                  {total > 0
+                    ? `Review user thoughts and suggestions — ${total} total submissions`
+                    : "No feedback entries received yet"}
+                </p>
+              </div>
             </div>
-          )}
 
-          {page < totalPages && (
-            <div className="au-view-more-wrap">
-              <button
-                className="au-view-more-btn"
-                onClick={() => fetchFeedbacks(page + 1, true)}
-                disabled={loadingMore}
-              >
-                {loadingMore ? (
-                  <><span className="au-dots"><span /><span /><span /></span> Loading…</>
-                ) : (
-                  <><FiChevronDown size={16} /> View More ({total - feedbacks.length} remaining)</>
-                )}
-              </button>
+            <div className="adm-intro-right">
+              <div className="adm-shield-orb af-orb">
+                <MessageCircleIcon size={38} />
+              </div>
             </div>
-          )}
+          </div>
+        </div>
 
-          {feedbacks.length > 0 && page >= totalPages && (
-            <p className="au-all-loaded">All {total} feedbacks loaded</p>
-          )}
-        </>
-      )}
+        {/* ── Apple Summary Grid Widgets ── */}
+        <section className="au-summary-grid af-summary-grid">
+          <div className="au-summary-widget af-widget-pink">
+            <div className="au-widget-icon af-widget-icon-pink">
+              <MessageCircleIcon size={20} />
+            </div>
+            <div className="au-widget-content">
+              <div className="au-widget-value">{total}</div>
+              <div className="au-widget-label">Total Feedbacks</div>
+            </div>
+          </div>
+
+          <div className="au-summary-widget au-widget-amber">
+            <div className="au-widget-icon">
+              <ListOrderedIcon size={20} />
+            </div>
+            <div className="au-widget-content">
+              <div className="au-widget-value">{feedbacks.length}</div>
+              <div className="au-widget-label">Loaded on Page</div>
+            </div>
+          </div>
+        </section>
+
+        {error && <div className="au-error-banner">{error}</div>}
+
+        {loading ? (
+          <div className="au-loading-state">
+            <div className="au-spinner">
+              <FiLoader size={28} />
+            </div>
+            <p>Loading feedbacks…</p>
+          </div>
+        ) : (
+          <>
+            <section className="af-list">
+              {feedbacks.map((item, idx) => (
+                <article
+                  key={item._id || idx}
+                  className="af-card"
+                  style={{ animationDelay: `${idx * 0.03}s` }}
+                >
+                  <div className="af-row-top">
+                    <span className="af-id">#{item._id?.slice(-6) || idx + 1}</span>
+                    <span className="af-time">
+                      <CalendarIcon size={13} /> {formatDateTime(item.createdAt)}
+                    </span>
+                  </div>
+                  <p className="af-text">{item.feedback}</p>
+                </article>
+              ))}
+            </section>
+
+            {feedbacks.length === 0 && !loading && (
+              <div className="au-empty af-empty">
+                <MessageCircleIcon size={36} />
+                <p>No feedbacks submitted yet</p>
+              </div>
+            )}
+
+            {page < totalPages && (
+              <div className="au-view-more-wrap">
+                <button
+                  type="button"
+                  className="au-view-more-btn"
+                  onClick={() => fetchFeedbacks(page + 1, true)}
+                  disabled={loadingMore}
+                >
+                  {loadingMore ? (
+                    <>
+                      <span className="au-dots">
+                        <span />
+                        <span />
+                        <span />
+                      </span>{" "}
+                      Loading…
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDownIcon size={16} /> View More ({total - feedbacks.length} remaining)
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+
+            {feedbacks.length > 0 && page >= totalPages && (
+              <p className="au-all-loaded">All {total} feedbacks loaded</p>
+            )}
+          </>
+        )}
+      </main>
     </div>
   );
 }
