@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
 import Update from "@/models/Update";
 import User from "@/models/User";
+import { getUpdateViews } from "@/lib/interactions";
 
 const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey";
 
@@ -73,6 +74,9 @@ export async function GET(req) {
 
     const user = await User.findById(userId).lean();
 
+    const updateIds = updates.map((u) => u._id.toString());
+    const viewsMap = await getUpdateViews(updateIds);
+
     const enriched = updates.map((u) => ({
       _id: u._id,
       title: u.title,
@@ -80,6 +84,7 @@ export async function GET(req) {
       links: u.links || [],
       files: u.files || [],
       userId: u.userId,
+      views: viewsMap[u._id.toString()] ?? 0,
       visibility: u.visibility || "public",
       createdAt: u.createdAt,
       updatedAt: u.updatedAt,

@@ -1,3 +1,13 @@
+/* Update Card in My Updates — ensure visibility popover can extend outside without clipping */
+.upl-container .upd-card {
+  overflow: visible !important;
+}
+
+.upl-container .upd-card.upl-card-active-menu {
+  z-index: 1000 !important;
+  position: relative !important;
+}
+
 /* Direct Edit Button between views and 3-dots on update cards */
 .upd-direct-edit-btn {
   display: inline-flex;

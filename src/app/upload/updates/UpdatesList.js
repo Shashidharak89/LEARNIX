@@ -441,22 +441,6 @@ function MyUpdateCard({
                 </button>
               )}
 
-              {/* AI Suggestions Button */}
-              <button
-                type="button"
-                className={`upd-ai-btn ${showAiSuggestions ? 'is-active' : ''}`}
-                title="AI suggestions"
-                aria-label="AI suggestions"
-                onMouseEnter={() => aiBtnIconRef.current?.startAnimation?.()}
-                onMouseLeave={() => aiBtnIconRef.current?.stopAnimation?.()}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleToggleAiSuggestions();
-                }}
-              >
-                <SparklesIcon ref={aiBtnIconRef} size={16} className="upd-ai-btn-icon" />
-              </button>
-
               {/* 3-dots more menu */}
               <div className="upd-more-menu-container" ref={menuRef}>
                 <button
@@ -475,20 +459,20 @@ function MyUpdateCard({
                 </button>
                 {isMenuOpen && (
                   <div className="upd-dropdown-menu">
-                    {isOwner && (
-                      <button
-                        type="button"
-                        className="upd-dropdown-item"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setIsMenuOpen(false);
-                          onOpenEdit(u);
-                        }}
-                      >
-                        <PencilIcon size={14} />
-                        <span>Edit update</span>
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      className={`upd-dropdown-item ${showAiSuggestions ? 'is-active' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsMenuOpen(false);
+                        handleToggleAiSuggestions();
+                      }}
+                      onMouseEnter={() => aiBtnIconRef.current?.startAnimation?.()}
+                      onMouseLeave={() => aiBtnIconRef.current?.stopAnimation?.()}
+                    >
+                      <SparklesIcon ref={aiBtnIconRef} size={14} style={{ color: '#a855f7' }} />
+                      <span>{showAiSuggestions ? 'Hide AI suggestions' : 'AI suggestions'}</span>
+                    </button>
                     <button
                       type="button"
                       className="upd-dropdown-item"
