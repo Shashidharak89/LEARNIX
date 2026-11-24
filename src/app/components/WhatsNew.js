@@ -10,6 +10,12 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Keep your notes, links, and files in one private space",
+      date: "Nov 24, 2026",
+      description:
+        "Sign in and open Keep from My Workspace to write a Markdown note, save a link, or upload a file. Titles are optional. Search your collection, pin items you use often, and download your files anytime. Press N in Keep to add an item or ? to see all keyboard shortcuts.",
+    },
+    {
       title: "Top Contributors Leaderboard on Resources & Updates",
       date: "Nov 23, 2026",
       description:
