@@ -21,17 +21,33 @@ export async function GET(req) {
         const examTypeId = url.searchParams.get("examTypeId");
         const courseId = url.searchParams.get("courseId");
         const semesterId = url.searchParams.get("semesterId");
+        const universityId = url.searchParams.get("universityId");
         
         const query = {};
         if (subjectId) query.subject = subjectId;
-        if (collegeId) query.college = collegeId;
+        if (collegeId) {
+            query.college = collegeId;
+        } else if (universityId) {
+            const collegesUnderUni = await QPColleges.find({ university: universityId }).select("_id").lean();
+            const collegeIds = collegesUnderUni.map(c => c._id);
+            if (collegeIds.length > 0) {
+                query.college = { $in: collegeIds };
+            }
+        }
+
         if (batchId) query.batch = batchId;
         if (examTypeId) query.examtype = examTypeId;
 
-        // If no explicit subjectId is provided but course/semester is, restrict subjects
-        if (!subjectId && (courseId || semesterId)) {
+        // If course or semester filter is present, ensure subject belongs to that course/semester
+        if (courseId || semesterId) {
             const subjectQuery = {};
+            if (subjectId) subjectQuery._id = subjectId;
             if (collegeId) subjectQuery.college = collegeId;
+            else if (universityId) {
+                const collegesUnderUni = await QPColleges.find({ university: universityId }).select("_id").lean();
+                const collegeIds = collegesUnderUni.map(c => c._id);
+                if (collegeIds.length > 0) subjectQuery.college = { $in: collegeIds };
+            }
             if (courseId) subjectQuery.course = courseId;
             if (semesterId) subjectQuery.semester = semesterId;
             

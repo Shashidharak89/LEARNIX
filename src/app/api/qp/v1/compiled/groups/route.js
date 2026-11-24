@@ -21,22 +21,37 @@ export async function GET(req) {
         const examTypeId = url.searchParams.get("examTypeId");
         const courseId = url.searchParams.get("courseId");
         const semesterId = url.searchParams.get("semesterId");
+        const universityId = url.searchParams.get("universityId");
         
         const matchStage = {};
         
         if (subjectId) matchStage.subject = new mongoose.Types.ObjectId(subjectId);
-        if (collegeId) matchStage.college = new mongoose.Types.ObjectId(collegeId);
+        if (collegeId) {
+            matchStage.college = new mongoose.Types.ObjectId(collegeId);
+        } else if (universityId) {
+            const collegesUnderUni = await QPColleges.find({ university: universityId }).select("_id").lean();
+            const collegeIds = collegesUnderUni.map(c => new mongoose.Types.ObjectId(c._id));
+            if (collegeIds.length > 0) {
+                matchStage.college = { $in: collegeIds };
+            }
+        }
         if (batchId) matchStage.batch = new mongoose.Types.ObjectId(batchId);
         if (examTypeId) matchStage.examtype = new mongoose.Types.ObjectId(examTypeId);
 
-        if (!subjectId && (courseId || semesterId)) {
+        if (courseId || semesterId) {
             const subjectQuery = {};
+            if (subjectId) subjectQuery._id = subjectId;
             if (collegeId) subjectQuery.college = collegeId;
+            else if (universityId) {
+                const collegesUnderUni = await QPColleges.find({ university: universityId }).select("_id").lean();
+                const collegeIds = collegesUnderUni.map(c => c._id);
+                if (collegeIds.length > 0) subjectQuery.college = { $in: collegeIds };
+            }
             if (courseId) subjectQuery.course = courseId;
             if (semesterId) subjectQuery.semester = semesterId;
             
             const validSubjects = await QPSubjects.find(subjectQuery).select('_id').lean();
-            const validSubjectIds = validSubjects.map(s => s._id);
+            const validSubjectIds = validSubjects.map(s => new mongoose.Types.ObjectId(s._id));
             matchStage.subject = { $in: validSubjectIds };
         }
 

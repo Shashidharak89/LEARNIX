@@ -441,6 +441,7 @@ export default function QPFilterSearch() {
             // Build query params based on selected filters
             if (filters.subject) endpoint += `&subjectId=${filters.subject}`;
             if (filters.college) endpoint += `&collegeId=${filters.college}`;
+            else if (filters.university) endpoint += `&universityId=${filters.university}`;
             if (filters.batch) endpoint += `&batchId=${filters.batch}`;
             if (filters.course) endpoint += `&courseId=${filters.course}`;
             if (filters.semester) endpoint += `&semesterId=${filters.semester}`;
@@ -630,6 +631,18 @@ export default function QPFilterSearch() {
                                 {results.map((group, i) => {
                                     if (group.type === "subject") {
                                         const subName = group.subject ? group.subject.name : "Unknown Subject";
+                                        
+                                        // Build query parameters for filtered view incorporating all selected filters
+                                        const queryParams = new window.URLSearchParams();
+                                        if (group.subject?._id) queryParams.set("subjectId", group.subject._id);
+                                        if (filters.university) queryParams.set("universityId", filters.university);
+                                        if (filters.college) queryParams.set("collegeId", filters.college);
+                                        if (filters.course) queryParams.set("courseId", filters.course);
+                                        if (filters.semester) queryParams.set("semesterId", filters.semester);
+                                        if (filters.batch) queryParams.set("batchId", filters.batch);
+
+                                        const filterUrl = `/qp/filter?${queryParams.toString()}`;
+
                                         return (
                                             <div key={i} className="qp-filter-res-card">
                                                 <div className="qp-filter-res-top">
@@ -640,12 +653,12 @@ export default function QPFilterSearch() {
                                                         {subName}
                                                     </h4>
                                                     <p className="qp-filter-res-desc">
-                                                        Contains compiled papers ({group.recordCount || 0} records) for this subject.
+                                                        Contains compiled papers ({group.recordCount || 0} records) matching your selected filters.
                                                     </p>
                                                 </div>
                                                 <div className="qp-filter-res-actions">
                                                     <a 
-                                                        href={group.subject ? `/qp/subject/${group.subject._id}` : "#"} 
+                                                        href={filterUrl} 
                                                         target="_blank" 
                                                         rel="noopener noreferrer"
                                                         className="qp-filter-view-btn"
@@ -655,11 +668,11 @@ export default function QPFilterSearch() {
                                                     <QPFilterBookmarkButton
                                                         payload={{
                                                             type: "question-paper",
-                                                            targetId: group.subject?._id || `subj-${i}`,
+                                                            targetId: group.subject?._id ? `${group.subject._id}-${queryParams.toString()}` : `subj-${i}`,
                                                             title: `${group.subject?.name || 'Subject'} - Question Papers`,
-                                                            subtitle: "Question Papers",
-                                                            description: `Compiled question papers for ${group.subject?.name || 'Subject'}`,
-                                                            url: `/qp/subject/${group.subject?._id || ''}`,
+                                                            subtitle: "Filtered Question Papers",
+                                                            description: `Filtered question papers for ${group.subject?.name || 'Subject'}`,
+                                                            url: filterUrl,
                                                             metadata: {
                                                                 subjectName: group.subject?.name,
                                                             }
@@ -672,13 +685,17 @@ export default function QPFilterSearch() {
                                         const batchName = group.batch ? `${group.batch.startYear}-${group.batch.endYear}` : "General";
                                         const examName = group.examtype ? group.examtype.name : "Exam";
                                         
-                                        // Build query parameters for compiled view
+                                        // Build query parameters for filtered view
                                         const queryParams = new window.URLSearchParams();
                                         if (group.batch) queryParams.set("batchId", group.batch._id);
                                         if (group.examtype) queryParams.set("examTypeId", group.examtype._id);
+                                        if (filters.university) queryParams.set("universityId", filters.university);
                                         if (filters.college) queryParams.set("collegeId", filters.college);
                                         if (filters.course) queryParams.set("courseId", filters.course);
                                         if (filters.semester) queryParams.set("semesterId", filters.semester);
+                                        if (filters.subject) queryParams.set("subjectId", filters.subject);
+
+                                        const filterUrl = `/qp/filter?${queryParams.toString()}`;
 
                                         return (
                                             <div key={i} className="qp-filter-res-card">
@@ -690,12 +707,12 @@ export default function QPFilterSearch() {
                                                         {examName}
                                                     </h4>
                                                     <p className="qp-filter-res-desc">
-                                                        Contains compiled papers ({group.recordCount || 0} records) for all selected filters.
+                                                        Contains compiled papers ({group.recordCount || 0} records) matching your selected filters.
                                                     </p>
                                                 </div>
                                                 <div className="qp-filter-res-actions">
                                                     <a 
-                                                        href={`/qp/compiled?${queryParams.toString()}`} 
+                                                        href={filterUrl} 
                                                         target="_blank" 
                                                         rel="noopener noreferrer"
                                                         className="qp-filter-view-btn"
@@ -709,7 +726,7 @@ export default function QPFilterSearch() {
                                                             title: `${examName} - Batch ${batchName}`,
                                                             subtitle: "Question Papers",
                                                             description: `Contains compiled papers (${group.recordCount} records)`,
-                                                            url: `/qp/compiled?${queryParams.toString()}`,
+                                                            url: filterUrl,
                                                             metadata: {
                                                                 batchName,
                                                                 examName,
