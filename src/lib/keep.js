@@ -1,6 +1,6 @@
 import { DeleteCommand, GetCommand, QueryCommand, UpdateCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
-import { docClient, KEEP_TABLE } from "@/lib/dynamodb";
-import { KEEP_CONTENT_LIMIT, KEEP_PAGE_SIZE, keepPageNumber } from "@/lib/keepFields";
+import { docClient, KEEP_TABLE } from "./dynamodb.js";
+import { KEEP_CONTENT_LIMIT, KEEP_PAGE_SIZE, keepPageNumber } from "./keepFields.js";
 import { randomUUID } from "node:crypto";
 
 const key = (userId, itemId) => ({ userId, itemId });
@@ -89,14 +89,19 @@ export async function updateKeepItem(userId, itemId, changes) {
   if (changes.type) fields.updatedAt = new Date().toISOString();
 
   const entries = Object.entries(fields);
+  const retainFile = changes.type === "file" && !changes.file;
+  const conditions = ["attribute_exists(itemId)"];
+  if (changes.type) conditions.push("#type = :type");
+  if (retainFile) conditions.push("attribute_exists(#file.publicId)");
   const result = await docClient.send(new UpdateCommand({
     TableName: KEEP_TABLE,
     Key: key(userId, itemId),
     UpdateExpression: `SET ${entries.map(([name]) => `#${name} = :${name}`).join(", ")}`,
-    ConditionExpression: changes.type ? "attribute_exists(itemId) AND #type = :type" : "attribute_exists(itemId)",
+    ConditionExpression: conditions.join(" AND "),
     ExpressionAttributeNames: {
       ...Object.fromEntries(entries.map(([name]) => [`#${name}`, name])),
       ...(changes.type ? { "#type": "type" } : {}),
+      ...(retainFile ? { "#file": "file" } : {}),
     },
     ExpressionAttributeValues: {
       ...Object.fromEntries(entries.map(([name, value]) => [`:${name}`, value])),

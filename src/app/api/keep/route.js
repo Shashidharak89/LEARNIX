@@ -3,7 +3,7 @@ import { connectDB } from "@/lib/db";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
 import { createKeepItem, listKeepItems } from "@/lib/keep";
 
-import { KEEP_TYPES, keepWebUrl } from "@/lib/keepFields";
+import { KEEP_TYPES, keepContentError, keepWebUrl } from "@/lib/keepFields";
 import { normalizeKeepFile } from "@/lib/keepFile";
 
 export const dynamic = "force-dynamic";
@@ -42,12 +42,8 @@ export async function POST(req) {
     const userId = String(user._id || user.id || user.usn);
     const url = body.type === "link" ? keepWebUrl(body.url) : null;
     const file = body.type === "file" ? normalizeKeepFile(userId, body.file) : null;
-    if (body.type === "link" && !url) {
-      return NextResponse.json({ error: "Enter a valid HTTP or HTTPS link." }, { status: 400 });
-    }
-    if (body.type === "file" && !file) {
-      return NextResponse.json({ error: "Choose a file to upload." }, { status: 400 });
-    }
+    const error = keepContentError({ ...body, file });
+    if (error) return NextResponse.json({ error }, { status: 400 });
     const item = await createKeepItem(userId, { ...body, url: url?.href, file });
     return NextResponse.json({ success: true, item }, { status: 201 });
   } catch (error) {

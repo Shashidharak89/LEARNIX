@@ -3,40 +3,29 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  BoldIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, DownloadIcon, ExternalLinkIcon,
-  FileIcon, FileSpreadsheetIcon, FileTextIcon, FolderIcon, HeadingIcon, ImageIcon,
-  KeyboardIcon, LinkIcon, LockIcon, PencilIcon, PinIcon, PinOffIcon, PlusIcon, SearchIcon,
+  CheckIcon, ChevronLeftIcon, ChevronRightIcon, DownloadIcon, ExternalLinkIcon,
+  FileIcon, FolderLockIcon, FolderIcon,
+  KeyboardIcon, LockIcon, PencilIcon, PinIcon, PinOffIcon, PlusIcon, SearchIcon,
   Trash2Icon, XIcon,
 } from "@animateicons/react/lucide";
 import { authFetch } from "@/lib/clientAuth";
-import { KEEP_CONTENT_LIMIT, KEEP_FILE_LIMIT, KEEP_PAGE_SIZE, KEEP_TYPES, keepPageNumber, keepWebUrl, keepYouTubeId } from "@/lib/keepFields";
+import { KEEP_PAGE_SIZE, KEEP_TYPES, keepPageNumber, keepWebUrl, keepYouTubeId } from "@/lib/keepFields";
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import YouTubeEmbed from "../components/YouTubeEmbed";
 import { KeepButton } from "./keepIcons";
+import KeepEditor from "./KeepEditor";
+import { kinds } from "./keepKinds";
 import "./keep.css";
 
-const EMPTY_DRAFT = { title: "", content: "", url: "", file: null, type: "text" };
-const kinds = {
-  text: { label: "Note", filter: "Notes", icon: FileTextIcon },
-  link: { label: "Link", filter: "Links", icon: LinkIcon },
-  file: { label: "File", filter: "Files", icon: FileIcon },
-};
 const shortcuts = [
   ["N", "Create an item"],
   ["/", "Focus Keep search"],
   ["?", "Show keyboard shortcuts"],
   ["Ctrl / ⌘ + Enter", "Save the item you’re editing"],
+  ["Ctrl / ⌘ + Z", "Undo an edit"],
+  ["Ctrl / ⌘ + Shift + Z", "Redo an edit (Ctrl + Y also works)"],
   ["Esc", "Close the dialog"],
 ];
-const markdownTools = [
-  { label: "Heading", icon: HeadingIcon, before: "\n\n## ", fallback: "Heading" },
-  { label: "Bold", icon: BoldIcon, before: "**", after: "**", fallback: "text" },
-  { label: "Add link", icon: LinkIcon, before: "[", after: "](https://example.com)", fallback: "Link text" },
-  { label: "Add image URL", icon: ImageIcon, before: "![Image description](", after: ")", fallback: "https://example.com/image.png" },
-  { label: "Add table", icon: FileSpreadsheetIcon, snippet: "\n\n| Column 1 | Column 2 |\n| --- | --- |\n| Value | Value |\n\n" },
-  { label: "Add YouTube link", icon: ExternalLinkIcon, before: "[Watch on YouTube](", after: ")", fallback: "https://www.youtube.com/watch?v=" },
-];
-
 const itemPath = (id) => `/api/keep/${encodeURIComponent(id)}`;
 const json = (method, body) => ({ method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 
@@ -78,8 +67,6 @@ export default function KeepClient() {
   const searchRef = useRef(null);
   const dialogRef = useRef(null);
   const formRef = useRef(null);
-  const textareaRef = useRef(null);
-  const fileInputRef = useRef(null);
   const busyRef = useRef(false);
   const [signedIn, setSignedIn] = useState(null);
   const [entry, setEntry] = useState("");
@@ -97,8 +84,7 @@ export default function KeepClient() {
   const [dialogError, setDialogError] = useState("");
   const [modal, setModal] = useState(null);
   const [activeItem, setActiveItem] = useState(null);
-  const [draft, setDraft] = useState(EMPTY_DRAFT);
-  const [preview, setPreview] = useState(false);
+  const [newKind, setNewKind] = useState("text");
   const [pending, setPending] = useState("");
   const [toast, setToast] = useState("");
 
@@ -108,7 +94,6 @@ export default function KeepClient() {
     if (response.status === 401) {
       setSignedIn(false);
       setModal(null);
-      setDraft(EMPTY_DRAFT);
       setActiveItem(null);
       setResult({ items: [], total: 0, pages: 0, page: 1 });
     }
@@ -141,11 +126,11 @@ export default function KeepClient() {
 
   useEffect(() => {
     if (!signedIn) return;
-    const params = new window.URLSearchParams({ page, size, search });
-    if (type !== "all") params.set("type", type);
-    if (entry) params.set(entry === "new" ? "new" : "item", entry === "new" ? "1" : entry);
-    window.history.replaceState(window.history.state, "", `/keep?${params}`);
-  }, [page, size, search, type, signedIn, entry]);
+    const path = search ? `/keep?${new window.URLSearchParams({ search })}` : "/keep";
+    if (window.location.pathname + window.location.search !== path) {
+      window.history.replaceState(window.history.state, "", path);
+    }
+  }, [search, signedIn]);
 
   useEffect(() => {
     if (!signedIn) return;
@@ -183,8 +168,7 @@ export default function KeepClient() {
 
   const openEditor = useCallback((item = null, kind = "text") => {
     setActiveItem(item);
-    setDraft(item ? { ...EMPTY_DRAFT, ...item, file: null } : { ...EMPTY_DRAFT, type: kind });
-    setPreview(false);
+    setNewKind(kind);
     setDialogError("");
     setModal("editor");
   }, []);
@@ -256,36 +240,6 @@ export default function KeepClient() {
     }
   }
 
-  function setField(field, value) {
-    setDraft((current) => ({ ...current, [field]: value }));
-  }
-
-  function selectFile(file) {
-    if (!file || busyRef.current) return;
-    if (file.size > KEEP_FILE_LIMIT) {
-      setDialogError("Choose a file that is 20 MB or smaller.");
-      return;
-    }
-    setDialogError("");
-    setField("file", file);
-  }
-
-  function insertMarkdown({ before = "", after = "", fallback = "", snippet }) {
-    const field = textareaRef.current;
-    if (!field) return;
-    const { selectionStart: start, selectionEnd: end } = field;
-    const selected = draft.content.slice(start, end) || fallback;
-    const text = snippet || before + selected + after;
-    const content = draft.content.slice(0, start) + text + draft.content.slice(end);
-    if (content.length > KEEP_CONTENT_LIMIT) return;
-    setField("content", content);
-    window.requestAnimationFrame(() => {
-      field.focus();
-      const selection = snippet ? start + text.length : start + before.length;
-      field.setSelectionRange(selection, snippet ? selection : selection + selected.length);
-    });
-  }
-
   async function runAction(key, action, reportError) {
     if (busyRef.current) return;
     busyRef.current = true;
@@ -301,19 +255,20 @@ export default function KeepClient() {
     }
   }
 
-  function save(event) {
-    event.preventDefault();
+  function save(draft, uploads) {
     runAction("save", async () => {
       const url = draft.type === "link" ? keepWebUrl(draft.url) : null;
       if (draft.type === "link" && !url) throw new Error("Enter a valid HTTP or HTTPS link.");
       let file = draft.type === "file" ? draft.file : null;
       if (draft.type === "file" && !file && !activeItem?.file) throw new Error("Choose a file to upload.");
+      if (file instanceof File && uploads.has(file)) file = uploads.get(file);
       if (file instanceof File) {
+        const source = file;
         const form = new FormData();
         form.append("file", file);
         const response = await request("/api/keep/upload", { method: "POST", body: form });
         ({ file } = await response.json());
-        setField("file", file);
+        uploads.set(source, file);
       }
       const { title, type: kind, content } = draft;
       const payload = { title, type: kind, content, url: url?.href, file };
@@ -381,7 +336,7 @@ export default function KeepClient() {
       <header className="keep-heading">
         <div>
           <Link href="/workspace" className="keep-workspace-link">My Workspace</Link>
-          <h1><FolderIcon aria-hidden="true" /> Keep</h1>
+          <h1><span className="keep-brand-icon"><FolderLockIcon size={28} aria-hidden="true" /></span>Keep</h1>
           <p className="keep-lede">Your private notes, links, and files.</p>
         </div>
         <div className="keep-heading-actions">
@@ -421,10 +376,14 @@ export default function KeepClient() {
         </div>
       </section>
 
+      <div className="keep-library-heading">
+        <h2>{search ? "Search results" : type === "all" ? "Your collection" : kinds[type].filter}</h2>
+        {!loading && !loadError && <span>{total} {total === 1 ? "item" : "items"}</span>}
+      </div>
       {actionError && <p className="keep-inline-error" role="alert">{actionError}</p>}
       {loadError ? (
         <section className="keep-empty">
-          <h2>Keep couldn’t load</h2>
+          <h2>Your collection couldn’t load</h2>
           <p role="alert">{loadError}</p>
           <button type="button" className="keep-secondary-btn" onClick={() => setRevision((value) => value + 1)}>Try again</button>
         </section>
@@ -473,17 +432,17 @@ export default function KeepClient() {
       ) : (
         <section className="keep-empty">
           <span><FolderIcon aria-hidden="true" /></span>
-          <h2>{filtered ? "No matching items" : "Your Keep starts here"}</h2>
+          <h2>{filtered ? "No matching items" : "Save your first item"}</h2>
           <p>{filtered ? "Try a different search or filter." : "Save a note, link, or file to find it here later."}</p>
           {filtered ? (
             <button type="button" className="keep-secondary-btn" onClick={() => {
               setSearchInput(""); setSearch(""); setType("all"); setPage(1);
             }}>Clear filters</button>
           ) : (
-            <div className="keep-heading-actions">
+            <div className="keep-quick-add">
               {KEEP_TYPES.map((kind) => (
-                <KeepButton key={kind} icon={kinds[kind].icon} className="keep-secondary-btn"
-                  onClick={() => openEditor(null, kind)}>Add {kinds[kind].label.toLowerCase()}</KeepButton>
+                <KeepButton key={kind} icon={kinds[kind].icon} className={`keep-quick-tile keep-quick-${kind}`}
+                  onClick={() => openEditor(null, kind)}>{kinds[kind].action}</KeepButton>
               ))}
             </div>
           )}
@@ -515,79 +474,8 @@ export default function KeepClient() {
               </>
             )}
             {modal === "editor" && (
-              <form ref={formRef} onSubmit={save} className="keep-editor-form">
-                <fieldset disabled={pending === "save"}>
-                  {!activeItem && (
-                    <div className="keep-create-tabs" role="group" aria-label="Item type">
-                      {KEEP_TYPES.map((kind) => (
-                        <KeepButton key={kind} icon={kinds[kind].icon} className={draft.type === kind ? "is-active" : ""}
-                          aria-pressed={draft.type === kind} onClick={() => { setField("type", kind); setDialogError(""); }}>
-                          {kinds[kind].label}
-                        </KeepButton>
-                      ))}
-                    </div>
-                  )}
-                  <label htmlFor="keep-title">Title <span>Optional</span></label>
-                  <input id="keep-title" value={draft.title} onChange={(event) => setField("title", event.target.value)}
-                    placeholder="Untitled" maxLength={180} />
-                  {draft.type === "link" && (
-                    <>
-                      <label htmlFor="keep-url">URL</label>
-                      <input id="keep-url" type="url" value={draft.url} maxLength={2048} required autoComplete="off"
-                        onChange={(event) => setField("url", event.target.value)} placeholder="https://…" />
-                      {keepYouTubeId(draft.url) && <p className="keep-youtube-hint">This item will open with a YouTube player.</p>}
-                    </>
-                  )}
-                  {draft.type === "file" && (
-                    <>
-                      <input ref={fileInputRef} type="file" hidden onChange={(event) => {
-                        selectFile(event.target.files?.[0]);
-                        event.target.value = "";
-                      }} />
-                      <button type="button" className="keep-upload-area" onClick={() => fileInputRef.current?.click()}
-                        onDragOver={(event) => event.preventDefault()} onDrop={(event) => {
-                          event.preventDefault();
-                          selectFile(event.dataTransfer.files?.[0]);
-                        }}>
-                        <span><FileIcon aria-hidden="true" /></span>
-                        <strong>{draft.file?.name || activeItem?.file?.name || "Choose a file or drop it here"}</strong>
-                        <small>{draft.file || activeItem?.file ? "Choose a different file" : "Up to 20 MB"}</small>
-                      </button>
-                    </>
-                  )}
-                  <div className="keep-note-label">
-                    <label htmlFor={preview && draft.type === "text" ? undefined : "keep-content"}>
-                      {draft.type === "text" ? "Note" : "Description"} {draft.type !== "text" && <span>Optional</span>}
-                    </label>
-                    {draft.type === "text" && <button type="button" className="keep-text-btn" aria-pressed={preview}
-                      onClick={() => setPreview((value) => !value)}>{preview ? "Back to writing" : "Preview"}</button>}
-                  </div>
-                  {draft.type === "text" && preview ? (
-                    <div className="keep-note-preview keep-markdown">
-                      {draft.content ? <MarkdownRenderer content={draft.content} /> : "Your note is empty."}
-                    </div>
-                  ) : (
-                    <>
-                      {draft.type === "text" && (
-                        <div className="keep-md-toolbar" role="group" aria-label="Markdown formatting">
-                          {markdownTools.map((tool) => <KeepButton key={tool.label} icon={tool.icon} aria-label={tool.label}
-                            title={tool.label} onClick={() => insertMarkdown(tool)} />)}
-                        </div>
-                      )}
-                      <textarea id="keep-content" ref={textareaRef} rows={draft.type === "text" ? 8 : 3}
-                        maxLength={KEEP_CONTENT_LIMIT} value={draft.content} onChange={(event) => setField("content", event.target.value)}
-                        placeholder={draft.type === "text" ? "Write a note in plain text or Markdown…" : "Add context for later…"} />
-                    </>
-                  )}
-                </fieldset>
-                {dialogError && <p className="keep-form-error" role="alert">{dialogError}</p>}
-                <footer className="keep-editor-footer">
-                  <span><LockIcon size={14} aria-hidden="true" /> Private to you</span>
-                  <button type="submit" className="keep-primary-btn" disabled={Boolean(pending)} aria-keyshortcuts="Control+Enter Meta+Enter">
-                    {pending === "save" ? "Saving…" : activeItem ? "Save changes" : "Save to Keep"}
-                  </button>
-                </footer>
-              </form>
+              <KeepEditor activeItem={activeItem} kind={newKind} formRef={formRef} busy={Boolean(pending)}
+                dialogError={dialogError} setDialogError={setDialogError} onSave={save} />
             )}
           </>
         )}

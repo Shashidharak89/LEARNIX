@@ -3,6 +3,16 @@ export const KEEP_CONTENT_LIMIT = 30000;
 export const KEEP_PAGE_SIZE = 10;
 export const KEEP_TYPES = ["text", "link", "file"];
 
+export function keepContentError({ type, content, url, file }) {
+  if (content != null && (typeof content !== "string" || content.length > KEEP_CONTENT_LIMIT)) {
+    return "Keep text must be 30,000 characters or fewer.";
+  }
+  if (type === "text" && !content?.trim()) return "Write something in your note before saving.";
+  if (type === "link" && !keepWebUrl(url)) return "Enter a valid HTTP or HTTPS link.";
+  if (type === "file" && !file) return "Choose a file to upload.";
+  return "";
+}
+
 export function keepPageNumber(value, fallback = 1) {
   const number = Number(value);
   return Number.isSafeInteger(number) && number > 0 ? number : fallback;

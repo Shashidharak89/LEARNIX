@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
 import { deleteKeepItem, getKeepItem, updateKeepItem } from "@/lib/keep";
-import { KEEP_TYPES, keepWebUrl } from "@/lib/keepFields";
+import { KEEP_TYPES, keepContentError, keepWebUrl } from "@/lib/keepFields";
 import { normalizeKeepFile, ownsKeepFile, removeKeepFile } from "@/lib/keepFile";
 import cloudinary from "@/lib/cloudinary";
 
@@ -28,9 +28,11 @@ export async function PATCH(req, { params }) {
     let changes;
     if (KEEP_TYPES.includes(body?.type)) {
       const url = body.type === "link" ? keepWebUrl(body.url) : null;
-      if (body.type === "link" && !url) return errorResponse("Enter a valid HTTP or HTTPS link.", 400);
       const file = body.type === "file" && body.file ? normalizeKeepFile(userId, body.file) : null;
       if (body.file && !file) return errorResponse("Choose a valid file to upload.", 400);
+      // An omitted attachment retains the stored file, checked in the update condition.
+      const validation = keepContentError({ ...body, file: file || body.type === "file" });
+      if (validation) return errorResponse(validation, 400);
       changes = { type: body.type, title: body.title, content: body.content, url: url?.href || "", file };
     } else if (typeof body?.pinned === "boolean") {
       changes = { pinned: body.pinned };
