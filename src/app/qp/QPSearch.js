@@ -200,7 +200,7 @@ function QPSearchContent() {
                             {subjects.map((sub) => (
                                 <li className="qp-result-item" key={sub._id}>
                                     <a
-                                        href={`/qp/${sub._id}`}
+                                        href={`/qp/subject/${sub._id}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="qp-result-link"

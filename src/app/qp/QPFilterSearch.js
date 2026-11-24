@@ -83,10 +83,23 @@ function QPFilterBookmarkButton({ payload }) {
     );
 }
 
-// Custom Dropdown Component
-const CustomDropdown = ({ label, options, value, onChange, onLoadMore, hasMore, loading, placeholder }) => {
+// Custom Dropdown Component with keyword search support
+const CustomDropdown = ({ 
+    label, 
+    options, 
+    value, 
+    onChange, 
+    onLoadMore, 
+    hasMore, 
+    loading, 
+    placeholder,
+    searchKeyword = "",
+    onSearchChange = null,
+    searchPlaceholder = "Type to search..."
+}) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const searchInputRef = useRef(null);
 
     // Close on click outside
     useEffect(() => {
@@ -99,10 +112,29 @@ const CustomDropdown = ({ label, options, value, onChange, onLoadMore, hasMore, 
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    // Focus search input when opened
+    useEffect(() => {
+        if (isOpen && searchInputRef.current) {
+            setTimeout(() => {
+                searchInputRef.current?.focus();
+            }, 50);
+        }
+    }, [isOpen]);
+
     const selectedOption = options.find(opt => opt._id === value);
     const selectedText = selectedOption
         ? (selectedOption.name || (selectedOption.semesterNumber ? `Semester ${selectedOption.semesterNumber}` : "") || (selectedOption.startYear ? `${selectedOption.startYear}-${selectedOption.endYear}` : ""))
         : null;
+
+    // Local filter if server-side search is not provided or in addition
+    const filteredOptions = onSearchChange 
+        ? options 
+        : (searchKeyword 
+            ? options.filter(opt => {
+                const text = (opt.name || (opt.semesterNumber ? `Semester ${opt.semesterNumber}` : "") || (opt.startYear ? `${opt.startYear}-${opt.endYear}` : "")).toLowerCase();
+                return text.includes(searchKeyword.toLowerCase());
+            })
+            : options);
 
     return (
         <div className="qp-custom-dropdown" ref={dropdownRef}>
@@ -140,6 +172,31 @@ const CustomDropdown = ({ label, options, value, onChange, onLoadMore, hasMore, 
 
             {isOpen && (
                 <div className="qp-dropdown-menu" role="listbox">
+                    <div className="qp-dropdown-search-wrap" onClick={(e) => e.stopPropagation()}>
+                        <input
+                            ref={searchInputRef}
+                            type="text"
+                            className="qp-dropdown-search-input"
+                            placeholder={searchPlaceholder}
+                            value={searchKeyword}
+                            onChange={(e) => {
+                                if (onSearchChange) onSearchChange(e.target.value);
+                            }}
+                            onKeyDown={(e) => e.stopPropagation()}
+                        />
+                        {searchKeyword && (
+                            <button
+                                type="button"
+                                className="qp-dropdown-search-clear"
+                                onClick={() => {
+                                    if (onSearchChange) onSearchChange("");
+                                }}
+                            >
+                                <FiX size={14} />
+                            </button>
+                        )}
+                    </div>
+
                     <div 
                         onClick={() => { onChange(""); setIsOpen(false); }}
                         className="qp-dropdown-item is-placeholder"
@@ -148,7 +205,14 @@ const CustomDropdown = ({ label, options, value, onChange, onLoadMore, hasMore, 
                     >
                         {placeholder}
                     </div>
-                    {options.map(opt => {
+
+                    {filteredOptions.length === 0 && !loading && (
+                        <div className="qp-dropdown-empty">
+                            No matches found
+                        </div>
+                    )}
+
+                    {filteredOptions.map(opt => {
                         const displayName = opt.name || (opt.semesterNumber ? `Semester ${opt.semesterNumber}` : "") || `${opt.startYear}-${opt.endYear}`;
                         const isSelected = value === opt._id;
                         return (
@@ -187,6 +251,11 @@ const CustomDropdown = ({ label, options, value, onChange, onLoadMore, hasMore, 
 };
 
 export default function QPFilterSearch() {
+    // Search Keywords for Dropdowns
+    const [searchTerms, setSearchTerms] = useState({
+        universities: "", colleges: "", courses: "", semesters: "", batches: "", subjects: ""
+    });
+
     // Dropdown Data States
     const [data, setData] = useState({
         universities: [], colleges: [], courses: [], semesters: [], batches: [], subjects: []
@@ -197,6 +266,10 @@ export default function QPFilterSearch() {
         universities: { current: 1, total: 1 }, colleges: { current: 1, total: 1 }, 
         courses: { current: 1, total: 1 }, semesters: { current: 1, total: 1 }, 
         batches: { current: 1, total: 1 }, subjects: { current: 1, total: 1 }
+    });
+
+    const [loadingDropdown, setLoadingDropdown] = useState({
+        universities: false, colleges: false, courses: false, semesters: false, batches: false, subjects: false
     });
 
     // Selected Values
@@ -212,6 +285,7 @@ export default function QPFilterSearch() {
     const [hasSearched, setHasSearched] = useState(false);
 
     const fetchDropdownData = async (type, endpoint, append = false) => {
+        setLoadingDropdown(prev => ({ ...prev, [type]: true }));
         try {
             const res = await fetch(endpoint);
             const json = await res.json();
@@ -222,52 +296,126 @@ export default function QPFilterSearch() {
                 }));
                 setPages(prev => ({
                     ...prev,
-                    [type]: { current: json.pagination.page, total: json.pagination.totalPages }
+                    [type]: { current: json.pagination?.page || 1, total: json.pagination?.totalPages || 1 }
                 }));
             }
         } catch (err) {
             console.error(`Error fetching ${type}:`, err);
+        } finally {
+            setLoadingDropdown(prev => ({ ...prev, [type]: false }));
         }
+    };
+
+    // Helper to build dropdown endpoints
+    const getDropdownEndpoint = (type, page = 1, query = "") => {
+        const qParam = query ? `&q=${encodeURIComponent(query)}` : "";
+        if (type === "universities") {
+            return `/api/qp/v1/universities?page=${page}&limit=20${qParam}`;
+        }
+        if (type === "batches") {
+            return `/api/qp/v1/batches?page=${page}&limit=20${qParam}`;
+        }
+        if (type === "colleges") {
+            if (filters.university) {
+                return `/api/qp/v1/colleges/by-university?universityId=${filters.university}&page=${page}&limit=20${qParam}`;
+            }
+            return `/api/qp/v1/colleges?page=${page}&limit=20${qParam}`;
+        }
+        if (type === "courses") {
+            if (filters.college) {
+                return `/api/qp/v1/courses/by-college?collegeId=${filters.college}&page=${page}&limit=20${qParam}`;
+            } else if (filters.university) {
+                return `/api/qp/v1/courses/by-college?universityId=${filters.university}&page=${page}&limit=20${qParam}`;
+            }
+            return `/api/qp/v1/courses?page=${page}&limit=20${qParam}`;
+        }
+        if (type === "semesters") {
+            let ep = `/api/qp/v1/semesters/by-course?page=${page}&limit=20${qParam}`;
+            if (filters.college) ep += `&collegeId=${filters.college}`;
+            if (filters.course) ep += `&courseId=${filters.course}`;
+            if (filters.university) ep += `&universityId=${filters.university}`;
+            return ep;
+        }
+        if (type === "subjects") {
+            let ep = `/api/qp/v1/subjects/by-semester?page=${page}&limit=20${qParam}`;
+            if (filters.college) ep += `&collegeId=${filters.college}`;
+            if (filters.course) ep += `&courseId=${filters.course}`;
+            if (filters.semester) ep += `&semesterId=${filters.semester}`;
+            if (filters.university) ep += `&universityId=${filters.university}`;
+            return ep;
+        }
+        return "";
     };
 
     // Initial Fetch for Top-Level Dropdowns
     useEffect(() => {
-        fetchDropdownData("universities", `/api/qp/v1/universities?page=1&limit=20`);
-        fetchDropdownData("batches", `/api/qp/v1/batches?page=1&limit=20`);
+        fetchDropdownData("universities", getDropdownEndpoint("universities", 1, searchTerms.universities));
+        fetchDropdownData("batches", getDropdownEndpoint("batches", 1, searchTerms.batches));
     }, []);
 
-    // Fetch Cascading Data on Filter Change
+    // Debounced search for universities
     useEffect(() => {
-        if (filters.university) {
-            fetchDropdownData("colleges", `/api/qp/v1/colleges/by-university?universityId=${filters.university}&page=1&limit=20`);
-        } else {
-            setData(prev => ({ ...prev, colleges: [], courses: [], semesters: [], subjects: [] }));
-        }
-    }, [filters.university]);
+        const timer = setTimeout(() => {
+            fetchDropdownData("universities", getDropdownEndpoint("universities", 1, searchTerms.universities));
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [searchTerms.universities]);
 
+    // Debounced search for batches
     useEffect(() => {
-        if (filters.college) {
-            fetchDropdownData("courses", `/api/qp/v1/courses/by-college?collegeId=${filters.college}&page=1&limit=20`);
-        } else {
-            setData(prev => ({ ...prev, courses: [], semesters: [], subjects: [] }));
-        }
-    }, [filters.college]);
+        const timer = setTimeout(() => {
+            fetchDropdownData("batches", getDropdownEndpoint("batches", 1, searchTerms.batches));
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [searchTerms.batches]);
 
+    // Fetch Cascading Data on Filter / Search Change for Colleges
     useEffect(() => {
-        if (filters.college && filters.course) {
-            fetchDropdownData("semesters", `/api/qp/v1/semesters/by-course?collegeId=${filters.college}&courseId=${filters.course}&page=1&limit=20`);
-        } else {
-            setData(prev => ({ ...prev, semesters: [], subjects: [] }));
-        }
-    }, [filters.course, filters.college]);
+        const timer = setTimeout(() => {
+            if (filters.university) {
+                fetchDropdownData("colleges", getDropdownEndpoint("colleges", 1, searchTerms.colleges));
+            } else {
+                setData(prev => ({ ...prev, colleges: [] }));
+            }
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [filters.university, searchTerms.colleges]);
 
+    // Fetch Cascading Data on Filter / Search Change for Courses
     useEffect(() => {
-        if (filters.college && filters.course && filters.semester) {
-            fetchDropdownData("subjects", `/api/qp/v1/subjects/by-semester?collegeId=${filters.college}&courseId=${filters.course}&semesterId=${filters.semester}&page=1&limit=20`);
-        } else {
-            setData(prev => ({ ...prev, subjects: [] }));
-        }
-    }, [filters.semester, filters.course, filters.college]);
+        const timer = setTimeout(() => {
+            if (filters.college || filters.university) {
+                fetchDropdownData("courses", getDropdownEndpoint("courses", 1, searchTerms.courses));
+            } else {
+                setData(prev => ({ ...prev, courses: [] }));
+            }
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [filters.college, filters.university, searchTerms.courses]);
+
+    // Fetch Cascading Data on Filter / Search Change for Semesters
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (filters.course || filters.college || filters.university) {
+                fetchDropdownData("semesters", getDropdownEndpoint("semesters", 1, searchTerms.semesters));
+            } else {
+                setData(prev => ({ ...prev, semesters: [] }));
+            }
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [filters.course, filters.college, filters.university, searchTerms.semesters]);
+
+    // Fetch Cascading Data on Filter / Search Change for Subjects
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (filters.semester || filters.course || filters.college || filters.university) {
+                fetchDropdownData("subjects", getDropdownEndpoint("subjects", 1, searchTerms.subjects));
+            } else {
+                setData(prev => ({ ...prev, subjects: [] }));
+            }
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [filters.semester, filters.course, filters.college, filters.university, searchTerms.subjects]);
 
     // Manual Fetch Results Trigger
     const handleSearch = () => {
@@ -280,16 +428,7 @@ export default function QPFilterSearch() {
         const p = pages[type];
         if (p.current < p.total) {
             const nextPage = p.current + 1;
-            let endpoint = "";
-            
-            // Reconstruct endpoint logic
-            if (type === "universities") endpoint = `/api/qp/v1/universities?page=${nextPage}&limit=20`;
-            if (type === "batches") endpoint = `/api/qp/v1/batches?page=${nextPage}&limit=20`;
-            if (type === "colleges") endpoint = `/api/qp/v1/colleges/by-university?universityId=${filters.university}&page=${nextPage}&limit=20`;
-            if (type === "courses") endpoint = `/api/qp/v1/courses/by-college?collegeId=${filters.college}&page=${nextPage}&limit=20`;
-            if (type === "semesters") endpoint = `/api/qp/v1/semesters/by-course?collegeId=${filters.college}&courseId=${filters.course}&page=${nextPage}&limit=20`;
-            if (type === "subjects") endpoint = `/api/qp/v1/subjects/by-semester?collegeId=${filters.college}&courseId=${filters.course}&semesterId=${filters.semester}&page=${nextPage}&limit=20`;
-
+            const endpoint = getDropdownEndpoint(type, nextPage, searchTerms[type]);
             if (endpoint) fetchDropdownData(type, endpoint, true);
         }
     };
@@ -359,6 +498,10 @@ export default function QPFilterSearch() {
                         onChange={(val) => setFilters(prev => ({ ...prev, university: val, college: "", course: "", semester: "", subject: "" }))} 
                         hasMore={pages.universities.current < pages.universities.total}
                         onLoadMore={() => handleDropdownLoadMore("universities")}
+                        loading={loadingDropdown.universities}
+                        searchKeyword={searchTerms.universities}
+                        onSearchChange={(val) => setSearchTerms(prev => ({ ...prev, universities: val }))}
+                        searchPlaceholder="Search University..."
                     />
                     
                     <CustomDropdown 
@@ -369,26 +512,38 @@ export default function QPFilterSearch() {
                         onChange={(val) => setFilters(prev => ({ ...prev, college: val, course: "", semester: "", subject: "" }))} 
                         hasMore={pages.colleges.current < pages.colleges.total}
                         onLoadMore={() => handleDropdownLoadMore("colleges")}
+                        loading={loadingDropdown.colleges}
+                        searchKeyword={searchTerms.colleges}
+                        onSearchChange={(val) => setSearchTerms(prev => ({ ...prev, colleges: val }))}
+                        searchPlaceholder="Search College..."
                     />
 
                     <CustomDropdown 
                         label="Course" 
-                        placeholder={filters.college ? "All Courses" : "Select College First"}
+                        placeholder={filters.college || filters.university ? "All Courses" : "Select University/College First"}
                         options={data.courses} 
                         value={filters.course} 
                         onChange={(val) => setFilters(prev => ({ ...prev, course: val, semester: "", subject: "" }))} 
                         hasMore={pages.courses.current < pages.courses.total}
                         onLoadMore={() => handleDropdownLoadMore("courses")}
+                        loading={loadingDropdown.courses}
+                        searchKeyword={searchTerms.courses}
+                        onSearchChange={(val) => setSearchTerms(prev => ({ ...prev, courses: val }))}
+                        searchPlaceholder="Search Course..."
                     />
 
                     <CustomDropdown 
                         label="Semester" 
-                        placeholder={filters.course ? "All Semesters" : "Select Course First"}
+                        placeholder={filters.course || filters.college || filters.university ? "All Semesters" : "Select Course First"}
                         options={data.semesters} 
                         value={filters.semester} 
                         onChange={(val) => setFilters(prev => ({ ...prev, semester: val, subject: "" }))} 
                         hasMore={pages.semesters.current < pages.semesters.total}
                         onLoadMore={() => handleDropdownLoadMore("semesters")}
+                        loading={loadingDropdown.semesters}
+                        searchKeyword={searchTerms.semesters}
+                        onSearchChange={(val) => setSearchTerms(prev => ({ ...prev, semesters: val }))}
+                        searchPlaceholder="Search Semester..."
                     />
 
                     <CustomDropdown 
@@ -399,16 +554,24 @@ export default function QPFilterSearch() {
                         onChange={(val) => setFilters(prev => ({ ...prev, batch: val }))} 
                         hasMore={pages.batches.current < pages.batches.total}
                         onLoadMore={() => handleDropdownLoadMore("batches")}
+                        loading={loadingDropdown.batches}
+                        searchKeyword={searchTerms.batches}
+                        onSearchChange={(val) => setSearchTerms(prev => ({ ...prev, batches: val }))}
+                        searchPlaceholder="Search Batch..."
                     />
 
                     <CustomDropdown 
                         label="Subject" 
-                        placeholder={filters.semester ? "All Subjects" : "Select Semester First"}
+                        placeholder={filters.semester || filters.course || filters.college || filters.university ? "All Subjects" : "Select Semester First"}
                         options={data.subjects} 
                         value={filters.subject} 
                         onChange={(val) => setFilters(prev => ({ ...prev, subject: val }))} 
                         hasMore={pages.subjects.current < pages.subjects.total}
                         onLoadMore={() => handleDropdownLoadMore("subjects")}
+                        loading={loadingDropdown.subjects}
+                        searchKeyword={searchTerms.subjects}
+                        onSearchChange={(val) => setSearchTerms(prev => ({ ...prev, subjects: val }))}
+                        searchPlaceholder="Search Subject..."
                     />
                 </div>
                 
@@ -482,12 +645,12 @@ export default function QPFilterSearch() {
                                                 </div>
                                                 <div className="qp-filter-res-actions">
                                                     <a 
-                                                        href={group.subject ? `/qp/${group.subject._id}` : "#"} 
+                                                        href={group.subject ? `/qp/subject/${group.subject._id}` : "#"} 
                                                         target="_blank" 
                                                         rel="noopener noreferrer"
                                                         className="qp-filter-view-btn"
                                                     >
-                                                        <FiFileText size={17} /> View Compiled Papers
+                                                        <FiFileText size={17} /> View Question Papers
                                                     </a>
                                                     <QPFilterBookmarkButton
                                                         payload={{
@@ -496,7 +659,7 @@ export default function QPFilterSearch() {
                                                             title: `${group.subject?.name || 'Subject'} - Question Papers`,
                                                             subtitle: "Question Papers",
                                                             description: `Compiled question papers for ${group.subject?.name || 'Subject'}`,
-                                                            url: `/qp/${group.subject?._id || ''}`,
+                                                            url: `/qp/subject/${group.subject?._id || ''}`,
                                                             metadata: {
                                                                 subjectName: group.subject?.name,
                                                             }

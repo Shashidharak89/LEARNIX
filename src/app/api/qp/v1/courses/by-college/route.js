@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import QPCourse from "@/models/QPCourse";
 import QPSubjects from "@/models/QPSubjects";
+import QPColleges from "@/models/QPColleges";
 
 export async function GET(req) {
     try {
@@ -13,16 +14,32 @@ export async function GET(req) {
         const skip = (page - 1) * limit;
         
         const collegeId = url.searchParams.get("collegeId");
+        const universityId = url.searchParams.get("universityId");
+        const q = (url.searchParams.get("q") || "").trim();
 
-        if (!collegeId) {
-            return NextResponse.json({ success: false, error: "collegeId query parameter is required" }, { status: 400 });
+        const subjectFilter = {};
+        if (collegeId) {
+            subjectFilter.college = collegeId;
+        } else if (universityId) {
+            const colleges = await QPColleges.find({ university: universityId }).select("_id").lean();
+            const collegeIds = colleges.map(c => c._id);
+            subjectFilter.college = { $in: collegeIds };
         }
 
-        // Find all subjects for this college to determine which courses are offered
-        const subjects = await QPSubjects.find({ college: collegeId }).select("course").lean();
-        const courseIds = [...new Set(subjects.map(s => s.course?.toString()).filter(Boolean))];
+        let query = {};
+        if (collegeId || universityId) {
+            const subjects = await QPSubjects.find(subjectFilter).select("course").lean();
+            const courseIds = [...new Set(subjects.map(s => s.course?.toString()).filter(Boolean))];
+            query._id = { $in: courseIds };
+        }
 
-        const query = { _id: { $in: courseIds } };
+        if (q) {
+            const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            query.$or = [
+                { name: { $regex: escaped, $options: "i" } },
+                { keywords: { $regex: escaped, $options: "i" } }
+            ];
+        }
 
         const [records, total] = await Promise.all([
             QPCourse.find(query).sort({ name: 1 }).skip(skip).limit(limit).lean(),

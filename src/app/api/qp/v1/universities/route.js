@@ -11,9 +11,22 @@ export async function GET(req) {
         const limit = parseInt(url.searchParams.get("limit")) || 20;
         const skip = (page - 1) * limit;
 
+        const q = (url.searchParams.get("q") || "").trim();
+        const query = {};
+        if (q) {
+            const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            query.$or = [
+                { name: { $regex: escaped, $options: "i" } },
+                { city: { $regex: escaped, $options: "i" } },
+                { state: { $regex: escaped, $options: "i" } },
+                { district: { $regex: escaped, $options: "i" } },
+                { keywords: { $regex: escaped, $options: "i" } }
+            ];
+        }
+
         const [records, total] = await Promise.all([
-            QPUniversities.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-            QPUniversities.countDocuments({})
+            QPUniversities.find(query).sort({ name: 1 }).skip(skip).limit(limit).lean(),
+            QPUniversities.countDocuments(query)
         ]);
 
         return NextResponse.json({

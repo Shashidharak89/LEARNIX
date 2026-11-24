@@ -2,6 +2,7 @@ import { stripKeywords } from "@/lib/sanitizeKeywords";
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import QPSubjects from "@/models/QPSubjects";
+import QPColleges from "@/models/QPColleges";
 
 export async function GET(req) {
     try {
@@ -14,16 +15,32 @@ export async function GET(req) {
         const collegeId = url.searchParams.get("collegeId");
         const courseId = url.searchParams.get("courseId");
         const semesterId = url.searchParams.get("semesterId");
+        const universityId = url.searchParams.get("universityId");
+        const q = (url.searchParams.get("q") || "").trim();
 
-        if (!collegeId || !courseId || !semesterId) {
-            return NextResponse.json({ success: false, error: "collegeId, courseId, and semesterId query parameters are required" }, { status: 400 });
+        const query = {};
+
+        if (q) {
+            query.name = { $regex: q, $options: "i" };
         }
 
-        const query = { 
-            college: collegeId,
-            course: courseId,
-            semester: semesterId 
-        };
+        if (collegeId) {
+            query.college = collegeId;
+        } else if (universityId) {
+            const collegesUnderUni = await QPColleges.find({ university: universityId }).select("_id").lean();
+            const collegeIds = collegesUnderUni.map(c => c._id);
+            if (collegeIds.length > 0) {
+                query.college = { $in: collegeIds };
+            }
+        }
+
+        if (courseId) {
+            query.course = courseId;
+        }
+
+        if (semesterId) {
+            query.semester = semesterId;
+        }
 
         const [records, total] = await Promise.all([
             QPSubjects.find(query).sort({ name: 1 }).skip(skip).limit(limit).lean(),

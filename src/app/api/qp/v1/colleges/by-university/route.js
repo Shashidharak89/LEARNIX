@@ -12,7 +12,17 @@ export async function GET(req) {
         const skip = (page - 1) * limit;
         
         const universityId = url.searchParams.get("universityId");
-        const query = universityId ? { university: universityId } : {};
+        const q = (url.searchParams.get("q") || "").trim();
+        const query = {};
+        if (universityId) query.university = universityId;
+        if (q) {
+            const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            query.$or = [
+                { name: { $regex: escaped, $options: "i" } },
+                { location: { $regex: escaped, $options: "i" } },
+                { keywords: { $regex: escaped, $options: "i" } }
+            ];
+        }
 
         const [records, total] = await Promise.all([
             QPColleges.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),

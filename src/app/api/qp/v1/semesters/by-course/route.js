@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import QPSemesters from "@/models/QPSemesters";
 import QPSubjects from "@/models/QPSubjects";
+import QPColleges from "@/models/QPColleges";
 
 export async function GET(req) {
     try {
@@ -13,17 +14,40 @@ export async function GET(req) {
         const skip = (page - 1) * limit;
         
         const collegeId = url.searchParams.get("collegeId");
+        const universityId = url.searchParams.get("universityId");
         const courseId = url.searchParams.get("courseId");
+        const q = (url.searchParams.get("q") || "").trim();
 
-        if (!collegeId || !courseId) {
-            return NextResponse.json({ success: false, error: "collegeId and courseId query parameters are required" }, { status: 400 });
+        const subjectFilter = {};
+        if (collegeId) {
+            subjectFilter.college = collegeId;
+        } else if (universityId) {
+            const colleges = await QPColleges.find({ university: universityId }).select("_id").lean();
+            const collegeIds = colleges.map(c => c._id);
+            subjectFilter.college = { $in: collegeIds };
+        }
+        if (courseId) {
+            subjectFilter.course = courseId;
         }
 
-        // Find all subjects for this college and course to determine which semesters exist
-        const subjects = await QPSubjects.find({ college: collegeId, course: courseId }).select("semester").lean();
-        const semesterIds = [...new Set(subjects.map(s => s.semester?.toString()).filter(Boolean))];
+        let query = {};
+        if (collegeId || universityId || courseId) {
+            const subjects = await QPSubjects.find(subjectFilter).select("semester").lean();
+            const semesterIds = [...new Set(subjects.map(s => s.semester?.toString()).filter(Boolean))];
+            query._id = { $in: semesterIds };
+        }
 
-        const query = { _id: { $in: semesterIds } };
+        if (q) {
+            const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            const orConditions = [
+                { keywords: { $regex: escaped, $options: "i" } }
+            ];
+            const num = parseInt(q.replace(/\D/g, ""), 10);
+            if (!isNaN(num)) {
+                orConditions.push({ semesterNumber: num });
+            }
+            query.$or = orConditions;
+        }
 
         const [records, total] = await Promise.all([
             QPSemesters.find(query).sort({ semesterNumber: 1 }).skip(skip).limit(limit).lean(),

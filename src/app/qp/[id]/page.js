@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import QPSubjectClient from "./QPSubjectClient";
 
 export async function generateMetadata({ params }, parent) {
@@ -11,5 +12,10 @@ export async function generateMetadata({ params }, parent) {
 }
 
 export default async function Page({ params }) {
+    const resolvedParams = await params;
+    if (resolvedParams?.id) {
+        redirect(`/qp/subject/${resolvedParams.id}`);
+    }
     return <QPSubjectClient />;
 }
+
