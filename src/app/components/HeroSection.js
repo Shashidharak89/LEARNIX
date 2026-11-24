@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { FiArchive } from "react-icons/fi";
 import {
   SearchIcon,
   BookOpenIcon,
@@ -27,7 +26,6 @@ const EXPLORE_ITEMS = [
   { label: "Explore Updates",   href: "/updates",   Icon: BellIcon        },
   { label: "Question Papers",   href: "/qp",        Icon: FileTextIcon    },
   { label: "Study Materials",   href: "/materials", Icon: BookOpenTextIcon },
-  { label: "Keep",              href: "/keep",      Icon: FiArchive },
 ];
 
 const CYCLE_MS = 5000;
@@ -210,7 +208,6 @@ export default function HeroSection() {
             {/* CTAs */}
             <div className="lnx-ctas">
               <ExploreBtn item={current} progress={progress} />
-              <SecondaryBtn href={loggedIn ? "/keep" : "/login?redirect=%2Fkeep"}>Keep</SecondaryBtn>
               {loggedIn ? (
                 <SecondaryBtn href="/learn">Start Learning</SecondaryBtn>
               ) : (

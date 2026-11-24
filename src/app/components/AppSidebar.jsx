@@ -3,7 +3,7 @@
 import React, { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { FiChevronDown } from "react-icons/fi";
+import { FiArchive, FiChevronDown } from "react-icons/fi";
 import { LayersIcon } from "./icons/LayersIcon";
 import { WrenchIcon } from "./icons/WrenchIcon";
 import { GraduationCapIcon } from "./icons/GraduationCapIcon";
@@ -298,6 +298,17 @@ export default function AppSidebar({
               onClick={onClose}
               icon={BookmarkIcon}
               text="Learn Later"
+              tabIndex={isOpen ? 0 : -1}
+            />
+          )}
+
+          {/* Keep - only shown when logged in */}
+          {hasUSN && (
+            <SidebarLink
+              href="/keep"
+              onClick={onClose}
+              icon={FiArchive}
+              text="Keep"
               tabIndex={isOpen ? 0 : -1}
             />
           )}

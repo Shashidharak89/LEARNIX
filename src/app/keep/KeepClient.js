@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { FiArchive, FiArrowDown, FiCheck, FiChevronLeft, FiChevronRight, FiExternalLink, FiFile, FiImage, FiLink, FiLock, FiMoreHorizontal, FiPin, FiPlus, FiSearch, FiTable, FiTrash2, FiType, FiX, FiYoutube } from "react-icons/fi";
+import { FiArchive, FiArrowDown, FiCheck, FiChevronLeft, FiChevronRight, FiExternalLink, FiFile, FiImage, FiLink, FiLock, FiMapPin, FiMoreHorizontal, FiPlus, FiSearch, FiTable, FiTrash2, FiType, FiX, FiYoutube } from "react-icons/fi";
 import { authFetch } from "@/lib/clientAuth";
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import YouTubeEmbed from "../components/YouTubeEmbed";
@@ -144,12 +144,12 @@ export default function KeepClient() {
             {items.map((item) => {
               const videoId = youtubeId(item.url);
               return <article className={`keep-card keep-card--${item.type}`} key={item.itemId}>
-                <div className="keep-card-top"><span className={`keep-kind keep-kind--${item.type}`}>{item.type === "text" ? <FiType /> : item.type === "link" ? <FiLink /> : <FiFile />}{item.type === "text" ? "Note" : item.type === "link" ? "Link" : "File"}</span><div className="keep-card-actions"><button title={item.pinned ? "Unpin" : "Pin to top"} aria-label={item.pinned ? "Unpin item" : "Pin item to top"} className={item.pinned ? "is-pinned" : ""} onClick={() => togglePin(item)}><FiPin /></button><button title="Edit" aria-label="Edit item" onClick={() => openEdit(item)}><FiMoreHorizontal /></button><button title="Delete" aria-label="Delete item" onClick={() => remove(item)}><FiTrash2 /></button></div></div>
+                <div className="keep-card-top"><span className={`keep-kind keep-kind--${item.type}`}>{item.type === "text" ? <FiType /> : item.type === "link" ? <FiLink /> : <FiFile />}{item.type === "text" ? "Note" : item.type === "link" ? "Link" : "File"}</span><div className="keep-card-actions"><button title={item.pinned ? "Unpin" : "Pin to top"} aria-label={item.pinned ? "Unpin item" : "Pin item to top"} className={item.pinned ? "is-pinned" : ""} onClick={() => togglePin(item)}><FiMapPin /></button><button title="Edit" aria-label="Edit item" onClick={() => openEdit(item)}><FiMoreHorizontal /></button><button title="Delete" aria-label="Delete item" onClick={() => remove(item)}><FiTrash2 /></button></div></div>
                 <h2>{item.title}</h2>
                 {item.type === "text" && <div className="keep-markdown"><MarkdownRenderer content={item.content} /></div>}
                 {item.type === "link" && <div className="keep-link-block">{videoId && <YouTubeEmbed ytId={videoId} wrapperClass="keep-video" />}<a href={item.url} target="_blank" rel="noreferrer" className="keep-url"><span>{item.url}</span><FiExternalLink /></a>{item.content && <p>{item.content}</p>}</div>}
                 {item.type === "file" && <div className="keep-file-block"><div className="keep-file-icon"><FiFile /></div><div className="keep-file-info"><strong>{item.file?.name || "Saved file"}</strong><span>{item.file?.mimeType || "File"} · {Math.max(1, Math.round((item.file?.size || 0) / 1024))} KB</span></div><button type="button" className="keep-download" onClick={() => downloadFile(item)} aria-label={`Download ${item.file?.name || "file"}`}><FiArrowDown /></button></div>}
-                <footer className="keep-card-footer"><span>{fmtDate(item.updatedAt || item.createdAt)}</span>{item.pinned && <span className="keep-pin-label"><FiPin /> Pinned</span>}</footer>
+                <footer className="keep-card-footer"><span>{fmtDate(item.updatedAt || item.createdAt)}</span>{item.pinned && <span className="keep-pin-label"><FiMapPin /> Pinned</span>}</footer>
               </article>;
             })}
           </section>
