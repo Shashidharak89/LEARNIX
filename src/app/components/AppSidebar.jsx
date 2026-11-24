@@ -3,7 +3,7 @@
 import React, { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { FiArchive, FiChevronDown } from "react-icons/fi";
+import { FiChevronDown } from "react-icons/fi";
 import { LayersIcon } from "./icons/LayersIcon";
 import { WrenchIcon } from "./icons/WrenchIcon";
 import { GraduationCapIcon } from "./icons/GraduationCapIcon";
@@ -11,6 +11,7 @@ import {
   ShieldCheckIcon,
   LogInIcon,
   FolderIcon,
+  FolderLockIcon,
   BellIcon,
   BookOpenIcon,
   ClipboardIcon,
@@ -307,7 +308,7 @@ export default function AppSidebar({
             <SidebarLink
               href="/keep"
               onClick={onClose}
-              icon={FiArchive}
+              icon={FolderLockIcon}
               text="Keep"
               tabIndex={isOpen ? 0 : -1}
             />

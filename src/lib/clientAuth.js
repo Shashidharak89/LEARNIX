@@ -101,7 +101,7 @@ async function shouldForceSignOut(response) {
   const token = getStoredToken();
   if (!token) return false;
 
-  const statusSuggestsAuth = response.status === 401 || response.status === 403;
+  if (response.status !== 401 && response.status !== 403) return false;
   let errorText = "";
 
   try {
@@ -120,7 +120,7 @@ async function shouldForceSignOut(response) {
   const looksExpired = /token.*expired|expired.*token|jwt.*expired/i.test(errorText);
   const looksInvalid = /invalid token|token invalid|authentication failed|unauthorized/i.test(errorText);
 
-  return statusSuggestsAuth && (looksExpired || looksInvalid);
+  return looksExpired || looksInvalid;
 }
 
 export async function authFetch(input, init = {}) {

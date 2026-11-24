@@ -5,13 +5,13 @@ import Link from "next/link";
 import {
   BookOpenIcon,
   FolderIcon,
+  FolderLockIcon,
   FileTextIcon,
   InfoIcon,
   UploadIcon,
   TrendingUpIcon,
   BellIcon,
 } from "@animateicons/react/lucide";
-import { FiArchive } from "react-icons/fi";
 import { WrenchIcon } from "../components/icons/WrenchIcon";
 import { GraduationCapIcon } from "../components/icons/GraduationCapIcon";
 import "./styles/WorkspaceNavCards.css";
@@ -26,7 +26,7 @@ const navItems = [
   { href: "/resources/upload", Icon: UploadIcon,     label: "Upload",          theme: "upload",    title: "Share Work",         description: "Upload your notes & manage your subjects easily.", authRequired: true },
   { href: "/workspace",        Icon: TrendingUpIcon, label: "Workspace",       theme: "dashboard", title: "Workspace",          description: "Track saved materials, progress & workspace resources." },
   { href: "/updates",          Icon: BellIcon,       label: "Updates",         theme: "updates",   title: "Study Updates",      description: "Stay informed with real-time academic announcements." },
-  { href: "/keep",             Icon: FiArchive,      label: "Keep",            theme: "keep",      title: "Your Keep",           description: "Save private notes, links, and files for later.", authRequired: true },
+  { href: "/keep",             Icon: FolderLockIcon, label: "Keep",            theme: "keep",      title: "Your Keep",           description: "Save private notes, links, and files for later.", authRequired: true },
 ];
 
 function NavCardItem({ item, resolvedHref }) {
