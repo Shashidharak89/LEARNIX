@@ -288,6 +288,12 @@
   background: #fffdf5;
 }
 
+.dash-lnx-card--keep {
+  --dash-lnx-accent: #2563eb;
+  --dash-lnx-icon-bg: #eff6ff;
+  --dash-lnx-shadow: rgba(37, 99, 235, 0.12);
+}
+
 /* ── Staggered fade-up on mount ── */
 @keyframes dash-lnx-fade-up {
   from { opacity: 0; transform: translateY(10px); }

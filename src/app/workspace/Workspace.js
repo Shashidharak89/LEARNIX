@@ -19,6 +19,7 @@ import { LayersIcon } from "../components/icons/LayersIcon";
 import "./styles/Workspace.css";
 import WhatsNew from "../components/WhatsNew";
 import WorkspaceUpdates from "./WorkspaceUpdates";
+import WorkspaceKeep from "./WorkspaceKeep";
 import WorkspaceResources from "./WorkspaceResources";
 import WorkspaceLearnLater from "./WorkspaceLearnLater";
 import WorkspaceLearnixCode from "./WorkspaceLearnixCode";
@@ -244,6 +245,9 @@ export default function Workspace() {
 
       {/* Updates Workspace Widget */}
       <WorkspaceUpdates loggedIn={!!usn} />
+
+      {/* Keep Workspace Widget */}
+      <WorkspaceKeep loggedIn={!!usn} />
 
       {/* Resources Workspace Widget */}
       <WorkspaceResources loggedIn={!!usn} />
