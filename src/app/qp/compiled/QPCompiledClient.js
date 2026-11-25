@@ -7,6 +7,7 @@ import { FaArrowLeft, FaImage, FaDownload, FaShare, FaBookmark } from "react-ico
 import { Navbar } from "../../components/Navbar";
 import ImageLoader from "../../components/ImageLoader";
 import ImageSlideshowModal from "../../components/ImageSlideshowModal";
+import QPSkeletonLoader from "../QPSkeletonLoader";
 import {
     toggleLearnLaterClient,
     checkLearnLaterStatusClient,
@@ -170,15 +171,7 @@ export default function QPCompiledClient() {
     };
 
     if (loading) {
-        return (
-            <div className="wtpc-container">
-                <Navbar />
-                <div className="wtpc-main-content" style={{ marginTop: "80px", textAlign: "center", padding: "50px" }}>
-                    <div className="loading-spinner" style={{ display: "inline-block", width: "40px", height: "40px", border: "4px solid #f3f3f3", borderTop: "4px solid #0b74ff", borderRadius: "50%", animation: "spin 1s linear infinite" }}></div>
-                    <p style={{ marginTop: "15px", color: "#666" }}>Compiling question papers...</p>
-                </div>
-            </div>
-        );
+        return <QPSkeletonLoader />;
     }
 
     if (error || images.length === 0) {
