@@ -6,6 +6,7 @@ import Link from "next/link";
 import { FaArrowLeft, FaImage, FaDownload, FaShare, FaBookmark } from "react-icons/fa";
 import { Navbar } from "../../components/Navbar";
 import ImageLoader from "../../components/ImageLoader";
+import ImageSlideshowModal from "../../components/ImageSlideshowModal";
 import {
     toggleLearnLaterClient,
     checkLearnLaterStatusClient,
@@ -24,6 +25,7 @@ export default function QPCompiledClient() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [expandedImages, setExpandedImages] = useState({});
+    const [lightboxIndex, setLightboxIndex] = useState(null);
     const [downloading, setDownloading] = useState(false);
 
     useEffect(() => {
@@ -280,7 +282,7 @@ export default function QPCompiledClient() {
                                             src={url}
                                             alt={`Compiled Page ${index + 1}`}
                                             className={`wtpc-topic-image ${expandedImages[index] ? 'wtpc-expanded' : ''}`}
-                                            onClick={() => toggleImageExpansion(index)}
+                                            onClick={() => setLightboxIndex(index)}
                                             loading="lazy"
                                         />
                                     </div>
@@ -290,6 +292,14 @@ export default function QPCompiledClient() {
                     </div>
                 </div>
             </div>
+            {lightboxIndex !== null && (
+                <ImageSlideshowModal
+                    images={images}
+                    startIndex={lightboxIndex}
+                    title={title}
+                    onClose={() => setLightboxIndex(null)}
+                />
+            )}
         </div>
     );
 }

@@ -272,16 +272,46 @@ const WtpcLightbox = ({ images, startIndex, onClose, topicTitle }) => {
           <span className="wtpc-lb-title-text">{topicTitle || "Resource Slideshow"}</span>
           <span className="wtpc-lb-badge">Page {idx + 1} of {images.length}</span>
         </div>
-        <button
-          className="wtpc-lb-close"
-          onClick={onClose}
-          aria-label="Close fullscreen view"
-          title="Close (Esc)"
-          onMouseEnter={() => closeRef.current?.startAnimation?.()}
-          onMouseLeave={() => closeRef.current?.stopAnimation?.()}
-        >
-          <XIcon ref={closeRef} size={22} />
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <button
+            className="wtpc-lb-close"
+            onClick={async (e) => {
+              e.stopPropagation();
+              const imgUrl = images[idx];
+              if (!imgUrl) return;
+              try {
+                const res = await fetch(imgUrl);
+                const blob = await res.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = blobUrl;
+                const safeTitle = (topicTitle || "Image").replace(/[^a-zA-Z0-9._-]/g, "_");
+                const ext = blob.type.includes("png") ? "png" : blob.type.includes("webp") ? "webp" : "jpg";
+                a.download = `${safeTitle}_Page_${idx + 1}.${ext}`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(blobUrl);
+              } catch {
+                window.open(imgUrl, "_blank", "noopener,noreferrer");
+              }
+            }}
+            aria-label="Download current image"
+            title="Download this image"
+          >
+            <DownloadIcon size={20} />
+          </button>
+          <button
+            className="wtpc-lb-close"
+            onClick={onClose}
+            aria-label="Close fullscreen view"
+            title="Close (Esc)"
+            onMouseEnter={() => closeRef.current?.startAnimation?.()}
+            onMouseLeave={() => closeRef.current?.stopAnimation?.()}
+          >
+            <XIcon ref={closeRef} size={22} />
+          </button>
+        </div>
       </div>
 
       {/* Nav Previous */}

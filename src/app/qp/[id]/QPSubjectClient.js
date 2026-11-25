@@ -6,6 +6,7 @@ import Link from "next/link";
 import { FaArrowLeft, FaImage, FaDownload, FaShare } from "react-icons/fa";
 import { Navbar } from "../../components/Navbar";
 import ImageLoader from "../../components/ImageLoader";
+import ImageSlideshowModal from "../../components/ImageSlideshowModal";
 import "../../resources/[id]/styles/WorkTopicPage.css"; // Reuse styling from resources page
 
 export default function QPSubjectClient() {
@@ -17,6 +18,7 @@ export default function QPSubjectClient() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [expandedImages, setExpandedImages] = useState({});
+    const [lightboxIndex, setLightboxIndex] = useState(null);
     const [downloading, setDownloading] = useState(false);
 
     useEffect(() => {
@@ -202,7 +204,7 @@ export default function QPSubjectClient() {
                                             src={url}
                                             alt={`${subjectName} - Page ${index + 1}`}
                                             className={`wtpc-topic-image ${expandedImages[index] ? 'wtpc-expanded' : ''}`}
-                                            onClick={() => toggleImageExpansion(index)}
+                                            onClick={() => setLightboxIndex(index)}
                                             loading="lazy"
                                         />
                                     </div>
@@ -212,6 +214,14 @@ export default function QPSubjectClient() {
                     </div>
                 </div>
             </div>
+            {lightboxIndex !== null && (
+                <ImageSlideshowModal
+                    images={images}
+                    startIndex={lightboxIndex}
+                    title={subjectName}
+                    onClose={() => setLightboxIndex(null)}
+                />
+            )}
         </div>
     );
 }

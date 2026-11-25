@@ -17,6 +17,7 @@ import {
 } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
 import { Navbar } from "../../components/Navbar";
+import ImageSlideshowModal from "../../components/ImageSlideshowModal";
 import {
   toggleLearnLaterClient,
   checkLearnLaterStatusClient,
@@ -99,6 +100,7 @@ export default function QPFilterClient() {
   const [error, setError] = useState(null);
 
   const [expandedImages, setExpandedImages] = useState({});
+  const [lightboxIndex, setLightboxIndex] = useState(null);
   const [showPageNumbers, setShowPageNumbers] = useState(false);
   const [rangeModalOpen, setRangeModalOpen] = useState(false);
   const [allPages, setAllPages] = useState(true);
@@ -557,7 +559,7 @@ export default function QPFilterClient() {
                         src={imageUrl}
                         alt={`${displayTitle} - Page ${index + 1}`}
                         className={`qpd-topic-image ${expandedImages[index] ? "qpd-expanded" : ""}`}
-                        onClick={() => toggleImageExpansion(index)}
+                        onClick={() => setLightboxIndex(index)}
                         loading="lazy"
                         onError={(e) => { e.currentTarget.style.display = "none"; }}
                       />
@@ -574,6 +576,16 @@ export default function QPFilterClient() {
           )}
         </div>
       </div>
+
+      {/* Slideshow Lightbox */}
+      {lightboxIndex !== null && (
+        <ImageSlideshowModal
+          images={images}
+          startIndex={lightboxIndex}
+          title={displayTitle}
+          onClose={() => setLightboxIndex(null)}
+        />
+      )}
 
       {/* Footer */}
       <div className="qpd-footer">
