@@ -16,8 +16,15 @@ import {
   LockIcon,
   GlobeIcon,
   LinkIcon,
+  PencilIcon,
+  EllipsisVerticalIcon,
+  UserIcon,
 } from "@animateicons/react/lucide";
 import { FiLoader } from "react-icons/fi";
+import AdminModal from "../components/AdminModal";
+import AdminToast from "../components/AdminToast";
+import AdminDropdown from "../components/AdminDropdown";
+import EditUpdateModal from "@/app/upload/updates/EditUpdateModal";
 import "../styles/AdminDashboard.css";
 import "../users/AdminUsers.css";
 import "./AdminUpdates.css";
@@ -47,6 +54,28 @@ export default function AdminUpdates() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState(null);
+  const [toast, setToast] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null, loading: false });
+  const [editingUpdate, setEditingUpdate] = useState(null);
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const [transferModal, setTransferModal] = useState({ isOpen: false, update: null, newUserId: "", loading: false });
+  const [usersList, setUsersList] = useState([]);
+
+  const showToast = useCallback((message, type = "info") => {
+    setToast({ message, type });
+  }, []);
+
+  useEffect(() => {
+    if (!token) return;
+    fetch("/api/admin/users?limit=500", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d.users)) setUsersList(d.users);
+      })
+      .catch(() => {});
+  }, [token]);
 
   useEffect(() => {
     const role = localStorage.getItem("role") || "";
@@ -93,37 +122,78 @@ export default function AdminUpdates() {
     }
   }, [token, myRole, fetchUpdates]);
 
-  const handleDelete = useCallback(
-    async (updateId) => {
-      if (!window.confirm("Are you sure you want to delete this update?")) return;
+  const handleDelete = useCallback((updateId) => {
+    setDeleteModal({ isOpen: true, id: updateId, loading: false });
+  }, []);
 
-      setDeletingId(updateId);
-      try {
-        const res = await fetch(`/api/updates/delete`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ updateId }),
-        });
-        const data = await res.json();
+  const handleConfirmDelete = useCallback(async () => {
+    const updateId = deleteModal.id;
+    if (!updateId) return;
 
-        if (!res.ok) {
-          setError(data.error || "Failed to delete update");
-          return;
-        }
+    setDeleteModal((prev) => ({ ...prev, loading: true }));
+    setDeletingId(updateId);
+    try {
+      const res = await fetch(`/api/updates/delete`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ updateId }),
+      });
+      const data = await res.json();
 
-        setUpdates((prev) => prev.filter((u) => u._id !== updateId));
-        setError("");
-      } catch {
-        setError("Network error. Failed to delete update.");
-      } finally {
-        setDeletingId(null);
+      if (!res.ok) {
+        showToast(data.error || "Failed to delete update", "error");
+        setDeleteModal((prev) => ({ ...prev, loading: false }));
+        return;
       }
-    },
-    [token]
-  );
+
+      setUpdates((prev) => prev.filter((u) => u._id !== updateId));
+      setDeleteModal({ isOpen: false, id: null, loading: false });
+      showToast("Update deleted successfully", "success");
+    } catch {
+      showToast("Network error. Failed to delete update.", "error");
+      setDeleteModal((prev) => ({ ...prev, loading: false }));
+    } finally {
+      setDeletingId(null);
+    }
+  }, [deleteModal.id, token, showToast]);
+
+  const handleConfirmTransfer = useCallback(async () => {
+    if (!transferModal.update || !transferModal.newUserId) {
+      showToast("Please select a user to transfer ownership to", "error");
+      return;
+    }
+    setTransferModal((prev) => ({ ...prev, loading: true }));
+    try {
+      const res = await fetch("/api/admin/updates/transfer", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          updateId: transferModal.update._id,
+          newUserId: transferModal.newUserId,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        showToast(data.error || "Failed to transfer ownership", "error");
+        setTransferModal((prev) => ({ ...prev, loading: false }));
+        return;
+      }
+      setUpdates((prev) =>
+        prev.map((u) => (u._id === transferModal.update._id ? { ...u, ...data.update } : u))
+      );
+      showToast(data.message || "Ownership transferred successfully", "success");
+      setTransferModal({ isOpen: false, update: null, newUserId: "", loading: false });
+    } catch {
+      showToast("Network error while transferring ownership", "error");
+      setTransferModal((prev) => ({ ...prev, loading: false }));
+    }
+  }, [transferModal, token, showToast]);
 
   if (myRole === null) return null;
 
@@ -284,16 +354,16 @@ export default function AdminUpdates() {
                       </div>
                     </div>
 
-                    <div className="au-update-actions">
-                      <Link
-                        href={`/updates/${item._id}`}
-                        target="_blank"
+                    <div className="au-update-actions" style={{ position: "relative" }}>
+                      <button
+                        type="button"
                         className="au-update-view-btn"
-                        title="View update"
+                        onClick={() => setEditingUpdate(item)}
+                        title="Edit update"
                       >
-                        <GlobeIcon size={14} />
-                        <span>View</span>
-                      </Link>
+                        <PencilIcon size={14} />
+                        <span>Edit</span>
+                      </button>
                       <button
                         type="button"
                         className="au-update-delete-btn"
@@ -304,6 +374,45 @@ export default function AdminUpdates() {
                         <Trash2Icon size={14} />
                         <span>{deletingId === item._id ? "Deleting…" : "Delete"}</span>
                       </button>
+                      <button
+                        type="button"
+                        className="au-update-more-btn"
+                        onClick={() => setOpenMenuId(openMenuId === item._id ? null : item._id)}
+                        title="More options"
+                        aria-label="More options"
+                      >
+                        <EllipsisVerticalIcon size={16} />
+                      </button>
+
+                      {openMenuId === item._id && (
+                        <div className="au-update-dropdown">
+                          <button
+                            type="button"
+                            className="au-update-dropdown-item"
+                            onClick={() => {
+                              setOpenMenuId(null);
+                              setTransferModal({
+                                isOpen: true,
+                                update: item,
+                                newUserId: item.userId ? String(item.userId) : "",
+                                loading: false,
+                              });
+                            }}
+                          >
+                            <UserIcon size={14} />
+                            <span>Change Uploader</span>
+                          </button>
+                          <Link
+                            href={`/updates/${item._id}`}
+                            target="_blank"
+                            className="au-update-dropdown-item"
+                            onClick={() => setOpenMenuId(null)}
+                          >
+                            <GlobeIcon size={14} />
+                            <span>View Update</span>
+                          </Link>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -401,6 +510,64 @@ export default function AdminUpdates() {
           </>
         )}
       </main>
+
+      {/* Custom Apple Delete Confirmation Modal */}
+      <AdminModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => !deleteModal.loading && setDeleteModal({ isOpen: false, id: null, loading: false })}
+        onConfirm={handleConfirmDelete}
+        title="Delete Update?"
+        message="Are you sure you want to delete this update? This action cannot be undone."
+        confirmText="Yes, delete it"
+        cancelText="Cancel"
+        variant="danger"
+        loading={deleteModal.loading}
+      />
+
+      {/* Change Uploader / Transfer Ownership Modal */}
+      <AdminModal
+        isOpen={transferModal.isOpen}
+        onClose={() => !transferModal.loading && setTransferModal({ isOpen: false, update: null, newUserId: "", loading: false })}
+        onConfirm={handleConfirmTransfer}
+        title="Change Uploader"
+        message={`Transfer ownership of "${transferModal.update?.title || "this update"}" to another user:`}
+        confirmText="Transfer Ownership"
+        cancelText="Cancel"
+        variant="primary"
+        loading={transferModal.loading}
+      >
+        <div style={{ textAlign: "left", marginBottom: "18px" }}>
+          <AdminDropdown
+            label="Select New Uploader"
+            options={usersList.map((u) => ({
+              value: String(u._id),
+              label: `${u.name || "User"} (${u.usn || u.email || u._id})`,
+              keywords: `${u.name || ""} ${u.usn || ""} ${u.email || ""}`,
+            }))}
+            value={transferModal.newUserId}
+            onChange={(val) => setTransferModal((prev) => ({ ...prev, newUserId: val }))}
+            placeholder="-- Select User --"
+            searchPlaceholder="Search by name, USN, or email..."
+            required
+          />
+        </div>
+      </AdminModal>
+
+      {/* Edit Update Modal (Same as Upload Updates) */}
+      <EditUpdateModal
+        isOpen={!!editingUpdate}
+        update={editingUpdate}
+        onClose={() => setEditingUpdate(null)}
+        onUpdated={(updated) => {
+          setUpdates((prev) => prev.map((u) => (u._id === updated._id ? { ...u, ...updated } : u)));
+          setEditingUpdate(null);
+          showToast("Update saved successfully", "success");
+        }}
+        showToast={showToast}
+      />
+
+      {/* Bottom-Right Light Toast */}
+      <AdminToast toast={toast} onClose={() => setToast(null)} />
     </div>
   );
 }
