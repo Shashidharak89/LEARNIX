@@ -4,6 +4,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Navbar } from "@/app/components/Navbar";
 import QPViewer from "./QPViewer";
 import Link from "next/link";
+import AdminDropdown from "../components/AdminDropdown";
+import AdminModal from "../components/AdminModal";
+import AdminToast from "../components/AdminToast";
 import "./QPAdmin.css";
 
 const modelsConfig = {
@@ -91,6 +94,14 @@ export default function QPAdminPage() {
     // Edit and action states
     const [editingRecord, setEditingRecord] = useState(null);
     const [actionLoadingId, setActionLoadingId] = useState(null);
+    const [toast, setToast] = useState(null);
+    const [deleteModal, setDeleteModal] = useState({ isOpen: false, record: null, loading: false });
+
+    useEffect(() => {
+        if (message && message.text) {
+            setToast({ message: message.text, type: message.type || "info" });
+        }
+    }, [message]);
 
     // Load auth token & role from localStorage
     useEffect(() => {
@@ -342,12 +353,16 @@ export default function QPAdminPage() {
             return;
         }
 
-        const modelLabel = activeTab.replace("QP", "");
-        const confirmed = window.confirm(
-            `Are you sure you want to delete this ${modelLabel} (ID: ${record._id})? This action cannot be undone.`
-        );
-        if (!confirmed) return;
+        setDeleteModal({ isOpen: true, record, loading: false });
+    };
 
+    const handleConfirmDelete = async () => {
+        const record = deleteModal.record;
+        if (!record) return;
+        const currentToken = token || (typeof window !== "undefined" ? localStorage.getItem("token") : "");
+        const modelLabel = activeTab.replace("QP", "");
+
+        setDeleteModal((prev) => ({ ...prev, loading: true }));
         setActionLoadingId(String(record._id));
         try {
             const res = await fetch(`/api/admin/qp-models?model=${activeTab}&id=${record._id}`, {
@@ -376,14 +391,17 @@ export default function QPAdminPage() {
                 // Remove immediately from existing list
                 setRecords(prev => prev.filter(r => String(r._id) !== String(record._id)));
                 fetchReferences(activeTab);
+                setDeleteModal({ isOpen: false, record: null, loading: false });
             } else {
                 setMessage({
                     type: "error",
                     text: json.error || json.message || "Failed to delete record"
                 });
+                setDeleteModal((prev) => ({ ...prev, loading: false }));
             }
         } catch (error) {
             setMessage({ type: "error", text: error.message });
+            setDeleteModal((prev) => ({ ...prev, loading: false }));
         }
         setActionLoadingId(null);
     };
@@ -541,23 +559,25 @@ export default function QPAdminPage() {
                                                 disabled={loading}
                                             />
                                         ) : field.type === "select" ? (
-                                            <select
-                                                name={field.name}
+                                            <AdminDropdown
+                                                options={(references[field.ref] || []).map((refDoc) => ({
+                                                    value: String(refDoc._id),
+                                                    label:
+                                                        field.ref === "QPBatches"
+                                                            ? `${refDoc.startYear}-${refDoc.endYear}`
+                                                            : field.ref === "QPSemesters"
+                                                            ? `Semester ${refDoc.semesterNumber}`
+                                                            : String(refDoc.name || refDoc._id),
+                                                }))}
                                                 value={formData[field.name] || ""}
-                                                onChange={handleInputChange}
+                                                onChange={(val) =>
+                                                    setFormData((prev) => ({ ...prev, [field.name]: val }))
+                                                }
+                                                placeholder={`-- Select ${field.name} --`}
+                                                searchPlaceholder={`Search ${field.name}...`}
                                                 required={field.required}
-                                                className="qp-input"
                                                 disabled={loading}
-                                            >
-                                                <option value="">-- Select {field.name} --</option>
-                                                {references[field.ref] && references[field.ref].map(refDoc => (
-                                                    <option key={String(refDoc._id)} value={String(refDoc._id)}>
-                                                        {field.ref === "QPBatches" ? `${refDoc.startYear}-${refDoc.endYear}` :
-                                                            field.ref === "QPSemesters" ? `Semester ${refDoc.semesterNumber}` :
-                                                                String(refDoc.name || refDoc._id)}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                            />
                                         ) : null}
                                     </div>
                                 ))}
@@ -682,6 +702,22 @@ export default function QPAdminPage() {
                     </div>
                 )}
             </div>
+
+            {/* Custom Apple Delete Confirmation Modal */}
+            <AdminModal
+                isOpen={deleteModal.isOpen}
+                onClose={() => !deleteModal.loading && setDeleteModal({ isOpen: false, record: null, loading: false })}
+                onConfirm={handleConfirmDelete}
+                title={`Delete ${activeTab.replace("QP", "")}?`}
+                message={`Are you sure you want to delete this ${activeTab.replace("QP", "")} record? This action cannot be undone.`}
+                confirmText="Yes, delete it"
+                cancelText="Cancel"
+                variant="danger"
+                loading={deleteModal.loading}
+            />
+
+            {/* Light-Theme Bottom-Right Toast */}
+            <AdminToast toast={toast} onClose={() => setToast(null)} />
         </div>
     );
 }

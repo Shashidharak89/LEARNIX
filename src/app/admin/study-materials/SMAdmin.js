@@ -18,8 +18,9 @@ import {
     FiRefreshCw,
     FiClock
 } from "react-icons/fi";
-import Swal from "sweetalert2";
-import "sweetalert2/dist/sweetalert2.min.css";
+import AdminDropdown from "../components/AdminDropdown";
+import AdminModal from "../components/AdminModal";
+import AdminToast from "../components/AdminToast";
 import { formatGithubRawUrl } from "@/lib/githubUrlHelper";
 import { authFetch } from "@/lib/clientAuth";
 import "./SMAdmin.css";
@@ -119,6 +120,9 @@ export default function SMAdmin() {
     const [submitLoading, setSubmitLoading] = useState(false);
     const [deleteLoading, setDeleteLoading] = useState(null); // stores ID being deleted
     const [message, setMessage] = useState(null);
+    const [toast, setToast] = useState(null);
+    const [editModal, setEditModal] = useState({ isOpen: false, record: null, data: {}, loading: false });
+    const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null, loading: false });
     const [fileUrls, setFileUrls] = useState([""]);
 
     const handleUrlChange = (index, value) => {
@@ -218,11 +222,7 @@ export default function SMAdmin() {
             if (activeTab === "SMFiles") {
                 const activeUrls = fileUrls.map(u => u.trim()).filter(Boolean);
                 if (activeUrls.length === 0) {
-                    Swal.fire({
-                        icon: "warning",
-                        title: "Missing File URL",
-                        text: "Please enter at least one valid File URL."
-                    });
+                    setToast({ type: "error", message: "Please enter at least one valid File URL." });
                     setSubmitLoading(false);
                     return;
                 }
@@ -251,15 +251,12 @@ export default function SMAdmin() {
             const json = await res.json();
 
             if (json.success) {
-                Swal.fire({
-                    icon: "success",
-                    title: "Success!",
-                    text: `${modelsConfig[activeTab].label.slice(0, -1)} added successfully!`,
-                    timer: 2000,
-                    showConfirmButton: false
+                setToast({
+                    type: "success",
+                    message: `${modelsConfig[activeTab].label.slice(0, -1)} added successfully!`
                 });
 
-                setMessage({ type: "success", text: "Record added successfully!" });
+                setMessage(null);
                 setPage(1);
                 fetchRecords(activeTab, 1); // refresh
 
@@ -277,227 +274,108 @@ export default function SMAdmin() {
                 }
             } else {
                 const errMsg = json.error || json.message || "Failed to create record.";
-                Swal.fire({
-                    icon: "error",
-                    title: "Failed to Add",
-                    text: errMsg
-                });
-                setMessage({ type: "error", text: errMsg });
+                setToast({ type: "error", message: errMsg });
             }
         } catch (error) {
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: error.message || "An unexpected error occurred."
-            });
-            setMessage({ type: "error", text: error.message || "An unexpected error occurred." });
+            setToast({ type: "error", message: error.message || "An unexpected error occurred." });
         } finally {
             setSubmitLoading(false);
         }
     };
 
-    // ── Edit Record using SweetAlert2 popup ──
-    const handleEdit = async (record) => {
+    // Helper to build dropdown options for a field
+    const getFieldDropdownOptions = (field) => {
+        if (field.options) return field.options;
+        const refList = references[field.ref] || [];
+        return refList.map((refDoc) => {
+            let label = refDoc.name || refDoc._id;
+            if (field.ref === "SMSemester") label = `Semester ${refDoc.sem}`;
+            else if (field.ref === "SMBatch") label = `${refDoc.startyear}-${refDoc.endyear}`;
+            else if (field.ref === "SMCollege") label = `${refDoc.name} (${refDoc.university?.name || "No University"})`;
+            else if (field.ref === "SMSubject") label = `${refDoc.name} (${refDoc.course?.name || "Course"}, College: ${refDoc.college?.name || "College"}, Sem: ${refDoc.sem?.sem || "N/A"})`;
+            return { value: refDoc._id, label };
+        });
+    };
+
+    // ── Edit Record using custom Apple Modal ──
+    const handleEdit = (record) => {
         const config = modelsConfig[activeTab];
         if (!config) return;
+        const initialData = {};
+        config.fields.forEach((field) => {
+            let currentVal = record[field.name];
+            if (currentVal && typeof currentVal === "object" && !Array.isArray(currentVal)) {
+                currentVal = currentVal._id;
+            }
+            if (Array.isArray(currentVal)) {
+                currentVal = currentVal.join(", ");
+            }
+            initialData[field.name] = currentVal !== undefined && currentVal !== null ? String(currentVal) : "";
+        });
+        setEditModal({ isOpen: true, record, data: initialData, loading: false });
+    };
 
-        // Ensure all required references are loaded
-        const refModels = config.fields.filter(f => f.ref).map(f => f.ref);
-        const currentRefs = { ...references };
+    const handleConfirmEdit = async (e) => {
+        if (e) e.preventDefault();
+        const config = modelsConfig[activeTab];
+        const updatedData = {};
 
-        for (const refModel of refModels) {
-            if (!currentRefs[refModel] || currentRefs[refModel].length === 0) {
-                try {
-                    const res = await authFetch(`/api/admin/sm-models?model=${refModel}`, { cache: "no-store" });
-                    const json = await res.json();
-                    if (json.success) {
-                        currentRefs[refModel] = json.data;
-                    }
-                } catch (e) {
-                    console.error(`Failed to load ${refModel} references:`, e);
+        for (const field of config.fields) {
+            let val = editModal.data[field.name] !== undefined ? String(editModal.data[field.name]).trim() : "";
+            if (field.required && !val) {
+                setToast({ type: "error", message: `${field.label || field.name} is required.` });
+                return;
+            }
+            if (field.type === "number" && val !== "") {
+                val = Number(val);
+                if (isNaN(val)) {
+                    setToast({ type: "error", message: `${field.label || field.name} must be a valid number.` });
+                    return;
                 }
             }
+            updatedData[field.name] = val;
         }
 
-        // Build HTML form fields dynamically
-        let formHtml = `<div style="display: flex; flex-direction: column; gap: 14px; text-align: left; font-family: inherit;">`;
-
-        config.fields.forEach((field) => {
-            const fieldId = `swal-edit-${field.name}`;
-            const fieldLabel = field.label || field.name;
-
-            let currentValue = "";
-            if (field.name === "keywords") {
-                const kwVal = record[field.name];
-                currentValue = Array.isArray(kwVal) ? kwVal.join(", ") : (kwVal || "");
-            } else if (field.ref) {
-                const refVal = record[field.name];
-                currentValue = refVal?._id ? String(refVal._id) : (refVal ? String(refVal) : "");
-            } else {
-                currentValue = record[field.name] !== undefined && record[field.name] !== null ? String(record[field.name]) : "";
-            }
-
-            formHtml += `
-                <div>
-                    <label style="display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px;">
-                        ${escapeHtml(fieldLabel)} ${field.required ? '<span style="color: #ef4444;">*</span>' : ''}
-                    </label>
-            `;
-
-            if (field.type === "select") {
-                formHtml += `
-                    <select id="${fieldId}" style="width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; outline: none; background: #ffffff; color: #0f172a;">
-                        <option value="">-- Select ${escapeHtml(fieldLabel)} --</option>
-                `;
-
-                if (field.options) {
-                    field.options.forEach(opt => {
-                        const isSelected = String(opt.value) === String(currentValue);
-                        formHtml += `<option value="${escapeHtml(opt.value)}" ${isSelected ? 'selected' : ''}>${escapeHtml(opt.label)}</option>`;
-                    });
-                } else if (field.ref && currentRefs[field.ref]) {
-                    currentRefs[field.ref].forEach(refDoc => {
-                        const isSelected = String(refDoc._id) === String(currentValue);
-                        let label = refDoc.name || refDoc._id;
-                        if (field.ref === "SMSemester") label = `Semester ${refDoc.sem}`;
-                        else if (field.ref === "SMBatch") label = `Batch ${refDoc.startyear}-${refDoc.endyear}`;
-                        else if (field.ref === "SMCollege") label = `${refDoc.name} (${refDoc.university?.name || "No University"})`;
-                        else if (field.ref === "SMSubject") label = `${refDoc.name} (${refDoc.course?.name || "Course"}, College: ${refDoc.college?.name || "College"}, Sem: ${refDoc.sem?.sem || "N/A"})`;
-
-                        formHtml += `<option value="${refDoc._id}" ${isSelected ? 'selected' : ''}>${escapeHtml(label)}</option>`;
-                    });
-                }
-
-                formHtml += `</select>`;
-            } else {
-                const inputType = field.type === "number" ? "number" : "text";
-                formHtml += `
-                    <input 
-                        type="${inputType}" 
-                        id="${fieldId}" 
-                        value="${escapeHtml(currentValue)}" 
-                        placeholder="${escapeHtml(field.placeholder || '')}" 
-                        style="width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; outline: none; background: #ffffff; color: #0f172a;"
-                    />
-                `;
-            }
-
-            formHtml += `</div>`;
-        });
-
-        formHtml += `</div>`;
-
-        const result = await Swal.fire({
-            title: `Edit ${config.label.slice(0, -1)}`,
-            html: formHtml,
-            focusConfirm: false,
-            showCancelButton: true,
-            confirmButtonText: "Update Record",
-            cancelButtonText: "Cancel",
-            confirmButtonColor: "#4f46e5",
-            cancelButtonColor: "#64748b",
-            width: "560px",
-            customClass: {
-                popup: 'sm-swal-popup',
-                confirmButton: 'sm-swal-confirm',
-                cancelButton: 'sm-swal-cancel'
-            },
-            preConfirm: () => {
-                const updatedData = {};
-                for (const field of config.fields) {
-                    const el = document.getElementById(`swal-edit-${field.name}`);
-                    if (!el) continue;
-                    let val = el.value.trim();
-
-                    if (field.required && !val) {
-                        Swal.showValidationMessage(`${field.label || field.name} is required.`);
-                        return false;
-                    }
-
-                    if (field.type === "number") {
-                        val = Number(val);
-                        if (isNaN(val)) {
-                            Swal.showValidationMessage(`${field.label || field.name} must be a valid number.`);
-                            return false;
-                        }
-                    }
-
-                    updatedData[field.name] = val;
-                }
-                return updatedData;
-            }
-        });
-
-        if (result.isConfirmed && result.value) {
-            Swal.fire({
-                title: "Updating...",
-                text: "Please wait while the record is being saved.",
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
+        setEditModal((prev) => ({ ...prev, loading: true }));
+        try {
+            const res = await authFetch("/api/admin/sm-models", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    modelName: activeTab,
+                    id: editModal.record._id,
+                    data: updatedData
+                })
             });
 
-            try {
-                const res = await authFetch("/api/admin/sm-models", {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        modelName: activeTab,
-                        id: record._id,
-                        data: result.value
-                    })
+            const json = await res.json();
+            if (json.success) {
+                setToast({
+                    type: "success",
+                    message: `${config.label.slice(0, -1)} updated successfully!`
                 });
-
-                const json = await res.json();
-                if (json.success) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Updated!",
-                        text: `${config.label.slice(0, -1)} updated successfully!`,
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-
-                    // Update record locally
-                    setRecords(prev => prev.map(r => r._id === record._id ? json.data : r));
-                } else {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Update Failed",
-                        text: json.error || json.message || "Failed to update record."
-                    });
-                }
-            } catch (err) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: err.message || "An unexpected error occurred."
-                });
+                setRecords((prev) => prev.map((r) => (r._id === editModal.record._id ? json.data : r)));
+                setEditModal({ isOpen: false, record: null, data: {}, loading: false });
+            } else {
+                setToast({ type: "error", message: json.error || json.message || "Failed to update record." });
+                setEditModal((prev) => ({ ...prev, loading: false }));
             }
+        } catch (err) {
+            setToast({ type: "error", message: err.message || "An unexpected error occurred." });
+            setEditModal((prev) => ({ ...prev, loading: false }));
         }
     };
 
-    // ── Delete Record using SweetAlert2 popup ──
-    const handleDelete = async (id) => {
-        const result = await Swal.fire({
-            title: "Delete Record?",
-            text: "Are you sure you want to delete this record? This action cannot be undone.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#ef4444",
-            cancelButtonColor: "#64748b",
-            confirmButtonText: "Yes, delete it",
-            cancelButtonText: "Cancel",
-            customClass: {
-                popup: 'sm-swal-popup',
-                confirmButton: 'sm-swal-confirm',
-                cancelButton: 'sm-swal-cancel'
-            }
-        });
+    // ── Delete Record using custom Apple Modal ──
+    const handleDelete = (id) => {
+        setDeleteModal({ isOpen: true, id, loading: false });
+    };
 
-        if (!result.isConfirmed) return;
+    const handleConfirmDelete = async () => {
+        const id = deleteModal.id;
+        if (!id) return;
 
+        setDeleteModal((prev) => ({ ...prev, loading: true }));
         setDeleteLoading(id);
         setMessage(null);
 
@@ -508,36 +386,22 @@ export default function SMAdmin() {
             const json = await res.json();
 
             if (json.success) {
-                Swal.fire({
-                    icon: "success",
-                    title: "Deleted!",
-                    text: "Record deleted successfully.",
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-
-                setMessage({ type: "success", text: "Record deleted successfully." });
-                setRecords(prev => prev.filter(r => r._id !== id));
+                setToast({ type: "success", message: "Record deleted successfully." });
+                setRecords((prev) => prev.filter((r) => r._id !== id));
+                setDeleteModal({ isOpen: false, id: null, loading: false });
             } else {
                 const errMsg = json.error || json.message || "Failed to delete record.";
-                Swal.fire({
-                    icon: "error",
-                    title: "Failed to Delete",
-                    text: errMsg
-                });
-                setMessage({ type: "error", text: errMsg });
+                setToast({ type: "error", message: errMsg });
+                setDeleteModal((prev) => ({ ...prev, loading: false }));
             }
         } catch (error) {
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                text: error.message || "Failed to delete record."
-            });
-            setMessage({ type: "error", text: error.message || "Failed to delete record." });
+            setToast({ type: "error", message: error.message || "Failed to delete record." });
+            setDeleteModal((prev) => ({ ...prev, loading: false }));
         } finally {
             setDeleteLoading(null);
         }
     };
+
 
     return (
         <div className="sm-admin-container">
@@ -668,29 +532,14 @@ export default function SMAdmin() {
                                             className="sm-input"
                                         />
                                     ) : field.type === "select" ? (
-                                        <select
-                                            name={field.name}
+                                        <AdminDropdown
+                                            options={getFieldDropdownOptions(field)}
                                             value={formData[field.name] || ""}
-                                            onChange={handleInputChange}
+                                            onChange={(val) => setFormData((prev) => ({ ...prev, [field.name]: val }))}
+                                            placeholder={`-- Select ${field.label || field.name} --`}
+                                            searchPlaceholder={`Search ${field.label || field.name}...`}
                                             required={field.required}
-                                            className="sm-input"
-                                        >
-                                            <option value="">-- Select {field.label || field.name} --</option>
-                                            {field.options && field.options.map(opt => (
-                                                <option key={opt.value} value={opt.value}>
-                                                    {opt.label}
-                                                </option>
-                                            ))}
-                                            {!field.options && references[field.ref] && references[field.ref].map(refDoc => (
-                                                <option key={refDoc._id} value={refDoc._id}>
-                                                    {field.ref === "SMSemester" ? `Semester ${refDoc.sem}` :
-                                                     field.ref === "SMBatch" ? `${refDoc.startyear}-${refDoc.endyear}` :
-                                                     field.ref === "SMCollege" ? `${refDoc.name} (${refDoc.university?.name || "No University"})` :
-                                                     field.ref === "SMSubject" ? `${refDoc.name} (${refDoc.course?.name || "Course"}, College: ${refDoc.college?.name || "College"}, Sem: ${refDoc.sem?.sem || "N/A"})` :
-                                                     (refDoc.name || refDoc._id)}
-                                                </option>
-                                            ))}
-                                        </select>
+                                        />
                                     ) : null}
                                 </div>
                             ))}
@@ -868,6 +717,76 @@ export default function SMAdmin() {
                     </div>
                 </div>
             </div>
+
+            {/* Custom Apple Edit Modal */}
+            <AdminModal
+                isOpen={editModal.isOpen}
+                onClose={() => !editModal.loading && setEditModal({ isOpen: false, record: null, data: {}, loading: false })}
+                onConfirm={handleConfirmEdit}
+                title={`Edit ${modelsConfig[activeTab]?.label.slice(0, -1) || "Record"}`}
+                confirmText="Update Record"
+                cancelText="Cancel"
+                variant="primary"
+                loading={editModal.loading}
+            >
+                <div style={{ display: "flex", flexDirection: "column", gap: "14px", textAlign: "left", marginBottom: "20px" }}>
+                    {modelsConfig[activeTab]?.fields.map((field) => (
+                        <div key={field.name} style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                            {field.type === "select" ? (
+                                <AdminDropdown
+                                    label={field.label || field.name}
+                                    required={field.required}
+                                    options={getFieldDropdownOptions(field)}
+                                    value={editModal.data[field.name] || ""}
+                                    onChange={(val) =>
+                                        setEditModal((prev) => ({
+                                            ...prev,
+                                            data: { ...prev.data, [field.name]: val }
+                                        }))
+                                    }
+                                    placeholder={`-- Select ${field.label || field.name} --`}
+                                    searchPlaceholder={`Search ${field.label || field.name}...`}
+                                />
+                            ) : (
+                                <>
+                                    <label style={{ fontSize: "0.82rem", fontWeight: 700, color: "#334155" }}>
+                                        {field.label || field.name}
+                                        {field.required && <span style={{ color: "#ef4444" }}> *</span>}
+                                    </label>
+                                    <input
+                                        type={field.type}
+                                        value={editModal.data[field.name] || ""}
+                                        onChange={(e) =>
+                                            setEditModal((prev) => ({
+                                                ...prev,
+                                                data: { ...prev.data, [field.name]: e.target.value }
+                                            }))
+                                        }
+                                        placeholder={field.placeholder || ""}
+                                        className="sm-input"
+                                    />
+                                </>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </AdminModal>
+
+            {/* Custom Apple Delete Confirmation Modal */}
+            <AdminModal
+                isOpen={deleteModal.isOpen}
+                onClose={() => !deleteModal.loading && setDeleteModal({ isOpen: false, id: null, loading: false })}
+                onConfirm={handleConfirmDelete}
+                title="Delete Record?"
+                message="Are you sure you want to delete this record? This action cannot be undone."
+                confirmText="Yes, delete it"
+                cancelText="Cancel"
+                variant="danger"
+                loading={deleteModal.loading}
+            />
+
+            {/* Light-Theme Bottom-Right Toast */}
+            <AdminToast toast={toast} onClose={() => setToast(null)} />
         </div>
     );
 }
