@@ -401,3 +401,65 @@
 .du-btn-danger:hover {
   background: #b91c1c;
 }
+
+/* ── One User Per Row, Clean Spacing, Alignment & Centered Modal ── */
+.au-users-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+}
+
+.du-deleted-card {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+  padding: 18px 22px !important;
+  border-radius: 22px !important;
+  box-sizing: border-box !important;
+}
+
+.du-deleted-card .au-card-top {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 0 !important;
+}
+
+.du-deleted-card .au-card-info {
+  min-width: 0;
+  text-align: left;
+}
+
+.du-deleted-card .au-card-name,
+.du-deleted-card .au-card-email {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 760px) {
+  .du-deleted-card {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 16px !important;
+  }
+}
+
+.du-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  overflow-y: auto !important;
+  padding: 16px !important;
+}
+
+.du-modal {
+  margin: auto !important;
+  max-height: calc(100vh - 32px) !important;
+  overflow-y: auto !important;
+}

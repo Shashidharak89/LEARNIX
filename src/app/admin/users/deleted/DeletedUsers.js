@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -55,7 +56,7 @@ function formatDate(d) {
 
 /* ─── Confirm modal ─── */
 function ConfirmModal({ title, message, danger, confirmLabel, onConfirm, onCancel, loading }) {
-  return (
+  const content = (
     <div className="du-modal-overlay" onClick={onCancel}>
       <div className="du-modal" onClick={e => e.stopPropagation()}>
         <div className="du-modal-header">
@@ -82,6 +83,10 @@ function ConfirmModal({ title, message, danger, confirmLabel, onConfirm, onCance
       </div>
     </div>
   );
+  if (typeof document !== "undefined") {
+    return createPortal(content, document.body);
+  }
+  return content;
 }
 
 export default function DeletedUsers() {
