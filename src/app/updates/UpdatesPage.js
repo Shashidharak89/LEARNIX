@@ -26,6 +26,7 @@ import {
 import UpdatesLeaderboard from './UpdatesLeaderboard';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
 import EditUpdateModal from '../upload/updates/EditUpdateModal';
+import AdminToast from '../admin/components/AdminToast';
 import { getYouTubeVideoId, groupConsecutiveLinks } from '../utils/youtube';
 import LinkPreview from '../components/LinkPreview';
 import YouTubeEmbed from '../components/YouTubeEmbed';
@@ -420,7 +421,7 @@ function UpdateCard({
   return (
     <div
       ref={isHighlighted ? highlightedCardRef : null}
-      className={`upd-card ${isHighlighted ? 'upd-card-highlighted' : ''}`}
+      className={`upd-card ${isHighlighted ? 'upd-card-highlighted' : ''} ${isMenuOpen ? 'upd-card-menu-open' : ''}`}
     >
       <div className="upd-card-header">
         <Link href={`/users/${u.usn || ''}`}>
@@ -1323,29 +1324,8 @@ export default function UpdatesPage({ initialUpdateId }) {
         />
       )}
 
-      {/* Floating Screen-Bottom Toast Notification */}
-      {toast && (
-        <div className={`upd-screen-toast upd-screen-toast-${toast.type || 'info'}`} role="status" aria-live="polite">
-          <div className="upd-screen-toast-icon-box">
-            {toast.type === "success" ? (
-              <FiCheckCircle className="upd-screen-toast-icon" />
-            ) : toast.type === "error" ? (
-              <FiAlertCircle className="upd-screen-toast-icon" />
-            ) : (
-              <FiInfo className="upd-screen-toast-icon" />
-            )}
-          </div>
-          <span className="upd-screen-toast-text">{toast.message}</span>
-          <button
-            type="button"
-            className="upd-screen-toast-close"
-            onClick={() => setToast(null)}
-            aria-label="Dismiss message"
-          >
-            <FiX />
-          </button>
-        </div>
-      )}
+      {/* Bottom-Right Light Toast Notification */}
+      <AdminToast toast={toast} onClose={() => setToast(null)} />
     </>
   );
 }

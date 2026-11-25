@@ -372,6 +372,11 @@
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.upd-card.upd-card-menu-open {
+  overflow: visible;
+  z-index: 60;
+}
+
 /* Clean top accent stripe (Resource Page Style) */
 .upd-card::before {
   content: '';

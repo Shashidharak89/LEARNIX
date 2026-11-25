@@ -386,7 +386,7 @@
     border-radius: 16px;
     box-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.12), 0 4px 10px -2px rgba(15, 23, 42, 0.05);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    font-size: 0.9rem;
+    font-size: clamp(0.84rem, 1.8vw, 0.92rem);
     font-weight: 600;
     animation: adm-toast-slide 0.24s cubic-bezier(0.16, 1, 0.3, 1);
 }

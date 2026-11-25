@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { FiCheckCircle, FiAlertCircle, FiInfo, FiX } from "react-icons/fi";
+import { FiAlertCircle, FiInfo } from "react-icons/fi";
+import { CheckIcon, XIcon } from "@animateicons/react/lucide";
 import "./AdminUI.css";
 
 /**
@@ -24,7 +25,7 @@ export default function AdminToast({ toast, onClose, duration = 3500 }) {
     return (
         <div className={`adm-toast adm-toast--${type}`} role="status" aria-live="polite">
             <span className="adm-toast-icon">
-                {type === "success" && <FiCheckCircle size={18} />}
+                {type === "success" && <CheckIcon size={18} />}
                 {type === "error" && <FiAlertCircle size={18} />}
                 {type === "info" && <FiInfo size={18} />}
             </span>
@@ -35,7 +36,7 @@ export default function AdminToast({ toast, onClose, duration = 3500 }) {
                 onClick={onClose}
                 aria-label="Dismiss notification"
             >
-                <FiX size={15} />
+                <XIcon size={15} />
             </button>
         </div>
     );
