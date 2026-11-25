@@ -123,6 +123,18 @@ export default function SearchesManager() {
   const [searchInput, setSearchInput] = useState("");
   const [activeSearch, setActiveSearch] = useState("");
   const [activeSource, setActiveSource] = useState("all");
+  const [dateRange, setDateRange] = useState("24h");
+  const [customStart, setCustomStart] = useState("");
+  const [customEnd, setCustomEnd] = useState("");
+  const [stats, setStats] = useState({
+    total: 0,
+    navbar: 0,
+    home: 0,
+    "study-materials": 0,
+    "question-papers": 0,
+    updates: 0,
+    resources: 0,
+  });
 
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
@@ -156,8 +168,13 @@ export default function SearchesManager() {
       const params = new URLSearchParams({
         page: String(targetPage),
         size: String(size),
-        search: finalQuery
+        search: finalQuery,
+        range: dateRange,
       });
+      if (dateRange === "custom") {
+        if (customStart) params.set("startDate", customStart);
+        if (customEnd) params.set("endDate", customEnd);
+      }
 
       const res = await authFetch(`/api/admin/searches?${params.toString()}`);
       const json = await res.json();
@@ -184,6 +201,7 @@ export default function SearchesManager() {
       setTotalPages(totalP);
       setPage(targetPage);
       setHasMore(targetPage < totalP);
+      if (json.stats) setStats(json.stats);
     } catch (err) {
       console.error("Error fetching searches:", err);
       setError(err.message || "Failed to fetch searches");
@@ -192,11 +210,12 @@ export default function SearchesManager() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [size, activeSearch, activeSource]);
+  }, [size, activeSearch, activeSource, dateRange, customStart, customEnd]);
 
   useEffect(() => {
+    if (dateRange === "custom" && !customStart && !customEnd) return;
     fetchSearches(1, false);
-  }, [activeSearch, activeSource]);
+  }, [activeSearch, activeSource, dateRange, customStart, customEnd]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -310,25 +329,94 @@ export default function SearchesManager() {
 
         <div className="sm-header-actions">
           <button
-            onClick={() => fetchSearches(page, activeSearch, activeSource)}
+            onClick={() => fetchSearches(1, false)}
             disabled={loading}
-            className="sm-btn sm-btn-secondary"
+            className="sm-icon-refresh-btn"
             title="Refresh searches"
+            aria-label="Refresh searches"
           >
-            <FiRefreshCw size={16} className={loading ? "spin" : ""} />
-            <span>Refresh</span>
-          </button>
-          <button
-            onClick={handleDownloadCSV}
-            disabled={downloadingCsv}
-            className="sm-btn sm-btn-primary"
-            title="Export full searches dataset as CSV"
-          >
-            <FiDownload size={16} />
-            <span>{downloadingCsv ? "Exporting CSV..." : "Download CSV"}</span>
+            <FiRefreshCw size={18} className={loading ? "spin" : ""} />
           </button>
         </div>
       </header>
+
+      {/* ── Date Range Filter Bar ── */}
+      <div className="sm-range-bar">
+        <div className="sm-range-pills">
+          {[
+            { id: "24h", label: "Last 24 Hours" },
+            { id: "7d", label: "Last 7 Days" },
+            { id: "30d", label: "Last 30 Days" },
+            { id: "custom", label: "Custom" },
+          ].map((r) => (
+            <button
+              key={r.id}
+              type="button"
+              onClick={() => setDateRange(r.id)}
+              className={`sm-range-pill ${dateRange === r.id ? "is-active" : ""}`}
+            >
+              {r.label}
+            </button>
+          ))}
+        </div>
+
+        {dateRange === "custom" && (
+          <div className="sm-custom-dates">
+            <input
+              type="date"
+              value={customStart}
+              onChange={(e) => setCustomStart(e.target.value)}
+              className="sm-date-input"
+              aria-label="Start date"
+            />
+            <span className="sm-date-sep">to</span>
+            <input
+              type="date"
+              value={customEnd}
+              onChange={(e) => setCustomEnd(e.target.value)}
+              className="sm-date-input"
+              aria-label="End date"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* ── Single-Row Source Stats ── */}
+      {loading && data.length === 0 ? (
+        <div className="sm-stats-row">
+          {[...Array(7)].map((_, idx) => (
+            <div key={idx} className="sm-stat-card sm-stat-skeleton">
+              <div className="sm-skel-line sm-skel-sm" />
+              <div className="sm-skel-line sm-skel-lg" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="sm-stats-row">
+          {[
+            { id: "all", label: "Total", count: stats.total, icon: <FiDatabase size={15} />, tone: "slate" },
+            { id: "navbar", label: "Navbar", count: stats.navbar, icon: <FiNavigation size={15} />, tone: "blue" },
+            { id: "home", label: "Home", count: stats.home, icon: <FiHome size={15} />, tone: "amber" },
+            { id: "study-materials", label: "Study Materials", count: stats["study-materials"], icon: <FiBookOpen size={15} />, tone: "indigo" },
+            { id: "question-papers", label: "Question Papers", count: stats["question-papers"], icon: <FiFileText size={15} />, tone: "emerald" },
+            { id: "updates", label: "Updates", count: stats.updates, icon: <FiBell size={15} />, tone: "rose" },
+            { id: "resources", label: "Resources", count: stats.resources, icon: <FiFolder size={15} />, tone: "violet" },
+          ].map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setActiveSource(item.id)}
+              className={`sm-stat-card sm-stat--${item.tone} ${activeSource === item.id ? "is-active" : ""}`}
+            >
+              <div className="sm-stat-top">
+                <span className="sm-stat-icon">{item.icon}</span>
+                <span className="sm-stat-label">{item.label}</span>
+              </div>
+              <div className="sm-stat-value">{item.count ?? 0}</div>
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* ── Toolbar: Search & Meta ── */}
       <div className="sm-toolbar">

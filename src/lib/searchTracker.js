@@ -193,7 +193,7 @@ export function recordSearchEvent(keyword, source = "unknown", req = null, extra
 /**
  * Get paginated searches from DynamoDB with optional search query filter
  */
-export async function getSearches({ page = 1, size = 20, search = "" } = {}) {
+export async function getSearches({ page = 1, size = 20, search = "", range = "24h", startDate = "", endDate = "" } = {}) {
   const pageNum = Math.max(1, parseInt(page, 10) || 1);
   const pageSize = Math.max(1, Math.min(100, parseInt(size, 10) || 20));
   const searchTerm = String(search || "").trim().toLowerCase();
@@ -227,6 +227,54 @@ export async function getSearches({ page = 1, size = 20, search = "" } = {}) {
     console.error("Error scanning DynamoDB searches:", err);
     throw err;
   }
+
+  // Filter by date range (default: last 24h)
+  const now = Date.now();
+  let startMs = 0;
+  let endMs = now;
+
+  if (range === "24h") {
+    startMs = now - 24 * 60 * 60 * 1000;
+  } else if (range === "7d") {
+    startMs = now - 7 * 24 * 60 * 60 * 1000;
+  } else if (range === "30d") {
+    startMs = now - 30 * 24 * 60 * 60 * 1000;
+  } else if (range === "custom") {
+    if (startDate) {
+      const s = new Date(startDate).getTime();
+      if (!Number.isNaN(s)) startMs = s;
+    }
+    if (endDate) {
+      const e = new Date(endDate);
+      e.setHours(23, 59, 59, 999);
+      if (!Number.isNaN(e.getTime())) endMs = e.getTime();
+    }
+  }
+
+  if (range !== "all") {
+    allItems = allItems.filter((item) => {
+      const t = item.timestamp || (item.createdAt ? new Date(item.createdAt).getTime() : 0);
+      if (!t) return false;
+      if (startMs && t < startMs) return false;
+      if (endMs && t > endMs) return false;
+      return true;
+    });
+  }
+
+  // Compute source stats for the selected date range
+  const stats = {
+    total: allItems.length,
+    navbar: 0,
+    home: 0,
+    "study-materials": 0,
+    "question-papers": 0,
+    updates: 0,
+    resources: 0,
+  };
+  allItems.forEach((item) => {
+    const src = String(item.source || "").toLowerCase();
+    if (stats[src] !== undefined) stats[src] += 1;
+  });
 
   // Filter if search query exists
   if (searchTerm) {
@@ -269,6 +317,7 @@ export async function getSearches({ page = 1, size = 20, search = "" } = {}) {
     page: pageNum,
     size: pageSize,
     totalPages,
+    stats,
   };
 }
 

@@ -19,8 +19,11 @@ export async function GET(req) {
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const size = Math.max(1, Math.min(100, parseInt(searchParams.get("size") || "20", 10)));
     const search = (searchParams.get("search") || "").trim();
+    const range = (searchParams.get("range") || "24h").trim();
+    const startDate = (searchParams.get("startDate") || "").trim();
+    const endDate = (searchParams.get("endDate") || "").trim();
 
-    const result = await getSearches({ page, size, search });
+    const result = await getSearches({ page, size, search, range, startDate, endDate });
 
     return NextResponse.json({
       success: true,
