@@ -22,8 +22,9 @@ export async function GET(req) {
     const range = (searchParams.get("range") || "24h").trim();
     const startDate = (searchParams.get("startDate") || "").trim();
     const endDate = (searchParams.get("endDate") || "").trim();
+    const source = (searchParams.get("source") || "all").trim();
 
-    const result = await getSearches({ page, size, search, range, startDate, endDate });
+    const result = await getSearches({ page, size, search, range, startDate, endDate, source });
 
     return NextResponse.json({
       success: true,

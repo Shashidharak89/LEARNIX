@@ -173,6 +173,7 @@ export default function SearchesManager() {
         size: String(size),
         search: finalQuery,
         range: dateRange,
+        source: activeSource,
       });
       if (dateRange === "custom") {
         if (customStart) params.set("startDate", customStart);

@@ -193,7 +193,7 @@ export function recordSearchEvent(keyword, source = "unknown", req = null, extra
 /**
  * Get paginated searches from DynamoDB with optional search query filter
  */
-export async function getSearches({ page = 1, size = 20, search = "", range = "24h", startDate = "", endDate = "" } = {}) {
+export async function getSearches({ page = 1, size = 20, search = "", range = "24h", startDate = "", endDate = "", source = "all" } = {}) {
   const pageNum = Math.max(1, parseInt(page, 10) || 1);
   const pageSize = Math.max(1, Math.min(100, parseInt(size, 10) || 20));
   const searchTerm = String(search || "").trim().toLowerCase();
@@ -272,14 +272,17 @@ export async function getSearches({ page = 1, size = 20, search = "", range = "2
     resources: 0,
   };
   const dailyMap = {};
+  const sourceFilter = String(source || "all").toLowerCase();
   allItems.forEach((item) => {
     const src = String(item.source || "").toLowerCase();
     if (stats[src] !== undefined) stats[src] += 1;
-    const t = item.timestamp || (item.createdAt ? new Date(item.createdAt).getTime() : 0);
-    if (t) {
-      const d = new Date(t);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-      dailyMap[key] = (dailyMap[key] || 0) + 1;
+    if (sourceFilter === "all" || src === sourceFilter) {
+      const t = item.timestamp || (item.createdAt ? new Date(item.createdAt).getTime() : 0);
+      if (t) {
+        const d = new Date(t);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        dailyMap[key] = (dailyMap[key] || 0) + 1;
+      }
     }
   });
   const dailyStats = Object.keys(dailyMap)
