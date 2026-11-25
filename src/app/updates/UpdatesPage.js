@@ -664,6 +664,7 @@ function UpdateCard({
                 const isImage =
                   f?.resourceType === 'image' ||
                   /\.(jpe?g|png|gif|webp|svg|bmp|ico|avif|heic|heif|tiff?)$/i.test(name || url || '');
+                const isZip = /\.(zip|rar|7z|tar|gz)$/i.test(name || url || '');
                 const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
 
                 let downloadUrl = url;
@@ -719,6 +720,8 @@ function UpdateCard({
                     onClick={() => {
                       if (isImage) {
                         openImagePopup();
+                      } else if (isZip) {
+                        window.open(downloadUrl, '_blank', 'noopener,noreferrer');
                       } else {
                         window.open(viewUrl, '_blank', 'noopener,noreferrer');
                       }
@@ -750,9 +753,11 @@ function UpdateCard({
                         </>
                       ) : (
                         <>
-                          <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-view" title="View">
-                            <EyeIcon size={14} />
-                          </a>
+                          {!isZip && (
+                            <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-view" title="View">
+                              <EyeIcon size={14} />
+                            </a>
+                          )}
                           <a
                             href={downloadUrl}
                             download={isPdf ? actualPdfName : name}

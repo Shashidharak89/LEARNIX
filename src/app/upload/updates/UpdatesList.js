@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
+import { createPortal } from "react-dom";
 import Link from 'next/link';
 import {
   FiClock,
@@ -184,6 +185,7 @@ function MyUpdateCard({
   onShareUpdate,
 }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
   const [isLinksExpanded, setIsLinksExpanded] = useState(false);
   const [isFilesExpanded, setIsFilesExpanded] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(false);
@@ -732,35 +734,96 @@ function MyUpdateCard({
                   downloadUrl = getPdfDownloadUrl(url, actualPdfName, u?.title);
                 }
 
+                const isImage =
+                  f?.resourceType === 'image' ||
+                  /\.(jpe?g|png|gif|webp|svg|bmp|ico|avif|heic|heif|tiff?)$/i.test(name || url || '');
+                const isZip = /\.(zip|rar|7z|tar|gz)$/i.test(name || url || '');
+
+                const openImagePopup = () => {
+                  setImagePreview({ url, title: name || u?.title || 'Image' });
+                };
+
+                const handleImageDownload = async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  try {
+                    const res = await fetch(url);
+                    const blob = await res.blob();
+                    const blobUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = blobUrl;
+                    a.download = name || 'image';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(blobUrl);
+                  } catch {
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                  }
+                };
+
                 return (
                   <div
                     key={i}
                     className="upd-file-card"
-                    onClick={() => window.open(viewUrl, '_blank', 'noopener,noreferrer')}
+                    onClick={() => {
+                      if (isImage) {
+                        openImagePopup();
+                      } else if (isZip) {
+                        window.open(downloadUrl, '_blank', 'noopener,noreferrer');
+                      } else {
+                        window.open(viewUrl, '_blank', 'noopener,noreferrer');
+                      }
+                    }}
                   >
                     <div className="upd-file-card-name" title={`View ${name}`}>
                       <FileIcon filename={name || url} />
                       <span className="upd-file-card-label">{name}</span>
                     </div>
                     <div className="upd-file-card-actions" onClick={(e) => e.stopPropagation()}>
-                      <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-view" title="View">
-                        <EyeIcon size={14} />
-                      </a>
-                      <a
-                        href={downloadUrl}
-                        download={isPdf ? actualPdfName : name}
-                        target={isPdf ? undefined : "_blank"}
-                        rel="noreferrer noopener"
-                        className="upd-file-action-btn upd-file-action-download"
-                        title={`Download ${isPdf ? actualPdfName : name}`}
-                        onClick={isPdf ? (e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          downloadPdfFile(url, actualPdfName, u?.title);
-                        } : undefined}
-                      >
-                        <DownloadIcon size={14} />
-                      </a>
+                      {isImage ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={openImagePopup}
+                            className="upd-file-action-btn upd-file-action-view"
+                            title="Preview Image"
+                          >
+                            <EyeIcon size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleImageDownload}
+                            className="upd-file-action-btn upd-file-action-download"
+                            title="Download Image"
+                          >
+                            <DownloadIcon size={14} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          {!isZip && (
+                            <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-view" title="View">
+                              <EyeIcon size={14} />
+                            </a>
+                          )}
+                          <a
+                            href={downloadUrl}
+                            download={isPdf ? actualPdfName : name}
+                            target={isPdf ? undefined : "_blank"}
+                            rel="noreferrer noopener"
+                            className="upd-file-action-btn upd-file-action-download"
+                            title={`Download ${isPdf ? actualPdfName : name}`}
+                            onClick={isPdf ? (e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              downloadPdfFile(url, actualPdfName, u?.title);
+                            } : undefined}
+                          >
+                            <DownloadIcon size={14} />
+                          </a>
+                        </>
+                      )}
                     </div>
                   </div>
                 );
@@ -915,6 +978,65 @@ function MyUpdateCard({
             </div>
           )}
         </div>
+      )}
+      {/* Dedicated Image Viewer Popup */}
+      {imagePreview && typeof document !== 'undefined' && createPortal(
+        <div
+          className="upd-img-modal-overlay"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setImagePreview(null)}
+        >
+          <div className="upd-img-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="upd-img-modal-header">
+              <span className="upd-img-modal-title" title={imagePreview.title}>
+                {imagePreview.title}
+              </span>
+              <div className="upd-img-modal-actions">
+                <button
+                  type="button"
+                  className="upd-img-modal-btn"
+                  title="Download Image"
+                  onClick={async () => {
+                    try {
+                      const res = await fetch(imagePreview.url);
+                      const blob = await res.blob();
+                      const blobUrl = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = blobUrl;
+                      a.download = imagePreview.title || 'image';
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      window.URL.revokeObjectURL(blobUrl);
+                    } catch {
+                      window.open(imagePreview.url, '_blank', 'noopener,noreferrer');
+                    }
+                  }}
+                >
+                  <DownloadIcon size={16} />
+                </button>
+                <button
+                  type="button"
+                  className="upd-img-modal-btn upd-img-modal-close"
+                  title="Close"
+                  onClick={() => setImagePreview(null)}
+                >
+                  <FiX size={18} />
+                </button>
+              </div>
+            </div>
+            <div className="upd-img-modal-body">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imagePreview.url}
+                alt={imagePreview.title || 'Attachment preview'}
+                className="upd-img-modal-img"
+              />
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </article>
   );
