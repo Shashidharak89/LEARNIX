@@ -38,6 +38,7 @@ export const PATCH = async (req, { params }) => {
     const formData = await req.formData();
     const newName = formData.get("name")?.trim();
     const newUsn  = formData.get("usn")?.trim().toUpperCase();
+    const newEmail = formData.get("email")?.trim().toLowerCase();
     const imgFile = formData.get("profileimg"); // File or null
 
     const updates = {};
@@ -47,6 +48,16 @@ export const PATCH = async (req, { params }) => {
       if (exists && String(exists._id) !== String(target._id))
         return NextResponse.json({ error: "USN already taken" }, { status: 409 });
       updates.usn = newUsn;
+    }
+    if (newEmail !== undefined && newEmail !== (target.email || "")) {
+      if (newEmail) {
+        const emailExists = await User.findOne({ email: newEmail });
+        if (emailExists && String(emailExists._id) !== String(target._id))
+          return NextResponse.json({ error: "Email already taken" }, { status: 409 });
+        updates.email = newEmail;
+      } else {
+        updates.email = "";
+      }
     }
 
     // Upload new profile image if provided

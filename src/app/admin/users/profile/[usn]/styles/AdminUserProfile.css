@@ -625,20 +625,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
   padding: 16px;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  overflow-y: auto;
 }
 
 .aup-modal {
   background: #ffffff;
   border-radius: 24px;
   width: 100%;
-  max-width: 440px;
+  max-width: 460px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  margin: auto;
   box-shadow: 0 24px 64px -8px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(0, 0, 0, 0.08);
   animation: aupModalIn 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-  overflow: hidden;
 }
 
 @keyframes aupModalIn {

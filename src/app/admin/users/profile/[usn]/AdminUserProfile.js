@@ -134,6 +134,7 @@ export default function AdminUserProfile({ params }) {
   /* Edit Form State */
   const [editName, setEditName]             = useState("");
   const [editUsn, setEditUsn]               = useState("");
+  const [editEmail, setEditEmail]           = useState("");
   const [editImgFile, setEditImgFile]       = useState(null);
   const [editImgPreview, setEditImgPreview] = useState(null);
   const [editLoading, setEditLoading]       = useState(false);
@@ -231,6 +232,7 @@ export default function AdminUserProfile({ params }) {
       const fd = new FormData();
       fd.append("name", editName.trim());
       fd.append("usn", editUsn.trim());
+      fd.append("email", editEmail.trim());
       if (editImgFile) fd.append("profileimg", editImgFile);
 
       const res = await fetch(`/api/admin/user/${encodeURIComponent(usn)}/edit`, {
@@ -669,6 +671,15 @@ export default function AdminUserProfile({ params }) {
               value={editUsn}
               onChange={(e) => setEditUsn(e.target.value.toUpperCase())}
               placeholder="University Seat Number"
+            />
+
+            <label className="aup-field-label">Email</label>
+            <input
+              type="email"
+              className="aup-modal-input"
+              value={editEmail}
+              onChange={(e) => setEditEmail(e.target.value)}
+              placeholder="user@example.com"
             />
 
             {editError && <p className="aup-modal-error">{editError}</p>}
