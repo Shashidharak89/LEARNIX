@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Script from "next/script";
 import axios from "axios";
 import Link from "next/link";
+import AdminToast from "../admin/components/AdminToast";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   LogInIcon,
@@ -362,13 +363,9 @@ export default function Login({ googleClientId = "" }) {
               />
             </div>
 
-            {message && (
-              <div
-                className={`lgn-message${
-                  isSuccess ? " lgn-message--ok" : " lgn-message--err"
-                }`}
-              >
-                {isSuccess ? <FiCheckCircle /> : <FiAlertCircle />}
+            {message && !isSuccess && (
+              <div className="lgn-message lgn-message--err">
+                <FiAlertCircle />
                 <span>{message}</span>
               </div>
             )}
@@ -381,16 +378,22 @@ export default function Login({ googleClientId = "" }) {
               disabled={isLoading || isGoogleLoading}
               onMouseEnter={() => {
                 loginBtnIconRef.current?.startAnimation?.();
-                arrowBtnIconRef.current?.startAnimation?.();
               }}
               onMouseLeave={() => {
                 loginBtnIconRef.current?.stopAnimation?.();
-                arrowBtnIconRef.current?.stopAnimation?.();
               }}
             >
-              <LogInIcon ref={loginBtnIconRef} size={19} />
-              <span>{isLoading ? "Signing in…" : "Sign In to Workspace"}</span>
-              <ArrowRightIcon ref={arrowBtnIconRef} size={17} className="lgn-btn-arrow" />
+              {isLoading ? (
+                <>
+                  <span className="lgn-btn-spinner" aria-hidden="true" />
+                  <span>Signing in…</span>
+                </>
+              ) : (
+                <>
+                  <LogInIcon ref={loginBtnIconRef} size={19} />
+                  <span>Sign in</span>
+                </>
+              )}
             </button>
           </form>
         </div>
@@ -524,6 +527,11 @@ export default function Login({ googleClientId = "" }) {
           </div>
         </div>
       </div>
+
+      <AdminToast
+        toast={isSuccess && message ? { message, type: "success" } : null}
+        onClose={() => setMessage("")}
+      />
     </div>
   );
 }
