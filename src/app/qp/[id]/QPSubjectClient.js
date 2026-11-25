@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { FaArrowLeft, FaImage, FaDownload, FaShare } from "react-icons/fa";
+import { EyeIcon } from "@animateicons/react/lucide";
 import { Navbar } from "../../components/Navbar";
 import ImageLoader from "../../components/ImageLoader";
 import ImageSlideshowModal from "../../components/ImageSlideshowModal";
@@ -193,6 +194,15 @@ export default function QPSubjectClient() {
                                 <FaImage className="wtpc-section-icon" />
                                 All Pages ({images.length})
                             </h3>
+                            <button
+                                type="button"
+                                onClick={() => setLightboxIndex(0)}
+                                className="wtpc-slideshow-btn"
+                                title="View slideshow"
+                            >
+                                <EyeIcon size={14} className="wtpc-toggle-icon" aria-hidden="true" />
+                                <span className="wtpc-toggle-label">Slideshow</span>
+                            </button>
                         </div>
                         
                         <div className="wtpc-images-grid">

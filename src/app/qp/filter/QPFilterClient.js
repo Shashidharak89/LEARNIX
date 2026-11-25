@@ -16,6 +16,7 @@ import {
   FaUniversity,
 } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
+import { EyeIcon } from "@animateicons/react/lucide";
 import { Navbar } from "../../components/Navbar";
 import ImageSlideshowModal from "../../components/ImageSlideshowModal";
 import {
@@ -533,19 +534,30 @@ export default function QPFilterClient() {
                   <FaImage className="qpd-section-icon" />
                   Pages ({images.length})
                 </h3>
-                <button
-                  type="button"
-                  onClick={togglePageNumbers}
-                  className={`qpd-page-toggle ${showPageNumbers ? "qpd-page-toggle-active" : ""}`}
-                  aria-pressed={showPageNumbers}
-                  title={showPageNumbers ? "Hide page numbers" : "Show page numbers"}
-                >
-                  <span className="qpd-toggle-switch" aria-hidden="true">
-                    <span className="qpd-toggle-knob" />
-                  </span>
-                  <FaListOl className="qpd-toggle-icon" aria-hidden="true" />
-                  <span className="qpd-toggle-label">Page #</span>
-                </button>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    onClick={() => setLightboxIndex(0)}
+                    className="wtpc-slideshow-btn"
+                    title="View slideshow"
+                  >
+                    <EyeIcon size={14} className="wtpc-toggle-icon" aria-hidden="true" />
+                    <span className="wtpc-toggle-label">Slideshow</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={togglePageNumbers}
+                    className={`qpd-page-toggle ${showPageNumbers ? "qpd-page-toggle-active" : ""}`}
+                    aria-pressed={showPageNumbers}
+                    title={showPageNumbers ? "Hide page numbers" : "Show page numbers"}
+                  >
+                    <span className="qpd-toggle-switch" aria-hidden="true">
+                      <span className="qpd-toggle-knob" />
+                    </span>
+                    <FaListOl className="qpd-toggle-icon" aria-hidden="true" />
+                    <span className="qpd-toggle-label">Page #</span>
+                  </button>
+                </div>
               </div>
 
               <div className="qpd-images-grid">
