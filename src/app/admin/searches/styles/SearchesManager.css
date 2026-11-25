@@ -1138,6 +1138,8 @@
   border-radius: 24px;
   padding: 22px;
   box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .sm-chart-head {
@@ -1183,9 +1185,34 @@
   display: flex;
   align-items: flex-end;
   gap: 10px;
-  height: 190px;
+  height: 195px;
+  width: 100%;
+  max-width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   padding-top: 12px;
+  padding-bottom: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.sm-bar-chart::-webkit-scrollbar {
+  height: 6px;
+}
+
+.sm-bar-chart::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 9999px;
+}
+
+.sm-bar-chart::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+.sm-bar-chart::-webkit-scrollbar-thumb:hover {
+  background: #007aff;
 }
 
 .sm-bar-col {
