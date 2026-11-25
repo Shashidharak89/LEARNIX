@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -98,7 +99,7 @@ function ProfileSkeleton() {
 
 /* ─── Modal Shell ──────────────────────────────────────────── */
 function Modal({ title, onClose, children }) {
-  return (
+  const content = (
     <div className="aup-modal-overlay" onClick={onClose}>
       <div className="aup-modal" onClick={(e) => e.stopPropagation()}>
         <div className="aup-modal-header">
@@ -111,6 +112,10 @@ function Modal({ title, onClose, children }) {
       </div>
     </div>
   );
+  if (typeof document !== "undefined") {
+    return createPortal(content, document.body);
+  }
+  return content;
 }
 
 /* ─── Main Component ───────────────────────────────────────── */
@@ -204,6 +209,7 @@ export default function AdminUserProfile({ params }) {
     setEditImgFile(null);
     setEditImgPreview(null);
     setEditError("");
+    setEditEmail(profile?.email || "");
     setModal("edit");
   };
   const openPassword = () => {
