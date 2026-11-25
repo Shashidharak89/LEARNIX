@@ -2,8 +2,8 @@
 
 .sm-admin-container {
     min-height: 100vh;
-    background: radial-gradient(circle at 10% 20%, rgba(248, 250, 252, 1) 0%, rgba(241, 245, 249, 1) 90%);
-    color: #1e293b;
+    background: #ffffff;
+    color: #0f172a;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     padding-bottom: 60px;
 }
@@ -46,24 +46,25 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(79, 70, 229, 0.1);
-    color: #4f46e5;
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #b45309;
+    border: 1px solid #fcd34d;
     padding: 6px 14px;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 0.85rem;
+    border-radius: 9999px;
+    font-weight: 700;
+    font-size: 0.82rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 12px;
 }
 
 .sm-admin-header h1 {
-    font-size: 2.6rem;
+    font-size: clamp(1.8rem, 3vw, 2.5rem);
     color: #0f172a;
     margin: 0 0 8px 0;
     font-weight: 800;
-    letter-spacing: -0.5px;
-    background: linear-gradient(135deg, #1e293b 0%, #4f46e5 100%);
+    letter-spacing: -0.025em;
+    background: linear-gradient(135deg, #0f172a 0%, #007aff 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }

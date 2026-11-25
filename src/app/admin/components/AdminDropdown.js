@@ -48,11 +48,12 @@ export default function AdminDropdown({
     const selectedText = selectedOption ? selectedOption.label : null;
 
     const filteredOptions = searchKeyword.trim()
-        ? options.filter((opt) =>
-              String(opt.label || "")
-                  .toLowerCase()
-                  .includes(searchKeyword.toLowerCase())
-          )
+        ? options.filter((opt) => {
+              const kw = searchKeyword.toLowerCase();
+              const labelMatch = String(opt.label || "").toLowerCase().includes(kw);
+              const keywordMatch = String(opt.keywords || "").toLowerCase().includes(kw);
+              return labelMatch || keywordMatch;
+          })
         : options;
 
     return (

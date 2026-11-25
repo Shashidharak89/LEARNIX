@@ -568,6 +568,9 @@ export default function QPAdminPage() {
                                                             : field.ref === "QPSemesters"
                                                             ? `Semester ${refDoc.semesterNumber}`
                                                             : String(refDoc.name || refDoc._id),
+                                                    keywords: Array.isArray(refDoc.keywords)
+                                                        ? refDoc.keywords.join(" ")
+                                                        : (refDoc.keywords || ""),
                                                 }))}
                                                 value={formData[field.name] || ""}
                                                 onChange={(val) =>

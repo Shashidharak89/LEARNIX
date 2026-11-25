@@ -293,7 +293,11 @@ export default function SMAdmin() {
             else if (field.ref === "SMBatch") label = `${refDoc.startyear}-${refDoc.endyear}`;
             else if (field.ref === "SMCollege") label = `${refDoc.name} (${refDoc.university?.name || "No University"})`;
             else if (field.ref === "SMSubject") label = `${refDoc.name} (${refDoc.course?.name || "Course"}, College: ${refDoc.college?.name || "College"}, Sem: ${refDoc.sem?.sem || "N/A"})`;
-            return { value: refDoc._id, label };
+            return {
+                value: refDoc._id,
+                label,
+                keywords: Array.isArray(refDoc.keywords) ? refDoc.keywords.join(" ") : (refDoc.keywords || "")
+            };
         });
     };
 

@@ -21,7 +21,11 @@ export async function GET(req) {
         const query = {};
 
         if (q) {
-            query.name = { $regex: q, $options: "i" };
+            const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            query.$or = [
+                { name: { $regex: escaped, $options: "i" } },
+                { keywords: { $regex: escaped, $options: "i" } }
+            ];
         }
 
         if (collegeId) {
