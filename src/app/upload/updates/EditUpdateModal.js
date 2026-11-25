@@ -425,7 +425,7 @@ export default function EditUpdateModal({
               type="button"
               onClick={onClose}
               className="eum-btn eum-btn-cancel"
-              disabled={isSaving}
+              disabled={isSaving || editIsUploading}
             >
               <XIcon size={15} />
               <span>Cancel</span>

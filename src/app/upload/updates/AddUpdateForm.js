@@ -122,21 +122,29 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
       });
 
       try {
-        const uploadedFile = await uploadFileViaWebSocket(
-          file,
-          userId,
-          (progress) => {
+        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        const currentUserId = userId || (typeof window !== "undefined" ? localStorage.getItem("userId") : null);
+
+        const uploadResult = await uploadFileViaWebSocket(file, {
+          userId: currentUserId,
+          token,
+          onProgress: (progress) => {
             setUploadStatus({
               current: i + 1,
               total: files.length,
               filename: file.name,
               percent: progress.percent,
-              statusText: progress.statusText
+              statusText: progress.statusText || `${progress.percent}% uploaded`
             });
           }
-        );
+        });
 
-        newFiles.push(uploadedFile);
+        const uploadedFile = uploadResult?.file || (uploadResult?.url ? uploadResult : null);
+        if (uploadedFile) {
+          newFiles.push(uploadedFile);
+        } else {
+          throw new Error("No file object returned from WebSocket upload");
+        }
       } catch (err) {
         console.warn(`WebSocket upload failed for ${file.name}, trying HTTP POST:`, err);
         setUploadStatus({
@@ -253,6 +261,11 @@ export default function AddUpdateForm({ onUpdateAdded, onCancel }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (isUploadingFiles) {
+      showToast("Please wait for file upload to finish before saving", "info");
+      return;
+    }
 
     if (!title.trim()) {
       showToast("Please enter an update title", "error");

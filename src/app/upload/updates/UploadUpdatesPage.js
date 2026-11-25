@@ -5,6 +5,7 @@ import { FiPlus, FiX, FiSearch, FiExternalLink, FiCheckCircle, FiAlertCircle, Fi
 import { Bell } from "lucide-react";
 import AddUpdateForm from "./AddUpdateForm";
 import UpdatesList from "./UpdatesList";
+import AdminToast from "@/app/admin/components/AdminToast";
 import "./styles/UploadUpdatesPage.css";
 
 export default function UploadUpdatesPage() {
@@ -121,29 +122,8 @@ export default function UploadUpdatesPage() {
         />
       </main>
 
-      {/* Floating Screen-Bottom Toast Notification */}
-      {toast && (
-        <div className={`upl-toast upl-toast-${toast.type || "info"}`} role="status" aria-live="polite">
-          <div className="upl-toast-icon-box">
-            {toast.type === "success" ? (
-              <FiCheckCircle className="upl-toast-icon" />
-            ) : toast.type === "error" ? (
-              <FiAlertCircle className="upl-toast-icon" />
-            ) : (
-              <FiInfo className="upl-toast-icon" />
-            )}
-          </div>
-          <span className="upl-toast-text">{toast.message}</span>
-          <button
-            type="button"
-            className="upl-toast-close"
-            onClick={() => setToast(null)}
-            aria-label="Dismiss message"
-          >
-            <FiX />
-          </button>
-        </div>
-      )}
+      {/* Bottom-Right Light Toast Notification */}
+      <AdminToast toast={toast} onClose={() => setToast(null)} />
     </div>
   );
 }
