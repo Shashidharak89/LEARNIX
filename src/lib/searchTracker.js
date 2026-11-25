@@ -271,10 +271,20 @@ export async function getSearches({ page = 1, size = 20, search = "", range = "2
     updates: 0,
     resources: 0,
   };
+  const dailyMap = {};
   allItems.forEach((item) => {
     const src = String(item.source || "").toLowerCase();
     if (stats[src] !== undefined) stats[src] += 1;
+    const t = item.timestamp || (item.createdAt ? new Date(item.createdAt).getTime() : 0);
+    if (t) {
+      const d = new Date(t);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      dailyMap[key] = (dailyMap[key] || 0) + 1;
+    }
   });
+  const dailyStats = Object.keys(dailyMap)
+    .sort()
+    .map((date) => ({ date, count: dailyMap[date] }));
 
   // Filter if search query exists
   if (searchTerm) {
@@ -318,6 +328,7 @@ export async function getSearches({ page = 1, size = 20, search = "", range = "2
     size: pageSize,
     totalPages,
     stats,
+    dailyStats,
   };
 }
 

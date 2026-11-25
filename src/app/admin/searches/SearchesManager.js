@@ -25,7 +25,8 @@ import {
   FiMail,
   FiHash,
   FiMonitor,
-  FiSmartphone
+  FiSmartphone,
+  FiBarChart2
 } from "react-icons/fi";
 import { authFetch } from "@/lib/clientAuth";
 import "./styles/SearchesManager.css";
@@ -135,6 +136,8 @@ export default function SearchesManager() {
     updates: 0,
     resources: 0,
   });
+  const [dailyStats, setDailyStats] = useState([]);
+  const [showCharts, setShowCharts] = useState(false);
 
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
@@ -202,6 +205,7 @@ export default function SearchesManager() {
       setPage(targetPage);
       setHasMore(targetPage < totalP);
       if (json.stats) setStats(json.stats);
+      if (Array.isArray(json.dailyStats)) setDailyStats(json.dailyStats);
     } catch (err) {
       console.error("Error fetching searches:", err);
       setError(err.message || "Failed to fetch searches");
@@ -327,7 +331,16 @@ export default function SearchesManager() {
           </div>
         </div>
 
-        <div className="sm-header-actions">
+        <div className="sm-header-actions" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <button
+            type="button"
+            onClick={() => setShowCharts((prev) => !prev)}
+            className={`sm-chart-toggle-btn ${showCharts ? "is-active" : ""}`}
+            title="Toggle Day-wise Search Charts"
+          >
+            <FiBarChart2 size={17} />
+            <span>{showCharts ? "Hide Charts" : "View Charts"}</span>
+          </button>
           <button
             onClick={() => fetchSearches(1, false)}
             disabled={loading}
@@ -416,6 +429,92 @@ export default function SearchesManager() {
             </button>
           ))}
         </div>
+      )}
+
+      {/* ── Toggleable Day-wise Charts & Analytics Panel (Hidden by Default) ── */}
+      {showCharts && (
+        <section className="sm-charts-panel" aria-label="Search Analytics Charts">
+          <div className="sm-charts-grid">
+            {/* Day-wise Searches Bar Chart */}
+            <div className="sm-chart-card">
+              <div className="sm-chart-head">
+                <div>
+                  <h3 className="sm-chart-title">Day-wise Search Requests</h3>
+                  <p className="sm-chart-sub">Number of searches made per day in selected range</p>
+                </div>
+                {dailyStats.length > 0 && (
+                  <span className="sm-chart-badge">
+                    Peak: {Math.max(...dailyStats.map((d) => d.count))} / day
+                  </span>
+                )}
+              </div>
+
+              {dailyStats.length === 0 ? (
+                <div className="sm-chart-empty">No search requests recorded in this range.</div>
+              ) : (
+                <div className="sm-bar-chart">
+                  {(() => {
+                    const maxVal = Math.max(1, ...dailyStats.map((d) => d.count));
+                    return dailyStats.map((d) => {
+                      const pct = Math.max(6, Math.round((d.count / maxVal) * 100));
+                      const shortDate = new Date(d.date).toLocaleDateString("en-IN", {
+                        day: "2-digit",
+                        month: "short",
+                      });
+                      return (
+                        <div key={d.date} className="sm-bar-col" title={`${d.date}: ${d.count} searches`}>
+                          <span className="sm-bar-count">{d.count}</span>
+                          <div className="sm-bar-track">
+                            <div className="sm-bar-fill" style={{ height: `${pct}%` }} />
+                          </div>
+                          <span className="sm-bar-label">{shortDate}</span>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
+              )}
+            </div>
+
+            {/* Source Distribution Breakdown */}
+            <div className="sm-chart-card">
+              <div className="sm-chart-head">
+                <div>
+                  <h3 className="sm-chart-title">Source Distribution</h3>
+                  <p className="sm-chart-sub">Share of requests across platform modules</p>
+                </div>
+                <span className="sm-chart-badge">{stats.total} total</span>
+              </div>
+
+              <div className="sm-dist-list">
+                {[
+                  { label: "Navbar", count: stats.navbar, color: "#007aff" },
+                  { label: "Home Screen", count: stats.home, color: "#f59e0b" },
+                  { label: "Study Materials", count: stats["study-materials"], color: "#4f46e5" },
+                  { label: "Question Papers", count: stats["question-papers"], color: "#10b981" },
+                  { label: "Updates", count: stats.updates, color: "#e11d48" },
+                  { label: "Resources", count: stats.resources, color: "#7c3aed" },
+                ].map((s) => {
+                  const pct = stats.total > 0 ? Math.round((s.count / stats.total) * 100) : 0;
+                  return (
+                    <div key={s.label} className="sm-dist-row">
+                      <div className="sm-dist-meta">
+                        <span className="sm-dist-name">{s.label}</span>
+                        <span className="sm-dist-val">{s.count} ({pct}%)</span>
+                      </div>
+                      <div className="sm-dist-track">
+                        <div
+                          className="sm-dist-fill"
+                          style={{ width: `${pct}%`, background: s.color }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
       )}
 
       {/* ── Toolbar: Search & Meta ── */}
