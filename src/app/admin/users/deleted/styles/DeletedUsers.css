@@ -463,3 +463,35 @@
   max-height: calc(100vh - 32px) !important;
   overflow-y: auto !important;
 }
+
+/* ── Compact Horizontal Meta & Clean Intro Spacing ── */
+.du-intro-card,
+.au-intro-card {
+  margin-bottom: 20px !important;
+}
+
+.du-deleted-card {
+  padding: 14px 20px !important;
+  gap: 16px !important;
+}
+
+.du-deleted-card .au-card-meta,
+.du-deleted-card .du-meta-pills {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px 14px !important;
+  flex: 1.4 !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  font-size: 0.82rem !important;
+}
+
+.du-deleted-card .au-card-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+  margin-top: 0 !important;
+}
