@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { FiAlertTriangle, FiInfo, FiX } from "react-icons/fi";
 import "./AdminUI.css";
 
@@ -30,7 +31,7 @@ export default function AdminModal({
 
     if (!isOpen) return null;
 
-    return (
+    const modalContent = (
         <div
             className="adm-modal-backdrop"
             role="dialog"
@@ -79,5 +80,10 @@ export default function AdminModal({
             </div>
         </div>
     );
+
+    if (typeof document !== "undefined") {
+        return createPortal(modalContent, document.body);
+    }
+    return modalContent;
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   XIcon,
   GlobeIcon,
@@ -194,7 +195,7 @@ export default function EditUpdateModal({
     }
   };
 
-  return (
+  const modalContent = (
     <div className="eum-modal-overlay" onClick={onClose}>
       <div className="eum-modal-card" onClick={(e) => e.stopPropagation()}>
         {/* Header with Title and Single X Close Button */}
@@ -452,5 +453,10 @@ export default function EditUpdateModal({
       </div>
     </div>
   );
+
+  if (typeof document !== "undefined") {
+    return createPortal(modalContent, document.body);
+  }
+  return modalContent;
 }
 
