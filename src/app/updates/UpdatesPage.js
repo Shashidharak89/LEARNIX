@@ -661,9 +661,7 @@ function UpdateCard({
               {visibleFiles.map((f, i) => {
                 const url = f.url || f;
                 const name = f.name || url.split('/').pop();
-                const isImage =
-                  f?.resourceType === 'image' ||
-                  /\.(jpe?g|png|gif|webp|svg|bmp|ico|avif|heic|heif|tiff?)$/i.test(name || url || '');
+                const isImage = /\.(jpe?g|png|gif|webp|svg|bmp|ico|avif|heic|heif|tiff?)$/i.test(name || url || '');
                 const isZip = /\.(zip|rar|7z|tar|gz)$/i.test(name || url || '');
                 const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`;
 
@@ -681,10 +679,8 @@ function UpdateCard({
                       name: item.name || (item.url || item).split('/').pop(),
                       resourceType: item.resourceType,
                     }))
-                    .filter(
-                      (item) =>
-                        item.resourceType === 'image' ||
-                        /\.(jpe?g|png|gif|webp|svg|bmp|ico|avif|heic|heif|tiff?)$/i.test(item.name || item.url || '')
+                    .filter((item) =>
+                      /\.(jpe?g|png|gif|webp|svg|bmp|ico|avif|heic|heif|tiff?)$/i.test(item.name || item.url || '')
                     );
                   const idx = Math.max(0, allImageFiles.findIndex((item) => item.url === url));
                   setImagePreview({

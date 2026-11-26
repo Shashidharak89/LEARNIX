@@ -734,9 +734,7 @@ function MyUpdateCard({
                   downloadUrl = getPdfDownloadUrl(url, actualPdfName, u?.title);
                 }
 
-                const isImage =
-                  f?.resourceType === 'image' ||
-                  /\.(jpe?g|png|gif|webp|svg|bmp|ico|avif|heic|heif|tiff?)$/i.test(name || url || '');
+                const isImage = /\.(jpe?g|png|gif|webp|svg|bmp|ico|avif|heic|heif|tiff?)$/i.test(name || url || '');
                 const isZip = /\.(zip|rar|7z|tar|gz)$/i.test(name || url || '');
 
                 const openImagePopup = () => {
