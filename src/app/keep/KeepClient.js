@@ -449,7 +449,7 @@ export default function KeepClient() {
         </section>
       )}
 
-      <dialog ref={dialogRef} className={`keep-modal${modal === "view" ? " keep-modal-view" : ""}`}
+      <dialog ref={dialogRef} className={`keep-modal${modal === "view" ? " keep-modal-view" : ""}${modal === "editor" ? " keep-modal-editor" : ""}`}
         aria-labelledby="keep-dialog-title" onCancel={(event) => { event.preventDefault(); closeDialog(); }}>
         {modal && (
           <>

@@ -193,7 +193,7 @@
 @keyframes keep-spin { to { transform: rotate(1turn); } }
 .keep-toast { position: fixed; z-index: 1200; bottom: 24px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 14px; color: white; background: var(--keep-ink); }
 .keep-modal {
-  position: fixed; inset: 0; margin: auto; width: min(620px, calc(100% - 32px));
+  position: fixed; inset: auto; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0; width: min(620px, calc(100% - 32px));
   max-height: min(88dvh, 850px); overflow: auto; overscroll-behavior: contain;
   padding: clamp(18px, 3vw, 28px); border: 1px solid var(--keep-line); border-radius: 22px;
   background: white; color: var(--keep-ink); box-shadow: 0 24px 80px #182a4d38;
@@ -201,7 +201,9 @@
 .keep-modal::backdrop { background: #16213c80; }
 body:has(.keep-modal[open]) { overflow: hidden; }
 .keep-modal[open] { animation: keep-open .16s ease-out; }
-@keyframes keep-open { from { transform: translateY(7px); opacity: 0; } }
+@keyframes keep-open { from { transform: translate(-50%, calc(-50% + 7px)); opacity: 0; } }
+.keep-modal-editor { width: min(640px, calc(100vw - 32px)); min-width: min(360px, calc(100vw - 24px)); min-height: min(320px, calc(100dvh - 24px)); max-width: min(1100px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); resize: both; padding-bottom: 24px; }
+.keep-modal-editor::after { position: absolute; right: 5px; bottom: 5px; width: 13px; height: 13px; background: repeating-linear-gradient(135deg, transparent 0 3px, #94a3b8 3px 4px, transparent 4px 6px); content: ""; pointer-events: none; }
 .keep-modal-header { margin-bottom: 18px; }
 .keep-modal-header h2 { min-width: 0; margin: 0; overflow-wrap: anywhere; font-size: 1.5rem; letter-spacing: -.035em; }
 .keep-dialog-close { flex: none; }
@@ -241,6 +243,14 @@ body:has(.keep-modal[open]) { overflow: hidden; }
 .keep-md-toolbar { position: relative; z-index: 1; align-items: center; gap: 3px; padding: 5px; margin: 0; border-radius: 12px 12px 0 0; background: #f8fafc; }
 .keep-md-toolbar button { width: 36px; height: 36px; border-radius: 8px; transition: color .16s ease, background .16s ease, transform .16s ease; }
 .keep-md-toolbar button:active { transform: scale(.96); }
+.keep-table-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; padding: 8px 9px; border: 1px solid var(--keep-line); border-top: 0; border-radius: 0 0 12px 12px; background: #f8fafc; }
+.keep-table-tools-label { padding: 0 4px; color: var(--keep-muted); font-size: .75rem; font-weight: 700; }
+.keep-table-tools button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 32px; padding: 5px 8px; border: 1px solid transparent; border-radius: 8px; color: #334155; background: transparent; font: inherit; font-size: .76rem; font-weight: 600; cursor: pointer; transition: color .15s ease, background .15s ease, border-color .15s ease; }
+.keep-table-tools button:hover:not(:disabled) { border-color: #bae6fd; color: var(--keep-blue); background: #e0f2fe; }
+.keep-table-tools button:disabled { color: #64748b; opacity: .58; cursor: not-allowed; }
+.keep-table-tools button.keep-table-remove:hover:not(:disabled) { border-color: #fecaca; color: #b91c1c; background: #fef2f2; }
+.keep-table-hint { flex: 1 1 100%; padding: 1px 4px; color: #64748b; font-size: .72rem; }
+.keep-rich-editor .markdown-table.keep-table-is-active { outline: 2px solid #7dd3fc; outline-offset: 2px; border-radius: 5px; }
 .keep-rich-editor { animation: keep-editor-enter .18s ease-out both; }
 @keyframes keep-editor-enter { from { opacity: .65; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
 .keep-editor-form input:not([type=file]):focus,.keep-editor-form textarea:focus { border-color: #38bdf8; outline: 0; box-shadow: 0 0 0 3px rgba(56, 189, 248, .18); }
@@ -267,6 +277,9 @@ body:has(.keep-modal[open]) { overflow: hidden; }
   .keep-quick-tile { justify-content: flex-start; padding-inline: 18px; min-height: 44px; }
   .keep-create-tabs button { padding-inline: 6px; }
   .keep-modal { max-height: 92dvh; }
+  .keep-modal-editor { min-width: min(320px, calc(100vw - 24px)); min-height: min(300px, calc(100dvh - 24px)); max-height: calc(100dvh - 24px); }
+  .keep-table-tools { gap: 3px; padding: 7px; }
+  .keep-table-tools button { min-height: 36px; padding: 5px 7px; }
   .keep-card-actions button { width: 40px; height: 40px; }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useReducer, useRef, useState } from "react";
-import { Undo2, Redo2 } from "lucide-react";
+import { Columns3, Redo2, Rows3, Trash2, Undo2 } from "lucide-react";
 import { BoldIcon, ExternalLinkIcon, FileIcon, FileSpreadsheetIcon, HeadingIcon, ImageIcon, LinkIcon } from "@animateicons/react/lucide";
 import { KEEP_TYPES, KEEP_CONTENT_LIMIT, KEEP_FILE_LIMIT, keepContentError, keepYouTubeId } from "@/lib/keepFields";
 import MarkdownRenderer from "../components/MarkdownRenderer";
@@ -81,8 +81,10 @@ export default function KeepEditor({ activeItem, kind, formRef, busy, dialogErro
   const [richContent, setRichContent] = useState(() => draft.content);
   const textareaRef = useRef(null);
   const previewRef = useRef(null);
+  const activeTableRef = useRef(null);
   const fileInputRef = useRef(null);
   const uploads = useRef(new WeakMap());
+  const [tableSelected, setTableSelected] = useState(false);
   const validation = keepContentError({
     ...draft,
     content: preview && draft.type === "text" ? richContent : draft.content,
@@ -161,7 +163,76 @@ export default function KeepEditor({ activeItem, kind, formRef, busy, dialogErro
       default:
         break;
     }
+    if (tool.label === "Add table") {
+      const tables = editor.querySelectorAll("table");
+      activeTableRef.current = tables[tables.length - 1] || null;
+      activeTableRef.current?.classList.add("keep-table-is-active");
+      setTableSelected(Boolean(activeTableRef.current));
+    }
     setRichContent(htmlToMarkdown(editor));
+    setDialogError("");
+  }
+
+  function getActiveTable() {
+    const editor = previewRef.current;
+    const table = activeTableRef.current;
+    if (editor && table && editor.contains(table)) return table;
+    const selection = window.getSelection();
+    const node = selection?.anchorNode;
+    const element = node?.nodeType === 1 ? node : node?.parentElement;
+    const selected = element?.closest("table");
+    return editor?.contains(selected) ? selected : null;
+  }
+
+  function getActiveCell(table) {
+    const selection = window.getSelection();
+    const node = selection?.anchorNode;
+    const element = node?.nodeType === 1 ? node : node?.parentElement;
+    const cell = element?.closest("td, th");
+    return cell && table.contains(cell) ? cell : null;
+  }
+
+  function updateTable(action) {
+    const table = getActiveTable();
+    if (!table || busy) return;
+    const cell = getActiveCell(table);
+    const row = cell?.parentElement;
+    const rowIndex = row ? Array.from(table.rows).indexOf(row) : Math.max(0, table.rows.length - 1);
+    const columnIndex = cell ? cell.cellIndex : Math.max(0, (table.rows[0]?.cells.length || 1) - 1);
+
+    if (action === "add-row") {
+      const body = table.tBodies[0] || table.createTBody();
+      const newRow = body.insertRow(row?.parentElement === body ? Array.from(body.rows).indexOf(row) + 1 : -1);
+      const columnCount = Math.max(1, ...Array.from(table.rows).map((tableRow) => tableRow.cells.length));
+      for (let index = 0; index < columnCount; index += 1) {
+        const newCell = newRow.insertCell();
+        newCell.textContent = "Value";
+      }
+    } else if (action === "remove-row") {
+      if (table.rows.length <= 1) return;
+      table.deleteRow(rowIndex);
+    } else if (action === "add-column") {
+      const insertIndex = columnIndex + 1;
+      Array.from(table.rows).forEach((tableRow, index) => {
+        const newCell = document.createElement(index === 0 ? "th" : "td");
+        newCell.textContent = index === 0 ? "Column" : "Value";
+        tableRow.insertBefore(newCell, tableRow.cells[insertIndex] || null);
+      });
+    } else if (action === "remove-column") {
+      const columnCount = Math.max(0, ...Array.from(table.rows).map((tableRow) => tableRow.cells.length));
+      if (columnCount <= 1) return;
+      Array.from(table.rows).forEach((tableRow) => tableRow.cells[columnIndex]?.remove());
+    } else if (action === "remove-table") {
+      (table.closest(".markdown-table-wrapper") || table).remove();
+      activeTableRef.current = null;
+      setTableSelected(false);
+    }
+
+    if (action !== "remove-table") {
+      activeTableRef.current = table;
+      setTableSelected(true);
+    }
+    setRichContent(htmlToMarkdown(previewRef.current));
     setDialogError("");
   }
 
@@ -257,8 +328,20 @@ export default function KeepEditor({ activeItem, kind, formRef, busy, dialogErro
             suppressContentEditableWarning role="textbox" aria-multiline="true" aria-labelledby="keep-content-label"
             aria-label="Formatted note editor" data-placeholder="Start writing your note…"
             onInput={(event) => { setRichContent(htmlToMarkdown(event.currentTarget)); setDialogError(""); }}
-            onClick={(event) => { if (event.target.closest("a")) event.preventDefault(); }}
-            onBlur={commitRichDraft}>
+            onClick={(event) => {
+              if (event.target.closest("a")) event.preventDefault();
+              const table = event.target.closest("table");
+              activeTableRef.current?.classList.remove("keep-table-is-active");
+              activeTableRef.current = table;
+              table?.classList.add("keep-table-is-active");
+              setTableSelected(Boolean(table));
+            }}
+            onBlur={() => {
+              commitRichDraft();
+              activeTableRef.current?.classList.remove("keep-table-is-active");
+              activeTableRef.current = null;
+              setTableSelected(false);
+            }}>
             {draft.content ? <MarkdownRenderer content={draft.content} /> : null}
           </div>
         ) : (
@@ -267,6 +350,27 @@ export default function KeepEditor({ activeItem, kind, formRef, busy, dialogErro
               maxLength={KEEP_CONTENT_LIMIT} value={draft.content} onChange={(event) => setField("content", event.target.value)}
               placeholder={draft.type === "text" ? "Write a note in plain text or Markdown…" : "Add context for later…"} />
           </>
+        )}
+        {draft.type === "text" && preview && (
+          <div className={`keep-table-tools ${tableSelected ? "has-table" : ""}`} role="toolbar" aria-label="Table editing controls">
+            <span className="keep-table-tools-label">Table</span>
+            <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => updateTable("add-row")} disabled={!tableSelected || busy} title="Add row">
+              <Rows3 size={15} aria-hidden="true" /><span>Add row</span>
+            </button>
+            <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => updateTable("remove-row")} disabled={!tableSelected || busy} title="Delete selected row">
+              <Rows3 size={15} aria-hidden="true" /><span>Delete row</span>
+            </button>
+            <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => updateTable("add-column")} disabled={!tableSelected || busy} title="Add column">
+              <Columns3 size={15} aria-hidden="true" /><span>Add column</span>
+            </button>
+            <button type="button" onMouseDown={(event) => event.preventDefault()} onClick={() => updateTable("remove-column")} disabled={!tableSelected || busy} title="Delete selected column">
+              <Columns3 size={15} aria-hidden="true" /><span>Delete column</span>
+            </button>
+            <button type="button" className="keep-table-remove" onMouseDown={(event) => event.preventDefault()} onClick={() => updateTable("remove-table")} disabled={!tableSelected || busy} title="Delete table">
+              <Trash2 size={15} aria-hidden="true" /><span>Delete table</span>
+            </button>
+            {!tableSelected && <span className="keep-table-hint">Click a table to edit its rows and columns.</span>}
+          </div>
         )}
       </fieldset>
       {!dialogError && validation && <p className="keep-validation">{validation}</p>}
