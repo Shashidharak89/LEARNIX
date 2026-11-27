@@ -227,14 +227,17 @@ export default function SMDirectoryNode({
 
     const highlightText = (text, keyword) => {
         if (!keyword || !text) return <span>{text}</span>;
-        const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-        const regex = new RegExp(`(${escaped})`, "gi");
+        const words = String(keyword).trim().split(/\s+/).filter(Boolean);
+        if (words.length === 0) return <span>{text}</span>;
+        const escapedWords = words.map(word => word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+        const regex = new RegExp(`(${escapedWords.join("|")})`, "gi");
+        const matchedWords = new Set(words.map(word => word.toLowerCase()));
         const parts = String(text).split(regex);
         return (
             <span>
                 {parts.map((part, i) => 
-                    regex.test(part) ? (
-                        <mark key={i} style={{ background: "#fef08a", color: "#854d0e", padding: "0 2px", borderRadius: "2px", fontWeight: "bold" }}>
+                    matchedWords.has(part.toLowerCase()) ? (
+                        <mark key={i} style={{ background: "#fef08a", color: "#854d0e" }}>
                             {part}
                         </mark>
                     ) : (
