@@ -23,7 +23,7 @@ export default function ActionOverflowMenu({ label = "More options", actions = [
       const top = rect.bottom + estimatedHeight + 6 <= window.innerHeight
         ? rect.bottom + 6
         : Math.max(12, rect.top - estimatedHeight - 6);
-      setPosition({ position: "fixed", top, left, width, maxHeight: estimatedHeight, zIndex: 1400 });
+      setPosition({ position: "fixed", top, left, width, maxHeight: estimatedHeight, zIndex: 999 });
     };
     const onPointerDown = (event) => {
       if (!triggerRef.current?.contains(event.target) && !menuRef.current?.contains(event.target)) setOpen(false);
