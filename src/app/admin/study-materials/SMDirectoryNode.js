@@ -8,7 +8,10 @@ import {
     FolderOpenIcon, 
     FileTextIcon, 
     DownloadIcon, 
-    PinIcon
+    PinIcon,
+    EllipsisIcon,
+    ShareIcon,
+    ExternalLinkIcon,
 } from "@animateicons/react/lucide";
 
 const hasMatchingDescendant = (node, type, query) => {
@@ -46,6 +49,80 @@ const hasMatchingDescendant = (node, type, query) => {
     return false;
 };
 
+function SMNodeActions({ type, displayName, isPinned, onTogglePin, onOpen, onShare }) {
+    const [menuOpen, setMenuOpen] = useState(false);
+    const menuRef = useRef(null);
+    const moreRef = useRef(null);
+
+    useEffect(() => {
+        if (!menuOpen) return undefined;
+        const closeOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) setMenuOpen(false);
+        };
+        const closeOnEscape = (event) => {
+            if (event.key === "Escape") setMenuOpen(false);
+        };
+        document.addEventListener("mousedown", closeOutside);
+        document.addEventListener("keydown", closeOnEscape);
+        return () => {
+            document.removeEventListener("mousedown", closeOutside);
+            document.removeEventListener("keydown", closeOnEscape);
+        };
+    }, [menuOpen]);
+
+    const handleShare = async (event) => {
+        event.stopPropagation();
+        setMenuOpen(false);
+        await onShare();
+    };
+
+    return (
+        <div className="sm-node-actions" ref={menuRef} onClick={(event) => event.stopPropagation()}>
+            {type !== "file" && (
+                <button
+                    type="button"
+                    className={`sm-tree-pref-btn sm-tree-pin-icon-btn ${isPinned ? "active" : ""}`}
+                    onClick={onTogglePin}
+                    aria-pressed={isPinned}
+                    aria-label={isPinned ? `Unpin ${displayName}` : `Pin ${displayName}`}
+                    title={isPinned ? "Unpin folder" : "Pin folder"}
+                >
+                    <PinIcon size={15} fill={isPinned ? "#f59e0b" : "none"} color={isPinned ? "#f59e0b" : "#9ca3af"} />
+                </button>
+            )}
+            <button
+                type="button"
+                className="sm-tree-more-btn"
+                onClick={() => setMenuOpen((open) => !open)}
+                onMouseEnter={() => moreRef.current?.startAnimation?.()}
+                onMouseLeave={() => moreRef.current?.stopAnimation?.()}
+                aria-label={`More options for ${displayName}`}
+                aria-haspopup="menu"
+                aria-expanded={menuOpen}
+                title="More options"
+            >
+                <EllipsisIcon ref={moreRef} size={19} />
+            </button>
+            {menuOpen && (
+                <div className="sm-tree-node-menu" role="menu">
+                    <button type="button" role="menuitem" onClick={(event) => { event.stopPropagation(); setMenuOpen(false); onOpen(); }}>
+                        <ExternalLinkIcon size={15} /> <span>Open</span>
+                    </button>
+                    <button type="button" role="menuitem" onClick={handleShare}>
+                        <ShareIcon size={15} /> <span>Share</span>
+                    </button>
+                    {type !== "file" && (
+                        <button type="button" className="sm-tree-menu-pin" role="menuitem" onClick={(event) => { event.stopPropagation(); setMenuOpen(false); onTogglePin(event); }}>
+                            <PinIcon size={15} fill={isPinned ? "#f59e0b" : "none"} color={isPinned ? "#f59e0b" : "#64748b"} />
+                            <span>{isPinned ? "Unpin folder" : "Pin to top"}</span>
+                        </button>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
+
 export default function SMDirectoryNode({ 
     level = 0, 
     type = "university", 
@@ -54,6 +131,7 @@ export default function SMDirectoryNode({
     searchActive = false,
     highlightKeyword = "",
     autoExpand = false,
+    onNavigate,
 }) {
     const [expanded, setExpanded] = useState(autoExpand);
     const [externalExpanded, setExternalExpanded] = useState(false);
@@ -66,7 +144,6 @@ export default function SMDirectoryNode({
     const [isPinned, setIsPinned] = useState(false);
 
     const folderIconRef = useRef(null);
-    const pinIconRef = useRef(null);
     const fileIconRef = useRef(null);
     const downloadIconRef = useRef(null);
 
@@ -89,7 +166,7 @@ export default function SMDirectoryNode({
     }, [prefId]);
 
     const handleTogglePreference = (e) => {
-        e.stopPropagation();
+        e?.stopPropagation?.();
         if (typeof window !== "undefined") {
             try {
                 let list = JSON.parse(localStorage.getItem("sm_user_preferences") || "[]");
@@ -181,10 +258,12 @@ export default function SMDirectoryNode({
     };
 
     const handleToggle = () => {
+        const wasExpanded = expanded;
         if (!expanded && children.length === 0) {
             fetchChildren(1);
         }
         setExpanded(!expanded);
+        if (onNavigate) onNavigate(wasExpanded ? parentParams : nextParams);
     };
 
     // Auto-expand: fetch children on mount when autoExpand is true
@@ -199,6 +278,45 @@ export default function SMDirectoryNode({
             const nextPage = page + 1;
             setPage(nextPage);
             fetchChildren(nextPage, true);
+        }
+    };
+
+    const handleShare = async () => {
+        const shareParams = { ...parentParams };
+        const queryKey = {
+            university: "universityId",
+            college: "collegeId",
+            course: "courseId",
+            semester: "semesterId",
+            batch: "batchId",
+            subject: "subjectId",
+            file: "fileId",
+        }[type];
+        shareParams[queryKey] = data._id;
+
+        const params = new window.URLSearchParams();
+        ["universityId", "collegeId", "courseId", "semesterId", "batchId", "subjectId", "fileId"].forEach((key) => {
+            if (shareParams[key]) params.set(key.replace(/Id$/, ""), shareParams[key]);
+        });
+        const url = `${window.location.origin}/materials/share?${params.toString()}`;
+        const title = `${displayName} | LEARNIX Study Materials`;
+
+        try {
+            if (navigator.share) {
+                await navigator.share({ title, text: `Open ${displayName} in LEARNIX Study Materials`, url });
+            } else {
+                await navigator.clipboard.writeText(url);
+                window.alert("Study materials link copied to clipboard.");
+            }
+        } catch (error) {
+            if (error?.name !== "AbortError") {
+                try {
+                    await navigator.clipboard.writeText(url);
+                    window.alert("Study materials link copied to clipboard.");
+                } catch {
+                    window.prompt("Copy this study materials link", url);
+                }
+            }
         }
     };
 
@@ -267,6 +385,7 @@ export default function SMDirectoryNode({
                         parentParams={nextParams}
                         searchActive={searchActive}
                         highlightKeyword={highlightKeyword}
+                        onNavigate={onNavigate}
                     />
                 ))}
                 {page < totalPages && (
@@ -298,11 +417,11 @@ export default function SMDirectoryNode({
                         style={{ 
                             display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", cursor: "pointer", 
                             padding: "14px 18px", minHeight: "56px", background: expanded ? "#f0f9ff" : "#ffffff", 
-                            border: expanded ? "1.5px solid #7dd3fc" : "1px solid #e0f2fe", 
-                            borderRadius: "14px", 
+                            border: "none",
+                            borderRadius: "12px",
                             transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
                             fontWeight: expanded ? "600" : "500", color: "#1e293b",
-                            boxShadow: expanded ? "0 4px 16px rgba(14, 165, 233, 0.12)" : "0 2px 6px rgba(15, 23, 42, 0.02)",
+                            boxShadow: "none",
                             fontSize: "15px"
                         }}
                     >
@@ -318,27 +437,14 @@ export default function SMDirectoryNode({
                             </span>
                         </div>
 
-                        <button
-                            type="button"
-                            onClick={handleTogglePreference}
-                            onMouseEnter={() => pinIconRef.current?.startAnimation?.()}
-                            onMouseLeave={() => pinIconRef.current?.stopAnimation?.()}
-                            className={`sm-tree-pref-btn ${isPinned ? "active" : ""}`}
-                            aria-pressed={isPinned}
-                            aria-label={`Pin ${displayName} to top`}
-                            title={isPinned ? "Unpin" : "Pin to top"}
-                            style={{
-                                padding: "6px 12px",
-                                borderRadius: "10px",
-                                fontSize: "12px",
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "5px"
-                            }}
-                        >
-                            <PinIcon ref={pinIconRef} size={15} fill={isPinned ? "#f59e0b" : "none"} color={isPinned ? "#f59e0b" : "#9ca3af"} />
-                            <span className="sm-tree-pref-text">{isPinned ? "Pinned" : "Pin to top"}</span>
-                        </button>
+                        <SMNodeActions
+                            type={type}
+                            displayName={displayName}
+                            isPinned={isPinned}
+                            onTogglePin={handleTogglePreference}
+                            onOpen={handleToggle}
+                            onShare={handleShare}
+                        />
                     </div>
 
                     {expanded && (
@@ -399,6 +505,7 @@ export default function SMDirectoryNode({
                                                             parentParams={nextParams}
                                                             searchActive={searchActive}
                                                             highlightKeyword={highlightKeyword}
+                                                            onNavigate={onNavigate}
                                                         />
                                                     ))}
                                                 </div>
@@ -416,6 +523,7 @@ export default function SMDirectoryNode({
                                             parentParams={nextParams}
                                             searchActive={searchActive}
                                             highlightKeyword={highlightKeyword}
+                                            onNavigate={onNavigate}
                                         />
                                     ))}
                                 </>
@@ -429,6 +537,7 @@ export default function SMDirectoryNode({
                                         parentParams={nextParams}
                                         searchActive={searchActive}
                                         highlightKeyword={highlightKeyword}
+                                        onNavigate={onNavigate}
                                     />
                                 ))
                             )}
@@ -461,19 +570,17 @@ export default function SMDirectoryNode({
                             display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", 
                             textDecoration: "none", color: "#1e293b", fontWeight: "500", 
                             padding: "14px 18px", minHeight: "54px", background: "#ffffff", borderRadius: "14px", 
-                            border: "1px solid #e2e8f0", fontSize: "15px", transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+                            border: "none", fontSize: "15px", transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
                             cursor: "pointer", width: "100%", boxSizing: "border-box",
-                            boxShadow: "0 2px 6px rgba(15, 23, 42, 0.02)"
+                            boxShadow: "none"
                         }}
                         onMouseOver={(e) => { 
-                            e.currentTarget.style.borderColor = "#0ea5e9"; 
                             e.currentTarget.style.background = "#f0f9ff";
-                            e.currentTarget.style.boxShadow = "0 4px 14px rgba(14, 165, 233, 0.12)"; 
+                            e.currentTarget.style.boxShadow = "none";
                         }} 
                         onMouseOut={(e) => { 
-                            e.currentTarget.style.borderColor = "#e2e8f0"; 
                             e.currentTarget.style.background = "#ffffff";
-                            e.currentTarget.style.boxShadow = "0 2px 6px rgba(15, 23, 42, 0.02)"; 
+                            e.currentTarget.style.boxShadow = "none";
                         }}
                         onMouseEnter={() => fileIconRef.current?.startAnimation?.()}
                         onMouseLeave={() => fileIconRef.current?.stopAnimation?.()}
@@ -503,6 +610,7 @@ export default function SMDirectoryNode({
                                 </span>
                             )}
                         </div>
+                        <div className="sm-file-actions">
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -522,6 +630,17 @@ export default function SMDirectoryNode({
                         >
                             <DownloadIcon ref={downloadIconRef} size={16} />
                         </button>
+                        <SMNodeActions
+                            type="file"
+                            displayName={displayName}
+                            isPinned={false}
+                            onOpen={() => {
+                                const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(data.fileurl)}`;
+                                window.open(viewUrl, "_blank", "noopener,noreferrer");
+                            }}
+                            onShare={handleShare}
+                        />
+                        </div>
                     </div>
                 </div>
             )}
