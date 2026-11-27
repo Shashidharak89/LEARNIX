@@ -417,11 +417,11 @@ export default function SMDirectoryNode({
                         style={{ 
                             display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", cursor: "pointer", 
                             padding: "14px 18px", minHeight: "56px", background: expanded ? "#f0f9ff" : "#ffffff", 
-                            border: "none",
-                            borderRadius: "12px",
+                            border: expanded ? "1.5px solid #7dd3fc" : "1px solid #e0f2fe",
+                            borderRadius: "14px",
                             transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
                             fontWeight: expanded ? "600" : "500", color: "#1e293b",
-                            boxShadow: "none",
+                            boxShadow: expanded ? "0 4px 16px rgba(14, 165, 233, 0.12)" : "0 2px 6px rgba(15, 23, 42, 0.02)",
                             fontSize: "15px"
                         }}
                     >
@@ -570,17 +570,19 @@ export default function SMDirectoryNode({
                             display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", 
                             textDecoration: "none", color: "#1e293b", fontWeight: "500", 
                             padding: "14px 18px", minHeight: "54px", background: "#ffffff", borderRadius: "14px", 
-                            border: "none", fontSize: "15px", transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+                            border: "1px solid #e2e8f0", fontSize: "15px", transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
                             cursor: "pointer", width: "100%", boxSizing: "border-box",
-                            boxShadow: "none"
+                            boxShadow: "0 2px 6px rgba(15, 23, 42, 0.02)"
                         }}
                         onMouseOver={(e) => { 
+                            e.currentTarget.style.borderColor = "#0ea5e9";
                             e.currentTarget.style.background = "#f0f9ff";
-                            e.currentTarget.style.boxShadow = "none";
+                            e.currentTarget.style.boxShadow = "0 4px 14px rgba(14, 165, 233, 0.12)";
                         }} 
                         onMouseOut={(e) => { 
+                            e.currentTarget.style.borderColor = "#e2e8f0";
                             e.currentTarget.style.background = "#ffffff";
-                            e.currentTarget.style.boxShadow = "none";
+                            e.currentTarget.style.boxShadow = "0 2px 6px rgba(15, 23, 42, 0.02)";
                         }}
                         onMouseEnter={() => fileIconRef.current?.startAnimation?.()}
                         onMouseLeave={() => fileIconRef.current?.stopAnimation?.()}
