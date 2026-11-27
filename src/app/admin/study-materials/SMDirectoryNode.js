@@ -49,7 +49,7 @@ const hasMatchingDescendant = (node, type, query) => {
     return false;
 };
 
-function SMNodeActions({ type, displayName, isPinned, onTogglePin, onOpen, onShare }) {
+function SMNodeActions({ type, displayName, isPinned, onTogglePin, onOpen, onShare, onDownload }) {
     const [menuOpen, setMenuOpen] = useState(false);
     const menuRef = useRef(null);
     const moreRef = useRef(null);
@@ -111,6 +111,11 @@ function SMNodeActions({ type, displayName, isPinned, onTogglePin, onOpen, onSha
                     <button type="button" role="menuitem" onClick={handleShare}>
                         <ShareIcon size={15} /> <span>Share</span>
                     </button>
+                    {type === "file" && (
+                        <button type="button" className="sm-tree-menu-download" role="menuitem" onClick={(event) => { event.stopPropagation(); setMenuOpen(false); onDownload(); }}>
+                            <DownloadIcon size={15} /> <span>Download</span>
+                        </button>
+                    )}
                     {type !== "file" && (
                         <button type="button" className="sm-tree-menu-pin" role="menuitem" onClick={(event) => { event.stopPropagation(); setMenuOpen(false); onTogglePin(event); }}>
                             <PinIcon size={15} fill={isPinned ? "#f59e0b" : "none"} color={isPinned ? "#f59e0b" : "#64748b"} />
@@ -565,23 +570,23 @@ export default function SMDirectoryNode({
                             const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(data.fileurl)}`;
                             window.open(viewUrl, "_blank", "noopener,noreferrer");
                         }}
-                        className="sm-tree-file-card"
+                        className={`sm-tree-file-card ${data.type === "external" ? "is-external" : ""}`}
                         style={{ 
                             display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", 
                             textDecoration: "none", color: "#1e293b", fontWeight: "500", 
-                            padding: "14px 18px", minHeight: "54px", background: "#ffffff", borderRadius: "14px", 
-                            border: "1px solid #e2e8f0", fontSize: "15px", transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
+                            padding: "14px 18px", minHeight: "54px", background: data.type === "external" ? "#fffbeb" : "#ffffff", borderRadius: "14px",
+                            border: data.type === "external" ? "1px solid #fde68a" : "1px solid #e2e8f0", fontSize: "15px", transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
                             cursor: "pointer", width: "100%", boxSizing: "border-box",
                             boxShadow: "0 2px 6px rgba(15, 23, 42, 0.02)"
                         }}
                         onMouseOver={(e) => { 
-                            e.currentTarget.style.borderColor = "#0ea5e9";
-                            e.currentTarget.style.background = "#f0f9ff";
+                            e.currentTarget.style.borderColor = data.type === "external" ? "#fbbf24" : "#0ea5e9";
+                            e.currentTarget.style.background = data.type === "external" ? "#fef3c7" : "#f0f9ff";
                             e.currentTarget.style.boxShadow = "0 4px 14px rgba(14, 165, 233, 0.12)";
                         }} 
                         onMouseOut={(e) => { 
-                            e.currentTarget.style.borderColor = "#e2e8f0";
-                            e.currentTarget.style.background = "#ffffff";
+                            e.currentTarget.style.borderColor = data.type === "external" ? "#fde68a" : "#e2e8f0";
+                            e.currentTarget.style.background = data.type === "external" ? "#fffbeb" : "#ffffff";
                             e.currentTarget.style.boxShadow = "0 2px 6px rgba(15, 23, 42, 0.02)";
                         }}
                         onMouseEnter={() => fileIconRef.current?.startAnimation?.()}
@@ -596,7 +601,7 @@ export default function SMDirectoryNode({
                                 {highlightText(displayName, highlightKeyword)}
                             </span>
                             {data.type === "external" && (
-                                <span style={{
+                                <span className="sm-tree-external-tag" style={{
                                     fontSize: "11px",
                                     padding: "3px 8px",
                                     background: "#fee2e2",
@@ -614,6 +619,8 @@ export default function SMDirectoryNode({
                         </div>
                         <div className="sm-file-actions">
                         <button
+                            type="button"
+                            className="sm-tree-file-download-btn"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 window.open(data.fileurl, "_blank", "noopener,noreferrer");
@@ -623,12 +630,12 @@ export default function SMDirectoryNode({
                             title="Download File"
                             style={{
                                 display: "inline-flex", alignItems: "center", justifyContent: "center",
-                                background: "#f1f5f9", border: "1px solid #cbd5e1",
-                                color: "#475569", borderRadius: "10px", width: "38px", height: "38px",
+                                background: "transparent", border: "none",
+                                color: "#2563eb", borderRadius: "10px", width: "34px", height: "34px",
                                 cursor: "pointer", transition: "all 0.2s ease", flexShrink: 0
                             }}
-                            onMouseOver={(e) => { e.currentTarget.style.background = "#0ea5e9"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = "#0ea5e9"; }}
-                            onMouseOut={(e) => { e.currentTarget.style.background = "#f1f5f9"; e.currentTarget.style.color = "#475569"; e.currentTarget.style.borderColor = "#cbd5e1"; }}
+                            onMouseOver={(e) => { e.currentTarget.style.background = "#eff6ff"; e.currentTarget.style.color = "#1d4ed8"; }}
+                            onMouseOut={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#2563eb"; }}
                         >
                             <DownloadIcon ref={downloadIconRef} size={16} />
                         </button>
@@ -641,6 +648,7 @@ export default function SMDirectoryNode({
                                 window.open(viewUrl, "_blank", "noopener,noreferrer");
                             }}
                             onShare={handleShare}
+                            onDownload={() => window.open(data.fileurl, "_blank", "noopener,noreferrer")}
                         />
                         </div>
                     </div>

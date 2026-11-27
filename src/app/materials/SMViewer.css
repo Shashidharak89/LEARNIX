@@ -719,6 +719,9 @@
 .sm-tree-node-menu button:hover { color: #0b74ff; background: #eff6ff; }
 .sm-tree-node-menu .sm-tree-menu-pin { display: none; }
 .sm-file-actions { display: inline-flex; align-items: center; gap: 5px; flex: 0 0 auto; }
+.sm-tree-file-download-btn { border: 0 !important; color: #2563eb !important; }
+.sm-tree-file-download-btn:hover { background: #eff6ff !important; color: #1d4ed8 !important; }
+.sm-tree-node-menu .sm-tree-menu-download { display: none; }
 
 @keyframes sm-node-menu-in {
     from { opacity: 0; transform: translateY(-4px) scale(.98); }
@@ -739,6 +742,9 @@
 @media (max-width: 550px) {
     .sm-tree-pref-btn.sm-tree-pin-icon-btn { display: none; }
     .sm-tree-node-menu .sm-tree-menu-pin { display: flex; }
+    .sm-tree-external-tag { display: none !important; }
+    .sm-tree-file-download-btn { display: none !important; }
+    .sm-tree-node-menu .sm-tree-menu-download { display: flex; }
 }
 
 /* ── Preference Modal ── */
