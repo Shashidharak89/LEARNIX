@@ -75,15 +75,6 @@ export default function SMSharedMaterialsClient() {
         router.push(`${pathname}?${params.toString()}`);
     };
 
-    const navigateToNode = (params) => {
-        const query = new window.URLSearchParams();
-        PARAMS.forEach((key) => {
-            const value = params[`${key}Id`];
-            if (value) query.set(key, String(value));
-        });
-        if (query.size) router.push(`${pathname}?${query.toString()}`);
-    };
-
     const openFile = () => {
         const url = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(result.item.fileurl)}`;
         window.open(url, "_blank", "noopener,noreferrer");
@@ -193,7 +184,6 @@ export default function SMSharedMaterialsClient() {
                                     data={result.item}
                                     parentParams={parentParams}
                                     autoExpand
-                                    onNavigate={navigateToNode}
                                 />
                             </>
                         )}

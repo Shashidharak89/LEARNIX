@@ -136,7 +136,6 @@ export default function SMDirectoryNode({
     searchActive = false,
     highlightKeyword = "",
     autoExpand = false,
-    onNavigate,
 }) {
     const [expanded, setExpanded] = useState(autoExpand);
     const [externalExpanded, setExternalExpanded] = useState(false);
@@ -268,7 +267,6 @@ export default function SMDirectoryNode({
             fetchChildren(1);
         }
         setExpanded(!expanded);
-        if (onNavigate) onNavigate(wasExpanded ? parentParams : nextParams);
     };
 
     // Auto-expand: fetch children on mount when autoExpand is true
@@ -390,7 +388,6 @@ export default function SMDirectoryNode({
                         parentParams={nextParams}
                         searchActive={searchActive}
                         highlightKeyword={highlightKeyword}
-                        onNavigate={onNavigate}
                     />
                 ))}
                 {page < totalPages && (
@@ -510,7 +507,6 @@ export default function SMDirectoryNode({
                                                             parentParams={nextParams}
                                                             searchActive={searchActive}
                                                             highlightKeyword={highlightKeyword}
-                                                            onNavigate={onNavigate}
                                                         />
                                                     ))}
                                                 </div>
@@ -528,7 +524,6 @@ export default function SMDirectoryNode({
                                             parentParams={nextParams}
                                             searchActive={searchActive}
                                             highlightKeyword={highlightKeyword}
-                                            onNavigate={onNavigate}
                                         />
                                     ))}
                                 </>
@@ -542,7 +537,6 @@ export default function SMDirectoryNode({
                                         parentParams={nextParams}
                                         searchActive={searchActive}
                                         highlightKeyword={highlightKeyword}
-                                        onNavigate={onNavigate}
                                     />
                                 ))
                             )}
