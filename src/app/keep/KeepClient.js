@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   CheckIcon, ChevronLeftIcon, ChevronRightIcon, DownloadIcon, ExternalLinkIcon,
   FileIcon, FolderLockIcon, FolderIcon,
-  KeyboardIcon, LockIcon, PencilIcon, PinIcon, PinOffIcon, PlusIcon, SearchIcon,
+  LockIcon, PencilIcon, PinIcon, PinOffIcon, PlusIcon, SearchIcon,
   Trash2Icon, XIcon,
 } from "@animateicons/react/lucide";
 import { authFetch } from "@/lib/clientAuth";
@@ -340,9 +340,6 @@ export default function KeepClient() {
           <p className="keep-lede">Your private notes, links, and files.</p>
         </div>
         <div className="keep-heading-actions">
-          <KeepButton icon={KeyboardIcon} className="keep-secondary-btn" onClick={() => setModal("shortcuts")} aria-keyshortcuts="?">
-            Shortcuts
-          </KeepButton>
           <KeepButton icon={PlusIcon} className="keep-primary-btn" onClick={() => openEditor()} aria-keyshortcuts="N">
             New item
           </KeepButton>
