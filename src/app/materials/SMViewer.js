@@ -179,7 +179,7 @@ export default function SMViewer() {
                         <span className="upd-title-icon sm-section-icon">
                             <BookOpenIcon ref={headerIconRef} size={26} />
                         </span>
-                        <span className="sm-title-copy">Browse Study Materials Directory</span>
+                        <span className="sm-title-copy">Study Materials</span>
                     </h1>
                     <button
                         type="button"
