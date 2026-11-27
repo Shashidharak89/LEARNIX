@@ -601,6 +601,50 @@
     cursor: pointer;
 }
 
+.sm-pref-search-dropdown .qp-dropdown-trigger {
+    font: inherit;
+}
+
+.sm-pref-search-dropdown .qp-dropdown-trigger:disabled {
+    cursor: wait;
+    opacity: .72;
+}
+
+.sm-pref-search-dropdown .qp-dropdown-item {
+    display: block;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    text-align: left;
+}
+
+.sm-pref-search-dropdown .qp-dropdown-item.is-selected { background: #eff6ff; }
+
+.sm-pref-portal-menu {
+    right: auto;
+    margin: 0;
+    transform-origin: center top;
+    animation: sm-pref-menu-enter 150ms cubic-bezier(.2, .8, .2, 1) both;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.sm-pref-portal-menu .qp-dropdown-item {
+    min-height: 40px;
+    transition: background-color 120ms ease, color 120ms ease;
+}
+
+@keyframes sm-pref-menu-enter {
+    from { opacity: 0; transform: translateY(-5px) scale(.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sm-pref-portal-menu { animation: none; }
+    .sm-pref-portal-menu .qp-dropdown-item { transition: none; }
+}
+
 /* ── Preference Modal ── */
 .sm-pref-modal-overlay {
     position: fixed;

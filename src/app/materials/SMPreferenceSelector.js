@@ -1,8 +1,157 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { FiX } from "react-icons/fi";
+import { createPortal } from "react-dom";
+import { FiChevronDown, FiX } from "react-icons/fi";
 import { PinIcon } from "@animateicons/react/lucide";
+import "../qp/styles/QPFilterSearch.css";
+
+function SearchableDropdown({ label, placeholder, options, value, onChange, loading, getOptionLabel }) {
+    const [isOpen, setIsOpen] = useState(false);
+    const [query, setQuery] = useState("");
+    const [menuPosition, setMenuPosition] = useState(null);
+    const dropdownRef = useRef(null);
+    const menuRef = useRef(null);
+    const searchRef = useRef(null);
+    const selectedLabel = value ? getOptionLabel(value) : "";
+    const filteredOptions = options.filter((option) => getOptionLabel(option).toLowerCase().includes(query.trim().toLowerCase()));
+
+    useEffect(() => {
+        const onPointerDown = (event) => {
+            if (
+                dropdownRef.current && !dropdownRef.current.contains(event.target) &&
+                menuRef.current && !menuRef.current.contains(event.target)
+            ) setIsOpen(false);
+        };
+        document.addEventListener("mousedown", onPointerDown);
+        return () => document.removeEventListener("mousedown", onPointerDown);
+    }, []);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const updateMenuPosition = () => {
+            const trigger = dropdownRef.current?.querySelector(".qp-dropdown-trigger");
+            if (!trigger) return;
+
+            const rect = trigger.getBoundingClientRect();
+            const viewportMargin = 12;
+            const gap = 6;
+            const desiredHeight = Math.min(290, window.innerHeight - viewportMargin * 2);
+            const spaceBelow = window.innerHeight - rect.bottom - viewportMargin;
+            const spaceAbove = rect.top - viewportMargin;
+            const openAbove = spaceBelow < Math.min(220, desiredHeight) && spaceAbove > spaceBelow;
+            const availableHeight = Math.max(120, Math.min(desiredHeight, openAbove ? spaceAbove - gap : spaceBelow - gap));
+            const width = Math.min(rect.width, window.innerWidth - viewportMargin * 2);
+            const left = Math.max(viewportMargin, Math.min(rect.left, window.innerWidth - width - viewportMargin));
+            setMenuPosition({
+                position: "fixed",
+                top: openAbove ? Math.max(viewportMargin, rect.top - availableHeight - gap) : rect.bottom + gap,
+                left,
+                width,
+                maxHeight: availableHeight,
+                zIndex: 10001,
+            });
+        };
+
+        updateMenuPosition();
+        window.addEventListener("resize", updateMenuPosition);
+        window.addEventListener("scroll", updateMenuPosition, true);
+        const timer = window.setTimeout(() => searchRef.current?.focus(), 50);
+        return () => {
+            window.clearTimeout(timer);
+            window.removeEventListener("resize", updateMenuPosition);
+            window.removeEventListener("scroll", updateMenuPosition, true);
+        };
+    }, [isOpen]);
+
+    const choose = (option) => {
+        onChange(option);
+        setIsOpen(false);
+        setQuery("");
+    };
+
+    return (
+        <div className="sm-pref-search-dropdown qp-custom-dropdown" ref={dropdownRef}>
+            <label className="qp-dropdown-label">{label}</label>
+            <div
+                className={`qp-dropdown-trigger ${isOpen ? "is-open" : ""}`}
+                onClick={() => !loading && setIsOpen((open) => !open)}
+                onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        if (!loading) setIsOpen((open) => !open);
+                    }
+                }}
+                role="button"
+                tabIndex={loading ? -1 : 0}
+                aria-haspopup="listbox"
+                aria-expanded={isOpen}
+                aria-disabled={loading}
+            >
+                <span className={`qp-dropdown-trigger__text ${!selectedLabel ? "is-placeholder" : ""}`} title={selectedLabel || placeholder}>
+                    {loading ? "Loading…" : selectedLabel || placeholder}
+                </span>
+                <span className="qp-dropdown-trigger__actions">
+                    {value && (
+                        <button
+                            type="button"
+                            className="qp-dropdown-clear-btn"
+                            title="Clear selection"
+                            aria-label={`Clear ${label.toLowerCase()} selection`}
+                            onClick={(event) => { event.stopPropagation(); choose(null); }}
+                        >
+                            <FiX size={16} />
+                        </button>
+                    )}
+                    <FiChevronDown size={17} className="qp-dropdown-chevron" />
+                </span>
+            </div>
+
+            {isOpen && menuPosition && typeof document !== "undefined" && createPortal(
+                <div ref={menuRef} className="qp-dropdown-menu sm-pref-portal-menu" style={menuPosition} role="listbox" aria-label={label}>
+                    <div className="qp-dropdown-search-wrap">
+                        <input
+                            ref={searchRef}
+                            className="qp-dropdown-search-input"
+                            type="search"
+                            value={query}
+                            onChange={(event) => setQuery(event.target.value)}
+                            onKeyDown={(event) => event.stopPropagation()}
+                            placeholder={`Search ${label.toLowerCase()}…`}
+                            aria-label={`Search ${label.toLowerCase()}`}
+                        />
+                        {query && (
+                            <button type="button" className="qp-dropdown-search-clear" onClick={() => setQuery("")} aria-label="Clear search">
+                                <FiX size={14} />
+                            </button>
+                        )}
+                    </div>
+                    <button type="button" className="qp-dropdown-item is-placeholder" onClick={() => choose(null)}>
+                        {placeholder}
+                    </button>
+                    {filteredOptions.length === 0 ? (
+                        <div className="qp-dropdown-empty">No matches found</div>
+                    ) : filteredOptions.map((option) => {
+                        const optionLabel = getOptionLabel(option);
+                        return (
+                            <button
+                                type="button"
+                                key={option._id}
+                                role="option"
+                                aria-selected={value?._id === option._id}
+                                className={`qp-dropdown-item ${value?._id === option._id ? "is-selected" : ""}`}
+                                onClick={() => choose(option)}
+                            >
+                                {optionLabel}
+                            </button>
+                        );
+                    })}
+                </div>,
+                document.body,
+            )}
+        </div>
+    );
+}
 
 export default function SMPreferenceSelector({ currentPreference, onSave, onClose }) {
     const [universities, setUniversities] = useState([]);
@@ -179,117 +328,84 @@ export default function SMPreferenceSelector({ currentPreference, onSave, onClos
                 </div>
 
                 <div className="sm-pref-modal-body">
-                    {/* Step 1: University */}
-                    <div className="sm-pref-field">
-                        <label className="sm-pref-label">1. Select University</label>
-                        <select
-                            className="sm-pref-select"
-                            value={selectedUni ? selectedUni._id : ""}
-                            onChange={(e) => {
-                                const found = universities.find(u => u._id === e.target.value);
-                                setSelectedUni(found || null);
-                                setSelectedCollege(null);
+                    <SearchableDropdown
+                        label="1. Select University"
+                        placeholder="Choose university"
+                        options={universities}
+                        value={selectedUni}
+                        loading={loadingUnis}
+                        getOptionLabel={(option) => option.name}
+                        onChange={(option) => {
+                            setSelectedUni(option);
+                            setSelectedCollege(null);
+                            setSelectedCourse(null);
+                            setSelectedSem(null);
+                            setSelectedBatch(null);
+                        }}
+                    />
+
+                    {/* Step 2: College */}
+                    {selectedUni && (
+                        <SearchableDropdown
+                            label="2. Select College"
+                            placeholder="Choose college"
+                            options={colleges}
+                            value={selectedCollege}
+                            loading={loadingColleges}
+                            getOptionLabel={(option) => option.name}
+                            onChange={(option) => {
+                                setSelectedCollege(option);
                                 setSelectedCourse(null);
                                 setSelectedSem(null);
                                 setSelectedBatch(null);
                             }}
-                            disabled={loadingUnis}
-                        >
-                            <option value="">{loadingUnis ? "Loading Universities..." : "-- Choose University --"}</option>
-                            {universities.map(u => (
-                                <option key={u._id} value={u._id}>{u.name}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Step 2: College */}
-                    {selectedUni && (
-                        <div className="sm-pref-field">
-                            <label className="sm-pref-label">2. Select College</label>
-                            <select
-                                className="sm-pref-select"
-                                value={selectedCollege ? selectedCollege._id : ""}
-                                onChange={(e) => {
-                                    const found = colleges.find(c => c._id === e.target.value);
-                                    setSelectedCollege(found || null);
-                                    setSelectedCourse(null);
-                                    setSelectedSem(null);
-                                    setSelectedBatch(null);
-                                }}
-                                disabled={loadingColleges}
-                            >
-                                <option value="">{loadingColleges ? "Loading Colleges..." : "-- Choose College --"}</option>
-                                {colleges.map(c => (
-                                    <option key={c._id} value={c._id}>{c.name}</option>
-                                ))}
-                            </select>
-                        </div>
+                        />
                     )}
 
                     {/* Step 3: Course */}
                     {selectedCollege && (
-                        <div className="sm-pref-field">
-                            <label className="sm-pref-label">3. Select Course</label>
-                            <select
-                                className="sm-pref-select"
-                                value={selectedCourse ? selectedCourse._id : ""}
-                                onChange={(e) => {
-                                    const found = courses.find(cr => cr._id === e.target.value);
-                                    setSelectedCourse(found || null);
-                                    setSelectedSem(null);
-                                    setSelectedBatch(null);
-                                }}
-                                disabled={loadingCourses}
-                            >
-                                <option value="">{loadingCourses ? "Loading Courses..." : "-- Choose Course --"}</option>
-                                {courses.map(cr => (
-                                    <option key={cr._id} value={cr._id}>{cr.name}</option>
-                                ))}
-                            </select>
-                        </div>
+                        <SearchableDropdown
+                            label="3. Select Course"
+                            placeholder="Choose course"
+                            options={courses}
+                            value={selectedCourse}
+                            loading={loadingCourses}
+                            getOptionLabel={(option) => option.name}
+                            onChange={(option) => {
+                                setSelectedCourse(option);
+                                setSelectedSem(null);
+                                setSelectedBatch(null);
+                            }}
+                        />
                     )}
 
                     {/* Step 4: Semester */}
                     {selectedCourse && (
-                        <div className="sm-pref-field">
-                            <label className="sm-pref-label">4. Select Semester</label>
-                            <select
-                                className="sm-pref-select"
-                                value={selectedSem ? selectedSem._id : ""}
-                                onChange={(e) => {
-                                    const found = semesters.find(s => s._id === e.target.value);
-                                    setSelectedSem(found || null);
-                                    setSelectedBatch(null);
-                                }}
-                                disabled={loadingSemesters}
-                            >
-                                <option value="">{loadingSemesters ? "Loading Semesters..." : "-- Choose Semester --"}</option>
-                                {semesters.map(s => (
-                                    <option key={s._id} value={s._id}>Semester {s.sem}</option>
-                                ))}
-                            </select>
-                        </div>
+                        <SearchableDropdown
+                            label="4. Select Semester"
+                            placeholder="Choose semester"
+                            options={semesters}
+                            value={selectedSem}
+                            loading={loadingSemesters}
+                            getOptionLabel={(option) => `Semester ${option.sem}`}
+                            onChange={(option) => {
+                                setSelectedSem(option);
+                                setSelectedBatch(null);
+                            }}
+                        />
                     )}
 
                     {/* Step 5: Batch */}
                     {selectedSem && (
-                        <div className="sm-pref-field">
-                            <label className="sm-pref-label">5. Select Batch</label>
-                            <select
-                                className="sm-pref-select"
-                                value={selectedBatch ? selectedBatch._id : ""}
-                                onChange={(e) => {
-                                    const found = batches.find(b => b._id === e.target.value);
-                                    setSelectedBatch(found || null);
-                                }}
-                                disabled={loadingBatches}
-                            >
-                                <option value="">{loadingBatches ? "Loading Batches..." : "-- Choose Batch --"}</option>
-                                {batches.map(b => (
-                                    <option key={b._id} value={b._id}>Batch {b.startyear}-{b.endyear}</option>
-                                ))}
-                            </select>
-                        </div>
+                        <SearchableDropdown
+                            label="5. Select Batch"
+                            placeholder="Choose batch"
+                            options={batches}
+                            value={selectedBatch}
+                            loading={loadingBatches}
+                            getOptionLabel={(option) => `Batch ${option.startyear}-${option.endyear}`}
+                            onChange={setSelectedBatch}
+                        />
                     )}
 
                     {/* Summary Preview */}
