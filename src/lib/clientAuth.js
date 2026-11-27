@@ -34,6 +34,7 @@ function syncAuthStorageFromUser(user, token = "") {
         user: {
           usn: String(user.usn || "").toUpperCase(),
           name: String(user.name || ""),
+          profileimg: String(user.profileimg || ""),
           role: String(user.role || "user"),
           plan: String(user.plan || "basic"),
         },

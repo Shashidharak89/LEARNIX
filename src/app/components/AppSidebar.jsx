@@ -18,7 +18,6 @@ import {
   BookmarkIcon,
   UserIcon,
   LogOutIcon,
-  SparklesIcon,
   XIcon,
 } from "@animateicons/react/lucide";
 
@@ -129,51 +128,20 @@ function WorkspaceSidebarItem({ isOpen, onClose }) {
   );
 }
 
-function SidebarButton({
-  onClick,
-  icon: Icon,
-  text,
-  tabIndex,
-  className = "",
-}) {
-  const iconRef = useRef(null);
-
-  const handleMouseEnter = () => {
-    iconRef.current?.startAnimation?.();
-  };
-
-  const handleMouseLeave = () => {
-    iconRef.current?.stopAnimation?.();
-  };
-
-  return (
-    <button
-      type="button"
-      className={`learnix-nav-item ${className}`.trim()}
-      onClick={onClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      tabIndex={tabIndex}
-    >
-      <span className="learnix-nav-icon">
-        <Icon ref={iconRef} size={18} />
-      </span>
-      <span className="learnix-nav-text">{text}</span>
-    </button>
-  );
-}
-
 export default function AppSidebar({
   isOpen,
   onClose,
   hasUSN,
   userRole,
+  account = {},
   getLoginHref,
   handleSignout,
   onMouseEnter,
   onMouseLeave,
 }) {
   const closeIconRef = useRef(null);
+  const logoutIconRef = useRef(null);
+  const profileFallback = "https://res.cloudinary.com/dihocserl/image/upload/v1758109403/profile-blue-icon_w3vbnt.webp";
 
   return (
     <>
@@ -218,7 +186,7 @@ export default function AppSidebar({
         </div>
 
         {/* Sidebar Navigation Items */}
-        <nav className="learnix-sidebar-menu">
+        <nav className="learnix-sidebar-menu" aria-label="Main navigation">
           {/* Workspace - shown ONLY when user is logged in */}
           {hasUSN && (
             <WorkspaceSidebarItem isOpen={isOpen} onClose={onClose} />
@@ -325,26 +293,49 @@ export default function AppSidebar({
             />
           )}
 
-          {/* Bottom Action: Signout when logged in, Login / Register when not logged in */}
+        </nav>
+
+        <div className="learnix-sidebar-account">
           {hasUSN ? (
-            <SidebarButton
-              onClick={handleSignout}
-              icon={LogOutIcon}
-              text="Signout"
-              className="learnix-signout-btn"
-              tabIndex={isOpen ? 0 : -1}
-            />
+            <div className="learnix-sidebar-account-row">
+              <Link href="/profile" className="learnix-sidebar-account-profile" onClick={onClose} tabIndex={isOpen ? 0 : -1}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={account.profileimg || profileFallback}
+                  alt=""
+                  className="learnix-sidebar-avatar"
+                  onError={(event) => { event.currentTarget.src = profileFallback; }}
+                />
+                <span className="learnix-sidebar-account-copy">
+                  <strong>{account.name || "Your account"}</strong>
+                  <small>{account.usn || "Signed in"}</small>
+                </span>
+              </Link>
+              <button
+                type="button"
+                className="learnix-sidebar-logout"
+                onClick={handleSignout}
+                onMouseEnter={() => logoutIconRef.current?.startAnimation?.()}
+                onMouseLeave={() => logoutIconRef.current?.stopAnimation?.()}
+                aria-label="Log out"
+                title="Log out"
+                tabIndex={isOpen ? 0 : -1}
+              >
+                <LogOutIcon ref={logoutIconRef} size={18} />
+              </button>
+            </div>
           ) : (
-            <SidebarLink
+            <Link
               href={typeof getLoginHref === "function" ? getLoginHref() : "/login"}
               onClick={onClose}
-              icon={LogInIcon}
-              text="Login / Register"
-              className="learnix-login-bottom-btn"
+              className="learnix-sidebar-login"
               tabIndex={isOpen ? 0 : -1}
-            />
+            >
+              <LogInIcon size={18} aria-hidden="true" />
+              <span>Login / Register</span>
+            </Link>
           )}
-        </nav>
+        </div>
       </aside>
     </>
   );

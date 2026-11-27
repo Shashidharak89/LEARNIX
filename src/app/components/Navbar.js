@@ -37,25 +37,42 @@ const NavbarContent = ({ searchParams }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [hasUSN, setHasUSN] = useState(false);
   const [userRole, setUserRole] = useState("");
+  const [account, setAccount] = useState({ name: "", usn: "", profileimg: "" });
   const [navHidden, setNavHidden] = useState(false);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
     // verify token and sync local auth state on page load/refresh
-    verifyTokenAndSyncAuth({ redirectOnFailure: false }).finally(() => {
+    verifyTokenAndSyncAuth({ redirectOnFailure: false }).then((user) => {
       const storedUsn = localStorage.getItem("usn");
       setHasUSN(!!storedUsn);
       setUserRole(localStorage.getItem("role") || "");
+      setAccount(user ? {
+        name: user.name || localStorage.getItem("name") || "",
+        usn: user.usn || storedUsn || "",
+        profileimg: user.profileimg || "",
+      } : storedUsn ? {
+        name: localStorage.getItem("name") || "",
+        usn: storedUsn,
+        profileimg: "",
+      } : { name: "", usn: "", profileimg: "" });
     });
 
     // keep hasUSN in sync if localStorage changes in other tabs
     const onStorage = (e) => {
       if (e.key === "usn") {
         setHasUSN(!!e.newValue);
+        setAccount((current) => ({
+          ...current,
+          usn: e.newValue || "",
+          name: e.newValue ? (localStorage.getItem("name") || current.name) : "",
+          profileimg: e.newValue ? current.profileimg : "",
+        }));
       }
       if (e.key === "role") {
         setUserRole(e.newValue || "");
       }
+      if (e.key === "name") setAccount((current) => ({ ...current, name: e.newValue || "" }));
     };
 
     const onAuthSynced = (e) => {
@@ -63,10 +80,22 @@ const NavbarContent = ({ searchParams }) => {
       const syncedRole = e?.detail?.user?.role || localStorage.getItem("role") || "";
       setHasUSN(!!syncedUsn);
       setUserRole(syncedRole);
+      setAccount({
+        name: e?.detail?.user?.name || localStorage.getItem("name") || "",
+        usn: syncedUsn || "",
+        profileimg: e?.detail?.user?.profileimg || "",
+      });
+    };
+
+    const onAuthExpired = () => {
+      setHasUSN(false);
+      setUserRole("");
+      setAccount({ name: "", usn: "", profileimg: "" });
     };
 
     window.addEventListener("storage", onStorage);
     window.addEventListener("learnix:auth-synced", onAuthSynced);
+    window.addEventListener("learnix:auth-expired", onAuthExpired);
 
     // ---------- aligned interval logic ----------
     let intervalId = null;
@@ -125,6 +154,7 @@ const NavbarContent = ({ searchParams }) => {
       if (intervalId) clearInterval(intervalId);
       window.removeEventListener("storage", onStorage);
       window.removeEventListener("learnix:auth-synced", onAuthSynced);
+      window.removeEventListener("learnix:auth-expired", onAuthExpired);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, []);
@@ -279,6 +309,7 @@ const NavbarContent = ({ searchParams }) => {
         onClose={closeSidebar}
         hasUSN={hasUSN}
         userRole={userRole}
+        account={account}
         getLoginHref={getLoginHref}
         handleSignout={handleSignout}
         onMouseEnter={handleSidebarMouseEnter}
