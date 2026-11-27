@@ -8,11 +8,13 @@ import {
     SearchIcon, 
     FilterIcon, 
     CheckIcon, 
-    SparklesIcon 
+    SparklesIcon,
+    TriangleAlertIcon,
 } from "@animateicons/react/lucide";
 import SMDirectoryNode from "@/app/admin/study-materials/SMDirectoryNode";
 import SMAdminSearchResults from "@/app/admin/study-materials/SMAdminSearchResults";
 import SMPreferenceCard from "./SMPreferenceCard";
+import SMFeedbackModal from "./SMFeedbackModal";
 import "@/app/updates/styles/Updates.css";
 import "./SMViewer.css";
 
@@ -52,6 +54,7 @@ export default function SMViewer() {
     const [error, setError] = useState("");
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [showFeedback, setShowFeedback] = useState(false);
 
     // Search input state (typing will not trigger search)
     const [searchInput, setSearchInput] = useState("");
@@ -62,6 +65,7 @@ export default function SMViewer() {
 
     // Icon animation refs
     const headerIconRef = useRef(null);
+    const feedbackIconRef = useRef(null);
     const searchIconRef = useRef(null);
     const searchBtnIconRef = useRef(null);
     const loadMoreIconRef = useRef(null);
@@ -165,7 +169,7 @@ export default function SMViewer() {
         <section className="sm-viewer-section" aria-labelledby="sm-papers-section">
             {/* Search & Intro Card */}
             <div className="upd-intro-card sm-search-card">
-                <div className="upd-intro-header sm-section-header">
+                <div className="upd-intro-header sm-section-header sm-title-row">
                     <h1 
                         id="sm-papers-section" 
                         className="upd-title sm-subtitle"
@@ -175,8 +179,19 @@ export default function SMViewer() {
                         <span className="upd-title-icon sm-section-icon">
                             <BookOpenIcon ref={headerIconRef} size={26} />
                         </span>
-                        Browse Study Materials Directory
+                        <span className="sm-title-copy">Browse Study Materials Directory</span>
                     </h1>
+                    <button
+                        type="button"
+                        className="sm-report-button"
+                        onClick={() => setShowFeedback(true)}
+                        onMouseEnter={() => feedbackIconRef.current?.startAnimation?.()}
+                        onMouseLeave={() => feedbackIconRef.current?.stopAnimation?.()}
+                        aria-label="Report a problem with Study Materials"
+                    >
+                        <TriangleAlertIcon ref={feedbackIconRef} size={17} aria-hidden="true" />
+                        <span>Report bug</span>
+                    </button>
                 </div>
                 
                 <form className="upd-search-form" onSubmit={handleSearchSubmit}>
@@ -303,6 +318,7 @@ export default function SMViewer() {
                     <p style={{ textAlign: "center", color: "#64748b", padding: "24px", fontSize: "15px" }}>No study materials found matching "{activeQuery}".</p>
                 )}
             </div>
+            <SMFeedbackModal open={showFeedback} onClose={() => setShowFeedback(false)} />
         </section>
     );
 }

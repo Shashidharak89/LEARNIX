@@ -7,13 +7,14 @@ export async function POST(req) {
   try {
     await connectDB();
     const body = await req.json();
-    const { feedback } = body;
+    const feedback = typeof body.feedback === "string" ? body.feedback.trim() : "";
+    const pageName = typeof body.pageName === "string" ? body.pageName.trim().slice(0, 80) : "";
 
-    if (!feedback || feedback.trim() === "") {
+    if (!feedback) {
       return NextResponse.json({ error: "Feedback is required." }, { status: 400 });
     }
 
-    const newFeedback = new Feedback({ feedback });
+    const newFeedback = new Feedback({ feedback, ...(pageName ? { pageName } : {}) });
     await newFeedback.save();
 
     return NextResponse.json({ message: "Feedback submitted successfully.", feedback: newFeedback });
