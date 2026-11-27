@@ -22,9 +22,13 @@ import {
   BookOpenIcon,
   FileTextIcon,
   ChartColumnIcon,
+  TriangleAlertIcon,
   PencilIcon,
 } from "@animateicons/react/lucide";
 import UpdatesLeaderboard from './UpdatesLeaderboard';
+import UPDATE_REPORT_ISSUES from './updateReportIssues';
+import ActionOverflowMenu from '../components/ActionOverflowMenu';
+import SMFeedbackModal from '../materials/SMFeedbackModal';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
 import EditUpdateModal from '../upload/updates/EditUpdateModal';
 import AdminToast from '../admin/components/AdminToast';
@@ -1008,6 +1012,7 @@ export default function UpdatesPage({ initialUpdateId }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const [editingUpdate, setEditingUpdate] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(null);
   const [currentUserUsn, setCurrentUserUsn] = useState(null);
@@ -1016,9 +1021,7 @@ export default function UpdatesPage({ initialUpdateId }) {
   const highlightedCardRef = useRef(null);
   const titleBellRef = useRef(null);
   const addIconRef = useRef(null);
-  const manageIconRef = useRef(null);
   const searchBtnRef = useRef(null);
-  const leaderboardIconRef = useRef(null);
 
   const lastFetchedQueryRef = useRef(null);
 
@@ -1273,20 +1276,6 @@ export default function UpdatesPage({ initialUpdateId }) {
                 Updates
               </h1>
               <div className="upd-action-buttons">
-                <button
-                  type="button"
-                  className={`upd-action-btn upd-action-btn-leaderboard ${showLeaderboard ? 'active' : ''}`}
-                  onClick={() => setShowLeaderboard((prev) => !prev)}
-                  onMouseEnter={() => leaderboardIconRef.current?.startAnimation?.()}
-                  onMouseLeave={() => leaderboardIconRef.current?.stopAnimation?.()}
-                  title={showLeaderboard ? 'Hide Contributors Leaderboard' : 'View Top Contributors Leaderboard'}
-                  aria-label="Contributors Leaderboard"
-                  aria-expanded={showLeaderboard}
-                >
-                  <ChartColumnIcon ref={leaderboardIconRef} className="upd-action-icon upd-lb-icon" size={16} />
-                  <span className="upd-action-text">Leaderboard</span>
-                </button>
-
                 {isLoggedIn && (
                   <>
                     <button
@@ -1301,19 +1290,16 @@ export default function UpdatesPage({ initialUpdateId }) {
                       <PlusIcon ref={addIconRef} className="upd-action-icon" size={16} />
                       <span className="upd-action-text">Add Update</span>
                     </button>
-                    <Link
-                      href="/upload/updates"
-                      className="upd-action-btn upd-action-btn-secondary"
-                      onMouseEnter={() => manageIconRef.current?.startAnimation?.()}
-                      onMouseLeave={() => manageIconRef.current?.stopAnimation?.()}
-                      title="Manage Updates"
-                      aria-label="Manage Updates"
-                    >
-                      <ListIcon ref={manageIconRef} className="upd-action-icon" size={16} />
-                      <span className="upd-action-text">Manage</span>
-                    </Link>
                   </>
                 )}
+                <ActionOverflowMenu
+                  label="Updates options"
+                  actions={[
+                    ...(isLoggedIn ? [{ label: 'Manage updates', href: '/upload/updates', Icon: ListIcon }] : []),
+                    { label: showLeaderboard ? 'Hide leaderboard' : 'Leaderboard', Icon: ChartColumnIcon, onClick: () => setShowLeaderboard((value) => !value) },
+                    { label: 'Report an issue', Icon: TriangleAlertIcon, onClick: () => setShowReportModal(true) },
+                  ]}
+                />
               </div>
             </div>
 
@@ -1458,6 +1444,15 @@ export default function UpdatesPage({ initialUpdateId }) {
           showToast={showToast}
         />
       )}
+
+      <SMFeedbackModal
+        open={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        pageName="updates"
+        pageLabel="Updates"
+        issueOptions={UPDATE_REPORT_ISSUES}
+        description="Choose the issues you noticed in Updates and add any details that may help us fix them."
+      />
 
       {/* Bottom-Right Light Toast Notification */}
       <AdminToast toast={toast} onClose={() => setToast(null)} />

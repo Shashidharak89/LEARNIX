@@ -25,9 +25,12 @@ import {
   FileTextIcon,
   DownloadIcon,
   ChartColumnIcon,
+  TriangleAlertIcon,
 } from '@animateicons/react/lucide';
 import SubjectTopicFilter from './SubjectTopicFilter';
 import ResourceLeaderboard from './ResourceLeaderboard';
+import ActionOverflowMenu from '../components/ActionOverflowMenu';
+import SMFeedbackModal from '../materials/SMFeedbackModal';
 import Ads from '../components/ads/Ads';
 import ImageLoader from '../components/ImageLoader';
 import './styles/WorkSearchInterface.css';
@@ -37,6 +40,17 @@ import { formatViews, formatExactViews } from '../utils/formatViews';
 
 // LocalStorage key for saved topics (same as in /resources/[id])
 const SAVED_TOPICS_KEY = 'learnix_saved_topics';
+const RESOURCE_REPORT_ISSUES = [
+  'A resource is incorrect or outdated',
+  'A file is missing or will not open',
+  'A download is failing',
+  'A resource link or video is broken',
+  'Search or filters are not working',
+  'A folder or topic is difficult to find',
+  'Saved topics are not working',
+  'The page is slow or displaying incorrectly',
+  'Other Resources issue',
+];
 
 // Helper functions for localStorage
 const getSavedTopics = () => {
@@ -856,12 +870,12 @@ const WorkSearchInterface = () => {
   const [sortOrder, setSortOrder] = useState('latest'); // 'latest' or 'oldest'
   const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const filterRef = useRef(null);
   const initialLoadedRef = useRef(false);
   const isFirstRender = useRef(true);
   const titleFolderRef = useRef(null);
   const uploadPlusRef = useRef(null);
-  const leaderboardIconRef = useRef(null);
   const searchInputRef = useRef(null);
   const searchSubmitRef = useRef(null);
   const filterIconRef = useRef(null);
@@ -1380,19 +1394,6 @@ const WorkSearchInterface = () => {
           </h1>
 
           <div className="res-intro-actions">
-            <button
-              type="button"
-              className={`res-leaderboard-btn ${showLeaderboard ? 'active' : ''}`}
-              onClick={() => setShowLeaderboard((prev) => !prev)}
-              title={showLeaderboard ? 'Hide Contributors Leaderboard' : 'View Top Contributors Leaderboard'}
-              aria-expanded={showLeaderboard}
-              onMouseEnter={() => leaderboardIconRef.current?.startAnimation?.()}
-              onMouseLeave={() => leaderboardIconRef.current?.stopAnimation?.()}
-            >
-              <ChartColumnIcon ref={leaderboardIconRef} size={16} className="res-lb-btn-icon" />
-              <span className="res-leaderboard-btn-text">Leaderboard</span>
-            </button>
-
             {isLoggedIn && (
               <Link
                 href="/resources/upload"
@@ -1405,6 +1406,13 @@ const WorkSearchInterface = () => {
                 <span className="res-upload-btn-text">Upload Resource</span>
               </Link>
             )}
+            <ActionOverflowMenu
+              label="Resources options"
+              actions={[
+                { label: showLeaderboard ? 'Hide leaderboard' : 'Leaderboard', Icon: ChartColumnIcon, onClick: () => setShowLeaderboard((value) => !value) },
+                { label: 'Report an issue', Icon: TriangleAlertIcon, onClick: () => setShowReportModal(true) },
+              ]}
+            />
           </div>
         </div>
 
@@ -1465,6 +1473,14 @@ const WorkSearchInterface = () => {
           onClose={() => setShowLeaderboard(false)} 
         />
       </div>
+      <SMFeedbackModal
+        open={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        pageName="resources"
+        pageLabel="Resources"
+        issueOptions={RESOURCE_REPORT_ISSUES}
+        description="Choose the issues you noticed in Resources and add any details that may help us fix them."
+      />
 
       <div className="ws-header">
         <SubjectTopicFilter

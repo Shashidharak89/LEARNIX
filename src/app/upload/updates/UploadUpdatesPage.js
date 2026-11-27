@@ -1,10 +1,14 @@
 "use client";
 import { useState, useRef } from "react";
-import Link from "next/link";
-import { FiPlus, FiX, FiSearch, FiExternalLink, FiCheckCircle, FiAlertCircle, FiInfo } from "react-icons/fi";
+import { FiPlus, FiX, FiSearch, FiCheckCircle, FiAlertCircle, FiInfo } from "react-icons/fi";
 import { Bell } from "lucide-react";
+import { ChartColumnIcon, TriangleAlertIcon, ExternalLinkIcon } from "@animateicons/react/lucide";
 import AddUpdateForm from "./AddUpdateForm";
 import UpdatesList from "./UpdatesList";
+import UpdatesLeaderboard from "../../updates/UpdatesLeaderboard";
+import UPDATE_REPORT_ISSUES from "../../updates/updateReportIssues";
+import ActionOverflowMenu from "../../components/ActionOverflowMenu";
+import SMFeedbackModal from "../../materials/SMFeedbackModal";
 import AdminToast from "@/app/admin/components/AdminToast";
 import "./styles/UploadUpdatesPage.css";
 
@@ -14,6 +18,8 @@ export default function UploadUpdatesPage() {
   const [searchInput, setSearchInput] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
   const [toast, setToast] = useState(null);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const toastTimeoutRef = useRef(null);
 
   const showToast = (message, type = "info") => {
@@ -67,10 +73,14 @@ export default function UploadUpdatesPage() {
                 {isAddExpanded ? <FiX className="upd-action-icon" /> : <FiPlus className="upd-action-icon" />}
                 <span className="upd-action-text">{isAddExpanded ? "Close Form" : "Add Update"}</span>
               </button>
-              <Link href="/updates" className="upd-action-btn upd-action-btn-secondary" title="View Campus Feed">
-                <FiExternalLink className="upd-action-icon" />
-                <span className="upd-action-text">Campus Feed</span>
-              </Link>
+              <ActionOverflowMenu
+                label="My Updates options"
+                actions={[
+                  { label: "Campus feed", href: "/updates", Icon: ExternalLinkIcon },
+                  { label: showLeaderboard ? "Hide leaderboard" : "Leaderboard", Icon: ChartColumnIcon, onClick: () => setShowLeaderboard((value) => !value) },
+                  { label: "Report an issue", Icon: TriangleAlertIcon, onClick: () => setShowReportModal(true) },
+                ]}
+              />
             </div>
           </div>
 
@@ -102,6 +112,8 @@ export default function UploadUpdatesPage() {
               <span className="upd-search-btn-text">Search</span>
             </button>
           </form>
+
+          <UpdatesLeaderboard isOpen={showLeaderboard} onClose={() => setShowLeaderboard(false)} />
         </div>
 
         {/* Collapsible Add Update Form Card */}
@@ -120,6 +132,14 @@ export default function UploadUpdatesPage() {
           searchQuery={appliedSearch}
           onClearSearch={handleClearSearch}
         />
+      <SMFeedbackModal
+        open={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        pageName="updates"
+        pageLabel="Updates"
+        description="Choose the issues you noticed in Updates and add any details that may help us fix them."
+        issueOptions={UPDATE_REPORT_ISSUES}
+      />
       </main>
 
       {/* Bottom-Right Light Toast Notification */}

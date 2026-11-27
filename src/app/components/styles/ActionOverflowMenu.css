@@ -1,0 +1,48 @@
+.lx-overflow-trigger {
+  display: inline-grid;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  color: #475569;
+  background: #fff;
+  cursor: pointer;
+  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+.lx-overflow-trigger:hover,.lx-overflow-trigger[aria-expanded="true"] { border-color: #bae6fd; color: #0369a1; background: #f0f9ff; }
+.lx-overflow-trigger:focus-visible,.lx-overflow-item:focus-visible { outline: 3px solid rgb(56 189 248 / 45%); outline-offset: 2px; }
+.lx-overflow-menu {
+  display: grid;
+  gap: 3px;
+  padding: 7px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgb(15 23 42 / 16%);
+  animation: lx-overflow-enter 140ms ease-out both;
+}
+.lx-overflow-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  color: #334155;
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.lx-overflow-item:hover:not(:disabled) { color: #0369a1; background: #f0f9ff; }
+.lx-overflow-item > svg { flex: 0 0 auto; color: #0369a1; }
+.lx-overflow-item:disabled { opacity: .5; cursor: not-allowed; }
+@keyframes lx-overflow-enter { from { opacity: 0; transform: translateY(-3px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .lx-overflow-trigger,.lx-overflow-menu { animation: none; transition: none; } }

@@ -17,7 +17,14 @@ const ISSUE_OPTIONS = [
   "Other Study Materials issue",
 ];
 
-export default function SMFeedbackModal({ open, onClose }) {
+export default function SMFeedbackModal({
+  open,
+  onClose,
+  pageName = "study_material",
+  pageLabel = "Study material",
+  issueOptions = ISSUE_OPTIONS,
+  description = "Tell us what went wrong in the directory. Your note helps us keep materials easy to find.",
+}) {
   const [feedback, setFeedback] = useState("");
   const [selectedIssues, setSelectedIssues] = useState([]);
   const [issueQuery, setIssueQuery] = useState("");
@@ -110,7 +117,7 @@ export default function SMFeedbackModal({ open, onClose }) {
       const response = await fetch("/api/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ feedback: `(Study material) ${reportBody}`, pageName: "study_material" }),
+        body: JSON.stringify({ feedback: `(${pageLabel}) ${reportBody}`, pageName }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Could not send your report.");
@@ -132,9 +139,9 @@ export default function SMFeedbackModal({ open, onClose }) {
           <XIcon size={18} />
         </button>
         <div className="sm-feedback-mark"><TriangleAlertIcon size={22} aria-hidden="true" /></div>
-        <p className="sm-feedback-eyebrow">STUDY MATERIALS</p>
+        <p className="sm-feedback-eyebrow">{pageLabel.toUpperCase()}</p>
         <h2 id="sm-feedback-title">Report a problem</h2>
-        <p className="sm-feedback-description">Tell us what went wrong in the directory. Your note helps us keep materials easy to find.</p>
+        <p className="sm-feedback-description">{description}</p>
 
         {status === "success" ? (
           <div className="sm-feedback-success" role="status">
@@ -185,9 +192,9 @@ export default function SMFeedbackModal({ open, onClose }) {
                     />
                     {issueQuery && <button type="button" className="qp-dropdown-search-clear" onClick={() => setIssueQuery("")} aria-label="Clear issue search"><XIcon size={14} aria-hidden="true" /></button>}
                   </div>
-                  {ISSUE_OPTIONS.filter((issue) => issue.toLowerCase().includes(issueQuery.trim().toLowerCase())).length === 0 ? (
+                  {issueOptions.filter((issue) => issue.toLowerCase().includes(issueQuery.trim().toLowerCase())).length === 0 ? (
                     <div className="qp-dropdown-empty">No matching issues</div>
-                  ) : ISSUE_OPTIONS.filter((issue) => issue.toLowerCase().includes(issueQuery.trim().toLowerCase())).map((issue) => {
+                  ) : issueOptions.filter((issue) => issue.toLowerCase().includes(issueQuery.trim().toLowerCase())).map((issue) => {
                     const selected = selectedIssues.includes(issue);
                     return (
                       <button
