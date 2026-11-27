@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { BookOpenIcon, ChevronRightIcon, DownloadIcon, FileTextIcon } from "@animateicons/react/lucide";
+import { ArrowLeftIcon, BookOpenIcon, ChevronRightIcon, DownloadIcon, FileTextIcon } from "@animateicons/react/lucide";
 import SMDirectoryNode from "@/app/admin/study-materials/SMDirectoryNode";
 import "@/app/materials/SMViewer.css";
 
@@ -24,6 +24,7 @@ export default function SMSharedMaterialsClient() {
     const [result, setResult] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const breadcrumbRef = useRef(null);
 
     useEffect(() => {
         const controller = new window.AbortController();
@@ -61,6 +62,11 @@ export default function SMSharedMaterialsClient() {
         });
     }, [result]);
 
+    useEffect(() => {
+        const breadcrumb = breadcrumbRef.current;
+        if (breadcrumb) breadcrumb.scrollTo({ left: breadcrumb.scrollWidth, behavior: "smooth" });
+    }, [breadcrumbs]);
+
     const goToBreadcrumb = (crumb) => {
         const params = new window.URLSearchParams();
         PARAMS.forEach((key) => {
@@ -89,24 +95,63 @@ export default function SMSharedMaterialsClient() {
             .filter(([key]) => key),
     );
 
+    const backButton = (
+        <button type="button" className="sm-share-back-button" onClick={() => router.push("/materials")}>
+            <ArrowLeftIcon size={17} />
+            <span>Back to Study Materials</span>
+        </button>
+    );
+
+    if (loading) {
+        return (
+            <main className="sm-share-page" aria-busy="true">
+                <header className="sm-share-title-card sm-share-title-card-skeleton">
+                    {backButton}
+                    <div className="sm-share-title-card-main">
+                        <div className="sm-share-skeleton sm-share-skeleton-icon" />
+                        <div className="sm-share-skeleton-title-copy">
+                            <div className="sm-share-skeleton sm-share-skeleton-eyebrow" />
+                            <div className="sm-share-skeleton sm-share-skeleton-heading" />
+                            <div className="sm-share-skeleton sm-share-skeleton-subtitle" />
+                        </div>
+                    </div>
+                </header>
+                <nav className="sm-share-breadcrumbs sm-share-breadcrumbs-skeleton" aria-label="Loading location">
+                    <div className="sm-share-skeleton sm-share-skeleton-crumb" />
+                    <div className="sm-share-skeleton sm-share-skeleton-crumb short" />
+                    <div className="sm-share-skeleton sm-share-skeleton-crumb" />
+                </nav>
+                <section className="sm-share-content sm-share-tree-skeleton" aria-label="Loading shared materials">
+                    {["wide", "medium", "short", "wide"].map((size, index) => (
+                        <div className="sm-share-skeleton-tree-row" key={index}>
+                            <div className="sm-share-skeleton sm-share-skeleton-tree-icon" />
+                            <div className={`sm-share-skeleton sm-share-skeleton-tree-label ${size}`} />
+                        </div>
+                    ))}
+                </section>
+            </main>
+        );
+    }
+
     return (
         <main className="sm-share-page">
-            <header className="sm-share-header">
-                <div className="sm-share-header-icon"><BookOpenIcon size={23} /></div>
-                <div>
-                    <p className="sm-share-eyebrow">LEARNIX · STUDY MATERIALS</p>
-                    <h1>Shared study materials</h1>
-                    <p className="sm-share-subtitle">Browse the shared folder or open the material you need.</p>
+            <header className="sm-share-title-card">
+                {backButton}
+                <div className="sm-share-title-card-main">
+                    <div className="sm-share-header-icon"><BookOpenIcon size={23} /></div>
+                    <div>
+                        <p className="sm-share-eyebrow">LEARNIX · STUDY MATERIALS</p>
+                        <h1>Shared study materials</h1>
+                        <p className="sm-share-subtitle">Browse the shared folder or open the material you need.</p>
+                    </div>
                 </div>
             </header>
 
-            {loading ? (
-                <div className="sm-share-loading" role="status">Opening shared materials…</div>
-            ) : error ? (
+            {error ? (
                 <div className="sm-share-error" role="alert"><strong>We couldn’t open this link</strong><span>{error}</span></div>
             ) : (
                 <>
-                    <nav className="sm-share-breadcrumbs" aria-label="Study materials location">
+                    <nav ref={breadcrumbRef} className="sm-share-breadcrumbs" aria-label="Study materials location">
                         {breadcrumbs.map((crumb, index) => (
                             <span className="sm-share-crumb-wrap" key={`${crumb.type}-${crumb.id}`}>
                                 {index > 0 && <ChevronRightIcon size={15} aria-hidden="true" />}
