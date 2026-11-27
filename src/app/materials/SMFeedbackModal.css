@@ -198,9 +198,51 @@
   .sm-title-row { gap: 7px; }
   .sm-title-row .sm-subtitle { gap: 6px; font-size: clamp(.86rem, 3.75vw, 1.15rem) !important; }
   .sm-title-copy { line-height: 1.12; }
-  .sm-report-button { min-height: 34px; gap: 5px; padding: 0 9px; font-size: 11px; }
-  .sm-report-button svg { width: 15px; height: 15px; }
+  .sm-report-button { width: 34px; min-width: 34px; height: 34px; min-height: 34px; padding: 0; border-radius: 50%; }
+  .sm-report-button span { display: none; }
+  .sm-report-button svg { width: 16px; height: 16px; }
   .sm-feedback-dialog { padding: 25px 20px 20px; border-radius: 20px; }
+}
+
+@media (max-width: 550px) {
+  .sm-pref-empty-card {
+    flex-direction: row !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 12px !important;
+    text-align: left;
+  }
+
+  .sm-pref-empty-card > div:first-child { min-width: 0; gap: 7px !important; }
+  .sm-pref-empty-sub { display: none; }
+  .sm-pref-badge-icon { width: 28px; height: 28px; }
+  .sm-pref-add-btn,
+  .sm-pref-add-btn-sm {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+    min-height: 34px;
+    justify-content: center;
+    padding: 0 !important;
+    border-radius: 50%;
+  }
+  .sm-pref-add-btn span,
+  .sm-pref-add-btn-sm span { display: none; }
+
+  .sm-pref-list-container { padding: 9px 10px !important; }
+  .sm-pref-list-header { min-height: 34px; gap: 8px; }
+  .sm-pref-list-header > div:first-child { min-width: 0; gap: 6px !important; }
+  .sm-pref-list-title { white-space: nowrap; }
+
+  .sm-pref-card-header { min-height: 42px; padding: 7px 8px !important; gap: 7px; }
+  .sm-pref-card-header > div:first-child { min-width: 0; gap: 7px !important; }
+  .sm-pref-card-header > div:first-child > div { min-width: 0; }
+  .sm-pref-card-header > div:first-child > div > div { flex-wrap: nowrap !important; min-width: 0; }
+  .sm-pref-type-tag { flex: 0 0 auto; }
+  .sm-pref-card-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sm-pref-card-sub { display: none; }
+  .sm-pref-action-btn.clear { width: 32px; min-width: 32px; height: 32px; justify-content: center; padding: 0 !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
