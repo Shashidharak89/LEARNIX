@@ -1,4 +1,16 @@
 :root {
+  --learnix-blue: #0284c7;
+  --learnix-blue-sky: #38bdf8;
+  --learnix-blue-soft: #e0f2fe;
+  --learnix-blue-action: #0369a1;
+  --learnix-yellow: #facc15;
+  --learnix-yellow-soft: #fef9c3;
+  --learnix-page: #f8fafc;
+  --learnix-surface: #ffffff;
+  --learnix-text: #0f172a;
+  --learnix-text-muted: #475569;
+  --learnix-border: #e2e8f0;
+  --learnix-error: #dc2626;
   --font-global: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-geist-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;

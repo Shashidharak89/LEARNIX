@@ -1,32 +1,108 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CircleCheckIcon, SendIcon, TriangleAlertIcon, XIcon } from "@animateicons/react/lucide";
+import { createPortal } from "react-dom";
+import { CheckIcon, ChevronDownIcon, CircleCheckIcon, SendIcon, TriangleAlertIcon, XIcon } from "@animateicons/react/lucide";
 import "./SMFeedbackModal.css";
+
+const ISSUE_OPTIONS = [
+  "Facing an issue downloading a file",
+  "File is missing or will not open",
+  "Incorrect or outdated study material",
+  "Folder or subject is difficult to find",
+  "Search is not showing the right results",
+  "Pinned folders are not working",
+  "External resource or link is broken",
+  "Page is slow or not displaying correctly",
+  "Other Study Materials issue",
+];
 
 export default function SMFeedbackModal({ open, onClose }) {
   const [feedback, setFeedback] = useState("");
+  const [selectedIssues, setSelectedIssues] = useState([]);
+  const [issueQuery, setIssueQuery] = useState("");
+  const [issuesOpen, setIssuesOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState(null);
   const [status, setStatus] = useState("");
   const [sending, setSending] = useState(false);
   const closeRef = useRef(null);
   const sendRef = useRef(null);
+  const dropdownRef = useRef(null);
+  const menuRef = useRef(null);
+  const issueSearchRef = useRef(null);
 
   useEffect(() => {
     if (!open) return undefined;
     closeRef.current?.focus();
     const onKeyDown = (event) => {
-      if (event.key === "Escape" && !sending) onClose();
+      if (event.key === "Escape" && !sending) {
+        if (issuesOpen) setIssuesOpen(false);
+        else onClose();
+      }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose, sending]);
+  }, [open, onClose, sending, issuesOpen]);
+
+  useEffect(() => {
+    if (!issuesOpen) return undefined;
+    const updateMenuPosition = () => {
+      const trigger = dropdownRef.current?.querySelector(".sm-issue-trigger");
+      if (!trigger) return;
+      const rect = trigger.getBoundingClientRect();
+      const margin = 12;
+      const gap = 6;
+      const height = Math.min(280, window.innerHeight - margin * 2);
+      const below = window.innerHeight - rect.bottom - margin;
+      const above = rect.top - margin;
+      const openAbove = below < Math.min(200, height) && above > below;
+      const maxHeight = Math.max(120, Math.min(height, (openAbove ? above : below) - gap));
+      const width = Math.min(rect.width, window.innerWidth - margin * 2);
+      setMenuPosition({
+        position: "fixed",
+        top: openAbove ? Math.max(margin, rect.top - maxHeight - gap) : rect.bottom + gap,
+        left: Math.max(margin, Math.min(rect.left, window.innerWidth - width - margin)),
+        width,
+        maxHeight,
+        zIndex: 1300,
+      });
+    };
+    updateMenuPosition();
+    window.addEventListener("resize", updateMenuPosition);
+    window.addEventListener("scroll", updateMenuPosition, true);
+    const timer = window.setTimeout(() => issueSearchRef.current?.focus(), 40);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("resize", updateMenuPosition);
+      window.removeEventListener("scroll", updateMenuPosition, true);
+    };
+  }, [issuesOpen]);
+
+  useEffect(() => {
+    if (!issuesOpen) return undefined;
+    const onPointerDown = (event) => {
+      if (dropdownRef.current?.contains(event.target) || menuRef.current?.contains(event.target)) return;
+      setIssuesOpen(false);
+    };
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") setIssuesOpen(false);
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [issuesOpen]);
 
   if (!open) return null;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const message = feedback.trim();
-    if (!message || sending) return;
+    const issueSummary = selectedIssues.join("; ");
+    const reportBody = [issueSummary, message].filter(Boolean).join("\n\n");
+    if (!reportBody || sending) return;
 
     setSending(true);
     setStatus("");
@@ -34,12 +110,14 @@ export default function SMFeedbackModal({ open, onClose }) {
       const response = await fetch("/api/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ feedback: message, pageName: "study_material" }),
+        body: JSON.stringify({ feedback: `(Study material) ${reportBody}`, pageName: "study_material" }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "Could not send your report.");
       setStatus("success");
       setFeedback("");
+      setSelectedIssues([]);
+      setIssueQuery("");
     } catch (error) {
       setStatus(error.message || "Could not send your report. Please try again.");
     } finally {
@@ -65,6 +143,70 @@ export default function SMFeedbackModal({ open, onClose }) {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="sm-feedback-form">
+            <label id="sm-feedback-issues-label">What are you having trouble with?</label>
+            <div className="sm-issue-dropdown qp-custom-dropdown" ref={dropdownRef}>
+              <button
+                type="button"
+                className={`sm-issue-trigger qp-dropdown-trigger ${issuesOpen ? "is-open" : ""}`}
+                onClick={() => setIssuesOpen((value) => !value)}
+                aria-haspopup="listbox"
+                aria-expanded={issuesOpen}
+                aria-labelledby="sm-feedback-issues-label"
+              >
+                <span className={`qp-dropdown-trigger__text ${selectedIssues.length ? "" : "is-placeholder"}`}>
+                  {selectedIssues.length ? `${selectedIssues.length} issue${selectedIssues.length === 1 ? "" : "s"} selected` : "Select one or more issues"}
+                </span>
+                <span className="qp-dropdown-trigger__actions">
+                  {selectedIssues.length > 0 && <span className="sm-issue-count">{selectedIssues.length}</span>}
+                  <ChevronDownIcon size={17} className="qp-dropdown-chevron" aria-hidden="true" />
+                </span>
+              </button>
+              {selectedIssues.length > 0 && (
+                <div className="sm-issue-chips" aria-label="Selected issues">
+                  {selectedIssues.map((issue) => (
+                    <button key={issue} type="button" className="sm-issue-chip" onClick={() => setSelectedIssues((items) => items.filter((item) => item !== issue))} aria-label={`Remove ${issue}`}>
+                      {issue}<XIcon size={13} aria-hidden="true" />
+                    </button>
+                  ))}
+                </div>
+              )}
+              {issuesOpen && menuPosition && typeof document !== "undefined" && createPortal(
+                <div ref={menuRef} className="qp-dropdown-menu sm-pref-portal-menu sm-issue-menu" style={menuPosition} role="listbox" aria-multiselectable="true" aria-label="Study Materials issues">
+                  <div className="qp-dropdown-search-wrap">
+                    <input
+                      ref={issueSearchRef}
+                      className="qp-dropdown-search-input"
+                      type="search"
+                      value={issueQuery}
+                      onChange={(event) => setIssueQuery(event.target.value)}
+                      onKeyDown={(event) => event.stopPropagation()}
+                      placeholder="Search issues…"
+                      aria-label="Search Study Materials issues"
+                    />
+                    {issueQuery && <button type="button" className="qp-dropdown-search-clear" onClick={() => setIssueQuery("")} aria-label="Clear issue search"><XIcon size={14} aria-hidden="true" /></button>}
+                  </div>
+                  {ISSUE_OPTIONS.filter((issue) => issue.toLowerCase().includes(issueQuery.trim().toLowerCase())).length === 0 ? (
+                    <div className="qp-dropdown-empty">No matching issues</div>
+                  ) : ISSUE_OPTIONS.filter((issue) => issue.toLowerCase().includes(issueQuery.trim().toLowerCase())).map((issue) => {
+                    const selected = selectedIssues.includes(issue);
+                    return (
+                      <button
+                        key={issue}
+                        type="button"
+                        role="option"
+                        aria-selected={selected}
+                        className={`qp-dropdown-item sm-issue-option ${selected ? "is-selected" : ""}`}
+                        onClick={() => setSelectedIssues((items) => selected ? items.filter((item) => item !== issue) : [...items, issue])}
+                      >
+                        {issue}
+                        <span className={`sm-issue-checkbox ${selected ? "is-checked" : ""}`} aria-hidden="true">{selected && <CheckIcon size={13} />}</span>
+                      </button>
+                    );
+                  })}
+                </div>,
+                document.body,
+              )}
+            </div>
             <label htmlFor="sm-feedback-message">What should we know?</label>
             <textarea
               id="sm-feedback-message"
@@ -73,15 +215,13 @@ export default function SMFeedbackModal({ open, onClose }) {
               placeholder="Describe the issue or share an idea…"
               rows={5}
               maxLength={3000}
-              required
-              autoFocus
             />
             <div className="sm-feedback-form-footer">
               <span>{feedback.length}/3000</span>
               <button
                 ref={sendRef}
                 type="submit"
-                disabled={!feedback.trim() || sending}
+                disabled={(!feedback.trim() && selectedIssues.length === 0) || sending}
                 onMouseEnter={() => sendRef.current?.querySelector("svg")?.startAnimation?.()}
                 onMouseLeave={() => sendRef.current?.querySelector("svg")?.stopAnimation?.()}
               >
