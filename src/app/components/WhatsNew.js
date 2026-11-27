@@ -10,6 +10,12 @@ export default function WhatsNew() {
 
   const latestUpdates = [
     {
+      title: "Share Study Material Folders and Files",
+      date: "Nov 27, 2026",
+      description:
+        "Share any Study Materials location—from a university down to a subject—or an individual file using the three-dot menu. Each link opens a dedicated page with the shared location, a clickable breadcrumb trail, and a browsable folder tree. Shared files can be opened or downloaded directly.",
+    },
+    {
       title: "Keep your notes, links, and files in one private space",
       date: "Nov 24, 2026",
       description:
