@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { FiX } from "react-icons/fi";
-import { BookmarkIcon, CheckIcon } from "@animateicons/react/lucide";
+import { PinIcon } from "@animateicons/react/lucide";
 
 export default function SMPreferenceSelector({ currentPreference, onSave, onClose }) {
     const [universities, setUniversities] = useState([]);
@@ -150,9 +150,6 @@ export default function SMPreferenceSelector({ currentPreference, onSave, onClos
             endyear: selectedBatch.endyear
         };
 
-        if (typeof window !== "undefined") {
-            localStorage.setItem("sm_user_preference", JSON.stringify(pref));
-        }
         onSave(pref);
     };
 
@@ -170,10 +167,10 @@ export default function SMPreferenceSelector({ currentPreference, onSave, onClos
                     onMouseLeave={() => modalBookmarkRef.current?.stopAnimation?.()}
                 >
                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        <BookmarkIcon ref={modalBookmarkRef} size={22} color="#0ea5e9" className="sm-pref-icon" />
+                        <PinIcon ref={modalBookmarkRef} size={22} color="#0ea5e9" className="sm-pref-icon" />
                         <div>
-                            <h3 className="sm-pref-modal-title">Set Your Preference</h3>
-                            <p className="sm-pref-modal-subtitle">Quickly jump directly to your course & subjects</p>
+                            <h3 className="sm-pref-modal-title">Pin a folder</h3>
+                            <p className="sm-pref-modal-subtitle">Choose a batch to pin above the directory.</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="sm-pref-close-btn" aria-label="Close modal">
@@ -298,7 +295,7 @@ export default function SMPreferenceSelector({ currentPreference, onSave, onClos
                     {/* Summary Preview */}
                     {isComplete && (
                         <div className="sm-pref-preview">
-                            <span className="sm-pref-preview-tag">Preference Selected:</span>
+                            <span className="sm-pref-preview-tag">Selected folder</span>
                             <div className="sm-pref-preview-title">
                                 {selectedCourse.name} / Semester {selectedSem.sem} / {selectedBatch.startyear}-{selectedBatch.endyear}
                             </div>
@@ -321,8 +318,8 @@ export default function SMPreferenceSelector({ currentPreference, onSave, onClos
                         onMouseLeave={() => saveCheckRef.current?.stopAnimation?.()}
                         className={`sm-pref-save-btn ${isComplete ? "active" : ""}`}
                     >
-                        <CheckIcon ref={saveCheckRef} size={16} />
-                        Save Preference
+                        <PinIcon ref={saveCheckRef} size={16} />
+                        Pin to top
                     </button>
                 </div>
             </div>

@@ -8,7 +8,7 @@ import {
     FolderOpenIcon, 
     FileTextIcon, 
     DownloadIcon, 
-    StarIcon 
+    PinIcon
 } from "@animateicons/react/lucide";
 
 const hasMatchingDescendant = (node, type, query) => {
@@ -63,10 +63,10 @@ export default function SMDirectoryNode({
     const [loading, setLoading] = useState(false);
 
     const prefId = `${type}_${data._id}`;
-    const [isPreferred, setIsPreferred] = useState(false);
+    const [isPinned, setIsPinned] = useState(false);
 
     const folderIconRef = useRef(null);
-    const starIconRef = useRef(null);
+    const pinIconRef = useRef(null);
     const fileIconRef = useRef(null);
     const downloadIconRef = useRef(null);
 
@@ -74,9 +74,9 @@ export default function SMDirectoryNode({
         if (typeof window !== "undefined") {
             try {
                 const list = JSON.parse(localStorage.getItem("sm_user_preferences") || "[]");
-                setIsPreferred(list.some(p => p.id === prefId));
+                setIsPinned(list.some(p => p.id === prefId));
             } catch (e) {
-                setIsPreferred(false);
+                setIsPinned(false);
             }
         }
     };
@@ -112,10 +112,10 @@ export default function SMDirectoryNode({
                         title: displayName,
                         subtitle
                     };
-                    list.push(newPref);
+                    list.unshift(newPref);
                 }
                 localStorage.setItem("sm_user_preferences", JSON.stringify(list));
-                window.dispatchEvent(new Event("sm_preference_updated"));
+                window.dispatchEvent(new window.Event("sm_preference_updated"));
             } catch (err) {
                 console.error("Failed to update preference", err);
             }
@@ -318,10 +318,12 @@ export default function SMDirectoryNode({
                         <button
                             type="button"
                             onClick={handleTogglePreference}
-                            onMouseEnter={() => starIconRef.current?.startAnimation?.()}
-                            onMouseLeave={() => starIconRef.current?.stopAnimation?.()}
-                            className={`sm-tree-pref-btn ${isPreferred ? "active" : ""}`}
-                            title={isPreferred ? "Remove from preferences" : "Set as preference"}
+                            onMouseEnter={() => pinIconRef.current?.startAnimation?.()}
+                            onMouseLeave={() => pinIconRef.current?.stopAnimation?.()}
+                            className={`sm-tree-pref-btn ${isPinned ? "active" : ""}`}
+                            aria-pressed={isPinned}
+                            aria-label={`Pin ${displayName} to top`}
+                            title={isPinned ? "Unpin" : "Pin to top"}
                             style={{
                                 padding: "6px 12px",
                                 borderRadius: "10px",
@@ -331,8 +333,8 @@ export default function SMDirectoryNode({
                                 gap: "5px"
                             }}
                         >
-                            <StarIcon ref={starIconRef} size={15} fill={isPreferred ? "#f59e0b" : "none"} color={isPreferred ? "#f59e0b" : "#9ca3af"} />
-                            <span className="sm-tree-pref-text">{isPreferred ? "Preferred" : "Set Preference"}</span>
+                            <PinIcon ref={pinIconRef} size={15} fill={isPinned ? "#f59e0b" : "none"} color={isPinned ? "#f59e0b" : "#9ca3af"} />
+                            <span className="sm-tree-pref-text">{isPinned ? "Pinned" : "Pin to top"}</span>
                         </button>
                     </div>
 

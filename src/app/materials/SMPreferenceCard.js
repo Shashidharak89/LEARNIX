@@ -4,9 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { 
     ChevronRightIcon, 
     ChevronDownIcon, 
-    BookmarkIcon, 
-    CirclePlusIcon, 
-    Trash2Icon 
+    PinIcon,
+    PinOffIcon
 } from "@animateicons/react/lucide";
 import SMDirectoryNode from "@/app/admin/study-materials/SMDirectoryNode";
 import SMPreferenceSelector from "./SMPreferenceSelector";
@@ -72,7 +71,7 @@ export default function SMPreferenceCard() {
                 const updated = preferences.filter(p => p.id !== prefId);
                 localStorage.setItem("sm_user_preferences", JSON.stringify(updated));
                 setPreferences(updated);
-                window.dispatchEvent(new Event("sm_preference_updated"));
+                window.dispatchEvent(new window.Event("sm_preference_updated"));
             } catch (err) {
                 console.error("Failed to remove preference", err);
             }
@@ -96,9 +95,9 @@ export default function SMPreferenceCard() {
 
                 let list = JSON.parse(localStorage.getItem("sm_user_preferences") || "[]");
                 if (!list.some(p => p.id === prefId)) {
-                    list.push(item);
+                    list.unshift(item);
                     localStorage.setItem("sm_user_preferences", JSON.stringify(list));
-                    window.dispatchEvent(new Event("sm_preference_updated"));
+                    window.dispatchEvent(new window.Event("sm_preference_updated"));
                 }
             } catch (err) {
                 console.error("Failed to save modal preference", err);
@@ -130,18 +129,18 @@ export default function SMPreferenceCard() {
                 >
                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                         <div className="sm-pref-badge-icon">
-                            <BookmarkIcon ref={emptyBookmarkRef} size={18} color="#0ea5e9" />
+                            <PinIcon ref={emptyBookmarkRef} size={18} color="#0ea5e9" />
                         </div>
                         <div>
-                            <span className="sm-pref-empty-title">Your Preferences</span>
+                            <span className="sm-pref-empty-title">Pinned folders</span>
                             <p className="sm-pref-empty-sub">
-                                Select preferences below in the directory tree or configure one here
+                                Pin a folder to open it from the top of the directory.
                             </p>
                         </div>
                     </div>
                     <button type="button" className="sm-pref-add-btn">
-                        <CirclePlusIcon ref={emptyPlusRef} size={16} />
-                        <span>Set Preference</span>
+                        <PinIcon ref={emptyPlusRef} size={16} />
+                        <span>Pin a folder</span>
                     </button>
                 </div>
             ) : (
@@ -153,9 +152,9 @@ export default function SMPreferenceCard() {
                             onMouseEnter={() => listBookmarkRef.current?.startAnimation?.()}
                             onMouseLeave={() => listBookmarkRef.current?.stopAnimation?.()}
                         >
-                            <BookmarkIcon ref={listBookmarkRef} size={18} color="#0ea5e9" />
+                            <PinIcon ref={listBookmarkRef} size={18} color="#0ea5e9" />
                             <h3 className="sm-pref-list-title">
-                                Your Preferences 
+                                Pinned folders
                                 <span className="sm-pref-count-tag">{preferences.length}</span>
                             </h3>
                         </div>
@@ -166,8 +165,8 @@ export default function SMPreferenceCard() {
                             onMouseLeave={() => listPlusRef.current?.stopAnimation?.()}
                             className="sm-pref-add-btn-sm"
                         >
-                            <CirclePlusIcon ref={listPlusRef} size={15} />
-                            <span>Add Preference</span>
+                            <PinIcon ref={listPlusRef} size={15} />
+                            <span>Pin a folder</span>
                         </button>
                     </div>
 
@@ -200,7 +199,7 @@ export default function SMPreferenceCard() {
 }
 
 function PreferenceRow({ pref, isExpanded, toggleExpand, onRemove }) {
-    const trashRef = useRef(null);
+    const unpinRef = useRef(null);
 
     return (
         <div className="sm-pref-card-container">
@@ -226,12 +225,13 @@ function PreferenceRow({ pref, isExpanded, toggleExpand, onRemove }) {
                 <button
                     type="button"
                     onClick={(e) => onRemove(pref.id, e)}
-                    onMouseEnter={() => trashRef.current?.startAnimation?.()}
-                    onMouseLeave={() => trashRef.current?.stopAnimation?.()}
+                    onMouseEnter={() => unpinRef.current?.startAnimation?.()}
+                    onMouseLeave={() => unpinRef.current?.stopAnimation?.()}
                     className="sm-pref-action-btn clear"
-                    title="Remove Preference"
+                    title="Unpin folder"
+                    aria-label={`Unpin ${pref.title}`}
                 >
-                    <Trash2Icon ref={trashRef} size={15} />
+                    <PinOffIcon ref={unpinRef} size={15} />
                 </button>
             </div>
 
