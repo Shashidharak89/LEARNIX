@@ -11,6 +11,7 @@ import {
 import { authFetch } from "@/lib/clientAuth";
 import { KEEP_PAGE_SIZE, KEEP_TYPES, keepPageNumber, keepWebUrl, keepYouTubeId } from "@/lib/keepFields";
 import MarkdownRenderer from "../components/MarkdownRenderer";
+import ExpandableDescription from "../components/ExpandableDescription";
 import YouTubeEmbed from "../components/YouTubeEmbed";
 import { KeepButton } from "./keepIcons";
 import KeepEditor from "./KeepEditor";
@@ -55,9 +56,11 @@ function ItemContent({ item, full, onDownload, busy }) {
         </div>
       )}
       {item.content && (
-        <div className="keep-markdown">
-          <MarkdownRenderer content={full ? item.content : item.content.slice(0, 450) + (item.content.length > 450 ? "…" : "")} />
-        </div>
+        full ? (
+          <div className="keep-markdown"><MarkdownRenderer content={item.content} /></div>
+        ) : (
+          <ExpandableDescription content={item.content} maxHeight={220} className="keep-markdown" />
+        )
       )}
     </>
   );
