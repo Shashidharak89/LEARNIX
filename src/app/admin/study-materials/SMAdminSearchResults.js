@@ -1,470 +1,102 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { 
-    ChevronRightIcon, 
-    ChevronDownIcon, 
-    FolderIcon, 
-    FolderOpenIcon, 
-    FileTextIcon, 
-    DownloadIcon, 
-    CalendarIcon, 
-    UsersIcon, 
-    BookOpenIcon, 
-    CompassIcon,
-    LayersIcon 
-} from "@animateicons/react/lucide";
+import { useEffect, useState } from "react";
+import SMDirectoryNode from "./SMDirectoryNode";
 
-const highlightText = (text, keyword) => {
-    if (!keyword || !text) return <span>{text}</span>;
-    const words = String(keyword).toLowerCase().trim().split(/\s+/).filter(Boolean);
-    if (words.length === 0) return <span>{text}</span>;
+const CATEGORIES = [
+    { id: "subjects", label: "Subjects", endpoint: "/api/sm/v1/search/subjects", type: "subject" },
+    { id: "universities", label: "Universities", endpoint: "/api/sm/v1/search/universities", type: "university" },
+    { id: "colleges", label: "Colleges", endpoint: "/api/sm/v1/search/colleges", type: "college" },
+    { id: "courses", label: "Courses", endpoint: "/api/sm/v1/search/courses", type: "course" },
+    { id: "semesters", label: "Semesters", endpoint: "/api/sm/v1/search/semesters", type: "semester" },
+    { id: "batches", label: "Batches", endpoint: "/api/sm/v1/search/batches", type: "batch" },
+];
 
-    const pattern = words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
-    const regex = new RegExp(`(${pattern})`, "gi");
-    const testRegex = new RegExp(`^(${pattern})$`, "i");
-    const parts = String(text).split(regex);
-    return (
-        <span>
-            {parts.map((part, i) => 
-                testRegex.test(part) ? (
-                    <mark key={i} style={{ background: "#fef08a", color: "#854d0e", padding: "0 2px", borderRadius: "2px", fontWeight: "bold" }}>
-                        {part}
-                    </mark>
-                ) : (
-                    part
-                )
-            )}
-        </span>
-    );
-};
+const emptyCategory = () => ({ data: [], page: 1, totalPages: 1, loading: false, total: 0 });
+const initialState = () => Object.fromEntries(CATEGORIES.map(({ id }) => [id, emptyCategory()]));
 
-function SMAdminSearchDirectoryNode({
-    level = 0,
-    type = "university",
-    data,
-    parentParams = {},
-    highlightKeyword = ""
-}) {
-    const [expanded, setExpanded] = useState(false);
-    const [children, setChildren] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [page, setPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [externalExpanded, setExternalExpanded] = useState(false);
+function idOf(value) {
+    if (!value) return "";
+    return typeof value === "object" ? value._id || "" : value;
+}
 
-    const fetchChildren = async (pageNum, append = false) => {
-        setLoading(true);
-        try {
-            let endpoint = "";
-            if (type === "university") {
-                endpoint = `/api/sm/v1/colleges/by-university?universityId=${data._id}&page=${pageNum}&limit=20`;
-            } else if (type === "college") {
-                endpoint = `/api/sm/v1/courses/by-college?collegeId=${data._id}&page=${pageNum}&limit=20`;
-            } else if (type === "course") {
-                endpoint = `/api/sm/v1/semesters/by-course?courseId=${data._id}&page=${pageNum}&limit=20`;
-                if (parentParams.collegeId) {
-                    endpoint += `&collegeId=${parentParams.collegeId}`;
-                }
-            } else if (type === "semester") {
-                endpoint = `/api/sm/v1/batches/by-semester?semesterId=${data._id}&page=${pageNum}&limit=20`;
-                if (parentParams.collegeId) endpoint += `&collegeId=${parentParams.collegeId}`;
-                if (parentParams.courseId) endpoint += `&courseId=${parentParams.courseId}`;
-            } else if (type === "batch") {
-                endpoint = `/api/sm/v1/subjects/by-batch?batchId=${data._id}&page=${pageNum}&limit=20`;
-                if (parentParams.collegeId) endpoint += `&collegeId=${parentParams.collegeId}`;
-                if (parentParams.courseId) endpoint += `&courseId=${parentParams.courseId}`;
-                if (parentParams.semesterId) endpoint += `&semesterId=${parentParams.semesterId}`;
-            } else if (type === "subject") {
-                endpoint = `/api/sm/v1/files/by-subject?subjectId=${data._id}&page=${pageNum}&limit=20`;
-            }
-
-            const res = await fetch(endpoint, { cache: "no-store" });
-            const json = await res.json();
-            
-            if (json.success) {
-                if (append) {
-                    setChildren(prev => [...prev, ...json.data]);
-                } else {
-                    setChildren(json.data);
-                }
-                setTotalPages(json.pagination?.totalPages || 1);
-            }
-        } catch (err) {
-            console.error("Error fetching node children", err);
-        }
-        setLoading(false);
-    };
-
-    const handleToggle = () => {
-        if (!expanded && children.length === 0) {
-            fetchChildren(1);
-        }
-        setExpanded(!expanded);
-    };
-
-    const handleLoadMore = () => {
-        if (page < totalPages) {
-            const nextPage = page + 1;
-            setPage(nextPage);
-            fetchChildren(nextPage, true);
-        }
-    };
-
-    let nextType = "";
-    if (type === "university") nextType = "college";
-    if (type === "college") nextType = "course";
-    if (type === "course") nextType = "semester";
-    if (type === "semester") nextType = "batch";
-    if (type === "batch") nextType = "subject";
-
-    const nextParams = { ...parentParams };
-    if (type === "university") nextParams.universityId = data._id;
-    if (type === "college") nextParams.collegeId = data._id;
-    if (type === "course") nextParams.courseId = data._id;
-    if (type === "semester") nextParams.semesterId = data._id;
-    if (type === "batch") nextParams.batchId = data._id;
-
-    const dirIconRef = useRef(null);
-    const fileIconRef = useRef(null);
-    const downloadIconRef = useRef(null);
-
-    // Display names and icons
-    let displayName = data.name;
-    let IconComponent = FolderIcon;
-    let iconColor = "#3b82f6"; // blue
-
-    if (type === "university") {
-        IconComponent = CompassIcon;
-        iconColor = "#2563eb";
-    } else if (type === "college") {
-        IconComponent = LayersIcon;
-        iconColor = "#7c3aed";
-    } else if (type === "course") {
-        IconComponent = BookOpenIcon;
-        iconColor = "#059669";
-    } else if (type === "semester") {
-        displayName = `Semester ${data.sem}`;
-        IconComponent = CalendarIcon;
-        iconColor = "#d97706";
-    } else if (type === "batch") {
-        displayName = `Batch ${data.startyear}-${data.endyear}`;
-        IconComponent = UsersIcon;
-        iconColor = "#0891b2";
-    } else if (type === "subject") {
-        IconComponent = expanded ? FolderOpenIcon : FolderIcon;
-        iconColor = "#4f46e5";
-    }
-
-    if (type === "file") {
-        const rawFileName = data.name || data.fileurl.split("/").pop().split("?")[0];
-        const fileName = decodeURIComponent(rawFileName);
-        const encodedUrl = encodeURIComponent(data.fileurl);
-        const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodedUrl}`;
-
-        return (
-            <div style={{ marginTop: "4px", marginBottom: "4px", marginLeft: "20px" }}>
-                <div 
-                    onClick={() => window.open(viewUrl, "_blank", "noopener,noreferrer")}
-                    onMouseEnter={() => fileIconRef.current?.startAnimation?.()}
-                    onMouseLeave={() => fileIconRef.current?.stopAnimation?.()}
-                    style={{ 
-                        display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", 
-                        textDecoration: "none", color: "#374151", fontWeight: "500", 
-                        padding: "8px 16px", background: "#fdfbff", borderRadius: "8px", 
-                        border: "1px solid #e5e7eb", fontSize: "14px", transition: "0.2s",
-                        cursor: "pointer", width: "100%", boxSizing: "border-box"
-                    }}
-                    onMouseOver={(e) => { e.currentTarget.style.borderColor = "#7c3aed"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(124, 58, 237, 0.05)"; }} 
-                    onMouseOut={(e) => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.boxShadow = "none"; }}
-                >
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px", overflow: "hidden" }}>
-                        <FileTextIcon ref={fileIconRef} size={16} style={{ flexShrink: 0, color: "#7c3aed" }} /> 
-                        <span style={{ 
-                            textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap",
-                            color: "#4b5563"
-                        }}>
-                            {highlightText(fileName, highlightKeyword)}
-                        </span>
-                        {data.type === "external" && (
-                            <span style={{
-                                fontSize: "10px",
-                                padding: "2px 6px",
-                                background: "#fee2e2",
-                                color: "#b91c1c",
-                                borderRadius: "4px",
-                                marginLeft: "6px",
-                                border: "1px solid #fecaca",
-                                fontWeight: "600",
-                                textTransform: "capitalize",
-                                flexShrink: 0
-                            }}>
-                                {data.type}
-                            </span>
-                        )}
-                    </div>
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            window.open(data.fileurl, "_blank", "noopener,noreferrer");
-                        }}
-                        onMouseEnter={() => downloadIconRef.current?.startAnimation?.()}
-                        onMouseLeave={() => downloadIconRef.current?.stopAnimation?.()}
-                        title="Download File"
-                        style={{
-                            display: "inline-flex", alignItems: "center", justifyContent: "center",
-                            background: "#f3f4f6", border: "1px solid #e5e7eb",
-                            color: "#4b5563", borderRadius: "6px", width: "28px", height: "28px",
-                            cursor: "pointer", transition: "0.2s", flexShrink: 0
-                        }}
-                        onMouseOver={(e) => { e.currentTarget.style.background = "#7c3aed"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = "#7c3aed"; }}
-                        onMouseOut={(e) => { e.currentTarget.style.background = "#f3f4f6"; e.currentTarget.style.color = "#4b5563"; e.currentTarget.style.borderColor = "#e5e7eb"; }}
-                    >
-                        <DownloadIcon ref={downloadIconRef} size={14} />
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
-    return (
-        <div style={{ marginTop: "6px", marginLeft: level > 0 ? "16px" : "0" }}>
-            <div 
-                onClick={handleToggle}
-                onMouseEnter={() => dirIconRef.current?.startAnimation?.()}
-                onMouseLeave={() => dirIconRef.current?.stopAnimation?.()}
-                style={{ 
-                    display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", 
-                    padding: "8px 12px", background: expanded ? "#f5f3ff" : "#fff", 
-                    border: "1px solid #eaeaea", borderRadius: "8px", transition: "0.2s",
-                    fontWeight: expanded ? "600" : "500", color: "#333",
-                    boxShadow: expanded ? "0 2px 8px rgba(124, 58, 237, 0.1)" : "none"
-                }}
-                onMouseOver={(e) => { if (!expanded) e.currentTarget.style.background = "#faf8ff"; }}
-                onMouseOut={(e) => { if (!expanded) e.currentTarget.style.background = "#fff"; }}
-            >
-                <span style={{ display: "flex", alignItems: "center", color: "#6b7280" }}>
-                    {expanded ? <ChevronDownIcon size={16} /> : <ChevronRightIcon size={16} />}
-                </span>
-                <span style={{ display: "flex", alignItems: "center" }}>
-                    <IconComponent ref={dirIconRef} size={16} color={iconColor} />
-                </span>
-                <span style={{ flex: 1, textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap" }}>
-                    {highlightText(displayName, highlightKeyword)}
-                </span>
-            </div>
-
-            {expanded && (
-                <div style={{ borderLeft: "1px dashed #dcdcdc", marginLeft: "20px", paddingLeft: "10px", marginTop: "4px" }}>
-                    {loading && page === 1 && (
-                        <div style={{ fontSize: "12px", color: "#9ca3af", padding: "8px 12px", fontStyle: "italic" }}>Loading...</div>
-                    )}
-
-                    {!loading && children.length === 0 && (
-                        <div style={{ fontSize: "12px", color: "#9ca3af", padding: "8px 12px", fontStyle: "italic" }}>No items found.</div>
-                    )}
-
-                    {type === "subject" ? (
-                        <>
-                            {/* External Resources Group */}
-                            {children.some(c => c.type === "external") && (
-                                <div style={{ marginTop: "4px", marginBottom: "4px" }}>
-                                    <button
-                                        onClick={() => setExternalExpanded(!externalExpanded)}
-                                        style={{
-                                            display: "flex", alignItems: "center", justifyContent: "space-between",
-                                            width: "100%", border: "1px solid #c084fc", background: "#faf5ff",
-                                            borderRadius: "8px", padding: "6px 12px", cursor: "pointer",
-                                            color: "#7e22ce", fontWeight: "600", fontSize: "12px"
-                                        }}
-                                    >
-                                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                            <BookOpenIcon size={14} />
-                                            <span style={{ textTransform: "uppercase", letterSpacing: "0.5px", fontSize: "10px" }}>
-                                                External Resources
-                                            </span>
-                                            <span style={{
-                                                background: "#c084fc", color: "#fff", fontSize: "10px",
-                                                padding: "1px 5px", borderRadius: "10px"
-                                            }}>
-                                                {children.filter(c => c.type === "external").length}
-                                            </span>
-                                        </div>
-                                        <div>
-                                            {externalExpanded ? <ChevronDownIcon size={14} /> : <ChevronRightIcon size={14} />}
-                                        </div>
-                                    </button>
-
-                                    {externalExpanded && (
-                                        <div style={{ borderLeft: "2px dashed #c084fc", marginLeft: "10px", paddingLeft: "8px", marginTop: "4px" }}>
-                                            {children.filter(c => c.type === "external").map(child => (
-                                                <SMAdminSearchDirectoryNode
-                                                    key={child._id}
-                                                    level={level + 2}
-                                                    type="file"
-                                                    data={child}
-                                                    parentParams={nextParams}
-                                                    highlightKeyword={highlightKeyword}
-                                                />
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* Official Files */}
-                            {children.filter(c => c.type !== "external").map(child => (
-                                <SMAdminSearchDirectoryNode
-                                    key={child._id}
-                                    level={level + 1}
-                                    type="file"
-                                    data={child}
-                                    parentParams={nextParams}
-                                    highlightKeyword={highlightKeyword}
-                                />
-                            ))}
-                        </>
-                    ) : (
-                        children.map(child => (
-                            <SMAdminSearchDirectoryNode
-                                key={child._id}
-                                level={level + 1}
-                                type={nextType}
-                                data={child}
-                                parentParams={nextParams}
-                                highlightKeyword={highlightKeyword}
-                            />
-                        ))
-                    )}
-
-                    {page < totalPages && (
-                        <button 
-                            onClick={handleLoadMore}
-                            disabled={loading}
-                            style={{
-                                marginTop: "8px", marginLeft: "16px", background: "none", border: "none",
-                                color: "#7c3aed", fontWeight: "600", cursor: "pointer", fontSize: "12px",
-                                textDecoration: "underline", display: "inline-flex", alignItems: "center"
-                            }}
-                        >
-                            {loading ? "Loading..." : "Load More"}
-                        </button>
-                    )}
-                </div>
-            )}
-        </div>
-    );
+function getParentParams(type, item) {
+    const params = {};
+    if (type !== "university") params.universityId = idOf(item.university);
+    if (["course", "semester", "batch", "subject"].includes(type)) params.collegeId = idOf(item.college);
+    if (["semester", "batch", "subject"].includes(type)) params.courseId = idOf(item.course);
+    if (["batch", "subject"].includes(type)) params.semesterId = idOf(item.sem);
+    if (type === "subject") params.batchId = idOf(item.batch);
+    return params;
 }
 
 export default function SMAdminSearchResults({ searchQuery, selectedCategories = ["subjects"], onClearSearch }) {
-    const ALL_CATEGORIES = [
-        { id: "subjects", label: "Subjects", endpoint: "/api/sm/v1/search/subjects", type: "subject" },
-        { id: "universities", label: "Universities", endpoint: "/api/sm/v1/search/universities", type: "university" },
-        { id: "colleges", label: "Colleges", endpoint: "/api/sm/v1/search/colleges", type: "college" },
-        { id: "courses", label: "Courses", endpoint: "/api/sm/v1/search/courses", type: "course" },
-        { id: "semesters", label: "Semesters", endpoint: "/api/sm/v1/search/semesters", type: "semester" },
-        { id: "batches", label: "Batches", endpoint: "/api/sm/v1/search/batches", type: "batch" },
-    ];
+    const activeCategories = selectedCategories.length
+        ? CATEGORIES.filter(({ id }) => selectedCategories.includes(id))
+        : CATEGORIES.filter(({ id }) => id === "subjects");
+    const [state, setState] = useState(initialState);
 
-    const activeCategoriesList = selectedCategories && selectedCategories.length > 0 
-        ? ALL_CATEGORIES.filter(cat => selectedCategories.includes(cat.id))
-        : ALL_CATEGORIES.filter(cat => cat.id === "subjects");
+    const fetchCategory = async (catId, page, append = false) => {
+        const category = CATEGORIES.find(({ id }) => id === catId);
+        if (!category) return;
 
-    const [state, setState] = useState({
-        universities: { data: [], page: 1, totalPages: 1, loading: false, total: 0 },
-        colleges: { data: [], page: 1, totalPages: 1, loading: false, total: 0 },
-        courses: { data: [], page: 1, totalPages: 1, loading: false, total: 0 },
-        semesters: { data: [], page: 1, totalPages: 1, loading: false, total: 0 },
-        batches: { data: [], page: 1, totalPages: 1, loading: false, total: 0 },
-        subjects: { data: [], page: 1, totalPages: 1, loading: false, total: 0 },
-    });
-
-    const fetchCategory = async (catId, pageNum, append = false) => {
-        setState(prev => ({
-            ...prev,
-            [catId]: { ...prev[catId], loading: true }
+        setState((current) => ({
+            ...current,
+            [catId]: { ...current[catId], loading: true },
         }));
 
         try {
-            const cat = ALL_CATEGORIES.find(c => c.id === catId);
-            if (!cat) return;
-            const res = await fetch(`${cat.endpoint}?q=${encodeURIComponent(searchQuery)}&page=${pageNum}&limit=20`);
-            const json = await res.json();
+            const response = await fetch(
+                `${category.endpoint}?q=${encodeURIComponent(searchQuery)}&page=${page}&limit=20`,
+                { cache: "no-store" },
+            );
+            const result = await response.json();
+            if (!response.ok || !result.success) throw new Error(result.error || "Search failed");
 
-            if (json.success) {
-                setState(prev => {
-                    const existingData = append ? prev[catId].data : [];
-                    const newData = [...existingData, ...json.data];
-                    const uniqueData = Array.from(new Map(newData.map(item => [item._id, item])).values());
-                    
-                    return {
-                        ...prev,
-                        [catId]: {
-                            data: uniqueData,
-                            page: pageNum,
-                            totalPages: json.pagination.totalPages || 1,
-                            total: json.pagination.total || uniqueData.length,
-                            loading: false
-                        }
-                    };
-                });
-            } else {
-                setState(prev => ({
-                    ...prev,
-                    [catId]: { ...prev[catId], loading: false }
-                }));
-            }
+            setState((current) => {
+                const currentItems = append ? current[catId].data : [];
+                const data = Array.from(new Map([...currentItems, ...result.data].map((item) => [item._id, item])).values());
+                return {
+                    ...current,
+                    [catId]: {
+                        data,
+                        page,
+                        totalPages: result.pagination?.totalPages || 1,
+                        total: result.pagination?.total || data.length,
+                        loading: false,
+                    },
+                };
+            });
         } catch (error) {
-            console.error(`Error fetching search category ${catId}:`, error);
-            setState(prev => ({
-                ...prev,
-                [catId]: { ...prev[catId], loading: false }
-            }));
+            console.error(`Error searching study materials (${catId}):`, error);
+            setState((current) => ({ ...current, [catId]: { ...current[catId], loading: false } }));
         }
     };
 
     useEffect(() => {
-        // Reset non-active categories state
-        const initialCategoryState = { data: [], page: 1, totalPages: 1, loading: false, total: 0 };
-        setState(prev => {
-            const nextState = { ...prev };
-            ALL_CATEGORIES.forEach(cat => {
-                if (!activeCategoriesList.some(c => c.id === cat.id)) {
-                    nextState[cat.id] = { ...initialCategoryState };
-                }
-            });
-            return nextState;
-        });
-
-        if (searchQuery.trim()) {
-            activeCategoriesList.forEach(cat => {
-                fetchCategory(cat.id, 1, false);
-            });
-        }
+        setState(initialState());
+        if (searchQuery.trim()) activeCategories.forEach(({ id }) => fetchCategory(id, 1));
+        // fetchCategory reads current query and categories for this search request.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchQuery, JSON.stringify(selectedCategories)]);
 
-    const handleLoadMore = (catId) => {
-        const current = state[catId];
-        if (current.page < current.totalPages && !current.loading) {
-            fetchCategory(catId, current.page + 1, true);
+    const loadMore = (categoryId) => {
+        const category = state[categoryId];
+        if (category.page < category.totalPages && !category.loading) {
+            fetchCategory(categoryId, category.page + 1, true);
         }
     };
 
-    const hasAnyResults = activeCategoriesList.some(cat => state[cat.id].data.length > 0);
-    const isLoadingAny = activeCategoriesList.some(cat => state[cat.id].loading && state[cat.id].page === 1);
+    const loading = activeCategories.some(({ id }) => state[id].loading && state[id].page === 1);
+    const hasResults = activeCategories.some(({ id }) => state[id].data.length > 0);
 
-    if (isLoadingAny) {
+    if (loading) {
         return (
-            <div className="sm-dir-skeleton-list" aria-label="Searching categories">
-                {[...Array(5)].map((_, i) => (
-                    <div key={i} className="sm-dir-skeleton-card">
+            <div className="sm-dir-skeleton-list" aria-label="Searching study materials">
+                {[...Array(5)].map((_, index) => (
+                    <div key={index} className="sm-dir-skeleton-card">
                         <div className="sm-dir-skeleton-icon" />
-                        <div className="sm-dir-skeleton-text-wrap">
-                            <div
-                                className="sm-dir-skeleton-line"
-                                style={{ width: i % 3 === 0 ? "65%" : i % 3 === 1 ? "40%" : "75%" }}
-                            />
-                        </div>
+                        <div className="sm-dir-skeleton-text-wrap"><div className="sm-dir-skeleton-line" /></div>
                         <div className="sm-dir-skeleton-chevron" />
                     </div>
                 ))}
@@ -472,86 +104,49 @@ export default function SMAdminSearchResults({ searchQuery, selectedCategories =
         );
     }
 
-    if (!hasAnyResults) {
+    if (!hasResults) {
         return (
-            <div style={{
-                textAlign: "center", padding: "40px", color: "#6b7280", background: "#fdfbff",
-                borderRadius: "12px", border: "1px dashed #d8b4fe", fontSize: "14px"
-            }}>
-                <p>No study materials matches found for "{searchQuery}"</p>
-                <button 
-                    onClick={onClearSearch}
-                    style={{
-                        marginTop: "12px",
-                        background: "#7c3aed",
-                        border: "none",
-                        color: "#fff",
-                        padding: "8px 16px",
-                        borderRadius: "8px",
-                        fontWeight: "600",
-                        cursor: "pointer"
-                    }}
-                >
-                    Clear Search
-                </button>
+            <div className="sm-search-empty" role="status">
+                <p>No study materials found for “{searchQuery}”.</p>
+                <button type="button" onClick={onClearSearch}>Clear search</button>
             </div>
         );
     }
 
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "20px", marginTop: "10px" }}>
-            {activeCategoriesList.map(cat => {
-                const catState = state[cat.id];
-                if (catState.data.length === 0) return null;
+        <div className="sm-search-directory-results">
+            {activeCategories.map((category) => {
+                const result = state[category.id];
+                if (!result.data.length) return null;
 
                 return (
-                    <div key={cat.id} style={{
-                        background: "#fff", border: "1px solid #e9d5ff", borderRadius: "12px",
-                        padding: "16px", boxShadow: "0 2px 6px rgba(124, 58, 237, 0.02)"
-                    }}>
-                        <div style={{
-                            display: "flex", alignItems: "center", justifyContent: "space-between",
-                            marginBottom: "12px", borderBottom: "1px solid #f3e8ff", paddingBottom: "8px"
-                        }}>
-                            <h3 style={{ fontSize: "16px", fontWeight: "700", color: "#4c1d95", margin: 0 }}>
-                                {cat.label}
-                                <span style={{
-                                    fontSize: "11px", fontWeight: "600", color: "#7c3aed",
-                                    background: "#f3e8ff", padding: "2px 6px", borderRadius: "6px", marginLeft: "8px"
-                                }}>
-                                    {catState.total} matches
-                                </span>
-                            </h3>
-                        </div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                            {catState.data.map(item => (
-                                <SMAdminSearchDirectoryNode
+                    <section className="sm-search-result-group" key={category.id} aria-label={`${category.label} search results`}>
+                        <h2 className="sm-search-result-heading">
+                            {category.label}
+                            <span>{result.total} {result.total === 1 ? "match" : "matches"}</span>
+                        </h2>
+                        <div>
+                            {result.data.map((item) => (
+                                <SMDirectoryNode
                                     key={item._id}
-                                    type={cat.type}
+                                    type={category.type}
                                     data={item}
+                                    parentParams={getParentParams(category.type, item)}
                                     highlightKeyword={searchQuery}
                                 />
                             ))}
                         </div>
-
-                        {catState.page < catState.totalPages && (
-                            <div style={{ display: "flex", justifyContent: "center", marginTop: "12px" }}>
-                                <button
-                                    onClick={() => handleLoadMore(cat.id)}
-                                    disabled={catState.loading}
-                                    style={{
-                                        height: "32px", border: "1px solid #d8b4fe", borderRadius: "6px",
-                                        background: "#fff", color: "#7c3aed", padding: "0 12px",
-                                        fontSize: "12px", fontWeight: "600", cursor: "pointer", transition: "0.2s"
-                                    }}
-                                    onMouseOver={(e) => { e.currentTarget.style.background = "#f5f3ff"; }}
-                                    onMouseOut={(e) => { e.currentTarget.style.background = "#fff"; }}
-                                >
-                                    {catState.loading ? "Loading..." : `View More ${cat.label}`}
-                                </button>
-                            </div>
+                        {result.page < result.totalPages && (
+                            <button
+                                className="sm-search-load-more"
+                                type="button"
+                                disabled={result.loading}
+                                onClick={() => loadMore(category.id)}
+                            >
+                                {result.loading ? "Loading…" : `Load more ${category.label.toLowerCase()}`}
+                            </button>
                         )}
-                    </div>
+                    </section>
                 );
             })}
         </div>
