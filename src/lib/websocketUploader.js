@@ -16,6 +16,7 @@ export async function uploadFileViaWebSocket(file, options = {}) {
     userId = "",
     token = (typeof window !== "undefined" ? localStorage.getItem("token") || "" : ""),
     folder = "updates",
+    scope = "updates",
     signatureUrl = "/api/updates/upload/signature",
     wsInfoUrl = "/api/updates/upload/ws-info",
     chunkSize = 6 * 1024 * 1024, // 6MB chunk size for Cloudinary direct resumable upload
@@ -115,7 +116,8 @@ export async function uploadFileViaWebSocket(file, options = {}) {
         filename: file.name,
         fileSize: file.size,
         userId,
-        folder
+        folder,
+        scope
       }));
     });
 
@@ -170,6 +172,7 @@ export async function uploadFileViaWebSocket(file, options = {}) {
             fd.append("signature", credentials.signature);
             fd.append("folder", credentials.folder);
             fd.append("public_id", credentials.publicId);
+            if (credentials.uploadType) fd.append("type", credentials.uploadType);
 
             xhr.upload.onprogress = (evt) => {
               if (evt.lengthComputable) {
@@ -246,7 +249,7 @@ export async function uploadFileViaWebSocket(file, options = {}) {
       }
     }
 
-    if (!finalCloudinaryResponse || !finalCloudinaryResponse.secure_url) {
+    if (!finalCloudinaryResponse?.public_id || (!finalCloudinaryResponse.secure_url && scope !== "keep")) {
       throw new Error("Direct upload finished but invalid response received");
     }
 
@@ -258,7 +261,9 @@ export async function uploadFileViaWebSocket(file, options = {}) {
       publicId: finalCloudinaryResponse.public_id,
       name: file.name,
       resourceType: finalCloudinaryResponse.resource_type,
-      size: finalCloudinaryResponse.bytes || file.size
+      size: finalCloudinaryResponse.bytes || file.size,
+      format: finalCloudinaryResponse.format || "",
+      mimeType: file.type || "application/octet-stream"
     };
 
     onProgress({
@@ -299,7 +304,7 @@ export async function uploadFileViaWebSocket(file, options = {}) {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {})
       },
-      body: JSON.stringify({ filename: file.name, folder })
+      body: JSON.stringify({ filename: file.name, fileSize: file.size, folder, scope })
     });
 
     const sigData = await sigRes.json();
@@ -350,6 +355,7 @@ export async function uploadFileViaWebSocket(file, options = {}) {
             fd.append("signature", credentials.signature);
             fd.append("folder", credentials.folder);
             fd.append("public_id", credentials.publicId);
+            if (credentials.uploadType) fd.append("type", credentials.uploadType);
 
             xhr.upload.onprogress = (evt) => {
               if (evt.lengthComputable) {
@@ -417,7 +423,9 @@ export async function uploadFileViaWebSocket(file, options = {}) {
       publicId: finalCloudinaryResponse.public_id,
       name: file.name,
       resourceType: finalCloudinaryResponse.resource_type,
-      size: finalCloudinaryResponse.bytes || file.size
+      size: finalCloudinaryResponse.bytes || file.size,
+      format: finalCloudinaryResponse.format || "",
+      mimeType: file.type || "application/octet-stream"
     };
 
     onProgress({

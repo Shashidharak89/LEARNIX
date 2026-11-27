@@ -2,13 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   CheckIcon, ChevronLeftIcon, ChevronRightIcon, DownloadIcon, ExternalLinkIcon,
-  FileIcon, FolderLockIcon, FolderIcon,
+  EyeIcon, FileIcon, FolderLockIcon, FolderIcon,
   LockIcon, PencilIcon, PinIcon, PinOffIcon, PlusIcon, SearchIcon,
   Trash2Icon, XIcon,
 } from "@animateicons/react/lucide";
 import { authFetch } from "@/lib/clientAuth";
+import { uploadFileViaWebSocket } from "@/lib/websocketUploader";
 import { KEEP_PAGE_SIZE, KEEP_TYPES, keepPageNumber, keepWebUrl, keepYouTubeId } from "@/lib/keepFields";
 import MarkdownRenderer from "../components/MarkdownRenderer";
 import ExpandableDescription from "../components/ExpandableDescription";
@@ -30,7 +32,7 @@ const shortcuts = [
 const itemPath = (id) => `/api/keep/${encodeURIComponent(id)}`;
 const json = (method, body) => ({ method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 
-function ItemContent({ item, full, onDownload, busy }) {
+function ItemContent({ item, full, onDownload, onPreview, busy }) {
   const url = keepWebUrl(item.url);
   const videoId = full && keepYouTubeId(item.url);
 
@@ -51,6 +53,8 @@ function ItemContent({ item, full, onDownload, busy }) {
             <strong title={item.file.name}>{item.file.name}</strong>
             <span>{Math.ceil(item.file.size / 1024)} KB</span>
           </div>
+          <KeepButton icon={EyeIcon} className="keep-download" disabled={busy}
+            title="Preview" aria-label={`Preview ${item.file.name}`} onClick={() => onPreview(item)} />
           <KeepButton icon={DownloadIcon} className="keep-download" disabled={busy}
             title="Download" aria-label={`Download ${item.file.name}`} onClick={() => onDownload(item)} />
         </div>
@@ -90,6 +94,8 @@ export default function KeepClient() {
   const [newKind, setNewKind] = useState("text");
   const [pending, setPending] = useState("");
   const [toast, setToast] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(null);
+  const [previewContent, setPreviewContent] = useState(null);
 
   const request = useCallback(async (url, init) => {
     const response = await authFetch(url, init);
@@ -240,6 +246,7 @@ export default function KeepClient() {
     if (!busyRef.current) {
       setModal(null);
       setDialogError("");
+      setPreviewContent(null);
     }
   }
 
@@ -267,10 +274,27 @@ export default function KeepClient() {
       if (file instanceof File && uploads.has(file)) file = uploads.get(file);
       if (file instanceof File) {
         const source = file;
-        const form = new FormData();
-        form.append("file", file);
-        const response = await request("/api/keep/upload", { method: "POST", body: form });
-        ({ file } = await response.json());
+        const token = localStorage.getItem("token") || "";
+        const upload = await uploadFileViaWebSocket(source, {
+          token,
+          scope: "keep",
+          folder: "",
+          wsInfoUrl: "/api/updates/upload/ws-info",
+          signatureUrl: "/api/keep/upload/signature",
+          onProgress: (progress) => setUploadProgress({ filename: source.name, ...progress }),
+          onStatus: (statusText) => setUploadProgress((current) => ({
+            filename: source.name,
+            percent: current?.percent || 0,
+            statusText,
+          })),
+        });
+        file = {
+          name: source.name,
+          size: upload.file.size || source.size,
+          mimeType: source.type || "application/octet-stream",
+          publicId: upload.file.publicId,
+          resourceType: "raw",
+        };
         uploads.set(source, file);
       }
       const { title, type: kind, content } = draft;
@@ -285,7 +309,7 @@ export default function KeepClient() {
       setModal(null);
       setRevision((value) => value + 1);
       setToast(activeItem ? "Changes saved" : "Added to Keep");
-    }, setDialogError);
+    }, setDialogError).finally(() => setUploadProgress(null));
   }
 
   function togglePin(item) {
@@ -318,6 +342,32 @@ export default function KeepClient() {
       window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
     }, modal === "view" ? setDialogError : setActionError);
   }
+
+  function preview(item) {
+    runAction(item.itemId, async () => {
+      const response = await request(`${itemPath(item.itemId)}?preview=1`);
+      const blob = await response.blob();
+      const mimeType = item.file?.mimeType || "application/octet-stream";
+      let content;
+      if (mimeType.startsWith("image/") && !mimeType.includes("svg")) {
+        content = { kind: "image", url: URL.createObjectURL(blob) };
+      } else if (mimeType === "application/pdf") {
+        content = { kind: "pdf", url: URL.createObjectURL(blob) };
+      } else if (/^(text\/plain|text\/markdown|text\/csv)$/.test(mimeType)) {
+        content = { kind: "text", text: await blob.text() };
+      } else {
+        content = { kind: "unsupported" };
+      }
+      setPreviewContent(content);
+      setActiveItem(item);
+      setDialogError("");
+      setModal("preview");
+    }, setActionError);
+  }
+
+  useEffect(() => () => {
+    if (previewContent?.url) URL.revokeObjectURL(previewContent.url);
+  }, [previewContent]);
 
   if (signedIn === null) return <main className="keep-shell"><div className="keep-loading" role="status" aria-label="Loading Keep" /></main>;
   if (!signedIn) return (
@@ -409,7 +459,7 @@ export default function KeepClient() {
                     </div>
                   </div>
                   <h2><button type="button" className="keep-item-title" onClick={() => openItem(item)}>{item.title}</button></h2>
-                  <ItemContent item={item} onDownload={download} busy={Boolean(pending)} />
+                  <ItemContent item={item} onDownload={download} onPreview={preview} busy={Boolean(pending)} />
                   <footer className="keep-card-footer">
                     <time dateTime={item.updatedAt || item.createdAt}>
                       {new Date(item.updatedAt || item.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
@@ -455,7 +505,7 @@ export default function KeepClient() {
           <>
             <header className="keep-modal-header">
               <h2 id="keep-dialog-title">
-                {modal === "shortcuts" ? "Keyboard shortcuts" : modal === "view" ? activeItem?.title : activeItem ? "Edit item" : "New item"}
+                {modal === "shortcuts" ? "Keyboard shortcuts" : modal === "preview" ? `Preview · ${activeItem?.file?.name || "File"}` : modal === "view" ? activeItem?.title : activeItem ? "Edit item" : "New item"}
               </h2>
               <KeepButton icon={XIcon} className="keep-dialog-close" onClick={closeDialog} aria-label="Close dialog" disabled={Boolean(pending)} />
             </header>
@@ -466,16 +516,31 @@ export default function KeepClient() {
             )}
             {modal === "view" && activeItem && (
               <>
-                <ItemContent item={activeItem} full onDownload={download} busy={Boolean(pending)} />
+                <ItemContent item={activeItem} full onDownload={download} onPreview={preview} busy={Boolean(pending)} />
                 {dialogError && <p className="keep-form-error" role="alert">{dialogError}</p>}
                 <footer className="keep-editor-footer">
                   <KeepButton icon={PencilIcon} className="keep-secondary-btn" onClick={() => openEditor(activeItem)} disabled={Boolean(pending)}>Edit item</KeepButton>
                 </footer>
               </>
             )}
+            {modal === "preview" && activeItem && (
+              <div className="keep-file-preview">
+                {previewContent?.kind === "image" && <Image src={previewContent.url} alt={activeItem.file?.name || "Saved file preview"}
+                  width={1200} height={800} unoptimized />}
+                {previewContent?.kind === "pdf" && <iframe src={previewContent.url} title={`Preview ${activeItem.file?.name || "PDF"}`} />}
+                {previewContent?.kind === "text" && <pre>{previewContent.text}</pre>}
+                {previewContent?.kind === "unsupported" && <p>This file type can’t be previewed here. You can download it instead.</p>}
+                {!previewContent && <div className="keep-loading" role="status" aria-label="Loading preview" />}
+                {dialogError && <p className="keep-form-error" role="alert">{dialogError}</p>}
+                <footer className="keep-editor-footer">
+                  <KeepButton icon={DownloadIcon} className="keep-secondary-btn" onClick={() => download(activeItem)} disabled={Boolean(pending)}>Download file</KeepButton>
+                </footer>
+              </div>
+            )}
             {modal === "editor" && (
               <KeepEditor activeItem={activeItem} kind={newKind} formRef={formRef} busy={Boolean(pending)}
-                dialogError={dialogError} setDialogError={setDialogError} onSave={save} />
+                dialogError={dialogError} setDialogError={setDialogError} onSave={save} uploadProgress={uploadProgress}
+              />
             )}
           </>
         )}

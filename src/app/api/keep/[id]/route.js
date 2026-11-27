@@ -77,10 +77,13 @@ export async function GET(req, { params }) {
     }
     const file = item.file;
     if (!ownsKeepFile(userId, file)) return errorResponse("File not found.", 404);
+    const preview = new URL(req.url).searchParams.get("preview") === "1";
+    const safePreviewType = /^(image\/(jpeg|png|gif|webp)|application\/pdf|text\/(plain|markdown|csv))$/i;
+    const mimeType = preview && safePreviewType.test(file.mimeType || "") ? file.mimeType : "application/octet-stream";
 
     // Raw Cloudinary public IDs already include the original extension.
     const signedUrl = cloudinary.utils.private_download_url(file.publicId, "", {
-      resource_type: "raw", type: "authenticated", attachment: true,
+      resource_type: "raw", type: "authenticated", attachment: !preview,
       expires_at: Math.floor(Date.now() / 1000) + 60,
     });
     const upstream = await fetch(signedUrl, { cache: "no-store" });
@@ -90,8 +93,8 @@ export async function GET(req, { params }) {
       .replace(/['()*]/g, (char) => `%${char.charCodeAt(0).toString(16)}`);
     return new Response(upstream.body, {
       headers: {
-        "Content-Type": "application/octet-stream",
-        "Content-Disposition": `attachment; filename*=UTF-8''${filename}`,
+        "Content-Type": mimeType,
+        "Content-Disposition": `${preview ? "inline" : "attachment"}; filename*=UTF-8''${filename}`,
         "Cache-Control": "private, no-store",
         "X-Content-Type-Options": "nosniff",
       },

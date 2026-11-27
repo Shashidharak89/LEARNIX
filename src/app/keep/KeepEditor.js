@@ -74,7 +74,7 @@ function htmlToMarkdown(root) {
     .trim();
 }
 
-export default function KeepEditor({ activeItem, kind, formRef, busy, dialogError, setDialogError, onSave }) {
+export default function KeepEditor({ activeItem, kind, formRef, busy, dialogError, setDialogError, onSave, uploadProgress }) {
   const [history, dispatch] = useReducer(editDraft, { item: activeItem, kind }, initialDraft);
   const draft = history.present;
   const [preview, setPreview] = useState(() => (activeItem?.type || kind) === "text");
@@ -238,6 +238,10 @@ export default function KeepEditor({ activeItem, kind, formRef, busy, dialogErro
 
   function selectFile(file) {
     if (!file || busy) return;
+    if (file.size === 0) {
+      setDialogError("Choose a file that isn’t empty.");
+      return;
+    }
     if (file.size > KEEP_FILE_LIMIT) {
       setDialogError("Choose a file that is 20 MB or smaller.");
       return;
@@ -301,6 +305,19 @@ export default function KeepEditor({ activeItem, kind, formRef, busy, dialogErro
               <strong>{draft.file?.name || activeItem?.file?.name || "Choose a file or drop it here"}</strong>
               <small>{draft.file || activeItem?.file ? "Choose a different file" : "Up to 20 MB"}</small>
             </button>
+            {uploadProgress && (
+              <div className="keep-upload-progress" role="status" aria-live="polite">
+                <div className="keep-upload-progress-heading">
+                  <strong title={uploadProgress.filename}>{uploadProgress.filename}</strong>
+                  <span>{uploadProgress.percent || 0}%</span>
+                </div>
+                <div className="keep-upload-progress-track" role="progressbar" aria-label={`Uploading ${uploadProgress.filename}`}
+                  aria-valuemin="0" aria-valuemax="100" aria-valuenow={uploadProgress.percent || 0}>
+                  <span style={{ width: `${Math.max(2, uploadProgress.percent || 0)}%` }} />
+                </div>
+                <small>{uploadProgress.statusText || "Uploading securely…"}</small>
+              </div>
+            )}
           </>
         )}
         <div className="keep-note-label">

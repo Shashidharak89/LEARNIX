@@ -6,8 +6,11 @@ import File from "@/models/File";
 import User from "@/models/User";
 import { cleanupExpiredFiles } from "@/lib/fileCleanup";
 import { handleCompilerMessage, handleCompilerSocketClose } from "@/lib/compilerWsRunner";
+import { randomUUID } from "node:crypto";
+import { keepFileFolder } from "@/lib/keepFile";
+import { KEEP_FILE_LIMIT } from "@/lib/keepFields";
 
-const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey@learnix";
+const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey";
 const WS_DEFAULT_PORT = Number(process.env.WS_PORT) || 5001;
 
 function extractToken(req) {
@@ -110,7 +113,7 @@ export function getOrStartWsServer(desiredPort = WS_DEFAULT_PORT) {
 
       switch (type) {
         case "init": {
-          const { filename, fileSize, userId, folder: requestedFolder } = msg;
+          const { filename, fileSize, userId, folder: requestedFolder, scope } = msg;
           if (!uploadId || !filename) {
             ws.send(JSON.stringify({
               type: "error",
@@ -134,15 +137,29 @@ export function getOrStartWsServer(desiredPort = WS_DEFAULT_PORT) {
           }
 
           const timestamp = Math.floor(Date.now() / 1000);
-          const targetUserId = userId || ws.userId;
-          const folder = requestedFolder || (targetUserId ? `updates/${targetUserId}` : "updates");
-          const sanitizedName = (filename || `upload-${Date.now()}`).replace(/[^a-zA-Z0-9._-]/g, "_");
-          const publicId = `${Date.now()}_${sanitizedName}`;
+          const isKeepUpload = scope === "keep";
+          if (isKeepUpload && (!ws.isAuthenticated || !ws.userId || (userId && String(userId) !== String(ws.userId)))) {
+            ws.send(JSON.stringify({ type: "error", uploadId, message: "Sign in to upload files to Keep." }));
+            return;
+          }
+          if (isKeepUpload && (!(Number(fileSize) > 0) || Number(fileSize) > KEEP_FILE_LIMIT)) {
+            ws.send(JSON.stringify({ type: "error", uploadId, message: "Choose a file up to 20 MB." }));
+            return;
+          }
+          const targetUserId = isKeepUpload ? String(ws.userId) : (userId || ws.userId);
+          const folder = isKeepUpload
+            ? keepFileFolder(targetUserId)
+            : (requestedFolder || (targetUserId ? `updates/${targetUserId}` : "updates"));
+          const sanitizedName = (filename || `upload-${Date.now()}`).slice(-180).replace(/[^a-zA-Z0-9._-]/g, "_");
+          const publicId = isKeepUpload ? `${randomUUID()}_${sanitizedName}` : `${Date.now()}_${sanitizedName}`;
+          const uploadType = isKeepUpload ? "authenticated" : "upload";
+          const resourceType = isKeepUpload ? "raw" : "auto";
 
           const paramsToSign = {
             folder,
             public_id: publicId,
             timestamp,
+            ...(isKeepUpload ? { type: uploadType } : {}),
           };
 
           const signature = cloudinary.utils.api_sign_request(paramsToSign, apiSecret);
@@ -154,6 +171,8 @@ export function getOrStartWsServer(desiredPort = WS_DEFAULT_PORT) {
             userId: targetUserId,
             publicId,
             folder,
+            uploadType: isKeepUpload ? uploadType : "",
+            resourceType,
             timestamp,
             ws
           });
@@ -169,7 +188,9 @@ export function getOrStartWsServer(desiredPort = WS_DEFAULT_PORT) {
               signature,
               folder,
               publicId,
-              uploadUrl: `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`
+              uploadType: isKeepUpload ? uploadType : "",
+              resourceType,
+              uploadUrl: `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`
             }
           }));
           break;
