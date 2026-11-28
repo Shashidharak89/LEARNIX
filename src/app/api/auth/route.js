@@ -22,19 +22,21 @@ const generateToken = (userId) => {
 export async function POST(req) {
   try {
     await connectDB();
-    const { name, usn, password } = await req.json();
+    const { name, usn: identifier, password } = await req.json();
 
-    if (!usn || !password) {
+    if (!identifier || !password) {
       return NextResponse.json(
         { error: "USN and password are required" },
         { status: 400 }
       );
     }
 
-    const usnUpper = usn.trim().toUpperCase();
+    const loginIdentifier = String(identifier).trim();
+    const isEmail = loginIdentifier.includes("@");
+    const usnUpper = loginIdentifier.toUpperCase();
     let user;
-    if (usn.includes("@")) {
-      user = await User.findOne({ email: usn.trim().toLowerCase() });
+    if (isEmail) {
+      user = await User.findOne({ email: loginIdentifier.toLowerCase() });
     } else {
       user = await User.findOne({ usn: usnUpper });
     }
@@ -83,7 +85,7 @@ export async function POST(req) {
         });
       }
     } else {
-      if (usn.includes("@")) {
+      if (isEmail) {
         return NextResponse.json({ error: "Account not found for this email. Please use your USN to sign up." }, { status: 404 });
       }
 

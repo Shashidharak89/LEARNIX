@@ -88,7 +88,7 @@ export default function Login({ googleClientId = "" }) {
     setMessage("");
     try {
       const res = await axios.post("/api/auth", {
-        usn: usn.trim().toUpperCase(),
+        usn: usn.trim(),
         password,
       });
       setMessage(res.data.message);
@@ -327,9 +327,9 @@ export default function Login({ googleClientId = "" }) {
               </div>
               <input
                 type="text"
-                placeholder="USN / Register Number"
+                placeholder="USN or email address"
                 value={usn}
-                onChange={(e) => setUsn(e.target.value.toUpperCase())}
+                onChange={(e) => setUsn(e.target.value)}
                 onFocus={() => usnIconRef.current?.startAnimation?.()}
                 required
                 className="lgn-input"
