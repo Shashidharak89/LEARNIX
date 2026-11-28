@@ -2423,54 +2423,128 @@
   min-height: calc(100vh - 64px);
 }
 
+@keyframes wtpOverlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes wtpCardPop {
+  from { opacity: 0; transform: scale(0.93) translateY(16px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
 .wtp-locked-overlay {
   position: fixed;
   inset: 0;
   z-index: 900;
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(240, 245, 255, 0.60);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 20px;
+  animation: wtpOverlayFadeIn 0.22s ease both;
 }
 
+/* ── Card shell ── */
 .wtp-access-card--apple {
   background: #ffffff;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 26px;
-  padding: 32px 28px;
-  max-width: 400px;
+  border: 1.5px solid rgba(0, 122, 255, 0.12);
+  border-radius: 28px;
+  padding: 36px 32px 30px;
+  max-width: 380px;
   width: 100%;
   text-align: center;
-  box-shadow: 0 24px 48px -8px rgba(15, 23, 42, 0.14);
+  box-shadow:
+    0 2px 8px  rgba(15, 23, 42, 0.06),
+    0 12px 32px -4px rgba(15, 23, 42, 0.12),
+    0 32px 64px -12px rgba(15, 23, 42, 0.14);
+  animation: wtpCardPop 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* ── Lock icon badge ── */
+.wtp-access-card--apple .wtp-access-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #eff6ff 0%, #dbeafe 100%);
+  color: #007aff;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.15);
+}
+
+/* ── Eyebrow label ── */
+.wtp-access-card--apple .wtp-access-eyebrow {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: #007aff;
+  margin-bottom: 8px;
+}
+
+/* ── Heading ── */
+.wtp-access-card--apple h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin: 0 0 10px;
+  line-height: 1.2;
+}
+
+/* ── Body copy ── */
+.wtp-access-card--apple .wtp-access-copy {
+  font-size: 0.88rem;
+  color: #64748b;
+  line-height: 1.65;
+  margin: 0 0 24px;
+}
+
+/* ── CTA button ── */
 .wtp-access-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   width: 100%;
-  padding: 13px 20px;
+  padding: 14px 20px;
   border-radius: 14px;
-  background: #007aff;
+  background: linear-gradient(135deg, #1a8cff 0%, #007aff 60%, #005fd4 100%);
   color: #ffffff !important;
-  font-size: 0.95rem;
+  font-size: 0.96rem;
   font-weight: 700;
+  letter-spacing: 0.01em;
   text-decoration: none;
-  box-shadow: 0 6px 18px rgba(0, 122, 255, 0.25);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow:
+    0 4px 12px rgba(0, 122, 255, 0.30),
+    0 8px 24px rgba(0, 122, 255, 0.18);
+  transition:
+    background   0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    transform    0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow   0.18s cubic-bezier(0.16, 1, 0.3, 1);
   box-sizing: border-box;
+  border: none;
+  cursor: pointer;
 }
 
 .wtp-access-action:hover {
-  background: #0062cc;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 22px rgba(0, 122, 255, 0.32);
+  background: linear-gradient(135deg, #2b97ff 0%, #0c88ff 60%, #0062cc 100%);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow:
+    0 6px 16px rgba(0, 122, 255, 0.36),
+    0 12px 32px rgba(0, 122, 255, 0.22);
+  color: #ffffff !important;
+  text-decoration: none;
 }
 
 .wtp-access-action:active {
-  transform: scale(0.98);
+  transform: scale(0.97) translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.28);
+  transition-duration: 0.08s;
 }
