@@ -105,6 +105,26 @@
 .upload-visibility-option-check { width: 15px; height: 15px; flex: 0 0 auto; color: #0284c7; }
 .upload-visibility-spinner { width: 13px; height: 13px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: upload-visibility-spin .65s linear infinite; }
 
+@media (max-width: 640px) {
+  .upload-visibility-trigger {
+    width: 34px;
+    min-width: 34px;
+    min-height: 34px;
+    padding: 0;
+    gap: 0;
+  }
+
+  .upload-visibility-trigger-label,
+  .upload-visibility-chevron {
+    display: none;
+  }
+
+  .upload-visibility-trigger > svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
 @keyframes upload-visibility-appear {
   from { opacity: 0; transform: translateY(-5px) scale(.98); }
   to { opacity: 1; transform: translateY(0) scale(1); }
