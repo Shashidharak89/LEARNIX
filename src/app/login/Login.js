@@ -14,6 +14,7 @@ import {
   MailIcon,
   KeyRoundIcon,
   SparklesIcon,
+  ShieldCheckIcon,
 } from "@animateicons/react/lucide";
 import { FiAlertCircle } from "react-icons/fi";
 import { verifyTokenAndSyncAuth } from "@/lib/clientAuth";
@@ -38,6 +39,7 @@ export default function Login({ googleClientId = "" }) {
   const guestIconRef = useRef(null);
   const otpIconRef = useRef(null);
   const keyIconRef = useRef(null);
+  const noticeIconRef = useRef(null);
 
   const searchParams = useSearchParams();
   const redirectFromQuery =
@@ -302,6 +304,26 @@ export default function Login({ googleClientId = "" }) {
         <div className="lgn-ambient-blob lgn-ambient-blob--amber" />
       </div>
 
+      <div className="lgn-content">
+        <aside className="lgn-notice" aria-labelledby="lgn-notice-title">
+          <span className="lgn-notice-icon" aria-hidden="true">
+            <ShieldCheckIcon
+              ref={noticeIconRef}
+              size={19}
+              onMouseEnter={() => noticeIconRef.current?.startAnimation?.()}
+              onMouseLeave={() => noticeIconRef.current?.stopAnimation?.()}
+            />
+          </span>
+          <div className="lgn-notice-copy">
+            <h2 id="lgn-notice-title">Sign-in required for study materials</h2>
+            <p>
+              To help prevent spam and protect educational resources, sign in to
+              access study materials on Learnix. Thanks for your understanding
+              and continued support.
+            </p>
+          </div>
+        </aside>
+
       <div className="lgn-card">
         {/* LEFT SIDE: Login Form */}
         <div className="lgn-left">
@@ -493,6 +515,7 @@ export default function Login({ googleClientId = "" }) {
             </button>
           </div>
         </div>
+      </div>
       </div>
 
       <AdminToast
