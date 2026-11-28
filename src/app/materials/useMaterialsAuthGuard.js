@@ -9,6 +9,7 @@ export function useMaterialsAuthGuard() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -22,6 +23,8 @@ export function useMaterialsAuthGuard() {
         if (mounted) {
           setIsLoggedIn(false);
         }
+      } finally {
+        if (mounted) setAuthReady(true);
       }
     };
 
@@ -50,6 +53,6 @@ export function useMaterialsAuthGuard() {
     [isLoggedIn, pathname, searchParams, router]
   );
 
-  return { isLoggedIn, requireAuth };
+  return { isLoggedIn, authReady, requireAuth };
 }
 

@@ -88,73 +88,6 @@
   animation: resSlideDown 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.upd-auth-notice {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  min-height: 68px;
-  margin: -10px 0 24px;
-  padding: 12px 14px;
-  border: 1px solid #fecaca;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #fff7f7 0%, #fff 100%);
-  box-shadow: 0 5px 18px rgba(220, 38, 38, 0.07), inset 0 1px #fff;
-  color: #7f1d1d;
-  animation: upd-auth-notice-in 220ms var(--upd-ease) both;
-}
-
-.upd-auth-notice-icon {
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  border: 1px solid #fecaca;
-  border-radius: 13px;
-  background: #fee2e2;
-  color: #b91c1c;
-}
-
-.upd-auth-notice p {
-  flex: 1 1 auto;
-  min-width: 0;
-  margin: 0;
-  color: #7f1d1d;
-  font-size: 0.9rem;
-  line-height: 1.45;
-}
-
-.upd-auth-notice p strong { color: #b91c1c; font-weight: 750; }
-
-.upd-auth-notice-link {
-  min-height: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  flex: 0 0 auto;
-  padding: 0 15px;
-  border: 1px solid #dc2626;
-  border-radius: 999px;
-  background: #dc2626;
-  color: #fff;
-  font-size: 0.82rem;
-  font-weight: 700;
-  text-decoration: none;
-  box-shadow: 0 3px 10px rgba(220, 38, 38, 0.18);
-  transition: background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
-}
-
-.upd-auth-notice-link:hover { background: #b91c1c; box-shadow: 0 5px 14px rgba(220, 38, 38, 0.24); transform: translateY(-1px); }
-.upd-auth-notice-link:active { transform: scale(0.97); }
-.upd-auth-notice-link:focus-visible { outline: 3px solid rgba(220, 38, 38, 0.35); outline-offset: 3px; }
-
-@keyframes upd-auth-notice-in {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 .upd-intro-header {
   display: flex;
   justify-content: space-between;
@@ -1533,32 +1466,6 @@
    ============================================ */
 
 @media (max-width: 640px) {
-  .upd-auth-notice {
-    min-height: 60px;
-    gap: 9px;
-    margin: -8px 0 18px;
-    padding: 10px;
-    border-radius: 16px;
-  }
-
-  .upd-auth-notice-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 11px;
-  }
-
-  .upd-auth-notice p { font-size: 0.79rem; }
-
-  .upd-auth-notice-link {
-    width: 38px;
-    min-width: 38px;
-    min-height: 38px;
-    padding: 0;
-    border-radius: 50%;
-  }
-
-  .upd-auth-notice-link span { display: none; }
-
   .upd-intro-header {
     gap: 8px;
     flex-wrap: nowrap;

@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
-import { FiChevronRight, FiChevronDown, FiChevronUp, FiX, FiCheckCircle, FiAlertCircle, FiInfo, FiLogIn } from 'react-icons/fi';
+import { FiChevronRight, FiChevronDown, FiChevronUp, FiX, FiCheckCircle, FiAlertCircle, FiInfo } from 'react-icons/fi';
 import {
   BellIcon,
   BookmarkIcon,
@@ -32,6 +32,7 @@ import SMFeedbackModal from '../materials/SMFeedbackModal';
 import AddUpdateForm from '../upload/updates/AddUpdateForm';
 import EditUpdateModal from '../upload/updates/EditUpdateModal';
 import AdminToast from '../admin/components/AdminToast';
+import SignInNotice from '../components/SignInNotice';
 import { getYouTubeVideoId, groupConsecutiveLinks } from '../utils/youtube';
 import LinkPreview from '../components/LinkPreview';
 import YouTubeEmbed from '../components/YouTubeEmbed';
@@ -1376,23 +1377,10 @@ export default function UpdatesPage({ initialUpdateId }) {
           </div>
 
           {authReady && !isLoggedIn && (
-            <aside className="upd-auth-notice" aria-label="Sign-in required notice">
-              <span className="upd-auth-notice-icon" aria-hidden="true">
-                <FiAlertCircle size={19} />
-              </span>
-              <p>
-                <strong>Sign-in required.</strong> Sign in to access updates and their files.
-              </p>
-              <Link
-                href={`/login?redirect=${encodeURIComponent(pathname || "/updates")}`}
-                className="upd-auth-notice-link"
-                aria-label="Sign in to Learnix"
-                title="Sign in"
-              >
-                <FiLogIn size={17} aria-hidden="true" />
-                <span>Sign in</span>
-              </Link>
-            </aside>
+            <SignInNotice
+              message="Sign in to access updates and their files."
+              redirectTo={searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname || "/updates"}
+            />
           )}
 
           <div className="upd-list">

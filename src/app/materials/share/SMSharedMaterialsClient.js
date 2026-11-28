@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeftIcon, BookOpenIcon, ChevronRightIcon, DownloadIcon, FileTextIcon } from "@animateicons/react/lucide";
 import SMDirectoryNode from "@/app/admin/study-materials/SMDirectoryNode";
 import { useMaterialsAuthGuard } from "@/app/materials/useMaterialsAuthGuard";
+import SignInNotice from "@/app/components/SignInNotice";
 import "@/app/materials/SMViewer.css";
 
 const PARAMS = ["university", "college", "course", "semester", "batch", "subject", "file"];
@@ -26,7 +27,8 @@ export default function SMSharedMaterialsClient() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const breadcrumbRef = useRef(null);
-    const { requireAuth } = useMaterialsAuthGuard();
+    const { requireAuth, isLoggedIn, authReady } = useMaterialsAuthGuard();
+    const signInRedirect = searchKey ? `${pathname}?${searchKey}` : pathname || "/materials/share";
 
     useEffect(() => {
         const controller = new window.AbortController();
@@ -110,6 +112,12 @@ export default function SMSharedMaterialsClient() {
                         </div>
                     </div>
                 </header>
+                {authReady && !isLoggedIn && (
+                    <SignInNotice
+                        message="Sign in to open and download shared study materials."
+                        redirectTo={signInRedirect}
+                    />
+                )}
                 <nav className="sm-share-breadcrumbs sm-share-breadcrumbs-skeleton" aria-label="Loading location">
                     <div className="sm-share-skeleton sm-share-skeleton-crumb" />
                     <div className="sm-share-skeleton sm-share-skeleton-crumb short" />
@@ -140,6 +148,13 @@ export default function SMSharedMaterialsClient() {
                     </div>
                 </div>
             </header>
+
+            {authReady && !isLoggedIn && (
+                <SignInNotice
+                    message="Sign in to open and download shared study materials."
+                    redirectTo={signInRedirect}
+                />
+            )}
 
             {error ? (
                 <div className="sm-share-error" role="alert"><strong>We couldn’t open this link</strong><span>{error}</span></div>

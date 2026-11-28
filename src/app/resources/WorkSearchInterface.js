@@ -31,6 +31,7 @@ import SubjectTopicFilter from './SubjectTopicFilter';
 import ResourceLeaderboard from './ResourceLeaderboard';
 import ActionOverflowMenu from '../components/ActionOverflowMenu';
 import SMFeedbackModal from '../materials/SMFeedbackModal';
+import SignInNotice from '../components/SignInNotice';
 import Ads from '../components/ads/Ads';
 import ImageLoader from '../components/ImageLoader';
 import './styles/WorkSearchInterface.css';
@@ -839,6 +840,7 @@ const WorkSearchInterface = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const signInRedirect = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname || "/resources";
 
   // Restore state from URL params so refresh keeps the search/filter state
   const initialQuery = searchParams.get('q') || '';
@@ -900,11 +902,13 @@ const WorkSearchInterface = () => {
   const [showRelevant, setShowRelevant] = useState(false);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       setIsLoggedIn(!!(localStorage.getItem('token') || localStorage.getItem('usn')));
     }
+    setAuthReady(true);
   }, []);
 
   // Close filter popup when clicking outside
@@ -1473,6 +1477,12 @@ const WorkSearchInterface = () => {
           onClose={() => setShowLeaderboard(false)} 
         />
       </div>
+      {authReady && !isLoggedIn && (
+        <SignInNotice
+          message="Sign in to access resources and download shared files."
+          redirectTo={signInRedirect}
+        />
+      )}
       <SMFeedbackModal
         open={showReportModal}
         onClose={() => setShowReportModal(false)}

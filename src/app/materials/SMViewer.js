@@ -15,6 +15,7 @@ import SMDirectoryNode from "@/app/admin/study-materials/SMDirectoryNode";
 import SMAdminSearchResults from "@/app/admin/study-materials/SMAdminSearchResults";
 import SMPreferenceCard from "./SMPreferenceCard";
 import SMFeedbackModal from "./SMFeedbackModal";
+import SignInNotice from "@/app/components/SignInNotice";
 import "@/app/updates/styles/Updates.css";
 import "./SMViewer.css";
 
@@ -48,6 +49,9 @@ export default function SMViewer() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
+    const signInRedirect = searchParams.toString() ? `${pathname}?${searchParams.toString()}` : pathname || "/materials";
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [authReady, setAuthReady] = useState(false);
 
     const [universities, setUniversities] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -69,6 +73,14 @@ export default function SMViewer() {
     const searchIconRef = useRef(null);
     const searchBtnIconRef = useRef(null);
     const loadMoreIconRef = useRef(null);
+
+    useEffect(() => {
+        const frame = window.requestAnimationFrame(() => {
+            setIsLoggedIn(Boolean(localStorage.getItem("token") || localStorage.getItem("usn")));
+            setAuthReady(true);
+        });
+        return () => window.cancelAnimationFrame(frame);
+    }, []);
 
     // Initialize search from URL query parameter on mount / URL change
     useEffect(() => {
@@ -256,6 +268,13 @@ export default function SMViewer() {
                     </div>
                 </div>
             </div>
+
+            {authReady && !isLoggedIn && (
+                <SignInNotice
+                    message="Sign in to view and download study materials."
+                    redirectTo={signInRedirect}
+                />
+            )}
 
             {/* Preference Card (hidden when user searches) */}
             {!activeQuery.trim() && <SMPreferenceCard />}
