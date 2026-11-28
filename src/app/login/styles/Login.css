@@ -104,6 +104,21 @@
   line-height: 1.45;
 }
 
+.lgn-notice-highlight {
+  color: #0369a1;
+  font-weight: 700;
+}
+
+.lgn-notice-required {
+  color: #854d0e;
+  font-weight: 750;
+  background: #fef9c3;
+  border-radius: 5px;
+  padding: 0 0.2em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
 /* Main Apple Card Widget */
 .lgn-card {
   display: flex;

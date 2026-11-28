@@ -315,11 +315,13 @@ export default function Login({ googleClientId = "" }) {
             />
           </span>
           <div className="lgn-notice-copy">
-            <h2 id="lgn-notice-title">Sign-in required for study materials</h2>
+            <h2 id="lgn-notice-title">Important Notice</h2>
             <p>
-              To help prevent spam and protect educational resources, sign in to
-              access study materials on Learnix. Thanks for your understanding
-              and continued support.
+              To prevent <strong className="lgn-notice-highlight">spam</strong>,
+              protect <strong className="lgn-notice-highlight">educational resources</strong> from misuse, and
+              ensure a secure and reliable learning experience, <strong className="lgn-notice-required">sign in is required</strong> to access
+              <strong className="lgn-notice-highlight"> study materials</strong> on Learnix. Thank you for your
+              understanding and continued support.
             </p>
           </div>
         </aside>
