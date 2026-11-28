@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
-import { FiChevronRight, FiChevronDown, FiChevronUp, FiX, FiCheckCircle, FiAlertCircle, FiInfo } from 'react-icons/fi';
+import { FiChevronRight, FiChevronDown, FiChevronUp, FiX, FiCheckCircle, FiAlertCircle, FiInfo, FiLogIn } from 'react-icons/fi';
 import {
   BellIcon,
   BookmarkIcon,
@@ -1036,6 +1036,7 @@ export default function UpdatesPage({ initialUpdateId }) {
   const [hasMore, setHasMore] = useState(true);
   const [searchQuery, setSearchQuery] = useState(keywordFromUrl);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -1098,6 +1099,7 @@ export default function UpdatesPage({ initialUpdateId }) {
       const usn = localStorage.getItem('usn');
       const userId = localStorage.getItem('userId');
       setIsLoggedIn(!!(token || usn));
+      setAuthReady(true);
       if (usn) setCurrentUserUsn(usn);
       if (userId) setCurrentUserId(userId);
 
@@ -1133,6 +1135,8 @@ export default function UpdatesPage({ initialUpdateId }) {
           }
         }
       })();
+    } else {
+      setAuthReady(true);
     }
   }, []);
 
@@ -1370,6 +1374,26 @@ export default function UpdatesPage({ initialUpdateId }) {
               onClose={() => setShowLeaderboard(false)}
             />
           </div>
+
+          {authReady && !isLoggedIn && (
+            <aside className="upd-auth-notice" aria-label="Sign-in required notice">
+              <span className="upd-auth-notice-icon" aria-hidden="true">
+                <FiAlertCircle size={19} />
+              </span>
+              <p>
+                <strong>Sign-in required.</strong> Sign in to access updates and their files.
+              </p>
+              <Link
+                href={`/login?redirect=${encodeURIComponent(pathname || "/updates")}`}
+                className="upd-auth-notice-link"
+                aria-label="Sign in to Learnix"
+                title="Sign in"
+              >
+                <FiLogIn size={17} aria-hidden="true" />
+                <span>Sign in</span>
+              </Link>
+            </aside>
+          )}
 
           <div className="upd-list">
             {updates.length === 0 && !loading && (
