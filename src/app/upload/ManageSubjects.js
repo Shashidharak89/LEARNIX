@@ -74,12 +74,11 @@ export default function ManageSubjects() {
   const [usn, setUsn] = useState("");
   const [subjects, setSubjects] = useState([]);
   const [page, setPage] = useState(1);
-  const [limit] = useState(10);
+  const [limit] = useState(20);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [toasts, setToasts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [allUsers, setAllUsers] = useState([]);
   const [addOpen, setAddOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [activeQuery, setActiveQuery] = useState("");
@@ -91,9 +90,7 @@ export default function ManageSubjects() {
   useEffect(() => {
     async function verifyAuthAndInit() {
       const storedToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-      const storedUsn = typeof window !== "undefined" ? localStorage.getItem("usn") : null;
-
-      if (!storedToken && !storedUsn) {
+      if (!storedToken) {
         setAuthStatus("unauthenticated");
         return;
       }
@@ -104,25 +101,12 @@ export default function ManageSubjects() {
           const userUsn = String(user.usn).toUpperCase();
           setUsn(userUsn);
           setAuthStatus("authenticated");
-          fetchSubjects(userUsn, 1, false, "");
-          fetchAllUsers();
-        } else if (storedUsn) {
-          setUsn(storedUsn);
-          setAuthStatus("authenticated");
-          fetchSubjects(storedUsn, 1, false, "");
-          fetchAllUsers();
+          fetchSubjects(1, false, "");
         } else {
           setAuthStatus("unauthenticated");
         }
       } catch {
-        if (storedUsn) {
-          setUsn(storedUsn);
-          setAuthStatus("authenticated");
-          fetchSubjects(storedUsn, 1, false, "");
-          fetchAllUsers();
-        } else {
-          setAuthStatus("unauthenticated");
-        }
+        setAuthStatus("unauthenticated");
       }
     }
 
@@ -153,20 +137,14 @@ export default function ManageSubjects() {
     pushToast(text, type === "error" ? "error" : "success");
 
   /* ── API with Auth Headers ── */
-  const fetchSubjects = async (userUsn, pageNum = 1, append = false, query = activeQuery) => {
+  const fetchSubjects = async (pageNum = 1, append = false, query = activeQuery) => {
     if (pageNum === 1) setIsLoading(true);
     else setLoadingMore(true);
     try {
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const params = {
-        usn: userUsn || usn,
-        page: pageNum,
-        limit,
-      };
-      if (typeof query === "string" && query.trim()) {
-        params.q = query.trim();
-      }
+      if (!token) throw new Error("Authentication required");
+      const params = { page: pageNum, size: limit, search: query.trim() };
 
       const res = await axios.get("/api/work/get", { params, headers });
       const fetched = res.data.subjects || [];
@@ -185,37 +163,28 @@ export default function ManageSubjects() {
     }
   };
 
-  const fetchAllUsers = async () => {
-    try {
-      const res = await axios.get("/api/work/getall");
-      setAllUsers(res.data.users || []);
-    } catch (err) {
-      console.error("Failed to fetch all users:", err);
-    }
-  };
-
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault();
     const q = searchInput.trim();
     setActiveQuery(q);
     setIsSearching(true);
-    fetchSubjects(usn, 1, false, q);
+    fetchSubjects(1, false, q);
   };
 
   const handleClearSearch = () => {
     setSearchInput("");
     setActiveQuery("");
     setIsSearching(true);
-    fetchSubjects(usn, 1, false, "");
+    fetchSubjects(1, false, "");
   };
 
   const handleSubjectDelete = () => {
-    fetchSubjects(usn, 1);
+    fetchSubjects(1);
     pushToast("Subject deleted successfully!");
   };
 
   const handleTopicDelete = () => {
-    fetchSubjects(usn, 1);
+    fetchSubjects(1);
     pushToast("Topic deleted successfully!");
   };
 
@@ -224,8 +193,8 @@ export default function ManageSubjects() {
     try {
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      await axios.post("/api/subject", { usn, subject: subjectName, visibility }, { headers });
-      fetchSubjects(usn, 1);
+      await axios.post("/api/subject", { subject: subjectName, visibility }, { headers });
+      fetchSubjects(1);
       pushToast("Subject added successfully!");
       setAddOpen(false);
     } catch (err) {
@@ -242,8 +211,8 @@ export default function ManageSubjects() {
     try {
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      await axios.post("/api/topic", { usn, subject, topic: topicName, images: [], visibility }, { headers });
-      fetchSubjects(usn, 1);
+      await axios.post("/api/topic", { subject, topic: topicName, images: [], visibility }, { headers });
+      fetchSubjects(1);
       pushToast("Topic added successfully!");
     } catch (err) {
       console.error(err);
@@ -253,7 +222,7 @@ export default function ManageSubjects() {
     }
   };
 
-  const refreshSubjects = () => fetchSubjects(usn, 1);
+  const refreshSubjects = () => fetchSubjects(1);
 
   if (authStatus === "verifying") {
     return <ManageSubjectsSkeleton />;
@@ -485,7 +454,7 @@ export default function ManageSubjects() {
             <FiPlus /> Create a new subject
           </p>
           <AddSubjectForm
-            allUsers={allUsers}
+            subjects={subjects}
             isLoading={isLoading}
             onAddSubject={handleAddSubject}
           />
@@ -543,7 +512,6 @@ export default function ManageSubjects() {
 
         <SubjectsGrid
           subjects={subjects}
-          allUsers={allUsers}
           usn={usn}
           isLoading={isLoading}
           onAddTopic={handleAddTopic}
@@ -556,7 +524,7 @@ export default function ManageSubjects() {
         {hasMore && (
           <div className="ms-load-more-wrap">
             <button
-              onClick={() => fetchSubjects(usn, page + 1, true)}
+              onClick={() => fetchSubjects(page + 1, true)}
               disabled={loadingMore}
               className="ms-load-more-btn"
             >

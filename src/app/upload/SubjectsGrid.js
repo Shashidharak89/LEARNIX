@@ -22,8 +22,7 @@ import axios from "axios";
 import "./styles/SubjectsGrid.css";
 export default function SubjectsGrid({ 
   subjects, 
-  allUsers, 
-  usn, 
+  usn,
   isLoading, 
   onAddTopic, 
   onSubjectDelete, 
@@ -84,27 +83,9 @@ export default function SubjectsGrid({
 
   useEffect(() => {
     expandedSubjects.forEach((subjectId) => {
-      fetchTopicsForSubject(subjectId, 1, 10);
+      fetchTopicsForSubject(subjectId, 1, 20);
     });
   }, [subjects]);
-
-  const getAllTopicsForSubject = (subjectName) => {
-    const topicSet = new Set();
-    allUsers.forEach(user => {
-      if (user.subjects && Array.isArray(user.subjects)) {
-        user.subjects.forEach(subjectObj => {
-          if (subjectObj.subject === subjectName && subjectObj.topics && Array.isArray(subjectObj.topics)) {
-            subjectObj.topics.forEach(topicObj => {
-              if (topicObj.topic && topicObj.topic.trim()) {
-                topicSet.add(topicObj.topic.trim());
-              }
-            });
-          }
-        });
-      }
-    });
-    return Array.from(topicSet).sort();
-  };
 
   const handleTopicSelectForSubject = (e) => {
     setTopicName(e.target.value);
@@ -121,7 +102,7 @@ export default function SubjectsGrid({
     }
   };
 
-  const fetchTopicsForSubject = async (subjectId, page = 1, limit = 10) => {
+  const fetchTopicsForSubject = async (subjectId, page = 1, limit = 20) => {
     if (!subjectId) return;
     setTopicsBySubject((prev) => ({
       ...prev,
@@ -132,11 +113,9 @@ export default function SubjectsGrid({
     }));
 
     try {
-      const url = `/api/topic/by-subject?subjectId=${encodeURIComponent(subjectId)}&page=${page}&limit=${limit}`;
-      const headers = {};
-      if (usn) headers['x-usn'] = usn;
+      const url = `/api/topic/by-subject?subjectId=${encodeURIComponent(subjectId)}&page=${page}&size=${limit}&search=`;
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
       const res = await fetch(url, { headers });
       const data = await res.json();
       if (!res.ok) {
@@ -152,21 +131,23 @@ export default function SubjectsGrid({
       }
 
       const received = data.topics || [];
-      const paging = data.paging || { page: 1, limit, total: received.length, returned: received.length };
+        const paging = data.paging || { page: 1, size: limit, total: received.length, returned: received.length };
 
       setTopicsBySubject((prev) => {
         const prevTopics = page === 1 ? [] : (prev[subjectId]?.topics || []);
         const combined = [...prevTopics, ...received];
-        const hasMore = paging.limit > 0 ? combined.length < (paging.total || 0) : false;
+        const hasMore = typeof paging.hasMore === "boolean"
+          ? paging.hasMore
+          : combined.length < (paging.total || 0);
         return {
           ...prev,
           [subjectId]: {
             topics: combined,
             page: paging.page,
-            limit: paging.limit,
+            limit: paging.size || paging.limit,
             total: paging.total,
             returned: paging.returned,
-            hasMore,
+            hasMore: paging.hasMore ?? hasMore,
             loading: false
           }
         };
@@ -240,7 +221,7 @@ export default function SubjectsGrid({
     if (s.has(subjectId)) {
       const current = topicsBySubject[subjectId];
       if (!current || !(current.topics && current.topics.length)) {
-        fetchTopicsForSubject(subjectId, 1, 10);
+        fetchTopicsForSubject(subjectId, 1, 20);
       }
     }
   };
@@ -447,8 +428,8 @@ export default function SubjectsGrid({
 
       {subjects.map((sub, idx) => {
         const subjectKey = sub._id ?? `${idx}-${sub.subject}`;
-        const topicsForThisSubject = getAllTopicsForSubject(sub.subject);
         const paged = topicsBySubject[subjectKey] || { topics: [], loading: false, page: 0, hasMore: false };
+        const topicsForThisSubject = paged.topics.map((item) => item.topic).filter(Boolean);
         const subjectVisibility = sub.visibility || "public";
         const isToggling = togglingSubject === sub._id;
         const isExpanded = expandedSubjects.has(subjectKey);

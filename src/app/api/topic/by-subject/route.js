@@ -1,116 +1,94 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
-import User from "@/models/User";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
-import { getVisibility } from "@/lib/visibility";
 import { resolveAuthenticatedUser } from "@/lib/authUser";
 
 export const GET = async (request) => {
   try {
     await connectDB();
 
-    // Get query params
     const { searchParams } = new URL(request.url);
-    const subjectName = searchParams.get('subject');
-    const subjectId = searchParams.get('subjectId');
-    const page = Number(searchParams.get('page') || 1);
-    const limit = Number(searchParams.get('limit') || 0);
+    const subjectName = searchParams.get("subject");
+    const subjectId = searchParams.get("subjectId");
+    const page = Math.max(1, Number.parseInt(searchParams.get("page") || "1", 10) || 1);
+    const size = Math.min(100, Math.max(1, Number.parseInt(searchParams.get("size") || searchParams.get("limit") || "20", 10) || 20));
+    const search = (searchParams.get("search") || "").trim();
 
-    // If subjectId is provided, return paged topics for that subject (server-side pagination)
+    // The upload page requests a subject ID. Require a valid bearer token and
+    // scope the topic list to the authenticated user's own subject.
     if (subjectId) {
-      // Find subject to check ownership and visibility
-      const subjectObj = await Subject.findById(subjectId).lean();
-      if (!subjectObj) {
+      const auth = await resolveAuthenticatedUser(request, { withMeta: true });
+      if (!auth.user) {
+        return NextResponse.json({ error: "Authentication required. Please log in." }, { status: 401 });
+      }
+
+      const subject = await Subject.findOne({ _id: subjectId, userId: auth.user._id })
+        .select("_id")
+        .lean();
+      if (!subject) {
         return NextResponse.json({ error: "Subject not found" }, { status: 404 });
       }
 
-      // Determine requester (if provided) and whether they're the owner
-      const auth = await resolveAuthenticatedUser(request);
-      const usn = request.headers.get("x-usn");
-      const currentUser = auth || (usn ? await User.findOne({ usn: usn.toUpperCase() }).lean() : null);
-      const isOwner = currentUser && subjectObj.userId.toString() === currentUser._id.toString();
-
-      const subjectVisibility = getVisibility(subjectObj);
-
-      // If subject is private and requester is not owner, deny access
-      if (subjectVisibility === "private" && !isOwner) {
-        return NextResponse.json({ error: "This subject is private and not accessible" }, { status: 403 });
-      }
-
-      // Build query: include private topics only for owner
-      const query = { subjectId };
-      if (!isOwner) {
-        query.$or = [{ visibility: "public" }, { visibility: "unlisted" }, { visibility: { $exists: false } }];
+      const query = { subjectId: subject._id, userId: auth.user._id };
+      if (search) {
+        const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const regex = new RegExp(escaped, "i");
+        query.$or = [{ topic: regex }, { content: regex }];
       }
 
       const total = await Topic.countDocuments(query);
-      let topics = [];
-      if (limit > 0) {
-        const skip = (page - 1) * limit;
-        topics = await Topic.find(query).sort({ timestamp: -1 }).skip(skip).limit(limit).lean();
-      } else {
-        topics = await Topic.find(query).sort({ timestamp: -1 }).lean();
-      }
+      const topics = await Topic.find(query)
+        .select("_id subjectId topic content images visibility timestamp")
+        .sort({ timestamp: -1 })
+        .skip((page - 1) * size)
+        .limit(size)
+        .lean();
 
-      return NextResponse.json({ subjectId, topics, paging: { page, limit, total, returned: topics.length } });
+      return NextResponse.json({
+        subjectId: subject._id,
+        topics: topics.map((topic) => ({
+          _id: topic._id,
+          subjectId: topic.subjectId,
+          topic: topic.topic,
+          content: topic.content || "",
+          images: topic.images || [],
+          visibility: topic.visibility || "public",
+          timestamp: topic.timestamp,
+        })),
+        paging: { page, size, limit: size, total, returned: topics.length, hasMore: page * size < total },
+        search,
+      });
     }
 
-    // Fallback: old behavior when subject name is provided — return unique topic names across public subjects
+    // The subject-name variant remains the public topic-name lookup used by
+    // the search filter, and returns names only.
     if (!subjectName) {
       return NextResponse.json({ error: "subject or subjectId parameter is required" }, { status: 400 });
     }
 
-    // Find all publicly listed subjects with this name
-    const subjects = await Subject.find({ 
+    const subjects = await Subject.find({
       subject: subjectName,
       $or: [{ visibility: "public" }, { visibility: { $exists: false } }],
-    }).lean();
-    
-    // Map to store unique topics with their latest timestamp
-    const topicsMap = {};
-    
-    // Get all publicly listed topics from these subjects
-    for (const subject of subjects) {
-      const topics = await Topic.find({
-        subjectId: subject._id,
-        $or: [{ visibility: "public" }, { visibility: { $exists: false } }],
-      }).lean();
-      
-      topics.forEach(topic => {
-        const topicName = topic.topic;
-        const topicTime = topic.timestamp ? new Date(topic.timestamp) : null;
-        
-        // Keep the latest timestamp for each unique topic name
-        if (!topicsMap[topicName] || (topicTime && (!topicsMap[topicName].timestamp || topicTime > topicsMap[topicName].timestamp))) {
-          topicsMap[topicName] = {
-            name: topicName,
-            timestamp: topicTime
-          };
-        }
-      });
-    }
+    }).select("_id").lean();
 
-    // Sort topics by timestamp descending (newest first)
-    const topics = Object.values(topicsMap)
-      .sort((a, b) => {
-        if (!a.timestamp && !b.timestamp) return a.name.localeCompare(b.name);
-        if (!a.timestamp) return 1;
-        if (!b.timestamp) return -1;
-        return new Date(b.timestamp) - new Date(a.timestamp);
-      })
-      .map(t => t.name);
+    const subjectIds = subjects.map((subject) => subject._id);
+    const topics = await Topic.aggregate([
+      {
+        $match: {
+          subjectId: { $in: subjectIds },
+          $or: [{ visibility: "public" }, { visibility: { $exists: false } }],
+          topic: { $exists: true, $nin: ["", null] },
+        },
+      },
+      { $group: { _id: "$topic", latestTimestamp: { $max: "$timestamp" } } },
+      { $sort: { latestTimestamp: -1, _id: 1 } },
+      { $project: { _id: 0, name: "$_id" } },
+    ]);
 
-    return NextResponse.json({ 
-      subject: subjectName,
-      topics,
-      count: topics.length 
-    });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json(
-      { error: "Failed to fetch topics", details: err.message }, 
-      { status: 500 }
-    );
+    return NextResponse.json({ subject: subjectName, topics: topics.map((topic) => topic.name), count: topics.length });
+  } catch (error) {
+    console.error("GET /api/topic/by-subject error:", error);
+    return NextResponse.json({ error: "Failed to fetch topics." }, { status: 500 });
   }
 };

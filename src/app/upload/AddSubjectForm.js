@@ -4,7 +4,7 @@ import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import "./styles/AddSubjectForm.css";
 
-export default function AddSubjectForm({ allUsers, isLoading, onAddSubject }) {
+export default function AddSubjectForm({ subjects = [], isLoading, onAddSubject }) {
   const [newSubject, setNewSubject] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
   const [isCustomSubject, setIsCustomSubject] = useState(true);
@@ -12,13 +12,9 @@ export default function AddSubjectForm({ allUsers, isLoading, onAddSubject }) {
 
   const getAllSubjects = () => {
     const subjectSet = new Set();
-    allUsers.forEach(user => {
-      if (user.subjects && Array.isArray(user.subjects)) {
-        user.subjects.forEach(subjectObj => {
-          if (subjectObj.subject && subjectObj.subject.trim()) {
-            subjectSet.add(subjectObj.subject.trim());
-          }
-        });
+    subjects.forEach((subjectObj) => {
+      if (subjectObj.subject && subjectObj.subject.trim()) {
+        subjectSet.add(subjectObj.subject.trim());
       }
     });
     return Array.from(subjectSet).sort();
