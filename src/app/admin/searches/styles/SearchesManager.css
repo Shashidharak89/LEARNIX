@@ -364,6 +364,30 @@
   vertical-align: middle;
 }
 
+.sm-actions-heading { width: 48px; }
+.sm-search-action-cell { width: 48px; text-align: center; }
+.sm-search-delete-btn {
+  width: 36px;
+  height: 36px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid #fee2e2;
+  border-radius: 12px;
+  background: #fff7f7;
+  color: #dc2626;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+.sm-search-delete-btn:hover {
+  border-color: #fca5a5;
+  background: #fee2e2;
+  color: #b91c1c;
+  box-shadow: 0 3px 10px rgba(220, 38, 38, .12);
+  transform: translateY(-1px);
+}
+.sm-search-delete-btn:active { transform: scale(.96); }
+.sm-search-delete-btn:focus-visible { outline: 3px solid rgba(220, 38, 38, .25); outline-offset: 2px; }
+
 /* Keyword Cell */
 .sm-keyword-wrap {
   display: flex;

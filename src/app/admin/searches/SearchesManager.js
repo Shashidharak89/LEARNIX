@@ -26,9 +26,12 @@ import {
   FiHash,
   FiMonitor,
   FiSmartphone,
-  FiBarChart2
+  FiBarChart2,
+  FiTrash2,
 } from "react-icons/fi";
 import { authFetch } from "@/lib/clientAuth";
+import AdminModal from "@/app/admin/components/AdminModal";
+import AdminToast from "@/app/admin/components/AdminToast";
 import "./styles/SearchesManager.css";
 
 const SOURCES = [
@@ -147,6 +150,8 @@ export default function SearchesManager() {
   const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState(null);
   const [downloadingCsv, setDownloadingCsv] = useState(false);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, record: null, loading: false });
+  const [toast, setToast] = useState(null);
 
   // User details modal state
   const [activeUserModal, setActiveUserModal] = useState(null);
@@ -168,7 +173,7 @@ export default function SearchesManager() {
         finalQuery = finalQuery ? `${finalQuery} ${activeSource}` : activeSource;
       }
 
-      const params = new URLSearchParams({
+      const params = new globalThis.URLSearchParams({
         page: String(targetPage),
         size: String(size),
         search: finalQuery,
@@ -274,7 +279,7 @@ export default function SearchesManager() {
     setModalUserData(null);
 
     try {
-      const queryParams = new URLSearchParams();
+      const queryParams = new globalThis.URLSearchParams();
       if (record.userId) queryParams.set("userId", record.userId);
       if (record.usn) queryParams.set("usn", record.usn);
 
@@ -297,6 +302,29 @@ export default function SearchesManager() {
     setActiveUserModal(null);
     setModalUserData(null);
     setModalError(null);
+  };
+
+  const handleRequestDelete = (record) => {
+    setDeleteModal({ isOpen: true, record, loading: false });
+  };
+
+  const handleConfirmDelete = async () => {
+    const record = deleteModal.record;
+    if (!record?.id || deleteModal.loading) return;
+    setDeleteModal((current) => ({ ...current, loading: true }));
+
+    try {
+      const res = await authFetch(`/api/admin/searches/${encodeURIComponent(record.id)}`, { method: "DELETE" });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) throw new Error(json.error || "Failed to delete search record.");
+
+      setDeleteModal({ isOpen: false, record: null, loading: false });
+      setToast({ message: "Search record deleted.", type: "success" });
+      await fetchSearches(1, false);
+    } catch (deleteError) {
+      setToast({ message: deleteError.message || "Failed to delete search record.", type: "error" });
+      setDeleteModal((current) => ({ ...current, loading: false }));
+    }
   };
 
   return (
@@ -585,6 +613,7 @@ export default function SearchesManager() {
                 <th style={{ width: "14%" }}>OS</th>
                 <th style={{ width: "20%" }}>Timestamp</th>
                 <th style={{ width: "8%" }}>IP</th>
+                <th className="sm-actions-heading" aria-label="Actions" />
               </tr>
             </thead>
             <tbody>
@@ -601,7 +630,7 @@ export default function SearchesManager() {
                 ))
               ) : data.length === 0 ? (
                 <tr>
-                  <td colSpan={6}>
+                  <td colSpan={7}>
                     <div className="sm-empty">
                       <div className="sm-empty-icon">
                         <FiSearch size={28} />
@@ -673,6 +702,17 @@ export default function SearchesManager() {
                       ) : (
                         <span className="sm-empty-dash">—</span>
                       )}
+                    </td>
+                    <td className="sm-search-action-cell">
+                      <button
+                        type="button"
+                        className="sm-search-delete-btn"
+                        onClick={() => handleRequestDelete(item)}
+                        aria-label={`Delete search for ${item.keyword}`}
+                        title="Delete search record"
+                      >
+                        <FiTrash2 size={16} aria-hidden="true" />
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -816,6 +856,19 @@ export default function SearchesManager() {
           </div>
         </div>
       )}
+
+      <AdminModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => !deleteModal.loading && setDeleteModal({ isOpen: false, record: null, loading: false })}
+        onConfirm={handleConfirmDelete}
+        title="Delete search record?"
+        message={deleteModal.record ? `This will permanently delete the search “${deleteModal.record.keyword}” from the search history.` : "This search record will be permanently deleted."}
+        confirmText="Delete search"
+        cancelText="Keep record"
+        variant="danger"
+        loading={deleteModal.loading}
+      />
+      <AdminToast toast={toast} onClose={() => setToast(null)} />
     </div>
   );
 }
