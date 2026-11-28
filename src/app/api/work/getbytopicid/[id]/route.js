@@ -13,6 +13,14 @@ export const GET = async (req, { params }) => {
   try {
     await connectDB();
 
+    const auth = await resolveAuthenticatedUser(req, { withMeta: true });
+    if (!auth.user) {
+      return NextResponse.json(
+        { error: "Please log in to view this resource." },
+        { status: 401 }
+      );
+    }
+
     const { id } = await params;
 
     const topic = await Topic.findById(id).lean();
@@ -21,14 +29,6 @@ export const GET = async (req, { params }) => {
       return NextResponse.json(
         { error: "Topic not found" },
         { status: 404 }
-      );
-    }
-
-    const auth = await resolveAuthenticatedUser(req, { withMeta: true });
-    if (auth.tokenProvided && auth.tokenInvalid) {
-      return NextResponse.json(
-        { error: "Token expired or invalid. Please login again." },
-        { status: 401 }
       );
     }
 

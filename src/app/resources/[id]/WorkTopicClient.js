@@ -3,12 +3,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { FaArrowLeft } from "react-icons/fa";
 import { Navbar } from "../../components/Navbar";
-import Footer from "../../components/Footer";
 import WorkTopicPage from "./WorkTopicPage";
 import ShareToUsersModal from "./ShareToUsersModal";
-import { authFetch } from "@/lib/clientAuth";
+import { authFetch, verifyTokenAndSyncAuth } from "@/lib/clientAuth";
 import { LockIcon } from "@animateicons/react/lucide";
 
 // LocalStorage key for saved topics
@@ -103,9 +101,13 @@ const WorkTopicPageWrapper = ({ isAndroid: serverIsAndroid }) => {
   const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
-    const hasSession = Boolean(localStorage.getItem("token") || localStorage.getItem("usn"));
-    setIsLoggedIn(hasSession);
-    setAuthReady(true);
+    let active = true;
+    verifyTokenAndSyncAuth().then((user) => {
+      if (!active) return;
+      setIsLoggedIn(Boolean(user));
+      setAuthReady(true);
+    });
+    return () => { active = false; };
   }, []);
 
   useEffect(() => {
@@ -127,20 +129,29 @@ const WorkTopicPageWrapper = ({ isAndroid: serverIsAndroid }) => {
   const [sharePayload, setSharePayload] = useState({ url: "", text: "" });
 
   useEffect(() => {
-    if (isLoggedIn) return;
-    const handleLogin = () => {
-      setIsLoggedIn(Boolean(localStorage.getItem("token") || localStorage.getItem("usn")));
+    const handleLogin = async () => {
+      const user = await verifyTokenAndSyncAuth();
+      setIsLoggedIn(Boolean(user));
+      setAuthReady(true);
     };
     window.addEventListener("storage", handleLogin);
-    window.addEventListener("learnix-auth-changed", handleLogin);
+    window.addEventListener("learnix:auth-synced", handleLogin);
     return () => {
       window.removeEventListener("storage", handleLogin);
-      window.removeEventListener("learnix-auth-changed", handleLogin);
+      window.removeEventListener("learnix:auth-synced", handleLogin);
     };
-  }, [isLoggedIn]);
+  }, []);
 
   useEffect(() => {
     if (!id) return;
+    if (!authReady) return;
+    if (!isLoggedIn) {
+      setData(null);
+      setLoading(false);
+      setError(null);
+      setUsingCachedData(false);
+      return;
+    }
 
     // Check if topic is saved and load cached data first
     const cachedData = getSavedTopicById(id);
@@ -159,6 +170,12 @@ const WorkTopicPageWrapper = ({ isAndroid: serverIsAndroid }) => {
           new Promise(resolve => setTimeout(resolve, minDelay))
         ]);
         
+        if (res.status === 401) {
+          setIsLoggedIn(false);
+          setData(null);
+          setUsingCachedData(false);
+          throw new Error("Please log in to view this resource.");
+        }
         if (!res.ok) throw new Error("Failed to fetch data");
         const json = await res.json();
         setData(json);
@@ -182,7 +199,7 @@ const WorkTopicPageWrapper = ({ isAndroid: serverIsAndroid }) => {
     setIsSaved(isTopicSaved(id));
 
     fetchData();
-  }, [id]);
+  }, [id, authReady, isLoggedIn]);
 
 
   const downloadTopicAsPDF = async (data, options = {}) => {
@@ -369,9 +386,28 @@ const WorkTopicPageWrapper = ({ isAndroid: serverIsAndroid }) => {
   return (
     <div className="wtp-page-wrapper">
       <Navbar />
-      
-      <div className={`wtp-resource-shell${!isLoggedIn ? " is-locked" : ""}`}>
-        <div className="wtp-resource-content" aria-hidden={!isLoggedIn || undefined}>
+      {!authReady ? (
+        <main className="wtp-access-area" aria-live="polite">
+          <div className="wtp-access-loading" role="status">Checking your sign-in…</div>
+        </main>
+      ) : !isLoggedIn ? (
+        <main className="wtp-access-area">
+          <section className="wtp-access-card" aria-labelledby="wtp-login-title">
+            <span className="wtp-access-icon" aria-hidden="true">
+              <LockIcon size={23} />
+            </span>
+            <p className="wtp-access-eyebrow">RESOURCE ACCESS</p>
+            <h1 id="wtp-login-title">Login required</h1>
+            <p className="wtp-access-copy">
+              Please log in to access this resource.
+            </p>
+            <Link href={`/login?redirect=${encodeURIComponent(`/resources/${id}`)}`} className="wtp-access-action">
+              Log in or register
+            </Link>
+          </section>
+        </main>
+      ) : (
+        <>
           <WorkTopicPage
             data={data}
             loading={loading && !usingCachedData}
@@ -382,35 +418,15 @@ const WorkTopicPageWrapper = ({ isAndroid: serverIsAndroid }) => {
             usingCachedData={usingCachedData}
             isAndroid={isAndroid}
           />
-        </div>
 
-        {!isLoggedIn && authReady && (
-          <div className="wtp-login-overlay" role="dialog" aria-modal="true" aria-labelledby="wtp-login-title">
-            <section className="wtp-login-card">
-              <span className="wtp-login-icon" aria-hidden="true">
-                <LockIcon size={23} />
-              </span>
-              <p className="wtp-login-eyebrow">LEARNIX RESOURCES</p>
-              <h1 id="wtp-login-title">Sign in to view this resource</h1>
-              <p className="wtp-login-copy">
-                Log in to access study resources and downloads shared on Learnix.
-              </p>
-              <Link href={`/login?redirect=${encodeURIComponent(`/resources/${id}`)}`} className="wtp-login-action">
-                Log in or register
-              </Link>
-              <Link href="/resources" className="wtp-login-back">Back to resources</Link>
-            </section>
-          </div>
-        )}
-      </div>
-
-      <ShareToUsersModal
-        open={shareModalOpen}
-        onClose={() => setShareModalOpen(false)}
-        shareUrl={sharePayload.url}
-        shareText={sharePayload.text}
-      />
-      
+          <ShareToUsersModal
+            open={shareModalOpen}
+            onClose={() => setShareModalOpen(false)}
+            shareUrl={sharePayload.url}
+            shareText={sharePayload.text}
+          />
+        </>
+      )}
 
       <style jsx>{`
         .wtp-page-wrapper {
@@ -419,75 +435,61 @@ const WorkTopicPageWrapper = ({ isAndroid: serverIsAndroid }) => {
           flex-direction: column;
           background-color: #ffffff;
         }
-        .wtp-resource-shell {
-          flex: 1;
-          position: relative;
-          isolation: isolate;
-        }
-        .wtp-resource-content {
-          min-height: 100%;
-          transition: filter 220ms ease, transform 220ms ease;
-        }
-        .wtp-resource-shell.is-locked .wtp-resource-content {
-          filter: blur(7px);
-          opacity: .64;
-          pointer-events: none;
-          user-select: none;
-          transform: scale(.995);
-        }
-        .wtp-login-overlay {
-          position: fixed;
-          inset: 0;
-          z-index: 20000;
+        .wtp-access-area {
+          min-height: 60vh;
+          width: 100%;
           display: grid;
           place-items: center;
-          padding: 1rem;
-          background: rgba(15, 23, 42, .34);
-          backdrop-filter: blur(5px);
-          -webkit-backdrop-filter: blur(5px);
+          padding: 2rem 1rem;
+          background: #ffffff;
         }
-        .wtp-login-card {
-          width: min(100%, 410px);
-          padding: 2rem;
+        .wtp-access-card {
+          width: min(100%, 390px);
+          padding: 1.75rem 1.8rem;
           text-align: center;
-          border: 1px solid rgba(255,255,255,.85);
-          border-radius: 28px;
-          background: rgba(255,255,255,.96);
-          box-shadow: 0 24px 80px rgba(15,23,42,.2), inset 0 1px 0 #fff;
-          animation: wtp-login-enter 220ms cubic-bezier(.2,.8,.2,1) both;
+          border: 1px solid #e2e8f0;
+          border-radius: 24px;
+          background: #ffffff;
+          box-shadow: 0 10px 30px rgba(15,23,42,.07), inset 0 1px 0 #ffffff;
         }
-        .wtp-login-icon {
-          width: 3.25rem;
-          height: 3.25rem;
-          margin: 0 auto 1rem;
+        .wtp-access-loading {
+          color: #475569;
+          font-size: .9rem;
+        }
+        .wtp-access-icon {
+          width: 3.1rem;
+          height: 3.1rem;
+          margin: 0 auto .9rem;
           display: grid;
           place-items: center;
           color: #0369a1;
           background: #e0f2fe;
           border: 1px solid #bae6fd;
-          border-radius: 20px;
+          border-radius: 17px;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 5px 12px rgba(2,132,199,.08);
         }
-        .wtp-login-eyebrow {
+        .wtp-access-eyebrow {
           margin: 0 0 .55rem;
           color: #0369a1;
           font-size: .7rem;
           font-weight: 750;
           letter-spacing: .1em;
         }
-        .wtp-login-card h1 {
+        .wtp-access-card h1 {
           margin: 0;
           color: #0f172a;
           font-size: clamp(1.25rem, 5vw, 1.55rem);
           line-height: 1.25;
           letter-spacing: -.025em;
         }
-        .wtp-login-copy {
-          margin: .7rem 0 1.35rem;
+        .wtp-access-copy {
+          max-width: 31ch;
+          margin: .7rem auto 1.25rem;
           color: #475569;
           font-size: .92rem;
           line-height: 1.5;
         }
-        .wtp-login-action {
+        .wtp-access-action {
           min-height: 48px;
           display: flex;
           align-items: center;
@@ -500,28 +502,17 @@ const WorkTopicPageWrapper = ({ isAndroid: serverIsAndroid }) => {
           font-weight: 700;
           text-decoration: none;
           box-shadow: 0 6px 16px rgba(2,132,199,.22);
-          transition: background 160ms ease, transform 160ms ease;
+          transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
         }
-        .wtp-login-action:hover { background: #0369a1; transform: translateY(-1px); }
-        .wtp-login-back {
-          display: inline-block;
-          margin-top: 1rem;
-          color: #475569;
-          font-size: .84rem;
-          font-weight: 600;
-          text-decoration: none;
-        }
-        .wtp-login-back:hover { color: #0369a1; }
-        @keyframes wtp-login-enter {
-          from { opacity: 0; transform: translateY(8px) scale(.98); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
-        }
+        .wtp-access-action:hover { background: #0369a1; transform: translateY(-1px); box-shadow: 0 8px 18px rgba(2,132,199,.25); }
+        .wtp-access-action:focus-visible { outline: 3px solid #7dd3fc; outline-offset: 3px; }
         @media (max-width: 480px) {
-          .wtp-login-card { padding: 1.45rem 1.2rem; border-radius: 24px; }
-          .wtp-login-copy { font-size: .86rem; }
+          .wtp-access-area { min-height: 55vh; padding: 1.5rem 1rem; }
+          .wtp-access-card { padding: 1.4rem 1.1rem; border-radius: 21px; }
+          .wtp-access-copy { font-size: .86rem; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .wtp-resource-content, .wtp-login-card, .wtp-login-action { transition: none; animation: none; }
+          .wtp-access-action { transition: none; }
         }
       `}</style>
     </div>
