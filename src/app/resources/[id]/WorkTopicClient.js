@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Navbar } from "../../components/Navbar";
-import WorkTopicPage from "./WorkTopicPage";
+import WorkTopicPage, { FullPageSkeleton } from "./WorkTopicPage";
 import ShareToUsersModal from "./ShareToUsersModal";
 import { authFetch, verifyTokenAndSyncAuth } from "@/lib/clientAuth";
 import { LockIcon } from "@animateicons/react/lucide";
@@ -387,25 +387,26 @@ const WorkTopicPageWrapper = ({ isAndroid: serverIsAndroid }) => {
     <div className="wtp-page-wrapper">
       <Navbar />
       {!authReady ? (
-        <main className="wtp-access-area" aria-live="polite">
-          <div className="wtp-access-loading" role="status">Checking your sign-in…</div>
-        </main>
+        <FullPageSkeleton />
       ) : !isLoggedIn ? (
-        <main className="wtp-access-area">
-          <section className="wtp-access-card" aria-labelledby="wtp-login-title">
-            <span className="wtp-access-icon" aria-hidden="true">
-              <LockIcon size={23} />
-            </span>
-            <p className="wtp-access-eyebrow">RESOURCE ACCESS</p>
-            <h1 id="wtp-login-title">Login required</h1>
-            <p className="wtp-access-copy">
-              Please log in to access this resource.
-            </p>
-            <Link href={`/login?redirect=${encodeURIComponent(`/resources/${id}`)}`} className="wtp-access-action">
-              Log in or register
-            </Link>
-          </section>
-        </main>
+        <div className="wtp-locked-shell">
+          <FullPageSkeleton />
+          <div className="wtp-locked-overlay" role="dialog" aria-labelledby="wtp-login-title">
+            <section className="wtp-access-card wtp-access-card--apple">
+              <span className="wtp-access-icon" aria-hidden="true">
+                <LockIcon size={23} />
+              </span>
+              <p className="wtp-access-eyebrow">RESOURCE ACCESS</p>
+              <h1 id="wtp-login-title">Login required</h1>
+              <p className="wtp-access-copy">
+                Please log in to access this resource.
+              </p>
+              <Link href={`/login?redirect=${encodeURIComponent(`/resources/${id}`)}`} className="wtp-access-action">
+                Log in or register
+              </Link>
+            </section>
+          </div>
+        </div>
       ) : (
         <>
           <WorkTopicPage

@@ -157,7 +157,7 @@ const TopicContentSkeleton = () => (
 );
 
 // Main Loading Skeleton (shows when wrapper is loading)
-const FullPageSkeleton = () => (
+export const FullPageSkeleton = () => (
   <div className="wtpc-container">
     <div className="wtpc-main-content">
       <UserProfileSkeleton />
