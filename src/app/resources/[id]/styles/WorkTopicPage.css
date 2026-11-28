@@ -2446,3 +2446,31 @@
   text-align: center;
   box-shadow: 0 24px 48px -8px rgba(15, 23, 42, 0.14);
 }
+
+.wtp-access-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px 20px;
+  border-radius: 14px;
+  background: #007aff;
+  color: #ffffff !important;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(0, 122, 255, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.wtp-access-action:hover {
+  background: #0062cc;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(0, 122, 255, 0.32);
+}
+
+.wtp-access-action:active {
+  transform: scale(0.98);
+}
