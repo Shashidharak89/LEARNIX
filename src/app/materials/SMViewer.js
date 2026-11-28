@@ -271,6 +271,7 @@ export default function SMViewer() {
 
             {authReady && !isLoggedIn && (
                 <SignInNotice
+                    className="learnix-signin-notice--normal-spacing"
                     message="Sign in to view and download study materials."
                     redirectTo={signInRedirect}
                 />

@@ -1479,6 +1479,7 @@ const WorkSearchInterface = () => {
       </div>
       {authReady && !isLoggedIn && (
         <SignInNotice
+          className="learnix-signin-notice--normal-spacing"
           message="Sign in to access resources and download shared files."
           redirectTo={signInRedirect}
         />

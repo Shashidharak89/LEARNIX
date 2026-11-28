@@ -37,6 +37,8 @@
 
 .learnix-signin-notice p strong { color: #9a3412; font-weight: 750; }
 
+.learnix-signin-notice--normal-spacing { margin-top: 0; }
+
 .learnix-signin-notice-link {
   min-height: 40px;
   display: inline-flex;
@@ -73,6 +75,8 @@
     padding: 10px;
     border-radius: 16px;
   }
+
+  .learnix-signin-notice--normal-spacing { margin-top: 0; }
 
   .learnix-signin-notice-icon { width: 34px; height: 34px; border-radius: 11px; }
   .learnix-signin-notice p { font-size: 0.79rem; }
