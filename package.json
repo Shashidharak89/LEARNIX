@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "ws": "node scripts/ws-server.js",
+    "setup:page-visits": "node scripts/setup-page-visits-table.mjs",
     "postinstall": "node ./scripts/suppress-baseline-warning.js"
   },
   "dependencies": {

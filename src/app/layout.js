@@ -5,6 +5,7 @@ import Footer from "./components/Footer";
 import Script from "next/script";
 import SmoothScroll from "./components/SmoothScroll";
 import ScrollToTop from "./components/ScrollToTop";
+import PageVisitTracker from "./components/PageVisitTracker";
 
 export const metadata = {
   title: "Learnix",
@@ -82,6 +83,7 @@ export default function RootLayout({ children }) {
         <ThemeProvider>
           <SmoothScroll>
             {children}
+            <PageVisitTracker />
             <Footer />
           </SmoothScroll>
           <ScrollToTop />
