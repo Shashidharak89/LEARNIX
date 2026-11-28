@@ -3,6 +3,8 @@ import { OAuth2Client } from "google-auth-library";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import { randomBytes } from "node:crypto";
 
 const SECRET_KEY = process.env.SECRET_KEY || "mysecretkey";
 const GOOGLE_CLIENT_ID = process.env.CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
@@ -38,13 +40,38 @@ export async function POST(req) {
 
     await connectDB();
 
-    const user = await User.findOne({ email });
+    let user = await User.findOne({ email });
+    let created = false;
+
     if (!user) {
-      return NextResponse.json(
-        { error: "This Google account is not linked with any Learnix account yet." },
-        { status: 404 }
-      );
+      for (let attempt = 0; attempt < 5 && !user; attempt += 1) {
+        const usn = `GGL${randomBytes(6).toString("hex").toUpperCase()}`;
+        const generatedPassword = await bcrypt.hash(randomBytes(32).toString("hex"), 10);
+        const candidate = new User({
+          name: String(payload?.name || "Learnix User").trim() || "Learnix User",
+          usn,
+          email,
+          password: generatedPassword,
+          profileimg: String(payload?.picture || "").trim() || undefined,
+          role: "user",
+          plan: "basic",
+          lastLoginAt: new Date(),
+        });
+
+        try {
+          await candidate.save();
+          user = candidate;
+          created = true;
+        } catch (error) {
+          if (error?.code !== 11000) throw error;
+          // Concurrent first sign-ins can race on email or generated USN.
+          user = await User.findOne({ email });
+          if (!user && attempt === 4) throw error;
+        }
+      }
     }
+
+    if (!user) throw new Error("Could not create a Learnix account for this Google user.");
 
     if (!user.role) {
       user.role = "user";
@@ -56,10 +83,13 @@ export async function POST(req) {
     const token = generateToken(user._id.toString());
     user.token = token;
     user.tokenCreatedAt = new Date();
+    user.lastLoginAt = new Date();
     await user.save();
 
     return NextResponse.json({
-      message: "Logged in with Google successfully.",
+      message: created
+        ? `Your Learnix account is ready. Your Learnix ID is ${user.usn}.`
+        : "Logged in with Google successfully.",
       user: {
         name: user.name,
         usn: user.usn,

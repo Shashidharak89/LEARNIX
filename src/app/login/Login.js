@@ -8,16 +8,14 @@ import AdminToast from "../admin/components/AdminToast";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   LogInIcon,
-  UserPlusIcon,
   CompassIcon,
   LockIcon,
   UserRoundIcon,
   MailIcon,
   KeyRoundIcon,
-  ArrowRightIcon,
   SparklesIcon,
 } from "@animateicons/react/lucide";
-import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import { FiAlertCircle } from "react-icons/fi";
 import { verifyTokenAndSyncAuth } from "@/lib/clientAuth";
 import "./styles/Login.css";
 
@@ -37,8 +35,6 @@ export default function Login({ googleClientId = "" }) {
   const usnIconRef = useRef(null);
   const lockIconRef = useRef(null);
   const loginBtnIconRef = useRef(null);
-  const arrowBtnIconRef = useRef(null);
-  const createIconRef = useRef(null);
   const guestIconRef = useRef(null);
   const otpIconRef = useRef(null);
   const keyIconRef = useRef(null);
@@ -314,9 +310,9 @@ export default function Login({ googleClientId = "" }) {
               <SparklesIcon size={13} className="lgn-badge-icon" />
               <span>LEARNIX ACCOUNT</span>
             </span>
-            <h1 className="lgn-title">Welcome back! 👋</h1>
+            <h1 className="lgn-title">Welcome to Learnix 👋</h1>
             <p className="lgn-subtitle">
-              Enter your USN and Password to access your learning space.
+              Sign in with your USN and password, or use Google to log in or create an account.
             </p>
           </div>
 
@@ -401,56 +397,17 @@ export default function Login({ googleClientId = "" }) {
         {/* RIGHT SIDE: Dedicated Apple Widget Options Panel */}
         <div className="lgn-right">
           <div className="lgn-right-head">
-            <h2 className="lgn-right-title">Other Options</h2>
+            <h2 className="lgn-right-title">Sign in another way</h2>
             <p className="lgn-right-desc">
-              Create a new account or explore the platform instantly.
+              Use Google or email, or explore Learnix as a guest.
             </p>
           </div>
 
-          {/* MAIN ACTION 1 (HIGH WEIGHTAGE): Create an Account */}
-          <Link
-            href="/signup"
-            className="lgn-btn-create-account"
-            onMouseEnter={() => createIconRef.current?.startAnimation?.()}
-            onMouseLeave={() => createIconRef.current?.stopAnimation?.()}
-          >
-            <div className="lgn-btn-create-inner">
-              <div className="lgn-btn-create-icon-wrap">
-                <UserPlusIcon ref={createIconRef} size={21} />
-              </div>
-              <div className="lgn-btn-create-texts">
-                <span className="lgn-btn-create-label">Create an Account</span>
-                <span className="lgn-btn-create-sub">Join Learnix student community</span>
-              </div>
-              <ArrowRightIcon size={18} className="lgn-create-arrow" />
-            </div>
-            <span className="lgn-beam-glow" aria-hidden="true" />
-          </Link>
-
-          {/* MAIN ACTION 2: Continue as Guest */}
-          <button
-            type="button"
-            className="lgn-btn-guest"
-            onClick={handleGuestLogin}
-            disabled={isLoading || isGoogleLoading}
-            onMouseEnter={() => guestIconRef.current?.startAnimation?.()}
-            onMouseLeave={() => guestIconRef.current?.stopAnimation?.()}
-          >
-            <div className="lgn-btn-guest-icon-wrap">
-              <CompassIcon ref={guestIconRef} size={19} />
-            </div>
-            <div className="lgn-btn-guest-texts">
-              <span className="lgn-btn-guest-label">Continue as Guest</span>
-              <span className="lgn-btn-guest-sub">Explore workspace & notes instantly</span>
-            </div>
-            <ArrowRightIcon size={16} className="lgn-guest-arrow" />
-          </button>
-
-          <div className="lgn-divider">
-            <span>OR CONNECT WITH</span>
+          <div className="lgn-google-intro">
+            <strong>Login / Register with Google</strong>
+            <span>We’ll sign you in or create your Learnix account automatically.</span>
           </div>
 
-          {/* Google Sign-in area (Entirely refreshed) */}
           <div className="lgn-google-area">
             {googleClientId ? (
               <>
@@ -503,7 +460,10 @@ export default function Login({ googleClientId = "" }) {
             )}
           </div>
 
-          {/* Secondary Auth Actions */}
+          <div className="lgn-divider">
+            <span>OR</span>
+          </div>
+
           <div className="lgn-sub-actions">
             <Link
               href="/login/otp"
@@ -524,6 +484,18 @@ export default function Login({ googleClientId = "" }) {
               <KeyRoundIcon ref={keyIconRef} size={15} />
               <span>Forgot Password? Reset here</span>
             </Link>
+
+            <button
+              type="button"
+              className="lgn-guest-link"
+              onClick={handleGuestLogin}
+              disabled={isLoading || isGoogleLoading}
+              onMouseEnter={() => guestIconRef.current?.startAnimation?.()}
+              onMouseLeave={() => guestIconRef.current?.stopAnimation?.()}
+            >
+              <CompassIcon ref={guestIconRef} size={14} />
+              <span>Continue as guest</span>
+            </button>
           </div>
         </div>
       </div>

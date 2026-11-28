@@ -253,199 +253,15 @@
   line-height: 1.45;
 }
 
-/* ============================================================
-   1. HIGH-WEIGHTAGE CTA BUTTON: Create an Account
-   ============================================================ */
-.lgn-btn-create-account {
-  display: block;
-  position: relative;
-  text-decoration: none;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
-  padding: 1.15rem 1.35rem;
-  color: #ffffff;
-  overflow: hidden;
-  transition: all 0.26s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 
-    0 10px 25px -4px rgba(2, 132, 199, 0.4),
-    0 4px 10px rgba(37, 99, 235, 0.2);
-  margin-bottom: 0.85rem;
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
+.lgn-google-intro {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 12px;
+  color: #0f172a;
 }
 
-.lgn-btn-create-inner {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  position: relative;
-  z-index: 2;
-}
-
-.lgn-btn-create-icon-wrap {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  flex-shrink: 0;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
-  transition: transform 0.25s ease, background 0.25s ease;
-}
-
-.lgn-btn-create-texts {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
-}
-
-.lgn-btn-create-label {
-  font-size: 1.05rem;
-  font-weight: 750;
-  color: #ffffff;
-  letter-spacing: -0.01em;
-  line-height: 1.25;
-}
-
-.lgn-btn-create-sub {
-  font-size: 0.77rem;
-  color: rgba(255, 255, 255, 0.82);
-  font-weight: 500;
-  margin-top: 2px;
-}
-
-.lgn-create-arrow {
-  color: #ffffff;
-  transition: transform 0.22s ease;
-  flex-shrink: 0;
-}
-
-/* Unique Animated Light Beam Shimmer on High-Weightage Button */
-.lgn-beam-glow {
-  position: absolute;
-  top: 0;
-  left: -120%;
-  width: 80%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.28) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  transform: skewX(-22deg);
-  pointer-events: none;
-  transition: left 0.65s ease;
-}
-
-.lgn-btn-create-account:hover {
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 
-    0 16px 36px -6px rgba(2, 132, 199, 0.52),
-    0 6px 16px rgba(37, 99, 235, 0.28);
-}
-
-.lgn-btn-create-account:hover .lgn-beam-glow {
-  left: 140%;
-}
-
-.lgn-btn-create-account:hover .lgn-create-arrow {
-  transform: translateX(4px);
-}
-
-.lgn-btn-create-account:hover .lgn-btn-create-icon-wrap {
-  transform: rotate(-6deg) scale(1.06);
-  background: rgba(255, 255, 255, 0.28);
-}
-
-.lgn-btn-create-account:active {
-  transform: translateY(0) scale(0.99);
-}
-
-/* ============================================================
-   2. MAIN ACTION: Continue as Guest Button
-   ============================================================ */
-.lgn-btn-guest {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #ffffff;
-  border: 1.5px solid #bae6fd;
-  border-radius: 18px;
-  padding: 0.95rem 1.25rem;
-  color: #0369a1;
-  cursor: pointer;
-  transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
-  text-align: left;
-  box-shadow: 0 4px 14px rgba(186, 230, 253, 0.25);
-  font-family: inherit;
-  margin-bottom: 1.25rem;
-}
-
-.lgn-btn-guest-icon-wrap {
-  width: 36px;
-  height: 36px;
-  border-radius: 11px;
-  background: #f0f9ff;
-  border: 1px solid #e0f2fe;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #0284c7;
-  flex-shrink: 0;
-  transition: transform 0.25s ease, background 0.25s ease;
-}
-
-.lgn-btn-guest-texts {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.lgn-btn-guest-label {
-  font-size: 0.97rem;
-  font-weight: 750;
-  color: #0c4a6e;
-  line-height: 1.25;
-}
-
-.lgn-btn-guest-sub {
-  font-size: 0.76rem;
-  color: #0284c7;
-  font-weight: 500;
-  margin-top: 1px;
-}
-
-.lgn-guest-arrow {
-  color: #0284c7;
-  transition: transform 0.2s ease;
-  flex-shrink: 0;
-}
-
-.lgn-btn-guest:hover:not(:disabled) {
-  background: #f0f9ff;
-  border-color: #38bdf8;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(14, 165, 233, 0.16);
-}
-
-.lgn-btn-guest:hover:not(:disabled) .lgn-guest-arrow {
-  transform: translateX(4px);
-}
-
-.lgn-btn-guest:hover:not(:disabled) .lgn-btn-guest-icon-wrap {
-  transform: rotate(18deg) scale(1.08);
-  background: #e0f2fe;
-}
-
-.lgn-btn-guest:active:not(:disabled) {
-  transform: translateY(0);
-}
+.lgn-google-intro strong { font-size: .9rem; font-weight: 700; }
+.lgn-google-intro span { color: #64748b; font-size: .79rem; line-height: 1.45; }
 
 /* Subtle Divider */
 .lgn-divider {
@@ -535,7 +351,8 @@
 .lgn-sub-actions {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  align-items: center;
+  gap: 0.55rem;
   width: 100%;
 }
 
@@ -580,6 +397,28 @@
   color: #0f172a;
   text-decoration: underline;
 }
+
+.lgn-guest-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 2px;
+  padding: 4px 7px;
+  border: 0;
+  border-radius: 7px;
+  color: #64748b;
+  background: transparent;
+  font: inherit;
+  font-size: .78rem;
+  font-weight: 550;
+  cursor: pointer;
+  transition: color .16s ease, background-color .16s ease;
+}
+
+.lgn-guest-link:hover:not(:disabled) { color: #0369a1; background: #f1f5f9; }
+.lgn-guest-link:disabled { opacity: .55; cursor: not-allowed; }
+.lgn-sub-actions :focus-visible { outline: 2px solid #0284c7; outline-offset: 3px; }
 
 /* Feedback Messages */
 .lgn-message {
