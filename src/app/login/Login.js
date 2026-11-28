@@ -27,6 +27,11 @@ export default function Login({ googleClientId = "" }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isGoogleButtonRendered, setIsGoogleButtonRendered] = useState(false);
+  const [googleSignupCredential, setGoogleSignupCredential] = useState("");
+  const [googleSignupUsn, setGoogleSignupUsn] = useState("");
+  const [googleSignupError, setGoogleSignupError] = useState("");
+  const [isGoogleSignupOpen, setIsGoogleSignupOpen] = useState(false);
+  const [isGoogleSignupLoading, setIsGoogleSignupLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
   const googleButtonRef = useRef(null);
@@ -116,6 +121,14 @@ export default function Login({ googleClientId = "" }) {
         const res = await axios.post("/api/auth/google-login", {
           credential: response.credential,
         });
+        if (res.data.signupRequired) {
+          setGoogleSignupCredential(response.credential);
+          setGoogleSignupUsn("");
+          setGoogleSignupError("");
+          setIsGoogleSignupOpen(true);
+          setIsGoogleLoading(false);
+          return;
+        }
         setMessage(res.data.message || "Google Login successful!");
         setIsSuccess(true);
         saveAuthAndRedirect(res.data);
@@ -130,6 +143,31 @@ export default function Login({ googleClientId = "" }) {
     },
     [saveAuthAndRedirect]
   );
+
+  const handleGoogleSignup = async (event) => {
+    event.preventDefault();
+    if (!googleSignupCredential || !googleSignupUsn.trim()) {
+      setGoogleSignupError("Enter your registered number or USN to continue.");
+      return;
+    }
+    setIsGoogleSignupLoading(true);
+    setGoogleSignupError("");
+    try {
+      const res = await axios.post("/api/auth/google-login", {
+        credential: googleSignupCredential,
+        usn: googleSignupUsn.trim(),
+      });
+      setIsGoogleSignupOpen(false);
+      setGoogleSignupCredential("");
+      setMessage(res.data.message || "Your Learnix account is ready.");
+      setIsSuccess(true);
+      saveAuthAndRedirect(res.data);
+    } catch (error) {
+      setGoogleSignupError(error.response?.data?.error || "Could not create your account. Please try again.");
+    } finally {
+      setIsGoogleSignupLoading(false);
+    }
+  };
 
   const refreshGoogleLogin = useCallback(() => {
     if (!googleClientId) return;
@@ -336,7 +374,7 @@ export default function Login({ googleClientId = "" }) {
             </span>
             <h1 className="lgn-title">Welcome to Learnix 👋</h1>
             <p className="lgn-subtitle">
-              Sign in with your USN and password, or use Google to log in or create an account.
+              Sign in with your USN and password, or use Google to log in or start creating an account.
             </p>
           </div>
 
@@ -423,7 +461,7 @@ export default function Login({ googleClientId = "" }) {
           <div className="lgn-google-panel">
             <div className="lgn-google-intro">
               <strong>Login / Register with Google</strong>
-              <span>We’ll sign you in or create your Learnix account automatically.</span>
+              <span>New users will enter their registered number or USN to finish setup.</span>
             </div>
 
             <div className="lgn-google-area">
@@ -519,6 +557,56 @@ export default function Login({ googleClientId = "" }) {
         </div>
       </div>
       </div>
+
+      {isGoogleSignupOpen && (
+        <div className="lgn-signup-overlay" role="presentation">
+          <section
+            className="lgn-signup-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="lgn-signup-title"
+          >
+            <div className="lgn-signup-icon" aria-hidden="true">
+              <UserRoundIcon size={20} />
+            </div>
+            <h2 id="lgn-signup-title">Complete your Learnix account</h2>
+            <p>Enter your registered number or USN before we create your account.</p>
+            <form onSubmit={handleGoogleSignup} className="lgn-signup-form">
+              <label htmlFor="google-signup-usn">Registered number / USN</label>
+              <input
+                id="google-signup-usn"
+                type="text"
+                value={googleSignupUsn}
+                onChange={(event) => setGoogleSignupUsn(event.target.value)}
+                placeholder="Enter your registered number or USN"
+                autoComplete="off"
+                autoFocus
+                maxLength={40}
+                required
+                disabled={isGoogleSignupLoading}
+              />
+              {googleSignupError && <div className="lgn-signup-error" role="alert">{googleSignupError}</div>}
+              <div className="lgn-signup-actions">
+                <button
+                  type="button"
+                  className="lgn-signup-cancel"
+                  onClick={() => {
+                    setIsGoogleSignupOpen(false);
+                    setGoogleSignupCredential("");
+                    setGoogleSignupError("");
+                  }}
+                  disabled={isGoogleSignupLoading}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="lgn-signup-submit" disabled={isGoogleSignupLoading}>
+                  {isGoogleSignupLoading ? "Creating account…" : "Continue"}
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
 
       <AdminToast
         toast={isSuccess && message ? { message, type: "success" } : null}

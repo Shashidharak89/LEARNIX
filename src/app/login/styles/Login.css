@@ -504,6 +504,69 @@
   border: 1px solid #fecaca;
 }
 
+.lgn-signup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.34);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  animation: lgn-overlay-in 180ms ease both;
+}
+
+.lgn-signup-card {
+  width: min(100%, 430px);
+  padding: 1.6rem;
+  border: 1px solid #dbeafe;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 24px 72px rgba(15, 23, 42, 0.2), inset 0 1px #fff;
+  animation: lgn-cardEnter 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.lgn-signup-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 0.8rem;
+  border: 1px solid #bae6fd;
+  border-radius: 14px;
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.lgn-signup-card h2 { margin: 0; color: #0f172a; font-size: 1.25rem; font-weight: 720; letter-spacing: -0.02em; }
+.lgn-signup-card > p { margin: 0.45rem 0 1.2rem; color: #475569; font-size: 0.9rem; line-height: 1.5; }
+.lgn-signup-form { display: grid; gap: 0.55rem; }
+.lgn-signup-form label { color: #334155; font-size: 0.8rem; font-weight: 650; }
+.lgn-signup-form input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 13px;
+  background: #f8fafc;
+  color: #0f172a;
+  font: inherit;
+  outline: none;
+}
+.lgn-signup-form input:focus { border-color: #0284c7; box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.13); background: #fff; }
+.lgn-signup-error { padding: 0.65rem 0.75rem; border: 1px solid #fecaca; border-radius: 12px; background: #fef2f2; color: #b91c1c; font-size: 0.8rem; line-height: 1.4; }
+.lgn-signup-actions { display: flex; justify-content: flex-end; gap: 0.55rem; margin-top: 0.65rem; }
+.lgn-signup-actions button { min-height: 42px; padding: 0.65rem 1rem; border: 1px solid #cbd5e1; border-radius: 13px; font: inherit; font-size: 0.85rem; font-weight: 650; cursor: pointer; transition: background 160ms ease, transform 160ms ease; }
+.lgn-signup-cancel { background: #fff; color: #334155; }
+.lgn-signup-cancel:hover:not(:disabled) { background: #f1f5f9; }
+.lgn-signup-submit { border-color: #0284c7 !important; background: #0284c7; color: #fff; }
+.lgn-signup-submit:hover:not(:disabled) { background: #0369a1; }
+.lgn-signup-actions button:disabled { opacity: 0.65; cursor: wait; }
+.lgn-signup-actions button:focus-visible { outline: 2px solid #0284c7; outline-offset: 2px; }
+
+@keyframes lgn-overlay-in { from { opacity: 0; } to { opacity: 1; } }
+
 /* Keyframes */
 @keyframes lgn-cardEnter {
   from {
@@ -596,6 +659,9 @@
   .lgn-title {
     font-size: 1.65rem;
   }
+
+  .lgn-signup-card { padding: 1.25rem; border-radius: 21px; }
+  .lgn-signup-card h2 { font-size: 1.1rem; }
 }
 
 .lgn-card :focus-visible {

@@ -44,29 +44,57 @@ export async function POST(req) {
     let created = false;
 
     if (!user) {
-      for (let attempt = 0; attempt < 5 && !user; attempt += 1) {
-        const usn = `GGL${randomBytes(6).toString("hex").toUpperCase()}`;
-        const generatedPassword = await bcrypt.hash(randomBytes(32).toString("hex"), 10);
-        const candidate = new User({
-          name: String(payload?.name || "Learnix User").trim() || "Learnix User",
-          usn,
-          email,
-          password: generatedPassword,
-          profileimg: String(payload?.picture || "").trim() || undefined,
-          role: "user",
-          plan: "basic",
-          lastLoginAt: new Date(),
+      const usn = String(body?.usn || "").trim().toUpperCase();
+      if (!usn) {
+        return NextResponse.json({
+          signupRequired: true,
+          message: "Enter your registered number or USN to create your Learnix account.",
+          profile: {
+            name: String(payload?.name || "Learnix User").trim() || "Learnix User",
+            email,
+            profileimg: String(payload?.picture || "").trim(),
+          },
         });
+      }
 
-        try {
-          await candidate.save();
-          user = candidate;
-          created = true;
-        } catch (error) {
-          if (error?.code !== 11000) throw error;
-          // Concurrent first sign-ins can race on email or generated USN.
-          user = await User.findOne({ email });
-          if (!user && attempt === 4) throw error;
+      if (usn.length > 40 || !/^[A-Z0-9/-]+$/.test(usn)) {
+        return NextResponse.json(
+          { error: "Enter a valid registered number or USN using letters, numbers, / or -." },
+          { status: 400 }
+        );
+      }
+
+      const existingUsn = await User.findOne({ usn }).lean();
+      if (existingUsn) {
+        return NextResponse.json(
+          { error: "This registered number or USN is already in use. Please sign in to that account or check the number." },
+          { status: 409 }
+        );
+      }
+
+      const generatedPassword = await bcrypt.hash(randomBytes(32).toString("hex"), 10);
+      user = new User({
+        name: String(payload?.name || "Learnix User").trim() || "Learnix User",
+        usn,
+        email,
+        password: generatedPassword,
+        profileimg: String(payload?.picture || "").trim() || undefined,
+        role: "user",
+        plan: "basic",
+        lastLoginAt: new Date(),
+      });
+      try {
+        await user.save();
+        created = true;
+      } catch (error) {
+        if (error?.code !== 11000) throw error;
+        const emailOwner = await User.findOne({ email });
+        if (emailOwner) user = emailOwner;
+        else {
+          return NextResponse.json(
+            { error: "This registered number or USN is already in use. Please check the number and try again." },
+            { status: 409 }
+          );
         }
       }
     }
