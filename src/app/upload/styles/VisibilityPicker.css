@@ -1,0 +1,108 @@
+.upload-visibility {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  z-index: 120;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.upload-visibility-trigger {
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font: inherit;
+  font-size: .75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.upload-visibility-trigger:hover:not(:disabled) { transform: translateY(-1px); }
+.upload-visibility-trigger:disabled { cursor: wait; opacity: .75; }
+.upload-visibility-trigger.is-public { background: #eff6ff; color: #0369a1; border-color: #bfdbfe; }
+.upload-visibility-trigger.is-public:hover:not(:disabled) { background: #dbeafe; border-color: #7dd3fc; }
+.upload-visibility-trigger.is-unlisted { background: #fefce8; color: #854d0e; border-color: #fde68a; }
+.upload-visibility-trigger.is-unlisted:hover:not(:disabled) { background: #fef9c3; border-color: #facc15; }
+.upload-visibility-trigger.is-private { background: #fff7ed; color: #9a3412; border-color: #fed7aa; }
+.upload-visibility-trigger.is-private:hover:not(:disabled) { background: #ffedd5; border-color: #fdba74; }
+.upload-visibility-trigger > svg { width: 13px; height: 13px; flex: 0 0 auto; }
+.upload-visibility-trigger-label { white-space: nowrap; }
+.upload-visibility-chevron { opacity: .7; transition: transform 180ms ease; }
+.upload-visibility-chevron.is-open { transform: rotate(180deg); }
+
+.upload-visibility-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 99999;
+  width: min(270px, calc(100vw - 32px));
+  padding: 7px;
+  border: 1px solid rgba(148, 163, 184, .28);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .97);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 48px -8px rgba(15, 23, 42, .22), 0 0 1px rgba(15, 23, 42, .12);
+  animation: upload-visibility-appear 180ms cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.upload-visibility-menu-heading {
+  padding: 8px 10px 7px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 4px;
+  color: #64748b;
+  font-size: .66rem;
+  font-weight: 750;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.upload-visibility-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 9px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.upload-visibility-option:hover:not(:disabled),
+.upload-visibility-option.is-selected { background: #f1f5f9; }
+.upload-visibility-option:disabled { cursor: wait; opacity: .65; }
+.upload-visibility-option-icon {
+  width: 31px;
+  height: 31px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 10px;
+}
+.upload-visibility-option-icon svg { width: 15px; height: 15px; }
+.upload-visibility-option-icon.is-public { color: #0369a1; background: #e0f2fe; }
+.upload-visibility-option-icon.is-unlisted { color: #854d0e; background: #fef9c3; }
+.upload-visibility-option-icon.is-private { color: #9a3412; background: #ffedd5; }
+.upload-visibility-option-copy { min-width: 0; display: flex; flex: 1; flex-direction: column; gap: 2px; }
+.upload-visibility-option-title { color: #0f172a; font-size: .82rem; font-weight: 700; line-height: 1.2; }
+.upload-visibility-option-description { color: #64748b; font-size: .68rem; line-height: 1.25; }
+.upload-visibility-option-check { width: 15px; height: 15px; flex: 0 0 auto; color: #0284c7; }
+.upload-visibility-spinner { width: 13px; height: 13px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: upload-visibility-spin .65s linear infinite; }
+
+@keyframes upload-visibility-appear {
+  from { opacity: 0; transform: translateY(-5px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes upload-visibility-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .upload-visibility *, .upload-visibility-menu { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

@@ -12,13 +12,11 @@ import {
   FiMoreVertical,
   FiTrash2,
   FiEdit2,
-  FiLock,
-  FiUnlock,
   FiShare2,
-  FiGlobe,
 } from "react-icons/fi";
 import TopicCard from "./TopicCard";
-import axios from "axios";
+import VisibilityPicker from "./VisibilityPicker";
+import { authFetch } from "@/lib/clientAuth";
 import "./styles/SubjectsGrid.css";
 export default function SubjectsGrid({ 
   subjects, 
@@ -44,12 +42,6 @@ export default function SubjectsGrid({
   const [renamingSubjectId, setRenamingSubjectId] = useState(null);
   const [addTopicOpen, setAddTopicOpen] = useState({});
   const [newTopicVisibility, setNewTopicVisibility] = useState({});
-  const [visibilityConfirm, setVisibilityConfirm] = useState({
-    open: false,
-    subjectId: null,
-    subjectName: "",
-    nextVisibility: "public",
-  });
   const [subjectZIndices, setSubjectZIndices] = useState({});
   const zCounterRef = useRef(100);
 
@@ -167,50 +159,21 @@ export default function SubjectsGrid({
   const updateSubjectVisibility = async (subjectId, nextVisibility) => {
     setTogglingSubject(subjectId);
     try {
-      await axios.put("/api/subject/public", {
-        usn,
-        subjectId,
-        visibility: nextVisibility,
+      const response = await authFetch("/api/subject/visibility", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subjectId, visibility: nextVisibility }),
       });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Failed to update subject visibility");
       await onRefreshSubjects();
       showMessage(`Subject visibility changed to ${nextVisibility}`, "success");
-    } catch (err) {
-      console.error(err);
-      showMessage("Failed to update subject visibility", "error");
+    } catch (error) {
+      console.error(error);
+      showMessage(error.message || "Failed to update subject visibility", "error");
     } finally {
       setTogglingSubject(null);
     }
-  };
-
-  const requestSubjectVisibilityChange = (subjectId, subjectName, nextVisibility) => {
-    setOpenMenuFor(null);
-    setVisibilityConfirm({
-      open: true,
-      subjectId,
-      subjectName,
-      nextVisibility,
-    });
-  };
-
-  const cancelSubjectVisibilityChange = () => {
-    if (togglingSubject) return;
-    setVisibilityConfirm({
-      open: false,
-      subjectId: null,
-      subjectName: "",
-      nextVisibility: "public",
-    });
-  };
-
-  const confirmSubjectVisibilityChange = async () => {
-    if (!visibilityConfirm.subjectId) return;
-    await updateSubjectVisibility(visibilityConfirm.subjectId, visibilityConfirm.nextVisibility);
-    cancelSubjectVisibilityChange();
-  };
-
-  const visibilityLabel = (visibility) => {
-    const val = visibility || "public";
-    return val.charAt(0).toUpperCase() + val.slice(1);
   };
 
   const toggleExpand = (subjectId) => {
@@ -404,28 +367,6 @@ export default function SubjectsGrid({
         </div>
       )}
 
-      {visibilityConfirm.open && portalModal(
-        <div className="mse-options-modal-overlay" onClick={cancelSubjectVisibilityChange}>
-          <div className="mse-options-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="mse-options-modal-icon mse-options-modal-icon-edit">
-              <FiGlobe />
-            </div>
-            <h4>Change subject visibility?</h4>
-            <p>
-              Set <strong>{visibilityConfirm.subjectName}</strong> to <strong>{visibilityLabel(visibilityConfirm.nextVisibility)}</strong>?
-            </p>
-            <div className="mse-options-modal-actions">
-              <button className="mse-options-cancel" onClick={cancelSubjectVisibilityChange} disabled={!!togglingSubject}>
-                Cancel
-              </button>
-              <button className="mse-options-save" onClick={confirmSubjectVisibilityChange} disabled={!!togglingSubject}>
-                {togglingSubject ? "Saving..." : "Confirm"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {subjects.map((sub, idx) => {
         const subjectKey = sub._id ?? `${idx}-${sub.subject}`;
         const paged = topicsBySubject[subjectKey] || { topics: [], loading: false, page: 0, hasMore: false };
@@ -437,7 +378,6 @@ export default function SubjectsGrid({
           ? Number(sub.topicCount)
           : topicItems.length;
         const subjectVisibility = sub.visibility || "public";
-        const isToggling = togglingSubject === sub._id;
         const isExpanded = expandedSubjects.has(subjectKey);
 
         return (
@@ -494,27 +434,12 @@ export default function SubjectsGrid({
                   {topicCount} {topicCount === 1 ? "topic" : "topics"}
                 </span>
 
-                <span
-                  className={`mse-visibility-badge is-${subjectVisibility}`}
-                  onClick={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  role="status"
-                  title={`Visibility: ${visibilityLabel(subjectVisibility)}`}
-                  aria-label={`Subject visibility: ${visibilityLabel(subjectVisibility)}`}
-                >
-                  <span className="mse-visibility-icon">
-                    {subjectVisibility === "private" ? (
-                      <FiLock />
-                    ) : subjectVisibility === "unlisted" ? (
-                      <FiUnlock />
-                    ) : (
-                      <FiGlobe />
-                    )}
-                  </span>
-                  <span className="mse-visibility-text">
-                    {visibilityLabel(subjectVisibility)}
-                  </span>
-                </span>
+                <VisibilityPicker
+                  visibility={subjectVisibility}
+                  onChange={(nextVisibility) => updateSubjectVisibility(sub._id, nextVisibility)}
+                  disabled={isLoading}
+                  saving={togglingSubject === sub._id}
+                />
 
                 <div className="mse-subject-options" ref={openMenuFor === sub._id ? menuRef : null}>
                   <button
@@ -554,33 +479,6 @@ export default function SubjectsGrid({
                       >
                         <FiShare2 className="mse-options-icon" />
                         <span>Share Subject</span>
-                      </button>
-
-                      <button
-                        className="mse-options-item"
-                        onClick={() => requestSubjectVisibilityChange(sub._id, sub.subject, "public")}
-                        disabled={isToggling || subjectVisibility === "public"}
-                      >
-                        <FiGlobe className="mse-options-icon" />
-                        <span>Set Public</span>
-                      </button>
-
-                      <button
-                        className="mse-options-item"
-                        onClick={() => requestSubjectVisibilityChange(sub._id, sub.subject, "unlisted")}
-                        disabled={isToggling || subjectVisibility === "unlisted"}
-                      >
-                        <FiUnlock className="mse-options-icon" />
-                        <span>Set Unlisted</span>
-                      </button>
-
-                      <button
-                        className="mse-options-item"
-                        onClick={() => requestSubjectVisibilityChange(sub._id, sub.subject, "private")}
-                        disabled={isToggling}
-                      >
-                        <FiLock className="mse-options-icon" />
-                        <span>{isToggling ? "Processing..." : "Set Private"}</span>
                       </button>
 
                       <button

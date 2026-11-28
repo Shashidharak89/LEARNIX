@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Subject from "@/models/Subject";
 import Topic from "@/models/Topic";
-import { normalizeVisibility } from "@/lib/visibility";
+import { PUT as updateSubjectVisibility } from "../visibility/route";
 
 export const GET = async () => {
   try {
@@ -63,36 +63,6 @@ export const GET = async () => {
   }
 };
 
-export async function PUT(req) {
-  try {
-    await connectDB();
-    const { usn, subjectId, visibility } = await req.json();
-
-    if (!usn || !subjectId) {
-      return NextResponse.json({ error: "USN and subjectId are required" }, { status: 400 });
-    }
-
-    const User = (await import("@/models/User")).default;
-    const user = await User.findOne({ usn: usn.toUpperCase() });
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    const subject = await Subject.findOneAndUpdate(
-      { _id: subjectId, userId: user._id },
-      { $set: { visibility: normalizeVisibility(visibility) } },
-      { new: true, runValidators: true }
-    );
-    if (!subject) {
-      return NextResponse.json({ error: "Subject not found" }, { status: 404 });
-    }
-
-    // Fetch all subjects for response
-    const subjects = await Subject.find({ userId: user._id }).lean();
-
-    return NextResponse.json({ message: "Subject visibility updated", subjects });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
-  }
+export async function PUT(request) {
+  return updateSubjectVisibility(request);
 }

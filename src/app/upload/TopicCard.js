@@ -10,9 +10,10 @@ import {
   FiFileText, FiUpload, FiTrash2, FiImage, FiCalendar, FiCheck,
   FiChevronDown, FiChevronUp, FiX, FiAlertTriangle, FiCamera, FiFile,
   FiCheckCircle, FiLoader, FiShare2, FiMessageSquare, FiMoreVertical,
-  FiEdit2, FiLock, FiUnlock, FiChevronRight, FiEdit3, FiGlobe,
+  FiEdit2, FiChevronRight, FiEdit3,
 } from "react-icons/fi";
 import PDFProcessor from "./PDFProcessor";
+import VisibilityPicker from "./VisibilityPicker";
 import { authFetch } from "@/lib/clientAuth";
 import "./styles/TopicCard.css";
 
@@ -41,7 +42,6 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
   const [renameModal, setRenameModal] = useState(false);
   const [renameValue, setRenameValue] = useState("");
   const [isRenamingTopic, setIsRenamingTopic] = useState(false);
-  const [visibilityModal, setVisibilityModal] = useState({ open: false, nextVisibility: "public" });
 
   const menuRef        = useRef(null);
   const cameraInputRefs = useRef({});
@@ -249,39 +249,19 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
     if (isLoading || isUpdatingVisibility) return;
     setIsUpdatingVisibility(true);
     try {
-      await axios.put("/api/topic/public", {
-        usn,
-        topicId: topic._id,
-        subject,
-        topic: topic.topic,
-        visibility: nextVisibility,
+      const response = await authFetch("/api/topic/visibility", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topicId: topic._id, visibility: nextVisibility }),
       });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Failed to update topic visibility");
       // update local UI immediately
       setTopicVisibility(nextVisibility);
       await onRefreshSubjects();
       showMessage(`Topic visibility changed to ${nextVisibility}`, "success");
-    } catch (err) { showMessage(err.response?.data?.error || "Failed to update visibility", "error"); }
+    } catch (error) { showMessage(error.message || "Failed to update visibility", "error"); }
     finally { setIsUpdatingVisibility(false); }
-  };
-
-  const requestVisibilityChange = (nextVisibility) => {
-    closeMenu();
-    setVisibilityModal({ open: true, nextVisibility });
-  };
-
-  const confirmVisibilityChange = async () => {
-    await applyVisibilityChange(visibilityModal.nextVisibility);
-    setVisibilityModal({ open: false, nextVisibility: "public" });
-  };
-
-  const cancelVisibilityChange = () => {
-    if (isUpdatingVisibility) return;
-    setVisibilityModal({ open: false, nextVisibility: "public" });
-  };
-
-  const visibilityLabel = (value) => {
-    const vis = value || "public";
-    return vis.charAt(0).toUpperCase() + vis.slice(1);
   };
 
   const handlePDFUploadSuccess = () => {
@@ -388,24 +368,6 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
         </div>
       )}
 
-      {visibilityModal.open && portalModal(
-        <div className="tc-modal-overlay" onClick={cancelVisibilityChange}>
-          <div className="tc-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="tc-modal-icon tc-modal-icon--edit"><FiEdit2 /></div>
-            <h4 className="tc-modal-title">Change topic visibility?</h4>
-            <p className="tc-modal-desc">
-              Set <strong>{topic.topic}</strong> to <strong>{visibilityLabel(visibilityModal.nextVisibility)}</strong>?
-            </p>
-            <div className="tc-modal-actions">
-              <button className="tc-modal-btn tc-modal-btn--cancel" onClick={cancelVisibilityChange} disabled={!!isUpdatingVisibility}>Cancel</button>
-              <button className="tc-modal-btn tc-modal-btn--save" onClick={confirmVisibilityChange} disabled={!!isUpdatingVisibility}>
-                {isUpdatingVisibility ? <><FiLoader className="tc-spin" /> Saving…</> : "Confirm"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* ── Delete Image Modal ── */}
       {deleteConfirm.show && portalModal(
         <div className="tc-modal-overlay" onClick={cancelDelete}>
@@ -456,14 +418,12 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
             {new Date(topic.timestamp).toLocaleDateString()}
           </span>
 
-          <span className={`tc-badge tc-badge--${topicVisibility}`} title={`Visibility: ${visibilityLabel(topicVisibility)}`}>
-            <span className="tc-badge-icon">
-              {topicVisibility === "private" ? <FiLock /> : topicVisibility === "unlisted" ? <FiUnlock /> : <FiGlobe />}
-            </span>
-            <span className="tc-badge-text">
-              {visibilityLabel(topicVisibility)}
-            </span>
-          </span>
+          <VisibilityPicker
+            visibility={topicVisibility}
+            onChange={applyVisibilityChange}
+            disabled={isLoading}
+            saving={isUpdatingVisibility}
+          />
 
           <div className="tc-menu-wrap" ref={menuRef}>
             <button
@@ -500,18 +460,6 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
                 </button>
                 <button className="tc-dropdown-item" onClick={handleShare}>
                   <FiShare2 className="tc-dropdown-icon" /><span>Share</span>
-                </button>
-                <button className="tc-dropdown-item" onClick={() => requestVisibilityChange("public")} disabled={isLoading || isUpdatingVisibility || topicVisibility === "public"}>
-                  <FiUnlock className="tc-dropdown-icon" />
-                  <span>Set Public</span>
-                </button>
-                <button className="tc-dropdown-item" onClick={() => requestVisibilityChange("unlisted")} disabled={isLoading || isUpdatingVisibility || topicVisibility === "unlisted"}>
-                  <FiFileText className="tc-dropdown-icon" />
-                  <span>Set Unlisted</span>
-                </button>
-                <button className="tc-dropdown-item" onClick={() => requestVisibilityChange("private")} disabled={isLoading || isUpdatingVisibility || topicVisibility === "private"}>
-                  <FiLock className="tc-dropdown-icon" />
-                  <span>Set Private</span>
                 </button>
                 <div className="tc-dropdown-divider" />
                 <button className="tc-dropdown-item tc-dropdown-item--danger" onClick={requestDeleteTopic}>
