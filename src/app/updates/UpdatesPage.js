@@ -172,6 +172,7 @@ function highlightText(text, searchQuery) {
 
 function UpdateCard({
   u,
+  isLoggedIn = false,
   isHighlighted,
   highlightedCardRef,
   isLargeScreen,
@@ -182,6 +183,7 @@ function UpdateCard({
   currentUserUsn = null,
   onOpenEdit = null,
 }) {
+  const router = useRouter();
   const [isFilesExpanded, setIsFilesExpanded] = useState(false);
   const [isLinksExpanded, setIsLinksExpanded] = useState(false);
   const [showAiSuggestions, setShowAiSuggestions] = useState(false);
@@ -200,6 +202,17 @@ function UpdateCard({
   const shareRef = useRef(null);
   const externalLinkRef = useRef(null);
   const timeIconRef = useRef(null);
+
+  const requireLoginForFileAccess = () => {
+    const hasSession = typeof window !== "undefined" &&
+      Boolean(localStorage.getItem("token") || localStorage.getItem("usn"));
+    if (isLoggedIn || hasSession) return true;
+    const redirect = typeof window !== "undefined"
+      ? `${window.location.pathname}${window.location.search}${window.location.hash}`
+      : "/updates";
+    router.push(`/login?redirect=${encodeURIComponent(redirect)}`);
+    return false;
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -317,6 +330,7 @@ function UpdateCard({
   const handleRecViewMaterial = (e, item) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!requireLoginForFileAccess()) return;
     const rawUrl = item.resource_url;
     if (rawUrl) {
       const googleViewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(rawUrl)}`;
@@ -336,6 +350,7 @@ function UpdateCard({
   const handleRecDownloadMaterial = async (e, item) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!requireLoginForFileAccess()) return;
     const url = item.resource_url;
     if (!url) {
       handleRecViewMaterial(e, item);
@@ -366,6 +381,7 @@ function UpdateCard({
 
     const normType = normalizeResourceType(item.resource_type, item.source_file);
     if (normType === "study_material" && item.resource_url) {
+      if (!requireLoginForFileAccess()) return;
       const googleViewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(item.resource_url)}`;
       window.open(googleViewUrl, "_blank", "noopener,noreferrer");
       return;
@@ -677,6 +693,7 @@ function UpdateCard({
                 }
 
                 const openImagePopup = () => {
+                  if (!requireLoginForFileAccess()) return;
                   const allImageFiles = (u.files || [])
                     .map((item) => ({
                       url: item.url || item,
@@ -697,6 +714,7 @@ function UpdateCard({
                 const handleImageDownload = async (e) => {
                   e.preventDefault();
                   e.stopPropagation();
+                  if (!requireLoginForFileAccess()) return;
                   try {
                     const res = await fetch(url);
                     const blob = await res.blob();
@@ -718,6 +736,7 @@ function UpdateCard({
                     key={i}
                     className="upd-file-card"
                     onClick={() => {
+                      if (!requireLoginForFileAccess()) return;
                       if (isImage) {
                         openImagePopup();
                       } else if (isZip) {
@@ -754,7 +773,9 @@ function UpdateCard({
                       ) : (
                         <>
                           {!isZip && (
-                            <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-view" title="View">
+                            <a href={viewUrl} target="_blank" rel="noreferrer noopener" className="upd-file-action-btn upd-file-action-view" title="View" onClick={(e) => {
+                              if (!requireLoginForFileAccess()) e.preventDefault();
+                            }}>
                               <EyeIcon size={14} />
                             </a>
                           )}
@@ -765,11 +786,16 @@ function UpdateCard({
                             rel="noreferrer noopener"
                             className="upd-file-action-btn upd-file-action-download"
                             title={`Download ${isPdf ? actualPdfName : name}`}
-                            onClick={isPdf ? (e) => {
+                            onClick={(e) => {
+                              if (!requireLoginForFileAccess()) {
+                                e.preventDefault();
+                                return;
+                              }
+                              if (!isPdf) return;
                               e.preventDefault();
                               e.stopPropagation();
                               downloadPdfFile(url, actualPdfName, u?.title);
-                            } : undefined}
+                            }}
                           >
                             <DownloadIcon size={14} />
                           </a>
@@ -1022,6 +1048,7 @@ export default function UpdatesPage({ initialUpdateId }) {
   const titleBellRef = useRef(null);
   const addIconRef = useRef(null);
   const searchBtnRef = useRef(null);
+
 
   const lastFetchedQueryRef = useRef(null);
 
@@ -1368,6 +1395,7 @@ export default function UpdatesPage({ initialUpdateId }) {
               <UpdateCard
                 key={u._id}
                 u={u}
+                isLoggedIn={isLoggedIn}
                 isHighlighted={Boolean(sharedUpdateId && String(u._id) === String(sharedUpdateId))}
                 highlightedCardRef={highlightedCardRef}
                 isLargeScreen={isLargeScreen}
