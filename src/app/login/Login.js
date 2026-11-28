@@ -403,21 +403,22 @@ export default function Login({ googleClientId = "" }) {
             </p>
           </div>
 
-          <div className="lgn-google-intro">
-            <strong>Login / Register with Google</strong>
-            <span>We’ll sign you in or create your Learnix account automatically.</span>
-          </div>
+          <div className="lgn-google-panel">
+            <div className="lgn-google-intro">
+              <strong>Login / Register with Google</strong>
+              <span>We’ll sign you in or create your Learnix account automatically.</span>
+            </div>
 
-          <div className="lgn-google-area">
-            {googleClientId ? (
-              <>
-                {!isGoogleButtonRendered && (
-                  <button
-                    type="button"
-                    className="lgn-btn-outline"
-                    onClick={handleHardcodedGoogleClick}
-                    disabled={isGoogleLoading}
-                  >
+            <div className="lgn-google-area">
+              {googleClientId ? (
+                <>
+                  {!isGoogleButtonRendered && (
+                    <button
+                      type="button"
+                      className="lgn-btn-outline"
+                      onClick={handleHardcodedGoogleClick}
+                      disabled={isGoogleLoading}
+                    >
                     <svg
                       width="18"
                       height="18"
@@ -441,23 +442,24 @@ export default function Login({ googleClientId = "" }) {
                         d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58Z"
                       />
                     </svg>
-                    <span>Continue with Google</span>
-                  </button>
-                )}
-                <div
-                  ref={googleButtonRef}
-                  className="lgn-google-slot"
-                  style={{ display: isGoogleButtonRendered ? "flex" : "none" }}
-                />
-              </>
-            ) : (
-              <div className="lgn-google-unavail">
-                Google login is unavailable.
-              </div>
-            )}
-            {isGoogleLoading && (
-              <p className="lgn-google-loading">Signing in with Google…</p>
-            )}
+                      <span>Continue with Google</span>
+                    </button>
+                  )}
+                  <div
+                    ref={googleButtonRef}
+                    className="lgn-google-slot"
+                    style={{ display: isGoogleButtonRendered ? "flex" : "none" }}
+                  />
+                </>
+              ) : (
+                <div className="lgn-google-unavail">
+                  Google login is unavailable.
+                </div>
+              )}
+              {isGoogleLoading && (
+                <p className="lgn-google-loading">Signing in with Google…</p>
+              )}
+            </div>
           </div>
 
           <div className="lgn-divider">
