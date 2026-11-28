@@ -26,6 +26,16 @@ export const GET = async (req, { params }) => {
     if (!caller) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { topicId } = await params;
+    const includeImages = new URL(req.url).searchParams.get("include") === "images";
+
+    if (includeImages) {
+      const imageData = await Topic.findOne({ _id: topicId, userId: caller._id })
+        .select("_id images")
+        .lean();
+      if (!imageData) return NextResponse.json({ error: "Topic not found" }, { status: 404 });
+      return NextResponse.json({ topicId: imageData._id, images: imageData.images || [] });
+    }
+
     const topic = await Topic.findById(topicId).lean();
     if (!topic) return NextResponse.json({ error: "Topic not found" }, { status: 404 });
 

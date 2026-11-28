@@ -39,7 +39,7 @@ export const GET = async (request) => {
 
       const total = await Topic.countDocuments(query);
       const topics = await Topic.find(query)
-        .select("_id subjectId topic content images visibility timestamp")
+        .select("_id subjectId topic visibility timestamp")
         .sort({ timestamp: -1 })
         .skip((page - 1) * size)
         .limit(size)
@@ -51,8 +51,6 @@ export const GET = async (request) => {
           _id: topic._id,
           subjectId: topic.subjectId,
           topic: topic.topic,
-          content: topic.content || "",
-          images: topic.images || [],
           visibility: topic.visibility || "public",
           timestamp: topic.timestamp,
         })),

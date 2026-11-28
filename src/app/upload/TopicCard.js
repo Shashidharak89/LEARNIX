@@ -13,6 +13,7 @@ import {
   FiEdit2, FiLock, FiUnlock, FiChevronRight, FiEdit3, FiGlobe,
 } from "react-icons/fi";
 import PDFProcessor from "./PDFProcessor";
+import { authFetch } from "@/lib/clientAuth";
 import "./styles/TopicCard.css";
 
 export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelete, onRefreshSubjects, showMessage, onMenuToggle }) {
@@ -32,6 +33,8 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
   const [isUpdatingVisibility, setIsUpdatingVisibility] = useState(false);
   const [topicVisibility, setTopicVisibility] = useState(topic.visibility || "public");
   const [topicImages, setTopicImages] = useState(Array.isArray(topic.images) ? [...topic.images] : []);
+  const [imagesLoaded, setImagesLoaded] = useState(Array.isArray(topic.images));
+  const [imagesLoading, setImagesLoading] = useState(false);
   const [openMenu, setOpenMenu]   = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [isDeletingTopic, setIsDeletingTopic] = useState(false);
@@ -50,10 +53,28 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
   }, [onMenuToggle]);
 
   /* ── collapse ── */
+  const loadTopicImages = async () => {
+    if (imagesLoaded || imagesLoading || !topic._id) return;
+    setImagesLoading(true);
+    try {
+      const response = await authFetch(`/api/topic/edit/${topic._id}?include=images`);
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Failed to load topic images");
+      setTopicImages(Array.isArray(result.images) ? result.images : []);
+      setImagesLoaded(true);
+    } catch (error) {
+      showMessage(error.message || "Unable to load topic images.", "error");
+    } finally {
+      setImagesLoading(false);
+    }
+  };
+
   const toggleCollapse = (e) => {
     if (e) { e.preventDefault(); e.stopPropagation(); }
     closeMenu();
-    setIsCollapsed((p) => !p);
+    const willExpand = isCollapsed;
+    setIsCollapsed(!isCollapsed);
+    if (willExpand) loadTopicImages();
   };
 
   const shouldIgnore = (target) => {
@@ -89,7 +110,10 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
 
   // keep local images in sync when topic prop updates from parent
   useEffect(() => {
-    setTopicImages(Array.isArray(topic.images) ? [...topic.images] : []);
+    if (Array.isArray(topic.images)) {
+      setTopicImages([...topic.images]);
+      setImagesLoaded(true);
+    }
   }, [topic.images]);
 
   /* ── image compression ── */
@@ -170,6 +194,7 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
       if (img) {
         // update UI locally without full reload
         setTopicImages((prev) => [...prev, img]);
+        setImagesLoaded(true);
       }
       setFilesMap({ ...filesMap, [topicKey]: null });
       if (filePreviewMap[topicKey]) { URL.revokeObjectURL(filePreviewMap[topicKey]); const m = { ...filePreviewMap }; delete m[topicKey]; setFilePreviewMap(m); }
@@ -184,7 +209,10 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
     try {
       const res = await axios.post("/api/topic/upload", fd, { headers: { "Content-Type": "multipart/form-data" } });
       const img = res?.data?.imageUrl;
-      if (img) setTopicImages((prev) => [...prev, img]);
+      if (img) {
+        setTopicImages((prev) => [...prev, img]);
+        setImagesLoaded(true);
+      }
       setUploadedFiles((p) => ({ ...p, [topicKey]: new Set([...(p[topicKey] || []), idx]) }));
       setUploadProgress((p) => ({ ...p, [topicKey]: Math.round((idx / total) * 100) }));
     } catch { showMessage(`Failed to upload ${fileData.name}`, "error"); }
@@ -308,7 +336,7 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
     finally { setIsDeletingTopic(false); }
   };
 
-  const getValidImages = (images) => images.filter((img) => img && img.trim());
+  const getValidImages = (images) => (Array.isArray(images) ? images : []).filter((img) => img && img.trim());
   const validImages    = getValidImages(topicImages || []);
   const filesForTopic  = filesMap[topicKey];
   const isMultipleFiles = Array.isArray(filesForTopic);
@@ -509,7 +537,9 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
               <span className="tc-count-badge">{validImages.length}</span>
             </div>
 
-            {validImages.length > 0 && (
+            {imagesLoading ? (
+              <p className="tc-empty-hint" role="status">Loading images…</p>
+            ) : validImages.length > 0 && (
               <>
                 <div className="tc-images-grid">
                   {validImages
@@ -536,7 +566,7 @@ export default function TopicCard({ subject, topic, usn, isLoading, onTopicDelet
               </>
             )}
 
-            {validImages.length === 0 && <p className="tc-empty-hint">No images yet.</p>}
+            {!imagesLoading && imagesLoaded && validImages.length === 0 && <p className="tc-empty-hint">No images yet.</p>}
           </div>
 
           {/* Upload */}
