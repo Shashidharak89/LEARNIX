@@ -38,11 +38,23 @@ export async function GET(req) {
       .limit(size)
       .lean();
 
+    const subjectIds = subjects.map((subject) => subject._id);
+    const topicCounts = subjectIds.length
+      ? await Topic.aggregate([
+          { $match: { subjectId: { $in: subjectIds } } },
+          { $group: { _id: "$subjectId", count: { $sum: 1 } } },
+        ])
+      : [];
+    const topicCountBySubject = new Map(
+      topicCounts.map((entry) => [String(entry._id), entry.count])
+    );
+
     return NextResponse.json({
       subjects: subjects.map((subject) => ({
         _id: subject._id,
         subject: subject.subject,
         visibility: subject.visibility || "public",
+        topicCount: topicCountBySubject.get(String(subject._id)) || 0,
       })),
       paging: {
         page,

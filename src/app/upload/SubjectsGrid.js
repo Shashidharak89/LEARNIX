@@ -429,7 +429,13 @@ export default function SubjectsGrid({
       {subjects.map((sub, idx) => {
         const subjectKey = sub._id ?? `${idx}-${sub.subject}`;
         const paged = topicsBySubject[subjectKey] || { topics: [], loading: false, page: 0, hasMore: false };
-        const topicsForThisSubject = paged.topics.map((item) => item.topic).filter(Boolean);
+        const topicItems = Array.isArray(paged.topics) ? paged.topics : [];
+        const topicsForThisSubject = topicItems
+          .map((item) => typeof item === "string" ? item : item?.topic)
+          .filter(Boolean);
+        const topicCount = Number.isFinite(Number(sub.topicCount))
+          ? Number(sub.topicCount)
+          : topicItems.length;
         const subjectVisibility = sub.visibility || "public";
         const isToggling = togglingSubject === sub._id;
         const isExpanded = expandedSubjects.has(subjectKey);
@@ -482,10 +488,10 @@ export default function SubjectsGrid({
               <div className="sg-header-right">
                 <span
                   className="sg-topic-count-pill"
-                  title={`${topicsForThisSubject.length} total topics in this subject`}
+                  title={`${topicCount} total topics in this subject`}
                 >
                   <span className="sg-topic-count-dot" />
-                  {topicsForThisSubject.length} {topicsForThisSubject.length === 1 ? "topic" : "topics"}
+                  {topicCount} {topicCount === 1 ? "topic" : "topics"}
                 </span>
 
                 <span
@@ -664,14 +670,14 @@ export default function SubjectsGrid({
                 <div className="sg-topics-container">
                   {paged.loading ? (
                     <div className="sg-empty-topics">Loading topics...</div>
-                  ) : (!paged.topics || paged.topics.length === 0) ? (
+                  ) : topicItems.length === 0 ? (
                     <div className="sg-empty-topics">
                       <FiFileText />
                       <span>No topics yet. Click &quot;Add Topics&quot; above to create one.</span>
                     </div>
                   ) : (
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                      {paged.topics.map((topicObj, tIdx) => (
+                      {topicItems.map((topicObj, tIdx) => (
                         <TopicCard
                           key={topicObj._id || `${tIdx}-${topicObj.topic || topicObj}`}
                           subject={sub.subject}
