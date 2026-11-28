@@ -6,6 +6,18 @@ import { resolveAuthenticatedUser } from "@/lib/authUser";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+function getVerificationError(error) {
+  if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+    return "Razorpay server credentials are missing. Add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to .env, then restart the server.";
+  }
+  if (Number(error?.statusCode) === 401 || Number(error?.statusCode) === 403) {
+    return "Razorpay rejected the API credentials. Confirm the key ID and secret belong to the same test or live account, then restart the server.";
+  }
+  const description = String(error?.error?.description || "").trim();
+  if (description) return `Razorpay could not verify the order: ${description}`;
+  return "Could not verify the Razorpay payment. Check the server logs and try again.";
+}
+
 function razorpayClient() {
   const keyId = process.env.RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
@@ -55,7 +67,11 @@ export async function POST(req) {
       message: "Payment signature verified.",
     }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    console.error("POST /api/verify-payment error:", error?.error?.description || error.message);
-    return NextResponse.json({ error: "Could not verify the payment. Please try again." }, { status: 500 });
+    console.error("POST /api/verify-payment error:", {
+      statusCode: error?.statusCode || null,
+      code: error?.error?.code || null,
+      description: error?.error?.description || error.message,
+    });
+    return NextResponse.json({ error: getVerificationError(error) }, { status: 500 });
   }
 }
