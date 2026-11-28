@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeftIcon, BookOpenIcon, ChevronRightIcon, DownloadIcon, FileTextIcon } from "@animateicons/react/lucide";
 import SMDirectoryNode from "@/app/admin/study-materials/SMDirectoryNode";
+import { useMaterialsAuthGuard } from "@/app/materials/useMaterialsAuthGuard";
 import "@/app/materials/SMViewer.css";
 
 const PARAMS = ["university", "college", "course", "semester", "batch", "subject", "file"];
@@ -25,6 +26,7 @@ export default function SMSharedMaterialsClient() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const breadcrumbRef = useRef(null);
+    const { requireAuth } = useMaterialsAuthGuard();
 
     useEffect(() => {
         const controller = new window.AbortController();
@@ -75,7 +77,8 @@ export default function SMSharedMaterialsClient() {
         router.push(`${pathname}?${params.toString()}`);
     };
 
-    const openFile = () => {
+    const openFile = (e) => {
+        if (!requireAuth(e)) return;
         const url = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(result.item.fileurl)}`;
         window.open(url, "_blank", "noopener,noreferrer");
     };
@@ -169,7 +172,7 @@ export default function SMSharedMaterialsClient() {
                                 </div>
                                 <div className="sm-share-file-actions">
                                     <button type="button" onClick={openFile}>Open file</button>
-                                    <a href={result.item.fileurl} target="_blank" rel="noreferrer"><DownloadIcon size={16} /> Download</a>
+                                    <a href={result.item.fileurl} target="_blank" rel="noreferrer" onClick={(e) => requireAuth(e)}><DownloadIcon size={16} /> Download</a>
                                 </div>
                             </article>
                         ) : (

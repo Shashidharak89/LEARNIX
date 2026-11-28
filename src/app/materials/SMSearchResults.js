@@ -23,6 +23,7 @@ import {
     isItemInLearnLaterStorage,
 } from "@/lib/clientLearnLater";
 import { authFetch } from "@/lib/clientAuth";
+import { useMaterialsAuthGuard } from "./useMaterialsAuthGuard";
 
 const highlightText = (text, keyword) => {
     if (!keyword || !text) return <span>{text}</span>;
@@ -246,6 +247,7 @@ function SMSearchDirectoryNode({
         const encodedUrl = encodeURIComponent(data.fileurl);
         const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodedUrl}`;
         const isHighlighted = highlightedFileKey === data._id;
+        const { requireAuth } = useMaterialsAuthGuard();
 
         return (
             <div className={`sm-file-card ${isHighlighted ? "sm-file-card-highlighted" : ""}`} style={{ marginLeft: "20px", marginTop: "4px", marginBottom: "4px" }}>
@@ -256,6 +258,7 @@ function SMSearchDirectoryNode({
                     className="sm-file-link"
                     title="Click to view file"
                     aria-label={`View ${fileName}`}
+                    onClick={(e) => requireAuth(e)}
                 >
                     <div className="sm-file-info">
                         <FileTextIcon size={16} color="#7c3aed" style={{ marginRight: "6px" }} />
@@ -312,7 +315,10 @@ function SMSearchDirectoryNode({
                         className="sm-action-btn sm-view-btn"
                         title="View file"
                         aria-label={`View ${fileName}`}
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            requireAuth(e);
+                        }}
                     >
                         <EyeIcon size={14} />
                     </a>
@@ -323,7 +329,10 @@ function SMSearchDirectoryNode({
                         className="sm-action-btn sm-download-btn"
                         title="Download file"
                         aria-label={`Download ${fileName}`}
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            requireAuth(e);
+                        }}
                     >
                         <DownloadIcon size={14} />
                     </a>

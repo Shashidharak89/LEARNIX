@@ -15,6 +15,7 @@ import {
 } from "@animateicons/react/lucide";
 import materialsData from "./materialsData";
 import SMSearchResults from "./SMSearchResults";
+import { useMaterialsAuthGuard } from "./useMaterialsAuthGuard";
 import "./styles/StudyMaterials.css";
 
 function FileItem({
@@ -37,6 +38,7 @@ function FileItem({
   const shareIconRef = useRef(null);
   const eyeIconRef = useRef(null);
   const downloadIconRef = useRef(null);
+  const { requireAuth } = useMaterialsAuthGuard();
 
   return (
     <div 
@@ -51,6 +53,7 @@ function FileItem({
         className="sm-file-link"
         title="Click to view file"
         aria-label={`View ${fileName}`}
+        onClick={(e) => requireAuth(e)}
       >
         <div className="sm-file-info">
           <div className="sm-file-icon">
@@ -83,7 +86,10 @@ function FileItem({
           aria-label={`View ${fileName}`}
           onMouseEnter={() => eyeIconRef.current?.startAnimation?.()}
           onMouseLeave={() => eyeIconRef.current?.stopAnimation?.()}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            requireAuth(e);
+          }}
         >
           <EyeIcon ref={eyeIconRef} size={16} />
         </a>
@@ -96,7 +102,10 @@ function FileItem({
           aria-label={`Download ${fileName}`}
           onMouseEnter={() => downloadIconRef.current?.startAnimation?.()}
           onMouseLeave={() => downloadIconRef.current?.stopAnimation?.()}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            requireAuth(e);
+          }}
         >
           <DownloadIcon ref={downloadIconRef} size={16} />
         </a>

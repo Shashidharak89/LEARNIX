@@ -13,6 +13,7 @@ import {
     ShareIcon,
     ExternalLinkIcon,
 } from "@animateicons/react/lucide";
+import { useMaterialsAuthGuard } from "@/app/materials/useMaterialsAuthGuard";
 
 const hasMatchingDescendant = (node, type, query) => {
     if (!query) return false;
@@ -143,6 +144,7 @@ export default function SMDirectoryNode({
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
+    const { requireAuth } = useMaterialsAuthGuard();
 
     const prefId = `${type}_${data._id}`;
     const [isPinned, setIsPinned] = useState(false);
@@ -560,7 +562,8 @@ export default function SMDirectoryNode({
             ) : (
                 <div className="sm-tree-file-item" style={{ marginTop: "8px", marginBottom: "8px", marginLeft: level > 0 ? "16px" : "0" }}>
                     <div 
-                        onClick={() => {
+                        onClick={(e) => {
+                            if (!requireAuth(e)) return;
                             const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(data.fileurl)}`;
                             window.open(viewUrl, "_blank", "noopener,noreferrer");
                         }}
@@ -617,6 +620,7 @@ export default function SMDirectoryNode({
                             className="sm-tree-file-download-btn"
                             onClick={(e) => {
                                 e.stopPropagation();
+                                if (!requireAuth(e)) return;
                                 window.open(data.fileurl, "_blank", "noopener,noreferrer");
                             }}
                             onMouseEnter={() => downloadIconRef.current?.startAnimation?.()}
@@ -638,11 +642,15 @@ export default function SMDirectoryNode({
                             displayName={displayName}
                             isPinned={false}
                             onOpen={() => {
+                                if (!requireAuth()) return;
                                 const viewUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(data.fileurl)}`;
                                 window.open(viewUrl, "_blank", "noopener,noreferrer");
                             }}
                             onShare={handleShare}
-                            onDownload={() => window.open(data.fileurl, "_blank", "noopener,noreferrer")}
+                            onDownload={() => {
+                                if (!requireAuth()) return;
+                                window.open(data.fileurl, "_blank", "noopener,noreferrer");
+                            }}
                         />
                         </div>
                     </div>
