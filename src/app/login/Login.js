@@ -396,13 +396,6 @@ export default function Login({ googleClientId = "" }) {
 
         {/* RIGHT SIDE: Dedicated Apple Widget Options Panel */}
         <div className="lgn-right">
-          <div className="lgn-right-head">
-            <h2 className="lgn-right-title">Sign in another way</h2>
-            <p className="lgn-right-desc">
-              Use Google or email, or explore Learnix as a guest.
-            </p>
-          </div>
-
           <div className="lgn-google-panel">
             <div className="lgn-google-intro">
               <strong>Login / Register with Google</strong>

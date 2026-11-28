@@ -243,30 +243,6 @@
   position: relative;
 }
 
-.lgn-right-head {
-  padding: 1rem 1.1rem;
-  margin-bottom: 1rem;
-  border: 1px solid #dbeafe;
-  border-radius: 20px;
-  background: linear-gradient(145deg, #ffffff 0%, #f0f9ff 100%);
-  box-shadow: 0 5px 16px rgba(15, 23, 42, 0.045), inset 0 1px 0 #ffffff;
-}
-
-.lgn-right-title {
-  font-size: 1.18rem;
-  color: #0f172a;
-  font-weight: 750;
-  margin: 0 0 0.35rem 0;
-  letter-spacing: -0.015em;
-}
-
-.lgn-right-desc {
-  color: #475569;
-  font-size: 0.88rem;
-  margin: 0;
-  line-height: 1.45;
-}
-
 .lgn-google-intro {
   display: grid;
   gap: 4px;
@@ -518,10 +494,6 @@
   .lgn-header {
     padding: 1rem;
     border-radius: 18px;
-  }
-
-  .lgn-right-head {
-    padding: .9rem 1rem;
   }
 
   .lgn-google-panel {
