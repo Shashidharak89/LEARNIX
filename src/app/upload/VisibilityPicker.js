@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { FiCheck, FiChevronDown, FiGlobe, FiLink, FiLock } from "react-icons/fi";
 import "./styles/VisibilityPicker.css";
 
@@ -12,14 +13,17 @@ const OPTIONS = [
 
 export default function VisibilityPicker({ visibility = "public", onChange, disabled = false, saving = false }) {
   const [open, setOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState(null);
   const rootRef = useRef(null);
+  const triggerRef = useRef(null);
+  const menuRef = useRef(null);
   const current = OPTIONS.find((option) => option.value === visibility) || OPTIONS[0];
   const CurrentIcon = current.Icon;
 
   useEffect(() => {
     if (!open) return undefined;
     const handlePointerDown = (event) => {
-      if (!rootRef.current?.contains(event.target)) setOpen(false);
+      if (!rootRef.current?.contains(event.target) && !menuRef.current?.contains(event.target)) setOpen(false);
     };
     const handleKeyDown = (event) => {
       if (event.key === "Escape") setOpen(false);
@@ -32,12 +36,40 @@ export default function VisibilityPicker({ visibility = "public", onChange, disa
     };
   }, [open]);
 
+  const updateMenuPosition = useCallback(() => {
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+    const rect = trigger.getBoundingClientRect();
+    const menuWidth = Math.min(270, window.innerWidth - 32);
+    const menuHeight = menuRef.current?.getBoundingClientRect().height || 190;
+    const left = Math.max(16, Math.min(rect.left, window.innerWidth - menuWidth - 16));
+    const top = rect.bottom + menuHeight + 8 > window.innerHeight
+      ? Math.max(16, rect.top - menuHeight - 8)
+      : rect.bottom + 8;
+    setMenuPosition({ top, left });
+  }, []);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    updateMenuPosition();
+    const frame = window.requestAnimationFrame(updateMenuPosition);
+    window.addEventListener("resize", updateMenuPosition);
+    window.addEventListener("scroll", updateMenuPosition, true);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", updateMenuPosition);
+      window.removeEventListener("scroll", updateMenuPosition, true);
+    };
+  }, [open, updateMenuPosition]);
+
   const selectVisibility = async (value) => {
     if (value === visibility) {
+      setMenuPosition(null);
       setOpen(false);
       return;
     }
     await onChange(value);
+    setMenuPosition(null);
     setOpen(false);
   };
 
@@ -45,6 +77,7 @@ export default function VisibilityPicker({ visibility = "public", onChange, disa
     <div className="upload-visibility" ref={rootRef} onClick={(event) => event.stopPropagation()}>
       <button
         type="button"
+        ref={triggerRef}
         className={`upload-visibility-trigger is-${current.value}`}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -53,6 +86,7 @@ export default function VisibilityPicker({ visibility = "public", onChange, disa
         disabled={disabled || saving}
         onClick={(event) => {
           event.stopPropagation();
+          setMenuPosition(null);
           setOpen((value) => !value);
         }}
       >
@@ -61,8 +95,15 @@ export default function VisibilityPicker({ visibility = "public", onChange, disa
         <FiChevronDown className={`upload-visibility-chevron${open ? " is-open" : ""}`} aria-hidden="true" />
       </button>
 
-      {open && (
-        <div className="upload-visibility-menu" role="listbox" aria-label="Choose visibility">
+      {open && typeof document !== "undefined" && createPortal(
+        <div
+          ref={menuRef}
+          className="upload-visibility-menu is-portal"
+          style={menuPosition ? { top: menuPosition.top, left: menuPosition.left } : { visibility: "hidden" }}
+          role="listbox"
+          aria-label="Choose visibility"
+          onClick={(event) => event.stopPropagation()}
+        >
           <div className="upload-visibility-menu-heading">Change visibility</div>
           {OPTIONS.map(({ value, label, description, Icon }) => (
             <button
@@ -85,7 +126,8 @@ export default function VisibilityPicker({ visibility = "public", onChange, disa
               {value === current.value && <FiCheck className="upload-visibility-option-check" aria-hidden="true" />}
             </button>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

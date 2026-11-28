@@ -52,7 +52,7 @@
 
 /* When 3-dot menu popup is open, elevate this card above all siblings */
 .sg-card--menu-open {
-  z-index: 99999 !important;
+  z-index: 1000 !important;
   position: relative !important;
 }
 

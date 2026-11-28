@@ -14,7 +14,7 @@
   border: 1.5px solid #2563eb;
   color: #2563eb;
   cursor: pointer;
-  z-index: 999999 !important;
+  z-index: 999 !important;
   display: flex;
   align-items: center;
   justify-content: center;

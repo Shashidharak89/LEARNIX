@@ -68,7 +68,7 @@
 /* Elevate the card whose menu is open so the dropdown floats above all sibling cards */
 .tc-card--menu-open,
 .tc-card:has(.tc-menu-btn--active) {
-  z-index: 99999 !important;
+  z-index: 1000 !important;
   position: relative !important;
 }
 
