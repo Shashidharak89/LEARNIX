@@ -9,9 +9,18 @@ import { Navbar } from "../../components/Navbar";
 import ImageLoader from "../../components/ImageLoader";
 import ImageSlideshowModal from "../../components/ImageSlideshowModal";
 import QPSkeletonLoader from "../QPSkeletonLoader";
+import QPAuthGate from "../QPAuthGate";
 import "../../resources/[id]/styles/WorkTopicPage.css"; // Reuse styling from resources page
 
 export default function QPSubjectClient() {
+    return (
+        <QPAuthGate>
+            <QPSubjectClientInner />
+        </QPAuthGate>
+    );
+}
+
+function QPSubjectClientInner() {
     const params = useParams();
     const id = params?.id;
     

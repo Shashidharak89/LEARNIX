@@ -19,6 +19,7 @@ import { FaChevronDown } from "react-icons/fa6";
 import { EyeIcon } from "@animateicons/react/lucide";
 import { Navbar } from "../../components/Navbar";
 import ImageSlideshowModal from "../../components/ImageSlideshowModal";
+import QPAuthGate from "../QPAuthGate";
 import {
   toggleLearnLaterClient,
   checkLearnLaterStatusClient,
@@ -83,6 +84,14 @@ const ContentSkeleton = () => (
 );
 
 export default function QPFilterClient() {
+  return (
+    <QPAuthGate>
+      <QPFilterClientInner />
+    </QPAuthGate>
+  );
+}
+
+function QPFilterClientInner() {
   const searchParams = useSearchParams();
   const qpTargetId = searchParams.toString() || "filtered-qp";
   const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(() => isItemInLearnLaterStorage("question-paper", qpTargetId));

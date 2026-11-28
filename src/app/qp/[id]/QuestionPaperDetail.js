@@ -19,6 +19,7 @@ import {
   checkLearnLaterStatusClient,
   isItemInLearnLaterStorage,
 } from "@/lib/clientLearnLater";
+import QPAuthGate from "../QPAuthGate";
 import "./styles/QuestionPaperDetail.css";
 
 // Skeleton Components
@@ -88,6 +89,14 @@ const FullPageSkeleton = () => (
 );
 
 const QuestionPaperDetail = ({ id, paperInfo }) => {
+  return (
+    <QPAuthGate>
+      <QuestionPaperDetailInner id={id} paperInfo={paperInfo} />
+    </QPAuthGate>
+  );
+};
+
+const QuestionPaperDetailInner = ({ id, paperInfo }) => {
   const paperTargetId = String(id || paperInfo?._id || "");
   const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(() => isItemInLearnLaterStorage("question-paper", paperTargetId));
   const [isLearnLaterLoading, setIsLearnLaterLoading] = useState(false);

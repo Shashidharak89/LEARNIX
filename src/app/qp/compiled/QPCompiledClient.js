@@ -8,6 +8,7 @@ import { Navbar } from "../../components/Navbar";
 import ImageLoader from "../../components/ImageLoader";
 import ImageSlideshowModal from "../../components/ImageSlideshowModal";
 import QPSkeletonLoader from "../QPSkeletonLoader";
+import QPAuthGate from "../QPAuthGate";
 import {
     toggleLearnLaterClient,
     checkLearnLaterStatusClient,
@@ -16,6 +17,14 @@ import {
 import "../../resources/[id]/styles/WorkTopicPage.css"; 
 
 export default function QPCompiledClient() {
+    return (
+        <QPAuthGate>
+            <QPCompiledClientInner />
+        </QPAuthGate>
+    );
+}
+
+function QPCompiledClientInner() {
     const searchParams = useSearchParams();
     const qpTargetId = searchParams.toString() || "compiled-qp";
     const [isSavedInLearnLater, setIsSavedInLearnLater] = useState(() => isItemInLearnLaterStorage("question-paper", qpTargetId));
