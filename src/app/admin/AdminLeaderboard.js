@@ -305,7 +305,17 @@ export default function AdminLeaderboard({ token: propToken }) {
 
                   {/* Avatar & User Details */}
                   <div className="alb-user-col">
-                    <div className="alb-avatar-wrap">
+                    <Link
+                      href={user.usn ? `/users/${encodeURIComponent(user.usn)}` : "#"}
+                      className={`alb-avatar-wrap${user.usn ? " is-clickable" : " is-disabled"}`}
+                      aria-label={user.usn ? `View ${user.name || user.usn}'s public profile` : "Public profile unavailable"}
+                      aria-disabled={!user.usn}
+                      tabIndex={user.usn ? 0 : -1}
+                      onClick={(event) => {
+                        if (!user.usn) event.preventDefault();
+                      }}
+                      title={user.usn ? "View public profile" : "Public profile unavailable"}
+                    >
                       <Image
                         src={user.profileimg || DEFAULT_AVATAR}
                         alt={user.name || "User"}
@@ -314,7 +324,7 @@ export default function AdminLeaderboard({ token: propToken }) {
                         className="alb-avatar"
                         unoptimized
                       />
-                    </div>
+                    </Link>
                     <div className="alb-user-meta">
                       <div className="alb-user-name-row">
                         <span className="alb-user-name">{user.name}</span>

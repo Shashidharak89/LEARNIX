@@ -381,8 +381,19 @@
 }
 
 .alb-avatar-wrap {
+  display: block;
   flex-shrink: 0;
+  border-radius: 50%;
+  line-height: 0;
+  text-decoration: none;
 }
+
+.alb-avatar-wrap.is-clickable { cursor: pointer; transition: transform 160ms ease; }
+.alb-avatar-wrap.is-clickable:hover { transform: scale(1.07); }
+.alb-avatar-wrap.is-clickable:focus-visible { outline: 3px solid #38bdf8; outline-offset: 3px; }
+.alb-avatar-wrap.is-disabled { cursor: default; pointer-events: none; }
+.alb-avatar-wrap.is-clickable .alb-avatar { transition: box-shadow 160ms ease, border-color 160ms ease; }
+.alb-avatar-wrap.is-clickable:hover .alb-avatar { border-color: #bae6fd; box-shadow: 0 3px 10px rgba(2, 132, 199, 0.22); }
 
 .alb-avatar {
   border-radius: 50%;
