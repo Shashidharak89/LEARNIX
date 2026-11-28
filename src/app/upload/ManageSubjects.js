@@ -73,6 +73,7 @@ export default function ManageSubjects() {
   const [authStatus, setAuthStatus] = useState("verifying"); // "verifying" | "authenticated" | "unauthenticated"
   const [usn, setUsn] = useState("");
   const [subjects, setSubjects] = useState([]);
+  const [totalSubjects, setTotalSubjects] = useState(0);
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
   const [hasMore, setHasMore] = useState(false);
@@ -149,6 +150,7 @@ export default function ManageSubjects() {
       const res = await axios.get("/api/work/get", { params, headers });
       const fetched = res.data.subjects || [];
       const total = res.data.paging?.total || 0;
+      setTotalSubjects(total);
       if (append) setSubjects((prev) => [...prev, ...fetched]);
       else setSubjects(fetched);
       setPage(pageNum);
@@ -470,9 +472,9 @@ export default function ManageSubjects() {
             </span>
             <h2 className="ms-section-title">Subjects &amp; Topics</h2>
           </div>
-          {subjects.length > 0 && (
+          {authStatus === "authenticated" && (
             <span className="ms-section-count-pill">
-              {subjects.length} {subjects.length === 1 ? "Subject" : "Subjects"}
+              {totalSubjects} {totalSubjects === 1 ? "Subject" : "Subjects"}
             </span>
           )}
         </div>
