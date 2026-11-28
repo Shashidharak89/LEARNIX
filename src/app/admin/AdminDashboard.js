@@ -12,6 +12,7 @@ import {
   FiCode,
   FiDatabase,
   FiSearch,
+  FiCreditCard,
   FiArrowUpRight,
 } from "react-icons/fi";
 import { MdAdminPanelSettings, MdOutlineSupervisorAccount } from "react-icons/md";
@@ -102,6 +103,12 @@ const ADMIN_NAV_ITEMS = [
     title: "Searches",
     icon: <FiSearch size={20} />,
     colorTheme: "amber",
+  },
+  {
+    href: "/admin/payments",
+    title: "Payments",
+    icon: <FiCreditCard size={20} />,
+    colorTheme: "emerald",
   },
 ];
 
